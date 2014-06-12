@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kidoju</title>
+
+    <!-- cordova -->
+    <link rel="stylesheet" href="./styles/2014.1.603/kendo.common.min.css">
+    <link rel="stylesheet" href="./styles/2014.1.603/kendo.default.min.css">
+    <link rel="stylesheet" href="./styles/2014.1.603/kendo.default.mobile.min.css">
+    <link rel="stylesheet" href="./styles/app.css">
+    <script src="./js/2014.1.603/jquery.min.js"></script>
+    <script src="./js/2014.1.603/kendo.all.min.js"></script>
+    <!--script async src="./js/kidoju.widgets.min.js"></script-->
+</head>
+<body>
+<!-- Home page with the list of Kidojus on the device -->
+<div data-role="view" id="home" data-layout="layout">
+    Hello
+</div>
+<!-- Search drawer to find and download Kidojus from the cloud -->
+<div data-role="drawer" id="search" data-views="['home']">
+    <header data-role="header">Search</header>
+    <a href="#home" data-transition="none">Home</a>
+</div>
+
+<div data-role="layout" data-id="drawer-layout">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a data-role="button" data-rel="drawer" href="#search" data-icon="drawer-button" data-align="left"></a>
+            <span data-role="view-title">Coucou</span>
+            <a data-align="right" data-role="button" class="nav-button" href="#">Index</a>
+        </div>
+    </header>
+</div>
+<script src="./js/app.js"></script>
+</body>
+</html>
