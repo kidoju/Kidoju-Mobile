@@ -1,4 +1,4 @@
-# Kidoju UI
+# Kidoju Mobile UI
 
 >  Todo ...
 
