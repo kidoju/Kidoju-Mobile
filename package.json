@@ -1,0 +1,16 @@
+{
+    "name": "Kidoju.Mobile",
+    "version": "0.0.1",
+    "description": "A better way to teach and learn.",
+    "author": "Memba Sarl",
+    "main": "www/index.html",
+    "scripts": {
+        "test": "grunt test",
+        "start": "emulator.cmd"
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+    },
+    "engine": "node 0.10.x"
+}
