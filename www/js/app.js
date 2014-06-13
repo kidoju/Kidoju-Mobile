@@ -8,7 +8,7 @@
 
 (function ($, undefined) {
 
-    "use strict";
+    'use strict';
 
     var fn = Function,
         global = fn('return this')(),
@@ -16,7 +16,7 @@
 
     $(document).ready(function() {
 
-        var kendoApp = new kendo.mobile.Application(document.body);
+        var kendoApp = new global.kendo.mobile.Application(document.body);
 
 
 

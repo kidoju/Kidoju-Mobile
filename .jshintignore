@@ -1,0 +1,10 @@
+.cordova
+hooks
+merges
+node_modules
+nodejs
+platforms
+plugins
+temp
+www/js/2014.*
+www/js/vendor

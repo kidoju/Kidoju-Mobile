@@ -6,7 +6,7 @@
 /* jslint node: true */
 /* jshint node: true */
 
-"use strict";
+'use strict';
 
 module.exports = function (grunt) {
 
@@ -32,12 +32,15 @@ module.exports = function (grunt) {
             files: ['gruntfile.js', 'www/js/*.js'],
             options: {
                 // options here to override JSHint defaults
-                globals: {
-                    jQuery: true,
-                    console: true,
-                    module: true,
-                    document: true
-                }
+                jshintrc: '.jshintrc'
+                /*
+                 globals: {
+                 jQuery: true,
+                 console: true,
+                 module: true,
+                 document: true
+                 }
+                 */
             }
         },
         kendo_lint: { // TODO: html too

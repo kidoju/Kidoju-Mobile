@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+'use strict';
+
 var app = {
     // Application Constructor
     initialize: function() {
@@ -41,6 +43,6 @@ var app = {
         listeningElement.setAttribute('style', 'display:none;');
         receivedElement.setAttribute('style', 'display:block;');
 
-        console.log('Received Event: ' + id);
+        window.console.log('Received Event: ' + id);
     }
 };
