@@ -1,0 +1,8 @@
+/*Generic styles*/
+.kj-justify {
+  text-align: center;
+}
+/*Search drawer*/
+input[type=search] {
+  border-radius: 1.06em;
+}

@@ -2,33 +2,59 @@
 <html>
 <head>
     <title>Kidoju</title>
-
-    <!-- cordova -->
     <link rel="stylesheet" href="./styles/2014.1.603/kendo.common.min.css">
     <link rel="stylesheet" href="./styles/2014.1.603/kendo.default.min.css">
     <link rel="stylesheet" href="./styles/2014.1.603/kendo.default.mobile.min.css">
     <link rel="stylesheet" href="./styles/app.css">
     <script src="./js/2014.1.603/jquery.min.js"></script>
     <script src="./js/2014.1.603/kendo.all.min.js"></script>
-    <!--script async src="./js/kidoju.widgets.min.js"></script-->
+    <!-- cordova -->
+    <!--script src="./js/kidoju.widgets.min.js"></script-->
 </head>
 <body>
 <!-- Home page with the list of Kidojus on the device -->
 <div data-role="view" id="home" data-layout="layout">
-    Hello
+    <ul id="main-list" data-role="listview">
+        <li>Result1</li>
+        <li>Result2</li>
+    </ul>
 </div>
+<script type="text/x-kendo-template" id="main-list-template">
+    <div class="product">
+        <img src="../content/web/foods/#=ProductID#.jpg" alt="#=ProductName# image" class="pullImage"/>
+        <h3>#:ProductName#</h3>
+        <p>#:kendo.toString(UnitPrice, "c")#</p>
+    </div>
+</script>
 <!-- Search drawer to find and download Kidojus from the cloud -->
-<div data-role="drawer" id="search" data-views="['home']">
-    <header data-role="header">Search</header>
-    <a href="#home" data-transition="none">Home</a>
+<div data-role="drawer" id="search-drawer" data-views="['home']">
+    <header class="km-header">
+        <div class="km-widget km-navbar kj-justify">
+            <span>
+                <input id="search-input" type="search" class="k-textbox" />
+                <span class="k-icon k-i-search"></span>
+                <span class="km-view-title"></span><!--sets the height-->
+            </span>
+        </div>
+    </header>
+    <ul id="search-list" data-role="listview">
+        <li>Result1</li>
+        <li>Result2</li>
+    </ul>
 </div>
-
-<div data-role="layout" data-id="drawer-layout">
+<script type="text/x-kendo-template" id="search-list-template">
+    <div class="product">
+        <img src="../content/web/foods/#=ProductID#.jpg" alt="#=ProductName# image" class="pullImage"/>
+        <h3>#:ProductName#</h3>
+        <p>#:kendo.toString(UnitPrice, "c")#</p>
+    </div>
+</script>
+<!-- Layout of main page (not drawer) -->
+<div data-role="layout" data-id="layout">
     <header data-role="header">
         <div data-role="navbar">
-            <a data-role="button" data-rel="drawer" href="#search" data-icon="drawer-button" data-align="left"></a>
-            <span data-role="view-title">Coucou</span>
-            <a data-align="right" data-role="button" class="nav-button" href="#">Index</a>
+            <a data-role="button" data-rel="drawer" href="#search-drawer" data-icon="drawer-button" data-align="left"></a>
+            <span data-role="view-title">Kidoju Logo</span>
         </div>
     </header>
 </div>
