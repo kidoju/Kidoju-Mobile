@@ -16,7 +16,9 @@ module.exports = function (grunt) {
             unit: { //In browser unit tests
                 src: ['test/unit/*.html'],
                 options: {
-                    run: true
+                    run: true,
+                    log: true,
+                    debug: true
                 }
             }
         },

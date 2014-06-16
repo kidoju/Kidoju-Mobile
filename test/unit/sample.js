@@ -8,7 +8,7 @@
 
 "use strict";
 
-describe('Test PageItemCollectionDataSource', function() {
+describe('Sample Test', function() {
 
     describe('When doing something', function() {
         it('We expect something else', function() {

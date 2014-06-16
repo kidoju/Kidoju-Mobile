@@ -6,20 +6,19 @@
 /* jslint browser: true */
 /* jshint browser: true */
 
-(function ($, undefined) {
+'use strict';
 
-    'use strict';
+(function ($, undefined) {
 
     var fn = Function,
         global = fn('return this')(),
         app = global.app = global.app || {};
 
-    $(document).ready(function() {
-
-        var kendoApp = new global.kendo.mobile.Application(document.body);
+    app.models = {
 
 
 
-    });
+
+    };
 
 }(jQuery));
