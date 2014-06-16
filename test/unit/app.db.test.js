@@ -241,12 +241,22 @@ describe('Test app.db.js', function() {
     });
 
     describe('When iterating through records from the database', function() {
-        it('We expect to retriev updated content', function(done) {
+        it('We expect to retrieve updated contents', function(done) {
             waitForData();
-            testData.content1.title = "My updated title for content1";
-            app.db.collection('contents').update(testData.content1).done(function(id, event){
+            var count = 0;
+            app.db.collection('contents').each(function(item) {
+                if (item.key === testData.content1.id) {
+                    assert(item.value, testData.content1);
+                } else if (item.key === testData.content2.id) {
+                    assert(item.value, testData.content2);
+                } else {
+                    assert(false).to.equal(true);
+                }
+                count++;
+            }).done(function(nullObj, event){
+                expect(nullObj).to.be.null;
                 expect(event).to.have.property('type', 'success');
-                expect(id).to.equal(testData.content1.id);
+                expect(count).to.equal(2);
                 done();
             }).fail(function(err, exception){
                 expect(err).to.be.null;
@@ -256,12 +266,103 @@ describe('Test app.db.js', function() {
         });
         it('We expect to retrieve updated activities', function(done) {
             waitForData();
-            testData.content2.title = "My updated title for content2";
-            app.db.collection('contents').update(testData.content2).done(function(id, event){
+            var count = 0;
+            app.db.collection('activities').each(function(item) {
+                if (item.key === testData.activity1.id) {
+                    assert(item.value, testData.activity1);
+                } else if (item.key === testData.activity2.id) {
+                    assert(item.value, testData.activity2);
+                } else {
+                    assert(false).to.equal(true);
+                }
+                count++;
+            }).done(function(nullObj, event){
+                expect(nullObj).to.be.null;
                 expect(event).to.have.property('type', 'success');
-                expect(id).to.equal(testData.content2.id);
+                expect(count).to.equal(2);
                 done();
             }).fail(function(err, exception){
+                expect(err).to.be.null;
+                expect(false).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('When removing a record from the database', function() {
+        it('We expect success for content1', function(done) {
+            waitForData();
+            app.db.collection('contents').remove(testData.content1.id).done(function(undefObj, event){
+                expect(undefObj).to.be.undefined;
+                expect(event).to.have.property('type', 'success');
+                done();
+            }).fail(function(err){
+                expect(err).to.be.null;
+                expect(false).to.be.true;
+                done();
+            });
+        });
+        it('We expect success for activity1', function(done) {
+            waitForData();
+            app.db.collection('activities').remove(testData.activity1.id).done(function(undefObj, event){
+                expect(undefObj).to.be.undefined;
+                expect(event).to.have.property('type', 'success');
+                done();
+            }).fail(function(err){
+                expect(err).to.be.null;
+                expect(false).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('When counting records from the database', function() {
+        it('We expect 1 for contents', function(done) {
+            waitForData();
+            app.db.collection('contents').count().done(function(total, event){
+                expect(total).to.equal(1);
+                expect(event).to.have.property('type', 'success');
+                done();
+            }).fail(function(err){
+                expect(err).to.be.null;
+                expect(false).to.be.true;
+                done();
+            });
+        });
+        it('We expect 1 for activities', function(done) {
+            waitForData();
+            app.db.collection('activities').count().done(function(total, event){
+                expect(total).to.equal(1);
+                expect(event).to.have.property('type', 'success');
+                done();
+            }).fail(function(err){
+                expect(err).to.be.null;
+                expect(false).to.be.true;
+                done();
+            });
+        });
+    });
+
+    describe('When clearing object stores', function() {
+        it('We expect success for contents', function(done) {
+            waitForData();
+            app.db.collection('contents').clear().done(function(undefObj, event){
+                expect(undefObj).to.be.undefined;
+                expect(event).to.have.property('type', 'success');
+                done();
+            }).fail(function(err){
+                expect(err).to.be.null;
+                expect(false).to.be.true;
+                done();
+            });
+        });
+        it('We expect success for activities', function(done) {
+            waitForData();
+            app.db.collection('activities').clear().done(function(undefObj, event){
+                expect(undefObj).to.be.undefined;
+                expect(event).to.have.property('type', 'success');
+                done();
+            }).fail(function(err){
                 expect(err).to.be.null;
                 expect(false).to.be.true;
                 done();

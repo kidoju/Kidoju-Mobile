@@ -125,19 +125,29 @@
                 /**
                  * Iterate through records with/without an index key
                  * Can be called as iterator(callback) to iterate without index
-                 * or as iterator(key, callback) to use an index key
-                 * @param key
+                 * or as iterator(index, callback) to use an index key
+                 * @param index
                  * @param callback
                  * @returns {*} - a jQuery promise
                  */
-                iterator: function (key, callback) {
-                    app.db.log('iterate ' + table + ' records');
-                    if ($.type(key) === 'function' && callback === undefined) {
-                        callback = key;
+                each: function (index, callback) {
+                    app.db.log('iterate over ' + table + ' records');
+                    if ($.type(index) === 'function' && callback === undefined) {
+                        callback = index;
                         return $.indexedDB(DB_NAME).objectStore(table).each(callback);
                     } else {
-                        return $.indexedDB(DB_NAME).objectStore(table).index(key).each(callback);
+                        return $.indexedDB(DB_NAME).objectStore(table).index(index).each(callback);
                     }
+                },
+
+                /**
+                 * count the number of records in the objectStore
+                 * @param callback
+                 * @returns {*}
+                 */
+                count: function(callback) {
+                    app.db.log('count ' + table + ' records');
+                    return $.indexedDB(DB_NAME).objectStore(table).count(callback);
                 }
             }
         }

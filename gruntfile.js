@@ -17,8 +17,8 @@ module.exports = function (grunt) {
                 src: ['test/unit/*.html'],
                 options: {
                     run: true,
-                    //log: true,
-                    //debug: true,
+                    log: true,
+                    debug: true,
                     timeout: 5000
                 }
             }
