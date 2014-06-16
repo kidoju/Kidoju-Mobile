@@ -143,6 +143,4 @@
         }
     };
 
-    console.log(MODULE + 'loaded');
-
 }(jQuery));

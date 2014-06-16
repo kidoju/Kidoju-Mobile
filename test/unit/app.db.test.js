@@ -52,8 +52,6 @@ function waitForData(count) {
 describe('Test app.db.js', function() {
 
     before(function(done) {
-        console.log('app.db expected here');
-        //See https://github.com/axemclion/jquery-indexeddb/blob/gh-pages/test/index.html
         app.db.drop().done(done);
     });
 
@@ -242,5 +240,33 @@ describe('Test app.db.js', function() {
         });
     });
 
+    describe('When iterating through records from the database', function() {
+        it('We expect to retriev updated content', function(done) {
+            waitForData();
+            testData.content1.title = "My updated title for content1";
+            app.db.collection('contents').update(testData.content1).done(function(id, event){
+                expect(event).to.have.property('type', 'success');
+                expect(id).to.equal(testData.content1.id);
+                done();
+            }).fail(function(err, exception){
+                expect(err).to.be.null;
+                expect(false).to.be.true;
+                done();
+            });
+        });
+        it('We expect to retrieve updated activities', function(done) {
+            waitForData();
+            testData.content2.title = "My updated title for content2";
+            app.db.collection('contents').update(testData.content2).done(function(id, event){
+                expect(event).to.have.property('type', 'success');
+                expect(id).to.equal(testData.content2.id);
+                done();
+            }).fail(function(err, exception){
+                expect(err).to.be.null;
+                expect(false).to.be.true;
+                done();
+            });
+        });
+    });
 
 });
