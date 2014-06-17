@@ -6,7 +6,7 @@
 /* jslint browser: true */
 /* jshint browser: true */
 
-(function ($, undefined) {
+;(function ($, undefined) {
 
     'use strict';
 

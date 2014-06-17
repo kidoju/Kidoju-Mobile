@@ -6,7 +6,7 @@
 /* jslint browser: true */
 /* jshint browser: true */
 
-"use strict";
+'use strict';
 
 function assert(expected, actual) {
     for (var prop in expected) {

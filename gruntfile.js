@@ -28,6 +28,7 @@ module.exports = function (grunt) {
             ui: {
                 src: ['test/ui/*.js'],
                 options: {
+                    debug: true,
                     reporter: 'spec'
                 }
             }
