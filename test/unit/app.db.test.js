@@ -25,25 +25,33 @@ function assert(expected, actual) {
 }
 
 var created;
-function waitForDB(count) {
-    if (count === undefined) count = 10;
-    if(count < 0) {
+function waitForDB(done, count) {
+    if (count === undefined) {
+        count = 10;
+    }
+    if (count < 0) {
         throw new Error('waitForDB is taking too long');
     } else {
-        if (!created) {
-            setTimeout(waitForDB(count - 1), 200);
+        if (created) {
+            done();
+        } else {
+            setTimeout(waitForDB(done, count - 1), 200);
         }
     }
 }
 
 var content_id1, content_id2, activity_id1, activity_id2;
-function waitForData(count) {
-    if (count === undefined) count = 10;
+function waitForData(done, count) {
+    if (count === undefined) {
+        count = 10;
+    }
     if (count < 0) {
         throw new Error('waitForData is taking too long');
     } else {
-        if (!(content_id1 && content_id2 && activity_id1 && activity_id2)) {
-            setTimeout(waitForData(count - 1), 200);
+        if (content_id1 && content_id2 && activity_id1 && activity_id2) {
+            done();
+        } else {
+            setTimeout(waitForData(done, count - 1), 200);
         }
     }
 }
@@ -80,8 +88,10 @@ describe('Test app.db.js', function() {
     });
 
     describe('When inserting a record into the database', function() {
+        before(function(done) {
+            waitForDB(done);
+        });
         it('We expect success for content1', function(done) {
-            waitForDB();
             app.db.collection('contents').insert(testData.content1).done(function(id, event){
                 expect(event).to.have.property('type', 'success');
                 expect(id).to.equal(testData.content1.id);
@@ -94,7 +104,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect success for content2', function(done) {
-            waitForDB();
             app.db.collection('contents').insert(testData.content2).done(function(id, event){
                 expect(event).to.have.property('type', 'success');
                 expect(id).to.equal(testData.content2.id);
@@ -107,7 +116,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect success for activity1', function(done) {
-            waitForDB();
             app.db.collection('activities').insert(testData.activity1).done(function(id, event){
                 expect(event).to.have.property('type', 'success');
                 expect(id).to.equal(testData.activity1.id);
@@ -120,7 +128,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect success for activity2', function(done) {
-            waitForDB();
             app.db.collection('activities').insert(testData.activity2).done(function(id, event){
                 expect(event).to.have.property('type', 'success');
                 expect(id).to.equal(testData.activity2.id);
@@ -135,8 +142,10 @@ describe('Test app.db.js', function() {
     });
 
     describe('When retrieving a record from the database', function() {
+        before(function(done) {
+            waitForData(done);
+        });
         it('We expect to retrieve content1', function(done) {
-            waitForData();
             app.db.collection('contents').find(testData.content1.id).done(function(result, event){
                 expect(event).to.have.property('type', 'success');
                 assert(result, testData.content1);
@@ -148,7 +157,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect to retrieve content2', function(done) {
-            waitForData();
             app.db.collection('contents').find(testData.content2.id).done(function(result, event){
                 expect(event).to.have.property('type', 'success');
                 assert(result, testData.content2);
@@ -160,7 +168,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect to retrieve activity1', function(done) {
-            waitForData();
             app.db.collection('activities').find(testData.activity1.id).done(function(result, event){
                 expect(event).to.have.property('type', 'success');
                 assert(result, testData.activity1);
@@ -172,7 +179,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect to retrieve activity2', function(done) {
-            waitForData();
             app.db.collection('activities').find(testData.activity2.id).done(function(result, event){
                 expect(event).to.have.property('type', 'success');
                 assert(result, testData.activity2);
@@ -186,8 +192,10 @@ describe('Test app.db.js', function() {
     });
 
     describe('When updating a record in the database', function() {
+        before(function(done) {
+            waitForData(done);
+        });
         it('We expect success for content1', function(done) {
-            waitForData();
             testData.content1.title = "My updated title for content1";
             app.db.collection('contents').update(testData.content1).done(function(id, event){
                 expect(event).to.have.property('type', 'success');
@@ -200,7 +208,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect success for content2', function(done) {
-            waitForData();
             testData.content2.title = "My updated title for content2";
             app.db.collection('contents').update(testData.content2).done(function(id, event){
                 expect(event).to.have.property('type', 'success');
@@ -213,7 +220,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect success for activity1', function(done) {
-            waitForData();
             testData.activity1.text = "My updated comment for activity1";
             app.db.collection('activities').update(testData.activity1).done(function(id, event){
                 expect(event).to.have.property('type', 'success');
@@ -226,7 +232,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect success for activity2', function(done) {
-            waitForData();
             testData.activity2.value = 5;
             app.db.collection('activities').update(testData.activity2).done(function(id, event){
                 expect(event).to.have.property('type', 'success');
@@ -241,8 +246,10 @@ describe('Test app.db.js', function() {
     });
 
     describe('When iterating through records from the database', function() {
+        before(function(done) {
+            waitForData(done);
+        });
         it('We expect to retrieve updated contents', function(done) {
-            waitForData();
             var count = 0;
             app.db.collection('contents').each(function(item) {
                 if (item.key === testData.content1.id) {
@@ -265,7 +272,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect to retrieve updated activities', function(done) {
-            waitForData();
             var count = 0;
             app.db.collection('activities').each(function(item) {
                 if (item.key === testData.activity1.id) {
@@ -290,8 +296,10 @@ describe('Test app.db.js', function() {
     });
 
     describe('When removing a record from the database', function() {
+        before(function(done) {
+            waitForData(done);
+        });
         it('We expect success for content1', function(done) {
-            waitForData();
             app.db.collection('contents').remove(testData.content1.id).done(function(undefObj, event){
                 expect(undefObj).to.be.undefined;
                 expect(event).to.have.property('type', 'success');
@@ -303,7 +311,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect success for activity1', function(done) {
-            waitForData();
             app.db.collection('activities').remove(testData.activity1.id).done(function(undefObj, event){
                 expect(undefObj).to.be.undefined;
                 expect(event).to.have.property('type', 'success');
@@ -317,8 +324,10 @@ describe('Test app.db.js', function() {
     });
 
     describe('When counting records from the database', function() {
+        before(function(done) {
+            waitForData(done);
+        });
         it('We expect 1 for contents', function(done) {
-            waitForData();
             app.db.collection('contents').count().done(function(total, event){
                 expect(total).to.equal(1);
                 expect(event).to.have.property('type', 'success');
@@ -330,7 +339,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect 1 for activities', function(done) {
-            waitForData();
             app.db.collection('activities').count().done(function(total, event){
                 expect(total).to.equal(1);
                 expect(event).to.have.property('type', 'success');
@@ -344,8 +352,10 @@ describe('Test app.db.js', function() {
     });
 
     describe('When clearing object stores', function() {
+        before(function(done) {
+            waitForData(done);
+        });
         it('We expect success for contents', function(done) {
-            waitForData();
             app.db.collection('contents').clear().done(function(undefObj, event){
                 expect(undefObj).to.be.undefined;
                 expect(event).to.have.property('type', 'success');
@@ -357,7 +367,6 @@ describe('Test app.db.js', function() {
             });
         });
         it('We expect success for activities', function(done) {
-            waitForData();
             app.db.collection('activities').clear().done(function(undefObj, event){
                 expect(undefObj).to.be.undefined;
                 expect(event).to.have.property('type', 'success');
