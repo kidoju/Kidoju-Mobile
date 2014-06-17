@@ -37,21 +37,21 @@
          */
         open: function() {
             return $.indexedDB(DB_NAME, {
-                "schema": {
-                    "1": function(versionTransaction){
-                        var contents = versionTransaction.createObjectStore("contents", {
-                            "autoIncrement": false,
-                            "keyPath": "id"
+                'schema': {
+                    '1': function(versionTransaction){
+                        var contents = versionTransaction.createObjectStore('contents', {
+                            'autoIncrement': false,
+                            'keyPath': 'id'
                         });
                         //contents.createIndex("timestamp");
-                        var activities = versionTransaction.createObjectStore("activities", {
-                            "autoIncrement": false,
-                            "keyPath": "id"
+                        var activities = versionTransaction.createObjectStore('activities', {
+                            'autoIncrement': false,
+                            'keyPath': 'id'
                         });
                         //activities.createIndex("timestamp");
                     }
                     // Continue with the following versions of the site
-                    // "2": function(versionTransaction){}
+                    // '2': function(versionTransaction){}
                 }
             });
         },
@@ -119,7 +119,7 @@
                  */
                 remove: function (id) {
                     app.db.log('remove ' + table + ' record');
-                    return $.indexedDB(DB_NAME).objectStore(table)["delete"](id);
+                    return $.indexedDB(DB_NAME).objectStore(table)['delete'](id);
                 },
 
                 /**
@@ -149,7 +149,7 @@
                     app.db.log('count ' + table + ' records');
                     return $.indexedDB(DB_NAME).objectStore(table).count(callback);
                 }
-            }
+            };
         }
     };
 

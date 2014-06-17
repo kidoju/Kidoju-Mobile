@@ -19,7 +19,8 @@ module.exports = function (grunt) {
                     run: true,
                     log: true,
                     debug: true,
-                    timeout: 5000
+                    timeout: 5000,
+                    reporter: 'Spec'
                 }
             }
         },

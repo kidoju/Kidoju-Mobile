@@ -8,3 +8,4 @@ plugins
 temp
 www/js/2014.*
 www/js/vendor
+www/js/kidoju.*.js
