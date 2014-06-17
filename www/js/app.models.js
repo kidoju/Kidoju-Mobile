@@ -6,9 +6,9 @@
 /* jslint browser: true */
 /* jshint browser: true */
 
-'use strict';
-
 (function ($, undefined) {
+
+    'use strict';
 
     var fn = Function,
         global = fn('return this')(),
