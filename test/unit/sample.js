@@ -3,17 +3,22 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-/* jslint node: true */
-/* jshint node: true */
+/* jslint browser: true, jQuery: true */
+/* jshint browser: true, jQuery: true */
+/* global describe, it, before, expect */
 
-"use strict";
+;(function() {
 
-describe('Sample Test', function() {
+    'use strict';
 
-    describe('When doing something', function() {
-        it('We expect something else', function() {
-            expect(true).to.equal(true);
+    describe('Sample Test', function () {
+
+        describe('When doing something', function () {
+            it('We expect something else', function () {
+                expect(true).to.equal(true);
+            });
         });
+
     });
 
-});
+}());
