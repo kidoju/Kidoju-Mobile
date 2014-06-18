@@ -34,7 +34,7 @@ module.exports = function (grunt) {
             }
         },
         jshint: {
-            files: ['gruntfile.js', 'www/js/*.js'],
+            files: ['gruntfile.js', 'www/js/*.js', 'www/js/cultures/*.js', 'test/unit/*.js', 'test/ui/*.js'],
             options: {
                 // options here to override JSHint defaults
                 jshintrc: '.jshintrc'

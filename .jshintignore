@@ -6,6 +6,7 @@ nodejs
 platforms
 plugins
 temp
+test/vendor
 www/js/2014.*
 www/js/vendor
 www/js/kidoju.*.js
