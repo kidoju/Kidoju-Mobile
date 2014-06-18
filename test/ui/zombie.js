@@ -16,7 +16,7 @@ describe('Test zombie.js', function() {
     before(function(done) {
         require('../../nodejs/http.server.js');
         this.browser = new Browser();
-        this.browser.visit('http://localhost:8080/www/index.html', done);
+        this.browser.visit('http://localhost:8080/www/index.html', { debug: true}, done);
     });
 
     describe('When page is loaded', function() {
