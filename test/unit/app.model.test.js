@@ -11,7 +11,7 @@
 
     'use strict';
 
-    describe('Sample Test', function () {
+    describe('Tes app.model.js', function () {
 
         describe('When doing something', function () {
             it('We expect something else', function (done) {
