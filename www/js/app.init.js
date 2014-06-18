@@ -39,7 +39,8 @@
      */
     app.onDeviceReady = function() {
         $(document).ready(function() {
-            var kendoApp = new global.kendo.mobile.Application(document.body);
+            app.kendoApp = new global.kendo.mobile.Application(document.body);
+            app.controller.localize();
         });
     };
 

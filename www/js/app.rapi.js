@@ -11,15 +11,24 @@
 
     'use strict';
 
-    //Compatibility with AMD and browser globals
-    //Source: https://github.com/umdjs/umd/blob/master/amdWeb.js
+    /**
+     * Compatibility with AMD and browser globals
+     * Source: https://github.com/umdjs/umd/blob/master/amdWeb.js
+     */
     if (typeof define === 'function' && define.amd) {
         // AMD
         define(['jquery'], factory);
     } else {
         // Browser globals
-        root.rapi = factory(root.$);
+        root.app = root.app || {};
+        root.app.rapi = factory(root.$);
     }
+
+    /**
+     * When html page is loaded, detect and parse #access_token (see oAuth callback)
+     * CAREFUL: getSecurityHeaders() is therefore not available until the HTML page is fully loaded!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     */
+    root.$(document).ready(root.app.rapi.util.onDocumentReady);
 
 }(this, function ($) {
 
@@ -59,19 +68,8 @@
     }
 
     /**
-     * When html page is loaded, detect and parse #access_token (see oAuth callback)
-     */
-    $(document).ready(function () {
-        if (!(global.chrome && $.isEmptyObject(global.chrome.app))) { //avoids an error in chrome packaged apps
-            rapi.util.log(MODULE + 'access_token: ' + rapi.util.getAccessToken());
-            rapi.util.parseAccessToken(window.location.href);
-            rapi.util.cleanHistory();
-        }
-    });
-
-    /**
      * Utility functions
-     * @type {{log: log, error: error, getSecurityHeaders: getSecurityHeaders, getAccessTokenHashPos: getAccessTokenHashPos, parseAccessToken: parseAccessToken, setAccessToken: setAccessToken, getAccessToken: getAccessToken, clearAccessToken: clearAccessToken, cleanUrl: cleanUrl, cleanHistory: cleanHistory}}
+     * @type {{log: log, error: error, getSecurityHeaders: getSecurityHeaders, getAccessTokenHashPos: getAccessTokenHashPos, parseToken: parseToken, setAccessToken: setAccessToken, getAccessToken: getAccessToken, clearAccessToken: clearAccessToken, cleanUrl: cleanUrl, cleanHistory: cleanHistory}}
      */
     rapi.util = {
 
@@ -133,7 +131,7 @@
          * @param url
          * @returns {{}}
          */
-        parseAccessToken: function (url) {
+        parseToken: function (url) {
             var pos1 = rapi.util.getAccessTokenHashPos(url), data = {};
             if (pos1 >= 0) {
                 //remove any trailing # and split along &
@@ -239,6 +237,17 @@
                 return { 'Authorization': 'Bearer ' + accessToken };
             }
             return {};
+        },
+
+        /**
+         * DOMready handler
+         */
+        onDocumentReady: function() {
+            if (!(global.chrome && $.isEmptyObject(global.chrome.app))) { //avoids an error in chrome packaged apps
+                rapi.util.log(MODULE + 'access_token = ' + rapi.util.getAccessToken());
+                rapi.util.parseToken(window.location.href);
+                rapi.util.cleanHistory();
+            }
         }
     };
 

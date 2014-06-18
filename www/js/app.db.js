@@ -13,23 +13,23 @@
     var fn = Function,
         global = fn('return this')(),
         app = global.app = global.app || {},
-
+        FUNCTION = 'function',
         DB_NAME = 'KidojuDB',
 
         DEBUG = true,
         MODULE = 'app.db.js: ';
 
+    function log(message) {
+        if(DEBUG && global.console && ($.type(global.console.log) === FUNCTION)){
+            global.console.log(MODULE + message);
+        }
+    }
+        
     //See http://nparashuram.com/trialtool/index.html#example=/IndexedDB/jquery/demo/trialtool.html
     //See http://nparashuram.com/jquery-indexeddb/example/
     //See https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
 
     app.db = {
-
-        log: function(message){
-            if(DEBUG && global.console && ($.type(global.console.log) === 'function')){
-                global.console.log(MODULE + message);
-            }
-        },
 
         /**
          * Open the database after creating it of necessary
@@ -61,7 +61,7 @@
          * @returns {*} - a jQuery promise
          */
         drop: function() {
-            app.db.log('drop database');
+            log('drop database');
             return $.indexedDB(DB_NAME).deleteDatabase();
         },
 
@@ -78,7 +78,7 @@
                  * @returns {*} - a jQuery promise
                  */
                 clear: function () {
-                    app.db.log('clear ' + table);
+                    log('clear ' + table);
                     return $.indexedDB(DB_NAME).objectStore(table).clear();
                 },
 
@@ -88,7 +88,7 @@
                  * @returns {*} - a jQuery promise
                  */
                 insert: function (record) {
-                    app.db.log('insert ' + table + ' record');
+                    log('insert ' + table + ' record');
                     return $.indexedDB(DB_NAME).objectStore(table).add(record); //(value, key)
                 },
 
@@ -98,7 +98,7 @@
                  * @returns {*} - a jQuery promise
                  */
                 find: function (id) {
-                    app.db.log('get ' + table + ' record');
+                    log('get ' + table + ' record');
                     return $.indexedDB(DB_NAME).objectStore(table).get(id);
                 },
 
@@ -108,7 +108,7 @@
                  * @returns {*} - a jQuery promise
                  */
                 update: function (record) {
-                    app.db.log('update ' + table + ' record');
+                    log('update ' + table + ' record');
                     return $.indexedDB(DB_NAME).objectStore(table).put(record); //(value, key)
                 },
 
@@ -118,7 +118,7 @@
                  * @returns {*} - a jQuery promise
                  */
                 remove: function (id) {
-                    app.db.log('remove ' + table + ' record');
+                    log('remove ' + table + ' record');
                     return $.indexedDB(DB_NAME).objectStore(table)['delete'](id);
                 },
 
@@ -131,7 +131,7 @@
                  * @returns {*} - a jQuery promise
                  */
                 each: function (index, callback) {
-                    app.db.log('iterate over ' + table + ' records');
+                    log('iterate over ' + table + ' records');
                     if ($.type(index) === 'function' && callback === undefined) {
                         callback = index;
                         return $.indexedDB(DB_NAME).objectStore(table).each(callback);
@@ -146,7 +146,7 @@
                  * @returns {*}
                  */
                 count: function(callback) {
-                    app.db.log('count ' + table + ' records');
+                    log('count ' + table + ' records');
                     return $.indexedDB(DB_NAME).objectStore(table).count(callback);
                 }
             };

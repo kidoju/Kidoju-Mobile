@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Kidoju</title>
+    <title>Kidoju Mobile UI</title>
+    <meta charset="utf-8">
     <link rel="stylesheet" href="./styles/2014.1.603/kendo.common.min.css">
     <link rel="stylesheet" href="./styles/2014.1.603/kendo.default.min.css">
     <link rel="stylesheet" href="./styles/2014.1.603/kendo.default.mobile.min.css">
@@ -14,68 +15,109 @@
     <script src="./js/vendor/jquery.indexeddb.min.js"></script>
     <!--script src="./js/kidoju.widgets.min.js"></script-->
     <script src="./js/app.db.js"></script>
+    <script src="./js/app.rapi.js"></script>
+    <script src="./js/cultures/app.cultures.en.js"></script>
     <script src="./js/app.models.js"></script>
     <script src="./js/app.controller.js"></script>
-    <!--script src="./js/app.init.js"></script-->
+    <!--script src="./js/app.init.js"></script> See below -->
 </head>
 <body>
 <!-- Home page with the list of Kidojus on the device -->
-<!-- TODO: Add teh possibility to push a message like upgrade your app! -->
-<div data-role="view" id="main" data-layout="layout">
-    <ul id="main-list" data-role="listview">
-        <li>Result1</li>
-        <li>Result2</li>
-    </ul>
+<!-- TODO: Add the possibility to push a message like upgrade your app! -->
+<div id="main" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onMainDataShow">
+    <ul id="main-list" data-role="listview" data-bind="source: contents" data-template="main-list-template"></ul>
 </div>
-<script type="text/x-kendo-template" id="main-list-template">
-    <div class="product">
-        <img src="../content/web/foods/#=ProductID#.jpg" alt="#=ProductName# image" class="pullImage"/>
-        <h3>#:ProductName#</h3>
-        <p>#:kendo.toString(UnitPrice, "c")#</p>
-    </div>
+<script id="main-list-template" type="text/x-kendo-template">
+    <a href="">
+        <div class="kj-listitem">
+            <h3>#:title#</h3>
+        </div>
+    </a>
 </script>
-<!-- Login page -->
-<div data-role="view" id="login">
+<!-- Search page to find kidojus in the cloud -->
+<div id="search" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onSearchDataShow">
+    <ul id="search-list" data-role="listview" data-bind="source: remote" data-template="search-list-template"></ul>
+</div>
+<script id="search-list-template" type="text/x-kendo-template">
+    <a href="">
+        <div class="kj-listitem">
+            <h3>#:title#</h3>
+        </div>
+    </a>
+</script>
+<!-- Category navigation page -->
+<div id="categories" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onCategoriesDataShow">
+    <ul id="categories-parent">
+        <li>Parent</li>
+    </ul>
+    <ul id="categories-list" data-role="listview" data-bind="source: categories" data-template="categories-list-template"></ul>
+</div>
+<script id="categories-list-template" type="text/x-kendo-template">
+    <a href="">
+        <div class="kj-listitem">
+            <h3>#:name#</h3>
+        </div>
+    </a>
+</script>
+<!-- Play page -->
+<div id="play" data-role="view">
     <div >
 
     </div>
 </div>
-<!-- Play page -->
-<div data-role="view" id="play">
+<!-- Activities page (completed activities) -->
+<div id="activities" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onActivitiesDataShow">
+    <ul id="activities-list" data-role="listview" data-bind="source: activities" data-template="activities-list-template"></ul>
+</div>
+<script id="activities-list-template" type="text/x-kendo-template">
+    <a href="">
+        <div class="kj-listitem">
+            <h3>#:type#</h3>
+        </div>
+    </a>
+</script>
+<!-- Task page (single activity) -->
+<div id="task" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onTaskDataShow">
     <div >
 
     </div>
+</div>
+<!-- Settings page -->
+<div id="settings" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onSettingsDataShow">
+    <form>
+        <ul data-role="listview" data-style="inset">
+            <li><label for="settings-user"><span id="settings-user"></span></label></li>
+            <li><label for="settings-language"><select id="settings-language" data-role="dropdownlist" data-bind="value: settings.language, source: languages" data-value-field="code" data-text-field="language"></select></label></li>
+        </ul>
+        <div>TODO: Signout button</div>
+    </form>
 </div>
 <!-- Search drawer to find and download Kidojus from the cloud -->
-<div data-role="drawer" id="search-drawer" data-views="['home']">
-    <header class="km-header">
-        <div class="km-widget km-navbar kj-justify">
-            <span>
-                <input id="search-input" type="search" class="k-textbox" />
-                <span class="k-icon k-i-search"></span>
-                <span class="km-view-title"></span><!--sets the height-->
-            </span>
-        </div>
-    </header>
-    <ul id="search-list" data-role="listview">
-        <li>Result1</li>
-        <li>Result2</li>
-    </ul>
-</div>
-<script type="text/x-kendo-template" id="search-list-template">
-    <div class="product">
-        <img src="../content/web/foods/#=ProductID#.jpg" alt="#=ProductName# image" class="pullImage"/>
-        <h3>#:ProductName#</h3>
-        <p>#:kendo.toString(UnitPrice, "c")#</p>
-    </div>
-</script>
-<!-- Layout of main page (not drawer) -->
-<div data-role="layout" data-id="layout">
+<div id="menu-drawer" data-role="drawer" data-views="['main','search','categories','activities','settings']" data-model="app.model">
     <header data-role="header">
         <div data-role="navbar">
-            <a data-role="button" data-rel="drawer" href="#search-drawer" data-icon="drawer-button" data-align="left"></a>
-            <span data-role="view-title">Kidoju Logo</span>
+            <span data-role="view-title"></span>
         </div>
+    </header>
+    <ul data-role="listview">
+        <!--li data-icon="inbox"><a href="#drawer-home" data-transition="none">Inbox</a></li-->
+        <li id="menu-drawer-main"><a href="#main"></a></li>
+        <li id="menu-drawer-search"><a href="#search"></a></li>
+        <li id="menu-drawer-categories"><a href="#categories"></a></li>
+        <li id="menu-drawer-activities"><a href="#activities"></a></li>
+        <li id="menu-drawer-settings"><a href="#settings"></a></li>
+    </ul>
+</div>
+<!-- Layout of main page (not drawer) -->
+<div data-id="main-layout" data-role="layout">
+    <header data-role="header">
+        <div data-role="navbar">
+            <a data-role="button" data-rel="drawer" href="#menu-drawer" data-icon="drawer-button" data-align="left"></a>
+            <span data-role="view-title"></span>
+            <input id="search-input" type="search" class="k-textbox" data-bind="value: search" data-align="right" />
+            <a data-role="button" href="#search" data-icon="search" data-align="right"></a>
+        </div>
+        <div id="main-notification" data-role="notification"></div>
     </header>
 </div>
 <script src="./js/app.init.js"></script>

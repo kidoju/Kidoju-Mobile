@@ -1,8 +1,52 @@
+/*See http://lesscss.org/ */
+/*See https://kuler.adobe.com/Corporate-Orange-color-theme-120736/ */
+@bg_base: #F57126;
+@bg_light: lighten(@bg_base, 10%);
+@bg_dark: darken(@bg_base, 10%);
+@tx_light: #FFFFFF;
+@tx_dark: #304269;
+
 /*Generic styles*/
-.kj-justify{
-  text-align:center;
+
+/*See http://docs.telerik.com/kendo-ui/getting-started/mobile/icons#additional-icons-in-kendo-ui-mobile-font*/
+.km-drawer-button:after,
+.km-drawer-button:before {
+  content: "\e0f1";
 }
-/*Search drawer*/
-input[type=search]{
+
+/*layout*/
+.km-navbar {
+  background-color: @bg_base;
+  color: @tx_light;
+}
+input[type=search] {
   border-radius: 1.06em;
+  width: 250px;
+}
+
+
+/*Menu drawer*/
+.km-drawer {
+  background-color: @bg_light;
+  color: @tx_light;
+}
+.km-drawer .km-scroll-wrapper {
+  background-color: @bg_light;
+}
+.km-drawer .km-list>li {
+  background-color: @bg_light;
+  color: @tx_light;
+  border-color: fade(@bg_dark, 20%);
+}
+.km-drawer .km-listview-link:after {
+  color: @tx_light;
+}
+/*Main view*/
+#main .kj-list-item {
+
+}
+
+/*Search view*/
+#search .kj-list-item {
+
 }
