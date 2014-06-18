@@ -5,34 +5,36 @@
 
 /* jslint node: true */
 /* jshint node: true */
+/* global describe, it, before, expect */
 
-"use strict";
+;(function() {
 
-var Browser = require('zombie');
-var expect = require('chai').expect;
+    'use strict';
 
-describe('Test zombie.js', function() {
+    var Browser = require('zombie');
+    var expect = require('chai').expect;
 
-    before(function(done) {
-        require('../../nodejs/http.server.js');
-        this.browser = new Browser();
-        this.browser.visit('http://localhost:8080/www/index.html', { debug: true}, done);
-    });
+    describe('Test zombie.js', function () {
 
-    describe('When page is loaded', function() {
-        it('It should have a main list', function() {
-            expect(this.browser.query("#main-list")).to.be.ok;
-            //assert.lengthOf(browser.body.queryAll(".hand"), 2);
+        before(function (done) {
+            require('../../nodejs/http.server.js');
+            this.browser = new Browser();
+            this.browser.visit('http://localhost:8080/www/index.html', { debug: true}, done);
         });
+
+        describe('When page is loaded', function () {
+            it('It should have a main list', function () {
+                expect(this.browser.query('#main-list')).to.be.ok;
+                //assert.lengthOf(browser.body.queryAll(".hand"), 2);
+            });
+        });
+
+        //after(function(done) {
+        //this.server.close(done);
+        //});
+
     });
-
-    //after(function(done) {
-    //this.server.close(done);
-    //});
-
-});
 
 //mocha.run();
 
-
-
+}());

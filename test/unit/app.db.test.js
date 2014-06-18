@@ -3,9 +3,9 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-/* jslint browser: true, jQuery: true */
-/* jshint browser: true, jQuery: true */
-/* global describe, it, before, expect */
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
+/* global describe, it, before, expect, app, testData, DOMStringList */
 
 ;(function() {
 
@@ -201,7 +201,7 @@
                 waitForData(done);
             });
             it('We expect success for content1', function (done) {
-                testData.content1.title = "My updated title for content1";
+                testData.content1.title = 'My updated title for content1';
                 app.db.collection('contents').update(testData.content1).done(function (id, event) {
                     expect(event).to.have.property('type', 'success');
                     expect(id).to.equal(testData.content1.id);
@@ -213,7 +213,7 @@
                 });
             });
             it('We expect success for content2', function (done) {
-                testData.content2.title = "My updated title for content2";
+                testData.content2.title = 'My updated title for content2';
                 app.db.collection('contents').update(testData.content2).done(function (id, event) {
                     expect(event).to.have.property('type', 'success');
                     expect(id).to.equal(testData.content2.id);
@@ -225,7 +225,7 @@
                 });
             });
             it('We expect success for activity1', function (done) {
-                testData.activity1.text = "My updated comment for activity1";
+                testData.activity1.text = 'My updated comment for activity1';
                 app.db.collection('activities').update(testData.activity1).done(function (id, event) {
                     expect(event).to.have.property('type', 'success');
                     expect(id).to.equal(testData.activity1.id);
