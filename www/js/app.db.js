@@ -3,16 +3,14 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-/* jslint browser: true */
-/* jshint browser: true */
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-;(function ($, undefined) {
+;(function (win, $, undefined) {
 
     'use strict';
 
-    var fn = Function,
-        global = fn('return this')(),
-        app = global.app = global.app || {},
+    var app = win.app = win.app || {},
         FUNCTION = 'function',
         DB_NAME = 'KidojuDB',
 
@@ -20,8 +18,8 @@
         MODULE = 'app.db.js: ';
 
     function log(message) {
-        if(DEBUG && global.console && ($.type(global.console.log) === FUNCTION)){
-            global.console.log(MODULE + message);
+        if(DEBUG && win.console && ($.type(win.console.log) === FUNCTION)){
+            win.console.log(MODULE + message);
         }
     }
         
@@ -153,4 +151,4 @@
         }
     };
 
-}(jQuery));
+}(this, jQuery));

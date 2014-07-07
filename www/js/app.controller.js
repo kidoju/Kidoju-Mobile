@@ -3,17 +3,15 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-/* jslint browser: true */
-/* jshint browser: true */
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-;(function ($, undefined) {
+;(function (win, $, undefined) {
 
     'use strict';
 
-    var fn = Function,
-        global = fn('return this')(),
-        kendo = global.kendo,
-        app = global.app = global.app || {},
+    var kendo = win.kendo,
+        app = win.app = win.app || {},
         FUNCTION = 'function',
         STRING = 'string',
         CHANGE = 'change',
@@ -22,8 +20,8 @@
         DEBUG = true;
 
     function log(message) {
-        if(DEBUG && global.console && ($.type(global.console.log) === FUNCTION)){
-            global.console.log(MODULE + message);
+        if(DEBUG && win.console && ($.type(win.console.log) === FUNCTION)){
+            win.console.log(MODULE + message);
         }
     }
 
@@ -160,4 +158,4 @@
         }
     };
 
-}(jQuery));
+}(this, jQuery));

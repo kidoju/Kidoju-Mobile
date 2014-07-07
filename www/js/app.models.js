@@ -6,14 +6,12 @@
 /* jslint browser: true, jquery: true */
 /* jshint browser: true, jquery: true */
 
-;(function ($, undefined) {
+;(function (win, $, undefined) {
 
     'use strict';
 
-    var fn = Function,
-        global = fn('return this')(),
-        kendo = global.kendo,
-        app = global.app = global.app || {},
+    var kendo = win.kendo,
+        app = win.app = win.app || {},
         CONTENTS = 'contents',
         ACTIVITIES = 'activities',
         FUNCTION = 'function',
@@ -22,9 +20,33 @@
         MODULE = 'app.models.js: ',
         DEBUG = true;
 
+    /**
+     * Log message to console
+     * @param message
+     */
     function log(message) {
-        if (DEBUG && global.console && ($.type(global.console.log) === FUNCTION)) {
-            global.console.log(MODULE + message);
+        if (DEBUG && win.console && ($.type(win.console.log) === FUNCTION)) {
+            win.console.log(MODULE + message);
+        }
+    }
+
+    /**
+     * Load categories
+     */
+    function loadCategories() {
+        try {
+            app.cache.getCategories(app.culture.LOCALE).done(function(data){
+                var categories = viewModels.index.get('treeData')[1].items;
+                if(!(categories instanceof kendo.data.ObservableArray)) {
+                    throw new Error(); //TODO
+                }
+                data.unshift(0, categories.length);
+                kendo.data.ObservableArray.prototype.splice.apply(categories, data);
+            }).fail(function(error) {
+                //TODO
+            });
+        } catch(ex) {
+            //TODO
         }
     }
 
@@ -61,7 +83,7 @@
         }
     });
 
-    var remoteStorage = new kendo.data.DataSource({
+    var remoteContents = new kendo.data.DataSource({
         transport: {
             read: function(options) {
                 app.rapi.v1.content.findSummaries().done(function(summaries){
@@ -78,11 +100,8 @@
         //schema
     });
 
+
     app.model = kendo.observable({
-        message: {
-            type: 0,
-            text: null
-        },
         settings: {
             user_id: null,
             user: null,
@@ -93,7 +112,7 @@
         parent: null,
         //content
         search: '',
-        remote: remoteStorage,
+        remote: remoteContents,
         contents: localContents,
         current: {},
         //activities
@@ -111,39 +130,11 @@
         },
 
         /**
-         * Cache profile and categories
-         * TODO profile
-         */
-        cache: function() {
-            if (global.localStorage) {
-                //TODO: check cache date
-                var language = app.model.get('settings.language') || 'en';
-                app.rapi.taxonomy.getCategories(language).done(function (data) {
-                    global.localStorage.setItem(language, JSON.stringify(data));
-                    global.localStorage.setItem('cacheDate', Date.now());
-                }).fail(function (error) {
-                    //TODO
-                });
-            }
-        },
-
-        /**
          * Load model
          */
         load: function() {
-            if (global.localStorage) {
                 var language = app.model.get('settings.language') || 'en';
-                global.localStorage.getItem(language);
-            }
-        },
-
-        /**
-         * Save changes to the model
-         */
-        save: function() {
-            if (global.localStorage) {
-                //global.localStorage.setItem();
-            }
+                win.localStorage.getItem(language);
         },
 
         /**
@@ -160,4 +151,4 @@
 
     log('model initialized');
 
-}(jQuery));
+}(this, jQuery));

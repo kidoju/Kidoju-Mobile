@@ -3,16 +3,14 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-/* jslint browser: true */
-/* jshint browser: true */
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
-;(function ($, undefined) {
+;(function (win, $, undefined) {
 
     'use strict';
 
-    var fn = Function,
-        global = fn('return this')(),
-        app = global.app = global.app || {};
+    var app = win.app = win.app || {};
 
     /**
      * Application initialization
@@ -27,7 +25,7 @@
      * Common events are: 'load', 'deviceready', 'offline', and 'online'.
      */
     app.bindEvents = function() {
-        if(global.device && global.device.cordova) {
+        if(win.device && (win.device.cordova || win.device.phonegap)) {
             document.addEventListener('deviceready', app.onDeviceReady, false);
         } else {
             app.onDeviceReady();
@@ -39,11 +37,11 @@
      */
     app.onDeviceReady = function() {
         $(document).ready(function() {
-            app.kendoApp = new global.kendo.mobile.Application(document.body);
+            app.kendoApp = new win.kendo.mobile.Application(document.body);
             app.controller.localize();
         });
     };
 
     app.initialize();
 
-}(jQuery));
+}(this, jQuery));

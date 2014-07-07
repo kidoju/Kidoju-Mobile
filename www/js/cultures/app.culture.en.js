@@ -6,15 +6,15 @@
 /* jslint browser: true */
 /* jshint browser: true */
 
-;(function() {
+;(function(win, undefined) {
 
     'use strict';
 
-    var fn = Function,
-        global = fn('return this')(),
-        app = global.app = global.app || {};
+    var app = win.app = win.app || {};
 
-    app.cultures = {
+    app.culture = {
+
+        LOCALE: 'en',
 
         LANGUAGES: [
             { code: 'en', language: 'English' },
@@ -47,4 +47,4 @@
 
     };
 
-}());
+}(this));
