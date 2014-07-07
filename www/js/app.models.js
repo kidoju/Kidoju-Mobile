@@ -3,8 +3,8 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-/* jslint browser: true */
-/* jshint browser: true */
+/* jslint browser: true, jquery: true */
+/* jshint browser: true, jquery: true */
 
 ;(function ($, undefined) {
 

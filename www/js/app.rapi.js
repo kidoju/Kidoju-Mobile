@@ -54,7 +54,7 @@
         FORM_CONTENT_TYPE = 'application/x-www-form-urlencoded',
         //TEXT_CONTENT_TYPE = 'text/plain',
 
-        MODULE = 'rapi.js: ',
+        MODULE = 'app.rapi.js: ',
         DEBUG = true; //IMPORTANT: Set DEBUG = false in production
 
     /**
