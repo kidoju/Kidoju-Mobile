@@ -1,5 +1,15 @@
 cd /d %~dp0
 
+REM Copy Kendo UI widgets
+copy .\temp\2014.3.1119\js\jquery.min.js .\www\js\vendor\jquery.min.js
+copy .\temp\2014.3.1119\js\jquery.min.map .\www\js\vendor\jquery.min.map
+copy .\temp\2014.3.1119\js\kendo.all.min.js .\www\js\vendor\kendo.all.min.js
+copy .\temp\2014.3.1119\js\kendo.all.min.js.map .\www\js\vendor\kendo.all.min.js.map
+REM TODO cultures and messages
+copy .\temp\2014.3.1119\styles\kendo.common.min.css .\www\styles\vendor\kendo.common.min.css
+copy .\temp\2014.3.1119\styles\kendo.default.min.css .\www\styles\vendor\kendo.default.min.css
+copy .\temp\2014.3.1119\styles\kendo.default.mobile.min.css .\www\styles\vendor\kendo.default.mobile.min.css
+
 REM Copy Kidoju webfonts
 REM xcopy ..\Kidoju.WebFonts\dist\fonts\*.* www\styles\fonts\*.* /S /C /Y
 
