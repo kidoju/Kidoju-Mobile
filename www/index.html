@@ -3,28 +3,28 @@
 <head>
     <title>Kidoju Mobile UI</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="./styles/2014.1.603/kendo.common.min.css">
-    <link rel="stylesheet" href="./styles/2014.1.603/kendo.default.min.css">
-    <link rel="stylesheet" href="./styles/2014.1.603/kendo.default.mobile.min.css">
+    <link rel="stylesheet" href="./styles/vendor/kendo.common.min.css">
+    <link rel="stylesheet" href="./styles/vendor/kendo.default.min.css">
+    <link rel="stylesheet" href="./styles/vendor/kendo.default.mobile.min.css">
     <link rel="stylesheet" href="./styles/app.css">
     <!--script src="phonegap.js"></script-->
-    <script src="./js/2014.1.603/jquery.min.js"></script>
-    <script src="./js/2014.1.603/kendo.all.min.js"></script>
+    <script src="./js/vendor/jquery.min.js"></script>
+    <script src="./js/vendor/kendo.all.min.js"></script>
     <script src="./js/vendor/jszip.min.js"></script>
     <script src="./js/vendor/IndexedDBShim.min.js"></script>
     <script src="./js/vendor/jquery.indexeddb.min.js"></script>
     <!--script src="./js/kidoju.widgets.min.js"></script-->
     <script src="./js/app.db.js"></script>
     <script src="./js/app.rapi.js"></script>
-    <script src="./js/cultures/app.cultures.en.js"></script>
-    <script src="./js/app.models.js"></script>
+    <script src="./js/cultures/app.culture.en.js"></script>
     <script src="./js/app.controller.js"></script>
+    <script src="./js/app.viewModel.js"></script>
     <!--script src="./js/app.init.js"></script> See below -->
 </head>
 <body>
 <!-- Home page with the list of Kidojus on the device -->
 <!-- TODO: Add the possibility to push a message like upgrade your app! -->
-<div id="main" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onMainDataShow">
+<div id="main" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onMainDataShow">
     <ul id="main-list" data-role="listview" data-bind="source: contents" data-template="main-list-template"></ul>
 </div>
 <script id="main-list-template" type="text/x-kendo-template">
@@ -35,7 +35,7 @@
     </a>
 </script>
 <!-- Search page to find kidojus in the cloud -->
-<div id="search" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onSearchDataShow">
+<div id="search" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onSearchDataShow">
     <ul id="search-list" data-role="listview" data-bind="source: remote" data-template="search-list-template"></ul>
 </div>
 <script id="search-list-template" type="text/x-kendo-template">
@@ -46,7 +46,7 @@
     </a>
 </script>
 <!-- Category navigation page -->
-<div id="categories" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onCategoriesDataShow">
+<div id="categories" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onCategoriesDataShow">
     <ul id="categories-parent">
         <li>Parent</li>
     </ul>
@@ -66,7 +66,7 @@
     </div>
 </div>
 <!-- Activities page (completed activities) -->
-<div id="activities" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onActivitiesDataShow">
+<div id="activities" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onActivitiesDataShow">
     <ul id="activities-list" data-role="listview" data-bind="source: activities" data-template="activities-list-template"></ul>
 </div>
 <script id="activities-list-template" type="text/x-kendo-template">
@@ -77,13 +77,13 @@
     </a>
 </script>
 <!-- Task page (single activity) -->
-<div id="task" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onTaskDataShow">
+<div id="task" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onTaskDataShow">
     <div >
 
     </div>
 </div>
 <!-- Settings page -->
-<div id="settings" data-role="view" data-layout="main-layout" data-model="app.model" data-show="app.controller.onSettingsDataShow">
+<div id="settings" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onSettingsDataShow">
     <form>
         <ul data-role="listview" data-style="inset">
             <li><label for="settings-user"><span id="settings-user"></span></label></li>
@@ -93,7 +93,7 @@
     </form>
 </div>
 <!-- Search drawer to find and download Kidojus from the cloud -->
-<div id="menu-drawer" data-role="drawer" data-views="['main','search','categories','activities','settings']" data-model="app.model">
+<div id="menu-drawer" data-role="drawer" data-views="['main','search','categories','activities','settings']" data-model="app.viewModel">
     <header data-role="header">
         <div data-role="navbar">
             <span data-role="view-title"></span>

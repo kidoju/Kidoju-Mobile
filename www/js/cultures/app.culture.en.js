@@ -13,9 +13,7 @@
     var app = win.app = win.app || {};
 
     app.culture = {
-
         LOCALE: 'en',
-
         LANGUAGES: [
             { code: 'en', language: 'English' },
             { code: 'fr', language: 'French' }
@@ -43,8 +41,9 @@
         //Settings
         SETTINGS_VIEW_TITLE: 'Settings',
         SETTINGS_USER_LABEL: 'User:',
-        SETTINGS_LANGUAGE_LABEL: 'Language:'
+        SETTINGS_LANGUAGE_LABEL: 'Language:',
 
+        DUMMY: 'dummy'
     };
 
 }(this));
