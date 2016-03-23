@@ -1,27 +1,6 @@
-# Ignore OS files
-Desktop.ini
-$RECYCLE.BIN/
-.DS_Store
-Thumbs.db
-*.diff
-*.err
-*.log
-*.zip
-
-# Ignore Webstorm files
+.cordova
 .idea/
-coverage/
-
-# Ignore Node files
+*.iml
+out
+gen
 node_modules/
-
-# Ignore Grunt Files
-validation-status.json
-validation-report.json
-
-# Ignore Kendo UI
-2014.*/
-
-# Ignore Dummy Files
-temp/
-

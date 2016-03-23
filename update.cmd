@@ -1,26 +1,30 @@
 cd /d %~dp0
 
-REM Copy Kendo UI widgets
-copy .\temp\2014.3.1119\js\jquery.min.js .\www\js\vendor\jquery.min.js
-copy .\temp\2014.3.1119\js\jquery.min.map .\www\js\vendor\jquery.min.map
-copy .\temp\2014.3.1119\js\kendo.all.min.js .\www\js\vendor\kendo.all.min.js
-copy .\temp\2014.3.1119\js\kendo.all.min.js.map .\www\js\vendor\kendo.all.min.js.map
-REM TODO cultures and messages
-copy .\temp\2014.3.1119\styles\kendo.common.min.css .\www\styles\vendor\kendo.common.min.css
-copy .\temp\2014.3.1119\styles\kendo.default.min.css .\www\styles\vendor\kendo.default.min.css
-copy .\temp\2014.3.1119\styles\kendo.default.mobile.min.css .\www\styles\vendor\kendo.default.mobile.min.css
+REM ************************************************************
+REM IMPORTANT!
+REM Kidoju.Widgets, Kidoju.Server and Kidoju.WebApp are the original project where any modifications
+REM of locked read-only files should be completed.
+REM ************************************************************
 
-REM Copy Kidoju webfonts
-REM xcopy ..\Kidoju.WebFonts\dist\fonts\*.* www\styles\fonts\*.* /S /C /Y
+REM ------------------------------------------------------------
+REM Graphics
+REM ------------------------------------------------------------
 
-REM Copy Memba widgets
-xcopy ..\..\Memba\Memba.Widgets\dist\*.* www\*.* /S /C /Y
+REM ------------------------------------------------------------
+REM Javascript files
+REM ------------------------------------------------------------
 
-REM Copy Kidoju widgets
-xcopy ..\Kidoju.Widgets\dist\*.* www\*.* /S /C /Y
+REM Copy Kendo UI
+XCOPY ..\Kidoju.WebApp\js\vendor\kendo\*.* .\js\vendor\kendo\ /C /E /I /R /Y
+ATTRIB +R .\js\vendor\kendo\*
 
-copy ..\Kidoju.Server\client\js\app.rapi.js www\js\app.rapi.js /Y
-copy ..\Kidoju.Server\client\js\app.cache.js www\js\app.cache.js /Y
-copy ..\Kidoju.Server\client\js\app.models.js www\js\app.models.js /Y
+REM Copy localForage
+REM XCOPY ..\Kidoju.Widgets\js\vendor\kendo\*.* .\js\vendor\kendo\ /C /E /I /R /Y
+REM ATTRIB +R .\js\vendor\kendo\*
 
-copy ..\Kidoju.Server\test\client\app.models.mock.js www\js\app.models.mock.js /Y
+REM ------------------------------------------------------------
+REM Styles
+REM ------------------------------------------------------------
+
+XCOPY ..\Kidoju.WebApp\styles\vendor\kendo\*.* .\styles\vendor\kendo\ /C /E /I /R /Y
+ATTRIB +R .\styles\vendor\kendo\*
