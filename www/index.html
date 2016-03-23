@@ -1,125 +1,272 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Kidoju Mobile UI</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="./styles/vendor/kendo.common.min.css">
-    <link rel="stylesheet" href="./styles/vendor/kendo.default.min.css">
-    <link rel="stylesheet" href="./styles/vendor/kendo.default.mobile.min.css">
-    <link rel="stylesheet" href="./styles/app.css">
-    <!--script src="phonegap.js"></script-->
-    <script src="./js/vendor/jquery.min.js"></script>
-    <script src="./js/vendor/kendo.all.min.js"></script>
-    <script src="./js/vendor/jszip.min.js"></script>
-    <script src="./js/vendor/IndexedDBShim.min.js"></script>
-    <script src="./js/vendor/jquery.indexeddb.min.js"></script>
-    <!--script src="./js/kidoju.widgets.min.js"></script-->
-    <script src="./js/app.db.js"></script>
-    <script src="./js/app.rapi.js"></script>
-    <script src="./js/cultures/app.culture.en.js"></script>
-    <script src="./js/app.controller.js"></script>
-    <script src="./js/app.viewModel.js"></script>
-    <!--script src="./js/app.init.js"></script> See below -->
+    <meta charset="UTF-8">
+    <title>Kidoju.Mobile</title>
+
+    <link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.1.226/styles/kendo.common.min.css"/>
+    <link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.1.226/styles/kendo.rtl.min.css"/>
+    <link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.1.226/styles/kendo.default.min.css"/>
+    <link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.1.226/styles/kendo.mobile.all.min.css"/>
+
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://kendo.cdn.telerik.com/2016.1.226/js/kendo.all.min.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+    </style>
+
 </head>
 <body>
-<!-- Home page with the list of Kidojus on the device -->
-<!-- TODO: Add the possibility to push a message like upgrade your app! -->
-<div id="main" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onMainDataShow">
-    <ul id="main-list" data-role="listview" data-bind="source: contents" data-template="main-list-template"></ul>
-</div>
-<script id="main-list-template" type="text/x-kendo-template">
-    <a href="">
-        <div class="kj-listitem">
-            <h3>#:title#</h3>
-        </div>
-    </a>
-</script>
-<!-- Search page to find kidojus in the cloud -->
-<div id="search" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onSearchDataShow">
-    <ul id="search-list" data-role="listview" data-bind="source: remote" data-template="search-list-template"></ul>
-</div>
-<script id="search-list-template" type="text/x-kendo-template">
-    <a href="">
-        <div class="kj-listitem">
-            <h3>#:title#</h3>
-        </div>
-    </a>
-</script>
-<!-- Category navigation page -->
-<div id="categories" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onCategoriesDataShow">
-    <ul id="categories-parent">
-        <li>Parent</li>
-    </ul>
-    <ul id="categories-list" data-role="listview" data-bind="source: categories" data-template="categories-list-template"></ul>
-</div>
-<script id="categories-list-template" type="text/x-kendo-template">
-    <a href="">
-        <div class="kj-listitem">
-            <h3>#:name#</h3>
-        </div>
-    </a>
-</script>
-<!-- Play page -->
-<div id="play" data-role="view">
-    <div >
 
-    </div>
-</div>
-<!-- Activities page (completed activities) -->
-<div id="activities" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onActivitiesDataShow">
-    <ul id="activities-list" data-role="listview" data-bind="source: activities" data-template="activities-list-template"></ul>
-</div>
-<script id="activities-list-template" type="text/x-kendo-template">
-    <a href="">
-        <div class="kj-listitem">
-            <h3>#:type#</h3>
-        </div>
-    </a>
-</script>
-<!-- Task page (single activity) -->
-<div id="task" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onTaskDataShow">
-    <div >
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!-- Tablet application                                                        -->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-    </div>
+<div id="tablet" style="display: none;">
+    <!-- TODO -->
 </div>
-<!-- Settings page -->
-<div id="settings" data-role="view" data-layout="main-layout" data-model="app.viewModel" data-show="app.controller.onSettingsDataShow">
-    <form>
-        <ul data-role="listview" data-style="inset">
-            <li><label for="settings-user"><span id="settings-user"></span></label></li>
-            <li><label for="settings-language"><select id="settings-language" data-role="dropdownlist" data-bind="value: settings.language, source: languages" data-value-field="code" data-text-field="language"></select></label></li>
+
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<!-- Phone application                                                         -->
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+<div id="phone">
+
+    <!-- Main layout -->
+    <div data-role="layout" data-id="phone-main-layout">
+        <header data-role="header">
+            <div data-role="navbar" class="km-accent">
+                <a id="phone-main-layout-drawer" data-role="button" href="#phone-drawer" data-rel="drawer" class="nav-button" data-align="left" data-icon="settings"></a>
+                <a id="phone-main-layout-back" data-role="button" class="nav-button" data-align="left" data-icon="back"></a>
+                <!--a id="phone-main-layout-" data-role="button" class="nav-button" data-align="left" data-icon="rewind"></a-->
+                <span data-role="view-title"></span>
+                <!-- TODO QR Code -->
+                <!--a id="phone-main-layout-" data-role="button" class="nav-button" data-align="left" data-icon="fastforward"></a-->
+                <a id="phone-main-layout-search" data-role="button" class="nav-button" data-align="right" data-icon="search"></a>
+                <a id="phone-main-layout-sync" data-role="button" class="nav-button" data-align="right" data-icon="refresh"></a>
+                <ul id="phone-main-layout-selection" data-role="buttongroup" data-index="0">
+                    <li>Recent</li>
+                    <li>Popular</li>
+                    <li>Best</li>
+                </ul>
+            </div>
+        </header>
+    </div>
+
+    <!-- Drawer -->
+    <div id="phone-drawer" data-role="drawer" data-position="left" data-swipe-to-open="false">
+        <div data-role="navbar">Kidoju Logo</div>
+        <ul data-role="listview">
+            <li><a href="#phone-categories">Explore</a></li>
+            <li><a href="#phone-favourites">Favourites</a></li>
+            <li><a href="#phone-scores">Scores</a></li>
+            <li><a href="#phone-settings">Settings</a></li>
         </ul>
-        <div>TODO: Signout button</div>
-    </form>
+    </div>
+
+    <!-- Categories -->
+    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-show="app.onCategoriesShow">
+        <!-- Display search button -->
+        <ul data-role="listview" data-source="app.viewModel.categories" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-categories-template">
+        </ul>
+        <script type="text/x-kendo-template" id="phone-categories-template">
+            <a href="\#phone-summaries">#: name #</a>
+        </script>
+    </div>
+
+    <!-- Summaries -->
+    <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-show="app.onSummariesShow">
+        <ul data-role="listview" data-source="app.viewModel.summaries" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-summaries-template">
+        </ul>
+        <script type="text/x-kendo-template" id="phone-summaries-template">
+            <a href="\#phone-player">#: title #</a>
+        </script>
+    </div>
+
+    <!-- Favourites view -->
+    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-show="app.onFavouritesShow">
+        <ul data-role="listview" data-source="app.viewModel.favourites" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-favourites-template">
+        </ul>
+        <script type="text/x-kendo-template" id="phone-favourites-template">
+            <a href="\#phone-player">#: title #</a>
+        </script>
+    </div>
+
+    <!-- Scores view -->
+    <div id="phone-scores" data-role="view" data-layout="phone-main-layout" data-title="Scores" data-show="app.onScoresShow">
+        <ul data-role="listview" data-source="app.viewModel.scores" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-scores-template">
+        </ul>
+        <script type="text/x-kendo-template" id="phone-scores-template">
+            <a href="\#phone-player">#: title # - #: score #</a>
+        </script>
+    </div>
+
+    <!-- Settings view -->
+    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-use-native-scrolling="true" data-show="app.onSettingsShow">
+        <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
+        <form action="./index.html">
+            <ul data-role="listview" data-style="inset">
+                <li>
+                    <label>
+                        <span>User</span>
+                        <input type="text" value="Text" />
+                        <!-- Show login button -->
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span>Version</span>
+                        <input type="text" value="Text" />
+                        <!-- Show upgrade sign if it does not match server -->
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span>Language</span>
+                        <input type="text" value="Text" />
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span>Theme</span>
+                        <input type="text" value="Text" />
+                    </label>
+                </li>
+            </ul>
+        </form>
+    </div>
+
+    <!-- Player view (ATTENTION: this one does not use the layout) -->
+    <div id="phone-player" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 6" data-show="app.onPlayerShow">
+        <!-- Add player + instructions/explanation -->
+        Player
+        Instructions
+    </div>
+
 </div>
-<!-- Search drawer to find and download Kidojus from the cloud -->
-<div id="menu-drawer" data-role="drawer" data-views="['main','search','categories','activities','settings']" data-model="app.viewModel">
-    <header data-role="header">
-        <div data-role="navbar">
-            <span data-role="view-title"></span>
-        </div>
-    </header>
-    <ul data-role="listview">
-        <!--li data-icon="inbox"><a href="#drawer-home" data-transition="none">Inbox</a></li-->
-        <li id="menu-drawer-main"><a href="#main"></a></li>
-        <li id="menu-drawer-search"><a href="#search"></a></li>
-        <li id="menu-drawer-categories"><a href="#categories"></a></li>
-        <li id="menu-drawer-activities"><a href="#activities"></a></li>
-        <li id="menu-drawer-settings"><a href="#settings"></a></li>
-    </ul>
-</div>
-<!-- Layout of main page (not drawer) -->
-<div data-id="main-layout" data-role="layout">
-    <header data-role="header">
-        <div data-role="navbar">
-            <a data-role="button" data-rel="drawer" href="#menu-drawer" data-icon="drawer-button" data-align="left"></a>
-            <span data-role="view-title"></span>
-            <input id="search-input" type="search" class="k-textbox" data-bind="value: search" data-align="right" />
-            <a data-role="button" href="#search" data-icon="search" data-align="right"></a>
-        </div>
-        <div id="main-notification" data-role="notification"></div>
-    </header>
-</div>
-<script src="./js/app.init.js"></script>
+
+<script>
+    (function(){
+
+        var app = window.app = window.app || {};
+        app.viewModel = kendo.observable({
+            categories: [
+                { name: 'Mathematics' },
+                { name: 'Physics' },
+                { name: 'English' }
+            ],
+            summaries: [
+                { title: 'Test of Mathematics' },
+                { title: 'Test of Physics' },
+                { title: 'Test of English' },
+                { title: 'Test of Geography' },
+                { title: 'Test of History' }
+            ],
+            favourites: [
+                { title: 'Test of Mathematics' },
+                { title: 'Test of Physics' },
+                { title: 'Test of English' },
+                { title: 'Test of Geography' },
+                { title: 'Test of History' }
+            ],
+            scores: [
+                { title: 'Test of Mathematics', score: 10 },
+                { title: 'Test of Physics', score: 20 },
+                { title: 'Test of English', score: 30 },
+                { title: 'Test of Geography', score: 40 },
+                { title: 'Test of History', score: 50 }
+            ],
+            languages: [
+                { value: 'en', text: 'English' },
+                { value: 'fr', text: 'French' }
+            ],
+            themes: [
+                'flat',
+                'nova'
+            ],
+            settings: {
+                picture: '',
+                userName: 'Jacques L. Chereau',
+                version: 'v0.0.10',
+                language: 'en'
+            }
+        });
+
+        app._setNavBar = function (e) {
+            var showDrawerButton = false;
+            var showBackButton = false;
+            var showSearchButton = false;
+            var showSyncButton = false;
+            var showSelectionButtons = false;
+            switch (e.view.id) {
+                case '/':
+                case '#phone-categories':
+                    showDrawerButton = true;
+                    showBackButton = true;
+                    showSearchButton = true;
+                    showSelectionButtons = true;
+                    break;
+                case '#phone-summaries':
+                    showDrawerButton = true;
+                    showBackButton = true;
+                    showSearchButton = true;
+                    showSelectionButtons = true;
+                    break;
+                case '#phone-favourites':
+                    showDrawerButton = true;
+                    showSyncButton = true;
+                    break;
+                case '#phone-scores':
+                    showDrawerButton = true;
+                    showSyncButton = true;
+                    break;
+                case '#phone-settings':
+                    showDrawerButton = true;
+                    showSyncButton = true;
+                    break;
+                case '#phone-player':
+                    showDrawerButton = true;
+                    // Add playbar buttons + page numbers
+                    break;
+            }
+            debugger;
+            $('#phone-main-layout-drawer').toggle(showDrawerButton);
+            $('#phone-main-layout-back').toggle(showBackButton);
+            $('#phone-main-layout-search').toggle(showSearchButton);
+            $('#phone-main-layout-sync').toggle(showSyncButton);
+            $('#phone-main-layout-selection').toggle(showSelectionButtons);
+        };
+
+        app.onCategoriesShow = function (e) {
+            app._setNavBar(e);
+        };
+
+        app.onSummariesShow = function (e) {
+            app._setNavBar(e);
+        };
+
+        app.onFavouritesShow = function (e) {
+            app._setNavBar(e);
+        };
+
+        app.onSettingsShow = function (e) {
+            app._setNavBar(e);
+        };
+
+        app.onPlayerShow = function (e) {
+            app._setNavBar(e);
+        };
+
+        app.kendoApp = new kendo.mobile.Application($('#phone'), { platform: 'android-dark', skin: 'nova' });
+
+
+
+    }());
+</script>
+
 </body>
 </html>
