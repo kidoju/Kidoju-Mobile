@@ -206,9 +206,8 @@
                 case '/':
                 case '#phone-categories':
                     showDrawerButton = true;
-                    showBackButton = true;
+                    showBackButton = true;  // this depends whether category has parent id or not
                     showSearchButton = true;
-                    showSelectionButtons = true;
                     break;
                 case '#phone-summaries':
                     showDrawerButton = true;
@@ -233,12 +232,11 @@
                     // Add playbar buttons + page numbers
                     break;
             }
-            debugger;
-            $('#phone-main-layout-drawer').toggle(showDrawerButton);
-            $('#phone-main-layout-back').toggle(showBackButton);
-            $('#phone-main-layout-search').toggle(showSearchButton);
-            $('#phone-main-layout-sync').toggle(showSyncButton);
-            $('#phone-main-layout-selection').toggle(showSelectionButtons);
+            $('#phone-main-layout-drawer').css({ display: showDrawerButton ? 'inline-block': 'none' });
+            $('#phone-main-layout-back').css({ display: showBackButton ? 'inline-block': 'none' });
+            $('#phone-main-layout-search').css({ display: showSearchButton ? 'inline-block': 'none' });
+            $('#phone-main-layout-sync').css({ display: showSyncButton ? 'inline-block': 'none' });
+            $('#phone-main-layout-selection').css({ display: showSelectionButtons ? 'table' : 'none' });
         };
 
         app.onCategoriesShow = function (e) {
