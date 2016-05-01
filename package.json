@@ -1,27 +1,43 @@
 {
-  "name": "phonegap-template-hello-world",
-  "version": "1.0.0",
-  "description": "> A Hello World template built with PhoneGap",
+  "name": "Kidoju.Mobile",
+  "filename": "kidoju.mobile",
+  "version": "0.2.0",
+  "description": "Mobile app for teh Kidoju platform.",
+  "author": "Memba Sarl",
+  "copyright": "Copyright ©2013-2016 Memba® Sarl. All rights reserved.",
+  "license": "AGPL-3.0",
+  "homepage": "https://www.kidoju.com",
+  "keywords": [
+    "Memba",
+    "Kidoju",
+    "Brain",
+    "Educate",
+    "eEducation",
+    "eLearning",
+    "Learn",
+    "Knowledge",
+    "Quiz",
+    "Teach",
+    "Test"
+  ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/phonegap/phonegap-app-hello-world.git"
+    "url": "https://github.com/Kidoju/Kidoju-Mobile.git"
   },
-  "author": "PhoneGap Team",
-  "license": "Apache-2.0.0",
-  "keywords": [
-    "ecosystem:phonegap",
-    "ecosystem:cordova",
-    "cordova:template",
-    "phonegap:template"
-  ],
   "bugs": {
-    "url": "https://github.com/phonegap/phonegap-app-hello-world/issues"
+    "url": "https://github.com/Kidoju/Kidoju-Mobile/issues"
   },
-  "homepage": "https://github.com/phonegap/phonegap-app-hello-world",
   "devDependencies": {
-    "grunt": "^0.4.5",
+    "bundle-loader": "^0.5.4",
+    "css-loader": "^0.23.1",
+    "file-loader": "^0.8.5",
+    "grunt": "^1.0.1",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-jscs": "^2.8.0",
-    "webpack": "^1.12.14"
+    "less": "^2.6.1",
+    "less-loader": "^2.2.3",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.13.0"
   }
 }
