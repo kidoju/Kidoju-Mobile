@@ -1,6 +1,26 @@
-.cordova
+# Ignore OS files
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+Thumbs.db
+*.diff
+*.err
+*.log
+*.zip
+
+# Ignore Webstorm files
 .idea/
-*.iml
-out
-gen
+coverage/
+
+# Ignore Node files
 node_modules/
+
+# Ignore cordova
+.cordova/
+
+# Ignore Grunt Files
+validation-status.json
+validation-report.json
+
+# Ignore Dummy Files
+temp/
