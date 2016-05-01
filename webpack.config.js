@@ -66,9 +66,9 @@ module.exports = {
     devtool: 'source-map',
     entry: {
         // We need init especially because of FOUJI
-        app: './js/app.mobile.js',
+        app: './js/app.mobile.js' // ,
         // Worker library
-        workerlib: './js/kidoju.data.workerlib.js'
+        // workerlib: './js/kidoju.data.workerlib.js'
     },
     externals: { // CDN modules
         jquery: 'jQuery'
