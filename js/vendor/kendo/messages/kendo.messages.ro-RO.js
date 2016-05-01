@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -271,6 +271,15 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
 });
 }
 
+/* FilterMultiCheck messages */
+
+if (kendo.ui.FilterMultiCheck) {
+kendo.ui.FilterMultiCheck.prototype.options.messages =
+$.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
+  "search": "Caută"
+});
+}
+
 /* Grid messages */
 
 if (kendo.ui.Grid) {
@@ -348,7 +357,7 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "start": "Start",
     "startTimezone": "Start timezone",
     "timezone": " ",
-    "timezoneEditorButton": "Time zone",
+    "timezoneEditorButton": "Fus orar",
     "timezoneEditorTitle": "Timezones",
     "title": "Title",
     "noTimezone": "No timezone"
@@ -365,14 +374,14 @@ $.extend(true, kendo.ui.Scheduler.prototype.options.messages,{
     "editWindowTitle": "Edit Recurring Item"
   },
   "save": "Salvează",
-  "time": "Time",
-  "today": "Today",
+  "time": "Timp",
+  "today": "Astăzi",
   "views": {
     "agenda": "Agendă",
-    "day": "Day",
-    "month": "Month",
-    "week": "Week",
-    "workWeek": "Work Week"
+    "day": "Zi",
+    "month": "Lună",
+    "week": "Săptămână",
+    "workWeek": "Săptămână de lucru"
   },
   "deleteWindowTitle": "Delete event",
   "showFullDay": "Show full day",

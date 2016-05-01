@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -312,6 +312,7 @@
                 return;
             }
             var value;
+            var haveChangeOnElement = false;
             if (isForm(element)) {
                 value = function () {
                     return formValue(element);
@@ -329,7 +330,9 @@
                 if (val === undefined) {
                     val = null;
                 }
+                haveChangeOnElement = true;
                 setTimeout(function () {
+                    haveChangeOnElement = false;
                     if (widget) {
                         var kNgModel = scope[widget.element.attr('k-ng-model')];
                         if (kNgModel) {
@@ -345,7 +348,6 @@
                     }
                 }, 0);
             };
-            var haveChangeOnElement = false;
             if (isForm(element)) {
                 element.on('change', function () {
                     haveChangeOnElement = true;
@@ -431,9 +433,7 @@
             var deregister = scope.$on('$destroy', function () {
                 deregister();
                 if (widget) {
-                    if (widget.element) {
-                        widget.destroy();
-                    }
+                    kendo.destroy(widget.element);
                     widget = null;
                 }
             });
@@ -499,6 +499,9 @@
             var unregister = scope.$watch(rebindAttr, function (newValue, oldValue) {
                 if (!widget._muteRebind && newValue !== oldValue) {
                     unregister();
+                    if (attrs._cleanUp) {
+                        attrs._cleanUp();
+                    }
                     var templateOptions = WIDGET_TEMPLATE_OPTIONS[widget.options.name];
                     if (templateOptions) {
                         templateOptions.forEach(function (name) {
@@ -531,6 +534,14 @@
             }, true);
             digest(scope);
         }
+        function bind(f, obj) {
+            return function (a, b) {
+                return f.call(obj, a, b);
+            };
+        }
+        function setTemplate(key, value) {
+            this[key] = kendo.stringify(value);
+        }
         module.factory('directiveFactory', [
             '$compile',
             function (compile) {
@@ -550,14 +561,11 @@
                             '$attrs',
                             '$element',
                             function ($scope, $attrs) {
-                                var that = this;
-                                that.template = function (key, value) {
-                                    $attrs[key] = kendo.stringify(value);
-                                };
-                                $scope.$on('$destroy', function () {
-                                    that.template = null;
-                                    that = null;
-                                });
+                                this.template = bind(setTemplate, $attrs);
+                                $attrs._cleanUp = bind(function () {
+                                    this.template = null;
+                                    $attrs._cleanUp = null;
+                                }, this);
                             }
                         ],
                         link: function (scope, element, attrs, controllers) {
@@ -1239,7 +1247,7 @@
                                     $log.warn(attrName + ' without a matching parent widget found. It can be one of the following: ' + parents.join(', '));
                                 } else {
                                     controller.template(templateName, template);
-                                    $element.remove();
+                                    element.remove();
                                 }
                             };
                         }

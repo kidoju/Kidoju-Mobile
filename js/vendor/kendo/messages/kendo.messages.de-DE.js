@@ -1,5 +1,5 @@
 /** 
- * Kendo UI v2016.1.226 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2016.1.412 (http://www.telerik.com/kendo-ui)                                                                                                                                               
  * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -299,6 +299,15 @@ $.extend(true, kendo.ui.FilterMenu.prototype.options.messages,{
 });
 }
 
+/* FilterMultiCheck messages */
+
+if (kendo.ui.FilterMultiCheck) {
+kendo.ui.FilterMultiCheck.prototype.options.messages =
+$.extend(true, kendo.ui.FilterMultiCheck.prototype.options.messages,{
+  "search": "Suchen"
+});
+}
+
 /* Grid messages */
 
 if (kendo.ui.Grid) {
@@ -322,6 +331,28 @@ $.extend(true, kendo.ui.Grid.prototype.options.messages,{
     "confirmDelete": "Löschen"
   },
   "noRecords": "Keine Aufzeichnungen zur Verfügung."
+});
+}
+
+/* TreeList messages */
+
+if (kendo.ui.TreeList) {
+kendo.ui.TreeList.prototype.options.messages =
+$.extend(true, kendo.ui.TreeList.prototype.options.messages,{
+    "noRows": "Keine Aufzeichnungen zur Verfügung.",
+    "loading": "Lade Daten...",
+    "requestFailed": "Laden fehlgeschlagen",
+    "retry": "Neu laden",
+    "commands": {
+        "edit": "Bearbeiten",
+        "update": "Aktualisieren",
+        "canceledit": "Abbrechen",
+        "create": "Neuen Datensatz hinzufügen",
+        "createchild": "Neue abhängige Daten",
+        "destroy": "Löschen",
+        "excel": "Export nach Excel",
+        "pdf": "Export als PDF"
+    }
 });
 }
 
