@@ -59,9 +59,9 @@
     </div>
 
     <!-- Categories -->
-    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-show="app.onCategoriesShow">
+    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-show="app.mobile.onCategoriesViewShow">
         <!-- Display search button -->
-        <ul data-role="listview" data-source="app.viewModel.categories" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-categories-template">
+        <ul data-role="listview" data-source="app.mobile.viewModel.categories" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-categories-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-categories-template">
             <a href="\#phone-summaries">#: name #</a>
@@ -69,8 +69,8 @@
     </div>
 
     <!-- Summaries -->
-    <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-show="app.onSummariesShow">
-        <ul data-role="listview" data-source="app.viewModel.summaries" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-summaries-template">
+    <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-show="app.mobile.onSummariesViewShow">
+        <ul data-role="listview" data-source="app.mobile.viewModel.summaries" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-summaries-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-summaries-template">
             <a href="\#phone-player">#: title #</a>
@@ -78,8 +78,8 @@
     </div>
 
     <!-- Favourites view -->
-    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-show="app.onFavouritesShow">
-        <ul data-role="listview" data-source="app.viewModel.favourites" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-favourites-template">
+    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-show="app.mobile.onFavouritesViewShow">
+        <ul data-role="listview" data-source="app.mobile.viewModel.favourites" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-favourites-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-favourites-template">
             <a href="\#phone-player">#: title #</a>
@@ -87,8 +87,8 @@
     </div>
 
     <!-- Scores view -->
-    <div id="phone-scores" data-role="view" data-layout="phone-main-layout" data-title="Scores" data-show="app.onScoresShow">
-        <ul data-role="listview" data-source="app.viewModel.scores" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-scores-template">
+    <div id="phone-scores" data-role="view" data-layout="phone-main-layout" data-title="Scores" data-show="app.mobile.onScoresViewShow">
+        <ul data-role="listview" data-source="app.mobile.viewModel.scores" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-scores-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-scores-template">
             <a href="\#phone-player">#: title # - #: score #</a>
@@ -96,7 +96,7 @@
     </div>
 
     <!-- Settings view -->
-    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-use-native-scrolling="true" data-show="app.onSettingsShow">
+    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-use-native-scrolling="true" data-show="app.mobile.onSettingsViewShow">
         <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
         <form action="./index.html">
             <ul data-role="listview" data-style="inset">
@@ -131,130 +131,13 @@
     </div>
 
     <!-- Player view (ATTENTION: this one does not use the layout) -->
-    <div id="phone-player" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 6" data-show="app.onPlayerShow">
+    <div id="phone-player" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 6" data-show="app.mobile.onPlayerViewShow">
         <!-- Add player + instructions/explanation -->
         Player
         Instructions
     </div>
 
 </div>
-
-<script>
-    (function(){
-
-        var app = window.app = window.app || {};
-        app.viewModel = kendo.observable({
-            categories: [
-                { name: 'Mathematics' },
-                { name: 'Physics' },
-                { name: 'English' }
-            ],
-            summaries: [
-                { title: 'Test of Mathematics' },
-                { title: 'Test of Physics' },
-                { title: 'Test of English' },
-                { title: 'Test of Geography' },
-                { title: 'Test of History' }
-            ],
-            favourites: [
-                { title: 'Test of Mathematics' },
-                { title: 'Test of Physics' },
-                { title: 'Test of English' },
-                { title: 'Test of Geography' },
-                { title: 'Test of History' }
-            ],
-            scores: [
-                { title: 'Test of Mathematics', score: 10 },
-                { title: 'Test of Physics', score: 20 },
-                { title: 'Test of English', score: 30 },
-                { title: 'Test of Geography', score: 40 },
-                { title: 'Test of History', score: 50 }
-            ],
-            languages: [
-                { value: 'en', text: 'English' },
-                { value: 'fr', text: 'French' }
-            ],
-            themes: [
-                'flat',
-                'nova'
-            ],
-            settings: {
-                picture: '',
-                userName: 'Jacques L. Chereau',
-                version: 'v0.0.10',
-                language: 'en'
-            }
-        });
-
-        app._setNavBar = function (e) {
-            var showDrawerButton = false;
-            var showBackButton = false;
-            var showSearchButton = false;
-            var showSyncButton = false;
-            var showSelectionButtons = false;
-            switch (e.view.id) {
-                case '/':
-                case '#phone-categories':
-                    showDrawerButton = true;
-                    showBackButton = true;  // this depends whether category has parent id or not
-                    showSearchButton = true;
-                    break;
-                case '#phone-summaries':
-                    showDrawerButton = true;
-                    showBackButton = true;
-                    showSearchButton = true;
-                    showSelectionButtons = true;
-                    break;
-                case '#phone-favourites':
-                    showDrawerButton = true;
-                    showSyncButton = true;
-                    break;
-                case '#phone-scores':
-                    showDrawerButton = true;
-                    showSyncButton = true;
-                    break;
-                case '#phone-settings':
-                    showDrawerButton = true;
-                    showSyncButton = true;
-                    break;
-                case '#phone-player':
-                    showDrawerButton = true;
-                    // Add playbar buttons + page numbers
-                    break;
-            }
-            $('#phone-main-layout-drawer').css({ display: showDrawerButton ? 'inline-block': 'none' });
-            $('#phone-main-layout-back').css({ display: showBackButton ? 'inline-block': 'none' });
-            $('#phone-main-layout-search').css({ display: showSearchButton ? 'inline-block': 'none' });
-            $('#phone-main-layout-sync').css({ display: showSyncButton ? 'inline-block': 'none' });
-            $('#phone-main-layout-selection').css({ display: showSelectionButtons ? 'table' : 'none' });
-        };
-
-        app.onCategoriesShow = function (e) {
-            app._setNavBar(e);
-        };
-
-        app.onSummariesShow = function (e) {
-            app._setNavBar(e);
-        };
-
-        app.onFavouritesShow = function (e) {
-            app._setNavBar(e);
-        };
-
-        app.onSettingsShow = function (e) {
-            app._setNavBar(e);
-        };
-
-        app.onPlayerShow = function (e) {
-            app._setNavBar(e);
-        };
-
-        app.kendoApp = new kendo.mobile.Application($('#phone'), { platform: 'android-dark', skin: 'nova' });
-
-
-
-    }());
-</script>
 
 </body>
 </html>
