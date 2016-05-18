@@ -90,12 +90,12 @@ REM XCOPY ..\Kidoju.Widgets\src\js\vendor\markdown-it .\js\vendor\markdown-it /C
 REM ATTRIB +R .\js\vendor\markdown-it\*.* /S
 
 REM copy logentries
-REM XCOPY ..\Kidoju.Server\client\js\vendor\logentries .\js\vendor\logentries /C /E /I /R /Y
-REM ATTRIB +R .\js\vendor\logentries\*.* /S
+XCOPY ..\Kidoju.Server\client\js\vendor\logentries .\js\vendor\logentries /C /E /I /R /Y
+ATTRIB +R .\js\vendor\logentries\*.* /S
 
 REM copy valve/fingerprintjs
-REM XCOPY ..\Kidoju.Server\client\js\vendor\valve .\js\vendor\valve /C /E /I /R /Y
-REM ATTRIB +R .\js\vendor\valve\*.* /S
+XCOPY ..\Kidoju.Server\client\js\vendor\valve .\js\vendor\valve /C /E /I /R /Y
+ATTRIB +R .\js\vendor\valve\*.* /S
 
 REM Copy Kidoju Widgets
 ATTRIB -R .\js\kidoju*.js
