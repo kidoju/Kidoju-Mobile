@@ -23,7 +23,7 @@
         app.cultures.fr = {
             // Drawer
             drawer: {
-                explore: 'Explorer',
+                categories: 'Explorer',
                 favourites: 'Favoris',
                 scores: 'Scores',
                 settings: 'Configuration'

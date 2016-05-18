@@ -23,7 +23,7 @@
         app.cultures.en = {
             // Drawer
             drawer: {
-                explore: 'Explore',
+                categories: 'Explore',
                 favourites: 'Favourites',
                 scores: 'Scores',
                 settings: 'Settings'
