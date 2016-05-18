@@ -16,6 +16,9 @@ if (typeof(require) === 'function') {
 
     // Load app CSS
     require('../styles/app.mobile.less');
+
+    // Load config
+    require('./app.config.jsx?env=' + __NODE_ENV__);
 }
 
 (function (f, define) {
@@ -27,6 +30,9 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.draganddrop',
         './vendor/kendo/kendo.mobile.scroller',
         './vendor/kendo/kendo.data',
+        './vendor/kendo/kendo.popup',
+        './vendor/kendo/kendo.list',
+        './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.view',
         './vendor/kendo/kendo.mobile.view',
@@ -36,6 +42,7 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.mobile.application',
         './vendor/kendo/kendo.mobile.drawer',
         './vendor/kendo/kendo.mobile.button',
+        './vendor/kendo/kendo.mobile.buttongroup',
         './vendor/kendo/kendo.mobile.listview',
         './vendor/kendo/kendo.mobile.navbar',
         './vendor/kendo/kendo.mobile.switch',
@@ -43,7 +50,7 @@ if (typeof(require) === 'function') {
         './window.assert',
         './window.logger',
         './app.logger',
-        // './app.i18n',
+        './app.i18n',
         './app.rapi',
         './app.cache'
     ], f);
@@ -57,6 +64,11 @@ if (typeof(require) === 'function') {
         var app = window.app = window.app || {};
         var mobile = app.mobile = app.mobile || {};
         var UNDEFINED = 'undefined';
+        var STRING = 'string';
+        var ARRAY = 'array';
+        var CHANGE = 'change';
+        var LOCALE = 'settings.language';
+        var THEME = 'settings.theme';
 
         /*******************************************************************************************
          * viewModel
@@ -66,34 +78,36 @@ if (typeof(require) === 'function') {
 
             /**
              * Categories
+             * Note: this is only the list displayed, the whole hierarchy is stored in _categories
              */
-            categories: [
-                { name: 'Mathematics' },
-                { name: 'Physics' },
-                { name: 'English' }
-            ],
+            categories: [],
+
+            /**
+             * Selected category
+             */
+            category: undefined,
             
             /**
              * Summaries
              */
-            summaries: [
-                { title: 'Test of Mathematics' },
-                { title: 'Test of Physics' },
-                { title: 'Test of English' },
-                { title: 'Test of Geography' },
-                { title: 'Test of History' }
-            ],
+            summaries: [],
 
             /**
              * Favourites
              */
-            favourites: [
-                { title: 'Test of Mathematics' },
-                { title: 'Test of Physics' },
-                { title: 'Test of English' },
-                { title: 'Test of Geography' },
-                { title: 'Test of History' }
-            ],
+            favourites: [],
+
+            /**
+             * Selected summary
+             */
+            summary: undefined,
+
+            // TODO : versions?
+
+            /**
+             * Selected version
+             */
+            version: undefined,
 
             /**
              * Scores
@@ -118,35 +132,97 @@ if (typeof(require) === 'function') {
              * Themes
              */
             themes: [
-                'flat',
-                'nova'
+                { value: 'flat', text: 'Flat' },
+                { value: 'nova', text: 'Nova' }
             ],
 
             /**
              * User settings
              */
             settings: {
-                picture: '',
-                userName: 'Jacques L. Chereau',
-                version: 'v0.0.10',
-                language: 'en'
+                user: 'Jacques L. Chereau',
+                version: 'v0.2.0',
+                language: 'en',
+                theme: 'nova'
             }
-
 
         });
 
+        /**
+         * Event handler for the viewModel change event
+         */
+        mobile.viewModel.bind(CHANGE, function (e) {
+            if (e.field === LOCALE) {
+               mobile._localize(e.sender.get(LOCALE));
+            } else if (e.field === THEME) {
+               mobile._theme(e.sender.get(THEME));
+            }
+        });
+
         /*******************************************************************************************
-         * Event handler and utility methods
+         * Utility methods (prefixed with underscore)
          *******************************************************************************************/
 
         /**
-         * Event Handler trigger when the device is ready (this is a cordova event)
-         * Loads the application
+         * Localize the user interface
+         * @param locale
+         * @private
          */
-        mobile.onDeviceReady = function() {
-            mobile.application = new kendo.mobile.Application($('#phone'), { platform: 'android-dark', skin: 'nova' });
+        mobile._localize = function (locale) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, locale, kendo.format(assert.messages.enum.default, 'locale', app.locales));
+            app.i18n.load(locale).then(function() {
+                mobile._localizeDrawer(locale);
+                mobile._localizeSettings(locale);
+            });
         };
 
+        /**
+         * Localize the drawer
+         * @param locale
+         * @private
+         */
+        mobile._localizeDrawer = function (locale) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, locale, kendo.format(assert.messages.enum.default, 'locale', app.locales));
+            var drawer = app.i18n.culture.drawer;
+            var drawerElement = $('#phone-drawer');
+            drawerElement.find('ul>li>a.km-listview-link:eq(0)').text(drawer.categories);
+            drawerElement.find('ul>li>a.km-listview-link:eq(1)').text(drawer.favourites);
+            drawerElement.find('ul>li>a.km-listview-link:eq(2)').text(drawer.scores);
+            drawerElement.find('ul>li>a.km-listview-link:eq(3)').text(drawer.settings);
+        };
+
+        /**
+         * Localize the settings view
+         * @param locale
+         * @private
+         */
+        mobile._localizeSettings = function (locale) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, locale, kendo.format(assert.messages.enum.default, 'locale', app.locales));
+            var settings = app.i18n.culture.settings;
+            var viewElement = $('#phone-settings');
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(settings.user);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(settings.version);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(settings.language);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(settings.theme);
+        };
+
+        /**
+         * Theme the user interface
+         * @param theme
+         * @private
+         */
+        mobile._theme = function (theme) {
+            // TODO
+        };
+        
+        /**
+         * Show/hide relevant navbar commands
+         * @param e
+         * @private
+         */
         mobile._setNavBar = function (e) {
             var showDrawerButton = false;
             var showBackButton = false;
@@ -190,6 +266,41 @@ if (typeof(require) === 'function') {
             $('#phone-main-layout-selection').css({ display: showSelectionButtons ? 'table' : 'none' });
         };
 
+        /*******************************************************************************************
+         * Event handler and utility methods
+         *******************************************************************************************/
+
+        /**
+         * Event Handler trigger when the device is ready (this is a cordova event)
+         * Loads the application
+         */
+        mobile.onDeviceReady = function() {
+            mobile.application = new kendo.mobile.Application($('#phone'), { platform: 'android-dark', skin: 'nova' });
+        };
+
+        /**
+         * Event handler triggered when initializing the Categories view (only occurs once)
+         * @param e
+         */
+        mobile.onCategoriesViewInit = function (e) {
+            app.cache.getCategoryHierarchy('en')
+                .done(function (result) {
+                    mobile.viewModel._categories = result;
+                    mobile.viewModel.set('categories', mobile.viewModel._categories);
+                })
+                .fail(function (xhr, status, error) {
+                    // TODO
+                });
+        };
+
+        /**
+         * Event handler triggered when tapping the Categories listview
+         * @param e
+         */
+        mobile.onCategoriesListViewClick = function (e) {
+            debugger;
+        };
+
         /**
          * Event handler triggered when showing the Categories view
          * @param e
@@ -220,6 +331,28 @@ if (typeof(require) === 'function') {
          */
         mobile.onSettingsViewShow = function (e) {
             mobile._setNavBar(e);
+        };
+
+        /**
+         * Event handler triggered when changing the language in the Settings view
+         * @param e
+         */
+        mobile.onSettingsLanguageChange = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.ui.DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
+            var locale = e.sender.value();
+            mobile._localize(locale);
+        };
+
+        /**
+         * Event handler triggered when changing the theme in the Settings view
+         * @param e
+         */
+        mobile.onSettingsThemeChange = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.ui.DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
+            var theme = e.sender.value();
+            mobile._theme(theme);
         };
 
         /**

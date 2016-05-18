@@ -59,9 +59,9 @@
     </div>
 
     <!-- Categories -->
-    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-show="app.mobile.onCategoriesViewShow">
+    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-model="app.mobile.viewModel" data-init="app.mobile.onCategoriesViewInit" data-show="app.mobile.onCategoriesViewShow">
         <!-- Display search button -->
-        <ul data-role="listview" data-source="app.mobile.viewModel.categories" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-categories-template">
+        <ul data-role="listview" data-bind="source: categories" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-categories-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-categories-template">
             <a href="\#phone-summaries">#: name #</a>
@@ -69,8 +69,8 @@
     </div>
 
     <!-- Summaries -->
-    <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-show="app.mobile.onSummariesViewShow">
-        <ul data-role="listview" data-source="app.mobile.viewModel.summaries" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-summaries-template">
+    <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-model="app.mobile.viewModel" data-init="app.mobile.onSummariesViewInit" data-show="app.mobile.onSummariesViewShow">
+        <ul data-role="listview" data-bind="source: summaries" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-summaries-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-summaries-template">
             <a href="\#phone-player">#: title #</a>
@@ -78,8 +78,8 @@
     </div>
 
     <!-- Favourites view -->
-    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-show="app.mobile.onFavouritesViewShow">
-        <ul data-role="listview" data-source="app.mobile.viewModel.favourites" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-favourites-template">
+    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
+        <ul data-role="listview" data-bind="source: favourites" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-favourites-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-favourites-template">
             <a href="\#phone-player">#: title #</a>
@@ -87,8 +87,8 @@
     </div>
 
     <!-- Scores view -->
-    <div id="phone-scores" data-role="view" data-layout="phone-main-layout" data-title="Scores" data-show="app.mobile.onScoresViewShow">
-        <ul data-role="listview" data-source="app.mobile.viewModel.scores" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-scores-template">
+    <div id="phone-scores" data-role="view" data-layout="phone-main-layout" data-title="Scores" data-model="app.mobile.viewModel" data-show="app.mobile.onScoresViewShow">
+        <ul data-role="listview" data-bind="source: scores" data-pull-to-refresh="true" data-append-on-refresh="true" data-template="phone-scores-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-scores-template">
             <a href="\#phone-player">#: title # - #: score #</a>
@@ -96,34 +96,34 @@
     </div>
 
     <!-- Settings view -->
-    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-use-native-scrolling="true" data-show="app.mobile.onSettingsViewShow">
+    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-model="app.mobile.viewModel" data-use-native-scrolling="true" data-show="app.mobile.onSettingsViewShow">
         <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
-        <form action="./index.html">
+        <form>
             <ul data-role="listview" data-style="inset">
                 <li>
                     <label>
                         <span>User</span>
-                        <input type="text" value="Text" />
-                        <!-- Show login button -->
+                        <input type="text" data-bind="value: settings.user" readonly />
+                        <!-- TODO Show login button -->
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Version</span>
-                        <input type="text" value="Text" />
-                        <!-- Show upgrade sign if it does not match server -->
+                        <input type="text" data-bind="value: settings.version" readonly />
+                        <!-- TODO Show upgrade sign if it does not match server -->
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Language</span>
-                        <input type="text" value="Text" />
+                        <input data-role="dropdownlist" data-bind="value: settings.language, source: languages" data-value-field="value" data-text-field="text" />
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Theme</span>
-                        <input type="text" value="Text" />
+                        <input data-role="dropdownlist" data-bind="value: settings.theme, source: themes" data-value-field="value" data-text-field="text" />
                     </label>
                 </li>
             </ul>
