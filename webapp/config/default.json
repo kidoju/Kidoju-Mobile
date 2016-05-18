@@ -1,0 +1,12 @@
+{
+  "application": {
+    "name": "Kidoju.Webapp"
+  },
+  "awss3": {
+    "region": "us-east-1",
+    "config": {
+      "bucket": "kidoju.config",
+      "key": "kidoju.webapp/production.json"
+    }
+  }
+}

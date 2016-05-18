@@ -1,0 +1,153 @@
+{
+  "debug": false,
+  "level": 2,
+  "express": {
+    "port": 3000
+  },
+  "locales": [ "en", "fr" ],
+  "logentries": {
+    "browser": {
+      "token": "e78bac0b-377a-49e2-ad91-20bb4ec7cedc"
+    }
+  },
+  "facebook": {
+    "clientID": "892459787527630"
+  },
+  "twitter": {
+    "account": "kidoju"
+  },
+  "assets": {
+    "audio": {
+      "collections": [],
+      "extensions": [".mp3", ".ogg"],
+      "schemes": {
+        "cdn": "https://cdn.kidoju.com/",
+        "data": "https://s3.amazonaws.com/kidoju.data/"
+      }
+    },
+    "image": {
+      "collections": [
+        {
+          "name": "G-Collection",
+          "transport": {
+            "read": "https://cdn.kidoju.com/images/g_collection/svg/all/index.json"
+          }
+        },
+        {
+          "name": "O-Collection",
+          "collections": [
+            {
+              "name": "Dark Grey",
+              "transport": {
+                "read": "https://cdn.kidoju.com/images/o_collection/svg/dark_grey/index.json"
+              }
+            },
+            {
+              "name": "Office",
+              "transport": {
+                "read": "https://cdn.kidoju.com/images/o_collection/svg/office/index.json"
+              }
+            },
+            {
+              "name": "White",
+              "transport": {
+                "read": "https://cdn.kidoju.com/images/o_collection/svg/white/index.json"
+              }
+            }
+          ]
+        },
+        {
+          "name": "V-Collection",
+          "collections": [
+            {
+              "name": "Small",
+              "transport": {
+                "read": "https://cdn.kidoju.com/images/v_collection/png/32x32/index.json"
+              }
+            },
+            {
+              "name": "Medium",
+              "transport": {
+                "read": "https://cdn.kidoju.com/images/v_collection/png/64x64/index.json"
+              }
+            },
+            {
+              "name": "Large",
+              "transport": {
+                "read": "https://cdn.kidoju.com/images/v_collection/png/128x128/index.json"
+              }
+            },
+            {
+              "name": "Huge",
+              "transport": {
+                "read": "https://cdn.kidoju.com/images/v_collection/png/256x256/index.json"
+              }
+            }
+          ]
+        },
+        {
+          "name": "X-Collection",
+          "collections": [
+            {
+              "name": "Small",
+              "transport": {
+                "read": "https://cdn.kidoju.com/images/x_collection/png/32x32/index.json"
+              }
+            },
+            {
+              "name": "Large",
+              "transport": {
+                "read": "https://cdn.kidoju.com/images/x_collection/png/128x128/index.json"
+              }
+            }
+          ]
+        }
+      ],
+      "extensions": [".gif", ".jpg", ".png", ".svg"],
+      "schemes": {
+        "cdn": "https://cdn.kidoju.com/",
+        "data": "https://s3.amazonaws.com/kidoju.data/"
+      }
+    },
+    "video": {
+      "collections": [],
+      "extensions": [".mp4", ".ogv", ".wbem"],
+      "schemes": {
+        "cdn": "https://cdn.kidoju.com/",
+        "data": "https://s3.amazonaws.com/kidoju.data/"
+      }
+    }
+  },
+  "uris": {
+    "rapi": {
+      "root": "https://www.kidoju.com",
+      "v1": {
+        "summary": "/api/v1/%s/summaries/%s",
+        "user": "/api/v1/users/%s"
+      }
+    },
+    "cdn": {
+      "root":  "https://cdn.kidoju.com",
+      "icons": "/images/o_collection/svg/office/%s.svg",
+      "images": "/kidoju/%s"
+    },
+    "webapp": {
+      "root": "https://www.kidoju.com",
+      "editor": "/%s/e/%s/%s",
+      "finder": "/%s",
+      "home": "/",
+      "locale": "/%s",
+      "ping": "/ping",
+      "player": "/%s/x/%s/%s/%s",
+      "public": "/%s",
+      "rss": "/%s/rss/%s",
+      "sitemap": "/%s/sitemap/%s",
+      "summary": "/%s/s/%s",
+      "user": "/%s/u/%s",
+      "workerlib": "workerlib.bundle.js"
+    },
+    "webpack": {
+      "root": "./build/"
+    }
+  }
+}
