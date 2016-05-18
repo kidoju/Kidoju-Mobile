@@ -14,8 +14,23 @@
 
 var path = require('path');
 var util = require('util');
+var deasync = require('deasync');
 var webpack = require('webpack');
+var config = require('./webapp/config');
 
+/**
+ * This is really ugly but acceptable in devEnvironment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * In a production environment, we need to load production.json from AWS S3 before we can export module
+ * @type {boolean}
+ */
+var loaded = false;
+config.load(function (error /*.store*/) {
+    if (error) {
+        throw error;
+    }
+    loaded = true;
+});
+deasync.loopWhile(function () { return !loaded; });
 
 /**
  * definePlugin defines a global variable which is only available when running webpack
@@ -25,9 +40,13 @@ var webpack = require('webpack');
  * @see https://github.com/petehunt/webpack-howto#6-feature-flags
  */
 var pkg = require('./package.json');
+var environment = config.environment || 'development';
 var definePlugin = new webpack.DefinePlugin({
+    __NODE_ENV__: JSON.stringify(environment),
     __VERSION__: JSON.stringify(pkg.version)
 });
+console.log('webpack environment is ' + environment);
+console.log('webpack public path is ' + config.get('uris:webpack:root'));
 console.log('building version ' + pkg.version);
 
 /**
@@ -65,7 +84,6 @@ module.exports = {
     context: path.join(__dirname, '/'),
     devtool: 'source-map',
     entry: {
-        // We need init especially because of FOUJI
         app: './js/app.mobile.js' // ,
         // Worker library
         // workerlib: './js/kidoju.data.workerlib.js'
@@ -77,7 +95,7 @@ module.exports = {
         // Unfortunately it is not possible to specialize output directories
         // See https://github.com/webpack/webpack/issues/882
         path: path.join(__dirname, '/www/build'),
-        // publicPath: config.get('uris:webpack:root'),
+        publicPath: config.get('uris:webpack:root'),
         filename: '[name].bundle.js?v=' + pkg.version,
         chunkFilename: '[name].chunk.js?v=' + pkg.version
     },
@@ -89,13 +107,11 @@ module.exports = {
     },
     module: {
         loaders: [
-            /*
             {
                 // Do not put a $ at the end of the test regex
                 test: /\.jsx/, // see ./web_modules/jsx-loader
                 loader: 'jsx?config=webapp/config'
             },
-            */
             {
                 test: /\.json$/,
                 loader: 'json'

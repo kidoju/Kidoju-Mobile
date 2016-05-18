@@ -121,6 +121,25 @@ ATTRIB +R .\js\app.models.js
 COPY ..\Kidoju.Server\client\js\app.models.mock.js .\js /Y
 ATTRIB +R .\js\app.models.mock.js
 
+REM Kidoju webapp files
+ATTRIB -R .\js\app*.jsx
+COPY ..\Kidoju.WebApp\js\app.config.jsx .\js /Y
+
+ATTRIB +R .\js\app.config.jsx
+COPY ..\Kidoju.WebApp\js\app.i18n.js .\js /Y
+ATTRIB +R .\js\app.i18n.js
+COPY ..\Kidoju.WebApp\js\app.i18n.js .\js /Y
+
+ATTRIB -R .\webapp\config\index.js
+COPY ..\Kidoju.WebApp\webapp\confif\config.js .\webapp\config /Y
+ATTRIB +R .\webapp\config\index.js
+
+REM ------------------------------------------------------------
+REM Web modules
+REM ------------------------------------------------------------
+XCOPY ..\Kidoju.WebApp\web_modules .\web_modules /C /E /I /R /Y
+ATTRIB +R .\web_modules\*.* /S
+
 REM ------------------------------------------------------------
 REM Styles
 REM ------------------------------------------------------------
