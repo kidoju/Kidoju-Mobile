@@ -153,6 +153,10 @@
         if (ui.Stage) {
             options = ui.Stage.prototype.options;
             options.messages = $.extend(true, options.messages, {
+                contextMenu: {
+                    delete: 'Supprimer',
+                    duplicate: 'Dupliquer'
+                },
                 noPage: 'Veuillez ajouter ou sélectionner une page'
             });
         }
@@ -187,16 +191,48 @@
          */
 
         /**
-         * kidoju.tools
+         * kidoju.data & kidoju.tools
          */
 
         if (window.kidoju) {
 
             var kidoju = window.kidoju;
+            var data = kidoju.data;
             var tools = kidoju.tools;
             var Tool = kidoju.Tool;
             var attributes;
             var properties;
+
+            /*
+            if (data && data.PageComponent) {
+                data.PageComponent.prototype.messages = {
+                }
+            }
+            */
+
+            if (data && data.Page) {
+                data.Page.prototype.messages = {
+                    emptyPage: 'La page {0} ne doit pas être vide.',
+                    minConnectors: 'Au moins {0} Connecteurs sont nécessaires pour faire une question en page {1}.',
+                    missingDraggable: 'Des Étiquettes et Images déplaçables sont requis pour la/les Zone(s) de Dépôt en page {0}.',
+                    missingDropZone: 'Une Zone de Dépôt est requise pour les Étiquettes et Images déplaçables en page {0}.',
+                    missingLabel: 'Une Étiquettes est recommandée en page {0}.',
+                    missingMultimedia: 'Un élément multimédia (Image, Audio, Vidéo) est recommandé en page {0}.',
+                    missingQuestion: 'Une question est recommandé en page {0}.',
+                    missingInstructions: 'Des instructions sont recommandées en page {0}.',
+                    missingExplanations: 'Les explications manquent en page {0}.'
+                };
+            }
+
+            if (data && data.Stream) {
+                data.Stream.prototype.messages = {
+                    duplicateNames: 'Supprimez les composants utilisant le même nom `{0}` en pages {1}',
+                    minPages: 'Il faut au moins {0} pages pour pouvoir publier.',
+                    minQuestions: 'Il faut au moins {0} questions pour pouvoir publier.',
+                    typeVariety: 'On recommande l\'usage d\'au moins {0} types de questions (Choix Multiple, Boîte de Texte, Connecteurs ou autre).',
+                    qtyVariety: 'On recommande plus de variété quand {0:p0} des questions sont du type {1}.'
+                };
+            }
 
             // if (kidoju.Tool instanceof Function) {
             if (Tool && Tool.constructor && Tool.constructor.name === 'Function') {
@@ -211,6 +247,14 @@
                     dialogs: {
                         ok: { text: 'OK' },
                         cancel: { text: 'Annuler' }
+                    },
+                    messages: {
+                        missingDropValue: 'Une {0} en page {1} nécessite une valeur de dépôt dans la logique de test.',
+                        missingDescription: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une question dans la logique de test.',
+                        missingSolution: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une solution dans la logique de test.',
+                        missingValidation: 'Un(e) {0} nommé(e) `{1}` en page {2} nécessite une formule de validation dans la logique de test.',
+                        invalidFailure: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score d\'échec supérieur au score d\'omission ou zéro dans la logique de test.',
+                        invalidSuccess: 'Un(e) {0} nommé(e) `{1}` en page {2} a un score de succès inférieur au score d\'omission ou zéro dans la logique de test.'
                     }
                 });
             }
@@ -240,7 +284,7 @@
                     // Properties
                     properties = tools.chargrid.constructor.prototype.attributes;
                     properties.name.title = 'Nom';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
@@ -261,7 +305,7 @@
                     // Properties
                     properties = tools.checkbox.constructor.prototype.properties;
                     properties.name.title = 'Nom';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
@@ -278,7 +322,7 @@
                     // Properties
                     properties = tools.connector.constructor.prototype.properties;
                     properties.name.title = 'Nom';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
@@ -297,7 +341,7 @@
                     // Properties
                     properties = tools.dropzone.constructor.prototype.properties;
                     properties.name.title = 'Nom';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
@@ -357,7 +401,7 @@
                     // Properties
                     properties = tools.quiz.constructor.prototype.properties;
                     properties.name.title = 'Nom';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';
@@ -374,7 +418,7 @@
                     // Properties
                     properties = tools.textbox.constructor.prototype.properties;
                     properties.name.title = 'Nom';
-                    properties.description.title = 'Description';
+                    properties.description.title = 'Question';
                     properties.solution.title = 'Solution';
                     properties.validation.title = 'Validation';
                     properties.success.title = 'Succès';

@@ -47,6 +47,8 @@
         var NUMBER = 'number';
         var BOOLEAN = 'boolean';
         var DATE = 'date';
+        var ERROR = 'error';
+        var WARNING = 'warning';
         var CURSOR_DEFAULT = 'default';
         var CURSOR_CROSSHAIR = 'crosshair';
         var REGISTER = 'register';
@@ -97,6 +99,15 @@
                 cancel: { text: 'Cancel' }
             },
 
+            messages: {
+                missingDropValue: 'A {0} on page {1} requires a drop value in test logic.',
+                missingDescription: 'A {0} named `{1}` on page {2} requires a question in test logic.',
+                missingSolution: 'A {0} named `{1}` on page {2} requires a solution in test logic.',
+                missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula in test logic.',
+                invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
+                invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.'
+            },
+
             pointer: {
                 description: 'Pointer'
             },
@@ -121,7 +132,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -140,7 +151,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -156,7 +167,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -173,7 +184,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -226,7 +237,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -242,7 +253,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Description' },
+                    description: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -364,6 +375,14 @@
                 dialogs: {
                     ok: { text: i18n.dialogs.ok.text }, // TODO : icon?
                     cancel: { text: i18n.dialogs.cancel.text }
+                },
+                messages: {
+                    missingDropValue: i18n.messages.missingDropValue,
+                    missingDescription: i18n.messages.missingDescription,
+                    missingSolution: i18n.messages.missingSolution,
+                    missingValidation: i18n.messages.missingValidation,
+                    invalidFailure: i18n.messages.invalidFailure,
+                    invalidSuccess: i18n.messages.invalidSuccess
                 }
             },
 
@@ -532,12 +551,57 @@
              */
             solution$: function (solution) {
                 return kendo.htmlEncode(solution || '');
-            }
+            },
 
             // onEnable: function (e, component, enabled) {},
             // onMove: function (e, component) {},
             // onResize: function (e, component) {},
             // onRotate: function (e, component) {},
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
+                assert.instanceof (PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
+                var ret = [];
+                if (component.properties) {
+                    var properties = component.properties;
+                    var description = this.description; // tool description
+                    var messages = this.i18n.messages;
+                    var name = properties.name;
+                    // TODO: test name? note that all components do not necessarily have a name
+                    if (properties.draggable === true && !/\S+/.test(properties.dropValue)) {
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingDropValue, description, /*name,*/ pageIdx + 1) });
+                    }
+                    if ($.type(properties.description) === STRING && !/\S+/.test(properties.description)) {
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingDescription, description, name, pageIdx + 1) });
+                    }
+                    if ($.type(properties.solution) === STRING && !/\S+/.test(properties.solution)) {
+                        // TODO: what if solution is not a string but a number or something else ?
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingSolution, description, name, pageIdx + 1) });
+                    }
+                    if ($.type(properties.validation) === STRING && !/\S+/.test(properties.validation)) {
+                        // TODO: There is room for better validation of the validation formula
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingValidation, description, name, pageIdx + 1) });
+                    }
+                    if ($.type(properties.failure) === NUMBER && $.type(properties.omit) === NUMBER && properties.failure > Math.min(properties.omit, 0)) {
+                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidFailure, description, name, pageIdx + 1) });
+                    }
+                    if ($.type(properties.success) === NUMBER && $.type(properties.omit) === NUMBER && properties.success < Math.max(properties.omit, 0)) {
+                        ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidSuccess, description, name, pageIdx + 1) });
+                    }
+                }
+                return ret;
+            }
+
+            /* jshint +W074 */
 
         });
 
@@ -732,6 +796,47 @@
         adapters.NameAdapter = adapters.StringAdapter.extend({
             init: function (options, attributes) {
                 adapters.StringAdapter.fn.init.call(this, options, $.extend(attributes, { readonly: true }));
+            }
+        });
+
+        /**
+         * Description Adapter
+         */
+        adapters.DescriptionAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = STRING;
+                // this.editor = 'input';
+                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+                that.editor = function (container, options) {
+                    var input = $('<input/>')
+                        .css({ width: '100%' })
+                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .appendTo(container);
+                    input.kendoComboBox({
+                        // dataSource: { data: [] }, // We need a non-empty dataSource otherwise open is not triggered
+                        /**
+                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
+                         * @param e
+                         */
+                        open: function(e) {
+                            var texts = [];
+                            // find the design (mode) stage, avoiding navigation
+                            var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
+                            // find all labels
+                            var labels = stage.find('.kj-element[' + kendo.attr('tool') + '="label"]>div');
+                            labels.each(function (index, label) {
+                                var text = $(label).text();
+                                if ($.type(text) === STRING && text.length) {
+                                    texts.push(text);
+                                }
+                            });
+                            texts.sort();
+                            e.sender.setDataSource(texts);
+                        }
+                    });
+                }
             }
         });
 
@@ -1371,7 +1476,7 @@
          },
          properties: {
          name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
-         description: new adapters.StringAdapter({ title: i18n.chargrid.properties.description.title }),
+         description: new adapters.DescriptionAdapter({ title: i18n.chargrid.properties.description.title }),
          solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
          validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
          success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
@@ -1451,7 +1556,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.checkbox.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.checkbox.properties.description.title }),
                 solution: new adapters.StringArrayAdapter({ title: i18n.checkbox.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.checkbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.success.title, defaultValue: 1 }),
@@ -1529,7 +1634,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.connector.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.connector.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.connector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
@@ -1587,11 +1692,11 @@
             width: 250,
             attributes: {
                 text: new adapters.StringAdapter({ title: i18n.dropzone.attributes.text.title, defaultValue: i18n.dropzone.attributes.text.defaultValue }),
-                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'border: dashed 1px #e1e1e1;' })
+                style: new adapters.StyleAdapter({ title: i18n.dropzone.attributes.style.title, defaultValue: 'font-size: 30px; border: dashed 3px #e1e1e1;' })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.dropzone.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.dropzone.properties.description.title }),
                 solution: new adapters.StringArrayAdapter({ title: i18n.dropzone.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
@@ -1738,11 +1843,15 @@
             templates: {
                 default: '<div style="#: attributes.style #" data-#= ns #id="#: properties.id$() #" data-#= ns #draggable="#: properties.draggable #" data-#= ns #drop-value="#: properties.dropValue #">#: attributes.text #</div>'
             },
-            height: 100,
+            height: 80,
             width: 300,
             attributes: {
-                text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
-                style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 80px;' })
+                // text: new adapters.StringAdapter({ title: i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue }),
+                text: new adapters.TextAdapter(
+                    { title:i18n.label.attributes.text.title, defaultValue: i18n.label.attributes.text.defaultValue },
+                    { rows: 2, style: 'resize:vertical; width: 100%;' }
+                ),
+                style: new adapters.StyleAdapter({ title: i18n.label.attributes.style.title, defaultValue: 'font-size: 60px;' })
             },
             properties: {
                 draggable: new adapters.BooleanAdapter({ title: i18n.label.properties.draggable.title, defaultValue: false }),
@@ -1901,7 +2010,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.quiz.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.quiz.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.quiz.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
@@ -1976,14 +2085,14 @@
                 play: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
                 review: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"') + Tool.fn.showResult()
             },
-            height: 100,
+            height: 80,
             width: 300,
             attributes: {
                 style: new adapters.StyleAdapter({ title: i18n.textbox.attributes.style.title })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.textbox.properties.name.title }),
-                description: new adapters.StringAdapter({ title: i18n.textbox.properties.description.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.textbox.properties.description.title }),
                 solution: new adapters.StringAdapter({ title: i18n.textbox.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.textbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),

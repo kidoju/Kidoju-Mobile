@@ -34,7 +34,8 @@
         var NUMBER = 'number';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        // var ERROR = 'error';
+        var ERROR = 'error';
+        var WARNING = 'warning';
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         var RX_VALID_NAME = /^val_[a-z0-9]{6}$/;
@@ -547,6 +548,24 @@
                 clone = new PageComponent(clone);
                 // Return clone
                 return clone;
+            },
+
+            /**
+             * PageComponent validation
+             * @param pageIdx (in PageCollection)
+             */
+            validate: function (pageIdx) {
+                assert.instanceof (PageComponent, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.PageComponent'));
+                assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
+                assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                var component = this;
+                var ret = [];
+                var tool = component.get('tool');
+                assert.type(STRING, tool, kendo.format(assert.messages.type.default, 'tool', STRING));
+                if (kidoju.tools[tool] instanceof kidoju.Tool) {
+                    ret = kidoju.tools[tool].validate(component, pageIdx);
+                }
+                return ret;
             }
 
         });
@@ -801,7 +820,106 @@
                 }
                 // Return clone
                 return clone;
+            },
+
+            /**
+             * i18n Messages
+             */
+            messages: {
+                emptyPage: 'Page {0} cannot be empty.',
+                minConnectors: 'At least {0} Connectors are required to make a question on page {1}.',
+                missingDraggable: 'Draggable Labels or Images are required for a Drop Zone on page {0}.',
+                missingDropZone: 'A Drop Zone is required for draggable Labels or Images on page {0}.',
+                missingLabel: 'A Label is recommended on page {0}.',
+                missingMultimedia: 'A multimedia element (Image, Audio, Video) is recommended on page {0}.',
+                missingQuestion: 'A question is recommended on page {0}.',
+                missingInstructions: 'Instructions are recommended on page {0}.',
+                missingExplanations: 'Explanations are missing on page {0}.'
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Page validation
+             * @param pageIdx
+             * @returns {Array}
+             */
+            validate: function (pageIdx) {
+                /* jshint maxcomplexity: 22 */
+                assert.instanceof (Page, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Page'));
+                assert.type(NUMBER, pageIdx, kendo.format(assert.messages.type.default, 'pageIdx', NUMBER));
+                var ret = [];
+                var hasDraggable = false;
+                var hasDropZone = false;
+                var hasLabel = false;
+                var hasMultimedia = false;
+                var hasQuestion = false;
+                var connectorCount = 0;
+                var componentTotal = this.components.total();
+                if (componentTotal === 0) {
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.emptyPage, pageIdx + 1) });
+                }
+                for (var i = 0; i < componentTotal; i++) {
+                    var component = this.components.at(i);
+                    if (component.tool === 'label') {
+                        hasLabel = true;
+                        if (component.properties.draggable) {
+                            hasDraggable = true;
+                        }
+                    } else if (component.tool === 'image' || component.tool === 'audio' || component.tool === 'video') {
+                        hasMultimedia = true;
+                        if (component.properties.draggable) {
+                            hasDraggable = true;
+                        }
+                    } else if ($.type(component.properties) ===  OBJECT && $.type(component.properties.validation) === STRING) {
+                        hasQuestion = true;
+                        if (component.tool === 'connector') {
+                            connectorCount++;
+                        } else if (component.tool === 'dropzone') {
+                            hasDropZone = true;
+                        }
+                    }
+                    ret = ret.concat(component.validate(pageIdx));
+                }
+                // Check a label
+                if (componentTotal > 0 && !hasLabel) {
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingLabel, pageIdx + 1) });
+                }
+                // Check a multimedia element
+                if (componentTotal > 0 && !hasMultimedia) {
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingMultimedia, pageIdx + 1) });
+                }
+                // Check a question
+                if (componentTotal > 0 && !hasQuestion) {
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingQuestion, pageIdx + 1) });
+                }
+                // Check connectors
+                var MIN_CONNECTORS = 4;
+                if (connectorCount > 0 && connectorCount < MIN_CONNECTORS) {
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.minConnectors, MIN_CONNECTORS, pageIdx + 1) });
+                }
+                // Check drop zone and draggable
+                if (hasDropZone && !hasDraggable) {
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingDraggable, pageIdx + 1) });
+                } else if (!hasDropZone && hasDraggable) {
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingDropZone, pageIdx + 1) });
+                }
+                // Check instructions
+                var instructions = (this.get('instructions') || '').trim();
+                if (!instructions) {
+                    ret.push({ type: WARNING, index: pageIdx, message: kendo.format(this.messages.missingInstructions, pageIdx + 1) });
+                }
+                // Check explanations
+                var explanations = (this.get('explanations') || '').trim();
+                if (!explanations) {
+                    ret.push({ type: ERROR, index: pageIdx, message: kendo.format(this.messages.missingExplanations, pageIdx + 1) });
+                }
+                return ret;
             }
+
+            /* jshint +W074 */
+
         });
 
         /**
@@ -1015,7 +1133,7 @@
                 // Note: the model being created on the fly (no kendo.data.Model)), we only have an ObservableObject to test
                 assert.instanceof(kendo.data.ObservableObject, test, kendo.format(assert.messages.instanceof.default, 'test', 'kendo.data.ObservableObject'));
 
-                var that = this;
+                var pageCollectionDataSource = this; // don't use that which is used below
                 var deferred = $.Deferred();
                 var workerPool = new WorkerPool(window.navigator.hardwareConcurrency || 4, workerTimeout);
                 // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
@@ -1049,47 +1167,75 @@
                             return score === 0 || max === 0 ?  0 : 100 * score / max;
                         },
                         getScoreArray: function () {
-                            function findFirstRedundancy (name) {
-                                var page = that[name].page;
-                                var solution = that[name].solution;
-                                for (var redundancy in that) {
-                                    if (that.hasOwnProperty(redundancy) && redundancy !== name && RX_VALID_NAME.test(redundancy)) {
-                                        if (that[redundancy].page === page && that[redundancy].solution === solution) {
-                                            return redundancy; // Hopefully there is only one
+                            function matchPageConnectors (pageIdx) {
+                                // Connectors are a match if they have the same solution
+                                var ret = {};
+                                var connectors = pageCollectionDataSource.at(pageIdx).components.data().filter(function (component) {
+                                    return component.tool === 'connector';
+                                });
+                                for (var i = 0, length = connectors.length; i < length; i++) {
+                                    var connector = connectors[i];
+                                    var name = connector.properties.name;
+                                    assert.match(RX_VALID_NAME, name, kendo.format(assert.messages.match.default, 'name', RX_VALID_NAME));
+                                    var solution = connector.properties.solution;
+                                    var found = false;
+                                    for (var prop in ret) {
+                                        if (ret.hasOwnProperty(prop)) {
+                                            if (prop === name) {
+                                                // already processed
+                                                found = true;
+                                                break;
+                                            } else if (ret[prop] === solution) {
+                                                // found matching connector, point to name
+                                                ret[prop] = name;
+                                                found = true;
+                                                break;
+                                            }
                                         }
                                     }
+                                    if (!found) {
+                                        // Add first connector, waiting to find a matching one
+                                        ret[name] = solution;
+                                    }
                                 }
+                                return ret;
                             }
-                            var that = this;
-                            var array = [];
-                            var redundancies = {};
+                            function matchConnectors () {
+                                // We need a separate function because matching connectors neded to have the same solution on the same page (not a different page)
+                                var ret = {};
+                                for (var pageIdx = 0, pageTotal = pageCollectionDataSource.total(); pageIdx < pageTotal; pageIdx++) {
+                                    ret = $.extend(ret, matchPageConnectors(pageIdx));
+                                }
+                                return ret;
+                            }
                             assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
-                            for (var name in this) {
-                                if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
-                                    var testItem = this.get(name);
-                                    var redundancy = findFirstRedundancy(name);
-                                    // TODO: any way to improve this ugly hack used to display coupled connectors as a single item in the score grid ?
-                                    if ($.type(redundancy) === STRING && $.type(redundancies[name]) === UNDEFINED) {
-                                        // Make the first connector found redundant
-                                        redundancies[redundancy] = testItem;
-                                    } else {
-                                        var scoreItem = testItem.toJSON();
-                                        // Improved display of values in score grids
-                                        scoreItem.value = testItem.value$();
-                                        scoreItem.solution = testItem.solution$();
-                                        // Aggregate score of redundant items (connectors)
-                                        if (redundancies[name]) {
-                                            // If there is a redundancy, adjust scores
-                                            scoreItem.failure += redundancies[name].failure;
-                                            scoreItem.omit += redundancies[name].omit;
-                                            scoreItem.score += redundancies[name].score;
-                                            scoreItem.success += redundancies[name].success;
-                                        }
-                                        array.push(scoreItem);
+                            var that = this; // this is variable `result`
+                            var matchingConnectors = matchConnectors();
+                            var redundantConnectors = {};
+                            var scoreArray = [];
+                            for (var name in that) {
+                                // Only display valid names in the form val_xxxxxx that are not redundant connectors
+                                if (that.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !redundantConnectors.hasOwnProperty(name)) {
+                                    var testItem = that.get(name);
+                                    var scoreItem = testItem.toJSON();
+                                    // Improved display of values in score grids
+                                    scoreItem.value = testItem.value$();
+                                    scoreItem.solution = testItem.solution$();
+                                    // Aggregate score of redundant items (connectors)
+                                    var redundantName = matchingConnectors[name];
+                                    if (that.hasOwnProperty(redundantName) && RX_VALID_NAME.test(redundantName)) {
+                                        // If there is a redundancy, adjust scores
+                                        var redundantItem = that.get(redundantName);
+                                        scoreItem.failure += redundantItem.failure;
+                                        scoreItem.omit += redundantItem.omit;
+                                        scoreItem.score += redundantItem.score;
+                                        scoreItem.success += redundantItem.success;
+                                        redundantConnectors[redundantName] = true;
                                     }
+                                    scoreArray.push(scoreItem);
                                 }
                             }
-                            return array;
+                            return scoreArray;
                         },
                         toJSON: function () {
                             var json = {};
@@ -1133,7 +1279,7 @@
 
                         // Add tasks to the worker pool
                         // Iterate through pages
-                        $.each(that.data(), function (pageIdx, page) {
+                        $.each(pageCollectionDataSource.data(), function (pageIdx, page) {
                             // Iterate through page components
                             $.each(page.components.data(), function (componentIdx, component) {
 
@@ -1391,7 +1537,101 @@
                 } else {
                     return this._loaded;
                 }
+            },
+
+            /**
+             * i18n Messages
+             */
+            messages: {
+                duplicateNames: 'Delete components using the same name `{0}` on pages {1}',
+                minPages: 'At least {0} pages are required to be allowed to publish.',
+                minQuestions: 'At least {0} questions are required to be allowed to publish.',
+                typeVariety: 'The use of at least {0} types of questions (Multiple Choice, TextBox, Connector or else) is recommended.',
+                qtyVariety: 'More variety is recommended because {0:p0} of questions are of type {1}.'
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Stream validation
+             */
+            validate: function () {
+                /* jshint maxcomplexity: 19 */
+                assert.instanceof (Stream, this, kendo.format(assert.messages.instanceof.default, 'this', 'kidoju.data.Stream'));
+                var ret = [];
+                var names = {};
+                var questions = { _total: 0 };
+                // Minimum number of pages
+                var MIN_PAGES = 5;
+                var pageTotal = this.pages.total();
+                if (pageTotal < MIN_PAGES) {
+                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minPages, MIN_PAGES) });
+                }
+                for (var i = 0; i < pageTotal; i++) {
+                    var page = this.pages.at(i);
+                    var componentTotal = page.components.total();
+                    // Count names and questions
+                    for (var j = 0; j < componentTotal; j++) {
+                        var component = page.components.at(j);
+                        var properties = component.properties;
+                        if (properties) {
+                            if ($.type(properties.name) === STRING) {
+                                // Collect all pages where a name can be found in view to check that each name is only used once
+                                names[properties.name] = (names[properties.name] || []).push(i);
+                            }
+                            if ($.type(properties.validation) === STRING) {
+                                assert.type(STRING, component.tool, kendo.format(assert.messages.type.default, 'component.tool', STRING));
+                                var tool = component.tool;
+                                // Connectors go in pairs but it would not make sense to only have 2 connectors or less on a page, you need at least 4 to make a question
+                                // Note: We are not checking here that these connectors are on the same page, which we do in page validation
+                                questions._total += (tool === 'connector' ? 0.25 : 1);
+                                questions[tool] = (questions[tool] || 0) + (tool === 'connector' ? 0.25 : 1);
+                            }
+                        }
+                    }
+                    // Validate each page
+                    ret = ret.concat(page.validate(i));
+                }
+                // Duplicate names
+                for (var name in names) {
+                    if (names.hasOwnProperty(name)) {
+                        var pages = names[name];
+                        if ($.isArray(pages) && pages.length > 1) {
+                            var index = pages[0];
+                            // page numbers start at 1 when page indexes start at 0
+                            pages = pages.map(function (idx) { return idx + 1; });
+                            ret.push({ type: ERROR, index: index, message: kendo.format(this.messages.duplicateNames, name, pages) });
+                        }
+                    }
+                }
+                // Minimum number of questions
+                var MIN_QUESTIONS = 10;
+                if (questions._total < MIN_QUESTIONS) {
+                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.minQuestions, MIN_QUESTIONS) });
+                }
+                // Validate toolset (which includes _total) to make sure questions are varied
+                var TYPE_VARIETY = 3;
+                if (Object.keys(questions).length <= TYPE_VARIETY + (questions.quiz && questions.checkbox ? 1 : 0)) {
+                    // TODO: Should be a warning
+                    ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.typeVariety, TYPE_VARIETY) });
+                }
+                var QTY_VARIETY = 0.5;
+                for (var prop in questions) {
+                    if (questions.hasOwnProperty(prop) && prop !== '_total') {
+                        var proportion =  questions[prop] / questions._total;
+                        if (proportion > QTY_VARIETY) {
+                            // TODO: Should be a warning
+                            assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
+                            ret.push({ type: ERROR, index: -1, message: kendo.format(this.messages.qtyVariety, proportion, kidoju.tools[prop].description) });
+                        }
+                    }
+                }
+                return ret;
             }
+
+            /* jshint +W074 */
+
         });
 
 
