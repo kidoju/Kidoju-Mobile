@@ -1,0 +1,119 @@
+@font-face {
+    font-family: "kidoju";
+    src: url("kidoju.eot");
+    src: url("kidoju.eot?#iefix") format("embedded-opentype"), url("kidoju.woff") format("woff"), url("kidoju.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+.kf {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+    font-weight: normal;
+    font-style: normal;
+    speak: none;
+    text-decoration: inherit;
+    text-transform: none;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.kf:before {
+    font-family: "kidoju";
+}
+.kf-add:before {
+    content: "\f101";
+}
+.kf-android:before {
+    content: "\f102";
+}
+.kf-apple:before {
+    content: "\f103";
+}
+.kf-blog:before {
+    content: "\f104";
+}
+.kf-datetime:before {
+    content: "\f105";
+}
+.kf-signout:before {
+    content: "\f106";
+}
+.kf-view:before {
+    content: "\f107";
+}
+.kf-facebook:before {
+    content: "\f108";
+}
+.kf-feed:before {
+    content: "\f109";
+}
+.kf-search-adv:before {
+    content: "\f10a";
+}
+.kf-google:before {
+    content: "\f10b";
+}
+.kf-home:before {
+    content: "\f10c";
+}
+.kf-support:before {
+    content: "\f10d";
+}
+.kf-linkedin:before {
+    content: "\f10e";
+}
+.kf-live:before {
+    content: "\f10f";
+}
+.kf-signin:before {
+    content: "\f110";
+}
+.kf-report:before {
+    content: "\f111";
+}
+.kf-comment:before {
+    content: "\f112";
+}
+.kf-pinterest:before {
+    content: "\f113";
+}
+.kf-create:before {
+    content: "\f114";
+}
+.kf-publish:before {
+    content: "\f115";
+}
+.kf-help:before {
+    content: "\f116";
+}
+.kf-share:before {
+    content: "\f117";
+}
+.kf-star:before {
+    content: "\2605";
+}
+.kf-star-o:before {
+    content: "\2606";
+}
+.kf-stumbleupon:before {
+    content: "\f118";
+}
+.kf-tags:before {
+    content: "\f119";
+}
+.kf-score:before {
+    content: "\f11a";
+}
+.kf-twitter:before {
+    content: "\f11b";
+}
+.kf-user:before {
+    content: "\f11c";
+}
+.kf-uservoice:before {
+    content: "\f11d";
+}
+.kf-youtube:before {
+    content: "\f11e";
+}
