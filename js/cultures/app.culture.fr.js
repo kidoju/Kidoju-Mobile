@@ -21,21 +21,36 @@
         var app = window.app = window.app || {};
         app.cultures = app.cultures || {};
         app.cultures.fr = {
+            // Activities view
+            activities: {
+                viewTitle: 'Activités'
+            },
+            // Categories view
+            categories: {
+                viewTitle: 'Explorer'
+            },
             // Drawer
             drawer: {
                 categories: 'Explorer',
                 favourites: 'Favoris',
-                scores: 'Scores',
+                activities: 'Activités',
                 settings: 'Configuration'
             },
-            // Categories view
-            // Summaries view
+            // Favourites view
+            favourites: {
+                viewTitle: 'Favoris'
+            },
             // Settings view
             settings: {
+                viewTitle: 'Configuration',
                 user: 'Utilisateur',
                 version: 'Version',
                 language: 'Langue',
                 theme: 'Thème'
+            },
+            // Summaries view
+            summaries: {
+                viewTitle: 'Recherche'
             }
         };
         window.kendo.culture('fr-FR');
