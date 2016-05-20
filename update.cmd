@@ -74,20 +74,20 @@ XCOPY ..\Kidoju.Widgets\test\vendor\localforage*.* .\js\vendor\localForage\ /C /
 ATTRIB +R .\js\vendor\localForage\*
 
 REM copy blueimp/md5
-REM XCOPY ..\Kidoju.Server\client\js\vendor\blueimp .\js\vendor\blueimp /C /E /I /R /Y
-REM ATTRIB +R .\js\vendor\blueimp\*.* /S
+XCOPY ..\Kidoju.Server\client\js\vendor\blueimp .\js\vendor\blueimp /C /E /I /R /Y
+ATTRIB +R .\js\vendor\blueimp\*.* /S
 
 REM Copy CodeMirror
 REM XCOPY ..\Kidoju.Widgets\src\js\vendor\codemirror .\js\vendor\codemirror /C /E /I /R /Y
 REM ATTRIB +R .\js\vendor\codemirror\*.* /S
 
 REM Copy HighlightJS
-REM XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\js\vendor\highlight /C /E /I /R /Y
-REM ATTRIB +R .\js\vendor\highlight\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\js\vendor\highlight /C /E /I /R /Y
+ATTRIB +R .\js\vendor\highlight\*.* /S
 
 REM Copy Markdown-It
-REM XCOPY ..\Kidoju.Widgets\src\js\vendor\markdown-it .\js\vendor\markdown-it /C /E /I /R /Y
-REM ATTRIB +R .\js\vendor\markdown-it\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\markdown-it .\js\vendor\markdown-it /C /E /I /R /Y
+ATTRIB +R .\js\vendor\markdown-it\*.* /S
 
 REM copy logentries
 XCOPY ..\Kidoju.Server\client\js\vendor\logentries .\js\vendor\logentries /C /E /I /R /Y
@@ -121,19 +121,6 @@ ATTRIB +R .\js\app.models.js
 COPY ..\Kidoju.Server\client\js\app.models.mock.js .\js /Y
 ATTRIB +R .\js\app.models.mock.js
 
-REM Kidoju webapp files
-ATTRIB -R .\js\app*.jsx
-COPY ..\Kidoju.WebApp\js\app.config.jsx .\js /Y
-
-ATTRIB +R .\js\app.config.jsx
-COPY ..\Kidoju.WebApp\js\app.i18n.js .\js /Y
-ATTRIB +R .\js\app.i18n.js
-COPY ..\Kidoju.WebApp\js\app.i18n.js .\js /Y
-
-ATTRIB -R .\webapp\config\index.js
-COPY ..\Kidoju.WebApp\webapp\confif\config.js .\webapp\config /Y
-ATTRIB +R .\webapp\config\index.js
-
 REM ------------------------------------------------------------
 REM Web modules
 REM ------------------------------------------------------------
@@ -148,17 +135,30 @@ XCOPY ..\Kidoju.WebApp\styles\vendor\kendo\*.* .\styles\vendor\kendo\ /C /E /I /
 ATTRIB +R .\styles\vendor\kendo\*
 
 REM Copy Kidoju webfonts
-REM XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\styles\fonts\ /C /E /I /R /Y
-REM ATTRIB +R .\styles\fonts\*
+XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\styles\fonts\ /C /E /I /R /Y
+ATTRIB +R .\styles\fonts\*
 
 REM Copy CodeMirror
 REM XCOPY ..\Kidoju.Widgets\src\styles\vendor\codemirror .\styles\vendor\codemirror /C /E /I /R /Y
 REM ATTRIB +R .\styles\vendor\codemirror\*.* /S
 
+REM Copy HighlightJS
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\highlight .\styles\vendor\highlight /C /E /I /R /Y
+ATTRIB +R .\styles\vendor\highlight\*.* /S
+
 REM Copy Kidoju Widgets
 ATTRIB -R .\styles\kidoju*.less
 COPY ..\Kidoju.Widgets\src\styles\kidoju*.less .\styles /Y
 ATTRIB +R .\styles\kidoju*.less
+
+REM ------------------------------------------------------------
+REM Images
+REM ------------------------------------------------------------
+
+REM Copy Kidoju Widgets
+ATTRIB -R .\styles\images\*.png
+COPY ..\Kidoju.WebApp\src\styles\images\handler.png .\styles\images\handler.png /Y
+ATTRIB +R .\styles\images\*.png
 
 REM ------------------------------------------------------------
 REM Tests
@@ -176,4 +176,16 @@ REM ------------------------------------------------------------
 REM Web Application (webapp)
 REM ------------------------------------------------------------
 
+REM ./js/config,jsx
+ATTRIB -R .\js\app*.jsx
+COPY ..\Kidoju.WebApp\js\app.config.jsx .\js /Y
+ATTRIB +R .\js\app.config.jsx
 
+REM ./js/app.i18n
+COPY ..\Kidoju.WebApp\js\app.i18n.js .\js /Y
+ATTRIB +R .\js\app.i18n.js
+
+REM ./webapp/config/index.js
+ATTRIB -R .\webapp\config\index.js
+COPY ..\Kidoju.WebApp\webapp\config\index.js .\webapp\config /Y
+ATTRIB +R .\webapp\config\index.js
