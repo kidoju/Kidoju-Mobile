@@ -122,11 +122,10 @@ ATTRIB +R .\js\app.models.js
 COPY ..\Kidoju.Server\client\js\app.models.mock.js .\js /Y
 ATTRIB +R .\js\app.models.mock.js
 
-REM ------------------------------------------------------------
-REM Web modules
-REM ------------------------------------------------------------
-XCOPY ..\Kidoju.WebApp\web_modules .\web_modules /C /E /I /R /Y
-ATTRIB +R .\web_modules\*.* /S
+REM Copy .jshintrc
+ATTRIB -R .\js\.jshintrc
+COPY ..\Kidoju.WebApp\js\.jshintrc .\js /Y
+ATTRIB +R .\js\.jshintrc
 
 REM ------------------------------------------------------------
 REM Styles
@@ -172,6 +171,12 @@ ATTRIB +R .\test\vendor\*.* /S
 REM ------------------------------------------------------------
 REM Web modules (webpack)
 REM ------------------------------------------------------------
+XCOPY ..\Kidoju.WebApp\web_modules .\web_modules /C /E /I /R /Y
+ATTRIB +R .\web_modules\*.* /S
+
+REM Copy http.server
+XCOPY ..\Kidoju.Widgets\nodejs .\nodejs /C /E /I /R /Y
+ATTRIB +R .\nodejs\*.* /S
 
 REM ------------------------------------------------------------
 REM Web Application (webapp)
