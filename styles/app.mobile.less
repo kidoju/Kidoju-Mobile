@@ -1,4 +1,44 @@
-html, body {
+html, body, #phone {
   height: 100%;
   margin: 0;
+  #phone-categories {
+    .km-listview {
+      li {
+        padding-top: 0.7em;
+        padding-bottom: 0.7em;
+        .km-thumbnail {
+          border: none;
+          border-radius: 0;
+          height: 1.8rem;
+          width: 1.8rem;
+          vertical-align: middle;
+        }
+      }
+    }
+  }
+  #phone-summaries {
+    .km-listview {
+      li {
+        padding-top: 0.7em;
+        padding-bottom: 0.7em;
+        .km-thumbnail {
+          border: none;
+          border-radius: 0;
+          height: 3.35rem;
+          width: 3.35rem;
+        }
+      }
+    }
+  }
+}
+
+// Theme Fixes
+.km-android, .km-fiori, .km-flat, .km-ios7, .km-material, .km-office365 {
+  .km-navbar {
+    .km-view-title {
+      line-height: 2.3em !important;
+      padding-top: .15rem;
+      padding-bottom: .15rem;
+    }
+  }
 }
