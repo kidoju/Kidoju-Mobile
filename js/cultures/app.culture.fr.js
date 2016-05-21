@@ -42,7 +42,7 @@
                 categories: 'Explorer',
                 favourites: 'Favoris',
                 activities: 'Activités',
-                settings: 'Configuration'
+                settings: 'Réglages'
             },
             // Favourites view
             favourites: {
@@ -50,7 +50,7 @@
             },
             // Settings view
             settings: {
-                viewTitle: 'Configuration',
+                viewTitle: 'Réglages',
                 user: 'Utilisateur',
                 version: 'Version',
                 language: 'Langue',
