@@ -12,50 +12,53 @@ REM ------------------------------------------------------------
 
 REM copy all dot files except .dockerignore
 ATTRIB -R .\.*
-COPY ..\..\Kidoju\Kidoju.Webapp\.* .\ /Y
+COPY ..\Kidoju.Webapp\.* .\ /Y
 DEL .\.dockerignore
 ATTRIB +R .\.*
 
 REM build.cmd and BUILD.md
 ATTRIB -R .\build.*
-COPY ..\..\Kidoju\Kidoju.Webapp\build.* .\ /Y
+COPY ..\Kidoju.Webapp\build.* .\ /Y
 ATTRIB +R .\build.*
 
-REM TODO Coverage
+REM Coverage
+ATTRIB -R .\coverage.conf.cmd
+COPY ..\Kidoju.Widgets\coverage.conf.cmd .\ /Y
+ATTRIB +R .\coverage.conf.cmd
 
 REM Dockerfile
 REM ATTRIB -R .\Dockerfile
-REM COPY ..\..\Kidoju\Kidoju.Webapp\Dockerfile .\ /Y
+REM COPY ..\Kidoju.Webapp\Dockerfile .\ /Y
 REM ATTRIB +R .\Dockerfile
 
 REM gruntfile.js
 REM ATTRIB -R .\gruntfile.js
-REM COPY ..\..\Kidoju\Kidoju.Webapp\gruntfile.js .\ /Y
+REM COPY ..\Kidoju.Webapp\gruntfile.js .\ /Y
 REM ATTRIB +R .\gruntfile.js
 
 REM LICENSE
 REM ATTRIB -R .\LICENSE-GPLv3
-REM COPY ..\..\Kidoju\Kidoju.Webapp\LICENSE-GPLv3 .\ /Y
+REM COPY ..\Kidoju.Webapp\LICENSE-GPLv3 .\ /Y
 REM ATTRIB +R .\LICENSE-GPLv3
 
 REM setup.cmd
 ATTRIB -R .\setup.cmd
-COPY ..\..\Kidoju\Kidoju.Webapp\setup.cmd .\ /Y
+COPY ..\Kidoju.Webapp\setup.cmd .\ /Y
 ATTRIB +R .\setup.cmd
 
 REM UPDATE.md
 ATTRIB -R .\UPDATE.md
-COPY ..\..\Kidoju\Kidoju.Webapp\UPDATE.md .\ /Y
+COPY ..\Kidoju.Webapp\UPDATE.md .\ /Y
 ATTRIB +R .\UPDATE.md
 
 REM watch.cmd
 ATTRIB -R .\watch.cmd
-COPY ..\..\Kidoju\Kidoju.Webapp\watch.cmd .\ /Y
+COPY ..\Kidoju.Webapp\watch.cmd .\ /Y
 ATTRIB +R .\watch.cmd
 
 REM webpack
 REM ATTRIB -R .\webpack.config.js
-REM COPY ..\..\Kidoju\Kidoju.Webapp\webpack.config.js .\ /Y
+REM COPY ..\Kidoju.Webapp\webpack.config.js .\ /Y
 REM ATTRIB +R .\webpack.config.js
 
 REM ------------------------------------------------------------
