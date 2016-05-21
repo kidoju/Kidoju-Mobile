@@ -10,10 +10,11 @@ REM ------------------------------------------------------------
 REM Root files
 REM ------------------------------------------------------------
 
-REM copy all dot files
-REM ATTRIB -R .\.*
-REM COPY ..\..\Kidoju\Kidoju.Webapp\.* .\ /Y
-REM ATTRIB +R .\.*
+REM copy all dot files except .dockerignore
+ATTRIB -R .\.*
+COPY ..\..\Kidoju\Kidoju.Webapp\.* .\ /Y
+DEL .\.dockerignore
+ATTRIB +R .\.*
 
 REM build.cmd and BUILD.md
 ATTRIB -R .\build.*

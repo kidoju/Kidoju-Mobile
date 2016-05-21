@@ -1,0 +1,13 @@
+sudo: false
+language: node_js
+node_js:
+  - "6.2"
+  - "5.11"
+  - "4.4"
+env:
+  - "NODE_ENV=test"
+before_install:
+  - "npm install -g npm"
+  - "npm install -g grunt-cli"
+before_script:
+  - "grunt build"
