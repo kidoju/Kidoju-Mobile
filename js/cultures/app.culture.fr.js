@@ -21,6 +21,14 @@
         var app = window.app = window.app || {};
         app.cultures = app.cultures || {};
         app.cultures.fr = {
+            versions: {
+                draft: {
+                    name: 'Brouillon'
+                },
+                published: {
+                    name: 'Version {0}'
+                }
+            },
             // Activities view
             activities: {
                 viewTitle: 'Activités'

@@ -21,6 +21,14 @@
         var app = window.app = window.app || {};
         app.cultures = app.cultures || {};
         app.cultures.en = {
+            versions: {
+                draft: {
+                    name: 'Draft'
+                },
+                published: {
+                    name: 'Version {0}'
+                }
+            },
             // Activities view
             activities: {
                 viewTitle: 'Activities'

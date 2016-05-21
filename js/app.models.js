@@ -33,7 +33,7 @@
     /* jshint -W071 */
 
     /* This function's cyclomatic complexity is too high. */
-    /* jshint -W073 */
+    /* jshint -W074 */
 
     (function ($, undefined) {
 
@@ -2767,7 +2767,7 @@
 
     }(window.jQuery));
 
-    /* jshint +W073 */
+    /* jshint +W074 */
     /* jshint +W071 */
 
     return window.app;
