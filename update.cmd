@@ -32,9 +32,9 @@ REM COPY ..\Kidoju.Webapp\Dockerfile .\ /Y
 REM ATTRIB +R .\Dockerfile
 
 REM gruntfile.js
-REM ATTRIB -R .\gruntfile.js
-REM COPY ..\Kidoju.Webapp\gruntfile.js .\ /Y
-REM ATTRIB +R .\gruntfile.js
+ATTRIB -R .\gruntfile.js
+COPY ..\Kidoju.Webapp\gruntfile.js .\ /Y
+ATTRIB +R .\gruntfile.js
 
 REM LICENSE
 REM ATTRIB -R .\LICENSE-GPLv3
