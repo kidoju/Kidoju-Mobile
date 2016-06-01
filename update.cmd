@@ -36,6 +36,11 @@ ATTRIB -R .\gruntfile.js
 COPY ..\Kidoju.Webapp\gruntfile.js .\ /Y
 ATTRIB +R .\gruntfile.js
 
+REM kidoju.server.cmd
+ATTRIB -R .\kidoju.server.cmd
+COPY ..\Kidoju.Webapp\kidoju.server.cmd .\ /Y
+ATTRIB +R .\kidoju.server.cmd
+
 REM LICENSE
 REM ATTRIB -R .\LICENSE-GPLv3
 REM COPY ..\Kidoju.Webapp\LICENSE-GPLv3 .\ /Y
