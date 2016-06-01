@@ -148,6 +148,7 @@
                 rss: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.rss %>')),
                 sitemap: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.sitemap %>')),
                 summary: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.summary %>')),
+                support: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.support %>')),
                 user: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.user %>')),
                 workerlib: url.join('<%- uris.webpack.root %>', convertFormat('<%- uris.webapp.workerlib %>'))
             }

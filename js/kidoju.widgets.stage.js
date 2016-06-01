@@ -167,6 +167,8 @@
                 this._width = this.options.width;
                 this._disabled = this.options.disabled;
                 this._readonly = this.options.readonly;
+                this._snapAngle = this.options.snapAngle;
+                this._snapGrid = this.options.snapGrid;
                 that._layout();
                 that._dataSource();
                 kendo.notify(that);
@@ -207,6 +209,8 @@
                 dataSource: undefined,
                 disabled: false,
                 readonly: false,
+                snapAngle: 0,
+                snapGrid: 0,
                 messages: {
                     contextMenu: {
                         delete: 'Delete',
@@ -463,6 +467,34 @@
                 }
                 else {
                     return that._properties;
+                }
+            },
+
+            /**
+             * Get/set snap angle
+             * @param snapValue
+             */
+            snapAngle: function (snapValue) {
+                if ($.type(snapValue) === UNDEFINED) {
+                    return this._snapAngle;
+                } else if ($.type(snapValue) === NUMBER) {
+                    this._snapAngle = snapValue;
+                } else {
+                    throw new TypeError('Snap angle value should be a number');
+                }
+            },
+
+            /**
+             * Get/set snap grid
+             * @param snapValue
+             */
+            snapGrid: function (snapValue) {
+                if ($.type(snapValue) === UNDEFINED) {
+                    return this._snapGrid;
+                } else if ($.type(snapValue) === NUMBER) {
+                    this._snapGrid = snapValue;
+                } else {
+                    throw new TypeError('Snap grid value should be a number');
                 }
             },
 
@@ -1204,8 +1236,8 @@
                     });
 
                     if (startState.command === COMMANDS.MOVE) {
-                        item.set(LEFT, util.snap(startState.left + (mouse.x - startState.mouseX) / startState.scale, startState.snapGrid));
-                        item.set(TOP, util.snap(startState.top + (mouse.y - startState.mouseY) / startState.scale, startState.snapGrid));
+                        item.set(LEFT, util.snap(startState.left + (mouse.x - startState.mouseX) / startState.scale, that._snapGrid));
+                        item.set(TOP, util.snap(startState.top + (mouse.y - startState.mouseY) / startState.scale, that._snapGrid));
                         // Set triggers the change event on the dataSource which calls the refresh method to update the stage
 
                     } else if (startState.command === COMMANDS.RESIZE) {
@@ -1225,10 +1257,10 @@
                         var topLeftAfterMove = util.getRotatedPoint(mmprime, centerAfterMove, -alpha); // Also T'
 
                         // TODO these calculations depend on the transformOrigin attribute of that.wrapper - ideally we should introduce transformOrigin in the calculation
-                        item.set(LEFT, topLeftAfterMove.x);
-                        item.set(TOP, topLeftAfterMove.y);
-                        item.set(HEIGHT, util.snap(startState.height - dx * Math.sin(alpha) + dy * Math.cos(alpha), startState.snapGrid));
-                        item.set(WIDTH, util.snap(startState.width + dx * Math.cos(alpha) + dy * Math.sin(alpha), startState.snapGrid));
+                        item.set(LEFT, Math.round(topLeftAfterMove.x));
+                        item.set(TOP, Math.round(topLeftAfterMove.y));
+                        item.set(HEIGHT, util.snap(startState.height - dx * Math.sin(alpha) + dy * Math.cos(alpha), that._snapGrid));
+                        item.set(WIDTH, util.snap(startState.width + dx * Math.cos(alpha) + dy * Math.sin(alpha), that._snapGrid));
                         // Set triggers the change event on the dataSource which calls the refresh method to update the stage
 
                     } else if (startState.command === COMMANDS.ROTATE) {
@@ -1236,7 +1268,7 @@
                                 x: startState.mouseX,
                                 y: startState.mouseY
                             }, mouse);
-                        var deg = util.snap((360 + startState.angle + util.rad2deg(rad)) % 360, startState.snapAngle);
+                        var deg = util.snap((360 + startState.angle + util.rad2deg(rad)) % 360, that._snapAngle);
                         item.set(ROTATE, deg);
                         // Set triggers the change event on the dataSource which calls the refresh method to update the stage
                     }
@@ -1373,33 +1405,41 @@
                         if (stageElement.length) {
                             switch (e.field) {
                                 case LEFT:
-                                    stageElement.css(LEFT, component.left);
-                                    handleBox.css(LEFT, component.left);
-                                    stageElement.trigger(MOVE + NS, component);
+                                    if (Math.round(stageElement.position().left) !== Math.round(component.left)) {
+                                        stageElement.css(LEFT, component.left);
+                                        handleBox.css(LEFT, component.left);
+                                        stageElement.trigger(MOVE + NS, component);
+                                    }
                                     break;
                                 case TOP:
-                                    stageElement.css(TOP, component.top);
-                                    handleBox.css(TOP, component.top);
-                                    stageElement.trigger(MOVE + NS, component);
+                                    if (Math.round(stageElement.position().top) !== Math.round(component.top)) {
+                                        stageElement.css(TOP, component.top);
+                                        handleBox.css(TOP, component.top);
+                                        stageElement.trigger(MOVE + NS, component);
+                                    }
                                     break;
                                 case HEIGHT:
-                                    stageElement.css(HEIGHT, component.height);
-                                    handleBox.css(HEIGHT, component.height);
-                                    stageElement.trigger(RESIZE + NS, component);
+                                    if (Math.round(stageElement.height()) !== Math.round(component.height)) {
+                                        stageElement.css(HEIGHT, component.height);
+                                        handleBox.css(HEIGHT, component.height);
+                                        stageElement.trigger(RESIZE + NS, component);
+                                    }
                                     break;
                                 case WIDTH:
-                                    stageElement.css(WIDTH, component.width);
-                                    handleBox.css(WIDTH, component.width);
-                                    stageElement.trigger(RESIZE + NS, component);
+                                    if (Math.round(stageElement.width()) !== Math.round(component.width)) {
+                                        stageElement.css(WIDTH, component.width);
+                                        handleBox.css(WIDTH, component.width);
+                                        stageElement.trigger(RESIZE + NS, component);
+                                    }
                                     break;
                                 case ROTATE:
-                                    stageElement
-                                        .css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
-                                    handleBox
-                                        .css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
-                                    handleBox.children(DOT + HANDLE_CLASS)
-                                        .css(TRANSFORM, kendo.format(CSS_ROTATE, -component.rotate) + ' ' + kendo.format(CSS_SCALE, 1 / that.scale()));
-                                    stageElement.trigger(ROTATE + NS, component);
+                                    if (Math.round(util.getTransformRotation(stageElement)) !== Math.round(component.rotate)) {
+                                        stageElement.css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
+                                        handleBox.css(TRANSFORM, kendo.format(CSS_ROTATE, component.rotate));
+                                        handleBox.children(DOT + HANDLE_CLASS)
+                                            .css(TRANSFORM, kendo.format(CSS_ROTATE, -component.rotate) + ' ' + kendo.format(CSS_SCALE, 1 / that.scale()));
+                                        stageElement.trigger(ROTATE + NS, component);
+                                    }
                                     break;
                                 default:
                                     if (/^attributes/.test(e.field) || /^properties/.test(e.field)) {
@@ -1527,10 +1567,12 @@
              * @returns {*}
              */
             snap: function (value, snapValue) {
+                assert.type(NUMBER, snapValue, assert.messages.type.default, 'snapValue', NUMBER);
+                snapValue = Math.round(snapValue);
                 if (snapValue) {
                     return value % snapValue < snapValue / 2 ? value - value % snapValue : value + snapValue - value % snapValue;
                 } else {
-                    return value;
+                    return Math.round(value);
                 }
             },
 
@@ -1542,7 +1584,7 @@
             getTransformRotation: function (element) {
                 // $(element).css('transform') returns a matrix, so we have to read the style attribute
                 var match = ($(element).attr('style') || '').match(/rotate\([\s]*([0-9\.]+)[deg\s]*\)/);
-                return $.isArray(match) && match.length > 1 ? parseFloat(match[1]) || 0 : 0;
+                return $.isArray(match) && match.length > 1 ? parseInt(match[1], 10) || 0 : 0;
             },
 
             /**
@@ -1674,24 +1716,24 @@
                     // Display center of rotation
                     options.wrapper.children(DOT + DEBUG_CENTER_CLASS).css({
                         display: 'block',
-                        left: options.center.x / options.scale,
-                        top: options.center.y / options.scale
+                        left: Math.round(options.center.x / options.scale),
+                        top: Math.round(options.center.y / options.scale)
                     });
 
                     // Display bounding rectangle
                     options.wrapper.children(DOT + DEBUG_BOUNDS_CLASS).css({
                         display: 'block',
-                        left: options.bounds.left / options.scale,
-                        top: options.bounds.top / options.scale,
-                        height: options.bounds.height / options.scale,
-                        width: options.bounds.width / options.scale
+                        left: Math.round(options.bounds.left / options.scale),
+                        top: Math.round(options.bounds.top / options.scale),
+                        height: Math.round(options.bounds.height / options.scale),
+                        width: Math.round(options.bounds.width / options.scale)
                     });
 
                     // Display mouse calculated position
                     options.wrapper.children(DOT + DEBUG_MOUSE_CLASS).css({
                         display: 'block',
-                        left: options.mouse.x / options.scale,
-                        top: options.mouse.y / options.scale
+                        left: Math.round(options.mouse.x / options.scale),
+                        top: Math.round(options.mouse.y / options.scale)
                     });
                 }
             },

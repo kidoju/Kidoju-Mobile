@@ -940,7 +940,7 @@
          * @type {kidoju.data.Model}
          */
         models.CurrentUser = Model.define({
-            id: 'id',
+            // id: 'id',
             fields: {
                 id: {
                     type: STRING,
@@ -975,9 +975,8 @@
                 return kendo.format(uris.webapp.user, LOCALE, this.get('id'));
             },
             reset: function () {
-                var that = this;
                 // Since we have marked fields as non editable, we cannot use 'that.set'
-                that.accept({
+                this.accept({
                     id: this.defaults.id,
                     firstName: this.defaults.firstName,
                     lastName: this.defaults.lastName,
@@ -1546,7 +1545,7 @@
                 return kendo.format(uris.cdn.icons, this.get('icon'));
             },
             summaryUri$: function () {
-                return kendo.format(uris.webapp.summary, LOCALE, this.get('id')) + (this.get('published') ? '' : '?bypass=true');
+                return kendo.format(uris.webapp.summary, LOCALE, this.get('id'));
             },
             tags$: function () {
                 var ret = [];
@@ -2285,7 +2284,7 @@
                 // Some activities like `creation` may refer to unpublished summaries and we do not know whether the summary is published or not
                 // Therefore, we should always bypass server-side data requests to display such summaries
                 // This is not an issue regarding SEO because activities are only displayed to authenticated user
-                return kendo.format(uris.webapp.summary, this.get('language'), this.get('summaryId')) + '?bypass=true';
+                return kendo.format(uris.webapp.summary, this.get('language'), this.get('summaryId'));
             }
         });
 
