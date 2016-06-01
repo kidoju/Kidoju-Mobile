@@ -63,6 +63,7 @@
         var rapi = app.rapi;
         var models = app.models = app.models || {};
         var i18n = app.i18n = app.i18n || {
+                locale: function () { return 'en' },
                 culture: {
                     dateFormat: 'dd MMM yyyy',
                     languages: [
@@ -123,7 +124,6 @@
         var CHANGE = 'change';
         var ITEMCHANGE = 'itemchange';
         var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
-        var LOCALE = i18n && $.isFunction(i18n.locale) ? i18n.locale() : 'en';
         var HASHBANG = '#!';
         var HOME = 'home';
         var FAVOURITES = 'favourites';
@@ -240,7 +240,7 @@
                         method: 'app.models.LazyCategoryDataSource.transport.read'
                         // data: options
                     });
-                    app.cache.getAllCategories(LOCALE)
+                    app.cache.getAllCategories(i18n.locale())
                         .done(function (response) {
                             options.success(response);
                         })
@@ -447,16 +447,16 @@
                 // We need a userId to save a search as a user favourite
                 assert.match(RX_MONGODB_ID, this.userId, kendo.format(assert.messages.match.default, 'this.userId', RX_MONGODB_ID));
                 var root = window.location.protocol + '//' + window.location.host;
-                var finder = kendo.format(uris.webapp.finder, LOCALE);
+                var finder = kendo.format(uris.webapp.finder, i18n.locale());
                 finder = finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
                 var favourite = {
                     name: this.get('favourite').trim(),
                     path: finder + this.getHash(true)
                 };
                 // TODO: we should rather update the cache
-                app.cache.removeMyFavourites(LOCALE);
+                app.cache.removeMyFavourites(i18n.locale());
                 // Save a favourite on the current user
-                return rapi.v1.user.createMyFavourite(LOCALE, favourite);
+                return rapi.v1.user.createMyFavourite(i18n.locale(), favourite);
             }
         });
 
@@ -506,7 +506,7 @@
              */
             path$: function () {
                 var root = window.location.protocol + '//' + window.location.host;
-                var finder = kendo.format(uris.webapp.finder, LOCALE);
+                var finder = kendo.format(uris.webapp.finder, i18n.locale());
                 finder = finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
                 switch (this.get('type')) {
                     case 1: // home
@@ -566,8 +566,8 @@
                         // data: options.data
                     });
                     $.when(
-                        app.cache.getFavouriteHierarchy(LOCALE),
-                        app.cache.getCategoryHierarchy(LOCALE)
+                        app.cache.getFavouriteHierarchy(i18n.locale()),
+                        app.cache.getCategoryHierarchy(i18n.locale())
                         )
                         .done(function (favourites, categories) {
                             var rootNodes = i18n.culture.finder.treeview.rootNodes;
@@ -595,9 +595,9 @@
                     // assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                     assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                     assert.match(RX_MONGODB_ID, options.data.id, kendo.format(assert.messages.match.default, 'options.data.id', RX_MONGODB_ID));
-                    return app.rapi.v1.user.deleteMyFavourite(LOCALE, options.data.id)
+                    return app.rapi.v1.user.deleteMyFavourite(i18n.locale(), options.data.id)
                         .done(function () {
-                            app.cache.removeMyFavourites(LOCALE)
+                            app.cache.removeMyFavourites(i18n.locale())
                                 .always(function () {
                                     options.success(options.data);
                                 });
@@ -972,7 +972,7 @@
                 return RX_MONGODB_ID.test(this.get('id'));
             },
             uri$: function () {
-                return kendo.format(uris.webapp.user, LOCALE, this.get('id'));
+                return kendo.format(uris.webapp.user, i18n.locale(), this.get('id'));
             },
             reset: function () {
                 // Since we have marked fields as non editable, we cannot use 'that.set'
@@ -1257,7 +1257,7 @@
              * @returns {*}
              */
             uri$: function () {
-                return kendo.format(uris.webapp.user, LOCALE, this.get('id'));
+                return kendo.format(uris.webapp.user, i18n.locale(), this.get('id'));
             },
 
             /**
@@ -1389,7 +1389,7 @@
                 },
                 language: {
                     type: STRING,
-                    defaultValue: LOCALE,
+                    defaultValue: i18n.locale(),
                     editable: false,
                     validation: {
                         required: true
@@ -1430,7 +1430,7 @@
                             me.userId = me.id;
                             // delete me.picture;
                             that.set('author', new models.UserReference(me));
-                            // that.set('language', LOCALE);
+                            // that.set('language', i18n.locale());
                         }
                     });
             },
@@ -1455,7 +1455,7 @@
                     type: that.get('type.value')
                 };
                 // Call server to create a new summary and return a promise
-                return rapi.v1.content.createSummary(LOCALE, newSummary);
+                return rapi.v1.content.createSummary(i18n.locale(), newSummary);
             }
         });
 
@@ -1539,13 +1539,13 @@
                 return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
             },
             authorUri$: function () {
-                return kendo.format(uris.webapp.user, LOCALE, this.get('userId'));
+                return kendo.format(uris.webapp.user, i18n.locale(), this.get('userId'));
             },
             icon$: function () {
                 return kendo.format(uris.cdn.icons, this.get('icon'));
             },
             summaryUri$: function () {
-                return kendo.format(uris.webapp.summary, LOCALE, this.get('id'));
+                return kendo.format(uris.webapp.summary, i18n.locale(), this.get('id'));
             },
             tags$: function () {
                 var ret = [];
@@ -1636,7 +1636,7 @@
                         data: { userId: that.userId }
                     });
 
-                    // add options.filter.filters.push({ field: 'language', operator: 'eq', value: LOCALE });
+                    // add options.filter.filters.push({ field: 'language', operator: 'eq', value: i18n.locale() });
                     // ATTENTION logic and or or
 
                     options.data.fields = 'author,icon,metrics.comments.count,metrics.ratings.average,metrics.scores.average,metrics.views.count,published,tags,title,type,updated';
@@ -1645,7 +1645,7 @@
                     if (!RX_MONGODB_ID.test(that.userId)) {
 
                         // Without user id, we just query public summaries
-                        rapi.v1.content.findSummaries(LOCALE, options.data)
+                        rapi.v1.content.findSummaries(i18n.locale(), options.data)
                             .done(function (response) {
                                 options.success(response);
                             })
@@ -1662,7 +1662,7 @@
                                 if ($.isPlainObject(me) && that.userId === me.id) {
 
                                     // If we request the summaries of the authenticated user, include drafts
-                                    rapi.v1.user.findMySummaries(LOCALE, options.data)
+                                    rapi.v1.user.findMySummaries(i18n.locale(), options.data)
                                         .done(function (response) {
                                             options.success(response);
                                         })
@@ -1680,7 +1680,7 @@
                                         ]
                                     };
 
-                                    rapi.v1.content.findSummaries(LOCALE, options.data)
+                                    rapi.v1.content.findSummaries(i18n.locale(), options.data)
                                         .done(function (response) {
                                             options.success(response);
                                         })
@@ -1831,7 +1831,7 @@
                 var dfd = $.Deferred();
                 if (RX_MONGODB_ID.test(data)) {
                     // data is a summary id and we fetch a full summary
-                    rapi.v1.content.getSummary(LOCALE, data)
+                    rapi.v1.content.getSummary(i18n.locale(), data)
                         .done(function (summary) {
                             that.accept(summary);
                             dfd.resolve(summary);
@@ -1847,7 +1847,7 @@
                         // because the webapp could not fetch the summary without authentication
                         // We therefore need to fetch a full summary
                         // data is a summary id and we fetch a full summary
-                        rapi.v1.content.getSummary(LOCALE, data.id)
+                        rapi.v1.content.getSummary(i18n.locale(), data.id)
                             .done(function (summary) {
                                 that.accept(summary);
                                 dfd.resolve(summary);
@@ -1942,10 +1942,10 @@
                 // userId
             },
             versionPlayUri$: function () {
-                return kendo.format(uris.webapp.player, LOCALE, this.get('summaryId'), this.get('id'), '').slice(0, -1);
+                return kendo.format(uris.webapp.player, i18n.locale(), this.get('summaryId'), this.get('id'), '').slice(0, -1);
             },
             versionEditUri$: function () {
-                return kendo.format(uris.webapp.editor, LOCALE, this.get('summaryId'), this.get('id'));
+                return kendo.format(uris.webapp.editor, i18n.locale(), this.get('summaryId'), this.get('id'));
             },
             iframe$: function () {
                 // TODO consider the sandbox attribute -- see http://www.html5rocks.com/en/tutorials/security/sandboxed-iframes/
@@ -2023,13 +2023,13 @@
                     logger.debug({
                         message: 'dataSource.read',
                         method: 'app.models.LazyVersionDataSource.transport.read',
-                        data: { language: LOCALE, summaryId: that.summaryId }
+                        data: { language: i18n.locale(), summaryId: that.summaryId }
                     });
 
                     options.data.fields = 'state,summaryId';
                     options.data.sort = [{ field: 'id', dir: 'desc' }];
 
-                    rapi.v1.content.findSummaryVersions(LOCALE, that.summaryId, options.data)
+                    rapi.v1.content.findSummaryVersions(i18n.locale(), that.summaryId, options.data)
                         .done(function (response) {
                             options.success(response);
                         })
@@ -2050,10 +2050,10 @@
                     logger.debug({
                         message: 'dataSource.destroy',
                         method: 'app.models.LazyVersionDataSource.transport.destroy',
-                        data: { language: LOCALE, summaryId: options.data.summaryId, versionId: options.data.id }
+                        data: { language: i18n.locale(), summaryId: options.data.summaryId, versionId: options.data.id }
                     });
 
-                    rapi.v1.content.deleteSummaryVersion(LOCALE, options.data.summaryId, options.data.id)
+                    rapi.v1.content.deleteSummaryVersion(i18n.locale(), options.data.summaryId, options.data.id)
                         .done(function (response) {
                             options.success(response);
                         })
@@ -2125,7 +2125,7 @@
             },
             load: function (summaryId, versionId) {
                 var that = this;
-                return rapi.v1.content.getSummaryVersion(LOCALE, summaryId, versionId)
+                return rapi.v1.content.getSummaryVersion(i18n.locale(), summaryId, versionId)
                     .done(function (version) {
                         that.accept(version);
                         assert.equal(MD5_A, md5('a'), kendo.format(assert.messages.equal.default, 'md5("a")', MD5_A));
@@ -2329,7 +2329,7 @@
                                         delete activity.actor;
                                     }
                                     // Flatten version
-                                    activity.language = activity.version && activity.version.language || LOCALE;
+                                    activity.language = activity.version && activity.version.language || i18n.locale();
                                     activity.summaryId = activity.version && activity.version.summaryId || null;
                                     activity.title = activity.version && activity.version.title || '';
                                     activity.versionId = activity.version && activity.version.versionId || null;
@@ -2371,7 +2371,7 @@
                         options.data.fields = 'actor,score,type,updated,version';
                         options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
 
-                        rapi.v1.content.findSummaryActivities(LOCALE, that.summaryId, options.data)
+                        rapi.v1.content.findSummaryActivities(i18n.locale(), that.summaryId, options.data)
                             .done(function (response) {
                                 options.success(response);
                             })
@@ -2385,7 +2385,7 @@
                         options.data.fields = 'score,type,updated,version';
                         options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
 
-                        rapi.v1.user.findMyActivities(LOCALE, options.data)
+                        rapi.v1.user.findMyActivities(i18n.locale(), options.data)
                             .done(function (response) {
                                 options.success(response);
                             })
@@ -2442,14 +2442,14 @@
             },
             load: function (summaryId, activityId) {
                 var that = this;
-                return rapi.v1.content.getSummaryActivity(LOCALE, summaryId, activityId)
+                return rapi.v1.content.getSummaryActivity(i18n.locale(), summaryId, activityId)
                     .done(function (activity) {
                         that.accept(activity);
                     });
             },
             save: function () {
                 var that = this;
-                var language = that.get('version.language') || LOCALE;
+                var language = that.get('version.language') || i18n.locale();
                 var summaryId = that.get('version.summaryId');
                 var activity = that.toJSON(true); // true means with hierarchy of data sources
                 if (that.isNew()) {
@@ -2575,7 +2575,7 @@
                 _create: function (options) {
                     var that = this;
                     rapi.v1.content.createSummaryActivity(
-                            (options.data.version && options.data.version.language) || LOCALE,
+                            (options.data.version && options.data.version.language) || i18n.locale(),
                             (options.data.version && options.data.version.summaryId) || that.summaryId,
                         { type: 'comment', text: options.data.text }
                         )
@@ -2608,7 +2608,7 @@
                     options.data.filter = { field: 'type', operator: 'eq', value: 'Comment' };
                     options.data.sort = [{ field: 'id', dir: 'desc' }];
                     rapi.v1.content.findSummaryActivities(
-                        LOCALE,
+                        i18n.locale(),
                         that.summaryId,
                         options.data
                         )
@@ -2749,7 +2749,7 @@
                     }
                     options.data.sort = [{ field: 'id', dir: 'desc' }];
                     rapi.v1.content.findSummaryActivities(
-                        LOCALE,
+                        i18n.locale(),
                         that.summaryId,
                         options.data
                         )

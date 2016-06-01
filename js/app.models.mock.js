@@ -31,7 +31,6 @@
         var models = app.models;
         var STRING = 'string';
         var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
-        var LOCALE = i18n && $.isFunction(i18n.locale) ? i18n.locale() : 'en';
         var ERROR = 'error';
         // var BAD_REQUEST = 'Bad Request';
         // var NOT_FOUND = 'Not Found';
@@ -275,7 +274,7 @@
             getAllCategories: function (locale) {
                 var dfd = $.Deferred();
                 setTimeout(function () {
-                    var categories = db.categories.find({ language: LOCALE });
+                    var categories = db.categories.find({ language: i18n.locale() });
                     dfd.resolve({ total: categories.length, data: categories });
                 }, 0);
                 return dfd.promise();
@@ -382,15 +381,15 @@
             var dfd = $.Deferred();
             // Test userId to avoid hitting the database unnecessarily
             if (RX_MONGODB_ID.test(this.userId)) {
-                app.cache.removeMyFavourites(LOCALE);
+                app.cache.removeMyFavourites(i18n.locale());
                 // Save a favourite on the current user
                 setTimeout(function () {
                     var root = window.location.protocol + '//' + window.location.host;
-                    var finder = kendo.format(uris.webapp.finder, LOCALE);
+                    var finder = kendo.format(uris.webapp.finder, i18n.locale());
                     finder = finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
                     var favourite = {
                             id: ObjectId(),
-                            language: LOCALE,
+                            language: i18n.locale(),
                             name: that.get('favourite'),
                             path: finder + that.getHash(true)
                         };
@@ -563,7 +562,7 @@
 
                 summaries = db.summaries.chain()
                     .find(convertFilter2Query(options.data.filter))
-                    .where(function (doc) { return doc.language === LOCALE && $.type(doc.published) !== 'undefined'; })
+                    .where(function (doc) { return doc.language === i18n.locale() && $.type(doc.published) !== 'undefined'; })
                     .simplesort('updated', true)// TODO options.data.sort?
                     .data();
 
@@ -587,7 +586,7 @@
                             summaries = db.summaries.chain()
                                 .find(convertFilter2Query(options.data.filter))
                                 .where(function (doc) {
-                                    return doc.language === LOCALE && doc.author.userId === that.userId;
+                                    return doc.language === i18n.locale() && doc.author.userId === that.userId;
                                 })
                                 .simplesort('updated', true)// TODO options.data.sort?
                                 .data();
@@ -604,7 +603,7 @@
                             summaries = db.summaries.chain()
                                 .find({ 'author.userId': that.userId })
                                 .where(function (doc) {
-                                    return doc.language === LOCALE && doc.author.userId === that.userId && doc.published instanceof Date;
+                                    return doc.language === i18n.locale() && doc.author.userId === that.userId && doc.published instanceof Date;
                                 })
                                 .simplesort('updated', true)// TODO options.data.sort?
                                 .data();
@@ -929,7 +928,7 @@
                 activities = db.activities.chain()
                     .find({ 'version.summaryId': that.summaryId })
                     .where(function (doc) {
-                        return doc.version.language === LOCALE;
+                        return doc.version.language === i18n.locale();
                     })
                     .data();
 
@@ -952,7 +951,7 @@
                         activities = db.activities.chain()
                             .find({ 'actor.userId': me.id })
                             .where(function (doc) {
-                                return doc.version.language === LOCALE;
+                                return doc.version.language === i18n.locale();
                             })
                             .data();
 
