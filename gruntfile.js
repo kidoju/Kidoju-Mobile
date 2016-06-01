@@ -33,6 +33,16 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        copy: {
+            jquery: {
+                src: './js/vendor/jQuery/jquery-1.12.4.min.js',
+                dest: './www/build/jquery.min.js'
+            },
+            workerlib: {
+                src: './webapp/public/build/workerlib.bundle.js',
+                dest: './www/build/workerlib.bundle.js'
+            }
+        },
         jscs: {
             files: ['gruntfile.js', 'webpack.config.js', 'js/**/app.*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
             options: {
@@ -47,22 +57,11 @@ module.exports = function (grunt) {
                 jshintrc: true
             }
         },
+        // TODO karma
         kendo_lint: {
             files: ['src/js/app*.js']
         },
         // TODO: lint html too
-        webpack: {
-            // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
-            options: webpackConfig,
-            build: {
-                cache: false,
-                plugins: webpackConfig.plugins.concat(
-                    new webpack.optimize.DedupePlugin(),
-                    new webpack.optimize.UglifyJsPlugin()
-                    // new webpack.optimize.AggressiveMergingPlugin() // Note: merges app.culture.fr.chunk.js
-                )
-            }
-        },
         mocha: {
             browser: { // In browser (phantomJS) unit tests
                 options: {
@@ -97,6 +96,18 @@ module.exports = function (grunt) {
                     'webapp/public/build/workerlib.bundle.js': ['js/kidoju.data.workerlib.js']
                 }
             }
+        },
+        webpack: {
+            // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
+            options: webpackConfig,
+            build: {
+                cache: false,
+                plugins: webpackConfig.plugins.concat(
+                    new webpack.optimize.DedupePlugin(),
+                    new webpack.optimize.UglifyJsPlugin()
+                    // new webpack.optimize.AggressiveMergingPlugin() // Note: merges app.culture.fr.chunk.js
+                )
+            }
         }
     });
 
@@ -108,6 +119,7 @@ module.exports = function (grunt) {
     // Build
     grunt.loadNpmTasks('grunt-webpack');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-copy');
 
     // Tests
     grunt.loadNpmTasks('grunt-mocha');
@@ -115,7 +127,7 @@ module.exports = function (grunt) {
 
     // Commands
     grunt.registerTask('lint', ['jscs', 'jshint', 'kendo_lint']);
-    grunt.registerTask('build', ['webpack:build', 'uglify:build']);
+    grunt.registerTask('build', ['webpack:build', 'uglify:build', 'copy']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 

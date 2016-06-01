@@ -52,9 +52,9 @@ console.log('building version ' + pkg.version);
 /**
  * dedupePlugin for improved optimization
  * see grunt-webpack in gruntfile.js
- *
- * var dedupePlugin = new webpack.optimize.DedupePlugin();
  */
+ // var dedupePlugin = new webpack.optimize.DedupePlugin();
+ // var uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin();
 
 /**
  * Add banner at the top of every bundle/chunk
@@ -147,8 +147,9 @@ module.exports = {
     },
     plugins: [
         definePlugin,
-        // dedupePlugin,
         bannerPlugin
+        // dedupePlugin,
+        // uglifyJsPlugin,
         // sourceMapDevToolPlugin
     ]
 };

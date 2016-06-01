@@ -32,9 +32,9 @@ REM COPY ..\Kidoju.Webapp\Dockerfile .\ /Y
 REM ATTRIB +R .\Dockerfile
 
 REM gruntfile.js
-ATTRIB -R .\gruntfile.js
-COPY ..\Kidoju.Webapp\gruntfile.js .\ /Y
-ATTRIB +R .\gruntfile.js
+REM ATTRIB -R .\gruntfile.js
+REM COPY ..\Kidoju.Webapp\gruntfile.js .\ /Y
+REM ATTRIB +R .\gruntfile.js
 
 REM kidoju.server.cmd
 ATTRIB -R .\kidoju.server.cmd
