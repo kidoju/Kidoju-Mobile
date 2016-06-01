@@ -1,153 +1,46 @@
 {
-  "debug": true,
-  "level": 0,
-  "express": {
-    "port"  : 3000
-  },
-  "locales" : [ "en", "fr" ],
-  "logentries": {
-    "browser": {
-      "token": "e78bac0b-377a-49e2-ad91-20bb4ec7cedc"
-    }
-  },
-  "facebook": {
-    "clientID": "628502177236998"
-  },
-  "twitter": {
-    "account": "kidoju"
-  },
-  "assets": {
-    "audio": {
-      "collections": [],
-      "extensions": [".mp3", ".ogg"],
-      "schemes": {
-        "cdn": "https://cdn.kidoju.com/",
-        "data": "https://s3.amazonaws.com/memba.test/"
-      }
-    },
-    "image": {
-      "collections": [
-        {
-          "name": "G-Collection",
-          "transport": {
-            "read": "https://cdn.kidoju.com/images/g_collection/svg/all/index.json"
-          }
-        },
-        {
-          "name": "O-Collection",
-          "collections": [
-            {
-              "name": "Dark Grey",
-              "transport": {
-                "read": "https://cdn.kidoju.com/images/o_collection/svg/dark_grey/index.json"
-              }
-            },
-            {
-              "name": "Office",
-              "transport": {
-                "read": "https://cdn.kidoju.com/images/o_collection/svg/office/index.json"
-              }
-            },
-            {
-              "name": "White",
-              "transport": {
-                "read": "https://cdn.kidoju.com/images/o_collection/svg/white/index.json"
-              }
+    "assets": {
+        "audio": {
+            "schemes": {
+                "data": "https://s3.amazonaws.com/memba.test/"
             }
-          ]
         },
-        {
-          "name": "V-Collection",
-          "collections": [
-            {
-              "name": "Small",
-              "transport": {
-                "read": "https://cdn.kidoju.com/images/v_collection/png/32x32/index.json"
-              }
-            },
-            {
-              "name": "Medium",
-              "transport": {
-                "read": "https://cdn.kidoju.com/images/v_collection/png/64x64/index.json"
-              }
-            },
-            {
-              "name": "Large",
-              "transport": {
-                "read": "https://cdn.kidoju.com/images/v_collection/png/128x128/index.json"
-              }
-            },
-            {
-              "name": "Huge",
-              "transport": {
-                "read": "https://cdn.kidoju.com/images/v_collection/png/256x256/index.json"
-              }
+        "image": {
+            "schemes": {
+                "data": "https://s3.amazonaws.com/memba.test/"
             }
-          ]
         },
-        {
-          "name": "X-Collection",
-          "collections": [
-            {
-              "name": "Small",
-              "transport": {
-                "read": "https://cdn.kidoju.com/images/x_collection/png/32x32/index.json"
-              }
-            },
-            {
-              "name": "Large",
-              "transport": {
-                "read": "https://cdn.kidoju.com/images/x_collection/png/128x128/index.json"
-              }
+        "video": {
+            "schemes": {
+                "data": "https://s3.amazonaws.com/memba.test/"
             }
-          ]
         }
-      ],
-      "extensions": [".gif", ".jpg", ".png", ".svg"],
-      "schemes": {
-        "cdn": "https://cdn.kidoju.com/",
-        "data": "https://s3.amazonaws.com/memba.test/"
-      }
     },
-    "video": {
-      "collections": [],
-      "extensions": [".mp4", ".ogv", ".wbem"],
-      "schemes": {
-        "cdn": "https://cdn.kidoju.com/",
-        "data": "https://s3.amazonaws.com/memba.test/"
-      }
+    "debug": true,
+    "express": {
+        "port"  : 3000
+    },
+    "facebook": {
+        "clientID": "628502177236998"
+    },
+    "level": 0,
+    "logentries": {
+        "browser": {
+            "token": "e78bac0b-377a-49e2-ad91-20bb4ec7cedc"
+        }
+    },
+    "twitter": {
+        "account": "kidoju"
+    },
+    "uris" : {
+        "rapi": {
+            "root": "http://10.0.0.105:3001"
+        },
+        "webapp": {
+            "root": "http://localhost:3000"
+        },
+        "webpack": {
+            "root": "http://localhost:3000/build/"
+        }
     }
-  },
-  "uris" : {
-    "rapi": {
-      "root": "http://localhost:3001",
-      "v1": {
-        "summary": "/api/v1/%s/summaries/%s",
-        "user": "/api/v1/users/%s"
-      }
-    },
-    "cdn": {
-      "root":  "https://cdn.kidoju.com",
-      "icons": "/images/o_collection/svg/office/%s.svg",
-      "images": "/kidoju/%s"
-    },
-    "webapp": {
-      "root": "http://localhost:3000",
-      "editor": "/%s/e/%s/%s",
-      "finder": "/%s",
-      "home": "/",
-      "locale": "/%s",
-      "ping": "/ping",
-      "player": "/%s/x/%s/%s/%s",
-      "public": "/%s",
-      "rss": "/%s/rss/%s",
-      "sitemap": "/%s/sitemap/%s",
-      "summary": "/%s/s/%s",
-      "user": "/%s/u/%s",
-      "workerlib": "workerlib.bundle.js"
-    },
-    "webpack": {
-      "root": "./build/"
-    }
-  }
 }
