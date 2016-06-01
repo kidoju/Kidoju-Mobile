@@ -1,0 +1,69 @@
+@import "kidoju.less";
+
+.kf {
+    /* just in case - see https://github.com/kidoju/Kidoju-WebFonts/issues/7 */
+    font-family:"kidoju";
+}
+
+/*********************************************************************************************
+* To understand how this file is built, check
+* See http://docs.telerik.com/kendo-ui/controls/hybrid/styles/icons
+**********************************************************************************************/
+
+.km-navbar {
+
+    .km-button {
+        line-height: 3.75em !important;
+    }
+
+    .km-icon
+    {
+        &:after, &:before {
+            font: 1.4em/1.4em "kidoju" !important;
+        }
+    }
+
+    .km-drawer-icon // We cannot call it km-drawer because there is already a km-drawer class and they would collide
+    {
+        &:after, &:before {
+            content:"\e300";
+        }
+    }
+
+    .km-favourites
+    {
+        &:after, &:before {
+            content:"\2606";
+        }
+    }
+
+    .km-history, .km-activities
+    {
+        &:after, &:before {
+            content:"\e305";
+        }
+    }
+
+    .km-previous
+    {
+        &:after, &:before {
+            content:"\e30a";
+        }
+    }
+
+    .km-next
+    {
+        &:after, &:before {
+            content:"\e310";
+        }
+    }
+
+    .km-sync
+    {
+        &:after, &:before {
+            content:"\e315";
+        }
+    }
+
+}
+

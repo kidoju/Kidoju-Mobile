@@ -12,10 +12,11 @@ if (typeof(require) === 'function') {
     require('../styles/vendor/kendo/web/kendo.common.less');
     require('../styles/vendor/kendo/web/kendo.nova.less');
     require('../styles/vendor/kendo/mobile/kendo.mobile.all.less');
+    require('../styles/fonts/kidoju.mobile.less');
     require('../styles/kidoju.widgets.mediaplayer.less');
     require('../styles/kidoju.widgets.messagebox.less');
     require('../styles/kidoju.widgets.multicheckbox.less');
-    require('../styles/kidoju.widgets.playbar.less');
+    // require('../styles/kidoju.widgets.playbar.less');
     require('../styles/kidoju.widgets.quiz.less');
     require('../styles/kidoju.widgets.rating.less');
     require('../styles/kidoju.widgets.stage.less');
@@ -62,7 +63,7 @@ if (typeof(require) === 'function') {
         './kidoju.widgets.mathexpression',
         './kidoju.widgets.mediaplayer',
         './kidoju.widgets.multicheckbox',
-        './kidoju.widgets.playbar',
+        // './kidoju.widgets.playbar',
         './kidoju.widgets.quiz',
         './kidoju.widgets.rating',
         // './kidoju.widgets.social',
@@ -92,9 +93,11 @@ if (typeof(require) === 'function') {
         var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
         var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
         var UNDEFINED = 'undefined';
+        var NUMBER = 'number';
         var STRING = 'string';
         var ARRAY = 'array';
         var CHANGE = 'change';
+        var LOADED = 'i18n.loaded';
         var LOCALE = 'settings.language';
         var DEFAULT_LOCALE = 'en';
         var THEME = 'settings.theme';
@@ -335,6 +338,64 @@ if (typeof(require) === 'function') {
                         versionId: viewModel.get('version.id')
                     }
                 });
+            },
+
+            /**
+             * Check first page
+             * @returns {boolean}
+             */
+            isFirstPage$: function () {
+                var page = this.get(SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                var index = pageCollectionDataSource.indexOf(page);
+                return index === 0;
+            },
+
+            /**
+             * Check last page
+             * @returns {boolean}
+             */
+            isLastPage$: function () {
+                var page = this.get(SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                var index = pageCollectionDataSource.indexOf(page);
+                return index === -1 || index === pageCollectionDataSource.total() - 1;
+            },
+
+            /**
+             * Check whether this is the submit page
+             */
+            isSubmitPage$: function () {
+                // It has to be the last page and the test should not have already been submitted/scored
+                return this.isLastPage$() && $.type(this.get(CURRENT_ID)) === UNDEFINED;
+            },
+
+            /**
+             * Select the previous page from viewModel.version.stream.pages
+             */
+            previousPage: function () {
+                var page = this.get(SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                var index = pageCollectionDataSource.indexOf(page);
+                if ($.type(index) === NUMBER && index > 0) {
+                    this.set(SELECTED_PAGE, pageCollectionDataSource.at(index - 1));
+                }
+            },
+
+            /**
+             * Select the next page from viewModel.version.stream.pages
+             */
+            nextPage: function () {
+                var page = this.get(SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                var index = pageCollectionDataSource.indexOf(page);
+                if ($.type(index) === NUMBER && index < pageCollectionDataSource.total() - 1) {
+                    this.set(SELECTED_PAGE, pageCollectionDataSource.at(index + 1));
+                }
             }
 
         });
@@ -468,25 +529,27 @@ if (typeof(require) === 'function') {
             /* jshint maxcomplexity: 13 */
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var showDrawerButton = false;
-            var showBackButton = false;
-            var showSearchButton = false;
+            var showHomeButton = false;
+            var showPreviousButton = false;
+            var showNextButton = false;
             var showSyncButton = false;
-            var showSelectionButtons = false;
+            var showSearchButton = false;
+            var showSortButtons = false;
             switch (view.id) {
+                case '/':
                 case DEVICE_SELECTOR + VIEW.ACTIVITIES:
                     showDrawerButton = true;
                     showSyncButton = true;
                     break;
-                case '/':
                 case DEVICE_SELECTOR + VIEW.CATEGORIES:
                     showDrawerButton = true;
                     showSearchButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.SUMMARIES:
                     showDrawerButton = true;
-                    showBackButton = true;
+                    showHomeButton = true;
                     showSearchButton = true;
-                    showSelectionButtons = true;
+                    showSortButtons = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.FAVOURITES:
                     showDrawerButton = true;
@@ -494,18 +557,23 @@ if (typeof(require) === 'function') {
                     break;
                 case DEVICE_SELECTOR + VIEW.PLAYER:
                     showDrawerButton = true;
-                    // Add playbar buttons + page numbers
+                    showPreviousButton = true;
+                    showNextButton = true;
+                    // TODO Submit button
                     break;
                 case DEVICE_SELECTOR + VIEW.SETTINGS:
                     showDrawerButton = true;
                     showSyncButton = true;
                     break;
             }
-            $(DEVICE_SELECTOR + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            $(DEVICE_SELECTOR + LAYOUT.MAIN + '-back').css({ display: showBackButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            $(DEVICE_SELECTOR + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            $(DEVICE_SELECTOR + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            $(DEVICE_SELECTOR + LAYOUT.MAIN + '-selection').css({ display: showSelectionButtons ? DISPLAY.TABLE : DISPLAY.NONE });
+            // Note: each view has all buttons - TODO maybe this is for an init viw event (rather than show)
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous').css({ display: showPreviousButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next').css({ display: showNextButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sort').css({ display: showSortButtons ? DISPLAY.INLINE : DISPLAY.NONE });
         };
 
         /* jshint +W074 */
@@ -525,11 +593,16 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         /**
-         * Event Handler trigger when the device is ready (this is a cordova event)
+         * Event Handler triggered when the device is ready (this is a cordova event)
          * Loads the application
          */
         mobile.onDeviceReady = function () {
-            mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), { skin: viewModel.get(THEME) }); // , statusBarStyle: 'black' });
+            $(document).on(LOADED, function() {
+                mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
+                    initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
+                    skin: viewModel.get(THEME)
+                }); // , statusBarStyle: 'black' });
+            });
         };
 
         /**
@@ -617,11 +690,37 @@ if (typeof(require) === 'function') {
             viewModel.loadLazySummaries(query);
         };
 
+        /**
+         * Event handler for clicking the previous button in the navbar
+         * @param e
+         */
+        app.mobile.onNavbarPreviousClick = function (e) {
+            viewModel.previousPage();
+        };
+
+        /**
+         * Event handler for clicking the next button in the navbar
+         * @param e
+         */
+        app.mobile.onNavbarNextClick = function (e) {
+            viewModel.nextPage();
+        };
+
+        /**
+         * Event handler for clicking the sync button in the navbar
+         * @param e
+         */
+        app.mobile.onNavbarSyncClick = function (e) {
+            debugger;
+        };
+
         /*******************************************************************************************
          * Application initialization
          *******************************************************************************************/
 
-        $(document).ready(function () {
+        document.addEventListener('deviceready', mobile.onDeviceReady, false);
+
+        $(document).ready(function() {
             if ($.type(window.device) !== UNDEFINED && $.type(window.device.cordova) !== UNDEFINED) {
                 // Wait for Cordova to load
                 document.addEventListener('deviceready', mobile.onDeviceReady, false);
