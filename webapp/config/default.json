@@ -127,6 +127,9 @@
             "icons": "/images/o_collection/svg/office/%s.svg",
             "images": "/kidoju/%s"
         },
+        "mobile": {
+            "icons": "./img/%s.svg"
+        },
         "webapp": {
             "editor": "/%s/e/%s/%s",
             "error": "/%s/error",
