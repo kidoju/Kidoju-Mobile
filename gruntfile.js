@@ -34,6 +34,9 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         copy: {
+            options: {
+                processContentExclude: ['**/*.js']
+            },
             jquery: {
                 src: './js/vendor/jQuery/jquery-1.12.4.min.js',
                 dest: './www/build/jquery.min.js'
