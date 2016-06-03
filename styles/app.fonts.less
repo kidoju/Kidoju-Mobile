@@ -1,4 +1,4 @@
-@import "kidoju.less";
+@import "fonts/kidoju.less";
 
 .kf {
     /* just in case - see https://github.com/kidoju/Kidoju-WebFonts/issues/7 */
@@ -11,6 +11,10 @@
 **********************************************************************************************/
 
 .km-navbar {
+    height: 3rem;
+}
+
+.km-navbar, .km-drawer {
 
     .km-button {
         line-height: 3.75em !important;
@@ -58,12 +62,40 @@
         }
     }
 
-    .km-sync
+    .km-submit
     {
         &:after, &:before {
             content:"\e315";
         }
     }
 
+    .km-sync
+    {
+        &:after, &:before {
+            content:"\e31a";
+        }
+    }
+
 }
 
+
+/**
+ * We need to fix .km-nova otherwise clicking a drawer menu item
+ * displays a square when the item is in active state
+ */
+.km-nova {
+    .km-state-active {
+        .km-home
+        {
+            &:after, &:before {
+                content:"\e212";
+            }
+        }
+        .km-settings
+        {
+            &:after, &:before {
+                content:"\e20f";
+            }
+        }
+    }
+}
