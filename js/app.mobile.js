@@ -19,7 +19,7 @@ if (typeof(require) === 'function') {
     require('../styles/kidoju.widgets.quiz.less');
     require('../styles/kidoju.widgets.rating.less');
     require('../styles/kidoju.widgets.stage.less');
-    require('../styles/kidoju.mobile.less');
+    require('../styles/app.fonts.less');
     require('../styles/app.mobile.less');
 
     // Load config
