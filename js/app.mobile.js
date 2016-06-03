@@ -131,6 +131,7 @@ if (typeof(require) === 'function') {
             SETTINGS: 'mobile.settings'
         };
         var CURRENT = 'current';
+        var CURRENT_ID = 'current.id';
         var SELECTED_PAGE = 'selectedPage';
         var PAGES_COLLECTION = 'version.stream.pages';
 
@@ -424,9 +425,11 @@ if (typeof(require) === 'function') {
                 case SELECTED_PAGE:
                     var playerViewElement = $(DEVICE_SELECTOR + VIEW.PLAYER);
                     var playerView = playerViewElement.data('kendoMobileView');
+                    mobile._setNavBar(playerView);
                     mobile._setNavBarTitle(playerView, viewModel.getPlayerViewTitle());
                     var markdownScrollerElement = playerViewElement.find(kendo.roleSelector('scroller'));
                     var markdownScroller = markdownScrollerElement.data('kendoMobileScroller');
+                    markdownScroller.reset();
                     markdownScroller.contentResized();
             }
         });
@@ -450,6 +453,7 @@ if (typeof(require) === 'function') {
             var showHomeButton = false;
             var showPreviousButton = false;
             var showNextButton = false;
+            var showSubmitButton = false;
             var showSyncButton = false;
             var showSearchButton = false;
             var showSortButtons = false;
@@ -475,20 +479,21 @@ if (typeof(require) === 'function') {
                     break;
                 case DEVICE_SELECTOR + VIEW.PLAYER:
                     showDrawerButton = true;
-                    showPreviousButton = true;
-                    showNextButton = true;
-                    // TODO Submit button
+                    showPreviousButton = !viewModel.isFirstPage$();
+                    showNextButton = !viewModel.isSubmitPage$();
+                    showSubmitButton = viewModel.isSubmitPage$();
                     break;
                 case DEVICE_SELECTOR + VIEW.SETTINGS:
                     showDrawerButton = true;
                     showSyncButton = true;
                     break;
             }
-            // Note: each view has all buttons - TODO maybe this is for an init viw event (rather than show)
+            // Note: each view has all buttons
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous').css({ display: showPreviousButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next').css({ display: showNextButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-submit').css({ display: showSubmitButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sort').css({ display: showSortButtons ? DISPLAY.INLINE : DISPLAY.NONE });
@@ -724,7 +729,7 @@ if (typeof(require) === 'function') {
                 markdownContainer.outerHeight((height > width) ? height - stageContainer.outerHeight() : height);
                 markdownContainer.outerWidth((height > width) ? width : width - stageContainer.outerWidth());
                 markdownScroller.destroy();
-                markdownScrollerElement.outerHeight(markdownContainer.height() - markdownHeading.outerHeight());
+                markdownScrollerElement.outerHeight(markdownContainer.height() - markdownHeading.outerHeight() - parseInt(markdownContainer.css('padding-bottom'), 10));
                 markdownScrollerElement.kendoMobileScroller();
             }
         };
@@ -751,7 +756,7 @@ if (typeof(require) === 'function') {
                     initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
                     skin: viewModel.get(THEME),
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
-                    statusBarStyle: 'black-translucent',
+                    statusBarStyle: (window.device && window.device.cordova) ? 'black-translucent' : undefined,
                     init: function (e) {
                         console.log('app.init');
                         viewModel.set('languages', i18n.culture.viewModel.languages);
@@ -900,8 +905,7 @@ if (typeof(require) === 'function') {
          * Event handler for clicking the previous button in the navbar
          * @param e
          */
-        app.mobile.onNavbarPreviousClick = function (e) {
-            console.log('previous page');
+        mobile.onNavbarPreviousClick = function (e) {
             viewModel.previousPage();
         };
 
@@ -909,16 +913,40 @@ if (typeof(require) === 'function') {
          * Event handler for clicking the next button in the navbar
          * @param e
          */
-        app.mobile.onNavbarNextClick = function (e) {
-            console.log('next page');
+        mobile.onNavbarNextClick = function (e) {
             viewModel.nextPage();
+        };
+
+        /**
+         * Event handler for clicking the submit button in the navbar
+         * @param e
+         */
+        mobile.onNavbarSubmitClick = function (e) {
+            if (window.device && window.device.cordova) {
+                // https://github.com/apache/cordova-plugin-dialogs
+                navigator.notification.confirm(
+                    'You are the winner!', // message
+                    mobile.onSubmit,       // callback to invoke with index of button pressed
+                    'Confirm',             // title
+                    ['Yes', 'No']           // buttonLabels
+                );
+            } else if (window.confirm('?')) {
+                mobile.onSubmit(1);
+            }
+        };
+
+        mobile.onSubmit = function (buttonIndex) {
+            if (buttonIndex !== 1) {
+                return;
+            }
+
         };
 
         /**
          * Event handler for clicking the sync button in the navbar
          * @param e
          */
-        app.mobile.onNavbarSyncClick = function (e) {
+        mobile.onNavbarSyncClick = function (e) {
             $.noop(e); // TODO
         };
 
