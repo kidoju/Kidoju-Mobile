@@ -34,13 +34,13 @@
     },
     "uris" : {
         "rapi": {
-            "root": "http://localhost:3001"
+            "root": "http://10.0.0.105:3001"
         },
         "webapp": {
-            "root": "http://localhost:3000"
+            "root": "http://10.0.0.105:3000"
         },
         "webpack": {
-            "root": "http://localhost:3000/build/"
+            "root": "./build/"
         }
     }
 }

@@ -40,7 +40,7 @@
             "root": "https://www.kidoju.com"
         },
         "webpack": {
-            "root": "https://cdn.kidoju.com/build/"
+            "root": "./build/"
         }
     }
 }

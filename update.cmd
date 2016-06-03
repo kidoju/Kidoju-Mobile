@@ -199,7 +199,14 @@ REM ./js/app.i18n
 COPY ..\Kidoju.WebApp\js\app.i18n.js .\js /Y
 ATTRIB +R .\js\app.i18n.js
 
-REM ./webapp/config/index.js
+REM ./webapp/config
+REM ATTRIB -R .\webapp\config\*.*
+REM XCOPY ..\Kidoju.WebApp\webapp\config .\webapp\config /C /E /I /R /Y
+REM ATTRIB +R .\webapp\config\*.*
+ATTRIB -R .\webapp\config\default.json
+COPY ..\Kidoju.WebApp\webapp\config\default.json .\webapp\config /Y
+ATTRIB +R .\webapp\config\default.json
+
 ATTRIB -R .\webapp\config\index.js
 COPY ..\Kidoju.WebApp\webapp\config\index.js .\webapp\config /Y
 ATTRIB +R .\webapp\config\index.js
