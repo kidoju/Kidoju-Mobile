@@ -332,19 +332,19 @@
             var dfd = $.Deferred();
             cache.getCategoryHierarchy(locale)
                 .done(function (response) {
-                    function Flatten(categories, parentId, level) {
+                    function Flatten(categories, parentId, depth) {
                         for (var i = 0, length = categories.length; i < length; i++) {
                             var category = categories[i];
                             flat.push({
                                 id: category.id,
                                 icon: category.icon,
-                                level: level,
+                                depth: depth, // `level` seems to be reserved in kendo.ui.TreeView
                                 name: category.name,
                                 parentId: parentId,
                                 type: category.type
                             });
                             if ($.isArray(category.items) && category.items.length) {
-                                Flatten(category.items, category.id, level + 1);
+                                Flatten(category.items, category.id, depth + 1);
                             }
                         }
                     }

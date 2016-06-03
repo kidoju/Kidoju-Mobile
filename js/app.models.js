@@ -195,7 +195,7 @@
                     type: STRING,
                     editable: false
                 },
-                level: {
+                depth: { // `level` seems to be reserved in kendo.ui.TreeView
                     type: NUMBER,
                     editable: false
                 },
