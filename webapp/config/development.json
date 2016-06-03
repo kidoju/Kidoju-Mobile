@@ -2,17 +2,17 @@
     "assets": {
         "audio": {
             "schemes": {
-                "data": "https://s3.amazonaws.com/memba.test/"
+                "data": "https://s3.amazonaws.com/kidoju.data/"
             }
         },
         "image": {
             "schemes": {
-                "data": "https://s3.amazonaws.com/memba.test/"
+                "data": "https://s3.amazonaws.com/kidoju.data/"
             }
         },
         "video": {
             "schemes": {
-                "data": "https://s3.amazonaws.com/memba.test/"
+                "data": "https://s3.amazonaws.com/kidoju.data/"
             }
         }
     },

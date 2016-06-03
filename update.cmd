@@ -190,6 +190,11 @@ REM ------------------------------------------------------------
 REM Web Application (webapp)
 REM ------------------------------------------------------------
 
+REM ./js/app.assets.js
+ATTRIB -R .\js\app.assets.js
+COPY ..\Kidoju.WebApp\js\app.assets.js .\js /Y
+ATTRIB +R .\js\app.assets.js
+
 REM ./js/config,jsx
 ATTRIB -R .\js\app*.jsx
 COPY ..\Kidoju.WebApp\js\app.config.jsx .\js /Y

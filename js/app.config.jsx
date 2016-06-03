@@ -136,6 +136,9 @@
             cdn: {
                 icons: url.join('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))
             },
+            mobile: {
+                icons: convertFormat('<%- uris.mobile.icons %>')
+            },
             webapp: {
                 editor: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.editor %>')),
                 // error

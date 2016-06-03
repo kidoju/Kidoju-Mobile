@@ -48,6 +48,12 @@
             favourites: {
                 viewTitle: 'Favourites'
             },
+            // Player view
+            player: {
+                explanations: 'Explanations',
+                instructions: 'Instructions',
+                viewTitle: 'Page {0} of {1}'
+            },
             // Settings view
             settings: {
                 viewTitle: 'Settings',
@@ -59,6 +65,21 @@
             // Summaries view
             summaries: {
                 viewTitle: 'Search'
+            },
+            // viewModel
+            viewModel: {
+                languages: [
+                    { value: 'en', text: 'English' },
+                    { value: 'fr', text: 'French' }
+                ],
+                themes: [
+                    { value: 'fiori', text: 'Fiori' },
+                    { value: 'flat', text: 'Flat' },
+                    { value: 'material', text: 'Material' },
+                    { value: '', text: 'Native' }, // TODO light and Dark themes?
+                    { value: 'nova', text: 'Nova' },
+                    { value: 'office365', text: 'Office 365' }
+                ]
             }
         };
         window.kendo.culture('en-GB');
