@@ -110,6 +110,9 @@
         uris.cdn = uris.cdn || {
                 icons: 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg'
             };
+        uris.mobile = {
+            icons: './img/{0}.svg'
+        };
         uris.webapp = uris.webapp  || { // this is for testing only
                 editor      : window.location.protocol + '//' + window.location.host + '/{0}/e/{1}/{2}',
                 finder      : window.location.protocol + '//' + window.location.host + '/{0}',
@@ -174,7 +177,6 @@
 
         /**
          * LazyCategory
-         * A flattened readonly model for categories
          * @type {kidoju.data.Model}
          */
         models.LazyCategory = Model.define({
@@ -193,6 +195,10 @@
                     type: STRING,
                     editable: false
                 },
+                level: {
+                    type: NUMBER,
+                    editable: false
+                },
                 name: {
                     type: STRING,
                     editable: false
@@ -202,12 +208,15 @@
                     editable: false,
                     nullable: true
                 }
+            },
+            icon$: function () {
+                return kendo.format((window.device && window.device.cordova) ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
             }
         });
 
         /**
          * LazyCategoryDataSource
-         * A readonly datasource of categories
+         * A readonly datasource of flattened categories
          * @type {kendo.data.DataSource}
          */
         models.LazyCategoryDataSource = DataSource.extend({
@@ -240,7 +249,7 @@
                         method: 'app.models.LazyCategoryDataSource.transport.read'
                         // data: options
                     });
-                    app.cache.getAllCategories(i18n.locale())
+                    app.cache.getLeveledCategories(i18n.locale())
                         .done(function (response) {
                             options.success(response);
                         })

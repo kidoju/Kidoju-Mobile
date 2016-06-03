@@ -324,6 +324,41 @@
         };
 
         /**
+         * Get a flat hierarchy of categories with depth level, in the same order as the hierarchy
+         * @param locale
+         * @returns {*}
+         */
+        cache.getLeveledCategories = function (locale) {
+            var dfd = $.Deferred();
+            cache.getCategoryHierarchy(locale)
+                .done(function (response) {
+                    function Flatten(categories, parentId, level) {
+                        for (var i = 0, length = categories.length; i < length; i++) {
+                            var category = categories[i];
+                            flat.push({
+                                id: category.id,
+                                icon: category.icon,
+                                level: level,
+                                name: category.name,
+                                parentId: parentId,
+                                type: category.type
+                            });
+                            if ($.isArray(category.items) && category.items.length) {
+                                Flatten(category.items, category.id, level + 1);
+                            }
+                        }
+                    }
+                    var flat = [];
+                    Flatten(response, null, 0);
+                    dfd.resolve({ total: flat.length, data: flat });
+                })
+                .fail(function (xhr, status, error) {
+                    dfd.reject(xhr, status, error);
+                });
+            return dfd.promise();
+        };
+
+        /**
          * Get all my favourites
          * @param locale (ISO code)
          */
