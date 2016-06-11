@@ -63,7 +63,7 @@
         var rapi = app.rapi;
         var models = app.models = app.models || {};
         var i18n = app.i18n = app.i18n || {
-                locale: function () { return 'en' },
+                locale: function () { return 'en'; },
                 culture: {
                     dateFormat: 'dd MMM yyyy',
                     languages: [

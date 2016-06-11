@@ -754,6 +754,7 @@ if (typeof(require) === 'function') {
                 // Initialize application
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                     initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
+                    // platform: "ios7",
                     skin: viewModel.get(THEME),
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                     statusBarStyle: (window.device && window.device.cordova) ? 'black-translucent' : undefined,

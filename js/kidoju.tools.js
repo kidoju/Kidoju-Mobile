@@ -12,7 +12,7 @@
         './window.assert',
         './window.logger',
         './kidoju.data'
-        // Note: The player does not need the assetmanager, the codeeditor and teh styleeditor
+        // Note: The player does not need the assetmanager, the codeeditor and the styleeditor
         // './kidoju.widgets.assetmanager',
         // './kidoju.widgets.chargrid',
         // './kidoju.widgets.codeeditor',
@@ -250,6 +250,7 @@
             textbox: {
                 description: 'TextBox',
                 attributes: {
+                    mask: { title: 'Mask' },
                     style: { title: 'Style' }
                 },
                 properties: {
@@ -530,9 +531,9 @@
             showResult: function () {
                 // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
                 return '<div class=".kj-element-result">' +
-                       '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
-                       '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
-                       '</div>';
+                    '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
+                    '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
+                    '</div>';
             },
 
             /**
@@ -1299,7 +1300,7 @@
                         })
                         .appendTo(table);
                     var input = $('<div data-role="codeinput" />') // TODO namespace???
-                        // Note: _library is added to the data bound PageComponent in its init method
+                    // Note: _library is added to the data bound PageComponent in its init method
                         .attr($.extend({}, options.attributes, { 'data-bind': 'value: ' + options.field + ', source: _library' })) // TODO namespace???
                         .appendTo(cell);
                     // We need a temporary textbox to calculate the height and align the button
@@ -1950,8 +1951,8 @@
                      // we are using the component size and not the mouse position
                      // therefore, we can only reduce the size proportionnaly, not increase it
                      var rectLimitedByWidth = {
-                        height: Math.round(width * naturalHeight / naturalWidth),
-                        width: Math.round(width)
+                     height: Math.round(width * naturalHeight / naturalWidth),
+                     width: Math.round(width)
                      };
                      // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
                      if (rectLimitedByHeight.width <= width) {
@@ -1963,15 +1964,15 @@
                         component.set('width', rectLimitedByHeight.width);
                     }
                     /*
-                    } else if(rectLimitedByWidth.height <= height) {
-                         if (height !== rectLimitedByWidth.height) {
-                            component.set('height', rectLimitedByWidth.height);
-                         }
-                         if (width !== rectLimitedByWidth.width) {
-                            component.set('width', rectLimitedByWidth.width);
-                         }
-                    }
-                    */
+                     } else if(rectLimitedByWidth.height <= height) {
+                     if (height !== rectLimitedByWidth.height) {
+                     component.set('height', rectLimitedByWidth.height);
+                     }
+                     if (width !== rectLimitedByWidth.width) {
+                     component.set('width', rectLimitedByWidth.width);
+                     }
+                     }
+                     */
                 }
                 // Set content size
                 content.outerHeight(component.get('height'));
@@ -2193,25 +2194,25 @@
                     content.outerHeight(component.height);
                 }
                 /*
-                // Auto-resize algorithm is not great so let's wait until we find a better solution
-                var data = component.attributes.data;
-                var length = data.trim().split('\n').length || 1;
-                switch (component.attributes.mode) {
-                    case 'button':
-                        content.css('font-size', Math.floor(0.57 * component.height));
-                        break;
-                    case 'dropdown':
-                        content.css('font-size', Math.floor(0.5 * component.height));
-                        break;
-                    case 'radio':
-                        var h = component.height / (length || 1);
-                        content.css('font-size', Math.floor(0.9 * h));
-                        content.find('input')
-                            .height(0.6 * h)
-                            .width(0.6 * h);
-                        break;
-                }
-                */
+                 // Auto-resize algorithm is not great so let's wait until we find a better solution
+                 var data = component.attributes.data;
+                 var length = data.trim().split('\n').length || 1;
+                 switch (component.attributes.mode) {
+                 case 'button':
+                 content.css('font-size', Math.floor(0.57 * component.height));
+                 break;
+                 case 'dropdown':
+                 content.css('font-size', Math.floor(0.5 * component.height));
+                 break;
+                 case 'radio':
+                 var h = component.height / (length || 1);
+                 content.css('font-size', Math.floor(0.9 * h));
+                 content.find('input')
+                 .height(0.6 * h)
+                 .width(0.6 * h);
+                 break;
+                 }
+                 */
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage
@@ -2223,7 +2224,9 @@
         });
         tools.register(Quiz);
 
-        var TEXTBOX = '<input type="text" id="#: properties.name #" class="k-textbox" style="#: attributes.style #" {0}>';
+        // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
+        // var TEXTBOX = '<input type="text" id="#: properties.name #" data-#= ns #role="maskedtextbox" data-#= ns #mask="#: attributes.mask #" style="#: attributes.style #" {0}>';
+        var TEXTBOX = '<input type="text" id="#: properties.name #" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
         /**
          * @class Textbox tool
          * @type {void|*}
@@ -2241,6 +2244,7 @@
             height: 80,
             width: 300,
             attributes: {
+                mask: new adapters.StringAdapter({ title: i18n.textbox.attributes.mask.title }),
                 style: new adapters.StyleAdapter({ title: i18n.textbox.attributes.style.title })
             },
             properties: {
@@ -2291,6 +2295,14 @@
                     if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
                         content.css('font-size', Math.floor(0.65 * content.height()));
                     }
+                }
+                // This is a trick because of http://docs.telerik.com/kendo-ui/framework/mvvm/overview#important-notes
+                // In other words it is impossible to set a mask that only contains digits declaratively (data-mask attribute)
+                // See also http://docs.telerik.com/kendo-ui/api/javascript/ui/maskedtextbox#configuration-mask
+                var maskedTextBoxWidget = content.data('kendoMaskedTextBox');
+                if (kendo.ui.MaskedTextBox && maskedTextBoxWidget instanceof kendo.ui.MaskedTextBox &&
+                    maskedTextBoxWidget.options.mask !== component.attributes.mask) {
+                    maskedTextBoxWidget.setOptions({ mask: component.attributes.mask });
                 }
                 // prevent any side effect
                 e.preventDefault();
