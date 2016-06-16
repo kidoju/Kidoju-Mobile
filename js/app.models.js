@@ -1814,10 +1814,10 @@
                 return ret.join(', '); // TODO: sort
             },
             icon$: function () {
-                return kendo.format(uris.cdn.icons, this.icon);
+                return kendo.format(uris.cdn.icons, this.get('icon'));
             },
             tags$: function () {
-                return this.tags.join(', ');
+                return this.get('tags').join(', ');
             },
             init: function (data) {
                 var that = this;
