@@ -201,8 +201,14 @@ COPY ..\Kidoju.WebApp\js\app.config.jsx .\js /Y
 ATTRIB +R .\js\app.config.jsx
 
 REM ./js/app.i18n
+ATTRIB -R .\js\app.i18n.js
 COPY ..\Kidoju.WebApp\js\app.i18n.js .\js /Y
 ATTRIB +R .\js\app.i18n.js
+
+REM ./js/app.theme
+ATTRIB -R .\js\app.theme.js
+COPY ..\Kidoju.WebApp\js\app.theme.js .\js /Y
+ATTRIB +R .\js\app.theme.js
 
 REM ./webapp/config
 REM ATTRIB -R .\webapp\config\*.*

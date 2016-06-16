@@ -108,6 +108,13 @@
                 // transport: JSON.parse('<%- JSON.stringify(assets.audio.transport) %>')
             },
 
+            icon: {
+                collections: JSON.parse('<%- JSON.stringify(assets.icon.collections) %>'),
+                extensions: JSON.parse('<%- JSON.stringify(assets.icon.extensions) %>'),
+                schemes: JSON.parse('<%- JSON.stringify(assets.icon.schemes) %>')
+                // transport: JSON.parse('<%- JSON.stringify(assets.icon.transport) %>')
+            },
+
             image: {
                 collections: JSON.parse('<%- JSON.stringify(assets.image.collections) %>'),
                 extensions: JSON.parse('<%- JSON.stringify(assets.image.extensions) %>'),

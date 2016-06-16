@@ -11,6 +11,7 @@
     define([
         './window.assert',
         './window.logger',
+        './kidoju.tools',
         './app.logger',
         './app.i18n',
         './app.rapi'
@@ -179,10 +180,17 @@
             };
         }
 
+        // Note: ./webapp/config.default.json is read by ./web_modules/app.config.jsx to produce app.assets
+
         // Build audio tool assets
         var audio = app.assets.audio;
         assert.isPlainObject(audio, kendo.format(assert.messages.isPlainObject.default, 'app.assets.audio'));
         kidoju.assets.audio = new kidoju.ToolAssets($.extend(audio, { transport: transport('audio') }));
+
+        // Build icon assets
+        var icon = app.assets.icon;
+        assert.isPlainObject(icon, kendo.format(assert.messages.isPlainObject.default, 'app.assets.icon'));
+        kidoju.assets.icon = new kidoju.ToolAssets($.extend(icon, { transport: null }));
 
         // Build image tool assets
         var image = app.assets.image;
