@@ -1,0 +1,52 @@
+@import (optional, less) "./vendor/highlight/agate.css";
+
+@import "./vendor/kendo/web/kendo.common-fiori.less";
+@import "./vendor/kendo/web/kendo.fiori.less";
+@import "./vendor/kendo/mobile/kendo.mobile.fiori.less";
+
+@import "./app.template.less";
+
+// Style fixes
+.km-fiori {
+
+    /**********************************************************
+     * Navbar
+     **********************************************************/
+    .km-navbar {
+        background-color: @selected-background;
+        color: @selected-text-color;
+        .km-view-title {
+            background-color: transparent;
+        }
+        .km-button {
+            padding: .2em .5em;
+        }
+    }
+    /**********************************************************
+     * Drawer
+     **********************************************************/
+    .km-drawer {
+        .km-navbar {
+            background-color: @fiori-inverse-background;
+        }
+        .km-content, .km-list > li {
+            background-color: @fiori-inverse-background;
+            color: @fiori-inverse-text;
+        }
+    }
+    /**********************************************************
+     * Listview
+     **********************************************************/
+    .km-listview {
+        span.k-dropdown {
+            margin-top: -.1em;
+            span.k-dropdown-wrap {
+                padding: .4em;
+                span.k-input {
+                    text-indent: 0;
+                }
+            }
+        }
+    }
+
+}

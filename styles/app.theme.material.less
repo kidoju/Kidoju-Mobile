@@ -1,0 +1,51 @@
+@import (optional, less) "./vendor/highlight/agate.css";
+
+@import "./vendor/kendo/web/kendo.common-material.less";
+@import "./vendor/kendo/web/kendo.material.less";
+@import "./vendor/kendo/mobile/kendo.mobile.material.less";
+
+@import "./app.template.less";
+
+// Style fixes
+.km-material {
+
+    /**********************************************************
+     * Navbar
+     **********************************************************/
+    .km-navbar {
+
+    }
+    /**********************************************************
+     * Drawer
+     **********************************************************/
+    .km-drawer {
+        .km-navbar {
+            background-color: @accent;
+        }
+        .km-content, .km-list > li {
+            background-color: @selected-background;
+            color: @base;
+        }
+    }
+    /**********************************************************
+     * Listview
+     **********************************************************/
+    .km-listview {
+        li, li:first-child, li:last-child {
+            border-width: 0 0 1px;
+        }
+        input[type=text]:not(.k-input) {
+            border-width: 0;
+        }
+        span.k-dropdown {
+            margin-top: -1.6em;
+            span.k-dropdown-wrap {
+                padding: .4em;
+                span.k-input {
+                    text-indent: 0;
+                }
+            }
+        }
+    }
+
+}

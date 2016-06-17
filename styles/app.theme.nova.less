@@ -1,0 +1,56 @@
+@import (optional, less) "./vendor/highlight/agate.css";
+
+@import "./vendor/kendo/web/kendo.common-nova.less";
+@import "./vendor/kendo/web/kendo.nova.less";
+@import "./vendor/kendo/mobile/kendo.mobile.nova.less";
+
+@import "./app.template.less";
+
+// Style fixes
+.km-nova {
+
+    /**********************************************************
+     * Navbar
+     **********************************************************/
+    .km-navbar {
+
+    }
+    /**********************************************************
+     * Drawer
+     **********************************************************/
+    .km-drawer {
+        // Default colors and dimensions are good
+        /**
+     * Fix because clicking a drawer menu item displays a square when the item is in active state
+     */
+        .km-state-active {
+            .km-home
+            {
+                &:after, &:before {
+                    content:"\e212";
+                }
+            }
+            .km-settings
+            {
+                &:after, &:before {
+                    content:"\e20f";
+                }
+            }
+        }
+    }
+    /**********************************************************
+     * Listview
+     **********************************************************/
+    .km-listview {
+        span.k-dropdown {
+            margin-top: -1.4em;
+            span.k-dropdown-wrap {
+                padding-left: 0;
+                span.k-input {
+                    text-indent: 0;
+                }
+            }
+        }
+    }
+
+}

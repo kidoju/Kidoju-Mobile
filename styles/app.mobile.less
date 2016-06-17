@@ -1,21 +1,9 @@
 html, body, #phone {
     height: 100%;
     margin: 0;
-    #phone-categories {
-        .km-listview {
-            li {
-                padding-top: 0.7em;
-                padding-bottom: 0.7em;
-                .km-thumbnail {
-                    border: none;
-                    border-radius: 0;
-                    height: 1.8rem;
-                    width: 1.8rem;
-                    vertical-align: middle;
-                }
-            }
-        }
-    }
+    /**********************************************************
+    * Drawer
+    **********************************************************/
     #phone-drawer {
         .km-view-title {
             text-align: left;
@@ -24,8 +12,42 @@ html, body, #phone {
         .km-scroll-container {
             // Make sure drawer items are aligned to the top especially with nova theme */
             display: initial;
+            // Make list items larger for all themes
+            .km-listview > li {
+                padding: .84em .7em;
+            }
         }
     }
+    /**********************************************************
+    * Activities view
+    **********************************************************/
+    #phone-activities {
+
+    }
+    /**********************************************************
+    * Categories view
+    **********************************************************/
+    #phone-categories {
+        .km-listview > li {
+            padding: .5em .84em;
+            .km-thumbnail {
+                border: none;
+                border-radius: 0;
+                height: 1.8rem;
+                width: 1.8rem;
+                vertical-align: middle;
+            }
+        }
+    }
+    /**********************************************************
+    * Favourites view
+    **********************************************************/
+    #phone-favourites {
+
+    }
+    /**********************************************************
+    * Player view
+    **********************************************************/
     #phone-player {
         .km-stretched-view {
             // http://docs.telerik.com/kendo-ui/controls/hybrid/how-to/relative-content-size-using-flexboxes
@@ -35,6 +57,8 @@ html, body, #phone {
                 padding: 1em;
                 .heading {
                     h2 {
+                        margin: 0;
+                        font-size: 1rem;
                         img {
                             height: 1.5em;
                             width: 1.5em;
@@ -46,6 +70,21 @@ html, body, #phone {
             }
         }
     }
+    /**********************************************************
+     * Score view
+     **********************************************************/
+    #phone-score {
+
+    }
+    /**********************************************************
+     * Settings view
+     **********************************************************/
+    #phone-settings {
+
+    }
+    /**********************************************************
+    * Summaries view (search results)
+    **********************************************************/
     #phone-summaries {
         .km-listview {
             li {
@@ -69,13 +108,3 @@ html, body, #phone {
     }
 }
 
-// Theme Fixes
-.km-android, .km-fiori, .km-flat, .km-ios7, .km-material, .km-office365 {
-    .km-navbar {
-        .km-view-title {
-            // line-height: 2.3em !important;
-            // padding-top: .15rem;
-            // padding-bottom: .15rem;
-        }
-    }
-}
