@@ -75,8 +75,8 @@
                 themes: [
                     { value: 'fiori', text: 'Fiori' },
                     { value: 'flat', text: 'Flat' },
-                    { value: 'material', text: 'Material' },
-                    { value: '', text: 'Native' }, // TODO light and Dark themes?
+                    { value: 'material', text: 'Material' }, // TODO light and Dark themes?
+                    // { value: '', text: 'Native' }, // TODO in the future but which theme for web widgets and kidoju widgets?
                     { value: 'nova', text: 'Nova' },
                     { value: 'office365', text: 'Office 365' }
                 ]
