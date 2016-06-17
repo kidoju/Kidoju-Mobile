@@ -40,6 +40,9 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.mobile.view',
         './vendor/kendo/kendo.mobile.loader',
         './vendor/kendo/kendo.mobile.pane',
+        './vendor/kendo/kendo.mobile.popover',
+        './vendor/kendo/kendo.mobile.shim',
+        './vendor/kendo/kendo.mobile.actionsheet',
         './vendor/kendo/kendo.router',
         './vendor/kendo/kendo.mobile.application',
         './vendor/kendo/kendo.mobile.button',
@@ -137,7 +140,8 @@ if (typeof(require) === 'function') {
             LANGUAGE: 'settings.language',
             PAGES_COLLECTION: 'version.stream.pages',
             SELECTED_PAGE: 'selectedPage',
-            THEME: 'settings.theme'
+            THEME: 'settings.theme',
+            VERSION: 'version'
         };
 
         /*******************************************************************************************
@@ -215,6 +219,18 @@ if (typeof(require) === 'function') {
                 version: app.version,
                 language: DEFAULT.LANGUAGE,
                 theme: DEFAULT.THEME
+            },
+
+            reset: function () {
+                // this.activities.data([]);
+                // this.categories.data([]);
+                this.categories.read();
+                // this.favourites.data([]);
+                this.summaries.data([]);
+                this.versions.data([]);
+                this.set(VIEWMODEL.VERSION, new app.models.Version());
+                this.set(VIEWMODEL.SELECTED_PAGE, undefined);
+                this.set(VIEWMODEL.CURRENT, { test: undefined });
             },
 
             /**
@@ -411,6 +427,7 @@ if (typeof(require) === 'function') {
             switch (e.field) {
                 case VIEWMODEL.LANGUAGE:
                     mobile._localize(e.sender.get(VIEWMODEL.LANGUAGE));
+                    viewModel.reset();
                     break;
                 case VIEWMODEL.THEME:
                     app.theme.name(e.sender.get(VIEWMODEL.THEME));
@@ -740,14 +757,12 @@ if (typeof(require) === 'function') {
          * Loads the application
          */
         mobile.onDeviceReady = function () {
-            console.log('deviceready');
             // Setup ajax with longer timeout on mobile devices
             $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
             // Load settings including locale and theme
             viewModel.loadSettings();
             // Wait for i18n resources to be loaded
             $(document).on(LOADED, function() {
-                console.log(LOADED);
                 // Initialize application
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                     initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
@@ -756,7 +771,6 @@ if (typeof(require) === 'function') {
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                     statusBarStyle: (window.device && window.device.cordova) ? 'black-translucent' : undefined,
                     init: function (e) {
-                        console.log('app.init');
                         viewModel.set('languages', i18n.culture.viewModel.languages);
                         viewModel.set('themes', i18n.culture.viewModel.themes);
                     }
@@ -854,6 +868,14 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         *
+         * @param e
+         */
+        mobile.onScoreViewShow = function (e) {
+
+        };
+
+        /**
          * Event handler triggered when showing the Settings view
          * Note: the view event is triggered each time the view is requested
          * @param e
@@ -924,16 +946,16 @@ if (typeof(require) === 'function') {
                 // https://github.com/apache/cordova-plugin-dialogs
                 navigator.notification.confirm(
                     'You are the winner!', // message
-                    mobile.onSubmit,       // callback to invoke with index of button pressed
+                    mobile.onNavbarSubmitConfirm,       // callback to invoke with index of button pressed
                     'Confirm',             // title
                     ['Yes', 'No']           // buttonLabels
                 );
             } else if (window.confirm('?')) {
-                mobile.onSubmit(1);
+                mobile.onNavbarSubmitConfirm(1);
             }
         };
 
-        mobile.onSubmit = function (buttonIndex) {
+        mobile.onNavbarSubmitConfirm = function (buttonIndex) {
             if (buttonIndex !== 1) {
                 return;
             }
@@ -948,15 +970,20 @@ if (typeof(require) === 'function') {
             $.noop(e); // TODO
         };
 
+        /**
+         * Event handler for clicking the search button in the navbar
+         * @param e
+         */
+        mobile.onNavbarSearchClick = function (e) {
+            window.location.assign('/' + DEVICE_SELECTOR + VIEW.SUMMARIES);
+        };
+
         /*******************************************************************************************
          * Application initialization
          *******************************************************************************************/
 
-        console.log('init');
-
         $(document).ready(function() {
         // $(document).on(LOADED, function() {
-            console.log('docready');
             if ($.type(window.device) !== UNDEFINED && $.type(window.device.cordova) !== UNDEFINED) {
                 // Wait for Cordova to load
                 document.addEventListener('deviceready', mobile.onDeviceReady, false);
