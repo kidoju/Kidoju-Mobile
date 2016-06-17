@@ -100,12 +100,6 @@ if (typeof(require) === 'function') {
         var ARRAY = 'array';
         var CHANGE = 'change';
         var LOADED = 'i18n.loaded';
-        var DEFAULT_LANGUAGE = 'en';
-        var DEFAULT_THEME = 'nova';
-        var SETTINGS = {
-            LANGUAGE: 'settings.language',
-            THEME: 'settings.theme'
-        };
         var HASH = '#';
         var PHONE = 'phone';
         // var TABLET = 'tablet';
@@ -120,8 +114,13 @@ if (typeof(require) === 'function') {
             DRAWER: '-drawer',
             FAVOURITES: '-favourites',
             PLAYER: '-player',
+            SCORE: '-score',
             SETTINGS: '-settings',
             SUMMARIES: '-summaries'
+        };
+        var DEFAULT = {
+            LANGUAGE: 'en',
+            THEME: 'nova'
         };
         var DISPLAY = {
             INLINE: 'inline-block',
@@ -132,10 +131,14 @@ if (typeof(require) === 'function') {
             LANGUAGE: 'language',
             THEME: 'theme'
         };
-        var CURRENT = 'current';
-        var CURRENT_ID = 'current.id';
-        var SELECTED_PAGE = 'selectedPage';
-        var PAGES_COLLECTION = 'version.stream.pages';
+        var VIEWMODEL = {
+            CURRENT: 'current',
+            CURRENT_ID: 'current.id',
+            LANGUAGE: 'settings.language',
+            PAGES_COLLECTION: 'version.stream.pages',
+            SELECTED_PAGE: 'selectedPage',
+            THEME: 'settings.theme'
+        };
 
         /*******************************************************************************************
          * Global error handler
@@ -210,8 +213,8 @@ if (typeof(require) === 'function') {
             settings: {
                 user: 'TODO',
                 version: app.version,
-                language: DEFAULT_LANGUAGE,
-                theme: DEFAULT_THEME
+                language: DEFAULT.LANGUAGE,
+                theme: DEFAULT.THEME
             },
 
             /**
@@ -221,11 +224,11 @@ if (typeof(require) === 'function') {
                 try {
                     // Language
                     var language = localStorage.getItem(STORAGE.LANGUAGE);
-                    this.set(SETTINGS.LANGUAGE, language || DEFAULT_LANGUAGE);
+                    this.set(VIEWMODEL.LANGUAGE, language || DEFAULT.LANGUAGE);
                     // Theme
                     // We need the same localStorage location as in Kidoju.Webapp to be able to use app.theme.js to load themes
                     var theme = localStorage.getItem(STORAGE.THEME);
-                    this.set(SETTINGS.THEME, theme || DEFAULT_THEME);
+                    this.set(VIEWMODEL.THEME, theme || DEFAULT.THEME);
                 } catch (ex) {
                     console.log(ex.message); // TODO
                 }
@@ -278,7 +281,7 @@ if (typeof(require) === 'function') {
                         viewModel.version.stream.load()
                             .done(function () {
                                 var promises = [];
-                                var pageCollectionDataSource = viewModel.get(PAGES_COLLECTION);
+                                var pageCollectionDataSource = viewModel.get(VIEWMODEL.PAGES_COLLECTION);
                                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                                 $.each(pageCollectionDataSource.data(), function (idx, page) {
                                     assert.instanceof(kidoju.data.Page, page, kendo.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
@@ -318,7 +321,7 @@ if (typeof(require) === 'function') {
              * Set current test
              */
             setCurrent: function () {
-                viewModel.set(CURRENT, {
+                viewModel.set(VIEWMODEL.CURRENT, {
                     test: viewModel.version.stream.pages.getTestFromProperties(),
                     version : {
                         summaryId: viewModel.get('version.summaryId'),
@@ -331,8 +334,8 @@ if (typeof(require) === 'function') {
              * Get player view title
              */
             getPlayerViewTitle: function () {
-                var page = this.get(SELECTED_PAGE);
-                var pageCollectionDataSource = this.get(PAGES_COLLECTION);
+                var page = this.get(VIEWMODEL.SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(VIEWMODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var index = pageCollectionDataSource.indexOf(page);
                 return kendo.format(i18n.culture.player.viewTitle, index + 1, pageCollectionDataSource.total());
@@ -343,8 +346,8 @@ if (typeof(require) === 'function') {
              * @returns {boolean}
              */
             isFirstPage$: function () {
-                var page = this.get(SELECTED_PAGE);
-                var pageCollectionDataSource = this.get(PAGES_COLLECTION);
+                var page = this.get(VIEWMODEL.SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(VIEWMODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var index = pageCollectionDataSource.indexOf(page);
                 return index === 0;
@@ -355,8 +358,8 @@ if (typeof(require) === 'function') {
              * @returns {boolean}
              */
             isLastPage$: function () {
-                var page = this.get(SELECTED_PAGE);
-                var pageCollectionDataSource = this.get(PAGES_COLLECTION);
+                var page = this.get(VIEWMODEL.SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(VIEWMODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var index = pageCollectionDataSource.indexOf(page);
                 return index === -1 || index === pageCollectionDataSource.total() - 1;
@@ -367,19 +370,19 @@ if (typeof(require) === 'function') {
              */
             isSubmitPage$: function () {
                 // It has to be the last page and the test should not have already been submitted/scored
-                return this.isLastPage$() && $.type(this.get(CURRENT_ID)) === UNDEFINED;
+                return this.isLastPage$() && $.type(this.get(VIEWMODEL.CURRENT_ID)) === UNDEFINED;
             },
 
             /**
              * Select the previous page from viewModel.version.stream.pages
              */
             previousPage: function () {
-                var page = this.get(SELECTED_PAGE);
-                var pageCollectionDataSource = this.get(PAGES_COLLECTION);
+                var page = this.get(VIEWMODEL.SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(VIEWMODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var index = pageCollectionDataSource.indexOf(page);
                 if ($.type(index) === NUMBER && index > 0) {
-                    this.set(SELECTED_PAGE, pageCollectionDataSource.at(index - 1));
+                    this.set(VIEWMODEL.SELECTED_PAGE, pageCollectionDataSource.at(index - 1));
                 }
             },
 
@@ -387,12 +390,12 @@ if (typeof(require) === 'function') {
              * Select the next page from viewModel.version.stream.pages
              */
             nextPage: function () {
-                var page = this.get(SELECTED_PAGE);
-                var pageCollectionDataSource = this.get(PAGES_COLLECTION);
+                var page = this.get(VIEWMODEL.SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(VIEWMODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var index = pageCollectionDataSource.indexOf(page);
                 if ($.type(index) === NUMBER && index < pageCollectionDataSource.total() - 1) {
-                    this.set(SELECTED_PAGE, pageCollectionDataSource.at(index + 1));
+                    this.set(VIEWMODEL.SELECTED_PAGE, pageCollectionDataSource.at(index + 1));
                 }
             }
 
@@ -406,13 +409,13 @@ if (typeof(require) === 'function') {
             assert.type(STRING, e.field, kendo.format(assert.messages.type.default, 'e.field', STRING));
             assert.instanceof(kendo.Observable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.Observable'));
             switch (e.field) {
-                case SETTINGS.LANGUAGE:
-                    mobile._localize(e.sender.get(SETTINGS.LANGUAGE));
+                case VIEWMODEL.LANGUAGE:
+                    mobile._localize(e.sender.get(VIEWMODEL.LANGUAGE));
                     break;
-                case SETTINGS.THEME:
-                    app.theme.name(e.sender.get(SETTINGS.THEME));
+                case VIEWMODEL.THEME:
+                    app.theme.name(e.sender.get(VIEWMODEL.THEME));
                     break;
-                case SELECTED_PAGE:
+                case VIEWMODEL.SELECTED_PAGE:
                     var playerViewElement = $(DEVICE_SELECTOR + VIEW.PLAYER);
                     var playerView = playerViewElement.data('kendoMobileView');
                     mobile._setNavBar(playerView);
@@ -457,12 +460,6 @@ if (typeof(require) === 'function') {
                     showDrawerButton = true;
                     showSearchButton = true;
                     break;
-                case DEVICE_SELECTOR + VIEW.SUMMARIES:
-                    showDrawerButton = true;
-                    showHomeButton = true;
-                    showSearchButton = true;
-                    showSortButtons = true;
-                    break;
                 case DEVICE_SELECTOR + VIEW.FAVOURITES:
                     showDrawerButton = true;
                     showSyncButton = true;
@@ -473,12 +470,21 @@ if (typeof(require) === 'function') {
                     showNextButton = !viewModel.isSubmitPage$();
                     showSubmitButton = viewModel.isSubmitPage$();
                     break;
+                case DEVICE_SELECTOR + VIEW.SCORE:
+                    showDrawerButton = true;
+                    break;
                 case DEVICE_SELECTOR + VIEW.SETTINGS:
                     showDrawerButton = true;
                     showSyncButton = true;
                     break;
+                case DEVICE_SELECTOR + VIEW.SUMMARIES:
+                    showDrawerButton = true;
+                    showHomeButton = true;
+                    showSearchButton = true;
+                    // showSortButtons = true;
+                    break;
             }
-            // Note: each view has all buttons
+            // Note: each view has all buttons by default, so let's fix that
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous').css({ display: showPreviousButton ? DISPLAY.INLINE : DISPLAY.NONE });
@@ -499,8 +505,11 @@ if (typeof(require) === 'function') {
         mobile._setNavBarTitle = function (view, title) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             assert.type(STRING, title, kendo.format(assert.messages.type.default, 'title', STRING));
-            var navbarWidget = view.header.find('.km-navbar').data('kendoMobileNavBar');
+            var navbarElement = view.header.find('.km-navbar');
+            var navbarWidget = navbarElement.data('kendoMobileNavBar');
             navbarWidget.title(title);
+            // Fix km-no-title issue to align km-view-title properly within km-navbar
+            navbarElement.find('.km-no-title').removeClass('km-no-title');
         };
 
         /**
@@ -559,12 +568,18 @@ if (typeof(require) === 'function') {
         mobile._localizeDrawerView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
             var drawerCulture = i18n.culture.drawer;
             var drawerViewElement = $(DEVICE_SELECTOR + VIEW.DRAWER);
-            drawerViewElement.find('ul>li>a.km-listview-link:eq(0)').text(drawerCulture.categories);
-            drawerViewElement.find('ul>li>a.km-listview-link:eq(1)').text(drawerCulture.favourites);
-            drawerViewElement.find('ul>li>a.km-listview-link:eq(2)').text(drawerCulture.activities);
-            drawerViewElement.find('ul>li>a.km-listview-link:eq(3)').text(drawerCulture.settings);
+            // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
+            var categoriesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(0)');
+            categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.categories));
+            var favouritesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(1)');
+            favouritesElement.html(favouritesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.favourites));
+            var activitiesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
+            activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.activities));
+            var settingsElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(3)');
+            settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.settings));
         };
 
         /**
@@ -737,7 +752,7 @@ if (typeof(require) === 'function') {
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                     initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
                     // platform: "ios7",
-                    skin: viewModel.get(SETTINGS.THEME),
+                    skin: viewModel.get(VIEWMODEL.THEME),
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                     statusBarStyle: (window.device && window.device.cordova) ? 'black-translucent' : undefined,
                     init: function (e) {
@@ -758,7 +773,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onDrawerViewInit = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeDrawerView(viewModel.get(SETTINGS.LANGUAGE));
+            mobile._localizeDrawerView(viewModel.get(VIEWMODEL.LANGUAGE));
             // mobile._setNavBar(e.view);
         };
 
@@ -769,7 +784,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onActivitiesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeActivitiesView(viewModel.get(SETTINGS.LANGUAGE));
+            mobile._localizeActivitiesView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
 
@@ -780,7 +795,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onCategoriesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeCategoriesView(viewModel.get(SETTINGS.LANGUAGE));
+            mobile._localizeCategoriesView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
 
@@ -791,7 +806,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onFavouritesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeFavouritesView(viewModel.get(SETTINGS.LANGUAGE));
+            mobile._localizeFavouritesView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
 
@@ -823,7 +838,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onPlayerViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeSettingsView(viewModel.get(SETTINGS.LANGUAGE));
+            mobile._localizeSettingsView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
             viewModel.loadLazyVersions(e.view.params.summaryId)
                 .done(function () {
@@ -833,7 +848,7 @@ if (typeof(require) === 'function') {
                         .done(function () {
                             mobile._resizePlayer(e.view);
                             viewModel.setCurrent();
-                            viewModel.set(SELECTED_PAGE, viewModel.get(PAGES_COLLECTION).at(0));
+                            viewModel.set(VIEWMODEL.SELECTED_PAGE, viewModel.get(VIEWMODEL.PAGES_COLLECTION).at(0));
                         });
                 });
         };
@@ -845,7 +860,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onSettingsViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeSettingsView(viewModel.get(SETTINGS.LANGUAGE));
+            mobile._localizeSettingsView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
 
@@ -867,7 +882,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onSummariesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeSummariesView(viewModel.get(SETTINGS.LANGUAGE));
+            mobile._localizeSummariesView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
             /**
              if ($.type(query.q) === STRING) {
