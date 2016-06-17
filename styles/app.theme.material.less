@@ -19,24 +19,33 @@
      * Drawer
      **********************************************************/
     .km-drawer {
+        // Drawer navbar colors
         .km-navbar {
             background-color: @accent;
         }
+        // Drawer menu colors
         .km-content, .km-list > li {
             background-color: @selected-background;
             color: @base;
+            // Allow some space between icons and text
+            .km-listview-link > .km-icon {
+                margin: -1em .7em 0 .3em;
+            }
         }
     }
     /**********************************************************
      * Listview
      **********************************************************/
     .km-listview {
+        // Separate form inputs with bottom lines
         li, li:first-child, li:last-child {
             border-width: 0 0 1px;
         }
+        // Remove underline of input fields to match dropdowns
         input[type=text]:not(.k-input) {
             border-width: 0;
         }
+        // Align dropdowns with span.k-input
         span.k-dropdown {
             margin-top: -1.6em;
             span.k-dropdown-wrap {

@@ -10,6 +10,30 @@
 .km-nova {
 
     /**********************************************************
+    * Fonts
+    **********************************************************/
+
+    // Fix otherwise you'll get plain squares
+    .km-home
+    {
+        &:after, &:before {
+            content:"\e0dd";
+        }
+    }
+    .km-search
+    {
+        &:after, &:before {
+            content:"\e0e9";
+        }
+    }
+    .km-settings
+    {
+        &:after, &:before {
+            content:"\e0da";
+        }
+    }
+
+    /**********************************************************
      * Navbar
      **********************************************************/
     .km-navbar {
@@ -19,22 +43,11 @@
      * Drawer
      **********************************************************/
     .km-drawer {
-        // Default colors and dimensions are good
-        /**
-     * Fix because clicking a drawer menu item displays a square when the item is in active state
-     */
-        .km-state-active {
-            .km-home
-            {
-                &:after, &:before {
-                    content:"\e212";
-                }
-            }
-            .km-settings
-            {
-                &:after, &:before {
-                    content:"\e20f";
-                }
+        // .km-navbar {}
+        .km-content, .km-list > li {
+            // Allow some space between icons and text
+            .km-listview-link > .km-icon {
+                margin: 0 .7em 0 .3em;
             }
         }
     }
@@ -42,6 +55,7 @@
      * Listview
      **********************************************************/
     .km-listview {
+        // Align dropdowns with span.k-input
         span.k-dropdown {
             margin-top: -1.4em;
             span.k-dropdown-wrap {

@@ -34,13 +34,20 @@
      * Drawer
      **********************************************************/
     .km-drawer {
+        // Drawer navbar colors
         .km-navbar {
             background-color: @base;
         }
+        // Drawer menu colors
         .km-content, .km-list > li {
             background-color: @accent;
             color: @base;
+            // Allow some space between icons and text
+            .km-listview-link > .km-icon {
+                margin: 0 .7em 0 .3em;
+            }
         }
+        // Separate drawer menu items with coloured lines
         li, li:first-child, li:last-child {
             border-color: @base;
             border-image: linear-gradient(to right, transparent 1em, @base 1em, @base 100%) 1 stretch;
@@ -51,6 +58,7 @@
      * Listview
      **********************************************************/
     .km-listview {
+        // Align dropdowns with span.k-input
         span.k-dropdown {
             margin-top: -1.1em;
             span.k-dropdown-wrap {
