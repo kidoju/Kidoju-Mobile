@@ -61,9 +61,11 @@ module.exports = function (grunt) {
             }
         },
         // TODO karma
+        /*
         kendo_lint: {
             files: ['src/js/app*.js']
         },
+        */
         // TODO: lint html too
         mocha: {
             browser: { // In browser (phantomJS) unit tests
@@ -100,6 +102,11 @@ module.exports = function (grunt) {
                 }
             }
         },
+        webdriver: { // Selenium functional tests
+            local: {
+                configFile: './wdio.conf.js'
+            }
+        },
         webpack: {
             // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
             options: webpackConfig,
@@ -117,7 +124,7 @@ module.exports = function (grunt) {
     // Lint
     grunt.loadNpmTasks('grunt-jscs');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-kendo-lint');
+    // grunt.loadNpmTasks('grunt-kendo-lint');
 
     // Build
     grunt.loadNpmTasks('grunt-webpack');
@@ -127,11 +134,12 @@ module.exports = function (grunt) {
     // Tests
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
+    grunt.loadNpmTasks('grunt-webdriver');
 
     // Commands
     grunt.registerTask('lint', ['jscs', 'jshint', 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'copy']);
-    grunt.registerTask('test', ['mocha', 'mochaTest']);
+    grunt.registerTask('test', ['mocha', 'mochaTest', 'webdriver']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 
 };
