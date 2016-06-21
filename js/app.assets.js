@@ -31,6 +31,9 @@
      * Maybe this could be parameterized but then it would have to be feeded into the AssetManager.
      */
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -208,6 +211,8 @@
         });
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.app;
 
