@@ -11,6 +11,20 @@
                 "cdn": "https://cdn.kidoju.com/"
             }
         },
+        "icon": {
+            "collections": [
+                {
+                    "name": "O-Collection",
+                    "transport": {
+                        "read": "https://cdn.kidoju.com/images/o_collection/svg/office/index.json"
+                    }
+                }
+            ],
+            "extensions": [".svg"],
+            "schemes": {
+                "cdn": "https://cdn.kidoju.com/"
+            }
+        },
         "image": {
             "collections": [
                 {

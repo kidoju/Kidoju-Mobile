@@ -64,7 +64,12 @@
             },
             // Summaries view
             summaries: {
-                viewTitle: 'Search'
+                viewTitle: 'Search',
+                actionSheet: {
+                    cancel: 'Cancel',
+                    play: 'Play',
+                    share: 'Share'
+                }
             },
             // viewModel
             viewModel: {

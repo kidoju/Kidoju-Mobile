@@ -38,7 +38,7 @@
                 <a id="phone-main-layout-next" data-role="button" class="nav-button" data-align="right" data-icon="next" data-click="app.mobile.onNavbarNextClick"></a>
                 <a id="phone-main-layout-submit" data-role="button" class="nav-button" data-align="right" data-icon="submit" data-click="app.mobile.onNavbarSubmitClick"></a>
                 <a id="phone-main-layout-sync" data-role="button" class="nav-button" data-align="right" data-icon="sync" data-click="app.mobile.onNavbarSyncClick"></a>
-                <a id="phone-main-layout-search" data-role="button" class="nav-button" data-align="right" data-icon="search" href="#"></a>
+                <a id="phone-main-layout-search" data-role="button" class="nav-button" data-align="right" data-icon="search" data-click="app.mobile.onNavbarSearchClick"></a>
                 <ul id="phone-main-layout-sort" data-role="buttongroup" data-index="0">
                     <li>Recent</li>
                     <li>Popular</li>
@@ -307,17 +307,20 @@
     <!-- Summaries view -->
     <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-filterable="{ autoFilter: false, field: 'q' }" data-model="app.mobile.viewModel" data-before-show="app.mobile.onSummariesBeforeViewShow" data-show="app.mobile.onSummariesViewShow">
         <ul data-role="listview" data-bind="source: summaries" data-endless-scroll="true" data-template="phone-summaries-template"></ul>
+        <ul id="phone-summaries-actionsheet" data-role="actionsheet">
+            <li><a data-action="app.mobile.onSummariesActionPlay" class="km-actionsheet-play">Play</a></li>
+            <li><a data-action="app.mobile.onSummariesActionShare" class="km-actionsheet-share">Share</a></li>
+        </ul>
         <script type="text/x-kendo-template" id="phone-summaries-template">
             <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
             <div class="summary">
-                <a class="km-primary km-button-right km-widget km-button" data-role="button" href="\#phone-player?summaryId=#: id #"><span class="km-text">Play</span></a>
                 <h4>#: title #</h4>
                 # var tags = tags$(); if (Array.isArray(tags) && tags.length) { #
-                <h6><i class="kf kf-tags"></i>
+                <div class="tags"><i class="kf kf-tags"></i>
                     # for (var i = 0; i < tags.length; i++) { #
                     <span>#: tags[i].name #</span># if (i < tags.length -1) { #, # } #
                     # } #
-                </h6>
+                </div>
                 # } #
                 <!--div class="author">
                     <%- __('finder.list.author.publishedOn') %><span>#: kendo.toString(published, "<%- __('dateFormat') %>") #</span><%- __('finder.list.author.by') %><a href="#= authorUri$() #">#: authorName$() #</a>
@@ -327,6 +330,9 @@
                     <i class="kf kf-view"></i><span>#: views #</span>
                     # if (scores) { #<i class="kf kf-score"></i><span>#: kendo.toString(scores, 'n0') #%</span># } #
                 </div>
+                <a class="km-primary km-button-right km-widget km-button" data-role="button" data-rel="actionsheet" data-actionsheet-context="#: id #" href="\#phone-summaries-actionsheet">
+                    <span class="km-text">Go</span>
+                </a>
             </div>
         </script>
     </div>

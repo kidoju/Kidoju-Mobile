@@ -680,6 +680,7 @@ if (typeof(require) === 'function') {
             if (settingsView instanceof kendo.mobile.ui.View) {
                 mobile._setNavBarTitle(settingsView, settingsCulture.viewTitle);
             }
+            // Localize field labels
             settingsViewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(settingsCulture.user);
             settingsViewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(settingsCulture.version);
             settingsViewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(settingsCulture.language);
@@ -701,6 +702,14 @@ if (typeof(require) === 'function') {
             if (summariesView instanceof kendo.mobile.ui.View) {
                 mobile._setNavBarTitle(summariesView, summariesCulture.viewTitle);
             }
+            // TODO localize Go button or use icon
+
+            // Localize actionsheet (it is not not within summariesViewElement)
+            debugger;
+            var summariesActionSheetElement = $(DEVICE_SELECTOR + VIEW.SUMMARIES + '-actionsheet');
+            summariesActionSheetElement.find('li.km-actionsheet-cancel > a').text(summariesCulture.actionSheet.cancel);
+            summariesActionSheetElement.find('li.km-actionsheet-play > a').text(summariesCulture.actionSheet.play);
+            summariesActionSheetElement.find('li.km-actionsheet-share > a').text(summariesCulture.actionSheet.share);
         };
 
         /*******************************************************************************************
@@ -920,6 +929,23 @@ if (typeof(require) === 'function') {
             };
             viewModel.loadLazySummaries(query);
         };
+
+        /**
+         *
+         * @param e
+         */
+        mobile.onSummariesActionPlay = function (e) {
+            debugger;
+        };
+
+        /**
+         *
+         * @param e
+         */
+        mobile.onSummariesActionShare = function (e) {
+            debugger;
+        };
+
 
         /**
          * Event handler for clicking the previous button in the navbar
