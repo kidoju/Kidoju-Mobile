@@ -298,7 +298,7 @@
                     .fail(done);
             });
 
-            it('it should not INSERT into collection 1 an existing id', function (done) {
+            it('it should ** not ** INSERT into collection 1 an existing id', function (done) {
                 var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
@@ -306,9 +306,11 @@
                     .done(function (doc3) {
                         // This should not happen
                         expect(true).to.be.false;
+                        done();
                     })
                     .fail(function (err) {
-
+                        expect(err).to.be.an.instanceof(Error);
+                        done();
                     });
             });
 
@@ -364,7 +366,20 @@
                     .fail(done);
             });
 
-            // TODO : check id not found
+            it('it should ** not ** FIND documents based on unknown id in collection 1', function (done) {
+                var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
+                expect(db).to.be.an.instanceof(Database);
+                expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
+                db[HEROES].find({ id: (new ObjectId()).toString() })
+                    .progress(function (percent) {
+                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    })
+                    .done(function (docs) {
+                        expect(docs).to.be.an.instanceof(Array).with.property('length', 0);
+                        done();
+                    })
+                    .fail(done);
+            });
 
             it('it should FIND documents based on complex queries in collection 2', function (done) {
                 var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
@@ -412,8 +427,6 @@
                     .fail(done);
             });
 
-            // TODO : check id not found
-
             it('it should COUNT documents based on complex queries in collection 2', function (done) {
                 var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
                 expect(db).to.be.an.instanceof(Database);
@@ -446,7 +459,22 @@
                     .fail(done);
             });
 
-            // TODO : check id not found
+            it('it should ** not ** UPDATE documents based on unknown id in collection 1', function (done) {
+                var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
+                expect(db).to.be.an.instanceof(Database);
+                expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
+                db[HEROES].update({ id: (new ObjectId()).toString() }, { mask: false, cape: true })
+                    .progress(function (percent) {
+                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    })
+                    .done(function (writeResult) {
+                        expect(writeResult).to.have.property('nMatched').that.is.equal(0);
+                        expect(writeResult).to.have.property('nUpserted').that.is.equal(0);
+                        expect(writeResult).to.have.property('nModified').that.is.equal(0);
+                        done();
+                    })
+                    .fail(done);
+            });
 
             it('it should UPDATE documents based on complex queries in collection 2', function (done) {
                 var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
@@ -475,6 +503,28 @@
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nRemoved').that.is.equal(1);
+                        db[HEROES]._collection.length(function (err, length) {
+                            if (err) {
+                                done(err);
+                            } else {
+                                expect(length).to.equal(2);
+                                done();
+                            }
+                        });
+                    })
+                    .fail(done);
+            });
+
+            it('it should ** not ** REMOVE documents based on unknown id from collection 1', function (done) {
+                var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
+                expect(db).to.be.an.instanceof(Database);
+                expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
+                db[HEROES].remove({ id: (new ObjectId()).toString() })
+                    .progress(function (percent) {
+                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    })
+                    .done(function (writeResult) {
+                        expect(writeResult).to.have.property('nRemoved').that.is.equal(0);
                         db[HEROES]._collection.length(function (err, length) {
                             if (err) {
                                 done(err);
@@ -544,6 +594,7 @@
                     })
                     .fail(done);
             });
+
         });
     });
 

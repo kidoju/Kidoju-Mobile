@@ -463,12 +463,21 @@
             var dfd = $.Deferred();
             if ($.type(query) === OBJECT && $.type(query[idField]) === STRING) {
                 // We have an id to get straight to the document
-                // https://mozilla.github.io/localForage/#removeitem
-                that._collection.removeItem(query[idField], function (err) {
+                // RemoveItem is always successful even if the key is missing
+                that._collection.getItem(query[idField], function (err, item) {
                     if (err) {
                         dfd.reject(err);
+                    } else if (item) {
+                        // https://mozilla.github.io/localForage/#removeitem
+                        that._collection.removeItem(query[idField], function (err, item) {
+                            if (err) {
+                                dfd.reject(err);
+                            } else {
+                                dfd.resolve({ nRemoved: 1 });
+                            }
+                        });
                     } else {
-                        dfd.resolve({ nRemoved : 1 });
+                        dfd.resolve({ nRemoved: 0 });
                     }
                 });
             } else {
