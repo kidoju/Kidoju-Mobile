@@ -246,7 +246,7 @@ if (typeof(require) === 'function') {
                     var theme = localStorage.getItem(STORAGE.THEME);
                     this.set(VIEWMODEL.THEME, theme || DEFAULT.THEME);
                 } catch (ex) {
-                    console.log(ex.message); // TODO
+                    // console.log(ex.message); // TODO
                 }
             },
 
@@ -705,7 +705,6 @@ if (typeof(require) === 'function') {
             // TODO localize Go button or use icon
 
             // Localize actionsheet (it is not not within summariesViewElement)
-            debugger;
             var summariesActionSheetElement = $(DEVICE_SELECTOR + VIEW.SUMMARIES + '-actionsheet');
             summariesActionSheetElement.find('li.km-actionsheet-cancel > a').text(summariesCulture.actionSheet.cancel);
             summariesActionSheetElement.find('li.km-actionsheet-play > a').text(summariesCulture.actionSheet.play);
@@ -771,7 +770,7 @@ if (typeof(require) === 'function') {
             // Load settings including locale and theme
             viewModel.loadSettings();
             // Wait for i18n resources to be loaded
-            $(document).on(LOADED, function() {
+            $(document).on(LOADED, function () {
                 // Initialize application
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                     initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
@@ -847,7 +846,7 @@ if (typeof(require) === 'function') {
                 swipe: function (e) {
                     if (e.direction === 'left') {
                         viewModel.nextPage();
-                    } else if  (e.direction === 'right') {
+                    } else if (e.direction === 'right') {
                         viewModel.previousPage();
                     }
                 }
@@ -935,7 +934,7 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onSummariesActionPlay = function (e) {
-            debugger;
+            // TODO
         };
 
         /**
@@ -943,7 +942,7 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onSummariesActionShare = function (e) {
-            debugger;
+            // TODO
         };
 
 
@@ -1008,8 +1007,8 @@ if (typeof(require) === 'function') {
          * Application initialization
          *******************************************************************************************/
 
-        $(document).ready(function() {
-        // $(document).on(LOADED, function() {
+        $(document).ready(function () {
+            // $(document).on(LOADED, function () {
             if ($.type(window.device) !== UNDEFINED && $.type(window.device.cordova) !== UNDEFINED) {
                 // Wait for Cordova to load
                 document.addEventListener('deviceready', mobile.onDeviceReady, false);

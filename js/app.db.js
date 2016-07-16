@@ -20,10 +20,11 @@
 
     'use strict';
 
+    var localForage = lf || window.localforage;
+    var pongodb = window.pongodb = window.pongodb || {};
+
     (function ($, undefined) {
 
-        var localForage = lf || window.localforage;
-        var pongodb = window.pongodb = window.pongodb || {};
         var OBJECT = 'object';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
@@ -51,6 +52,12 @@
                 }
             }
         };
+
+        /* Blocks are nested too deeply. */
+        /* jshint -W073 */
+
+        /*  This function's cyclomatic complexity is too high.  */
+        /* jshint -W074 */
 
         /**
          * Match a doc to a query
@@ -108,6 +115,9 @@
             return match;
         };
 
+        /* jshint +W074 */
+        /* jshint +W073 */
+
         /**
          * An ObjectId like MongoDB
          * @see https://docs.mongodb.com/manual/reference/method/ObjectId/
@@ -120,9 +130,9 @@
             }
             /* jshint -W016 */
             function makeOne() {
-                var epoch =(new Date().getTime() / 1000 | 0).toString(16);
+                var epoch = (new Date().getTime() / 1000 | 0).toString(16);
                 // Note: we are not using a processID, so random ID is 10 bytes instead of 6 bytes
-                return epoch + MACHINE_ID + 'xxxxxxxxxx'.replace(/x/g, function() {
+                return epoch + MACHINE_ID + 'xxxxxxxxxx'.replace(/x/g, function () {
                         return (Math.random() * 16 | 0).toString(16);
                     }).toLowerCase();
             }
@@ -134,7 +144,7 @@
          * Test whether the ObjectId is local only (not synchronized)
          * @returns {boolean}
          */
-        ObjectId.prototype.isLocalOnly = function() {
+        ObjectId.prototype.isLocalOnly = function () {
             return this._id.substr(8, 6) === MACHINE_ID;
         };
 
@@ -142,7 +152,7 @@
          * Get the ObjectId timestamp
          * @returns {Date}
          */
-        ObjectId.prototype.getTimestamp = function() {
+        ObjectId.prototype.getTimestamp = function () {
             return new Date(1000 * parseInt(this._id.substr(0, 8), 16));
         };
 
@@ -150,7 +160,7 @@
          * Get the 24-char hexadecimal value of the ObjectId
          * @returns {*}
          */
-        ObjectId.prototype.toString = function() {
+        ObjectId.prototype.toString = function () {
             return this._id;
         };
 
@@ -183,7 +193,7 @@
             if ($.type(query) === OBJECT && $.type(query[idField]) === STRING) {
                 // We have an id to get straight to the document
                 // https://mozilla.github.io/localForage/#getitem
-                that._collection.getItem(query[idField], function(err, item) {
+                that._collection.getItem(query[idField], function (err, item) {
                     if (err) {
                         dfd.reject(err);
                     } else if (item) {
@@ -199,7 +209,7 @@
             } else {
                 // Without an id, we need to iterate
                 // https://mozilla.github.io/localForage/#length
-                that._collection.length(function(err, length) {
+                that._collection.length(function (err, length) {
                     if (err) {
                         dfd.reject(err);
                     } else if (!length) {
@@ -209,7 +219,7 @@
                         var found = [];
                         // https://mozilla.github.io/localForage/#iterate
                         that._collection.iterate(
-                            function(item, key, index) {
+                            function (item, key, index) {
                                 if (match(query, item)) {
                                     found.push(item);
                                 }
@@ -252,7 +262,7 @@
             if ($.type(query) === OBJECT && $.type(query[idField]) === STRING) {
                 // We have an id to get straight to the document
                 // https://mozilla.github.io/localForage/#getitem
-                that._collection.getItem(query[idField], function(err, item) {
+                that._collection.getItem(query[idField], function (err, item) {
                     if (err) {
                         dfd.reject(err);
                     } else if (item) {
@@ -268,7 +278,7 @@
             } else {
                 // Without an id, we need to iterate
                 // https://mozilla.github.io/localForage/#length
-                that._collection.length(function(err, length) {
+                that._collection.length(function (err, length) {
                     if (err) {
                         dfd.reject(err);
                     } else if (!length) {
@@ -277,7 +287,7 @@
                     } else {
                         // https://mozilla.github.io/localForage/#iterate
                         that._collection.iterate(
-                            function(item, key, index) {
+                            function (item, key, index) {
                                 if (match(query, item)) {
                                     count++;
                                 }
@@ -311,7 +321,7 @@
                 // Insertion without an id requires that we create one
                 doc[idField] = (new ObjectId()).toString();
                 // https://mozilla.github.io/localForage/#setitem
-                that._collection.setItem(doc[idField], doc, function(err, item) {
+                that._collection.setItem(doc[idField], doc, function (err, item) {
                     if (err) {
                         dfd.reject(err);
                     } else {
@@ -321,14 +331,14 @@
             } else {
                 // Insertion with an id requires that we check it does not already exist
                 // https://mozilla.github.io/localForage/#getitem
-                that._collection.getItem(doc[idField], function(err, item) {
+                that._collection.getItem(doc[idField], function (err, item) {
                     if (err) {
                         dfd.reject(err);
                     } else if (item) {
                         dfd.reject(new Error('Cannot insert a document with an ' + idField + ' `' + doc[idField] + '` which already exists.'));
                     } else {
                         // https://mozilla.github.io/localForage/#setitem
-                        that._collection.setItem(doc[idField], doc, function(err, item) {
+                        that._collection.setItem(doc[idField], doc, function (err, item) {
                             if (err) {
                                 dfd.reject(err);
                             } else {
@@ -359,7 +369,7 @@
             } else if ($.type(query) === OBJECT && $.type(query[idField]) === STRING) {
                 // We have an id to get straight to the document
                 // https://mozilla.github.io/localForage/#getitem
-                that._collection.getItem(query[idField], function(err, item) {
+                that._collection.getItem(query[idField], function (err, item) {
                     if (err) {
                         dfd.reject(err);
                     } else if (item) {
@@ -367,7 +377,7 @@
                         if (match(query, item)) {
                             // https://mozilla.github.io/localForage/#setitem
                             // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
-                            that._collection.setItem(item[idField], $.extend(true, item, update), function(err, item) {
+                            that._collection.setItem(item[idField], $.extend(true, item, update), function (err, item) {
                                 if (err) {
                                     dfd.reject(err);
                                 } else {
@@ -386,7 +396,7 @@
             } else {
                 // Without an id, we need to iterate
                 // https://mozilla.github.io/localForage/#length
-                that._collection.length(function(err, length) {
+                that._collection.length(function (err, length) {
                     if (err) {
                         dfd.reject(err);
                     } else if (!length) {
@@ -401,7 +411,7 @@
                                     // https://mozilla.github.io/localForage/#setitem
                                     // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
                                     updates[key] = $.Deferred();
-                                    that._collection.setItem(item[idField], $.extend(true, item, update), function (err) { //}, doc) {
+                                    that._collection.setItem(item[idField], $.extend(true, item, update), function (err) { // }, doc) {
                                         if (err) {
                                             return err; // return something to stop iterating
                                         }
@@ -425,7 +435,7 @@
                                 var promises = [];
                                 for (var key in updates) {
                                     if (updates.hasOwnProperty(key)) {
-                                        promises.push(updates[key].promise())
+                                        promises.push(updates[key].promise());
                                     }
                                 }
                                 $.when(promises)
@@ -454,7 +464,7 @@
             if ($.type(query) === OBJECT && $.type(query[idField]) === STRING) {
                 // We have an id to get straight to the document
                 // https://mozilla.github.io/localForage/#removeitem
-                that._collection.removeItem(query[idField], function(err) {
+                that._collection.removeItem(query[idField], function (err) {
                     if (err) {
                         dfd.reject(err);
                     } else {
@@ -464,7 +474,7 @@
             } else {
                 // Without an id, we need to iterate
                 // https://mozilla.github.io/localForage/#length
-                that._collection.length(function(err, length) {
+                that._collection.length(function (err, length) {
                     if (err) {
                         dfd.reject(err);
                     } else if (!length) {
@@ -502,7 +512,7 @@
                                 var promises = [];
                                 for (var key in removals) {
                                     if (removals.hasOwnProperty(key)) {
-                                        promises.push(removals[key].promise())
+                                        promises.push(removals[key].promise());
                                     }
                                 }
                                 $.when(promises)
@@ -525,8 +535,8 @@
         Collection.prototype.clear = function () {
             var dfd = $.Deferred();
             // https://mozilla.github.io/localForage/#clear
-            this._collection.clear(function(err) {
-                if(err) {
+            this._collection.clear(function (err) {
+                if (err) {
                     dfd.reject(err);
                 } else {
                     dfd.resolve();

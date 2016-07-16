@@ -55,38 +55,38 @@
     };
 
 
-    describe('localforage', function() {
+    describe('localforage', function () {
 
-        describe('Static', function() {
+        describe('Static', function () {
 
-            it('it should write', function(done) {
-                localforage.setItem(KEY1, VALUE1, function(err, value) {
+            it('it should write', function (done) {
+                localforage.setItem(KEY1, VALUE1, function (err, value) {
                     expect(err).to.be.null;
                     expect(value).to.equal(VALUE1);
                     done();
                 });
             });
 
-            it('it should read', function(done) {
-                localforage.setItem(KEY2, VALUE2, function(err, value) {
+            it('it should read', function (done) {
+                localforage.setItem(KEY2, VALUE2, function (err, value) {
                     expect(err).to.be.null;
                     expect(value).to.equal(VALUE2);
                     done();
                 });
             });
 
-            it('it should clear', function(done) {
-                localforage.clear(function(err) {
+            it('it should clear', function (done) {
+                localforage.clear(function (err) {
                     expect(err).to.be.null;
                     done();
                 });
             });
         });
 
-        describe('Instance', function() {
+        describe('Instance', function () {
             var db = {};
 
-            before(function(done) {
+            before(function (done) {
                 db[STORE1] = localforage.createInstance({
                     name: LF_DB,
                     storeName: STORE1
@@ -95,82 +95,82 @@
                     name: LF_DB,
                     storeName: STORE2
                 });
-                db[STORE2].length(function(err, length) {
+                db[STORE2].length(function (err, length) {
                     done();
                 });
             });
 
-            it('it should write to ' + STORE1, function(done) {
-                db[STORE1].setItem(KEY1, VALUE1, function(err, value) {
+            it('it should write to ' + STORE1, function (done) {
+                db[STORE1].setItem(KEY1, VALUE1, function (err, value) {
                     expect(err).to.be.null;
                     expect(value).to.equal(VALUE1);
                     done();
                 });
             });
 
-            it('it should write to ' + STORE2, function(done) {
-                db[STORE2].setItem(KEY2, VALUE2, function(err, value) {
+            it('it should write to ' + STORE2, function (done) {
+                db[STORE2].setItem(KEY2, VALUE2, function (err, value) {
                     expect(err).to.be.null;
                     expect(value).to.equal(VALUE2);
                     done();
                 });
             });
 
-            it('it should read ' + KEY1 + ' from ' + STORE1, function(done) {
-                db[STORE1].getItem(KEY1, function(err, value) {
+            it('it should read ' + KEY1 + ' from ' + STORE1, function (done) {
+                db[STORE1].getItem(KEY1, function (err, value) {
                     expect(err).to.be.null;
                     expect(value).to.equal(VALUE1);
                     done();
                 });
             });
 
-            it('it should read ' + KEY2 + ' from ' + STORE2, function(done) {
-                db[STORE2].getItem(KEY2, function(err, value) {
+            it('it should read ' + KEY2 + ' from ' + STORE2, function (done) {
+                db[STORE2].getItem(KEY2, function (err, value) {
                     expect(err).to.be.null;
                     expect(value).to.equal(VALUE2);
                     done();
                 });
             });
 
-            it('it should fail to read ' + KEY2 + ' from ' + STORE1, function(done) {
-                db[STORE1].getItem(KEY2, function(err, value) {
+            it('it should fail to read ' + KEY2 + ' from ' + STORE1, function (done) {
+                db[STORE1].getItem(KEY2, function (err, value) {
                     expect(err).to.be.null;
                     expect(value).to.be.null;
                     done();
                 });
             });
 
-            it('it should fail to read ' + KEY1 + ' from ' + STORE2, function(done) {
-                db[STORE2].getItem(KEY1, function(err, value) {
+            it('it should fail to read ' + KEY1 + ' from ' + STORE2, function (done) {
+                db[STORE2].getItem(KEY1, function (err, value) {
                     expect(err).to.be.null;
                     expect(value).to.be.null;
                     done();
                 });
             });
 
-            it('it should remove ' + KEY1 + ' from ' + STORE1, function(done) {
-                db[STORE1].removeItem(KEY1, function(err) {
+            it('it should remove ' + KEY1 + ' from ' + STORE1, function (done) {
+                db[STORE1].removeItem(KEY1, function (err) {
                     expect(err).to.be.null;
                     done();
                 });
             });
 
-            it('it should remove ' + KEY2 + ' from ' + STORE2, function(done) {
-                db[STORE2].removeItem(KEY2, function(err) {
+            it('it should remove ' + KEY2 + ' from ' + STORE2, function (done) {
+                db[STORE2].removeItem(KEY2, function (err) {
                     expect(err).to.be.null;
                     done();
                 });
             });
 
-            it('it should clear ' + STORE1, function(done) {
-                db[STORE1].clear(function(err) {
+            it('it should clear ' + STORE1, function (done) {
+                db[STORE1].clear(function (err) {
                     expect(err).to.be.null;
                     done();
                 });
             });
 
-            it('it should clear ' + STORE2, function(done) {
-                db[STORE2].clear(function(err) {
+            it('it should clear ' + STORE2, function (done) {
+                db[STORE2].clear(function (err) {
                     expect(err).to.be.null;
                     done();
                 });
@@ -184,10 +184,10 @@
         describe('ObjectId', function () {
 
             it('constructor with invalid params', function () {
-                var fn1 = function() {
+                var fn1 = function () {
                     var objectId = new ObjectId('abcd1234');
                 };
-                var fn2 = function() {
+                var fn2 = function () {
                     var objectId = new ObjectId(100);
                 };
                 expect(fn1).to.throw(TypeError);
@@ -214,7 +214,7 @@
 
         describe('Database', function () {
 
-            before(function(done) {
+            before(function (done) {
                 // Hopefully this works since it has not been tested
                 // Note: we would rather drop the entire database
                 var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
@@ -226,13 +226,13 @@
             });
 
             it('Database constructor with invalid params', function () {
-                var fn1 = function() {
+                var fn1 = function () {
                     var db = new Database();
                 };
-                var fn2 = function() {
+                var fn2 = function () {
                     var db = new Database({ name: 'funky' }); // missing collections
                 };
-                var fn3 = function() {
+                var fn3 = function () {
                     var db = new Database({ collections: ['a', 'b'] }); // missing name
                 };
                 expect(fn1).to.throw(TypeError);
@@ -247,28 +247,45 @@
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
             });
 
-            it('it should INSERT into collection 1', function (done) {
+            it('it should INSERT into collection 1 with id', function (done) {
                 var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 HERO1 = $.extend(HERO1, { id: (new ObjectId()).toString() });
                 HERO2 = $.extend(HERO2, { id: (new ObjectId()).toString() });
-                HERO3 = $.extend(HERO3, { id: (new ObjectId()).toString() });
                 $.when(
                     db[HEROES].insert(HERO1),
-                    db[HEROES].insert(HERO2),
-                    db[HEROES].insert(HERO3)
+                    db[HEROES].insert(HERO2)
                 )
-                    .done(function(doc1, doc2, doc3) {
+                    .done(function (doc1, doc2, doc3) {
                         expect(doc1).to.have.property('id').that.is.equal(HERO1.id);
                         expect(doc1).to.have.property('firstName').that.is.equal(HERO1.firstName);
                         expect(doc1).to.have.property('lastName').that.is.equal(HERO1.lastName);
                         expect(doc2).to.have.property('id').that.is.equal(HERO2.id);
                         expect(doc2).to.have.property('firstName').that.is.equal(HERO2.firstName);
                         expect(doc2).to.have.property('lastName').that.is.equal(HERO2.lastName);
+                        db[HEROES]._collection.length(function (err, length) {
+                            if (err) {
+                                done(err);
+                            } else {
+                                expect(length).to.equal(2);
+                                done();
+                            }
+                        });
+                    })
+                    .fail(done);
+            });
+
+            it('it should INSERT into collection 1 without id', function (done) {
+                var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
+                expect(db).to.be.an.instanceof(Database);
+                expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
+                db[HEROES].insert(HERO3)
+                    .done(function (doc3) {
                         expect(doc3).to.have.property('id').that.is.equal(HERO3.id);
                         expect(doc3).to.have.property('firstName').that.is.equal(HERO3.firstName);
                         expect(doc3).to.have.property('lastName').that.is.equal(HERO3.lastName);
+                        HERO3 = doc3;
                         db[HEROES]._collection.length(function (err, length) {
                             if (err) {
                                 done(err);
@@ -279,6 +296,20 @@
                         });
                     })
                     .fail(done);
+            });
+
+            it('it should not INSERT into collection 1 an existing id', function (done) {
+                var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
+                expect(db).to.be.an.instanceof(Database);
+                expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
+                db[HEROES].insert(HERO3)
+                    .done(function (doc3) {
+                        // This should not happen
+                        expect(true).to.be.false;
+                    })
+                    .fail(function (err) {
+
+                    });
             });
 
             it('it should INSERT into collection 2', function (done) {
@@ -293,7 +324,7 @@
                     db[MOVIES].insert(MOVIE2),
                     db[MOVIES].insert(MOVIE3)
                 )
-                    .done(function(doc1, doc2, doc3) {
+                    .done(function (doc1, doc2, doc3) {
                         expect(doc1).to.have.property('id').that.is.equal(MOVIE1.id);
                         expect(doc1).to.have.property('title').that.is.equal(MOVIE1.title);
                         expect(doc1).to.have.property('year').that.is.equal(MOVIE1.year);
@@ -315,18 +346,15 @@
                     .fail(done);
             });
 
-            // TODO Check that it can write without id
-            // TODO It should fail to write with the same id
-
             it('it should FIND documents based on id in collection 1', function (done) {
                 var db = new Database({ name: PONGO_DB, collections: [HEROES, MOVIES] });
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].find({ id: HERO2.id })
-                    .progress(function(percent) {
+                    .progress(function (percent) {
                         expect(percent).to.be.a('number').gt(0).and.lte(1);
                     })
-                    .done(function(docs) {
+                    .done(function (docs) {
                         expect(docs).to.be.an.instanceof(Array).with.property('length', 1);
                         expect(docs[0]).to.have.property('id').that.is.equal(HERO2.id);
                         expect(docs[0]).to.have.property('firstName').that.is.equal(HERO2.firstName);
@@ -343,10 +371,10 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].find({ year: { $lte: 2012 } })
-                    .progress(function(percent) {
+                    .progress(function (percent) {
                         expect(percent).to.be.a('number').gt(0).and.lte(1);
                     })
-                    .done(function(docs) {
+                    .done(function (docs) {
                         expect(docs).to.be.an.instanceof(Array).with.property('length', 2);
                         // Note: we cannot predict the order which depends on random ObjectId
                         var doc1;
@@ -374,10 +402,10 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].count({ id: HERO2.id })
-                    .progress(function(percent) {
+                    .progress(function (percent) {
                         expect(percent).to.be.a('number').gt(0).and.lte(1);
                     })
-                    .done(function(count) {
+                    .done(function (count) {
                         expect(count).to.equal(1);
                         done();
                     })
@@ -391,10 +419,10 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].count({ year: { $lte: 2012 } })
-                    .progress(function(percent) {
+                    .progress(function (percent) {
                         expect(percent).to.be.a('number').gt(0).and.lte(1);
                     })
-                    .done(function(count) {
+                    .done(function (count) {
                         expect(count).to.equal(2);
                         done();
                     })
@@ -406,10 +434,10 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].update({ id: HERO2.id }, { mask: false, cape: true })
-                    .progress(function(percent) {
+                    .progress(function (percent) {
                         expect(percent).to.be.a('number').gt(0).and.lte(1);
                     })
-                    .done(function(writeResult) {
+                    .done(function (writeResult) {
                         expect(writeResult).to.have.property('nMatched').that.is.equal(1);
                         expect(writeResult).to.have.property('nUpserted').that.is.equal(0);
                         expect(writeResult).to.have.property('nModified').that.is.equal(1);
@@ -425,10 +453,10 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].update({ title: { $regex: /^Man/ } }, { producer: 'DC Comics' })
-                    .progress(function(percent) {
+                    .progress(function (percent) {
                         expect(percent).to.be.a('number').gt(0).and.lte(1);
                     })
-                    .done(function(writeResult) {
+                    .done(function (writeResult) {
                         expect(writeResult).to.have.property('nMatched').that.is.equal(1);
                         expect(writeResult).to.have.property('nUpserted').that.is.equal(0);
                         expect(writeResult).to.have.property('nModified').that.is.equal(1);
@@ -442,10 +470,10 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].remove({ id: HERO3.id })
-                    .progress(function(percent) {
+                    .progress(function (percent) {
                         expect(percent).to.be.a('number').gt(0).and.lte(1);
                     })
-                    .done(function(writeResult) {
+                    .done(function (writeResult) {
                         expect(writeResult).to.have.property('nRemoved').that.is.equal(1);
                         db[HEROES]._collection.length(function (err, length) {
                             if (err) {
@@ -464,10 +492,10 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].remove({ producer: 'DC Comics' })
-                    .progress(function(percent) {
+                    .progress(function (percent) {
                         expect(percent).to.be.a('number').gt(0).and.lte(1);
                     })
-                    .done(function(writeResult) {
+                    .done(function (writeResult) {
                         expect(writeResult).to.have.property('nRemoved').that.is.equal(1);
                         db[MOVIES]._collection.length(function (err, length) {
                             if (err) {
@@ -486,7 +514,7 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].clear()
-                    .done(function() {
+                    .done(function () {
                         db[HEROES]._collection.length(function (err, length) {
                             if (err) {
                                 done(err);
@@ -504,7 +532,7 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].clear()
-                    .done(function() {
+                    .done(function () {
                         db[MOVIES]._collection.length(function (err, length) {
                             if (err) {
                                 done(err);
