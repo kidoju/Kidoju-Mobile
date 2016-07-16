@@ -61,6 +61,18 @@
         var CLICK = 'click';
         var RX_HTTP_S = /^https?:\/\//;
         var RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
+        var RX_AUDIO = /^(cdn|data):\/\/[\s\S]+.mp3$/i;
+        var RX_COLOR = /^#[0-9a-f]{6}$/i;
+        var RX_DATA = /\S+/i;
+        var RX_DESCRIPTION = /\S+/i; // question
+        var RX_DROPVALUE = /\S+/i;
+        var RX_FORMULA = /\S+/i;
+        var RX_IMAGE = /^(cdn|data):\/\/[\s\S]+.(gif|jpe?g|png|svg)$/i;
+        var RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
+        var RX_SOLUTION = /\S+/i;
+        var RX_TEXT = /\S+/i;
+        var RX_VALIDATION = /\S+/i;
+        var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp3$/i;
         var FORMULA = 'function validate(value, solution, all) {\n\t{0}\n}';
         var JS_COMMENT = '// ';
         var CUSTOM = {
@@ -101,12 +113,21 @@
             },
 
             messages: {
-                missingDropValue: 'A {0} on page {1} requires a drop value in test logic.',
-                missingDescription: 'A {0} named `{1}` on page {2} requires a question in test logic.',
-                missingSolution: 'A {0} named `{1}` on page {2} requires a solution in test logic.',
-                missingValidation: 'A {0} named `{1}` on page {2} requires a validation formula in test logic.',
-                invalidFailure: 'A {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
-                invalidSuccess: 'A {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.'
+                invalidAltText: 'A(n) {0} on page {1} requires some alternate text in display attributes.',
+                invalidAudioFile: 'A(n) {0} on page {1} requires an mp3 file in display attributes.',
+                invalidColor: 'A(n) {0} on page {1} has an invalid color in display attributes.',
+                invalidData: 'A(n) {0} on page {1} requires values in display attributes.',
+                invalidDescription: 'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
+                invalidDropValue: 'A(n) {0} on page {1} requires a drop value in test logic.',
+                invalidFailure: 'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
+                invalidFormula: 'A(n) {0} on page {1} requires a formula in display attributes.',
+                invalidImageFile: 'A(n) {0} on page {1} requires an image file in display attributes.',
+                invalidSolution: 'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
+                invalidStyle: 'A(n) {0} on page {1} has an invalid style in display attributes.',
+                invalidSuccess: 'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
+                invalidText: 'A(n) {0} on page {1} requires some text in display attributes.',
+                invalidValidation: 'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
+                invalidVideoFile: 'A(n) {0} on page {1} requires an mp4 file in display attributes.'
             },
 
             pointer: {
@@ -129,7 +150,14 @@
                     columns: { title: 'Columns' },
                     layout: { title: 'Layout' },
                     rows: { title: 'Rows' },
-                    whitelist: { title: 'Whitelist' }
+                    whitelist: { title: 'Whitelist' },
+                    gridFill: { title: 'Grid Fill' },
+                    gridStroke: { title: 'Grid Stroke' },
+                    // blankFill = gridStroke
+                    selectedFill: { title: 'Selection Fill' },
+                    lockedFill: { title: 'Locked Fill' },
+                    // lockedColor = valueColor = fontColor
+                    fontColor: { title: 'Font Color' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -198,7 +226,7 @@
                 description: 'Image',
                 attributes: {
                     alt: { title: 'Text', defaultValue: 'Image' },
-                    src: { title: 'Source' },
+                    src: { title: 'Source', defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' },
                     style: { title: 'Style' }
                 },
                 properties: {
@@ -222,7 +250,7 @@
             mathexpression: {
                 description: 'Math Expression',
                 attributes: {
-                    formula: { title: 'Formula' },
+                    formula: { title: 'Formula', defaultValue: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#' },
                     style: { title: 'Style' }
                 }
             },
@@ -379,12 +407,21 @@
                     cancel: { text: i18n.dialogs.cancel.text }
                 },
                 messages: {
-                    missingDropValue: i18n.messages.missingDropValue,
-                    missingDescription: i18n.messages.missingDescription,
-                    missingSolution: i18n.messages.missingSolution,
-                    missingValidation: i18n.messages.missingValidation,
+                    invalidAltText: i18n.messages.invalidAltText,
+                    invalidAudioFile: i18n.messages.invalidAudioFile,
+                    invalidColor: i18n.messages.invalidColor,
+                    invalidData: i18n.messages.invalidData,
+                    invalidDescription: i18n.messages.invalidDescription,
+                    invalidDropValue: i18n.messages.invalidDropValue,
                     invalidFailure: i18n.messages.invalidFailure,
-                    invalidSuccess: i18n.messages.invalidSuccess
+                    invalidFormula: i18n.messages.invalidFormula,
+                    invalidImageFile: i18n.messages.invalidImageFile,
+                    invalidSolution: i18n.messages.invalidSolution,
+                    invalidStyle: i18n.messages.invalidStyle,
+                    invalidSuccess: i18n.messages.invalidSuccess,
+                    invalidText: i18n.messages.invalidText,
+                    invalidValidation: i18n.messages.invalidValidation,
+                    invalidVideoFile: i18n.messages.invalidVideoFile
                 }
             },
 
@@ -521,7 +558,8 @@
              * @param component
              */
             getTestDefaultValue: function (component) {
-                return; // TODO: review - is this used anywhere?
+                // TODO: consider removing as it seems useless
+                return;
             },
 
             /**
@@ -578,19 +616,19 @@
                     var messages = this.i18n.messages;
                     var name = properties.name;
                     // TODO: test name? note that all components do not necessarily have a name
-                    if (properties.draggable === true && !/\S+/.test(properties.dropValue)) {
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingDropValue, description, /*name,*/ pageIdx + 1) });
+                    if (properties.draggable === true && !RX_DROPVALUE.test(properties.dropValue)) {
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDropValue, description, /*name,*/ pageIdx + 1) });
                     }
-                    if ($.type(properties.description) === STRING && !/\S+/.test(properties.description)) {
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingDescription, description, name, pageIdx + 1) });
+                    if ($.type(properties.description) === STRING && !RX_DESCRIPTION.test(properties.description)) {
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDescription, description, name, pageIdx + 1) });
                     }
-                    if ($.type(properties.solution) === STRING && !/\S+/.test(properties.solution)) {
+                    if ($.type(properties.solution) === STRING && RX_SOLUTION.test(properties.solution)) {
                         // TODO: what if solution is not a string but a number or something else ?
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingSolution, description, name, pageIdx + 1) });
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidSolution, description, name, pageIdx + 1) });
                     }
-                    if ($.type(properties.validation) === STRING && !/\S+/.test(properties.validation)) {
+                    if ($.type(properties.validation) === STRING && !RX_VALIDATION.test(properties.validation)) {
                         // TODO: There is room for better validation of the validation formula
-                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.missingValidation, description, name, pageIdx + 1) });
+                        ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidValidation, description, name, pageIdx + 1) });
                     }
                     if ($.type(properties.failure) === NUMBER && $.type(properties.omit) === NUMBER && properties.failure > Math.min(properties.omit, 0)) {
                         ret.push({ type: WARNING, index: pageIdx, message: kendo.format(messages.invalidFailure, description, name, pageIdx + 1) });
@@ -1367,77 +1405,75 @@
         /**
          * CharGrid adapter
          */
-        /*
-         adapters.CharGridAdapter = BaseAdapter.extend({
-         init: function (options) {
-         var that = this;
-         BaseAdapter.fn.init.call(that, options);
-         that.type = undefined;
-         that.editor = function (container, options) {
-         $('<button/>')
-         .text('...')
-         .addClass('k-button')
-         .css({ margin: 0, width: '100%' })
-         .appendTo(container)
-         .on(CLICK, $.proxy(that.showDialog, that, options));
-         };
-         },
-         showDialog: function (options/,evt/) {
-         var that = this;
-         var dialog = that.getDialog();
-         var model = options.model;
-         // Build data (resize array especially after changing rows and columns)
-         var columns = model.get('attributes.columns');
-         var rows = model.get('attributes.rows');
-         var whitelist = model.get('attributes.whitelist');
-         var layout = model.get('attributes.layout');
-         var data = model.get(options.field);
-         // Create viewModel (Cancel shall not save changes to main model)
-         dialog.viewModel = kendo.observable({
-         chargrid: kendo.ui.CharGrid._getCharGridArray(columns, rows, whitelist, layout, data)
-         });
-         // Prepare UI
-         dialog.title(options.title);
-         var content = '<div class="k-edit-form-container">' + // TODO namespace???
-         '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
-         'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
-         'data-blank="' + model.get('attributes.blank') + '" ' +
-         'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
-         (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
-         // TODO Add colors
-         'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;"></div>' +
-         '<div class="k-edit-buttons k-state-default">' +
-         '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-         '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-         '</div></div>';
-         // TODO: Add user instructions
-         dialog.content(content);
-         kendo.bind(dialog.element, dialog.viewModel);
-         dialog.element.addClass('no-padding');
-         // Bind click handler for edit buttons
-         dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
-         // Show dialog
-         dialog.center().open();
-         },
-         closeDialog: function (options, dialog, e) {
-         var that = this;
-         if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-         var command = $(e.target).attr(kendo.attr('command'));
-         if (command === 'ok') {
-         options.model.set(options.field, dialog.viewModel.get('chargrid'));
-         }
-         dialog.close();
-         }
-         },
-         library: [
-         {
-         name: 'equal',
-         formula: kendo.format(FORMULA, 'return value && typeof value.equals === "function" && value.equals(solution);')
-         }
-         ],
-         libraryDefault: 'equal'
-         });
-         */
+        adapters.CharGridAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = undefined;
+                that.editor = function (container, options) {
+                    $('<button/>')
+                        .text('...')
+                        .addClass('k-button')
+                        .css({ margin: 0, width: '100%' })
+                        .appendTo(container)
+                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                };
+            },
+            showDialog: function (options, evt) {
+                var that = this;
+                var dialog = that.getDialog();
+                var model = options.model;
+                // Build data (resize array especially after changing rows and columns)
+                var columns = model.get('attributes.columns');
+                var rows = model.get('attributes.rows');
+                var whitelist = model.get('attributes.whitelist');
+                var layout = model.get('attributes.layout');
+                var data = model.get(options.field);
+                // Create viewModel (Cancel shall not save changes to main model)
+                dialog.viewModel = kendo.observable({
+                    chargrid: kendo.ui.CharGrid._getCharGridArray(columns, rows, whitelist, layout, data)
+                });
+                // Prepare UI
+                dialog.title(options.title);
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
+                    '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
+                    'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
+                    'data-blank="' + model.get('attributes.blank') + '" ' +
+                    'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
+                    (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
+                    // TODO Add colors
+                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;"></div>' +
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
+                // TODO: Add user instructions
+                dialog.content(content);
+                kendo.bind(dialog.element, dialog.viewModel);
+                dialog.element.addClass('no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                // Show dialog
+                dialog.center().open();
+            },
+            closeDialog: function (options, dialog, e) {
+                var that = this;
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
+                    var command = $(e.target).attr(kendo.attr('command'));
+                    if (command === 'ok') {
+                        options.model.set(options.field, dialog.viewModel.get('chargrid'));
+                    }
+                    dialog.close();
+                }
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return value && typeof value.equals === "function" && value.equals(solution);')
+                }
+            ],
+            libraryDefault: 'equal'
+        });
 
         /*******************************************************************************************
          * Tool classes
@@ -1543,88 +1579,103 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if (!RX_AUDIO.test(component.attributes.mp3)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidAudioFile, description, pageIdx + 1)
+                        });
+                    }
+                    // Note: we are not testing for an ogg file
+                }
+                return ret;
             }
+
         });
         tools.register(Audio);
 
-        // var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" {0}></div>';
+        var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" data-#= ns #grid-fill="#: attributes.gridFill #" data-#= ns #grid-stroke="#: attributes.gridStroke #" data-#= ns #blank-fill="#: attributes.gridStroke #" data-#= ns #selected-fill="#: attributes.selectedFill #" data-#= ns #locked-fill="#: attributes.lockedFill #" data-#= ns #locked-color="#: attributes.fontColor #" data-#= ns #value-color="#: attributes.fontColor #" {0}></div>';
         /**
          * @class CharGrid tool
          * @type {void|*}
          */
-        /*
-         var CharGrid = Tool.extend({
-         id: 'chargrid',
-         icon: 'dot_matrix',
-         description: i18n.chargrid.description,
-         cursor: CURSOR_CROSSHAIR,
-         templates: {
-         design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
-         play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'),
-         review: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"') + Tool.fn.showResult()
-         },
-         height: 100,
-         width: 100,
-         attributes: {
-         rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-         columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
-         blank: new adapters.StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
-         whitelist: new adapters.StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
-         layout: new adapters.CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
-         gridFill: new adapters.ColorAdapter({ title: 'color', defaultValue: '#000000' })
-         },
-         properties: {
-         name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
-         description: new adapters.DescriptionAdapter({ title: i18n.chargrid.properties.description.title }),
-         solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
-         validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
-         success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
-         failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
-         omit: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
-         },
-         */
-        /**
-         * Get the default value when playing the component as part of a test
-         * @param component
-         */
-        /*
-         getTestDefaultValue: function (component) {
-         assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-         return component.attributes.layout && $.isFunction(component.attributes.layout.slice) ? component.attributes.layout.slice(0) : undefined;
-         },
-         */
+        var CharGrid = Tool.extend({
+            id: 'chargrid',
+            icon: 'dot_matrix',
+            description: i18n.chargrid.description,
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
+                play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'),
+                review: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 400,
+            width: 400,
+            attributes: {
+                rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+                columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+                blank: new adapters.StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
+                whitelist: new adapters.StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
+                layout: new adapters.CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
+                gridFill: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.gridFill.title, defaultValue: '#ffffff' }),
+                gridStroke: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.gridStroke.title, defaultValue: '#000000' }),
+                // blankFill = gridStroke
+                selectedFill: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.selectedFill.title, defaultValue: '#ffffcc' }),
+                lockedFill: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.lockedFill.title, defaultValue: '#e6e6e6' }),
+                // lockedColor = valueColor = fontColor
+                fontColor: new adapters.ColorAdapter({ title: i18n.chargrid.attributes.fontColor.title, defaultValue: '#9999b6' })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.chargrid.properties.description.title }),
+                solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
+            },
 
-        /**
-         * onResize Event Handler
-         * @method onResize
-         * @param e
-         * @param component
-         */
-        /*
-         onResize: function (e, component) {
-         var stageElement = $(e.currentTarget);
-         assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
-         assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-         var content = stageElement.children('div.kj-chargrid');
-         if ($.type(component.width) === NUMBER) {
-         content.outerWidth(component.width);
-         }
-         if ($.type(component.height) === NUMBER) {
-         content.outerHeight(component.height);
-         }
-         // Redraw the charGrid widget
-         var charGridWidget = content.data('kendoCharGrid');
-         assert.instanceof(kendo.ui.CharGrid, charGridWidget, kendo.format(assert.messages.instanceof.default, 'charGridWidget', 'kendo.ui.CharGrid'));
-         charGridWidget.refresh();
-         // prevent any side effect
-         e.preventDefault();
-         // prevent event to bubble on stage
-         e.stopPropagation();
-         }
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div.kj-chargrid');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width);
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height);
+                }
+                // Redraw the charGrid widget
+                var charGridWidget = content.data('kendoCharGrid');
+                assert.instanceof(kendo.ui.CharGrid, charGridWidget, kendo.format(assert.messages.instanceof.default, 'charGridWidget', 'kendo.ui.CharGrid'));
+                charGridWidget.refresh();
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            }
 
-         });
-         tools.register(CharGrid);
-         */
+        });
+        tools.register(CharGrid);
 
         var CHECKBOX = '<div data-#= ns #role="multicheckbox" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
         /**
@@ -1707,7 +1758,38 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
+                        (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
+                        (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                    if (!RX_DATA.test(component.attributes.data)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
+
         });
         tools.register(CheckBox);
 
@@ -1767,6 +1849,27 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if (component.attributes.color && !RX_COLOR.test(component.attributes.color)) {
+                        ret.push({
+                            type: WARNING,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidColor, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
 
         });
@@ -1844,7 +1947,30 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    // Note: any text is acceptable
+                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
+
         });
         tools.register(DropZone);
 
@@ -1864,7 +1990,7 @@
             width: 250,
             attributes: {
                 alt: new adapters.StringAdapter({ title: i18n.image.attributes.alt.title, defaultValue: i18n.image.attributes.alt.defaultValue }),
-                src: new adapters.AssetAdapter({ title: i18n.image.attributes.src.title, defaultValue: 'cdn://images/o_collection/svg/office/painting_landscape.svg' }),
+                src: new adapters.AssetAdapter({ title: i18n.image.attributes.src.title, defaultValue: i18n.image.attributes.src.defaultValue }),
                 style: new adapters.StyleAdapter({ title: i18n.image.attributes.style.title })
             },
             properties: {
@@ -1961,7 +2087,49 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.alt === i18n.image.attributes.alt.defaultValue) || !RX_TEXT.test(component.attributes.alt)) {
+                        ret.push({
+                            type: WARNING,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidAltText, description, pageIdx + 1)
+                        });
+                    }
+                    if ((component.attributes.src === i18n.image.attributes.src.defaultValue) || !RX_IMAGE.test(component.attributes.src)) {
+                        ret.push({
+                            type: (component.attributes.src === i18n.image.attributes.src.defaultValue) ? WARNING : ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidImageFile, description, pageIdx + 1)
+                        });
+                    }
+                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
+
+            /* jshint +W074 */
+
         });
         tools.register(Image);
 
@@ -2058,6 +2226,35 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.text === i18n.label.attributes.text.defaultValue) || !RX_TEXT.test(component.attributes.text)) {
+                        ret.push({
+                            type: WARNING,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidText, description, pageIdx + 1)
+                        });
+                    }
+                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
+                        // TODO: test small font-size incompatible with mobile devices
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
 
         });
@@ -2079,7 +2276,7 @@
             width: 480,
             attributes: {
                 formula: new adapters.TextAdapter(
-                    { title: i18n.mathexpression.attributes.formula.title, defaultValue: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#' },
+                    { title: i18n.mathexpression.attributes.formula.title, defaultValue: i18n.mathexpression.attributes.formula.defaultValue },
                     { rows: 4, style: 'resize:vertical; width: 100%;' }
                 ),
                 style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size: 40px;' })
@@ -2106,6 +2303,35 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.formula === i18n.mathexpression.attributes.formula.defaultValue) || !RX_FORMULA.test(component.attributes.formula)) {
+                        // TODO: improve RX_FORMULA
+                        ret.push({
+                            type: WARNING,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidFormula, description, pageIdx + 1)
+                        });
+                    }
+                    if (component.attributes.style && !RX_STYLE.test(component.attributes.style)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
 
         });
@@ -2197,9 +2423,39 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
-            }
+            },
 
             /* jshint +W074 */
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
+                        (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
+                        (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                    if (!RX_DATA.test(component.attributes.data)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
+            }
 
         });
         tools.register(Quiz);
@@ -2288,7 +2544,30 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    // Note: we are allowing any mask
+                    if ((component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
             }
+
         });
         tools.register(Textbox);
 
@@ -2328,6 +2607,10 @@
                 assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
                 assert.instanceof(ToolAssets, assets.video, kendo.format(assert.messages.instanceof.default, 'assets.video', 'kidoju.ToolAssets'));
                 var template = kendo.template(this.templates.default);
+
+                /* This function's cyclomatic complexity is too high. */
+                /* jshint -W074 */
+
                 // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
                 component.attributes.files$ = function () {
                     var mp4 = component.attributes.get('mp4');
@@ -2360,6 +2643,9 @@
                     }
                     return JSON.stringify(files);
                 };
+
+                /* jshint +W074 */
+
                 return template($.extend(component, { ns: kendo.ns }));
             },
 
@@ -2384,18 +2670,41 @@
                 e.preventDefault();
                 // prevent event to bubble on stage
                 e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if (!RX_VIDEO.test(component.attributes.mp4)) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidVideoFile, description, pageIdx + 1)
+                        });
+                    }
+                    // Note: we are not testing for an ogv or wbem file
+                }
+                return ret;
             }
+
         });
         tools.register(Video);
 
         /**
          * We could also consider
-         * Better Textbox with masked inputs
-         * HTML
+         * HTML from Markdown (lists, tec)
          * Drawing surface
          * Shape
          * Clock
          * Text-to-Speech
+         * Geogebra
          * Spreadsheet
          * Charts
          */
