@@ -406,12 +406,12 @@
                         var ensureShortLifeToken = function () {
                             // we need to read the token again because if we remain a couple of hours on the same page (e.g. test designer), the token might have already been refreshed
                             token = JSON.parse(localStorage.getItem(TOKEN));
-                            if ($.isPlainObject(token) && Date.now() > token.ts + 1000 * token.expires - 10 * 60 * 1000) {
+                            if ($.isPlainObject(token) && (Date.now() > token.ts + (token.expires - 10 * 60) * 1000)) {
                                 app.rapi.oauth.refresh();
                             }
                             setTimeout(ensureShortLifeToken, 60 * 1000);
                         };
-                        // We need to refresh th etoken asap because we might change page within 60*1000 = 1 min
+                        // Start recurring calls
                         ensureShortLifeToken();
                     }
                     /*

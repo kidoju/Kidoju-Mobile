@@ -8,11 +8,7 @@
 
 (function (f, define) {
     'use strict';
-    define([
-        './window.assert',
-        './window.logger',
-        './app.logger'
-    ], f);
+    define([], f);
 })(function () {
 
     'use strict';
@@ -26,8 +22,6 @@
     (function () {
 
         var app = window.app = window.app || {};
-        // var assert = window.assert;
-        var logger = new window.Logger('app.config');
 
         /**
          * Join url bits, adding slashes where required
@@ -56,13 +50,6 @@
          * application locales
          */
         app.locales = JSON.parse('<%- JSON.stringify(locales) %>');
-
-        /**
-         * Logger
-         */
-        window.Logger.prototype.level = parseInt('<%- level %>', 10) || 0;
-        app.logger.level = parseInt('<%- level %>', 10) || 0;
-        app.logger.token = '<%- logentries.browser.token %>';
 
         /**
          * Facebook
@@ -138,7 +125,8 @@
          */
         app.uris = {
             rapi: {
-                root: '<%- uris.rapi.root %>'
+                root: '<%- uris.rapi.root %>',
+                logger: '<%- uris.rapi.root %>' + convertFormat('<%- uris.rapi.logger %>'),
             },
             cdn: {
                 icons: url.join('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))
@@ -151,7 +139,8 @@
                 // error
                 finder: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.finder %>')),
                 home: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.home %>')),
-                locale: '<%- uris.webapp.root %>' + convertFormat('<%- uris.webapp.locale %>'), // redirection when changing locale
+                locale: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.locale %>')), // redirection when changing locale
+                logger: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.logger %>')),
                 ping: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.ping %>')),
                 player: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.player %>')),
                 public: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.public %>')),
@@ -164,9 +153,12 @@
             }
         };
 
-        logger.info({
-            message: 'app configured'
-        });
+        /**
+         * Logger configuration
+         */
+        app.logger = app.logger || {};
+        app.logger.level = parseInt('<%- level %>', 10) || 0;
+        app.logger.endPoint = app.uris.webapp.logger;
 
     }());
 
