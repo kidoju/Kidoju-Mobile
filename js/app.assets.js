@@ -86,7 +86,7 @@
                                     assert.type(STRING, response.type, kendo.format(assert.messages.type.default, 'response.type', STRING));
                                     assert.type(STRING, response.url, kendo.format(assert.messages.type.default, 'response.url', STRING));
                                     response.url = response.url.replace(kidoju.assets[tool].schemes.data, DATA_SCHEME);
-                                    logger.info({
+                                    logger.debug({
                                         message: 'new file uploaded',
                                         method: tool + '.transport.create',
                                         data: $.extend({ language: locale, summaryId: params.summaryId, tool: tool }, response)
@@ -160,7 +160,7 @@
                     assert.equal(params.summaryId, matches[2], kendo.format(assert.messages.equal.default, 'matches[2]', params.summaryId));
                     rapi.v1.content.deleteFile(matches[1], matches[2], matches[3])
                         .done(function (response) {
-                            logger.info({
+                            logger.debug({
                                 message: 'file deleted',
                                 method: tool + '.transport.create',
                                 data: $.extend({ language: locale, summaryId: params.summaryId, tool: tool }, response)
@@ -206,7 +206,7 @@
         kidoju.assets.video = new kidoju.ToolAssets($.extend(video, { transport: transport('video') }));
 
         // Log readiness
-        logger.info({
+        logger.debug({
             message: 'Assets configured'
         });
 

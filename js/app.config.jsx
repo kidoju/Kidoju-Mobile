@@ -126,7 +126,7 @@
         app.uris = {
             rapi: {
                 root: '<%- uris.rapi.root %>',
-                logger: '<%- uris.rapi.root %>' + convertFormat('<%- uris.rapi.logger %>'),
+                logger: '<%- uris.rapi.root %>' + convertFormat('<%- uris.rapi.logger %>')
             },
             cdn: {
                 icons: url.join('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))
