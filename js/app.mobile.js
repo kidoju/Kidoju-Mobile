@@ -980,6 +980,10 @@ if (typeof(require) === 'function') {
             }
         };
 
+        /**
+         * Event handler for confirming after clicking the submit button in the navbar
+         * @param buttonIndex
+         */
         mobile.onNavbarSubmitConfirm = function (buttonIndex) {
             if (buttonIndex !== 1) {
                 return;
