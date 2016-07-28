@@ -876,15 +876,17 @@
                  * @returns {*}
                  */
                 getAllLanguages: function () {
+                    var url = uris.rapi.root + uris.rapi.v1.allLanguages;
                     logger.info({
                         message: '$.ajax',
-                        method: 'v1.taxonomy.getAllLanguages'
+                        method: 'v1.taxonomy.getAllLanguages',
+                        data: { url: url }
                     });
                     return $.ajax({
                         cache: true,
                         headers: rapi.util.getHeaders({ trace: true }),
                         type: GET,
-                        url: uris.rapi.root + uris.rapi.v1.allLanguages
+                        url: url
                     });
                 },
 
@@ -895,16 +897,17 @@
                  */
                 getLanguage: function (language) {
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.language, language);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.taxonomy.getLanguage',
-                        data: { language: language }
+                        data: { url: url }
                     });
                     return $.ajax({
                         cache: true,
                         headers: rapi.util.getHeaders({ trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.language, language)
+                        url: url
                     });
                 },
 
@@ -915,16 +918,17 @@
                  */
                 getAllCategories: function (language) {
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.categories, language);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.taxonomy.getAllCategories',
-                        data: { language: language }
+                        data: { url: url }
                     });
                     return $.ajax({
                         cache: true,
                         headers: rapi.util.getHeaders({ trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.categories, language)
+                        url: url
                     });
                 }
             },
@@ -943,17 +947,18 @@
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.isPlainObject(summary, rapi.util.format(assert.messages.isPlainObject.default, 'summary'));
                     // Note: we might want to check that this summary object has the required properties for a creation
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summaries, language);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.createSummary',
-                        data: { language: language, summary: summary }
+                        data: { url: url, summary: summary }
                     });
                     return $.ajax({
                         contentType: JSON_CONTENT_TYPE,
                         data: JSON.stringify(summary),
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: POST,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.summaries, language)
+                        url: url
                     });
                 },
 
@@ -965,17 +970,18 @@
                 findSummaries: function (language, querystring) {
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.isOptionalObject(querystring, rapi.util.format(assert.messages.isOptionalObject.default, 'querystring'));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summaries, language);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.findSummaries',
-                        data: { language: language, qs: querystring }
+                        data: { url: url, qs: querystring }
                     });
                     return $.ajax({
                         cache: false,
                         data: querystring,
                         headers: rapi.util.getHeaders({ trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.summaries, language)
+                        url: url
                     });
                 },
 
@@ -990,17 +996,18 @@
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.isOptionalObject(querystring, rapi.util.format(assert.messages.isOptionalObject.default, 'querystring'));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, language, summaryId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.getSummary',
-                        data: { language: language, summaryId: summaryId, qs: querystring }
+                        data: { url: url, qs: querystring }
                     });
                     return $.ajax({
                         cache: false,
                         data: querystring,
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1016,17 +1023,18 @@
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.isPlainObject(summary, rapi.util.format(assert.messages.isPlainObject.default, 'summary'));
                     // Note: considering we allow partial updates, we cannot check summary properties here
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, language, summaryId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.updateSummary',
-                        data: { language: language, summaryId: summaryId, summary: summary }
+                        data: { url: url, summary: summary }
                     });
                     return $.ajax({
                         contentType: JSON_CONTENT_TYPE,
                         data:  JSON.stringify(summary),
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: PUT,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1039,15 +1047,16 @@
                 deleteSummary: function (language, summaryId) {
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, language, summaryId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.deleteSummary',
-                        data: { language: language, summaryId: summaryId }
+                        data: { url: url, summaryId: summaryId }
                     });
                     return $.ajax({
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: DELETE,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1064,17 +1073,18 @@
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.isPlainObject(exec, rapi.util.format(assert.messages.isPlainObject.default, 'exec'));
                     assert.enum(COMMANDS, exec.command, rapi.util.format(assert.messages.enum.default, 'exec.command', COMMANDS));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.versions, language, summaryId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.executeCommand',
-                        data: { language: language, summaryId: summaryId, exec: exec }
+                        data: { url: url, exec: exec }
                     });
                     return $.ajax({
                         contentType: JSON_CONTENT_TYPE,
                         data: JSON.stringify(exec),
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: POST,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.versions, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1089,17 +1099,18 @@
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.isOptionalObject(querystring, rapi.util.format(assert.messages.isOptionalObject.default, 'querystring'));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.versions, language, summaryId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.findSummaryVersions',
-                        data: { language: language, summaryId: summaryId, qs: querystring }
+                        data: { url: url, qs: querystring }
                     });
                     return $.ajax({
                         cache: false,
                         data: querystring,
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.versions, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1115,17 +1126,18 @@
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.match(RX_MONGODB_ID, versionId, rapi.util.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
                     assert.isOptionalObject(querystring, rapi.util.format(assert.messages.isOptionalObject.default, 'querystring'));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.version, language, summaryId, versionId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.getSummaryVersion',
-                        data: { language: language, summaryId: summaryId, versionId: versionId, qs: querystring }
+                        data: { url: url, qs: querystring }
                     });
                     return $.ajax({
                         cache: false,
                         data: querystring,
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.version, language, summaryId, versionId)
+                        url: url
                     });
                 },
 
@@ -1137,17 +1149,18 @@
                 getCurrentSummaryVersion: function (language, summaryId/*,querystring*/) {
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.version, language, summaryId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.getCurrentSummaryVersion',
-                        data: { language: language, summaryId: summaryId }
+                        data: { url: url }
                     });
                     return $.ajax({
                         cache: false,
                         // data: querystring,
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.version, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1165,17 +1178,18 @@
                     assert.match(RX_MONGODB_ID, versionId, rapi.util.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
                     assert.isPlainObject(version, rapi.util.format(assert.messages.isPlainObject.default, 'version'));
                     // Note: considering we allow partial updates, we cannot check version properties here
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.version, language, summaryId, versionId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.updateSummaryVersion',
-                        data: { language: language, summaryId: summaryId, versionId: versionId, version: version }
+                        data: { url: url, version: version }
                     });
                     return $.ajax({
                         contentType: JSON_CONTENT_TYPE,
                         data: JSON.stringify(version),
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: PUT,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.version, language, summaryId, versionId)
+                        url: url
                     });
                 },
 
@@ -1190,15 +1204,16 @@
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.match(RX_MONGODB_ID, versionId, rapi.util.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.version, language, summaryId, versionId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.deleteSummaryVersion',
-                        data: { language: language, summaryId: summaryId, versionId: versionId }
+                        data: { url: url }
                     });
                     return $.ajax({
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: DELETE,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.version, language, summaryId, versionId)
+                        url: url
                     });
                 },
 
@@ -1213,17 +1228,18 @@
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.isPlainObject(activity, rapi.util.format(assert.messages.isPlainObject.default, 'activity'));
                     // Note: we might want to check that this activity object has the required properties for a creation
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, language, summaryId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.createSummaryActivity',
-                        data: { language: language, summaryId: summaryId, activity: activity }
+                        data: { url: url, activity: activity }
                     });
                     return $.ajax({
                         contentType: JSON_CONTENT_TYPE,
                         data: JSON.stringify(activity),
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: POST,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1237,17 +1253,18 @@
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.isOptionalObject(querystring, rapi.util.format(assert.messages.isOptionalObject.default, 'querystring'));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, language, summaryId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.findSummaryActivities',
-                        data: { language: language, summaryId: summaryId, qs: querystring }
+                        data: { url: url, qs: querystring }
                     });
                     return $.ajax({
                         cache: false,
                         data: querystring,
                         headers: rapi.util.getHeaders({ trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1264,17 +1281,18 @@
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.match(RX_MONGODB_ID, activityId, rapi.util.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
                     assert.isOptionalObject(querystring, rapi.util.format(assert.messages.isOptionalObject.default, 'querystring'));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, language, summaryId, activityId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.getSummaryActivity',
-                        data: { language: language, summaryId: summaryId, activityId: activityId, qs: querystring }
+                        data: { url: url, qs: querystring }
                     });
                     return $.ajax({
                         cache: false,
                         data: querystring,
                         headers: rapi.util.getHeaders({ trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, language, summaryId, activityId)
+                        url: url
                     });
                 },
 
@@ -1292,17 +1310,18 @@
                     assert.match(RX_MONGODB_ID, activityId, rapi.util.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
                     assert.isPlainObject(activity, rapi.util.format(assert.messages.isPlainObject.default, 'activity'));
                     // Note: considering we allow partial updates, we cannot check activity properties here
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, language, summaryId, activityId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.updateSummaryActivity',
-                        data: { language: language, summaryId: summaryId, activityId: activityId, activity: activity }
+                        data: { url: url, activity: activity }
                     });
                     return $.ajax({
                         contentType: JSON_CONTENT_TYPE,
                         data: JSON.stringify(activity),
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: PUT,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, language, summaryId, activityId)
+                        url: url
                     });
                 },
 
@@ -1317,15 +1336,16 @@
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.match(RX_MONGODB_ID, activityId, rapi.util.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, language, summaryId, activityId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.deleteSummaryActivity',
-                        data: { language: language, summaryId: summaryId, activityId: activityId }
+                        data: { url: url }
                     });
                     return $.ajax({
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: DELETE,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, language, summaryId, activityId)
+                        url: url
                     });
                 },
 
@@ -1350,18 +1370,19 @@
                     // We shall keep path delimiters (\, /) though and they shall fail server side
                     // Then we trim underscores at both ends
                     var s3Name = fileName.substr(0, pos).replace(/[^a-z0-9\\\/]+/gi, '_').replace(/(^_|_$)/, '') + '.' + fileName.substr(pos + 1);
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.upload, language, summaryId);
                     // Log
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.getUploadUrl',
-                        data: { language: language, summaryId: summaryId, fileName: file.name, s3Name: s3Name, type: file.type, size: file.size }
+                        data: { url: url, fileName: file.name, s3Name: s3Name, type: file.type, size: file.size }
                     });
                     // $.ajax
                     return $.ajax({
                         data: { file: s3Name, type: file.type, size: file.size },
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.upload, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1376,6 +1397,13 @@
                     var dfd = $.Deferred();
                     // See http://stackoverflow.com/questions/11448578/how-to-send-binary-data-via-jquery-ajax-put-method
                     // See http://stackoverflow.com/questions/5392344/sending-multipart-formdata-with-jquery-ajax
+                    // Log
+                    logger.info({
+                        message: '$.ajax',
+                        method: 'v1.content.uploadFile',
+                        data: { url: signedUrl, fileName: file.name, type: file.type, size: file.size }
+                    });
+                    // $.ajax
                     $.ajax({
                             contentType : file.type,
                             data : file,
@@ -1412,15 +1440,16 @@
                 getAllSummaryFiles: function (language, summaryId) {
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.files, language, summaryId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.getAllSummaryFiles',
-                        data: { language: language, summaryId: summaryId }
+                        data: { url: url }
                     });
                     return $.ajax({
                         headers: rapi.util.getHeaders({ trace: true }),
                         type: GET,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.files, language, summaryId)
+                        url: url
                     });
                 },
 
@@ -1435,15 +1464,16 @@
                     assert.match(RX_LANGUAGE, language, rapi.util.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, rapi.util.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     // assert.match(RX_MONGODB_ID, fileId, rapi.util.format(assert.messages.match.default, 'fileId', RX_MONGODB_ID));
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.file, language, summaryId, fileId);
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.deleteFile',
-                        data: { language: language, summaryId: summaryId, fileId: fileId }
+                        data: { url: url }
                     });
                     return $.ajax({
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: DELETE,
-                        url: uris.rapi.root + rapi.util.format(uris.rapi.v1.file, language, summaryId, fileId)
+                        url: url
                     });
                 }
             }

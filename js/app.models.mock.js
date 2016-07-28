@@ -320,6 +320,41 @@
             /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
 
             /**
+             * Get a flat hierarchy of categories with depth level, in the same order as the hierarchy
+             * @param locale
+             * @returns {*}
+             */
+            getLeveledCategories: function (locale) {
+                var dfd = $.Deferred();
+                app.cache.getCategoryHierarchy(locale)
+                    .done(function (response) {
+                        function Flatten(categories, parentId, depth) {
+                            for (var i = 0, length = categories.length; i < length; i++) {
+                                var category = categories[i];
+                                flat.push({
+                                    id: category.id,
+                                    icon: category.icon,
+                                    depth: depth, // `level` seems to be reserved in kendo.ui.TreeView
+                                    name: category.name,
+                                    parentId: parentId,
+                                    type: category.type
+                                });
+                                if ($.isArray(category.items) && category.items.length) {
+                                    Flatten(category.items, category.id, depth + 1);
+                                }
+                            }
+                        }
+                        var flat = [];
+                        Flatten(response, null, 0);
+                        dfd.resolve({ total: flat.length, data: flat });
+                    })
+                    .fail(function (xhr, status, error) {
+                        dfd.reject(xhr, status, error);
+                    });
+                return dfd.promise();
+            },
+
+            /**
              * Get all favourites in a hierarchy
              * @param locale
              * @returns {*}

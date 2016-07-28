@@ -180,7 +180,7 @@
          * @type {kidoju.data.Model}
          */
         models.LazyCategory = Model.define({
-            id: 'id',
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -270,7 +270,7 @@
          * @type {kidoju.data.Model}
          */
         models.Search = Model.define({
-            id: 'userId', // the identifier of the model
+            id: 'userId', // the identifier of the model, which is required for isNew() to work
             fields: {
                 userId: {
                     type: STRING,
@@ -922,7 +922,7 @@
          * @type {kidoju.data.Model}
          */
         models.UserReference = Model.define({
-            id: 'userId',
+            id: 'userId', // the identifier of the model, which is required for isNew() to work
             fields: {
                 userId: {
                     type: STRING,
@@ -949,7 +949,7 @@
          * @type {kidoju.data.Model}
          */
         models.CurrentUser = Model.define({
-            // id: 'id',
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -1017,7 +1017,7 @@
          * @type {kidoju.data.Model}
          */
         models.Account = Model.define({
-            id: 'id',
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -1083,7 +1083,7 @@
          * @type {kidoju.data.Model}
          */
         models.User = Model.define({
-            id: 'id', // the identifier of the model
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -1377,7 +1377,7 @@
          * @type {kidoju.data.Model}
          */
         models.NewSummary = Model.define({
-            id: 'id', // the identifier of the model
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -1473,7 +1473,7 @@
          * @type {kidoju.data.Model}
          */
         models.LazySummary = Model.define({
-            id: 'id', // the identifier of the model
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -1712,7 +1712,7 @@
          * @type {kidoju.data.Model}
          */
         models.Summary = Model.define({
-            id: 'id', // the identifier of the model
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -1923,7 +1923,7 @@
          * @type {kidoju.data.Model}
          */
         models.LazyVersion = Model.define({
-            id: 'id',
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -2079,7 +2079,7 @@
          * @type {kidoju.data.Model}
          */
         models.Version = Model.define({
-            id: 'id',
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -2179,7 +2179,7 @@
          * @type {kidoju.data.Model}
          */
         models.VersionReference = Model.define({
-            id: 'versionId',
+            id: 'versionId', // the identifier of the model, which is required for isNew() to work
             fields: {
                 language: {
                     type: STRING,
@@ -2211,7 +2211,7 @@
          * @type {kidoju.data.Model}
          */
         models.LazyActivity = Model.define({
-            id: 'id',
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
@@ -2411,7 +2411,7 @@
          * @type {kidoju.data.Model}
          */
         models.Activity = Model.define({
-            id: 'id',
+            id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
                     type: STRING,
