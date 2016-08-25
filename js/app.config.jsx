@@ -136,7 +136,7 @@
             },
             webapp: {
                 editor: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.editor %>')),
-                // error
+                error: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.error %>')),
                 finder: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.finder %>')),
                 home: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.home %>')),
                 locale: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.locale %>')), // redirection when changing locale
