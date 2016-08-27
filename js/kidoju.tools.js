@@ -392,6 +392,7 @@
             icon: null,
             description: null,
             cursor: null,
+            weight: 0,
             height: 250,
             width: 250,
             attributes: {},
@@ -1438,7 +1439,7 @@
                 var data = model.get(options.field);
                 // Create viewModel (Cancel shall not save changes to main model)
                 dialog.viewModel = kendo.observable({
-                    chargrid: kendo.ui.CharGrid._getCharGridArray(columns, rows, whitelist, layout, data)
+                    chargrid: kendo.ui.CharGrid._getCharGridArray(rows, columns, whitelist, layout, data)
                 });
                 // Prepare UI
                 dialog.title(options.title);
@@ -1449,7 +1450,13 @@
                         'data-blank="' + model.get('attributes.blank') + '" ' +
                         'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
                         (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
-                        // TODO Add colors
+                        'data-grid-fill="' + model.get('attributes.gridFill') + '" ' +
+                        'data-grid-stroke="' + model.get('attributes.gridStroke') + '" ' +
+                        'data-blank-fill="' + model.get('attributes.gridStroke') + '" ' +
+                        'data-selected-fill="' + model.get('attributes.selectedFill') + '" ' +
+                        'data-locked-fill="' + model.get('attributes.lockedFill') + '" ' +
+                        'data-locked-color="' + model.get('attributes.fontColor') + '" ' +
+                        'data-value-color="' + model.get('attributes.fontColor') + '" ' +
                         'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;margin:20px;float:left;"></div>' +
                         '<div style="max-width:400px;margin:20px 0;float:left;">' +
                         (options.field === 'properties.solution' ? kendo.format(this.messages.solution, model.get('attributes.whitelist')) : kendo.format(this.messages.layout, model.get('attributes.blank'))) +
@@ -1631,6 +1638,7 @@
             icon: 'dot_matrix',
             description: i18n.chargrid.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 10,
             templates: {
                 design: kendo.format(CHARGRID, 'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'),
                 play: kendo.format(CHARGRID, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'),
@@ -1660,6 +1668,48 @@
                 success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.failure.title, defaultValue: 0 }),
                 omit: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Improved display of value in score grid
+             * @param value
+             */
+            value$: function (value) {
+                // var ret = '<table>';
+                var ret = '';
+                for (var r = 0, rowTotal = value.length; r < rowTotal; r++) {
+                    var row = value[r];
+                    // ret += '<tr>';
+                    for (var c = 0, colTotal = row.length ; c < colTotal; c++) {
+                        // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
+                        ret += kendo.htmlEncode(row[c] || '') + (c === colTotal - 1 ? '' : ',');
+                    }
+                    // ret += '</tr>';
+                    ret += '<br/>';
+                }
+                // ret += '</table>';
+                return ret;
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * @param solution
+             */
+            solution$: function (solution) {
+                // var ret = '<table>';
+                var ret = '';
+                for (var r = 0, rowTotal = solution.length; r < rowTotal; r++) {
+                    var row = solution[r];
+                    // ret += '<tr>';
+                    for (var c = 0, colTotal = row.length ; c < colTotal; c++) {
+                        // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
+                        ret += kendo.htmlEncode(row[c] || '') + (c === colTotal - 1 ? '' : ',');
+                    }
+                    // ret += '</tr>';
+                    ret += '<br/>';
+                }
+                // ret += '</table>';
+                return ret;
             },
 
             /**
@@ -1703,6 +1753,7 @@
             icon: 'checkbox',
             description: i18n.checkbox.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 1,
             templates: {
                 design: kendo.format(CHECKBOX, 'data-#= ns #enable="false"'),
                 play: kendo.format(CHECKBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
@@ -1818,6 +1869,7 @@
             icon: 'target',
             description: i18n.connector.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 0.25,
             templates: {
                 design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #has-surface="false"'),
                 play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections"'),
@@ -1900,6 +1952,7 @@
             icon: 'elements_selection',
             description: i18n.dropzone.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 1,
             templates: {
                 design: kendo.format(DROPZONE, 'data-#= ns #enable="false"'),
                 play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables"'),
@@ -2363,6 +2416,7 @@
             icon: 'radio_button_group',
             description: i18n.quiz.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 1,
             templates: {
                 design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
                 play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value"'),
@@ -2487,6 +2541,7 @@
             icon: 'text_field',
             description: i18n.textbox.description,
             cursor: CURSOR_CROSSHAIR,
+            weight: 1,
             templates: {
                 design: kendo.format(TEXTBOX, ''),
                 play: kendo.format(TEXTBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
