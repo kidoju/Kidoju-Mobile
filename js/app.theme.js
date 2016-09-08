@@ -31,6 +31,10 @@
         var ALL = ['black', 'blueopal', 'bootstrap', 'default', 'fiori', 'flat', 'highcontrast', 'material', 'materialblack',
             'metro', 'metroblack', 'moonlight', 'nova', 'office365', 'silver', 'uniform'];
 
+        var localStorage; // = window.localStorage;
+        // The following is necessary when localStorage is explicitly disabled in browser settings
+        try { localStorage = window.localStorage; } catch (ex) {}
+
         app.theme = {
 
             /**
@@ -39,7 +43,7 @@
              */
             load: function (theme) {
                 var dfd = $.Deferred();
-                var oldTheme = localStorage.getItem(THEME);
+                var oldTheme = localStorage && localStorage.getItem(THEME);
                 var loader;
                 if (ALL.indexOf(theme) === -1) {
                     theme = DEFAULT;
@@ -56,7 +60,7 @@
                 loader = require('../styles/app.theme.' + theme + '.less');
                 loader(function (style) {
                     style.use();
-                    if (!$.isArray(matches)) {
+                    if (localStorage && !$.isArray(matches)) {
                         localStorage.setItem(THEME, theme);
                     }
                     // if (window.device && window.device.cordova) { // Phonegap
@@ -129,7 +133,7 @@
                     if ($.isArray(matches) && matches.length === 2 && $.type(matches[1] === STRING)) {
                         return matches[1].trim().toLowerCase();
                     } else {
-                        theme = localStorage.getItem(THEME);
+                        theme = localStorage && localStorage.getItem(THEME);
                         return ($.type(theme) === STRING) ? theme : DEFAULT;
                     }
                 } else {
