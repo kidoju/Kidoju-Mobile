@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
  * Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
@@ -256,7 +256,7 @@
             },
 
             mathexpression: {
-                description: 'Math Expression',
+                description: 'Mathematic Expression',
                 attributes: {
                     formula: { title: 'Formula', defaultValue: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#' },
                     style: { title: 'Style' }
@@ -271,6 +271,32 @@
                     itemStyle: { title: 'Item Style' },
                     mode: { title: 'Mode' },
                     selectedStyle: { title: 'Select. Style' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    description: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            },
+
+            table: {
+                description: 'Static Table',
+                attributes: {
+                    columns: { title: 'Columns' },
+                    rows: { title: 'Rows' },
+                    data: { title: 'Data' },
+                    style: { title: 'Style' }
+                }
+            },
+
+            textarea: {
+                description: 'TextArea',
+                attributes: {
+                    style: { title: 'Style' }
                 },
                 properties: {
                     name: { title: 'Name' },
@@ -902,6 +928,93 @@
         });
 
         /**
+         * CharGrid adapter
+         */
+        adapters.CharGridAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = undefined;
+                that.editor = function (container, options) {
+                    $('<button/>')
+                        .text('...')
+                        .addClass('k-button')
+                        .css({ margin: 0, width: '100%' })
+                        .appendTo(container)
+                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                };
+            },
+            showDialog: function (options, evt) {
+                var that = this;
+                var dialog = that.getDialog();
+                var model = options.model;
+                // Build data (resize array especially after changing rows and columns)
+                var columns = model.get('attributes.columns');
+                var rows = model.get('attributes.rows');
+                var whitelist = model.get('attributes.whitelist');
+                var layout = model.get('attributes.layout');
+                var data = model.get(options.field);
+                // Create viewModel (Cancel shall not save changes to main model)
+                dialog.viewModel = kendo.observable({
+                    chargrid: kendo.ui.CharGrid._getCharGridArray(rows, columns, whitelist, layout, data)
+                });
+                // Prepare UI
+                dialog.title(options.title);
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
+                    '<div>' +
+                    '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
+                    'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
+                    'data-blank="' + model.get('attributes.blank') + '" ' +
+                    'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
+                    (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
+                    'data-grid-fill="' + model.get('attributes.gridFill') + '" ' +
+                    'data-grid-stroke="' + model.get('attributes.gridStroke') + '" ' +
+                    'data-blank-fill="' + model.get('attributes.gridStroke') + '" ' +
+                    'data-selected-fill="' + model.get('attributes.selectedFill') + '" ' +
+                    'data-locked-fill="' + model.get('attributes.lockedFill') + '" ' +
+                    'data-locked-color="' + model.get('attributes.fontColor') + '" ' +
+                    'data-value-color="' + model.get('attributes.fontColor') + '" ' +
+                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;margin:20px;float:left;"></div>' +
+                    '<div style="max-width:400px;margin:20px 0;float:left;">' +
+                    (options.field === 'properties.solution' ? kendo.format(this.messages.solution, model.get('attributes.whitelist')) : kendo.format(this.messages.layout, model.get('attributes.blank'))) +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
+                dialog.content(content);
+                kendo.bind(dialog.element, dialog.viewModel);
+                dialog.element.addClass('no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                // Show dialog
+                dialog.center().open();
+            },
+            closeDialog: function (options, dialog, e) {
+                var that = this;
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
+                    var command = $(e.target).attr(kendo.attr('command'));
+                    if (command === 'ok') {
+                        options.model.set(options.field, dialog.viewModel.get('chargrid'));
+                    }
+                    dialog.close();
+                }
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return value && typeof value.equals === "function" && value.equals(solution);')
+                }
+            ],
+            libraryDefault: 'equal',
+            messages: {
+                layout: i18n.chargridadapter.messages.layout,
+                solution: i18n.chargridadapter.messages.solution
+            }
+        });
+
+        /**
          * Color adapter
          */
         adapters.ColorAdapter = BaseAdapter.extend({
@@ -1308,6 +1421,89 @@
         });
 
         /**
+         * Table adapter
+         */
+        adapters.TableAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = undefined;
+                // This is the inline editor with a [...] button which triggers this.showDialog
+                that.editor = function (container, options) {
+                    $('<button/>')
+                        .text('...')
+                        .addClass('k-button')
+                        .css({ margin: 0, width: '100%' })
+                        .appendTo(container)
+                        .on(CLICK, $.proxy(that.showDialog, that, options));
+                };
+            },
+            showDialog: function (options) {
+                var that = this;
+                var dialog = that.getDialog();
+                var model = options.model;
+                var columns = model.get('attributes.columns');
+                var rows = model.get('attributes.rows');
+                // Prepare UI
+                dialog.title(options.title);
+                var content = '<div class="k-edit-form-container">' + // TODO namespace???
+                    '<div data-role="spreadsheet" style="width:' + (dialog.element.parent().width() - 2) + 'px;"></div>' +
+                    '<div class="k-edit-buttons k-state-default">' +
+                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
+                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
+                    '</div></div>';
+                dialog.content(content);
+                var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
+                var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
+                    sheets: [{}],
+                    columns: columns,
+                    rows: rows,
+                    columnWidth: 150,
+                    rowHeight: 58,
+                    sheetsbar: false,
+                    toolbar: {
+                        // TODO: merge and hide not included in v1
+                        home: [['bold', 'italic', 'underline'], 'backgroundColor', 'textColor', 'borders', 'fontSize', 'fontFamily', 'alignment', 'textWrap', ['formatDecreaseDecimal', 'formatIncreateDecimal'], 'format'],
+                        insert: false,
+                        data: false
+                    }
+                }).data('kendoSpreadsheet');
+                // Workaround for issue described at https://github.com/telerik/kendo-ui-core/issues/1990
+                dialog.one('activate', function () {
+                    kendo.resize(dialog.element); // spreadsheetWidget.refresh();
+                    spreadsheetWidget.activeSheet().range('A1:A1').select();
+                });
+                // Load JSON
+                spreadsheetWidget.fromJSON(model.get('attributes.data'));
+                // Disable context menu
+                spreadsheet.find('.k-spreadsheet-fixed-container').off('contextmenu');
+                // Set default font size
+                var activeSheet = spreadsheetWidget.activeSheet();
+                activeSheet.range('R1C1:R' + rows + 'C' + columns).forEachCell(function (rowIndex, columnIndex) {
+                    var range = activeSheet.range('R' + (rowIndex + 1) + 'C' + (columnIndex + 1));
+                    range.fontSize(range.fontSize() || 48);
+                });
+                dialog.element.addClass('no-padding');
+                // Bind click handler for edit buttons
+                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
+                // Show dialog
+                dialog.center().open();
+            },
+            closeDialog: function (options, dialog, e) {
+                var that = this;
+                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
+                    var command = $(e.target).attr(kendo.attr('command'));
+                    if (command === 'ok') {
+                        var spreadsheet = dialog.element.find(kendo.roleSelector('spreadsheet'));
+                        var spreadsheetWidget = spreadsheet.data('kendoSpreadsheet');
+                        options.model.set(options.field, spreadsheetWidget.toJSON());
+                    }
+                    dialog.close();
+                }
+            }
+        });
+
+        /**
          * Text (multiline) adapter
          */
         adapters.TextAdapter = BaseAdapter.extend({
@@ -1317,7 +1513,22 @@
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 this.editor = 'textarea';
                 this.attributes = $.extend({}, this.attributes, attributes);
-            }
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(FORMULA, 'return String(value).trim() === String(solution).trim();')
+                },
+                {
+                    name: 'noSpaceEqual',
+                    formula: kendo.format(FORMULA, 'return String(value).replace(/\s+/g, "") === String(solution).replace(/\s+/g, "");')
+                },
+                {
+                    name: 'noPunctiationEqual',
+                    formula: kendo.format(FORMULA, 'return String(value).replace(/[\.,;:\?!\'"\(\)\s]+/g, "") === String(solution).replace(/[\.,;:\?!\'"\(\)\s]+/g, "");')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -1384,8 +1595,8 @@
                 // Bind click handler for edit buttons
                 dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
                 // Bind window activate handler
-                dialog.bind('activate', function () {
-                    // IMPORTANT, we need to refresh codemirror here
+                dialog.one('activate', function () {
+                    // IMPORTANT, we need13 to refresh codemirror here
                     // otherwise the open animation messes with CodeMirror calculations
                     // and gutter and line numbers are displayed at the wrong coordinates
                     var codeEditor = dialog.element
@@ -1394,7 +1605,6 @@
                     if (codeEditor instanceof kendo.ui.CodeEditor && codeEditor.codeMirror && $.isFunction(codeEditor.codeMirror.refresh)) {
                         codeEditor.codeMirror.refresh();
                     }
-                    dialog.unbind('activate');
                 });
                 // Show dialog
                 dialog.center().open();
@@ -1408,93 +1618,6 @@
                     }
                     dialog.close();
                 }
-            }
-        });
-
-        /**
-         * CharGrid adapter
-         */
-        adapters.CharGridAdapter = BaseAdapter.extend({
-            init: function (options) {
-                var that = this;
-                BaseAdapter.fn.init.call(that, options);
-                that.type = undefined;
-                that.editor = function (container, options) {
-                    $('<button/>')
-                        .text('...')
-                        .addClass('k-button')
-                        .css({ margin: 0, width: '100%' })
-                        .appendTo(container)
-                        .on(CLICK, $.proxy(that.showDialog, that, options));
-                };
-            },
-            showDialog: function (options, evt) {
-                var that = this;
-                var dialog = that.getDialog();
-                var model = options.model;
-                // Build data (resize array especially after changing rows and columns)
-                var columns = model.get('attributes.columns');
-                var rows = model.get('attributes.rows');
-                var whitelist = model.get('attributes.whitelist');
-                var layout = model.get('attributes.layout');
-                var data = model.get(options.field);
-                // Create viewModel (Cancel shall not save changes to main model)
-                dialog.viewModel = kendo.observable({
-                    chargrid: kendo.ui.CharGrid._getCharGridArray(rows, columns, whitelist, layout, data)
-                });
-                // Prepare UI
-                dialog.title(options.title);
-                var content = '<div class="k-edit-form-container">' + // TODO namespace???
-                    '<div>' +
-                        '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-edit-form-container" data-container=".k-edit-form-container" ' +
-                        'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
-                        'data-blank="' + model.get('attributes.blank') + '" ' +
-                        'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
-                        (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
-                        'data-grid-fill="' + model.get('attributes.gridFill') + '" ' +
-                        'data-grid-stroke="' + model.get('attributes.gridStroke') + '" ' +
-                        'data-blank-fill="' + model.get('attributes.gridStroke') + '" ' +
-                        'data-selected-fill="' + model.get('attributes.selectedFill') + '" ' +
-                        'data-locked-fill="' + model.get('attributes.lockedFill') + '" ' +
-                        'data-locked-color="' + model.get('attributes.fontColor') + '" ' +
-                        'data-value-color="' + model.get('attributes.fontColor') + '" ' +
-                        'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;margin:20px;float:left;"></div>' +
-                        '<div style="max-width:400px;margin:20px 0;float:left;">' +
-                        (options.field === 'properties.solution' ? kendo.format(this.messages.solution, model.get('attributes.whitelist')) : kendo.format(this.messages.layout, model.get('attributes.blank'))) +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="k-edit-buttons k-state-default">' +
-                    '<a class="k-primary k-button" data-command="ok" href="#">' + Tool.fn.i18n.dialogs.ok.text + '</a>' +
-                    '<a class="k-button" data-command="cancel" href="#">' + Tool.fn.i18n.dialogs.cancel.text + '</a>' +
-                    '</div></div>';
-                dialog.content(content);
-                kendo.bind(dialog.element, dialog.viewModel);
-                dialog.element.addClass('no-padding');
-                // Bind click handler for edit buttons
-                dialog.element.on(CLICK, '.k-edit-buttons>.k-button', $.proxy(that.closeDialog, that, options, dialog));
-                // Show dialog
-                dialog.center().open();
-            },
-            closeDialog: function (options, dialog, e) {
-                var that = this;
-                if (e instanceof $.Event && e.target instanceof window.HTMLElement) {
-                    var command = $(e.target).attr(kendo.attr('command'));
-                    if (command === 'ok') {
-                        options.model.set(options.field, dialog.viewModel.get('chargrid'));
-                    }
-                    dialog.close();
-                }
-            },
-            library: [
-                {
-                    name: 'equal',
-                    formula: kendo.format(FORMULA, 'return value && typeof value.equals === "function" && value.equals(solution);')
-                }
-            ],
-            libraryDefault: 'equal',
-            messages: {
-                layout: i18n.chargridadapter.messages.layout,
-                solution: i18n.chargridadapter.messages.solution
             }
         });
 
@@ -1648,8 +1771,8 @@
             height: 400,
             width: 400,
             attributes: {
-                rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
                 columns: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.columns.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+                rows: new adapters.NumberAdapter({ title: i18n.chargrid.attributes.rows.title, defaultValue: 9 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
                 blank: new adapters.StringAdapter({ title: i18n.chargrid.attributes.blank.title, defaultValue: '.' }),
                 whitelist: new adapters.StringAdapter({ title: i18n.chargrid.attributes.whitelist.title, defaultValue: '1-9' }),
                 layout: new adapters.CharGridAdapter({ title: i18n.chargrid.attributes.layout.title, defaultValue: null }),
@@ -2154,8 +2277,8 @@
                      */
                 }
                 // Set content size
-                content.outerHeight(component.get('height'));
-                content.outerWidth(component.get('width'));
+                content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
                 // prevent any side effect
                 e.preventDefault();
                 // prevent event to bubble on stage
@@ -2212,7 +2335,7 @@
          */
         var Label = Tool.extend({
             id: 'label',
-            icon: 'document_orientation_landscape',
+            icon: 'font',
             description: i18n.label.description,
             cursor: CURSOR_CROSSHAIR,
             templates: {
@@ -2265,10 +2388,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
                     // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
                     /*
                      * We make a best guess for the number of lines as follows
@@ -2367,10 +2490,10 @@
                 assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
                 var content = stageElement.children('div');
                 if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.width);
+                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
                 }
                 if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.height);
+                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
                 }
                 // prevent any side effect
                 e.preventDefault();
@@ -2534,8 +2657,173 @@
         });
         tools.register(Quiz);
 
+        /**
+         * @class Static table tool
+         * @type {void|*}
+         */
+        var Table = Tool.extend({
+            id: 'table',
+            icon: 'table',
+            description: i18n.table.description,
+            cursor: CURSOR_CROSSHAIR,
+            weight: 2,
+            templates: {
+                default: '<div data-#= ns #role="table" style="#: attributes.style #" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #value="#: JSON.stringify(attributes.data) #"></div>'
+            },
+            height: 350,
+            width: 600,
+            attributes: {
+                columns: new adapters.NumberAdapter({ title: i18n.table.attributes.columns.title, defaultValue: 4 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+                rows: new adapters.NumberAdapter({ title: i18n.table.attributes.rows.title, defaultValue: 6 }, { 'data-decimals': 0, 'data-format': 'n0', 'data-min': 1, 'data-max': 20 }),
+                data: new adapters.TableAdapter({ title: i18n.table.attributes.data.title, defaultValue: { sheets: [{ rows: [{ index:0, cells: [{ index:0, value: 'Table', fontSize: 48 }] }] }] } }),
+                style: new adapters.StyleAdapter({ title: i18n.table.attributes.style.title })
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children(kendo.roleSelector('table'));
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
+            }
+
+        });
+        tools.register(Table);
+
+        var TEXTAREA = '<textarea id="#: properties.name #" class="k-textbox" style="#: attributes.style #" {0}></textarea>';
+        /**
+         * @class Textarea tool
+         * @type {void|*}
+         */
+        var Textarea = Tool.extend({
+            id: 'textarea',
+            icon: 'document_orientation_landscape',
+            description: i18n.textarea.description,
+            cursor: CURSOR_CROSSHAIR,
+            weight: 2,
+            templates: {
+                design: kendo.format(TEXTAREA, ''),
+                play: kendo.format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(TEXTAREA, 'data-#= ns #bind="value: #: properties.name #.value"') + Tool.fn.showResult()
+            },
+            height: 300,
+            width: 500,
+            attributes: {
+                style: new adapters.StyleAdapter({ title: i18n.textarea.attributes.style.title, defaultValue: 'font-size:40px; resize:none;' })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.textarea.properties.name.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.textarea.properties.description.title }),
+                solution: new adapters.TextAdapter({ title: i18n.textarea.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.textarea.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.textarea.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.textarea.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.textarea.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * onEnable event handler
+             * @class Textarea
+             * @method onEnable
+             * @param e
+             * @param component
+             * @param enabled
+             */
+            onEnable: function (e, component, enabled) {
+                var stageElement = $(e.currentTarget);
+                if (stageElement.is(ELEMENT_CLASS) && component instanceof PageComponent) {
+                    stageElement.children('textarea')
+                        .prop({
+                            // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
+                            readonly: !enabled
+                        });
+                }
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('textarea');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.width - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.height - content.outerHeight(true) + content.outerHeight());
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if ((component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                        ret.push({
+                            type: ERROR,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
+            }
+
+        });
+        tools.register(Textarea);
+
         // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
-        // var TEXTBOX = '<input type="text" id="#: properties.name #" data-#= ns #role="maskedtextbox" data-#= ns #mask="#: attributes.mask #" style="#: attributes.style #" {0}>';
         var TEXTBOX = '<input type="text" id="#: properties.name #" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
         /**
          * @class Textbox tool

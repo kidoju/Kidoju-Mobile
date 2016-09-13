@@ -225,8 +225,8 @@
                 }
             },
 
-            /*  This function's cyclomatic complexity is too high. */
-            /* jshint -W073 */
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Compare values
@@ -258,11 +258,10 @@
                 return true;
             },
 
-            /* jshint +W073 */
+            /* jshint +W074 */
 
             /**
              * Value for MVVM binding
-             * Returns either a JS function as a string or a library formula name prefixed as a Javascript comment
              * @param value
              */
             value: function (value) {
@@ -277,8 +276,8 @@
                 }
             },
 
-            /*  This function's cyclomatic complexity is too high. */
-            /* jshint -W073 */
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Get/set cell value
@@ -319,7 +318,7 @@
                 }
             },
 
-            /* jshint +W073 */
+            /* jshint +W074 */
 
             /**
              * Get cell locked state
@@ -503,8 +502,11 @@
                 }
             },
 
-            /*  This function's cyclomatic complexity is too high. */
+            /* Blocks are nested too deeply. */
             /* jshint -W073 */
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * Draw cell values
@@ -546,6 +548,7 @@
                 that.surface.draw(chars);
             },
 
+            /* jshint +W074 */
             /* jshint +W073 */
 
             /**
@@ -635,7 +638,7 @@
             },
 
             /*  This function's cyclomatic complexity is too high. */
-            /* jshint -W073 */
+            /* jshint -W074 */
 
             /**
              * KeyDown event handler
@@ -679,7 +682,7 @@
                 }
             },
 
-            /* jshint +W073 */
+            /* jshint +W074 */
 
             /**
              * KeyPress event handler
