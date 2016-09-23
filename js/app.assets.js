@@ -62,7 +62,7 @@
             return {
                 create: function (options) {
                     var locale = i18n.locale();
-                    var params = $.parseJSON($(VERSION_HIDDEN_FIELD).val());
+                    var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
                     var data = options.data;
                     assert.instanceof(window.File, data.file, kendo.format(assert.messages.instanceof.default, 'data.file', 'File'));
                     assert.type(NUMBER, data.size, kendo.format(assert.messages.type.default, 'data.size', NUMBER));
@@ -119,7 +119,7 @@
                 },
                 read: function (options) {
                     var locale = i18n.locale();
-                    var params = $.parseJSON($(VERSION_HIDDEN_FIELD).val());
+                    var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
                     rapi.v1.content.getAllSummaryFiles(locale, params.summaryId)
                         .done(function (response) {
                             assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
@@ -150,7 +150,7 @@
                 },
                 destroy: function (options) {
                     var locale = i18n.locale();
-                    var params = $.parseJSON($(VERSION_HIDDEN_FIELD).val());
+                    var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
                     var data = options.data;
                     assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
                     assert.type(STRING, data.url, kendo.format(assert.messages.type.default, 'data.url', STRING));

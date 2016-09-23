@@ -1492,7 +1492,10 @@
                     type: STRING,
                     editable: false
                 },
-                // ? language
+                language: {
+                    type: STRING,
+                    editable: false
+                },
                 lastName: {
                     type: STRING,
                     editable: false
@@ -1568,7 +1571,14 @@
                     });
                 }
                 return ret;
-            }
+            },
+            createDraft: function () {
+                return rapi.v1.content.executeCommand(this.get('language'), this.get('id'), { command: 'draft' });
+            },
+            publish: function () {
+                // TODO: check state
+                return rapi.v1.content.executeCommand(this.get('language'), this.get('id'), { command: 'publish' });
+            },
         });
 
         /**
@@ -1648,7 +1658,7 @@
                     // add options.filter.filters.push({ field: 'language', operator: 'eq', value: i18n.locale() });
                     // ATTENTION logic and or or
 
-                    options.data.fields = 'author,icon,metrics.comments.count,metrics.ratings.average,metrics.scores.average,metrics.views.count,published,tags,title,type,updated';
+                    options.data.fields = 'author,icon,metrics.comments.count,language,metrics.ratings.average,metrics.scores.average,metrics.views.count,published,tags,title,type,updated';
                     options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
 
                     if (!RX_MONGODB_ID.test(that.userId)) {
@@ -1959,7 +1969,7 @@
             iframe$: function () {
                 // TODO consider the sandbox attribute -- see http://www.html5rocks.com/en/tutorials/security/sandboxed-iframes/
                 return kendo.format(
-                    '<iframe src="{0}?embed=true{1}" style="height:494px;width:600px;border:0"></iframe>',
+                    '<iframe src="{0}?embed=true{1}" style="height:500px;width:100%;border:solid 1px #d5d5d5;"></iframe>',
                     this.versionPlayUri$(),
                     app && app.theme && $.isFunction(app.theme.name) ? '&theme=' + app.theme.name() : ''
                 );
