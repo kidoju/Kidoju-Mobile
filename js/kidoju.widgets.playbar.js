@@ -387,9 +387,9 @@
                 if (options.input) {
                     if (!playbar.find('.k-pager-input').length) {
                         playbar.append('<span class="k-pager-input k-label">' +
-                        options.messages.page +
+                        '<span>' + options.messages.page + '</span>' +
                         '<input class="k-textbox">' +
-                        kendo.format(options.messages.of, length) +
+                        '<span>' + kendo.format(options.messages.of, length) + '</span>' +
                         '</span>');
                     }
                     playbar.on(KEYDOWN + NS, '.k-pager-input input', $.proxy(that._keydown, that));
@@ -498,9 +498,8 @@
                 // Update info
                 if (options.info) {
                     if (length > 0) {
-                        html = options.messages.page +
-                        ' ' + (index + 1) + ' ' +
-                        kendo.format(options.messages.of, length);
+                        html = '<span>' + options.messages.page + ' ' + '</span>'
+                            + '<span>' + (index + 1) + ' ' + kendo.format(options.messages.of, length); + '</span>'
                     } else {
                         html = options.messages.empty;
                     }

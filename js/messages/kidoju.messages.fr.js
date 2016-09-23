@@ -108,9 +108,9 @@
                 page: 'Page',
                 of: 'de {0}',
                 first: 'Aller à la première page',
-                previous: 'Aller à la dernière page',
+                previous: 'Aller à la page précédente',
                 next: 'Aller à la prochaine page',
-                last: 'Aller à la page précédente',
+                last: 'Aller à la dernière page',
                 refresh: 'Rafraichîr',
                 morePages: 'Plus de pages'
             });
@@ -144,14 +144,17 @@
          */
 
         /* kidoju.widgets.social */
-        /*
-         if (ui.Social) {
+        if (ui.Social) {
             options = ui.Social.prototype.options;
             options.messages = $.extend(true, options.messages, {
-                // TODO
+                classroom: 'Partager sur Google Classroom',
+                facebook: 'Partager sur Facebook',
+                google: 'Partager sur Google+',
+                linkedin: 'Partager sur LinkedIn',
+                pinterest: 'Partager sur Pinterest',
+                twitter: 'Partager sur Twitter'
             });
-         }
-         */
+        }
 
         /* kidoju.widgets.stage */
         if (ui.Stage) {
