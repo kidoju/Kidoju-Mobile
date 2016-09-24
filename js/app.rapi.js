@@ -19,11 +19,11 @@
     'use strict';
 
     /* This function has too many statements. */
-    /* jshint: -W071 */
+    /* jshint -W071 */
 
     (function ($, undefined) {
 
-        /* jshint maxstatements: 47 */
+        /* jshint maxstatements: 48 */
 
         var app = window.app;
         var assert = window.assert;
@@ -39,7 +39,7 @@
         var uris = app.uris = app.uris || {}; // they might have already been defined
         var STRING = 'string';
         var NUMBER = 'number';
-        var UNDEFINED = 'undefined';
+        // var UNDEFINED = 'undefined';
         var EQUALS = '=';
         var HASH = '#';
         var PROVIDERS = ['facebook', 'google', 'live', 'twitter'];
@@ -59,6 +59,8 @@
         var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
         var RX_LANGUAGE = /^[a-z]{2}$/;
         var RX_URL = /^http(s?)\:\/\//;
+        var AUTHENTICATION_SUCCESS = 'auth.success';
+        var AUTHENTICATION_FAILURE = 'auth.failure';
 
         /**
          * Location of our RESTful server
@@ -331,10 +333,13 @@
                         };
                         // setToken in localStorage
                         rapi.util.setToken(token);
+                        // Notify page
+                        setTimeout(function () { $(document).trigger(AUTHENTICATION_SUCCESS); }, 500);
                     } else {
                         // Let's simply discard any attempt to set a token that does not pass the checks here above
                         rapi.util.clearToken();
-                        // TODO: warn the user!!!
+                        // Notify page
+                        setTimeout(function () { $(document).trigger(AUTHENTICATION_FAILURE); }, 500);
                     }
 
                 }
@@ -403,16 +408,13 @@
                     var token = JSON.parse(localStorage.getItem(TOKEN));
                     if ($.isPlainObject(token) &&  token.expires <= 24 * 60 * 60) {
                         // if we have a short life token (Google and Live), i.e. expires === 3600, read token every minute and refresh no later than 15 minutes before expiration
-                        var ensureShortLifeToken = function () {
+                        setInterval(function () {
                             // we need to read the token again because if we remain a couple of hours on the same page (e.g. test designer), the token might have already been refreshed
                             token = JSON.parse(localStorage.getItem(TOKEN));
                             if ($.isPlainObject(token) && (Date.now() > token.ts + (token.expires - 10 * 60) * 1000)) {
                                 app.rapi.oauth.refresh();
                             }
-                            setTimeout(ensureShortLifeToken, 60 * 1000);
-                        };
-                        // Start recurring calls
-                        ensureShortLifeToken();
+                        }, 60 * 1000);
                     }
                     /*
                      } else if ($.isPlainObject(token) &&  token.expires > 24 * 60 * 60) {
@@ -1483,7 +1485,7 @@
          * When html page is loaded, detect and parse #access_token (see oAuth callback)
          * CAREFUL: getHeaders({ security: true, trace: true }) is therefore not available until the HTML page is fully loaded!
          */
-        $(document).ready(function () {
+        $(function () {
             if (!(chrome && $.isEmptyObject(chrome.app))) { // avoids an error in chrome packaged apps
                 rapi.util.parseToken(location.href);
                 rapi.util.cleanHistory();
@@ -1493,7 +1495,7 @@
 
     }(window.jQuery));
 
-    /* jshint: +W071 */
+    /* jshint +W071 */
 
     return window.app;
 

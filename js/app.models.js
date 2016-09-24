@@ -1576,9 +1576,9 @@
                 return rapi.v1.content.executeCommand(this.get('language'), this.get('id'), { command: 'draft' });
             },
             publish: function () {
-                // TODO: check state
+                // TODO: check state to avoid a call if not necessary
                 return rapi.v1.content.executeCommand(this.get('language'), this.get('id'), { command: 'publish' });
-            },
+            }
         });
 
         /**
