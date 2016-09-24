@@ -19,7 +19,7 @@
     'use strict';
 
     /* This function has too many statements. */
-    /* jshint: -W071 */
+    /* jshint -W071 */
 
     (function ($, undefined) {
 
@@ -427,7 +427,7 @@
 
     }(window.jQuery));
 
-    /* jshint: +W071 */
+    /* jshint +W071 */
 
     return window.app;
 

@@ -1011,7 +1011,7 @@ if (typeof(require) === 'function') {
          * Application initialization
          *******************************************************************************************/
 
-        $(document).ready(function () {
+        $(function () {
             // $(document).on(LOADED, function () {
             if ($.type(window.device) !== UNDEFINED && $.type(window.device.cordova) !== UNDEFINED) {
                 // Wait for Cordova to load
