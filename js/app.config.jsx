@@ -143,6 +143,7 @@
                 logger: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.logger %>')),
                 ping: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.ping %>')),
                 player: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.player %>')),
+                proxy: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.proxy %>')),
                 public: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.public %>')),
                 rss: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.rss %>')),
                 sitemap: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.sitemap %>')),

@@ -154,6 +154,7 @@
             "logger": "/logger",
             "ping": "/ping",
             "player": "/%s/x/%s/%s/%s",
+            "proxy": "/proxy",
             "public": "/%s",
             "rss": "/%s/rss/%s",
             "sitemap": "/%s/sitemap/%s",
