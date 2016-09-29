@@ -872,6 +872,94 @@
         /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
 
         /**
+         * UserMetricsReference model
+         * @type {kidoju.data.Model}
+         */
+        models.UserMetricsReference = Model.define({
+            fields: {
+                comments: {
+                    defaultValue: {},
+                    editable: false,
+                    parse: function (value) {
+                        return value instanceof models.CountReference ? value : new models.CountReference(value);
+                    },
+                    serializable: false
+                },
+                ratings: {
+                    defaultValue: {},
+                    editable: false,
+                    parse: function (value) {
+                        return value instanceof models.RatingCountReference ? value : new models.RatingCountReference(value);
+                    },
+                    serializable: false
+                },
+                scores: {
+                    defaultValue: {},
+                    editable: false,
+                    parse: function (value) {
+                        return value instanceof models.ScoreCountReference ? value : new models.ScoreCountReference(value);
+                    },
+                    serializable: false
+                },
+                summaries: {
+                    defaultValue: {},
+                    editable: false,
+                    parse: function (value) {
+                        return value instanceof models.CountReference ? value : new models.CountReference(value);
+                    },
+                    serializable: false
+                }
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            // We might as well call them student points
+            actorPoints$: function () {
+                var ratings =
+                    (this.get('ratings.count_1') || 0) +
+                    (this.get('ratings.count_2') || 0) +
+                    (this.get('ratings.count_3') || 0) +
+                    (this.get('ratings.count_4') || 0) +
+                    (this.get('ratings.count_5') || 0);
+                var average = this.get('scores.average');
+                var count =
+                    // this.get('scores.count_00') || 0 +
+                    // (this.get('scores.count_00') || 0) +
+                    // (this.get('scores.count_05') || 0) +
+                    // (this.get('scores.count_10') || 0) +
+                    // (this.get('scores.count_15') || 0) +
+                    // (this.get('scores.count_20') || 0) +
+                    (this.get('scores.count_25') || 0) +
+                    (this.get('scores.count_30') || 0) +
+                    (this.get('scores.count_35') || 0) +
+                    (this.get('scores.count_40') || 0) +
+                    (this.get('scores.count_45') || 0) +
+                    (this.get('scores.count_50') || 0) +
+                    (this.get('scores.count_55') || 0) +
+                    (this.get('scores.count_60') || 0) +
+                    (this.get('scores.count_65') || 0) +
+                    (this.get('scores.count_70') || 0) +
+                    (this.get('scores.count_75') || 0) +
+                    (this.get('scores.count_80') || 0) +
+                    (this.get('scores.count_85') || 0) +
+                    (this.get('scores.count_90') || 0) +
+                    (this.get('scores.count_95') || 0);
+                // Each score above 25 is worth its prorata of 1 point (100/100)
+                // And we add some bonus points for rating Kidojus
+                return Math.round(count * average / 100 + 0.1 * ratings);
+            },
+
+            /* jshint +W074 */
+
+            // We might as well call them teacher points
+            authorPoints$: function () {
+                // Each published Kidoju quiz is worth 10 points
+                return this.get('summaries.count') || 0;
+            }
+        });
+
+        /**
          * SummaryMetricsReference model
          * @type {kidoju.data.Model}
          */
@@ -939,6 +1027,12 @@
                     editable: false,
                     serializable: false
                 }
+            },
+            fullName$: function () {
+                return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
+            },
+            userUri$: function () {
+                return kendo.format(uris.webapp.user, i18n.locale(), this.get('userId'));
             }
         });
 
@@ -971,7 +1065,7 @@
                 }
                 // timezone (for display of dates), born (for searches)
             },
-            name$: function () {
+            fullName$: function () {
                 return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
             },
             picture$: function () {
@@ -980,7 +1074,7 @@
             isAuthenticated$: function () {
                 return RX_MONGODB_ID.test(this.get('id'));
             },
-            uri$: function () {
+            userUri$: function () {
                 return kendo.format(uris.webapp.user, i18n.locale(), this.get('id'));
             },
             reset: function () {
@@ -1112,11 +1206,18 @@
                 lastName: {
                     type: STRING
                 },
-                // favourites are stored with users but are diplayed with rummages
+                // Note: favourites are stored with users but are displayed with rummages
                 language: {
                     type: STRING
                 },
-                // TODO metrics, student points, teacher points and belts
+                metrics: {
+                    defaultValue: {},
+                    editable: false,
+                    parse: function (value) {
+                        return value instanceof models.UserMetricsReference ? value : new models.UserMetricsReference(value);
+                    },
+                    serializable: false
+                },
                 picture: {
                     type: STRING
                 },
@@ -1249,7 +1350,7 @@
              * Get user's full name
              * @returns {string}
              */
-            name$: function () {
+            fullName$: function () {
                 return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
             },
 
@@ -1265,8 +1366,30 @@
              * Get user's uri
              * @returns {*}
              */
-            uri$: function () {
+            userUri$: function () {
                 return kendo.format(uris.webapp.user, i18n.locale(), this.get('id'));
+            },
+
+            /**
+             * Get actor medal (based on actor/student) points
+             * @returns {*}
+             */
+            actorMedalUri$: function () {
+                var points = this.metrics.actorPoints$();
+                var medals = ['grey', 'yellow', 'orange', 'pink', 'red', 'blue', 'green', 'black'];
+                var index = Math.min(Math.floor(points / 10), 7);
+                return kendo.format(uris.cdn.icons, 'medal_' + medals[index]);
+            },
+
+            /**
+             * Get author medal (based on author/teacher) points
+             * @returns {*}
+             */
+            authorMedalUri$: function () {
+                var points = this.metrics.authorPoints$();
+                var medals = ['grey', 'yellow', 'orange', 'pink', 'red', 'blue', 'green', 'black'];
+                var index = Math.min(Math.floor(points / 10), 7);
+                return kendo.format(uris.cdn.icons, 'medal2_' + medals[index]);
             },
 
             /**
@@ -1417,9 +1540,6 @@
                  required: true
                  }
                  }*/
-            },
-            author$: function () {
-                return ((this.get('author.firstName') || '').trim() + ' ' + (this.get('author.lastName') || '').trim()).trim();
             },
             language$: function () {
                 var locale = this.get('language');
@@ -2142,6 +2262,12 @@
                     serializable: false
                 }
             },
+            versionPlayUri$: function () {
+                return kendo.format(uris.webapp.player, i18n.locale(), this.get('summaryId'), this.get('id'), '').slice(0, -1);
+            },
+            versionEditUri$: function () {
+                return kendo.format(uris.webapp.editor, i18n.locale(), this.get('summaryId'), this.get('id'));
+            },
             load: function (summaryId, versionId) {
                 var that = this;
                 return rapi.v1.content.getSummaryVersion(i18n.locale(), summaryId, versionId)
@@ -2683,7 +2809,7 @@
                 // Enforce the type
                 this.type = 'score';
             },
-            name$ : function () {
+            scoreName$ : function () {
                 var id = this.get('id');
                 if (RX_MONGODB_ID.test(id)) {
                     return kendo.format('{0:' + i18n.culture.dateFormat + '} ({1:p0})', this.get('created'), this.get('score') / 100);
