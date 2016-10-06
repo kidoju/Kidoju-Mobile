@@ -61,7 +61,7 @@
     "less-loader": "^2.2.3",
     "mocha": "^3.1.0",
     "nconf": "^0.8.4",
-    "phantomjs-prebuilt": "^2.1.12",
+    "phantomjs-prebuilt": "^2.1.13",
     "postcss-loader": "^0.13.0",
     "selenium-standalone": "^5.7.2",
     "sinon": "^1.17.6",
@@ -71,6 +71,6 @@
     "wdio-selenium-standalone-service": "0.0.7",
     "webdriverio": "^4.2.16",
     "webpack": "^1.13.2",
-    "webpack-dev-server": "^1.16.1"
+    "webpack-dev-server": "^1.16.2"
   }
 }
