@@ -21,7 +21,7 @@
 
 <script src="app.db.test.js"></script>
 <script>
-    mocha.checkLeaks().globals(['localforage', 'chai', 'grandTotalTemplate', 'blanket_toggleSource']);
+    mocha.checkLeaks().globals(['localforage', 'chai', 'grandTotalTemplate', 'blanket_toggleSource', 'SIG_EXT']);
     if (!window.blanket && !window.PHANTOMJS) {
         mocha.run();
     }

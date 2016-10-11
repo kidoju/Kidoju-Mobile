@@ -68,9 +68,9 @@
             });
 
             it('it should read', function (done) {
-                localforage.setItem(KEY2, VALUE2, function (err, value) {
+                localforage.getItem(KEY1, function (err, value) {
                     expect(err).to.be.null;
-                    expect(value).to.equal(VALUE2);
+                    expect(value).to.equal(VALUE1);
                     done();
                 });
             });
