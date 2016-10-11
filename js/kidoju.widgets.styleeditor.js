@@ -329,6 +329,7 @@
                     editable: true,
                     height: that.options.height,
                     resizable: true,
+                    scrollable: true,
                     selectable: 'row',
                     sortable: true,
                     toolbar: [
@@ -338,6 +339,16 @@
                 })
                     .data('kendoGrid');
 
+            },
+
+            /**
+             * Refreshed the grid
+             */
+            refresh: function () {
+                var that = this;
+                if  (that.grid instanceof kendo.ui.Grid) {
+                    that.grid.refresh();
+                }
             },
 
             /**
