@@ -28,7 +28,7 @@
     "url": "https://github.com/Kidoju/Kidoju-Mobile/issues"
   },
   "devDependencies": {
-    "autoprefixer": "^6.5.0",
+    "autoprefixer": "^6.5.1",
     "bundle-loader": "^0.5.4",
     "chai": "^3.5.0",
     "css-loader": "^0.25.0",
