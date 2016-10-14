@@ -39,9 +39,10 @@
             },
             // Drawer
             drawer: {
+                activities: 'Activités',
                 categories: 'Explorer',
                 favourites: 'Favoris',
-                activities: 'Activités',
+                scan: 'QR Code',
                 settings: 'Réglages'
             },
             // Favourites view

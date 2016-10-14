@@ -591,11 +591,13 @@ if (typeof(require) === 'function') {
             // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
             var categoriesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(0)');
             categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.categories));
-            var favouritesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(1)');
+            var scanElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(1)');
+            scanElement.html(scanElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.scan));
+            var favouritesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
             favouritesElement.html(favouritesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.favourites));
-            var activitiesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
+            var activitiesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(3)');
             activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.activities));
-            var settingsElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(3)');
+            var settingsElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(4)');
             settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.settings));
         };
 
@@ -802,6 +804,41 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             mobile._localizeDrawerView(viewModel.get(VIEWMODEL.LANGUAGE));
             // mobile._setNavBar(e.view);
+        };
+
+        /**
+         * Event handler trigger when clicking an item in teh drawe menu
+         * @see https://github.com/phonegap/phonegap-plugin-barcodescanner
+         * @param e
+         */
+        mobile.onDrawerListViewClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
+            if (e.item.is('[data-icon=scan]')) {
+                e.preventDefault();
+                if (window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan)) {
+                    window.cordova.plugins.barcodeScanner.scan(
+                        function (result) {
+                            alert("We got a barcode\n" +
+                                "Result: " + result.text + "\n" +
+                                "Format: " + result.format + "\n" +
+                                "Cancelled: " + result.cancelled);
+                        },
+                        function (error) {
+                            alert("Scanning failed: " + error);
+                        },
+                        {
+                            "preferFrontCamera": true, // iOS and Android
+                            "showFlipCameraButton": true, // iOS and Android
+                            "prompt": "Place a barcode inside the scan area", // supported on Android only
+                            "formats": "QR_CODE", // default: all but PDF_417 and RSS_EXPANDED
+                            "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
+                        }
+                    );
+                } else {
+                    // TODO Error
+                }
+            }
         };
 
         /**
