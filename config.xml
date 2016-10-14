@@ -125,8 +125,5 @@
         <preference name="SplashScreenWidth" value="600" />
         <preference name="SplashScreenHeight" value="300" />
     </platform>
-    <platform name="ios">
-        <preference name="StatusBarOverlaysWebView" value="false" />
-    </platform>
     <engine name="browser" spec="~4.1.0" />
 </widget>
