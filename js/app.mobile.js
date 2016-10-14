@@ -814,7 +814,7 @@ if (typeof(require) === 'function') {
         mobile.onDrawerListViewClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
-            if (e.item.is('[data-icon=scan]')) {
+            if (e.item.is('li[data-icon=scan]')) {
                 e.preventDefault();
                 if (window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan)) {
                     window.cordova.plugins.barcodeScanner.scan(
@@ -836,8 +836,10 @@ if (typeof(require) === 'function') {
                         }
                     );
                 } else {
-                    // TODO Error
+                    window.navigator.notification.alert('no barcode scanner...', null, 'Error', 'OK');
                 }
+            } else {
+                window.navigator.notification.alert('Wrong item...', null, 'Error', 'OK');
             }
         };
 
@@ -1023,7 +1025,7 @@ if (typeof(require) === 'function') {
             if (window && window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions)) {
                 window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
             } else {
-                navigator.notification.alert('Something went wrong...', null, 'Error', 'OK');
+                window.navigator.notification.alert('Something went wrong...', null, 'Error', 'OK');
             }
         };
 
