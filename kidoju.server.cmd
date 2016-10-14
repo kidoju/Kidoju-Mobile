@@ -4,6 +4,6 @@ REM run mongodb
 start cmd /k "call ..\Kidoju.Server\mongodb.cmd"
 REM run node
 timeout 5
-set NODE_ENV=development
+set NODE_ENV=mobile
 start cmd /k "node ..\Kidoju.Server\api\server.js"
 watch.cmd

@@ -305,8 +305,12 @@
     </div>
 
     <!-- Summaries view -->
-    <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-filterable="{ autoFilter: false, field: 'q' }" data-model="app.mobile.viewModel" data-before-show="app.mobile.onSummariesBeforeViewShow" data-show="app.mobile.onSummariesViewShow">
-        <ul data-role="listview" data-bind="source: summaries" data-endless-scroll="true" data-template="phone-summaries-template"></ul>
+    <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-model="app.mobile.viewModel" data-before-show="app.mobile.onSummariesBeforeViewShow" data-show="app.mobile.onSummariesViewShow">
+
+        <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-summaries-template"></ul>
+        <!-- TODO http://www.telerik.com/forums/totally-puzzled-with-virtual-scrolling-and-load-more -->
+
+        <!--ul data-role="listview" data-bind="source: summaries" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-summaries-template"></ul-->
         <ul id="phone-summaries-actionsheet" data-role="actionsheet">
             <li><a data-action="app.mobile.onSummariesActionPlay" class="km-actionsheet-play">Play</a></li>
             <li><a data-action="app.mobile.onSummariesActionShare" class="km-actionsheet-share">Share</a></li>

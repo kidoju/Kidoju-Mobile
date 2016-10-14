@@ -73,7 +73,9 @@ if (typeof(require) === 'function') {
         './app.i18n',
         './app.theme',
         './app.assets',
-        './app.models'
+        './app.models',
+        './app.secure'
+        // './app.db'
     ], f);
 })(function () {
 
@@ -99,10 +101,13 @@ if (typeof(require) === 'function') {
         // var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
         var UNDEFINED = 'undefined';
         var NUMBER = 'number';
+        var OBJECT = 'object';
         var STRING = 'string';
         var ARRAY = 'array';
         var CHANGE = 'change';
         var LOADED = 'i18n.loaded';
+        var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
+        var VIRTUAL_PAGE_SIZE = 30; // Display 10 items * 3 DOM Element * 2
         var HASH = '#';
         var PHONE = 'phone';
         // var TABLET = 'tablet';
@@ -256,11 +261,8 @@ if (typeof(require) === 'function') {
              */
             loadLazySummaries: function (query) {
                 return viewModel.summaries.query(query)
-                    .done(function () {
-                        // TODO
-                    })
                     .fail(function (xhr, status, error) {
-                        // app.notification.error(i18n.culture.player.notifications.versionLoadFailure);
+                        // TODO: app.notification.error(i18n.culture.player.notifications.versionLoadFailure);
                         logger.error({
                             message: 'error loading summaries',
                             method: 'viewModel.loadLazySummaries',
@@ -280,7 +282,7 @@ if (typeof(require) === 'function') {
 
                 function versionLoadFailure(xhr, status, error) {
                     dfd.reject(xhr, status, error);
-                    // app.notification.error(i18n.culture.player.notifications.versionLoadFailure);
+                    // TODO: app.notification.error(i18n.culture.player.notifications.versionLoadFailure);
                     logger.error({
                         message: 'error loading version',
                         method: 'viewModel.loadVersion',
@@ -320,9 +322,6 @@ if (typeof(require) === 'function') {
              */
             loadLazyVersions: function (summaryId) {
                 return viewModel.versions.load({ summaryId: summaryId })
-                    .done(function () {
-                        // TODO
-                    })
                     .fail(function (xhr, status, error) {
                         // app.notification.error(i18n.culture.finder.notifications.versionsLoadFailure);
                         logger.error({
@@ -497,7 +496,7 @@ if (typeof(require) === 'function') {
                 case DEVICE_SELECTOR + VIEW.SUMMARIES:
                     showDrawerButton = true;
                     showHomeButton = true;
-                    showSearchButton = true;
+                    // showSearchButton = true;
                     // showSortButtons = true;
                     break;
             }
@@ -536,7 +535,8 @@ if (typeof(require) === 'function') {
          */
         mobile._getDataFilter = function (params) {
             // TODO If it gets more complicated, consider using $.deparam from app.utils.js in Kidoju.WebApp
-            assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+            // assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+            assert.type(OBJECT, params, kendo.format(assert.messages.type.default, 'params', OBJECT));
             var field = params['filter[field]'];
             var operator = params['filter[operator]'];
             var value = params['filter[value]'];
@@ -769,6 +769,9 @@ if (typeof(require) === 'function') {
             $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
             // Load settings including locale and theme
             viewModel.loadSettings();
+            viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
+            // initialize secure storage
+            window.secureStorage.init('myApp'); // ------------------------------------------------------------------------ TODO myApp
             // Wait for i18n resources to be loaded
             $(document).on(LOADED, function () {
                 // Initialize application
@@ -776,7 +779,9 @@ if (typeof(require) === 'function') {
                     initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
                     // platform: "ios7",
                     skin: viewModel.get(VIEWMODEL.THEME),
+                    // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
+                    // http://devgirl.org/2014/07/31/phonegap-developers-guid/
                     statusBarStyle: (window.device && window.device.cordova) ? 'black-translucent' : undefined,
                     init: function (e) {
                         viewModel.set('languages', i18n.culture.viewModel.languages);
@@ -860,18 +865,20 @@ if (typeof(require) === 'function') {
          */
         mobile.onPlayerViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.match(RX_MONGODB_ID, e.view.params.summaryId, kendo.format(assert.messages.match.default, 'e.view.params.summaryId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, e.view.params.versionId, kendo.format(assert.messages.match.default, 'e.view.params.versionId', RX_MONGODB_ID));
+            // Localize UI (cannot be done in init because it may have changed during the session)
             mobile._localizeSettingsView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
             mobile._setNavBar(e.view);
-            viewModel.loadLazyVersions(e.view.params.summaryId)
+            // Load the viewModel with relevant version
+            viewModel.loadVersion(e.view.params.summaryId, e.view.params.versionId)
                 .done(function () {
-                    var version = viewModel.versions.at(0); // First is latest version
-                    assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
-                    viewModel.loadVersion(version.summaryId, version.id)
-                        .done(function () {
-                            mobile._resizePlayer(e.view);
-                            viewModel.setCurrent();
-                            viewModel.set(VIEWMODEL.SELECTED_PAGE, viewModel.get(VIEWMODEL.PAGES_COLLECTION).at(0));
-                        });
+                    mobile._resizePlayer(e.view);
+                    viewModel.setCurrent();
+                    viewModel.set(VIEWMODEL.SELECTED_PAGE, viewModel.get(VIEWMODEL.PAGES_COLLECTION).at(0));
                 });
         };
 
@@ -898,6 +905,12 @@ if (typeof(require) === 'function') {
          * Event handler triggered before showing the Summaries view
          */
         mobile.onSummariesBeforeViewShow = function () {
+            // Unfortunately, the following does not display the loader
+            // if (mobile.application instanceof kendo.mobile.Application) {
+            //    mobile.application.pane.loader.show();
+            // }
+            // Workaround
+            // ------------
             // Clearing here the summaries data source avoids a "flickering" effect
             // where previous results are replaced by new results after the view is shown
             // Note that we have tried unsuccessfully to use the loader to hide the UI changes as explained at
@@ -914,27 +927,35 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             mobile._localizeSummariesView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
-            /**
-             if ($.type(query.q) === STRING) {
-                        query.filter = { field: '$text', operator: 'eq', value: query.q };
-                        delete query.q;
-                    }
-             */
             // Launch the query
             var query = {
-                filter: mobile._getDataFilter(e.view.params)
-                // page
-                // pageSIze
+                filter: mobile._getDataFilter(e.view.params),
+                page: 1,
+                pageSize: viewModel.summaries.pageSize()
             };
             viewModel.loadLazySummaries(query);
+            // See comment for mobile.onSummariesBeforeViewShow
+            // .always(function () {
+            //    mobile.application.pane.loader.hide();
+            // });
         };
 
         /**
-         *
+         * Event handler for clicking the play option in the action sheet displayed from the GO button of summaries
          * @param e
          */
         mobile.onSummariesActionPlay = function (e) {
-            // TODO
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.match(RX_MONGODB_ID, e.context, kendo.format(assert.messages.match.default, 'e.context', RX_MONGODB_ID));
+            var summaryId = e.context;
+            // Find latest version (previous versions are not available in the mobile app)
+            viewModel.loadLazyVersions(summaryId)
+                .done(function () {
+                    var version = viewModel.versions.at(0); // First is latest version
+                    assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
+                    assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
+                });
         };
 
         /**
@@ -942,7 +963,7 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onSummariesActionShare = function (e) {
-            // TODO
+            // TODO https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
         };
 
 
@@ -1004,7 +1025,11 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onNavbarSearchClick = function (e) {
-            window.location.assign('/' + DEVICE_SELECTOR + VIEW.SUMMARIES);
+            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARIES);
+            // @see http://www.telerik.com/forums/hiding-filter-input-in-mobile-listview
+            // var summaryView = $(DEVICE_SELECTOR + VIEW.SUMMARIES);
+            // summaryView.find(kendo.roleSelector('listview')).getKendoMobileListView()._filter._clearFilter({ preventDefault: $.noop });
+            // summaryView.find('.km-filter-form').show();
         };
 
         /*******************************************************************************************

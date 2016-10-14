@@ -33,7 +33,7 @@
          */
         SecureStorage.prototype.init = function (name) {
             if ($.type(this._ss) !== UNDEFINED) {
-                return; // TODO assert?
+                return; // TODO assert this._ss?
             }
             if (window.cordova && window.cordova.plugins && window.cordova.plugins.SecureStorage) {
                 this._ss = new window.cordova.plugins.SecureStorage(
@@ -64,7 +64,7 @@
                 this._ss = {
                     set: function (success, failure, key, value) {
                         try {
-                            window.localStorage.setItem(name + SEP + key, value);
+                            window.localStorage.setItem(name + SEP + key, JSON.stringify(value));
                             success(key);
                         } catch (err) {
                             failure(err);
@@ -72,7 +72,7 @@
                     },
                     get: function (success, failure, key) {
                         try {
-                            var value = window.localStorage.getItem(name + SEP + key);
+                            var value = JSON.parse(window.localStorage.getItem(name + SEP + key));
                             success(value);
                         } catch (err) {
                             failure(err);
