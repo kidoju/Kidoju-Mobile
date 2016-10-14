@@ -817,21 +817,43 @@ if (typeof(require) === 'function') {
             if (e.item.is('li[data-icon=scan]')) {
                 e.preventDefault();
                 if (window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan)) {
+                    var QR_CODE = 'QR_CODE';
+                    var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/en\/s\/([A-Za-z0-9]{24})$/;
                     window.cordova.plugins.barcodeScanner.scan(
                         function (result) {
-                            alert("We got a barcode\n" +
-                                "Result: " + result.text + "\n" +
-                                "Format: " + result.format + "\n" +
-                                "Cancelled: " + result.cancelled);
+                            if (!result.cancelled) {
+                                assert.type(STRING, result.text, kendo.format(assert.messages.type.default, 'result.text', STRING));
+                                assert.equal(QR_CODE, result.format, kendo.format(assert.messages.equal.default, 'result.format', QR_CODE));
+                                var matches = result.text.match(RX_QR_CODE_MATCH);
+                                if ($.isArray(matches) && matches.length > 1) {
+                                    var summaryId = matches[1];
+                                    // Find latest version (previous versions are not available in the mobile app)
+                                    viewModel.loadLazyVersions(summaryId)
+                                        .done(function () {
+                                            var version = viewModel.versions.at(0); // First is latest version
+                                            assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
+                                            assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
+                                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
+                                        })
+                                        .fail(function () {
+                                            // error should be in loadLazyVersions
+                                            window.navigator.notification.alert('Error loading version', null, 'Error', 'OK');
+                                        });
+
+
+                                } else {
+                                    window.navigator.notification.alert('This QR code does not match', null, 'Error', 'OK');
+                                }
+                            }
                         },
                         function (error) {
                             alert("Scanning failed: " + error);
                         },
                         {
-                            "preferFrontCamera": false, // iOS and Android
-                            "showFlipCameraButton": true, // iOS and Android
-                            "prompt": "Place a barcode inside the scan area", // supported on Android only
-                            "formats": "QR_CODE" // default: all but PDF_417 and RSS_EXPANDED
+                            preferFrontCamera: false, // iOS and Android
+                            showFlipCameraButton: false, // iOS and Android
+                            prompt: 'Place a barcode inside the scan area', // supported on Android only
+                            formats: QR_CODE // default: all but PDF_417 and RSS_EXPANDED
                             // "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
                         }
                     );
