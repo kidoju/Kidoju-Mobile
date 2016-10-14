@@ -412,6 +412,16 @@ if (typeof(require) === 'function') {
                 if ($.type(index) === NUMBER && index < pageCollectionDataSource.total() - 1) {
                     this.set(VIEWMODEL.SELECTED_PAGE, pageCollectionDataSource.at(index + 1));
                 }
+            },
+
+            /**
+             * Select the last page from viewModel.version.stream.pages
+             */
+            lastPage: function () {
+                var pageCollectionDataSource = this.get(VIEWMODEL.PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                var lastPage = pageCollectionDataSource.total() - 1;
+                this.set(VIEWMODEL.SELECTED_PAGE, pageCollectionDataSource.at(lastPage));
             }
 
         });
@@ -462,6 +472,7 @@ if (typeof(require) === 'function') {
             var showHomeButton = false;
             var showPreviousButton = false;
             var showNextButton = false;
+            var showLastButton = false;
             var showSubmitButton = false;
             var showSyncButton = false;
             var showSearchButton = false;
@@ -484,6 +495,7 @@ if (typeof(require) === 'function') {
                     showDrawerButton = true;
                     showPreviousButton = !viewModel.isFirstPage$();
                     showNextButton = !viewModel.isSubmitPage$();
+                    showLastButton = !viewModel.isSubmitPage$();
                     showSubmitButton = viewModel.isSubmitPage$();
                     break;
                 case DEVICE_SELECTOR + VIEW.SCORE:
@@ -505,6 +517,7 @@ if (typeof(require) === 'function') {
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous').css({ display: showPreviousButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next').css({ display: showNextButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-last').css({ display: showLastButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-submit').css({ display: showSubmitButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
@@ -818,15 +831,17 @@ if (typeof(require) === 'function') {
                 e.preventDefault();
                 if (window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan)) {
                     var QR_CODE = 'QR_CODE';
-                    var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/en\/s\/([A-Za-z0-9]{24})$/;
+                    var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-z0-9]{24})$/i;
                     window.cordova.plugins.barcodeScanner.scan(
                         function (result) {
                             if (!result.cancelled) {
                                 assert.type(STRING, result.text, kendo.format(assert.messages.type.default, 'result.text', STRING));
                                 assert.equal(QR_CODE, result.format, kendo.format(assert.messages.equal.default, 'result.format', QR_CODE));
                                 var matches = result.text.match(RX_QR_CODE_MATCH);
-                                if ($.isArray(matches) && matches.length > 1) {
-                                    var summaryId = matches[1];
+                                if ($.isArray(matches) && matches.length > 2) {
+                                    var language = matches[1];
+                                    // <------------------------------------------------------------------------------------ TODO: make sure language matches with current language!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                    var summaryId = matches[2];
                                     // Find latest version (previous versions are not available in the mobile app)
                                     viewModel.loadLazyVersions(summaryId)
                                         .done(function () {
@@ -1023,27 +1038,24 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onSummariesActionShare = function (e) {
-            //
-            // this is the complete list of currently supported params you can pass to the plugin (all optional)
-            var options = {
-                message: 'share this', // not supported on some apps (Facebook, Instagram)
-                subject: 'the subject', // fi. for email
-                files: ['', ''], // an array of filenames either locally or remotely
-                url: 'https://www.website.com/foo/#bar?a=b',
-                chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
-            };
-
-            var onSuccess = function(result) {
-                console.log("Share completed? " + result.completed); // On Android apps mostly return false even while it's true
-                console.log("Shared to app: " + result.app); // On Android result.app is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
-            };
-
-            var onError = function(msg) {
-                console.log("Sharing failed with message: " + msg);
-            };
-
             if (window && window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions)) {
-                window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+                window.plugins.socialsharing.shareWithOptions(
+                    {
+                        // this is the complete list of currently supported params on can pass to the social share plugin (all optional)
+                        message: 'share this', // not supported on some apps (Facebook, Instagram)
+                        subject: 'the subject', // fi. for email
+                        files: ['', ''], // an array of filenames either locally or remotely
+                        url: 'https://www.website.com/foo/#bar?a=b',
+                        chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
+                    },
+                    function(result) {
+                        console.log("Share completed? " + result.completed); // On Android apps mostly return false even while it's true
+                        console.log("Shared to app: " + result.app); // On Android result.app is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
+                    },
+                    function(msg) {
+                        console.log("Sharing failed with message: " + msg);
+                    }
+                );
             } else {
                 window.navigator.notification.alert('Something went wrong...', null, 'Error', 'OK');
             }
@@ -1064,6 +1076,14 @@ if (typeof(require) === 'function') {
          */
         mobile.onNavbarNextClick = function (e) {
             viewModel.nextPage();
+        };
+
+        /**
+         * Event handler for clicking the last button in the navbar
+         * @param e
+         */
+        mobile.onNavbarLastClick = function (e) {
+            viewModel.lastPage();
         };
 
         /**
