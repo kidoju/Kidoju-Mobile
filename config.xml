@@ -128,11 +128,5 @@
     <platform name="ios">
         <preference name="StatusBarOverlaysWebView" value="false" />
     </platform>
-    <gap:config-file parent="UIStatusBarHidden" platform="ios">
-        <true />
-    </gap:config-file>
-    <gap:config-file parent="UIViewControllerBasedStatusBarAppearance" platform="ios">
-        <false />
-    </gap:config-file>
     <engine name="browser" spec="~4.1.0" />
 </widget>
