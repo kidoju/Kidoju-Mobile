@@ -48,6 +48,7 @@ webpackJsonp([1],{
 	                activities: 'Activities',
 	                categories: 'Explore',
 	                favourites: 'Favourites',
+	                scan: 'QR Code',
 	                settings: 'Settings'
 	            },
 	            // Favourites view
