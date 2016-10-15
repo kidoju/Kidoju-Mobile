@@ -79,8 +79,8 @@
                     { value: 'fr', text: 'French' }
                 ],
                 themes: [
-                    { text: 'Android Dark', name: 'android.dark', platform: 'android' },
-                    { text: 'Android Light', name: 'android.light', platform: 'android' },
+                    { text: 'Android Dark', name: 'andark', platform: 'android' },
+                    { text: 'Android Light', name: 'anlight', platform: 'android' },
                     { text: 'Blackberry', name: 'blackberry', platform: 'blackberry' },
                     { text: 'Fiori', name: 'fiori', skin: 'fiori' },
                     { text: 'Flat', name: 'flat', skin: 'flat' },

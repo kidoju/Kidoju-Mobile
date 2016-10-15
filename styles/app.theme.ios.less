@@ -7,7 +7,32 @@
 @import "./app.template.less";
 
 // Style fixes
-.km-fiori {
+.km-ios, .km-ios7 {
+
+    /**********************************************************
+    * Fonts
+    **********************************************************/
+
+    // Fix otherwise you'll get plain squares or funny icons
+    .km-home, .km-home.km-state-active
+    {
+        &:after, &:before {
+            content:"\e0dd";
+        }
+    }
+    .km-search, .km-search.km-state-active
+    {
+        &:after, &:before {
+            content:"\e0e9";
+        }
+    }
+    .km-settings, .km-settings.km-state-active
+    {
+        &:after, &:before {
+            content:"\e0da";
+        }
+    }
+
 
     /**********************************************************
      * Navbar
