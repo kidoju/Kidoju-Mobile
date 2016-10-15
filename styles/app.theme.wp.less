@@ -1,0 +1,66 @@
+@import (optional) "./vendor/highlight/agate.css";
+
+@import "./vendor/kendo/web/kendo.common.less";
+@import "./vendor/kendo/web/kendo.metroblack.less";
+@import "./vendor/kendo/mobile/kendo.mobile.wp8.less";
+
+@import "./app.template.less";
+
+// Style fixes
+.km-wp {
+
+    /**********************************************************
+     * Navbar
+     **********************************************************/
+    .km-navbar {
+        // background-color: @selected-background;
+        // color: @selected-text-color;
+        // Navbar view title
+        // .km-view-title {
+        //    background-color: transparent;
+        // }
+        // Navbar buttons
+        // .km-button {
+        //    background-color: darken(@selected-background, 8%);
+        //    padding: .2em .5em;
+        //    .km-notext {
+        //        margin: 0 .5em 0 0;
+        //    }
+        // }
+    }
+    /**********************************************************
+     * Drawer
+     **********************************************************/
+    .km-drawer {
+        // Drawer navbar colors
+        .km-navbar {
+            // background-color: @fiori-inverse-background;
+        }
+        // Drawer menu colors
+        .km-content, .km-list > li {
+            // background-color: @fiori-inverse-background;
+            // background-color: darken(@selected-background, 8%);
+            // color: @fiori-inverse-text;
+            // Allow some space between icons and text
+            // .km-listview-link > .km-icon {
+            //    margin: 0 .7em 0 .3em;
+            // }
+        }
+    }
+    /**********************************************************
+     * Listview
+     **********************************************************/
+    .km-listview {
+        // Align settings dropdowns with span.k-input
+        span.k-dropdown {
+            margin-top: -.1em;
+            span.k-dropdown-wrap {
+                padding: .4em;
+                span.k-input {
+                    text-indent: 0;
+                }
+            }
+        }
+    }
+
+}

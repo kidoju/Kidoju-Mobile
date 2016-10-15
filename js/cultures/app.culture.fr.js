@@ -79,17 +79,18 @@
                     { value: 'fr', text: 'French' }
                 ],
                 themes: [
-                    { text: 'Android Dark', name: 'android.dark', platform: 'android' },
-                    { text: 'Android Light', name: 'android.light', platform: 'android' },
-                    { text: 'Blackberry', name: 'blackberry', platform: 'blackberry' },
+                    // We need andark and anlight because webpack does not cope with dash or dot
+                    { text: 'Android Dark', name: 'andark', skin: 'android-dark' },
+                    { text: 'Android Light', name: 'anlight', skin: 'android-light' },
+                    { text: 'Blackberry', name: 'blackberry', skin: 'blackberry' },
                     { text: 'Fiori', name: 'fiori', skin: 'fiori' },
                     { text: 'Flat', name: 'flat', skin: 'flat' },
-                    { text: 'iOS 6', name: 'ios', platform: 'ios', majorVersion: 6 },
-                    { text: 'iOS 7+', name: 'ios7', platform: 'ios', majorVersion: 7 },
+                    { text: 'iOS 6', name: 'ios', skin: 'ios' },
+                    { text: 'iOS 7+', name: 'ios7', skin: 'ios7' },
                     { text: 'Material', name: 'material', skin: 'material' },
                     { text: 'Nova', name: 'nova', skin: 'nova' },
                     { text: 'Office 365', name: 'office365', skin: 'office365' },
-                    { text: 'Windows Phone', name: 'wp8', platform: 'wp' }
+                    { text: 'Windows Phone', name: 'wp', skin: 'wp' }
                 ]
             }
         };

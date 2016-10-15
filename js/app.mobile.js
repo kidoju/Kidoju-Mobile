@@ -478,8 +478,8 @@ if (typeof(require) === 'function') {
                     app.theme.name(e.sender.get(VIEWMODEL.THEME));
                     if (mobile && mobile.application instanceof kendo.mobile.Application) {
                         var theme = viewModel.getTheme();
-                        mobile.application.options.platform = theme.platform;
-                        mobile.application.options.majorVersion = theme.majorVersion;
+                        // mobile.application.options.platform = theme.platform;
+                        // mobile.application.options.majorVersion = theme.majorVersion;
                         mobile.application.skin(theme.skin || '');
                     }
                     // else onDeviceReady has not yet been called and mobile.application has not yet een initialized with theme
@@ -837,9 +837,7 @@ if (typeof(require) === 'function') {
                 // Initialize application
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                     initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
-                    platform: theme.platform,
-                    majorVersion: theme.majorVersion,
-                    skin: theme.skin || '',
+                    skin: theme.skin,
                     // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                     // http://devgirl.org/2014/07/31/phonegap-developers-guid/
