@@ -28,8 +28,9 @@
         var THEME = 'theme';
         var DEFAULT = 'flat';
         // Note: app.i18n is not yet loaded, so we need a duplicated list
-        var ALL = ['black', 'blueopal', 'bootstrap', 'default', 'fiori', 'flat', 'highcontrast', 'material', 'materialblack',
-            'metro', 'metroblack', 'moonlight', 'nova', 'office365', 'silver', 'uniform'];
+        // This list also requires mobile theme for our mobile app
+        var ALL = ['android.dark', 'android.light', 'black', 'blackberry', 'blueopal', 'bootstrap', 'default', 'fiori', 'flat', 'highcontrast', 'ios', 'ios7', 'material', 'materialblack',
+            'metro', 'metroblack', 'moonlight', 'nova', 'office365', 'silver', 'uniform', 'wp8'];
 
         var localStorage; // = window.localStorage;
         // The following is necessary when localStorage is explicitly disabled in browser settings

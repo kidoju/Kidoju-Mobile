@@ -79,12 +79,17 @@
                     { value: 'fr', text: 'French' }
                 ],
                 themes: [
-                    { value: 'fiori', text: 'Fiori' },
-                    { value: 'flat', text: 'Flat' },
-                    { value: 'material', text: 'Material' }, // TODO light and Dark themes?
-                    // { value: '', text: 'Native' }, // TODO in the future but which theme for web widgets and kidoju widgets?
-                    { value: 'nova', text: 'Nova' },
-                    { value: 'office365', text: 'Office 365' }
+                    { text: 'Android Dark', name: 'android.dark', platform: 'android' },
+                    { text: 'Android Light', name: 'android.light', platform: 'android' },
+                    { text: 'Blackberry', name: 'blackberry', platform: 'blackberry' },
+                    { text: 'Fiori', name: 'fiori', skin: 'fiori' },
+                    { text: 'Flat', name: 'flat', skin: 'flat' },
+                    { text: 'iOS 6', name: 'ios', platform: 'ios', majorVersion: 6 },
+                    { text: 'iOS 7+', name: 'ios7', platform: 'ios', majorVersion: 7 },
+                    { text: 'Material', name: 'material', skin: 'material' },
+                    { text: 'Nova', name: 'nova', skin: 'nova' },
+                    { text: 'Office 365', name: 'office365', skin: 'office365' },
+                    { text: 'Windows Phone', name: 'wp8', platform: 'wp' }
                 ]
             }
         };

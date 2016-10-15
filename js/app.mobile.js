@@ -143,9 +143,11 @@ if (typeof(require) === 'function') {
             CURRENT: 'current',
             CURRENT_ID: 'current.id',
             LANGUAGE: 'settings.language',
+            LANGUAGES: 'languages',
             PAGES_COLLECTION: 'version.stream.pages',
             SELECTED_PAGE: 'selectedPage',
             THEME: 'settings.theme',
+            THEMES: 'themes',
             VERSION: 'version'
         };
 
@@ -422,6 +424,40 @@ if (typeof(require) === 'function') {
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var lastPage = pageCollectionDataSource.total() - 1;
                 this.set(VIEWMODEL.SELECTED_PAGE, pageCollectionDataSource.at(lastPage));
+            },
+
+            /**
+             * Get the current theme
+             * @param name
+             */
+            getTheme: function() {
+                var name = this.get(VIEWMODEL.THEME);
+                if (!this.get(VIEWMODEL.THEMES).length) {
+                    this.set(VIEWMODEL.THEMES, i18n.culture.viewModel.themes);
+                }
+                // Get from localStorage (loaded in settings)
+                var found = this.get(VIEWMODEL.THEMES).find(function (theme) {
+                    return theme.name === name;
+                });
+                // Otherwise use OS default
+                if (!found) {
+                    found = this.get(VIEWMODEL.THEMES).find(function (theme) {
+                        if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion < 7) {
+                            return theme.platform === 'ios' && theme.majorVersion === 6;
+                        } else if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion >= 7) {
+                            return theme.platform === 'ios' && theme.majorVersion === 7;
+                        } else {
+                            return theme.platform === kendo.support.mobileOS.name;
+                        }
+                    });
+                }
+                // Otherwise use material (until we have a Kidoju style)
+                if (!found) {
+                    found = this.get(VIEWMODEL.THEMES).find(function (theme) {
+                        return theme.name === 'material';
+                    });
+                }
+                return found;
             }
 
         });
@@ -440,6 +476,13 @@ if (typeof(require) === 'function') {
                     break;
                 case VIEWMODEL.THEME:
                     app.theme.name(e.sender.get(VIEWMODEL.THEME));
+                    if (mobile && mobile.application instanceof kendo.mobile.Application) {
+                        var theme = viewModel.getTheme();
+                        mobile.application.options.platform = theme.platform;
+                        mobile.application.options.majorVersion = theme.majorVersion;
+                        mobile.application.skin(theme.skin || '');
+                    }
+                    // else onDeviceReady has not yet been called and mobile.application has not yet een initialized with theme
                     break;
                 case VIEWMODEL.SELECTED_PAGE:
                     var playerViewElement = $(DEVICE_SELECTOR + VIEW.PLAYER);
@@ -578,8 +621,8 @@ if (typeof(require) === 'function') {
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'locale', app.locales));
             localStorage.setItem(STORAGE.LANGUAGE, language);
             i18n.load(language).then(function () {
-                viewModel.set('languages', i18n.culture.viewModel.languages);
-                viewModel.set('themes', i18n.culture.viewModel.themes);
+                viewModel.set(VIEWMODEL.LANGUAGES, i18n.culture.viewModel.languages);
+                viewModel.set(VIEWMODEL.THEMES, i18n.culture.viewModel.themes);
                 mobile._localizeDrawerView(language);
                 mobile._localizeActivitiesView(language);
                 mobile._localizeCategoriesView(language);
@@ -784,20 +827,23 @@ if (typeof(require) === 'function') {
             $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
             // Load settings including locale and theme
             viewModel.loadSettings();
+            // Initialize pageSize for virtual scrolling
             viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // initialize secure storage
             window.secureStorage.init('myApp'); // ------------------------------------------------------------------------ TODO myApp
             // Wait for i18n resources to be loaded
             $(document).on(LOADED, function () {
+                var theme = viewModel.getTheme();
                 // Initialize application
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                     initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
-                    // platform: "ios7",
-                    skin: viewModel.get(VIEWMODEL.THEME),
+                    platform: theme.platform,
+                    majorVersion: theme.majorVersion,
+                    skin: theme.skin || '',
                     // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                     // http://devgirl.org/2014/07/31/phonegap-developers-guid/
-                    statusBarStyle: (window.device && window.device.cordova) ? 'black-translucent' : undefined,
+                    // statusBarStyle: (window.device && window.device.cordova) ? 'black-translucent' : undefined,
                     init: function (e) {
                         viewModel.set('languages', i18n.culture.viewModel.languages);
                         viewModel.set('themes', i18n.culture.viewModel.themes);
@@ -840,29 +886,30 @@ if (typeof(require) === 'function') {
                                 var matches = result.text.match(RX_QR_CODE_MATCH);
                                 if ($.isArray(matches) && matches.length > 2) {
                                     var language = matches[1];
-                                    // <------------------------------------------------------------------------------------ TODO: make sure language matches with current language!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                    var summaryId = matches[2];
-                                    // Find latest version (previous versions are not available in the mobile app)
-                                    viewModel.loadLazyVersions(summaryId)
-                                        .done(function () {
-                                            var version = viewModel.versions.at(0); // First is latest version
-                                            assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
-                                            assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
-                                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
-                                        })
-                                        .fail(function () {
-                                            // error should be in loadLazyVersions
-                                            window.navigator.notification.alert('Error loading version', null, 'Error', 'OK');
-                                        });
-
-
+                                     var summaryId = matches[2];
+                                    if (viewModel.get(VIEWMODEL.LANGUAGE) === language) {
+                                        // Find latest version (previous versions are not available in the mobile app)
+                                        viewModel.loadLazyVersions(summaryId)
+                                            .done(function () {
+                                                var version = viewModel.versions.at(0); // First is latest version
+                                                assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
+                                                assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
+                                                mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
+                                            })
+                                            .fail(function () {
+                                                // TODO error should be in loadLazyVersions
+                                                window.navigator.notification.alert('Error loading version', null, 'Error', 'OK');
+                                            });
+                                    } else {
+                                        window.navigator.notification.alert('Change language settings to scan this code', null, 'Error', 'OK');
+                                    }
                                 } else {
                                     window.navigator.notification.alert('This QR code does not match', null, 'Error', 'OK');
                                 }
                             }
                         },
                         function (error) {
-                            alert("Scanning failed: " + error);
+                            window.navigator.notification.alert("Scanning failed: " + error);
                         },
                         {
                             preferFrontCamera: false, // iOS and Android
@@ -885,6 +932,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onActivitiesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeActivitiesView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
@@ -896,6 +944,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onCategoriesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeCategoriesView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
@@ -907,6 +956,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onFavouritesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeFavouritesView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
@@ -918,6 +968,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onPlayerViewInit = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             e.view.content.kendoTouch({
                 enableSwipe: true,
                 minXDelta: 150,
@@ -961,7 +1012,7 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onScoreViewShow = function (e) {
-
+            // TODO
         };
 
         /**
