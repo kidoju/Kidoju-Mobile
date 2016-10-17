@@ -56,7 +56,7 @@ if (typeof(require) === 'function') {
         './window.logger',
         './kidoju.data',
         './kidoju.tools',
-        // './kidoju.widgets.chargrid',
+        './kidoju.widgets.chargrid',
         './kidoju.widgets.connector',
         './kidoju.widgets.dropzone',
         './kidoju.widgets.markdown',
