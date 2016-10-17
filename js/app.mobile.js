@@ -844,11 +844,9 @@ if (typeof(require) === 'function') {
             viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // initialize secure storage
             window.secureStorage.init('myApp'); // ------------------------------------------------------------------------ TODO myApp
+
             // Wait for i18n resources to be loaded
             $(document).on(LOADED, function () {
-                if (window.webkit && window.indexedDB) {
-                    alert('Webkit!');
-                }
                 var theme = viewModel.getTheme();
                 // Initialize application
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {

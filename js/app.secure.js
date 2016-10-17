@@ -24,9 +24,7 @@
          * @param name
          * @constructor
          */
-        var SecureStorage = function () {
-            this._ss;
-        };
+        var SecureStorage = function () {};
 
         /**
          * Initialization;
@@ -36,6 +34,7 @@
                 return; // TODO assert this._ss?
             }
             if (window.cordova && window.cordova.plugins && window.cordova.plugins.SecureStorage) {
+                alert('SecureStorage!');
                 this._ss = new window.cordova.plugins.SecureStorage(
                     function () {
                         console.log('OK'); // TODO
