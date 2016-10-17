@@ -165,7 +165,7 @@ if (typeof(require) === 'function') {
         window.handleOpenURL = function(url) {
             setTimeout(function() {
                 alert("received url: " + url);
-            }, 0);
+            }, 100);
         };
 
         /*******************************************************************************************
