@@ -152,9 +152,21 @@ if (typeof(require) === 'function') {
         };
 
         /*******************************************************************************************
-         * Global error handler
+         * Global handlers
          *******************************************************************************************/
-        // TODO See app.logger
+
+        // TODO gLOBAL ERROR HANDLER See app.logger
+
+        /**
+         * Event handler triggered when calling a url with the kidoju:// scheme
+         *
+         * @param url
+         */
+        window.handleOpenURL = function(url) {
+            setTimeout(function() {
+                alert("received url: " + url);
+            }, 0);
+        };
 
         /*******************************************************************************************
          * viewModel
