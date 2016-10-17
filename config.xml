@@ -10,7 +10,7 @@
     <content src="index.html" />
     <icon src="www/icon.png" />
     <preference name="DisallowOverscroll" value="true" />
-    <preference name="android-minSdkVersion" value="14" />
+    <preference name="android-minSdkVersion" value="17" />
     <plugin name="cordova-plugin-console" source="npm" spec="~1.0.2" />
     <plugin name="cordova-plugin-crosswalk-webview" spec="~2.1.0">
         <variable name="XWALK_VERSION" value="21+" />
