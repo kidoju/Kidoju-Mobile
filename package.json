@@ -62,7 +62,7 @@
     "mocha": "^3.1.2",
     "nconf": "^0.8.4",
     "phantomjs-prebuilt": "^2.1.13",
-    "postcss-loader": "^0.13.0",
+    "postcss-loader": "^1.0.0",
     "selenium-standalone": "^5.7.2",
     "sinon": "^1.17.6",
     "style-loader": "^0.13.1",
