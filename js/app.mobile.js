@@ -155,15 +155,16 @@ if (typeof(require) === 'function') {
          * Global handlers
          *******************************************************************************************/
 
-        // TODO gLOBAL ERROR HANDLER See app.logger
+        // TODO Global Event Handler - See app.logger
 
         /**
          * Event handler triggered when calling a url with the kidoju:// scheme
-         *
          * @param url
          */
         window.handleOpenURL = function(url) {
             setTimeout(function() {
+                // Try kidoju://hello?a=1&b=2
+                // @see
                 alert("received url: " + url);
             }, 100);
         };
@@ -845,6 +846,9 @@ if (typeof(require) === 'function') {
             window.secureStorage.init('myApp'); // ------------------------------------------------------------------------ TODO myApp
             // Wait for i18n resources to be loaded
             $(document).on(LOADED, function () {
+                if (window.webkit && window.indexedDB) {
+                    alert('Webkit!');
+                }
                 var theme = viewModel.getTheme();
                 // Initialize application
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
