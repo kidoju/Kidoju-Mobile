@@ -112,6 +112,7 @@
     <allow-intent href="kidoju:*" />
     <platform name="android">
         <allow-intent href="market:*" />
+        <preference name="SplashScreen" value="screen" />
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/images/browser/splashscreen.jpg" />
