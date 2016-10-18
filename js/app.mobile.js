@@ -156,6 +156,9 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         // TODO Global Event Handler - See app.logger
+        window.onerror = function(msg, url, line, col, error) {
+            alert(msg);
+        };
 
         /**
          * Event handler triggered when calling a url with the kidoju:// scheme
