@@ -157,7 +157,7 @@ if (typeof(require) === 'function') {
 
         // TODO Global Event Handler - See app.logger
         window.onerror = function(msg, url, line, col, error) {
-            alert(msg);
+            window.navigator.notification.alert(msg);
         };
 
         /**
@@ -168,7 +168,7 @@ if (typeof(require) === 'function') {
             setTimeout(function() {
                 // Try kidoju://hello?a=1&b=2
                 // @see
-                alert("received url: " + url);
+                window.navigator.notification.alert("received url: " + url);
             }, 100);
         };
 

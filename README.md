@@ -2,6 +2,8 @@
 
 > A Hello World application built with PhoneGap
 
+[Kidoju](kidoju://hello?a=1&b=2)
+
 ## Usage
 
 ### Desktop

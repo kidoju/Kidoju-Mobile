@@ -107,6 +107,8 @@
     <access origin="*://*.kidoju.com/*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+    <allow-intent href="data:*" />
+    <allow-intent href="gap:*" />
     <allow-intent href="kidoju:*" />
     <platform name="android">
         <allow-intent href="market:*" />
