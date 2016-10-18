@@ -1,16 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.kidoju.mobile" version="0.2.57" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>Kidoju.Mobile</name>
-    <description>
-        Create and share phenomenal quizzes..
-    </description>
-    <author email="nojunk@memba.com" href="http://www.memba.com">
-        Memba Sarl
-    </author>
+<widget id="com.kidoju.mobile" version="0.2.58" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>Kidoju Mobile</name>
+    <description>Create and share phenomenal quizzes.</description>
+    <author email="nojunk@memba.com" href="http://www.memba.com">Memba Sarl</author>
     <content src="index.html" />
     <icon src="www/icon.png" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="android-minSdkVersion" value="17" />
+    <preference name="ShowSplashScreenSpinner" value="false"/>
     <plugin name="cordova-plugin-console" source="npm" spec="~1.0.2" />
     <plugin name="cordova-plugin-crosswalk-webview" spec="~2.1.0">
         <variable name="XWALK_VERSION" value="21+" />
@@ -112,7 +109,6 @@
     <allow-intent href="kidoju:*" />
     <platform name="android">
         <allow-intent href="market:*" />
-        <preference name="SplashScreen" value="screen" />
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/images/browser/splashscreen.jpg" />
