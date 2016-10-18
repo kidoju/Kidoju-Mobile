@@ -122,8 +122,9 @@
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
-        <preference name="StatusBarOverlaysWebView" value="true" />
         <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+        <preference name="KeychainAccessibility" value="WhenUnlocked"/>
+        <preference name="StatusBarOverlaysWebView" value="true" />
     </platform>
     <engine name="browser" spec="~4.1.0" />
     <gap:config-file parent="UIStatusBarHidden" platform="ios">

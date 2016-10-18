@@ -33,11 +33,11 @@
             if ($.type(this._ss) !== UNDEFINED) {
                 return; // TODO assert this._ss?
             }
+            alert('SecureStorage: ' + (window.cordova && window.cordova.plugins && window.cordova.plugins.SecureStorage));
             if (window.cordova && window.cordova.plugins && window.cordova.plugins.SecureStorage) {
-                alert('SecureStorage!');
                 this._ss = new window.cordova.plugins.SecureStorage(
                     function () {
-                        console.log('OK'); // TODO
+                        alert('OK'); // TODO
                     },
                     function (error) {
                         console.log(error);
@@ -48,14 +48,15 @@
                             function () {
                                 this._ss.secureDevice(
                                     function () {
-                                        console.log('OK');
+                                        alert('Screen lock enabled. Enjoy our secure features.');
                                     },
                                     function () {
-                                        this.init();
+                                        alert('Screen lock disabled. Sorry, but our app cannot store user pins without it.');
+                                        window.navigator.app.exitApp();
                                     }
                                 );
                             },
-                            'Screen lock is disabled'
+                            'Screen Lock'
                         );
                     },
                     name);
