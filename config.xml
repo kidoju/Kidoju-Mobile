@@ -2,11 +2,12 @@
 <widget id="com.kidoju.mobile" version="0.2.58" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Kidoju Mobile</name>
     <description>Create and share phenomenal quizzes.</description>
-    <author email="nojunk@memba.com" href="http://www.memba.com">Memba Sarl</author>
+    <author href="http://www.memba.com">Memba Sarl</author>
     <content src="index.html" />
     <icon src="www/icon.png" />
-    <preference name="DisallowOverscroll" value="true" />
     <preference name="android-minSdkVersion" value="17" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="LoadUrlTimeoutValue" value="60000"/>
     <preference name="ShowSplashScreenSpinner" value="false"/>
     <plugin name="cordova-plugin-console" source="npm" spec="~1.0.2" />
     <plugin name="cordova-plugin-crosswalk-webview" spec="~2.1.0">
@@ -125,7 +126,9 @@
         <preference name="KeychainAccessibility" value="WhenUnlocked"/>
         <preference name="StatusBarOverlaysWebView" value="true" />
     </platform>
+    <engine name="android" spec="~5.2.2" />
     <engine name="browser" spec="~4.1.0" />
+    <engine name="ios" spec="~4.2.1" />
     <gap:config-file parent="UIStatusBarHidden" platform="ios">
         <true />
     </gap:config-file>
