@@ -156,8 +156,8 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         // TODO Global Event Handler - See app.logger
-        window.onerror = function(msg, url, line, col, error) {
-            window.navigator.notification.alert(msg);
+        window.onerror = function(message, source, lineno, colno, error) {
+            window.navigator.notification.alert(message);
         };
 
         /**
