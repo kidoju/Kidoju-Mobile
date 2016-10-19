@@ -8,15 +8,21 @@
 
 (function (f, define) {
     'use strict';
-    define([], f);
+    define([
+        './window.assert',
+        './window.logger'
+    ], f);
 })(function () {
 
     'use strict';
 
     (function ($, undefined) {
 
-        var UNDEFINED = 'undefined';
+        var OBJECT = 'object';
+        var STRING = 'string';
         var SEP = '.';
+        var assert = window.assert;
+        var logger = new window.Logger('app.secure');
 
         /**
          * SecureStorage
@@ -30,20 +36,23 @@
          * Initialization;
          */
         SecureStorage.prototype.init = function (name) {
-            if ($.type(this._ss) !== UNDEFINED) {
-                return; // TODO assert this._ss?
-            }
-            alert('SecureStorage: ' + (window.cordova && window.cordova.plugins && window.cordova.plugins.SecureStorage));
+            assert.isUndefined(this._ss, '`this._ss` should be undefined when calling init');
+            var alert = window.navigator.notification.alert;
+            alert('SecureStorage: ' + !!(window.cordova && window.cordova.plugins && window.cordova.plugins.SecureStorage));
             if (window.cordova && window.cordova.plugins && window.cordova.plugins.SecureStorage) {
                 this._ss = new window.cordova.plugins.SecureStorage(
                     function () {
-                        alert('OK'); // TODO
+                        alert('SecureStorage initialized'); // TODO: remove
+                        logger.debug({
+                            message: 'SecureStorage successfully initialized',
+                            method: 'SecureStorage.prototype.init'
+                        })
                     },
                     function (error) {
                         console.log(error);
                         // TODO https://github.com/Crypho/cordova-plugin-secure-storage#users-must-have-a-secure-screen-lock-set
                         // Test and update on android
-                        navigator.notification.alert(
+                        alert(
                             'Please enable the screen lock on your device. This app cannot operate securely without it.',
                             function () {
                                 this._ss.secureDevice(
@@ -86,7 +95,11 @@
                             failure(err);
                         }
                     }
-                }
+                };
+                logger.info({
+                    message: 'SecureStorage not available, using localStorage',
+                    method: 'SecureStorage.prototype.init'
+                })
             }
         };
 
@@ -97,8 +110,9 @@
          * @returns {*}
          */
         SecureStorage.prototype.setItem =  function (key, value) {
+            assert.type(this._ss, OBJECT, '`this._ss` should be an object after calling init');
+            assert.type(key, STRING, '`key` should be a `string`');
             var dfd = $.Deferred();
-            // TODO assert this._ss, key and value ???
             this._ss.set(dfd.resolve, dfd.reject, key, value);
             return dfd.promise();
         };
@@ -109,6 +123,8 @@
          * @returns {*}
          */
         SecureStorage.prototype.getItem =  function (key) {
+            assert.type(this._ss, OBJECT, '`this._ss` should be an object after calling init');
+            assert.type(key, STRING, '`key` should be a `string`');
             var dfd = $.Deferred();
             this._ss.get(dfd.resolve, dfd.reject, key);
             return dfd.promise();
@@ -120,6 +136,8 @@
          * @returns {*}
          */
         SecureStorage.prototype.removeItem =  function (key) {
+            assert.type(this._ss, OBJECT, '`this._ss` should be an object after calling init');
+            assert.type(key, STRING, '`key` should be a `string`');
             var dfd = $.Deferred();
             this._ss.remove(dfd.resolve, dfd.reject, key);
             return dfd.promise();
