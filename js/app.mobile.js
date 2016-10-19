@@ -157,7 +157,6 @@ if (typeof(require) === 'function') {
 
         // TODO Global Event Handler - See app.logger
         window.onerror = function(message, source, lineno, colno, error) {
-            debugger;
             window.navigator.notification.alert(message);
         };
 
@@ -1203,12 +1202,12 @@ if (typeof(require) === 'function') {
 
         $(function () {
             // $(document).on(LOADED, function () {
-            if ($.type(window.device) !== UNDEFINED && $.type(window.device.cordova) !== UNDEFINED) {
-                // Wait for Cordova to load
-                document.addEventListener('deviceready', mobile.onDeviceReady, false);
-            } else {
+            if ($.type(window.cordova) === UNDEFINED) {
                 // No need to wait when running/debugging on a PC
                 mobile.onDeviceReady();
+            } else {
+                // Wait for Cordova to load
+                document.addEventListener('deviceready', mobile.onDeviceReady, false);
             }
         });
 
