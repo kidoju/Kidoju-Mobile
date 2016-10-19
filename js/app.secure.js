@@ -53,8 +53,7 @@
                             function () {
                                 alert('Screen lock enabled. Enjoy our secure features.', undefined, 'Information');
                             },
-                            function (error) {
-                                alert(error);
+                            function () {
                                 alert(
                                     'Screen lock disabled. Sorry, but our app cannot store user pins without it.',
                                     function () {
@@ -63,6 +62,7 @@
                                         // $.isFunction(window.close) && window.close();
                                         // window.navigator.app && $.isFunction(window.navigator.app.exitApp) && window.navigator.app.exitApp();
                                         // window.navigator.device && $.isFunction(window.navigator.device.exitApp) && window.navigator.device.exitApp();
+                                        that._ss = undefined;
                                         that.init(name);
                                     },
                                     'Error'
