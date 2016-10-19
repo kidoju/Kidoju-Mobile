@@ -53,14 +53,17 @@
                             function () {
                                 alert('Screen lock enabled. Enjoy our secure features.', undefined, 'Information');
                             },
-                            function () {
+                            function (error) {
+                                alert(error);
                                 alert(
                                     'Screen lock disabled. Sorry, but our app cannot store user pins without it.',
                                     function () {
                                         // Note iOS would not allow exiting an app programmatically
-                                        $.isFunction(window.close) && window.close();
-                                        window.navigator.app && $.isFunction(window.navigator.app.exitApp) && window.navigator.app.exitApp();
-                                        window.navigator.device && $.isFunction(window.navigator.device.exitApp) && window.navigator.device.exitApp();
+                                        // Note Android would still display the app in the recent apps
+                                        // $.isFunction(window.close) && window.close();
+                                        // window.navigator.app && $.isFunction(window.navigator.app.exitApp) && window.navigator.app.exitApp();
+                                        // window.navigator.device && $.isFunction(window.navigator.device.exitApp) && window.navigator.device.exitApp();
+                                        that.init(name);
                                     },
                                     'Error'
                                 );
