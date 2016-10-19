@@ -50,9 +50,8 @@
                         })
                     },
                     function (error) {
-                        console.log(error);
-                        // TODO https://github.com/Crypho/cordova-plugin-secure-storage#users-must-have-a-secure-screen-lock-set
-                        // Test and update on android
+                        // See: https://github.com/Crypho/cordova-plugin-secure-storage#users-must-have-a-secure-screen-lock-set
+                        alert(error);
                         alert(
                             'Please enable the screen lock on your device. This app cannot operate securely without it.',
                             function () {
@@ -61,8 +60,14 @@
                                         alert('Screen lock enabled. Enjoy our secure features.');
                                     },
                                     function () {
-                                        alert('Screen lock disabled. Sorry, but our app cannot store user pins without it.');
-                                        window.navigator.app.exitApp();
+                                        alert(
+                                            'Screen lock disabled. Sorry, but our app cannot store user pins without it.',
+                                            function () {
+                                                window.navigator.app.exitApp();
+                                            },
+                                            'Exit'
+                                        );
+
                                     }
                                 );
                             },
