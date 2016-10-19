@@ -57,6 +57,8 @@
                                 alert(
                                     'Screen lock disabled. Sorry, but our app cannot store user pins without it.',
                                     function () {
+                                        // Note iOS would not allow exiting an app programmatically
+                                        window.close();
                                         window.navigator.app.exitApp();
                                     },
                                     'Error'

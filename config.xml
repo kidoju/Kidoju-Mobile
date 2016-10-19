@@ -114,7 +114,7 @@
     <allow-intent href="kidoju:*" />
     <platform name="android">
         <allow-intent href="market:*" />
-        <preference name="SplashMaintainAspectRatio" value="true" />
+        <preference name="SplashMaintainAspectRatio" value="false" />
         <preference name="SplashShowOnlyFirstTime" value="false" />
     </platform>
     <platform name="browser">
