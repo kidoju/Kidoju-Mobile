@@ -114,6 +114,8 @@
     <allow-intent href="kidoju:*" />
     <platform name="android">
         <allow-intent href="market:*" />
+        <preference name="SplashMaintainAspectRatio" value="true" />
+        <preference name="SplashShowOnlyFirstTime" value="false" />
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/images/browser/splashscreen.jpg" />
