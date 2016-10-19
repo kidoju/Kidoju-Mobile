@@ -532,11 +532,19 @@
             /* jshint +W074 */
 
             /**
-             * Return a complete icon path
+             * Return a complete icon path (from CDN)
              * @returns {*}
              */
             icon$: function () {
                 return kendo.format(uris.cdn.icons, this.get('icon'));
+            },
+
+            /**
+             * Return a relative icon path (from img folder on mobile devices)
+             * @returns {*}
+             */
+            localIcon$: function () {
+                return kendo.format(uris.mobile.icons, this.get('icon'));
             }
         });
 
