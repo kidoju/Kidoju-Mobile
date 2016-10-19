@@ -157,6 +157,7 @@ if (typeof(require) === 'function') {
 
         // TODO Global Event Handler - See app.logger
         window.onerror = function(message, source, lineno, colno, error) {
+            debugger;
             window.navigator.notification.alert(message);
         };
 
@@ -174,7 +175,7 @@ if (typeof(require) === 'function') {
 
         /*******************************************************************************************
          * viewModel
-         *******************************************************************************************/
+         *************************************************************ale******************************/
 
         var viewModel = mobile.viewModel = kendo.observable({
 
@@ -858,7 +859,7 @@ if (typeof(require) === 'function') {
                     // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                     // http://devgirl.org/2014/07/31/phonegap-developers-guid/
-                    // statusBarStyle: (window.device && window.device.cordova) ? 'black-translucent' : undefined,
+                    // statusBarStyle: window.cordova ? 'black-translucent' : undefined,
                     init: function (e) {
                         viewModel.set('languages', i18n.culture.viewModel.languages);
                         viewModel.set('themes', i18n.culture.viewModel.themes);
@@ -1157,17 +1158,12 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onNavbarSubmitClick = function (e) {
-            if (window.device && window.device.cordova) {
-                // https://github.com/apache/cordova-plugin-dialogs
-                navigator.notification.confirm(
-                    'You are the winner!', // message
-                    mobile.onNavbarSubmitConfirm,       // callback to invoke with index of button pressed
-                    'Confirm',             // title
-                    ['Yes', 'No']           // buttonLabels
-                );
-            } else if (window.confirm('?')) {
-                mobile.onNavbarSubmitConfirm(1);
-            }
+            navigator.notification.confirm(
+                'You are the winner!', // message
+                mobile.onNavbarSubmitConfirm,       // callback to invoke with index of button pressed
+                'Confirm',             // title
+                ['Yes', 'No']           // buttonLabels
+            );
         };
 
         /**

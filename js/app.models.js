@@ -210,7 +210,7 @@
                 }
             },
             icon$: function () {
-                return kendo.format((window.device && window.device.cordova) ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
+                return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
             }
         });
 
@@ -537,14 +537,6 @@
              */
             icon$: function () {
                 return kendo.format(uris.cdn.icons, this.get('icon'));
-            },
-
-            /**
-             * Return a relative icon path (from img folder on mobile devices)
-             * @returns {*}
-             */
-            localIcon$: function () {
-                return kendo.format(uris.mobile.icons, this.get('icon'));
             }
         });
 
