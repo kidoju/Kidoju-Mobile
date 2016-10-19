@@ -6,10 +6,12 @@
     <meta name="msapplication-tap-highlight" content="no">
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: filesystem: kidoju: https://*.kidoju.com https://ssl.gstatic.com http://10.0.0.105:* ws://10.0.0.105:*; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
-    <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: kidoju: *.kidoju.com https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *"-->
+    <!-- The following CSP is the one added by default bu the Phonegap Developper App -->
+    <!--meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;img-src 'self' data: content:;style-src 'self' 'unsafe-inline' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"-->
+    <!-- The following is our CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: filesystem: gap: kidoju: https://*.kidoju.com https://ssl.gstatic.com http://10.0.0.105:* ws://10.0.0.105:*; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
-    <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
+    <script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script>
     <script src="./cordova.js"></script>
     <!--script   src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script-->
     <script src="./build/jquery.min.js"></script>
