@@ -19,6 +19,7 @@
 
         var app = window.app = window.app || {};
         app.constants = {
+            kidoju: 'kidoju',
             ajaxTimeout: 5000
         };
 

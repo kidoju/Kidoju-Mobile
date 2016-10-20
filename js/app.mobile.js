@@ -846,8 +846,7 @@ if (typeof(require) === 'function') {
             // Initialize pageSize for virtual scrolling
             viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // initialize secure storage
-            window.secureStorage.init('myApp'); // ------------------------------------------------------------------------ TODO myApp
-
+            window.secureStorage.init(app.constants.kidoju);
             // Wait for i18n resources to be loaded
             $(document).on(LOADED, function () {
                 var theme = viewModel.getTheme();
@@ -864,6 +863,8 @@ if (typeof(require) === 'function') {
                         viewModel.set('themes', i18n.culture.viewModel.themes);
                     }
                 });
+                // hide the splash screen
+                window.navigator.splashscreen.hide();
             });
             // Handle resize event (especially when changing device orientation)
             $(window).resize(mobile._resize);

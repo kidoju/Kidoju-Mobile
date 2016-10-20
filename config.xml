@@ -8,6 +8,7 @@
     <preference name="android-minSdkVersion" value="17" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="LoadUrlTimeoutValue" value="60000" />
+    <preference name="AutoHideSplashScreen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
     <plugin name="cordova-plugin-console" source="npm" spec="~1.0.2" />
     <plugin name="cordova-plugin-crosswalk-webview" spec="~2.1.0">
@@ -116,13 +117,11 @@
     <platform name="android">
         <allow-intent href="market:*" />
         <preference name="SplashScreen" value="splash" />
-        <preference name="SplashScreenDelay" value="10000" />
         <preference name="SplashMaintainAspectRatio" value="true" />
         <preference name="SplashShowOnlyFirstTime" value="false" />
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/images/browser/splashscreen.jpg" />
-        <preference name="SplashScreenDelay" value="3000" />
         <preference name="SplashScreenBackgroundColor" value="green" />
         <preference name="ShowSplashScreen" value="false" />
         <preference name="SplashScreenWidth" value="600" />
