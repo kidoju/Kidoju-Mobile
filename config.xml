@@ -116,7 +116,7 @@
     <platform name="android">
         <allow-intent href="market:*" />
         <preference name="SplashScreen" value="splash" />
-        <preference name="SplashScreenDelay" value="3000" />
+        <preference name="SplashScreenDelay" value="10000" />
         <preference name="SplashMaintainAspectRatio" value="true" />
         <preference name="SplashShowOnlyFirstTime" value="false" />
     </platform>
