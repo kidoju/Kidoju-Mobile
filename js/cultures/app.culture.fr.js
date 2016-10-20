@@ -49,6 +49,15 @@
             favourites: {
                 viewTitle: 'Favoris'
             },
+            // Login view
+            login: {
+                viewTitle: 'Login',
+                groupTitle: 'Please choose an authentication provider'
+            },
+            // Pin view
+            pin: {
+                viewTitle: 'PIN'
+            },
             // Player view
             player: {
                 explanations: 'Explications',
@@ -80,6 +89,7 @@
                 ],
                 themes: [
                     // We need andark and anlight because webpack does not cope with dash or dot
+                    // TODO: check regular expressions in webpack.config.js
                     { text: 'Android Dark', name: 'andark', skin: 'android-dark' },
                     { text: 'Android Light', name: 'anlight', skin: 'android-light' },
                     { text: 'Blackberry', name: 'blackberry', skin: 'blackberry' },

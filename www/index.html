@@ -9,7 +9,7 @@
     <!-- The following CSP is the one added by default bu the Phonegap Developper App -->
     <!--meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;img-src 'self' data: content:;style-src 'self' 'unsafe-inline' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"-->
     <!-- The following is our CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: filesystem: gap: kidoju: https://*.kidoju.com https://*.phonegap.com https://s3.amazonaws.com https://ssl.gstatic.com http://10.0.0.105:* ws://10.0.0.105:*; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: filesystem: gap: kidoju: https://*.kidoju.com https://s3.amazonaws.com https://accounts.google.com https://www.facebook.com https://login.live.com  https://api.twitter.com https://ssl.gstatic.com https://*.phonegap.com http://10.0.0.105:* ws://10.0.0.105:*; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
     <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
     <!--script src="https://debug2.phonegap.com/target/target-script-min.js#13dd8fec-91f0-11e6-8d6a-06a5c274e813"></script-->
@@ -215,6 +215,7 @@
                 <li data-icon="scan"><a href="#">Scan</a></li>
                 <li data-icon="favourites"><a href="#phone-favourites">Favourites</a></li>
                 <li data-icon="activities"><a href="#phone-activities">Activities</a></li>
+                <!-- TODO challenges -->
                 <li data-icon="settings"><a href="#phone-settings">Settings</a></li>
             </ul>
         </div>
@@ -249,6 +250,23 @@
         <script type="text/x-kendo-template" id="phone-favourites-template">
             <a href="\#phone-player">#: title #</a>
         </script>
+    </div>
+
+    <!-- Login view -->
+    <div id="phone-login" data-role="view" data-layout="phone-main-layout" data-title="Login" data-show="app.mobile.onLoginViewShow">
+        <!--ul data-role="listview" data-type="group"-->
+        <ul>
+            <li>Please choose an authentication provider</li>
+            <li><a data-role="button" class="km-justified km-button" data-provider="google" data-click="app.mobile.onLoginButtonClick"><i class="fa fa-google"></i>Google</a></li>
+            <li><a data-role="button" class="km-justified km-button" data-provider="facebook" data-click="app.mobile.onLoginButtonClick"><i class="fa fa-facebook"></i>Facebook</a></li>
+            <li><a data-role="button" class="km-justified km-button" data-provider="twitter" data-click="app.mobile.onLoginButtonClick"><i class="fa fa-twitter"></i>Twitter</a></li>
+            <li><a data-role="button" class="km-justified km-button" data-provider="live" data-click="app.mobile.onLoginButtonClick"><i class="fa fa-live"></i>Windows Live</a></li>
+        </ul>
+    </div>
+
+    <!-- Pin view -->
+    <div id="phone-pin" data-role="view" data-layout="phone-main-layout" data-title="PIN" data-show="app.mobile.onPinViewShow">
+
     </div>
 
     <!-- Player view -->

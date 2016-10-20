@@ -121,6 +121,8 @@ if (typeof(require) === 'function') {
             CATEGORIES: '-categories',
             DRAWER: '-drawer',
             FAVOURITES: '-favourites',
+            LOGIN: '-login',
+            PIN: '-pin',
             PLAYER: '-player',
             SCORE: '-score',
             SETTINGS: '-settings',
@@ -725,6 +727,41 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Localize the login view
+         * @param language
+         * @private
+         */
+        mobile._localizeLoginView = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var loginCulture = i18n.culture.login;
+            var loginViewElement = $(DEVICE_SELECTOR + VIEW.LOGIN);
+            // The view may not have been intialized yet
+            var loginView = loginViewElement.data('kendoMobileView');
+            if (loginView instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(loginView, loginCulture.viewTitle);
+            }
+            // TODO localize the group title
+        };
+
+        /**
+         * Localize the pin view
+         * @param language
+         * @private
+         */
+        mobile._localizePinView = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var pinCulture = i18n.culture.pin;
+            var pinViewElement = $(DEVICE_SELECTOR + VIEW.PIN);
+            // The view may not have been intialized yet
+            var pinView = pinViewElement.data('kendoMobileView');
+            if (pinView instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(pinView, pinCulture.viewTitle);
+            }
+        };
+
+        /**
          * Localize the player view
          * @param language
          * @private
@@ -852,7 +889,7 @@ if (typeof(require) === 'function') {
                 var theme = viewModel.getTheme();
                 // Initialize application
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                    initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
+                    initial: DEVICE_SELECTOR + VIEW.LOGIN,
                     skin: theme.skin,
                     // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
@@ -863,11 +900,13 @@ if (typeof(require) === 'function') {
                         viewModel.set('themes', i18n.culture.viewModel.themes);
                     }
                 });
-                // hide the splash screen
-                window.navigator.splashscreen.hide();
             });
             // Handle resize event (especially when changing device orientation)
             $(window).resize(mobile._resize);
+            // hide the splash screen
+            setTimeout(function () {
+                window.navigator.splashscreen.hide();
+            }, 1500); // + 500 default fadeOut time
         };
 
         /**
@@ -974,6 +1013,83 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeFavouritesView(viewModel.get(VIEWMODEL.LANGUAGE));
+            mobile._setNavBar(e.view);
+        };
+
+        /**
+         * Event handler triggered when showing the login view
+         * @param e
+         */
+        mobile.onLoginViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            mobile._localizeLoginView(viewModel.get(VIEWMODEL.LANGUAGE));
+            mobile._setNavBar(e.view);
+        };
+
+        /**
+         * Event handler triggered when clicking a button on the login view
+         * @param e
+         */
+        mobile.onLoginButtonClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            var provider = e.button.attr(kendo.attr('provider'));
+            // In Phonegap, windows.location.href = "x-wmapp0:www/index.html" and our server cannot redirect the InAppBrowser to such location
+            // The oAuth recommendation is to use the redirect_uri "urn:ietf:wg:oauth:2.0:oob" which sets the authorization code in the browser's title.
+            // However, we can't access the title of the InAppBrowser in Phonegap.
+            // Instead, we pass a bogus redirect_uri of "http://localhost", which means the authorization code will get set in the url.
+            // We can access this url in the loadstart and loadstop events.
+            // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted us access to their data.
+            var returnUrl = $.type(window.cordova) === UNDEFINED ? window.location.href : 'http://localhost/'; // TODO: use kidoju://
+            app.rapi.oauth.getSignInUrl(provider, returnUrl)
+                .done(function (url) {
+                    debugger;
+                    if ($.type(window.cordova) === UNDEFINED) { //this is a browser --> simply redirect to login url
+                        window.location.assign(url);
+                    } else { //running under Phonegap -> open InAppBrowser
+                        var authWindow = window.open(url, '_blank', 'location=no');
+                        $(authWindow)
+                            .on('loadstart', function (e) {
+                                var url = e.originalEvent.url;
+                                //the loadstart event is triggered each time a new url (redirection) is loaded
+                                logger.debug({
+                                    message: 'loadstart event when signing in',
+                                    method: 'mobile.onLoginButtonClick',
+                                    data: { url: url }
+                                });
+                                var data = app.rapi.util.parseToken(url);
+                                if ($.type(data.access_token) === STRING) { //so we only close the InAppBrowser once we have received an auth_token
+                                    $(authWindow).off();
+                                    authWindow.close();
+                                }
+                            })
+                            .on('loaderror', function (error) {
+                                logger.error({
+                                    method: 'mobile.onLoginButtonClick',
+                                    error: error
+                                });
+                            });
+                    }
+                })
+                .fail(function (xhr, status, error) {
+                    // app.notification.error(i18n.culture.header.notifications.signinUrlFailure);
+                    logger.error({
+                        message: 'error obtaining a signin url',
+                        method: 'controller.onSignInDialogButtonsClick',
+                        data: { provider: provider, status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
+                    });
+                });
+        };
+
+        /**
+         * Event handler triggered when showing the pin view
+         * @param e
+         */
+        mobile.onPinViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            mobile._localizePinView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
 
