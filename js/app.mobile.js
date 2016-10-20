@@ -1048,28 +1048,33 @@ if (typeof(require) === 'function') {
                     if ($.type(window.cordova) === UNDEFINED) { //this is a browser --> simply redirect to login url
                         window.location.assign(url);
                     } else { //running under Phonegap -> open InAppBrowser
-                        var authWindow = window.open(url, '_blank', 'location=no');
-                        $(authWindow)
-                            .on('loadstart', function (e) {
-                                var url = e.originalEvent.url;
-                                //the loadstart event is triggered each time a new url (redirection) is loaded
-                                logger.debug({
-                                    message: 'loadstart event when signing in',
-                                    method: 'mobile.onLoginButtonClick',
-                                    data: { url: url }
-                                });
-                                var data = app.rapi.util.parseToken(url);
-                                if ($.type(data.access_token) === STRING) { //so we only close the InAppBrowser once we have received an auth_token
-                                    $(authWindow).off();
-                                    authWindow.close();
-                                }
-                            })
-                            .on('loaderror', function (error) {
-                                logger.error({
-                                    method: 'mobile.onLoginButtonClick',
-                                    error: error
-                                });
+                        var loadStart = function (e) {
+                            var url = e.url;
+                            //the loadstart event is triggered each time a new url (redirection) is loaded
+                            logger.debug({
+                                message: 'loadstart event of InAppBrowser',
+                                method: 'mobile.onLoginButtonClick',
+                                data: { url: url }
                             });
+                            var data = app.rapi.util.parseToken(url);
+                            if ($.type(data.access_token) === STRING) { //so we only close the InAppBrowser once we have received an auth_token
+                                inAppBrowser.removeEventListener('loadStart', loadStart);
+                                inAppBrowser.removeEventListener('loadError', loadError);
+                                inAppBrowser.close();
+                            }
+                        };
+                        var loadError = function (error) {
+                            logger.error({
+                                method: 'mobile.onLoginButtonClick',
+                                error: error
+                            });
+                            inAppBrowser.removeEventListener('loadStart', loadStart);
+                            inAppBrowser.removeEventListener('loadError', loadError);
+                            inAppBrowser.close();
+                        };
+                        var inAppBrowser = window.cordova.InAppBrowser.open(url, '_blank', 'location=no');
+                        inAppBrowser.addEventListener('loadstart', loadStart);
+                        inAppBrowser.addEventListener('loaderror', loadError);
                     }
                 })
                 .fail(function (xhr, status, error) {
