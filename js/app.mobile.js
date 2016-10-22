@@ -571,9 +571,9 @@ if (typeof(require) === 'function') {
             assert.instanceof(kendo.Observable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.Observable'));
             switch (e.field) {
                 case VIEWMODEL.LANGUAGE:
-                    if ($.isPlainObject(i18n.culture)) {
-                        mobile.localize(e.sender.get(VIEWMODEL.LANGUAGE));
-                        viewModel.reset();
+                    if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {
+                        // mobile.localize(e.sender.get(VIEWMODEL.LANGUAGE));
+                        // viewModel.reset();
                     }
                     break;
                 case VIEWMODEL.THEME:
@@ -996,17 +996,17 @@ if (typeof(require) === 'function') {
             window.alert(JSON.stringify(theme));
             // Initialize application
             mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                initial: DEVICE_SELECTOR + VIEW.SIGNIN,
-                skin: 'flat', // theme.skin,
+                initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
+                skin: theme.skin,
                 // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                 // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                 // http://devgirl.org/2014/07/31/phonegap-developers-guid/
                 // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
                 init: function (e) {
                     // Localise the application
-                    mobile.localize(viewModel.get(VIEWMODEL.LANGUAGE));
+                    // mobile.localize(viewModel.get(VIEWMODEL.LANGUAGE));
                     // Wire the resize event handler
-                    $(window).resize(mobile.onResize);
+                    // $(window).resize(mobile.onResize);
                     window.alert('setTimeout');
                     // hide the splash screen
                     setTimeout(function () {
