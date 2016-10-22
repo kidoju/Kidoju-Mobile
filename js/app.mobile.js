@@ -91,7 +91,7 @@ if (typeof(require) === 'function') {
         var assert = window.assert;
         var localStorage = window.localStorage;
         var logger = new window.Logger('app.mobile');
-        var support = kendo.support;
+        // var support = kendo.support;
         var app = window.app = window.app || {};
         var mobile = app.mobile = app.mobile || {};
         var i18n = app.i18n;
@@ -152,6 +152,8 @@ if (typeof(require) === 'function') {
             THEMES: 'themes',
             VERSION: 'version'
         };
+
+        window.console && window.console.log && window.console.log('app.mobile');
 
         /*******************************************************************************************
          * Shortcuts
@@ -245,7 +247,10 @@ if (typeof(require) === 'function') {
 
         /*******************************************************************************************
          * viewModel
-         *************************************************************ale******************************/
+         *******************************************************************************************/
+
+        // Setup ajax with longer timeout on mobile devices
+        $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
 
         var viewModel = mobile.viewModel = kendo.observable({
 
@@ -566,8 +571,10 @@ if (typeof(require) === 'function') {
             assert.instanceof(kendo.Observable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.Observable'));
             switch (e.field) {
                 case VIEWMODEL.LANGUAGE:
-                    mobile._localize(e.sender.get(VIEWMODEL.LANGUAGE));
-                    viewModel.reset();
+                    if ($.isPlainObject(i18n.culture)) {
+                        mobile.localize(e.sender.get(VIEWMODEL.LANGUAGE));
+                        viewModel.reset();
+                    }
                     break;
                 case VIEWMODEL.THEME:
                     app.theme.name(e.sender.get(VIEWMODEL.THEME));
@@ -711,7 +718,7 @@ if (typeof(require) === 'function') {
          * @param language
          * @private
          */
-        mobile._localize = function (language) {
+        mobile.localize = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'locale', app.locales));
             localStorage.setItem(STORAGE.LANGUAGE, language);
@@ -741,6 +748,8 @@ if (typeof(require) === 'function') {
             var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
             var drawerCulture = i18n.culture.drawer;
             var drawerViewElement = $(DEVICE_SELECTOR + VIEW.DRAWER);
+            window.alert('return');
+            return;
             // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
             var categoriesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(0)');
             categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.categories));
@@ -906,14 +915,6 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         /**
-         * Resize the UI
-         * @private
-         */
-        mobile._resize = function () {
-            mobile._resizePlayer();
-        };
-
-        /**
          * Resize player
          * @private
          */
@@ -946,6 +947,15 @@ if (typeof(require) === 'function') {
             }
         };
 
+        /**
+         * Event handler for resizing the UI (especially when changing device orientation)
+         * @private
+         */
+        mobile.onResize = function () {
+            mobile._resizePlayer();
+            // Anything else to resize?
+        };
+
         /*******************************************************************************************
          * Event handler and utility methods
          *******************************************************************************************/
@@ -955,8 +965,6 @@ if (typeof(require) === 'function') {
          * Loads the application
          */
         mobile.onDeviceReady = function () {
-            // Setup ajax with longer timeout on mobile devices
-            $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
             // Set shortcusts
             setShortcuts();
             // Load settings including locale and theme
@@ -965,42 +973,47 @@ if (typeof(require) === 'function') {
             viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // initialize secure storage
             mobile.secureStorage.init(app.constants.kidoju);
-            // Wait for i18n resources to be loaded
-            $(document).on(LOADED, function () {
-                var theme = viewModel.getTheme();
-                // Initialize application
-                mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                    initial: DEVICE_SELECTOR + VIEW.SIGNIN,
-                    skin: theme.skin,
-                    // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
-                    // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
-                    // http://devgirl.org/2014/07/31/phonegap-developers-guid/
-                    // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
-                    init: function (e) {
-                        viewModel.set('languages', i18n.culture.viewModel.languages);
-                        viewModel.set('themes', i18n.culture.viewModel.themes);
-                    }
-                });
-            });
-            // Handle resize event (especially when changing device orientation)
-            $(window).resize(mobile._resize);
-            // hide the splash screen
-            setTimeout(function () {
-                if (mobile.support.splashscreen) {
-                    mobile.splashscreen.hide();
-                }
-            }, 1500); // + 500 default fadeOut time
+            // initialize the user interface
+            if ($(document).data(LOADED)) {
+                window.alert('no wait');
+                // LOADED has already been triggered and it is too late to capture
+                mobile.oni18nLoaded();
+            } else {
+                window.alert('wait');
+                // Wait for the i18n loaded event
+                $(document).one(LOADED, mobile.oni18nLoaded);
+            }
         };
 
         /**
-         * Event handler triggered when initializing the Drawer view
-         * Note: the init event is triggered the first time the view is requested
-         * @param e
+         * Event handler for the LOADED (i18n.loaded) event
          */
-        mobile.onDrawerViewInit = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeDrawerView(viewModel.get(VIEWMODEL.LANGUAGE));
-            // mobile._setNavBar(e.view);
+        mobile.oni18nLoaded = function () {
+            assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'i18n.culture'));
+            var theme = viewModel.getTheme();
+            // Initialize application
+            mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
+                initial: DEVICE_SELECTOR + VIEW.SIGNIN,
+                skin: theme.skin,
+                // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
+                // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
+                // http://devgirl.org/2014/07/31/phonegap-developers-guid/
+                // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
+                init: function (e) {
+                    viewModel.set('languages', i18n.culture.viewModel.languages);
+                    viewModel.set('themes', i18n.culture.viewModel.themes);
+                    // Localise the application
+                    mobile.localize(viewModel.get(VIEWMODEL.LANGUAGE));
+                    // Wire the resize event handler
+                    $(window).resize(mobile.onResize);
+                    // hide the splash screen
+                    setTimeout(function () {
+                        if (mobile.support.splashscreen) {
+                            mobile.splashscreen.hide();
+                        }
+                    }, 500); // + 500 default fadeOut time
+                }
+            });
         };
 
         /**
@@ -1407,17 +1420,15 @@ if (typeof(require) === 'function') {
          * Application initialization
          *******************************************************************************************/
 
-        $(function () {
-            // $(document).on(LOADED, function () {
-            if ($.type(window.cordova) === UNDEFINED) {
-                // No need to wait when running/debugging on a PC
+        if ($.type(window.cordova) === UNDEFINED) {
+            // Wait for the DOM to be ready
+            $(function () {
                 mobile.onDeviceReady();
-            } else {
-                // Wait for Cordova to load
-                document.addEventListener('deviceready', mobile.onDeviceReady, false);
-            }
-        });
-
+            });
+        } else {
+            // Wait for Cordova to load
+            document.addEventListener('deviceready', mobile.onDeviceReady, false);
+        }
 
     }(window.jQuery));
 
