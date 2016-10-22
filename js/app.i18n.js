@@ -128,7 +128,7 @@
             i18n.load(locale)
                 .then(function () {
                     if ($.type(window.cordova) === UNDEFINED) {
-                        fireLoaded()
+                        fireLoaded();
                     } else {
                         // only fire after device is ready
                         document.addEventListener('deviceready', fireLoaded, false);

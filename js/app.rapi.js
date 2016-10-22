@@ -275,9 +275,8 @@
              */
             parseToken: function (url) {
                 // When running tests with grunt.mochaTest, the url is a file url - file:///C:/Users/Jacques-Louis/Creative Cloud Files/Kidoju/Kidoju.Server/test/client/app.cache.test.html
-                // if (!app.DEBUG) {
-                //    assert.match(RX_URL, url, rapi.util.format(assert.messages.match.default, 'url', RX_URL));
-                // }
+                // Also this assert fails in Phonegap InAppBrowser
+                assert.match(RX_URL, url, rapi.util.format(assert.messages.match.default, 'url', RX_URL));
                 var pos1 = rapi.util.getAccessTokenHashPos(url);
                 var qs = {};
                 var token = {};
@@ -455,6 +454,7 @@
              * @returns {*}
              */
             cleanUrl: function (url) {
+                // This assert fails in Phonegap InAppBrowser
                 // assert.match(RX_URL, url, rapi.util.format(assert.messages.match.default, 'url', RX_URL));
                 var ret = url;
                 var pos = rapi.util.getAccessTokenHashPos(url);
