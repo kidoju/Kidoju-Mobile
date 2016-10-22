@@ -993,10 +993,11 @@ if (typeof(require) === 'function') {
         mobile.oni18nLoaded = function () {
             assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'i18n.culture'));
             var theme = viewModel.getTheme();
+            window.alert(JSON.stringify(theme));
             // Initialize application
             mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                 initial: DEVICE_SELECTOR + VIEW.SIGNIN,
-                skin: theme.skin,
+                skin: 'flat', // theme.skin,
                 // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                 // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                 // http://devgirl.org/2014/07/31/phonegap-developers-guid/
