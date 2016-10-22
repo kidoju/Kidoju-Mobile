@@ -110,9 +110,9 @@ if (typeof(require) === 'function') {
         var VIRTUAL_PAGE_SIZE = 30; // Display 10 items * 3 DOM Element * 2
         var HASH = '#';
         var PHONE = 'phone';
-        var TABLET = 'tablet';
-        var DEVICE_SELECTOR = HASH + TABLET;
-        // DEVICE_SELECTOR = HASH + PHONE;
+        var DEVICE_SELECTOR = HASH + PHONE;
+        // var TABLET = 'tablet';
+        // var DEVICE_SELECTOR = HASH + TABLET;
         // var DEVICE_SELECTOR = HASH + (support.mobileOS && support.mobileOS.tablet ? TABLET : PHONE)
         var LAYOUT = {
             MAIN: '-main-layout'
@@ -993,7 +993,16 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'i18n.culture'));
             var theme = viewModel.getTheme();
             window.alert(JSON.stringify(theme));
+            // hide the splash screen
+            setTimeout(function () {
+                window.alert('splashscreen');
+                if (mobile.support.splashscreen) {
+                    window.alert('support');
+                    mobile.splashscreen.hide();
+                }
+            }, 500); // + 500 default fadeOut time
             // Initialize application
+            window.alert($(DEVICE_SELECTOR).length);
             mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                 initial: DEVICE_SELECTOR + VIEW.SIGNIN,
                 skin: theme.skin,
@@ -1010,15 +1019,6 @@ if (typeof(require) === 'function') {
             });
             // Wire the resize event handler
             // $(window).resize(mobile.onResize);
-            window.alert('setTimeout');
-            // hide the splash screen
-            setTimeout(function () {
-                window.alert('splashscreen');
-                if (mobile.support.splashscreen) {
-                    window.alert('support');
-                    mobile.splashscreen.hide();
-                }
-            }, 500); // + 500 default fadeOut time
         };
 
         /**
