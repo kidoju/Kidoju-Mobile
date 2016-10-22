@@ -163,11 +163,12 @@ if (typeof(require) === 'function') {
          */
         function setShortcuts () {
             mobile.support = {
-                alert: window.navigator && window.navigator.notification && $.isfunction (window.navigator.notification.alert) && $.isfunction (window.navigator.notification.beep),
-                barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isfunction (window.cordova.plugins.barcodeScanner.scan),
+                alert: window.navigator && window.navigator.notification && $.isFunction(window.navigator.notification.alert) && $.isFunction(window.navigator.notification.beep),
+                barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan),
                 cordova: $.type(window.cordova) !== UNDEFINED,
-                inAppBrowser: window.cordova && window.cordova.InAppBrowser && $.isfunction (window.cordova.InAppBrowser.open),
-                splashscreen: window.navigator && window.navigator.splashscreen && $.isfunction (window.navigator.splashscreen.hide)
+                inAppBrowser: window.cordova && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
+                socialsharing: window && window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
+                splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
             };
             // barcodeScanner requires phonegap-plugin-barcodescanner
             if (mobile.support.barcodeScanner) {
@@ -209,7 +210,11 @@ if (typeof(require) === 'function') {
                     }
                 }
             };
-            // secureStorage requires cordova-plugin-secure-storage
+            // secureStorage requires cordova-plugin-x-socialsharing
+            if (mobile.support.socialsharing) {
+                mobile.socialsharing = window.plugins.socialsharing;
+            }
+            // socialSharing requires cordova-plugin-secure-storage
             mobile.secureStorage = window.secureStorage;
             // splashscreen requires cordova-plugin-splashscreen
             if (mobile.support.splashscreen) {
@@ -312,6 +317,10 @@ if (typeof(require) === 'function') {
 
             hasBarCodeScanner$: function () {
                 return mobile.support.barcodeScanner;
+            },
+
+            hasSocialSharing$: function () {
+                return mobile.support.socialsharing;
             },
 
             reset: function () {
@@ -1004,7 +1013,7 @@ if (typeof(require) === 'function') {
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             if (e.item.is('li[data-icon=scan]')) {
                 e.preventDefault();
-                if (window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isfunction (window.cordova.plugins.barcodeScanner.scan)) {
+                if (window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan)) {
                     var QR_CODE = 'QR_CODE';
                     var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-z0-9]{24})$/i;
                     window.cordova.plugins.barcodeScanner.scan(
@@ -1303,8 +1312,8 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onSummariesActionShare = function (e) {
-            if (window && window.plugins && window.plugins.socialsharing && $.isfunction (window.plugins.socialsharing.shareWithOptions)) {
-                window.plugins.socialsharing.shareWithOptions(
+            if (mobile.support.socialsharing) {
+                mobile.socialsharing.shareWithOptions(
                     {
                         // this is the complete list of currently supported params on can pass to the social share plugin (all optional)
                         message: 'share this', // not supported on some apps (Facebook, Instagram)
@@ -1314,15 +1323,14 @@ if (typeof(require) === 'function') {
                         chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
                     },
                     function (result) {
-                        window.console.log('Share completed? ' + result.completed); // On Android apps mostly return false even while it's true
-                        window.console.log('Shared to app: ' + result.app); // On Android result.app is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
+                        mobile.notification.info('Share completed? ' + result.completed + '/' + result.app);
+                        // On Android apps mostly return result.completed=false even while it's true
+                        // On Android result.app (the app shared to) is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
                     },
                     function (msg) {
-                        mobile.notification.alert('Sharing failed with message: ' + msg);
+                        mobile.notification.error('Sharing failed: ' + msg);
                     }
                 );
-            } else {
-                mobile.notification.alert('Something went wrong...', null, 'Error', 'OK');
             }
         };
 

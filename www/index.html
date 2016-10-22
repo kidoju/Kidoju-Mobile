@@ -337,7 +337,7 @@
         <!--ul data-role="listview" data-bind="source: summaries" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-summaries-template"></ul-->
         <ul id="phone-summaries-actionsheet" data-role="actionsheet">
             <li><a data-action="app.mobile.onSummariesActionPlay" class="km-actionsheet-play">Play</a></li>
-            <li><a data-action="app.mobile.onSummariesActionShare" class="km-actionsheet-share">Share</a></li>
+            <li data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onSummariesActionShare" class="km-actionsheet-share">Share</a></li>
         </ul>
         <script type="text/x-kendo-template" id="phone-summaries-template">
             <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
