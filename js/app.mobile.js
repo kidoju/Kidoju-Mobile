@@ -1130,10 +1130,10 @@ if (typeof(require) === 'function') {
                             var data = app.rapi.util.parseToken(url);
                             /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
                             if ($.type(data.access_token) === STRING) { // so we only close the InAppBrowser once we have received an auth_token
-                                mobile.notification.alert(JSON.stringify(data));
                                 inAppBrowser.removeEventListener('loadStart', loadStart);
                                 inAppBrowser.removeEventListener('loadError', loadError);
                                 inAppBrowser.close();
+                                mobile.notification.alert(JSON.stringify(data));
                             }
                             /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                         };
