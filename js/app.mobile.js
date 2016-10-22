@@ -163,11 +163,11 @@ if (typeof(require) === 'function') {
          */
         function setShortcuts () {
             mobile.support = {
-                alert: window.navigator && window.navigator.notification && $.isFunction(window.navigator.notification.alert) && $.isFunction(window.navigator.notification.beep),
-                barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan),
+                alert: window.navigator && window.navigator.notification && $.isfunction (window.navigator.notification.alert) && $.isfunction (window.navigator.notification.beep),
+                barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isfunction (window.cordova.plugins.barcodeScanner.scan),
                 cordova: $.type(window.cordova) !== UNDEFINED,
-                inAppBrowser: window.cordova && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
-                splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
+                inAppBrowser: window.cordova && window.cordova.InAppBrowser && $.isfunction (window.cordova.InAppBrowser.open),
+                splashscreen: window.navigator && window.navigator.splashscreen && $.isfunction (window.navigator.splashscreen.hide)
             };
             // barcodeScanner requires phonegap-plugin-barcodescanner
             if (mobile.support.barcodeScanner) {
@@ -188,8 +188,8 @@ if (typeof(require) === 'function') {
                 },
                 error: function (message, callback) {
                     if (mobile.support.alert) {
-                    window.navigator.notification.beep(1);
-                    window.navigator.notification.alert(message, callback, i18n.culture.notification.error, i18n.culture.notification.ok);
+                        window.navigator.notification.beep(1);
+                        window.navigator.notification.alert(message, callback, i18n.culture.notification.error, i18n.culture.notification.ok);
                     } else {
                         window.alert(message);
                     }
@@ -222,7 +222,7 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         // TODO Global Event Handler - See app.logger
-        window.onerror = function(message, source, lineno, colno, error) {
+        window.onerror = function (message, source, lineno, colno, error) {
             mobile.notification.error(message);
         };
 
@@ -230,11 +230,11 @@ if (typeof(require) === 'function') {
          * Event handler triggered when calling a url with the kidoju:// scheme
          * @param url
          */
-        window.handleOpenURL = function(url) {
-            setTimeout(function() {
+        window.handleOpenURL = function (url) {
+            setTimeout(function () {
                 // Try kidoju://hello?a=1&b=2
                 // ----------------------------------------------------------------------------------------------------------------------- TODO
-                mobile.notification.info("received url: " + url);
+                mobile.notification.info('received url: ' + url);
             }, 100);
         };
 
@@ -516,7 +516,7 @@ if (typeof(require) === 'function') {
              * Get the current theme
              * @param name
              */
-            getTheme: function() {
+            getTheme: function () {
                 var name = this.get(VIEWMODEL.THEME);
                 if (!this.get(VIEWMODEL.THEMES).length) {
                     this.set(VIEWMODEL.THEMES, i18n.culture.viewModel.themes);
@@ -1004,7 +1004,7 @@ if (typeof(require) === 'function') {
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             if (e.item.is('li[data-icon=scan]')) {
                 e.preventDefault();
-                if (window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan)) {
+                if (window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isfunction (window.cordova.plugins.barcodeScanner.scan)) {
                     var QR_CODE = 'QR_CODE';
                     var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-z0-9]{24})$/i;
                     window.cordova.plugins.barcodeScanner.scan(
@@ -1015,7 +1015,7 @@ if (typeof(require) === 'function') {
                                 var matches = result.text.match(RX_QR_CODE_MATCH);
                                 if ($.isArray(matches) && matches.length > 2) {
                                     var language = matches[1];
-                                     var summaryId = matches[2];
+                                    var summaryId = matches[2];
                                     if (viewModel.get(VIEWMODEL.LANGUAGE) === language) {
                                         // Find latest version (previous versions are not available in the mobile app)
                                         viewModel.loadLazyVersions(summaryId)
@@ -1038,7 +1038,7 @@ if (typeof(require) === 'function') {
                             }
                         },
                         function (error) {
-                            mobile.notification.alert("Scanning failed: " + error);
+                            mobile.notification.alert('Scanning failed: ' + error);
                         },
                         {
                             preferFrontCamera: false, // iOS and Android
@@ -1118,23 +1118,24 @@ if (typeof(require) === 'function') {
             var returnUrl = mobile.support.cordova ? 'http://localhost/' : window.location.href; // TODO: use kidoju://
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (url) {
-                    debugger;
-                    if (mobile.support.cordova) { //running under Phonegap -> open InAppBrowser
+                    if (mobile.support.cordova) { // running under Phonegap -> open InAppBrowser
                         var loadStart = function (e) {
                             var url = e.url;
-                            //the loadstart event is triggered each time a new url (redirection) is loaded
+                            // the loadstart event is triggered each time a new url (redirection) is loaded
                             logger.debug({
                                 message: 'loadstart event of InAppBrowser',
                                 method: 'mobile.onLoginButtonClick',
                                 data: { url: url }
                             });
                             var data = app.rapi.util.parseToken(url);
-                            if ($.type(data.access_token) === STRING) { //so we only close the InAppBrowser once we have received an auth_token
+                            /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+                            if ($.type(data.access_token) === STRING) { // so we only close the InAppBrowser once we have received an auth_token
                                 mobile.notification.alert(JSON.stringify(data));
                                 inAppBrowser.removeEventListener('loadStart', loadStart);
                                 inAppBrowser.removeEventListener('loadError', loadError);
                                 inAppBrowser.close();
                             }
+                            /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                         };
                         var loadError = function (error) {
                             logger.error({
@@ -1148,7 +1149,7 @@ if (typeof(require) === 'function') {
                         var inAppBrowser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
                         inAppBrowser.addEventListener('loadstart', loadStart);
                         inAppBrowser.addEventListener('loaderror', loadError);
-                    } else { //this is a browser --> simply redirect to login url
+                    } else { // this is a browser --> simply redirect to login url
                         window.location.assign(url);
                     }
                 })
@@ -1302,7 +1303,7 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onSummariesActionShare = function (e) {
-            if (window && window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions)) {
+            if (window && window.plugins && window.plugins.socialsharing && $.isfunction (window.plugins.socialsharing.shareWithOptions)) {
                 window.plugins.socialsharing.shareWithOptions(
                     {
                         // this is the complete list of currently supported params on can pass to the social share plugin (all optional)
@@ -1312,12 +1313,12 @@ if (typeof(require) === 'function') {
                         url: 'https://www.website.com/foo/#bar?a=b',
                         chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
                     },
-                    function(result) {
-                        console.log("Share completed? " + result.completed); // On Android apps mostly return false even while it's true
-                        console.log("Shared to app: " + result.app); // On Android result.app is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
+                    function (result) {
+                        window.console.log('Share completed? ' + result.completed); // On Android apps mostly return false even while it's true
+                        window.console.log('Shared to app: ' + result.app); // On Android result.app is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
                     },
-                    function(msg) {
-                        console.log("Sharing failed with message: " + msg);
+                    function (msg) {
+                        mobile.notification.alert('Sharing failed with message: ' + msg);
                     }
                 );
             } else {

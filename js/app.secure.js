@@ -47,7 +47,7 @@
                         logger.debug({
                             message: 'SecureStorage successfully initialized',
                             method: 'SecureStorage.prototype.init'
-                        })
+                        });
                     },
                     function () {
                         // See: https://github.com/Crypho/cordova-plugin-secure-storage#users-must-have-a-secure-screen-lock-set
@@ -101,7 +101,7 @@
                 logger.info({
                     message: 'SecureStorage not available, using localStorage',
                     method: 'SecureStorage.prototype.init'
-                })
+                });
             }
         };
 
