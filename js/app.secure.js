@@ -23,6 +23,9 @@
         var SEP = '.';
         var assert = window.assert;
         var logger = new window.Logger('app.secure');
+        var app = window.app = window.app || {};
+        var mobile = app.mobile = app.mobile || {};
+        var i18n = app.i18n;
 
         /**
          * SecureStorage
@@ -38,7 +41,6 @@
         SecureStorage.prototype.init = function (name) {
             assert.isUndefined(this._ss, '`this._ss` should be undefined when calling init');
             var that = this;
-            var alert = window.navigator.notification.alert;
             if (window.cordova && window.cordova.plugins && window.cordova.plugins.SecureStorage) {
                 that._ss = new window.cordova.plugins.SecureStorage(
                     function () {
@@ -51,19 +53,18 @@
                         // See: https://github.com/Crypho/cordova-plugin-secure-storage#users-must-have-a-secure-screen-lock-set
                         that._ss.secureDevice(
                             function () {
-                                alert('Screen lock enabled. Enjoy our secure features.', undefined, 'Information');
+                                mobile.notification.success(i18n.culture.secureStorage.success);
                             },
                             function () {
-                                alert(
-                                    'Screen lock disabled. Sorry, but our app cannot store user pins without it.',
+                                mobile.notification.warning(
+                                    i18n.culture.secureStorage.warning,
                                     function () {
                                         // Note iOS would not allow exiting an app programmatically
                                         // and Android would still keep an unstable app in the recent apps
                                         // window.navigator.app.exitApp();
                                         that._ss = undefined;
                                         that.init(name);
-                                    },
-                                    'Error'
+                                    }
                                 );
 
                             }

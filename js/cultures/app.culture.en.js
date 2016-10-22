@@ -21,6 +21,17 @@
         var app = window.app = window.app || {};
         app.cultures = app.cultures || {};
         app.cultures.en = {
+            notification: {
+                error: 'Error',
+                info: 'Information',
+                ok: 'OK',
+                success: 'Success',
+                warning: 'Warning'
+            },
+            secureStorage: {
+                success: 'With screen lock enabled, you benefit from confidential data encryption.',
+                warning: 'Screen lock is disabled. Sorry, but our app cannot store confidential data without it.'
+            },
             versions: {
                 draft: {
                     name: 'Draft'
@@ -49,15 +60,6 @@
             favourites: {
                 viewTitle: 'Favourites'
             },
-            // Login view
-            login: {
-                viewTitle: 'Login',
-                groupTitle: 'Please choose an authentication provider'
-            },
-            // Pin view
-            pin: {
-                viewTitle: 'PIN'
-            },
             // Player view
             player: {
                 explanations: 'Explanations',
@@ -72,6 +74,11 @@
                 language: 'Language',
                 theme: 'Theme'
             },
+            // Sign-in view
+            signin: {
+                viewTitle: 'Sign in',
+                groupTitle: 'Please choose an authentication provider'
+            },
             // Summaries view
             summaries: {
                 viewTitle: 'Search',
@@ -80,6 +87,10 @@
                     play: 'Play',
                     share: 'Share'
                 }
+            },
+            // User view
+            user: {
+                viewTitle: 'User'
             },
             // viewModel
             viewModel: {

@@ -54,7 +54,7 @@
     </div>
 
     <!-- Drawer -->
-    <div id="phone-drawer" data-role="drawer" data-position="left" data-swipe-to-open="false" data-init="app.mobile.onDrawerViewInit">
+    <div id="phone-drawer" data-role="drawer" data-position="left" data-swipe-to-open="false" data-model="app.mobile.viewModel" data-init="app.mobile.onDrawerViewInit">
         <header data-role="header">
             <div data-role="navbar">
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" height="45" width="102" viewBox="0 0 120 50" enable-background="new 0 0 120 50" xml:space="preserve">
@@ -212,7 +212,7 @@
         <div data-role="content" class="km-content km-stretched-view">
             <ul data-role="listview" data-click="app.mobile.onDrawerListViewClick">
                 <li data-icon="home"><a href="#phone-categories">Explore</a></li>
-                <li data-icon="scan"><a href="#">Scan</a></li>
+                <li data-icon="scan" data-bind="visible: hasBarCodeScanner$"><a href="#">Scan</a></li>
                 <li data-icon="favourites"><a href="#phone-favourites">Favourites</a></li>
                 <li data-icon="activities"><a href="#phone-activities">Activities</a></li>
                 <!-- TODO challenges -->
@@ -250,23 +250,6 @@
         <script type="text/x-kendo-template" id="phone-favourites-template">
             <a href="\#phone-player">#: title #</a>
         </script>
-    </div>
-
-    <!-- Login view -->
-    <div id="phone-login" data-role="view" data-layout="phone-main-layout" data-title="Login" data-show="app.mobile.onLoginViewShow">
-        <!--ul data-role="listview" data-type="group"-->
-        <ul>
-            <li>Please choose an authentication provider</li>
-            <li><a data-role="button" class="km-justified km-button" data-provider="google" data-click="app.mobile.onLoginButtonClick"><i class="fa fa-google"></i>Google</a></li>
-            <li><a data-role="button" class="km-justified km-button" data-provider="facebook" data-click="app.mobile.onLoginButtonClick"><i class="fa fa-facebook"></i>Facebook</a></li>
-            <li><a data-role="button" class="km-justified km-button" data-provider="twitter" data-click="app.mobile.onLoginButtonClick"><i class="fa fa-twitter"></i>Twitter</a></li>
-            <li><a data-role="button" class="km-justified km-button" data-provider="live" data-click="app.mobile.onLoginButtonClick"><i class="fa fa-live"></i>Windows Live</a></li>
-        </ul>
-    </div>
-
-    <!-- Pin view -->
-    <div id="phone-pin" data-role="view" data-layout="phone-main-layout" data-title="PIN" data-show="app.mobile.onPinViewShow">
-
     </div>
 
     <!-- Player view -->
@@ -328,6 +311,23 @@
         </form>
     </div>
 
+    <!-- Sign-in view -->
+    <form id="phone-signin" data-role="view" data-layout="phone-main-layout" data-title="Sign in" data-show="app.mobile.onSigninViewShow">
+        <form>
+            <ul data-role="listview" data-type="group" data-style="inset">
+                <li>Please choose an authentication provider
+                    <ul>
+                        <li><button data-role="button" class="km-large km-justified" data-provider="google" data-click="app.mobile.onSigninButtonClick"><i class="fa fa-google"></i>Google</button></li>
+                        <li><button data-role="button" class="km-large km-justified" data-provider="facebook" data-click="app.mobile.onSigninButtonClick"><i class="fa fa-facebook"></i>Facebook</button></li>
+                        <li><button data-role="button" class="km-large km-justified" data-provider="twitter" data-click="app.mobile.onSigninButtonClick"><i class="fa fa-twitter"></i>Twitter</button></li>
+                        <li><button data-role="button" class="km-large km-justified" data-provider="live" data-click="app.mobile.onSigninButtonClick"><i class="fa fa-live"></i>Windows Live</button></li>
+                        <li><button data-role="button" class="km-large km-justified" data-provider="dummy" data-click="app.mobile.onSigninButtonClick"><i class="fa fa-live"></i>Dummy</button></li>
+                    </ul>
+                </li>
+            </ul>
+        </form>
+    </div>
+
     <!-- Summaries view -->
     <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-model="app.mobile.viewModel" data-before-show="app.mobile.onSummariesBeforeViewShow" data-show="app.mobile.onSummariesViewShow">
 
@@ -363,6 +363,11 @@
                 </a>
             </div>
         </script>
+    </div>
+
+    <!-- User view -->
+    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-show="app.mobile.onUserViewShow">
+
     </div>
 
 </div>

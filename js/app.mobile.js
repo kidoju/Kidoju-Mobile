@@ -121,12 +121,12 @@ if (typeof(require) === 'function') {
             CATEGORIES: '-categories',
             DRAWER: '-drawer',
             FAVOURITES: '-favourites',
-            LOGIN: '-login',
-            PIN: '-pin',
             PLAYER: '-player',
             SCORE: '-score',
             SETTINGS: '-settings',
-            SUMMARIES: '-summaries'
+            SIGNIN: '-signin',
+            SUMMARIES: '-summaries',
+            USER: '-user'
         };
         var DEFAULT = {
             LANGUAGE: 'en',
@@ -154,12 +154,76 @@ if (typeof(require) === 'function') {
         };
 
         /*******************************************************************************************
+         * Shortcuts
+         *******************************************************************************************/
+
+        /**
+         * These shortcuts can only be set in onDeviceReady when all cordova plugins are loaded
+         * This is also structured so as to work in a browser independently from `phonegap serve`
+         */
+        function setShortcuts () {
+            mobile.support = {
+                alert: window.navigator && window.navigator.notification && $.isFunction(window.navigator.notification.alert) && $.isFunction(window.navigator.notification.beep),
+                barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan),
+                cordova: $.type(window.cordova) !== UNDEFINED,
+                inAppBrowser: window.cordova && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
+                splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
+            };
+            // barcodeScanner requires phonegap-plugin-barcodescanner
+            if (mobile.support.barcodeScanner) {
+                mobile.barcodeScanner = window.cordova.plugins.barcodeScanner;
+            }
+            // InAppBrowser requires cordova-plugin-inappbrowser
+            if (mobile.support.inAppBrowser) {
+                mobile.InAppBrowser = window.cordova.InAppBrowser;
+            }
+            // notification requires cordova-plugin-dialogs
+            mobile.notification = {
+                info: function (message, callback) {
+                    if (mobile.support.alert) {
+                        window.navigator.notification.alert(message, callback, i18n.culture.notification.info, i18n.culture.notification.ok);
+                    } else {
+                        window.alert(message);
+                    }
+                },
+                error: function (message, callback) {
+                    if (mobile.support.alert) {
+                    window.navigator.notification.beep(1);
+                    window.navigator.notification.alert(message, callback, i18n.culture.notification.error, i18n.culture.notification.ok);
+                    } else {
+                        window.alert(message);
+                    }
+                },
+                success: function (message, callback) {
+                    if (mobile.support.alert) {
+                        window.navigator.notification.alert(message, callback, i18n.culture.notification.success, i18n.culture.notification.ok);
+                    } else {
+                        window.alert(message);
+                    }
+                },
+                warning: function (message, callback) {
+                    if (mobile.support.alert) {
+                        window.navigator.notification.alert(message, callback, i18n.culture.notification.warning, i18n.culture.notification.ok);
+                    } else {
+                        window.alert(message);
+                    }
+                }
+            };
+            // secureStorage requires cordova-plugin-secure-storage
+            mobile.secureStorage = window.secureStorage;
+            // splashscreen requires cordova-plugin-splashscreen
+            if (mobile.support.splashscreen) {
+                mobile.splashscreen = window.navigator.splashscreen;
+            }
+        }
+
+        /*******************************************************************************************
          * Global handlers
          *******************************************************************************************/
 
         // TODO Global Event Handler - See app.logger
         window.onerror = function(message, source, lineno, colno, error) {
-            window.navigator.notification.alert(message);
+            mobile.notification.error(message);
         };
 
         /**
@@ -169,8 +233,8 @@ if (typeof(require) === 'function') {
         window.handleOpenURL = function(url) {
             setTimeout(function() {
                 // Try kidoju://hello?a=1&b=2
-                // @see
-                window.navigator.notification.alert("received url: " + url);
+                // ----------------------------------------------------------------------------------------------------------------------- TODO
+                mobile.notification.info("received url: " + url);
             }, 100);
         };
 
@@ -244,6 +308,10 @@ if (typeof(require) === 'function') {
                 version: app.version,
                 language: DEFAULT.LANGUAGE,
                 theme: DEFAULT.THEME
+            },
+
+            hasBarCodeScanner$: function () {
+                return mobile.support.barcodeScanner;
             },
 
             reset: function () {
@@ -647,7 +715,9 @@ if (typeof(require) === 'function') {
                 mobile._localizeFavouritesView(language);
                 mobile._localizePlayerView(language);
                 mobile._localizeSettingsView(language);
+                mobile._localizeSigninView(language);
                 mobile._localizeSummariesView(language);
+                mobile._localizeUserView(language);
             });
         };
 
@@ -727,41 +797,6 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Localize the login view
-         * @param language
-         * @private
-         */
-        mobile._localizeLoginView = function (language) {
-            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
-            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var loginCulture = i18n.culture.login;
-            var loginViewElement = $(DEVICE_SELECTOR + VIEW.LOGIN);
-            // The view may not have been intialized yet
-            var loginView = loginViewElement.data('kendoMobileView');
-            if (loginView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(loginView, loginCulture.viewTitle);
-            }
-            // TODO localize the group title
-        };
-
-        /**
-         * Localize the pin view
-         * @param language
-         * @private
-         */
-        mobile._localizePinView = function (language) {
-            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
-            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var pinCulture = i18n.culture.pin;
-            var pinViewElement = $(DEVICE_SELECTOR + VIEW.PIN);
-            // The view may not have been intialized yet
-            var pinView = pinViewElement.data('kendoMobileView');
-            if (pinView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(pinView, pinCulture.viewTitle);
-            }
-        };
-
-        /**
          * Localize the player view
          * @param language
          * @private
@@ -799,6 +834,24 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Localize the sign-in view
+         * @param language
+         * @private
+         */
+        mobile._localizeSigninView = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var signinCulture = i18n.culture.signin;
+            var signinViewElement = $(DEVICE_SELECTOR + VIEW.SIGNIN);
+            // The view may not have been intialized yet
+            var signinView = signinViewElement.data('kendoMobileView');
+            if (signinView instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(signinView, signinCulture.viewTitle);
+            }
+            // TODO localize the group title
+        };
+
+        /**
          * Localize the summaries view
          * @param language
          * @private
@@ -820,6 +873,23 @@ if (typeof(require) === 'function') {
             summariesActionSheetElement.find('li.km-actionsheet-cancel > a').text(summariesCulture.actionSheet.cancel);
             summariesActionSheetElement.find('li.km-actionsheet-play > a').text(summariesCulture.actionSheet.play);
             summariesActionSheetElement.find('li.km-actionsheet-share > a').text(summariesCulture.actionSheet.share);
+        };
+
+        /**
+         * Localize the user view
+         * @param language
+         * @private
+         */
+        mobile._localizeUserView = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var userCulture = i18n.culture.user;
+            var userViewElement = $(DEVICE_SELECTOR + VIEW.USER);
+            // The view may not have been intialized yet
+            var userView = userViewElement.data('kendoMobileView');
+            if (userView instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(userView, userCulture.viewTitle);
+            }
         };
 
         /*******************************************************************************************
@@ -878,23 +948,25 @@ if (typeof(require) === 'function') {
         mobile.onDeviceReady = function () {
             // Setup ajax with longer timeout on mobile devices
             $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
+            // Set shortcusts
+            setShortcuts();
             // Load settings including locale and theme
             viewModel.loadSettings();
             // Initialize pageSize for virtual scrolling
             viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // initialize secure storage
-            window.secureStorage.init(app.constants.kidoju);
+            mobile.secureStorage.init(app.constants.kidoju);
             // Wait for i18n resources to be loaded
             $(document).on(LOADED, function () {
                 var theme = viewModel.getTheme();
                 // Initialize application
                 mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                    initial: DEVICE_SELECTOR + VIEW.LOGIN,
+                    initial: DEVICE_SELECTOR + VIEW.SIGNIN,
                     skin: theme.skin,
                     // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                     // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                     // http://devgirl.org/2014/07/31/phonegap-developers-guid/
-                    // statusBarStyle: window.cordova ? 'black-translucent' : undefined,
+                    // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
                     init: function (e) {
                         viewModel.set('languages', i18n.culture.viewModel.languages);
                         viewModel.set('themes', i18n.culture.viewModel.themes);
@@ -905,7 +977,9 @@ if (typeof(require) === 'function') {
             $(window).resize(mobile._resize);
             // hide the splash screen
             setTimeout(function () {
-                window.navigator.splashscreen.hide();
+                if (mobile.support.splashscreen) {
+                    mobile.splashscreen.hide();
+                }
             }, 1500); // + 500 default fadeOut time
         };
 
@@ -953,18 +1027,18 @@ if (typeof(require) === 'function') {
                                             })
                                             .fail(function () {
                                                 // TODO error should be in loadLazyVersions
-                                                window.navigator.notification.alert('Error loading version', null, 'Error', 'OK');
+                                                mobile.notification.error('Error loading version');
                                             });
                                     } else {
-                                        window.navigator.notification.alert('Change language settings to scan this code', null, 'Error', 'OK');
+                                        mobile.notification.alert('Change language settings to scan this code');
                                     }
                                 } else {
-                                    window.navigator.notification.alert('This QR code does not match', null, 'Error', 'OK');
+                                    mobile.notification.alert('This QR code does not match');
                                 }
                             }
                         },
                         function (error) {
-                            window.navigator.notification.alert("Scanning failed: " + error);
+                            mobile.notification.alert("Scanning failed: " + error);
                         },
                         {
                             preferFrontCamera: false, // iOS and Android
@@ -975,7 +1049,7 @@ if (typeof(require) === 'function') {
                         }
                     );
                 } else {
-                    window.navigator.notification.alert('no barcode scanner...', null, 'Error', 'OK');
+                    mobile.notification.alert('no barcode scanner...', null, 'Error', 'OK');
                 }
             }
         };
@@ -1017,21 +1091,21 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler triggered when showing the login view
+         * Event handler triggered when showing the signin view
          * @param e
          */
-        mobile.onLoginViewShow = function (e) {
+        mobile.onSigninViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            mobile._localizeLoginView(viewModel.get(VIEWMODEL.LANGUAGE));
+            mobile._localizeSigninView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
 
         /**
-         * Event handler triggered when clicking a button on the login view
+         * Event handler triggered when clicking a button on the sign-in view
          * @param e
          */
-        mobile.onLoginButtonClick = function (e) {
+        mobile.onSigninButtonClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var provider = e.button.attr(kendo.attr('provider'));
@@ -1041,13 +1115,11 @@ if (typeof(require) === 'function') {
             // Instead, we pass a bogus redirect_uri of "http://localhost", which means the authorization code will get set in the url.
             // We can access this url in the loadstart and loadstop events.
             // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted us access to their data.
-            var returnUrl = $.type(window.cordova) === UNDEFINED ? window.location.href : 'http://localhost/'; // TODO: use kidoju://
+            var returnUrl = mobile.support.cordova ? 'http://localhost/' : window.location.href; // TODO: use kidoju://
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (url) {
                     debugger;
-                    if ($.type(window.cordova) === UNDEFINED) { //this is a browser --> simply redirect to login url
-                        window.location.assign(url);
-                    } else { //running under Phonegap -> open InAppBrowser
+                    if (mobile.support.cordova) { //running under Phonegap -> open InAppBrowser
                         var loadStart = function (e) {
                             var url = e.url;
                             //the loadstart event is triggered each time a new url (redirection) is loaded
@@ -1058,6 +1130,7 @@ if (typeof(require) === 'function') {
                             });
                             var data = app.rapi.util.parseToken(url);
                             if ($.type(data.access_token) === STRING) { //so we only close the InAppBrowser once we have received an auth_token
+                                mobile.notification.alert(JSON.stringify(data));
                                 inAppBrowser.removeEventListener('loadStart', loadStart);
                                 inAppBrowser.removeEventListener('loadError', loadError);
                                 inAppBrowser.close();
@@ -1072,9 +1145,11 @@ if (typeof(require) === 'function') {
                             inAppBrowser.removeEventListener('loadError', loadError);
                             inAppBrowser.close();
                         };
-                        var inAppBrowser = window.cordova.InAppBrowser.open(url, '_blank', 'location=no');
+                        var inAppBrowser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
                         inAppBrowser.addEventListener('loadstart', loadStart);
                         inAppBrowser.addEventListener('loaderror', loadError);
+                    } else { //this is a browser --> simply redirect to login url
+                        window.location.assign(url);
                     }
                 })
                 .fail(function (xhr, status, error) {
@@ -1088,13 +1163,13 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler triggered when showing the pin view
+         * Event handler triggered when showing the user view
          * @param e
          */
-        mobile.onPinViewShow = function (e) {
+        mobile.onUserViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            mobile._localizePinView(viewModel.get(VIEWMODEL.LANGUAGE));
+            mobile._localizeUserView(viewModel.get(VIEWMODEL.LANGUAGE));
             mobile._setNavBar(e.view);
         };
 
@@ -1108,9 +1183,10 @@ if (typeof(require) === 'function') {
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             e.view.content.kendoTouch({
                 enableSwipe: true,
-                minXDelta: 150,
+                minXDelta: 200,
                 maxDuration: 500,
                 swipe: function (e) {
+                    // Is there a way to test this has not been initiated by one of our draggables?
                     if (e.direction === 'left') {
                         viewModel.nextPage();
                     } else if (e.direction === 'right') {
@@ -1245,7 +1321,7 @@ if (typeof(require) === 'function') {
                     }
                 );
             } else {
-                window.navigator.notification.alert('Something went wrong...', null, 'Error', 'OK');
+                mobile.notification.alert('Something went wrong...', null, 'Error', 'OK');
             }
         };
 
@@ -1279,7 +1355,7 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onNavbarSubmitClick = function (e) {
-            navigator.notification.confirm(
+            mobile.notification.confirm(
                 'You are the winner!', // message
                 mobile.onNavbarSubmitConfirm,       // callback to invoke with index of button pressed
                 'Confirm',             // title

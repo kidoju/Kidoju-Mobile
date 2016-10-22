@@ -83,6 +83,30 @@ html, body, #phone {
 
     }
     /**********************************************************
+    * Sign-in view
+    **********************************************************/
+    #phone-signin {
+        .km-button {
+            width: 100%;
+            color: #ffffff;
+        }
+        .km-button[data-provider="google"] {
+            background-color: #d9534f;
+        }
+        .km-button[data-provider="facebook"] {
+            background-color: #337ab7;
+        }
+        .km-button[data-provider="twitter"] {
+            background-color: #5bc0de;
+        }
+        .km-button[data-provider="live"] {
+            background-color: #5cb85c;
+        }
+        .km-button[data-provider="dummy"] {
+            color: initial;
+        }
+    }
+    /**********************************************************
     * Summaries view (search results)
     **********************************************************/
     #phone-summaries {

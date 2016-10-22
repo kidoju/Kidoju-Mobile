@@ -21,6 +21,17 @@
         var app = window.app = window.app || {};
         app.cultures = app.cultures || {};
         app.cultures.fr = {
+            notification: {
+                error: 'Erreur',
+                info: 'Information',
+                ok: 'OK',
+                success: 'Succès',
+                warning: 'Attention'
+            },
+            secureStorage: {
+                success: 'Avec le vérouillage écran activé, vous bénéficiez de l\'encryption des données confidentielles.',
+                warning: 'Le vérouillage écran est désactivé. Désolé, mais notre application ne peut pas stocker les données confidentielles sans.'
+            },
             versions: {
                 draft: {
                     name: 'Brouillon'
@@ -49,15 +60,6 @@
             favourites: {
                 viewTitle: 'Favoris'
             },
-            // Login view
-            login: {
-                viewTitle: 'Login',
-                groupTitle: 'Please choose an authentication provider'
-            },
-            // Pin view
-            pin: {
-                viewTitle: 'PIN'
-            },
             // Player view
             player: {
                 explanations: 'Explications',
@@ -72,6 +74,11 @@
                 language: 'Langue',
                 theme: 'Thème'
             },
+            // Sign-in view
+            signin: {
+                viewTitle: 'Identification',
+                groupTitle: 'Veuillez choisir un service d\'authentification.'
+            },
             // Summaries view
             summaries: {
                 viewTitle: 'Recherche',
@@ -80,6 +87,10 @@
                     play: 'Jouer',
                     share: 'Partager'
                 }
+            },
+            // User view
+            user: {
+                viewTitle: 'Utilisateur'
             },
             // viewModel
             viewModel: {
