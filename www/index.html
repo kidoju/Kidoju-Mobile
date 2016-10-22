@@ -23,15 +23,34 @@
 <!-- Tablet application                                                        -->
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<div id="tablet" class="k-group" style="display: none;"></div>
+<div id="tablet" class="k-group">
+
+    <!-- Tablet layout -->
+    <div data-role="layout" data-id="tablet-main-layout">
+        <header data-role="header">
+            <div data-role="navbar" class="km-accent">
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+    </div>
+
+    <!-- Sign-in view -->
+    <div id="tablet-signin" data-role="view" data-layout="tablet-main-layout" data-title="Signin">
+        <ul data-role="listview">
+            <li><a href="#">Hello</a></li>
+            <li><a href="#">World</a></li>
+        </ul>
+    </div>
+
+</div>
 
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 <!-- Phone application                                                         -->
 <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
-<div id="phone" class="k-group">
+<div id="phone" class="k-group" style="display: none;">
 
-    <!-- Main layout -->
+    <!-- Phone layout -->
     <div data-role="layout" data-id="phone-main-layout">
         <header data-role="header">
             <div data-role="navbar" class="km-accent">

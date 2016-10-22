@@ -110,8 +110,9 @@ if (typeof(require) === 'function') {
         var VIRTUAL_PAGE_SIZE = 30; // Display 10 items * 3 DOM Element * 2
         var HASH = '#';
         var PHONE = 'phone';
-        // var TABLET = 'tablet';
-        var DEVICE_SELECTOR = HASH + PHONE;
+        var TABLET = 'tablet';
+        var DEVICE_SELECTOR = HASH + TABLET;
+        // DEVICE_SELECTOR = HASH + PHONE;
         // var DEVICE_SELECTOR = HASH + (support.mobileOS && support.mobileOS.tablet ? TABLET : PHONE)
         var LAYOUT = {
             MAIN: '-main-layout'
@@ -572,8 +573,8 @@ if (typeof(require) === 'function') {
             switch (e.field) {
                 case VIEWMODEL.LANGUAGE:
                     if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {
-                        // mobile.localize(e.sender.get(VIEWMODEL.LANGUAGE));
-                        // viewModel.reset();
+                        mobile.localize(e.sender.get(VIEWMODEL.LANGUAGE));
+                        viewModel.reset();
                     }
                     break;
                 case VIEWMODEL.THEME:
@@ -748,8 +749,6 @@ if (typeof(require) === 'function') {
             var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
             var drawerCulture = i18n.culture.drawer;
             var drawerViewElement = $(DEVICE_SELECTOR + VIEW.DRAWER);
-            window.alert('return');
-            return;
             // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
             var categoriesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(0)');
             categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.categories));
@@ -996,7 +995,7 @@ if (typeof(require) === 'function') {
             window.alert(JSON.stringify(theme));
             // Initialize application
             mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
+                initial: DEVICE_SELECTOR + VIEW.SIGNIN,
                 skin: theme.skin,
                 // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                 // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
@@ -1004,20 +1003,22 @@ if (typeof(require) === 'function') {
                 // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
                 init: function (e) {
                     // Localise the application
+                    window.alert('localize!');
                     // mobile.localize(viewModel.get(VIEWMODEL.LANGUAGE));
-                    // Wire the resize event handler
-                    // $(window).resize(mobile.onResize);
-                    window.alert('setTimeout');
-                    // hide the splash screen
-                    setTimeout(function () {
-                        window.alert('splashscreen');
-                        if (mobile.support.splashscreen) {
-                            window.alert('support');
-                            mobile.splashscreen.hide();
-                        }
-                    }, 500); // + 500 default fadeOut time
+                    // window.alert('localized!');
                 }
             });
+            // Wire the resize event handler
+            // $(window).resize(mobile.onResize);
+            window.alert('setTimeout');
+            // hide the splash screen
+            setTimeout(function () {
+                window.alert('splashscreen');
+                if (mobile.support.splashscreen) {
+                    window.alert('support');
+                    mobile.splashscreen.hide();
+                }
+            }, 500); // + 500 default fadeOut time
         };
 
         /**
