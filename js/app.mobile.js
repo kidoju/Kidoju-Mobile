@@ -968,6 +968,8 @@ if (typeof(require) === 'function') {
             // Set shortcusts
             setShortcuts();
             // Load settings including locale and theme
+            viewModel.set('languages', i18n.culture.viewModel.languages);
+            viewModel.set('themes', i18n.culture.viewModel.themes);
             viewModel.loadSettings();
             // Initialize pageSize for virtual scrolling
             viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
@@ -1000,15 +1002,16 @@ if (typeof(require) === 'function') {
                 // http://devgirl.org/2014/07/31/phonegap-developers-guid/
                 // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
                 init: function (e) {
-                    viewModel.set('languages', i18n.culture.viewModel.languages);
-                    viewModel.set('themes', i18n.culture.viewModel.themes);
                     // Localise the application
                     mobile.localize(viewModel.get(VIEWMODEL.LANGUAGE));
                     // Wire the resize event handler
                     $(window).resize(mobile.onResize);
+                    window.alert('setTimeout');
                     // hide the splash screen
                     setTimeout(function () {
+                        window.alert('splashscreen');
                         if (mobile.support.splashscreen) {
+                            window.alert('support');
                             mobile.splashscreen.hide();
                         }
                     }, 500); // + 500 default fadeOut time
