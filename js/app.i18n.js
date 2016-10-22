@@ -26,7 +26,6 @@
         var cultures = app.cultures = app.cultures || {};
         var LOADED = 'i18n.loaded';
         var LANGUAGE = 'language';
-        var UNDEFINED = 'undefined';
         var STRING = 'string';
         var ARRAY = 'array';
 
@@ -115,24 +114,16 @@
          * Load page locale (read from html tag)
          */
         $(function () {
-            function fireLoaded() {
-                // Log readiness
-                logger.debug({
-                    message: locale + ' locale loaded',
-                    method: 'document.ready'
-                });
-                // trigger event for client localization of page
-                $(document).trigger(LOADED);
-            }
             var locale = i18n.locale();
             i18n.load(locale)
                 .then(function () {
-                    if ($.type(window.cordova) === UNDEFINED) {
-                        fireLoaded();
-                    } else {
-                        // only fire after device is ready
-                        document.addEventListener('deviceready', fireLoaded, false);
-                    }
+                    // Log readiness
+                    logger.debug({
+                        message: locale + ' locale loaded',
+                        method: 'document.ready'
+                    });
+                    // trigger event for client localization of page
+                    $(document).trigger(LOADED);
                 });
         });
 
@@ -142,9 +133,7 @@
          */
         $(document)
             .on(LOADED, function () {
-                if ($.type(window.cordova) === UNDEFINED) {
-                    $('body>div.k-loading-image').delay(400).fadeOut();
-                }
+                $('body>div.k-loading-image').delay(400).fadeOut();
             });
 
 
