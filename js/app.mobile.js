@@ -1127,14 +1127,14 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var provider = e.button.attr(kendo.attr('provider'));
-            window.alert('click!');
-            // In Phonegap, windows.location.href = "x-wmapp0:www/index.html" and our server cannot redirect the InAppBrowser to such location
+            window.alert(provider);
+            // In Phonegap, windows.location.href = "x-wmapp0:www/index.html" and Kidoju-Server cannot redirect the InAppBrowser to such location
             // The oAuth recommendation is to use the redirect_uri "urn:ietf:wg:oauth:2.0:oob" which sets the authorization code in the browser's title.
             // However, we can't access the title of the InAppBrowser in Phonegap.
             // Instead, we pass redirect_uri of "http://localhost", which means the authorization code will get set in the url.
             // We can access this url in the loadstart and loadstop events.
             // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted us access to their data.
-            var returnUrl = mobile.support.cordova ? 'https://www.kidoju.com/blank' : window.location.href;
+            var returnUrl = mobile.support.cordova ? app.uris.webapp.blank : window.location.href;
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (url) {
                     if (mobile.support.cordova) { // running under Phonegap -> open InAppBrowser
@@ -1178,7 +1178,7 @@ if (typeof(require) === 'function') {
                     }
                 })
                 .fail(function (xhr, status, error) {
-                    alert('error obtaining a signin url');
+                    window.alert('error obtaining a signin url: ' + xhr.responseText);
                     // mobile.notification.error(i18n.culture.header.notifications.signinUrlFailure);
                     logger.error({
                         message: 'error obtaining a signin url',
