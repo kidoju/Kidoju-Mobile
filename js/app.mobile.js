@@ -231,7 +231,9 @@ if (typeof(require) === 'function') {
 
         // TODO Global Event Handler - See app.logger
         window.onerror = function (message, source, lineno, colno, error) {
-            mobile.notification.error(message);
+            if (mobile.notification && $.isFunction(mobile.notification.error)) {
+                mobile.notification.error(message);
+            }
         };
 
         /**
