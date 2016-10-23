@@ -106,7 +106,10 @@ if (typeof(require) === 'function') {
         var ARRAY = 'array';
         var CHANGE = 'change';
         var LOADED = 'i18n.loaded';
+        var AUTHENTICATION_SUCCESS = 'auth.success';
+        var AUTHENTICATION_FAILURE = 'auth.failure';
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
+        var RX_LOCALHOST = /^http:\/\/localhost($|\/|\?|#)/;
         var VIRTUAL_PAGE_SIZE = 30; // Display 10 items * 3 DOM Element * 2
         var HASH = '#';
         var PHONE = 'phone';
@@ -155,6 +158,27 @@ if (typeof(require) === 'function') {
         };
 
         window.console && window.console.log && window.console.log('app.mobile');
+
+        /*******************************************************************************************
+         * Global handlers
+         *******************************************************************************************/
+
+        // TODO Global Event Handler - See app.logger
+        window.onerror = function (message, source, lineno, colno, error) {
+            window.alert(message);
+        };
+
+        /**
+         * Event handler triggered when calling a url with the kidoju:// scheme
+         * @param url
+         */
+        window.handleOpenURL = function (url) {
+            setTimeout(function () {
+                // Try kidoju://hello?a=1&b=2
+                // ----------------------------------------------------------------------------------------------------------------------- TODO
+                mobile.notification.info('received url: ' + url);
+            }, 100);
+        };
 
         /*******************************************************************************************
          * Shortcuts
@@ -224,27 +248,6 @@ if (typeof(require) === 'function') {
                 mobile.splashscreen = window.navigator.splashscreen;
             }
         }
-
-        /*******************************************************************************************
-         * Global handlers
-         *******************************************************************************************/
-
-        // TODO Global Event Handler - See app.logger
-        window.onerror = function (message, source, lineno, colno, error) {
-            window.alert(message);
-        };
-
-        /**
-         * Event handler triggered when calling a url with the kidoju:// scheme
-         * @param url
-         */
-        window.handleOpenURL = function (url) {
-            setTimeout(function () {
-                // Try kidoju://hello?a=1&b=2
-                // ----------------------------------------------------------------------------------------------------------------------- TODO
-                mobile.notification.info('received url: ' + url);
-            }, 100);
-        };
 
         /*******************************************************************************************
          * viewModel
@@ -1025,10 +1028,10 @@ if (typeof(require) === 'function') {
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             if (e.item.is('li[data-icon=scan]')) {
                 e.preventDefault();
-                if (window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan)) {
+                if (mobile.support.barcodeScanner) {
                     var QR_CODE = 'QR_CODE';
                     var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-z0-9]{24})$/i;
-                    window.cordova.plugins.barcodeScanner.scan(
+                    mobile.barcodeScanner.scan(
                         function (result) {
                             if (!result.cancelled) {
                                 assert.type(STRING, result.text, kendo.format(assert.messages.type.default, 'result.text', STRING));
@@ -1140,6 +1143,19 @@ if (typeof(require) === 'function') {
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (url) {
                     if (mobile.support.cordova) { // running under Phonegap -> open InAppBrowser
+                        $(document)
+                            .one(AUTHENTICATION_SUCCESS, function () {
+                                window.alert('Authentication success!');
+                                inAppBrowser.removeEventListener('loadStart', loadStart);
+                                inAppBrowser.removeEventListener('loadError', loadError);
+                                inAppBrowser.close();
+                            })
+                            .one(AUTHENTICATION_FAILURE, function () {
+                                window.alert('Authentication failure!');
+                                inAppBrowser.removeEventListener('loadStart', loadStart);
+                                inAppBrowser.removeEventListener('loadError', loadError);
+                                inAppBrowser.close();
+                            });
                         var loadStart = function (e) {
                             var url = e.url;
                             // the loadstart event is triggered each time a new url (redirection) is loaded
@@ -1148,24 +1164,26 @@ if (typeof(require) === 'function') {
                                 method: 'mobile.onLoginButtonClick',
                                 data: { url: url }
                             });
+                            window.alert(url);
                             var data = app.rapi.util.parseToken(url);
-                            /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
-                            if ($.type(data.access_token) === STRING) { // so we only close the InAppBrowser once we have received an auth_token
-                                inAppBrowser.removeEventListener('loadStart', loadStart);
-                                inAppBrowser.removeEventListener('loadError', loadError);
-                                inAppBrowser.close();
-                                mobile.notification.alert(JSON.stringify(data));
+                            // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
+                            if ($.isPlainObject(data) && !$.isEmptyObject(data)) {
+                                window.alert(JSON.stringify(data));
                             }
-                            /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                         };
                         var loadError = function (error) {
-                            logger.error({
-                                method: 'mobile.onLoginButtonClick',
-                                error: error
-                            });
-                            inAppBrowser.removeEventListener('loadStart', loadStart);
-                            inAppBrowser.removeEventListener('loadError', loadError);
-                            inAppBrowser.close();
+                            // Ignore loaderror on http://www.localhost since we know it does not exist in Cordova
+                            // but we need it to capture ou oAuth token
+                            // Note: Should we also test error.code === -1004?
+                            if (mobile.support.cordova && !RX_LOCALHOST.test(error.url)) {
+                                window.alert(JSON.stringify($.extend({}, error)));
+                                logger.error({
+                                    message: 'loadError event of InAppBrowser',
+                                    method: 'mobile.onLoginButtonClick',
+                                    error: error
+                                });
+                                $(document).trigger(AUTHENTICATION_FAILURE);
+                            }
                         };
                         var inAppBrowser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
                         inAppBrowser.addEventListener('loadstart', loadStart);
@@ -1420,7 +1438,7 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         if ($.type(window.cordova) === UNDEFINED) {
-            // Wait for the DOM to be ready
+            // No need to wait
             mobile.onDeviceReady;
         } else {
             // Wait for Cordova to load
