@@ -37,9 +37,9 @@
         var sessionStorage = window.sessionStorage;
         var rapi = app.rapi = {}; // rapi stands for Restful API
         var uris = app.uris = app.uris || {}; // they might have already been defined
+        var UNDEFINED = 'undefined';
         var STRING = 'string';
         var NUMBER = 'number';
-        // var UNDEFINED = 'undefined';
         var EQUALS = '=';
         var HASH = '#';
         var PROVIDERS = ['facebook', 'google', 'live', 'twitter'];
@@ -1486,7 +1486,10 @@
          * CAREFUL: getHeaders({ security: true, trace: true }) is therefore not available until the HTML page is fully loaded!
          */
         $(function () {
-            if (!(chrome && $.isEmptyObject(chrome.app))) { // avoids an error in chrome packaged apps
+            // Do not execute in cordova and chrome apps
+            // In cordova, we collect the token in InAppBrowser which does not load app.rapi
+            // In chrome apps, this throws an error
+            if ($.type(window.cordova) === UNDEFINED && !(chrome && $.isEmptyObject(chrome.app))) {
                 rapi.util.parseToken(location.href);
                 rapi.util.cleanHistory();
             }
