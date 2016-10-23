@@ -1217,13 +1217,14 @@ if (typeof(require) === 'function') {
             // Instead, we pass redirect_uri of "http://localhost", which means the authorization code will get set in the url.
             // We can access this url in the loadstart and loadstop events.
             // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted us access to their data.
-            var returnUrl = mobile.support.cordova ? app.uris.webapp.blank : window.location.href;
+            var returnUrl = mobile.support.cordova ? app.uris.rapi.blank : window.location.href;
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (url) {
-                    if (mobile.support.cordova) { // running under Phonegap -> open InAppBrowser
-                        window.alert('load events');
+                    if (mobile.support.cordova) {
+                        // running under Phonegap -> open InAppBrowser
                         var loadStart = function (e) {
                             var url = e.url;
+                            window.alert(url);
                             var data = app.rapi.util.parseToken(url);
                             // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
                             if ($.isPlainObject(data) && !$.isEmptyObject(data)) {
@@ -1256,12 +1257,13 @@ if (typeof(require) === 'function') {
                         var inAppBrowser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
                         inAppBrowser.addEventListener('loadstart', loadStart);
                         inAppBrowser.addEventListener('loaderror', loadError);
-                    } else { // this is a browser --> simply redirect to login url
+                    } else {
+                        // this is a browser --> simply redirect to login url
                         window.location.assign(url);
                     }
                 })
                 .fail(function (xhr, status, error) {
-                    window.alert('error obtaining a signin url: ' + xhr.responseText);
+                    window.alert('error obtaining a signin url');
                     // mobile.notification.error(i18n.culture.header.notifications.signinUrlFailure);
                     logger.error({
                         message: 'error obtaining a signin url',
