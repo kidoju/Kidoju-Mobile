@@ -20,7 +20,8 @@
         var app = window.app = window.app || {};
         app.constants = {
             kidoju: 'kidoju',
-            ajaxTimeout: 10000
+            ajaxTimeout: 10000,
+            gaTrackingId: 'UA-63281999-4'
         };
 
     }());

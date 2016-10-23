@@ -191,6 +191,7 @@ if (typeof(require) === 'function') {
                 alert: window.navigator && window.navigator.notification && $.isFunction(window.navigator.notification.alert) && $.isFunction(window.navigator.notification.beep),
                 barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan),
                 cordova: $.type(window.cordova) !== UNDEFINED,
+                ga: window.ga && $.isFunction(window.ga.startTrackerWithId),
                 inAppBrowser: window.cordova && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
                 socialsharing: window && window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
                 splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
@@ -198,6 +199,10 @@ if (typeof(require) === 'function') {
             // barcodeScanner requires phonegap-plugin-barcodescanner
             if (mobile.support.barcodeScanner) {
                 mobile.barcodeScanner = window.cordova.plugins.barcodeScanner;
+            }
+            // ga requires cordova-plugin-google-analytics
+            if (mobile.support.ga) {
+                mobile.ga = window.ga;
             }
             // InAppBrowser requires cordova-plugin-inappbrowser
             if (mobile.support.inAppBrowser) {
@@ -245,6 +250,82 @@ if (typeof(require) === 'function') {
             if (mobile.support.splashscreen) {
                 mobile.splashscreen = window.navigator.splashscreen;
             }
+        }
+
+        /*******************************************************************************************
+         * Google Analytics setup
+         *******************************************************************************************/
+
+        /**
+         * @see https://github.com/danwilson/google-analytics-plugin
+         */
+        function setAnalytics () {
+            if (mobile.support.ga) {
+                var ga = mobile.ga;
+                ga.startTrackerWithId(app.constants.gaTrackingId);
+                // ga.setUserId('my-user-id'); // TODO
+                // ga.setAppVersion('1.33.7'); // TODO
+                // ga.debugMode();
+            }
+
+            /**
+             In your 'deviceready' handler, set up your Analytics tracker:
+
+             window.ga.startTrackerWithId('UA-XXXX-YY') where UA-XXXX-YY is your Google Analytics Mobile App property
+             To track a Screen (PageView):
+
+             window.ga.trackView('Screen Title')
+             To track a Screen (PageView) w/ campaign details:
+
+             window.ga.trackView('Screen Title', 'my-scheme://content/1111?utm_source=google&utm_campaign=my-campaign')
+             To track a Screen (PageView) and create a new session:
+
+             window.ga.trackView('Screen Title', '', true)
+             To track an Event:
+
+             window.ga.trackEvent('Category', 'Action', 'Label', Value) Label and Value are optional, Value is numeric
+             To track custom metrics:
+
+             window.ga.trackMetric('key', Value) Value is optional
+             To track an Exception:
+
+             window.ga.trackException('Description', Fatal) where Fatal is boolean
+             To track User Timing (App Speed):
+
+             window.ga.trackTiming('Category', IntervalInMilliseconds, 'Variable', 'Label') where IntervalInMilliseconds is numeric
+             To add a Transaction (Ecommerce)
+
+             window.ga.addTransaction('ID', 'Affiliation', Revenue, Tax, Shipping, 'Currency Code') where Revenue, Tax, and Shipping are numeric
+             To add a Transaction Item (Ecommerce)
+
+             window.ga.addTransactionItem('ID', 'Name', 'SKU', 'Category', Price, Quantity, 'Currency Code') where Price and Quantity are numeric
+             To add a Custom Dimension
+
+             window.ga.addCustomDimension('Key', 'Value', success, error)
+             Key should be integer index of the dimension i.e. send 1 instead of dimension1 for the first custom dimension you are tracking.
+             e.g. window.ga.addCustomDimension(1, 'Value', success, error)
+             To set a UserId:
+
+             window.ga.setUserId('my-user-id')
+             To set a specific app version:
+
+             window.ga.setAppVersion('1.33.7')
+             To set a anonymize Ip address:
+
+             window.ga.setAnonymizeIp(true)
+             To set Opt-out:
+
+             window.ga.setOptOut(true)
+             To enabling Advertising Features in Google Analytics allows you to take advantage of Remarketing, Demographics & Interests reports, and more:
+
+             window.ga.setAllowIDFACollection(true)
+             To enable verbose logging:
+
+             window.ga.debugMode()
+             To enable/disable automatic reporting of uncaught exceptions
+
+             window.ga.enableUncaughtExceptionReporting(Enable, success, error) where Enable is boolean
+             */
         }
 
         /*******************************************************************************************
@@ -967,6 +1048,8 @@ if (typeof(require) === 'function') {
         mobile.onDeviceReady = function () {
             // Set shortcusts
             setShortcuts();
+            // Set google analytics
+            setAnalytics();
             // Load settings including locale and theme
             viewModel.loadSettings();
             // Initialize pageSize for virtual scrolling
