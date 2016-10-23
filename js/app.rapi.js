@@ -58,7 +58,7 @@
         var RX_IEXPLORE = /;\s(MSIE\s|Trident\/)/;
         var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
         var RX_LANGUAGE = /^[a-z]{2}$/;
-        var RX_URL = /^http(s?)\:\/\//;
+        var RX_URL = /^https?\:\/\//;
         var AUTHENTICATION_SUCCESS = 'auth.success';
         var AUTHENTICATION_FAILURE = 'auth.failure';
 
@@ -70,6 +70,7 @@
             if (app.DEBUG) {
                 // Note best option is to modify the hosts file with a domain name as explained at http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file
                 // especially because some authentication providers do not support ip addresses and others do not support localhost
+                // uris.rapi.root = 'http://jlchereau.local';
                 // uris.rapi.root = 'http://10.0.0.105.xip.io:3001';
                 uris.rapi.root = 'http://localhost:3001';
             } else {
