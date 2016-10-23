@@ -1004,13 +1004,10 @@ if (typeof(require) === 'function') {
                 // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
                 init: function (e) {
                     // Localise the application
-                    window.alert('localize!');
                     mobile.localize(viewModel.get(VIEWMODEL.LANGUAGE));
                     // hide the splash screen
                     setTimeout(function () {
-                        window.alert('splashscreen');
                         if (mobile.support.splashscreen) {
-                            window.alert('support');
                             mobile.splashscreen.hide();
                         }
                     }, 500); // + 500 default fadeOut time
