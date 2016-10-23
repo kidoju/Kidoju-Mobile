@@ -231,9 +231,7 @@ if (typeof(require) === 'function') {
 
         // TODO Global Event Handler - See app.logger
         window.onerror = function (message, source, lineno, colno, error) {
-            if (mobile.notification && $.isFunction(mobile.notification.error)) {
-                mobile.notification.error(message);
-            }
+            window.alert(message);
         };
 
         /**
@@ -963,48 +961,40 @@ if (typeof(require) === 'function') {
 
         /**
          * Event Handler triggered when the device is ready (this is a cordova event)
-         * Loads the application
+         * Loads the application, especially initialize plugins (which where not available until now)
          */
         mobile.onDeviceReady = function () {
             // Set shortcusts
             setShortcuts();
             // Load settings including locale and theme
-            viewModel.set('languages', i18n.culture.viewModel.languages);
-            viewModel.set('themes', i18n.culture.viewModel.themes);
             viewModel.loadSettings();
             // Initialize pageSize for virtual scrolling
             viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // initialize secure storage
             mobile.secureStorage.init(app.constants.kidoju);
             // initialize the user interface
-            if ($(document).data(LOADED)) {
-                window.alert('no wait');
-                // LOADED has already been triggered and it is too late to capture
-                mobile.oni18nLoaded();
-            } else {
-                window.alert('wait');
-                // Wait for the i18n loaded event
-                $(document).one(LOADED, mobile.oni18nLoaded);
-            }
+            $(document).one(LOADED, mobile.oni18nLoaded);
+            // Wire the resize event handler for changes of device orientation
+            $(window).resize(mobile.onResize);
+            // Release the execution of jQuery's ready event (hold in index.html)
+            // @see https://api.jquery.com/jquery.holdready/
+            // Otherwise the ready event handler in app.i18n is not called
+            // (in phonegap developer app, in packaged apps, but not in a browser served by phonegap)
+            // and oni18nLoaded does not execute (strange but true)
+            $.holdReady(false);
         };
 
         /**
          * Event handler for the LOADED (i18n.loaded) event
+         * Initialize the user interface now that cordova plugins and i18n resources are loaded
          */
         mobile.oni18nLoaded = function () {
             assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'i18n.culture'));
             var theme = viewModel.getTheme();
-            window.alert(JSON.stringify(theme));
-            // hide the splash screen
-            setTimeout(function () {
-                window.alert('splashscreen');
-                if (mobile.support.splashscreen) {
-                    window.alert('support');
-                    mobile.splashscreen.hide();
-                }
-            }, 500); // + 500 default fadeOut time
+            // Load viewModel with languages and themes
+            viewModel.set('languages', i18n.culture.viewModel.languages);
+            viewModel.set('themes', i18n.culture.viewModel.themes);
             // Initialize application
-            window.alert($(DEVICE_SELECTOR).length);
             mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                 initial: DEVICE_SELECTOR + VIEW.SIGNIN,
                 skin: theme.skin,
@@ -1015,12 +1005,17 @@ if (typeof(require) === 'function') {
                 init: function (e) {
                     // Localise the application
                     window.alert('localize!');
-                    // mobile.localize(viewModel.get(VIEWMODEL.LANGUAGE));
-                    // window.alert('localized!');
+                    mobile.localize(viewModel.get(VIEWMODEL.LANGUAGE));
+                    // hide the splash screen
+                    setTimeout(function () {
+                        window.alert('splashscreen');
+                        if (mobile.support.splashscreen) {
+                            window.alert('support');
+                            mobile.splashscreen.hide();
+                        }
+                    }, 500); // + 500 default fadeOut time
                 }
             });
-            // Wire the resize event handler
-            // $(window).resize(mobile.onResize);
         };
 
         /**
@@ -1429,9 +1424,7 @@ if (typeof(require) === 'function') {
 
         if ($.type(window.cordova) === UNDEFINED) {
             // Wait for the DOM to be ready
-            $(function () {
-                mobile.onDeviceReady();
-            });
+            mobile.onDeviceReady;
         } else {
             // Wait for Cordova to load
             document.addEventListener('deviceready', mobile.onDeviceReady, false);
