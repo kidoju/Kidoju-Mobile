@@ -106,8 +106,6 @@ if (typeof(require) === 'function') {
         var ARRAY = 'array';
         var CHANGE = 'change';
         var LOADED = 'i18n.loaded';
-        var AUTHENTICATION_SUCCESS = 'auth.success';
-        var AUTHENTICATION_FAILURE = 'auth.failure';
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
         // var RX_LOCALHOST = /^http:\/\/localhost($|\/|\?|#)/;
         var VIRTUAL_PAGE_SIZE = 30; // Display 10 items * 3 DOM Element * 2
@@ -1140,45 +1138,36 @@ if (typeof(require) === 'function') {
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (url) {
                     if (mobile.support.cordova) { // running under Phonegap -> open InAppBrowser
-                        window.alert('one');
-                        $(document)
-                            .one(AUTHENTICATION_SUCCESS, function () {
-                                window.alert('Authentication success!');
-                                inAppBrowser.removeEventListener('loadStart', loadStart);
-                                inAppBrowser.removeEventListener('loadError', loadError);
-                                inAppBrowser.close();
-                                inAppBrowser = undefined;
-                            })
-                            .one(AUTHENTICATION_FAILURE, function () {
-                                window.alert('Authentication failure!');
-                                inAppBrowser.removeEventListener('loadStart', loadStart);
-                                inAppBrowser.removeEventListener('loadError', loadError);
-                                inAppBrowser.close();
-                                inAppBrowser = undefined;
-                            });
                         window.alert('load events');
                         var loadStart = function (e) {
                             var url = e.url;
+                            var data = app.rapi.util.parseToken(url);
+                            // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
+                            if ($.isPlainObject(data) && !$.isEmptyObject(data)) {
+                                inAppBrowser.removeEventListener('loadStart', loadStart);
+                                inAppBrowser.removeEventListener('loadError', loadError);
+                                inAppBrowser.close();
+                                inAppBrowser = undefined;
+                            }
                             // the loadstart event is triggered each time a new url (redirection) is loaded
                             logger.debug({
                                 message: 'loadstart event of InAppBrowser',
                                 method: 'mobile.onLoginButtonClick',
                                 data: { url: url }
                             });
-                            var data = app.rapi.util.parseToken(url);
-                            // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
-                            if ($.isPlainObject(data) && !$.isEmptyObject(data)) {
-                                $(document).trigger(AUTHENTICATION_SUCCESS);
-                            }
                         };
                         var loadError = function (error) {
                             window.alert(JSON.stringify($.extend({}, error)));
+                            inAppBrowser.removeEventListener('loadStart', loadStart);
+                            inAppBrowser.removeEventListener('loadError', loadError);
+                            inAppBrowser.close();
+                            inAppBrowser = undefined;
                             logger.error({
                                 message: 'loadError event of InAppBrowser',
                                 method: 'mobile.onLoginButtonClick',
-                                error: error
+                                error: error,
+                                data: { url: error.url }
                             });
-                            $(document).trigger(AUTHENTICATION_FAILURE);
                         };
                         window.alert('InAppBrowser');
                         var inAppBrowser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
