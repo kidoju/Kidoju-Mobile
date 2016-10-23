@@ -1026,55 +1026,51 @@ if (typeof(require) === 'function') {
         mobile.onDrawerListViewClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
-            if (e.item.is('li[data-icon=scan]')) {
+            if (e.item.is('li[data-icon=scan]') && mobile.support.barcodeScanner) {
+                var QR_CODE = 'QR_CODE';
+                var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-z0-9]{24})$/i;
                 e.preventDefault();
-                if (mobile.support.barcodeScanner) {
-                    var QR_CODE = 'QR_CODE';
-                    var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-z0-9]{24})$/i;
-                    mobile.barcodeScanner.scan(
-                        function (result) {
-                            if (!result.cancelled) {
-                                assert.type(STRING, result.text, kendo.format(assert.messages.type.default, 'result.text', STRING));
-                                assert.equal(QR_CODE, result.format, kendo.format(assert.messages.equal.default, 'result.format', QR_CODE));
-                                var matches = result.text.match(RX_QR_CODE_MATCH);
-                                if ($.isArray(matches) && matches.length > 2) {
-                                    var language = matches[1];
-                                    var summaryId = matches[2];
-                                    if (viewModel.get(VIEWMODEL.LANGUAGE) === language) {
-                                        // Find latest version (previous versions are not available in the mobile app)
-                                        viewModel.loadLazyVersions(summaryId)
-                                            .done(function () {
-                                                var version = viewModel.versions.at(0); // First is latest version
-                                                assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
-                                                assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
-                                                mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
-                                            })
-                                            .fail(function () {
-                                                // TODO error should be in loadLazyVersions
-                                                mobile.notification.error('Error loading version');
-                                            });
-                                    } else {
-                                        mobile.notification.alert('Change language settings to scan this code');
-                                    }
+                mobile.barcodeScanner.scan(
+                    function (result) {
+                        if (!result.cancelled) {
+                            assert.type(STRING, result.text, kendo.format(assert.messages.type.default, 'result.text', STRING));
+                            assert.equal(QR_CODE, result.format, kendo.format(assert.messages.equal.default, 'result.format', QR_CODE));
+                            var matches = result.text.match(RX_QR_CODE_MATCH);
+                            if ($.isArray(matches) && matches.length > 2) {
+                                var language = matches[1];
+                                var summaryId = matches[2];
+                                if (viewModel.get(VIEWMODEL.LANGUAGE) === language) {
+                                    // Find latest version (previous versions are not available in the mobile app)
+                                    viewModel.loadLazyVersions(summaryId)
+                                        .done(function () {
+                                            var version = viewModel.versions.at(0); // First is latest version
+                                            assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
+                                            assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
+                                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
+                                        })
+                                        .fail(function () {
+                                            // TODO error should be in loadLazyVersions
+                                            mobile.notification.error('Error loading version');
+                                        });
                                 } else {
-                                    mobile.notification.alert('This QR code does not match');
+                                    mobile.notification.alert('Change language settings to scan this code');
                                 }
+                            } else {
+                                mobile.notification.alert('This QR code does not match');
                             }
-                        },
-                        function (error) {
-                            mobile.notification.alert('Scanning failed: ' + error);
-                        },
-                        {
-                            preferFrontCamera: false, // iOS and Android
-                            showFlipCameraButton: false, // iOS and Android
-                            prompt: 'Place a barcode inside the scan area', // supported on Android only
-                            formats: QR_CODE // default: all but PDF_417 and RSS_EXPANDED
-                            // "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
                         }
-                    );
-                } else {
-                    mobile.notification.alert('no barcode scanner...', null, 'Error', 'OK');
-                }
+                    },
+                    function (error) {
+                        mobile.notification.alert('Scanning failed: ' + error);
+                    },
+                    {
+                        preferFrontCamera: false, // iOS and Android
+                        showFlipCameraButton: false, // iOS and Android
+                        prompt: 'Place a barcode inside the scan area', // supported on Android only
+                        formats: QR_CODE // default: all but PDF_417 and RSS_EXPANDED
+                        // "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
+                    }
+                );
             }
         };
 
@@ -1144,19 +1140,23 @@ if (typeof(require) === 'function') {
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (url) {
                     if (mobile.support.cordova) { // running under Phonegap -> open InAppBrowser
+                        window.alert('one');
                         $(document)
                             .one(AUTHENTICATION_SUCCESS, function () {
                                 window.alert('Authentication success!');
                                 inAppBrowser.removeEventListener('loadStart', loadStart);
                                 inAppBrowser.removeEventListener('loadError', loadError);
                                 inAppBrowser.close();
+                                inAppBrowser = undefined;
                             })
                             .one(AUTHENTICATION_FAILURE, function () {
                                 window.alert('Authentication failure!');
                                 inAppBrowser.removeEventListener('loadStart', loadStart);
                                 inAppBrowser.removeEventListener('loadError', loadError);
                                 inAppBrowser.close();
+                                inAppBrowser = undefined;
                             });
+                        window.alert('load events');
                         var loadStart = function (e) {
                             var url = e.url;
                             // the loadstart event is triggered each time a new url (redirection) is loaded
@@ -1165,27 +1165,22 @@ if (typeof(require) === 'function') {
                                 method: 'mobile.onLoginButtonClick',
                                 data: { url: url }
                             });
-                            window.alert(url);
                             var data = app.rapi.util.parseToken(url);
                             // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
                             if ($.isPlainObject(data) && !$.isEmptyObject(data)) {
-                                window.alert(JSON.stringify(data));
+                                $(document).trigger(AUTHENTICATION_SUCCESS);
                             }
                         };
                         var loadError = function (error) {
-                            // Ignore loaderror on http://www.localhost since we know it does not exist in Cordova
-                            // but we need it to capture ou oAuth token
-                            // Note: Should we also test error.code === -1004?
-                            // if (mobile.support.cordova && !RX_LOCALHOST.test(error.url)) {
-                                window.alert(JSON.stringify($.extend({}, error)));
-                                logger.error({
-                                    message: 'loadError event of InAppBrowser',
-                                    method: 'mobile.onLoginButtonClick',
-                                    error: error
-                                });
-                                $(document).trigger(AUTHENTICATION_FAILURE);
-                            // }
+                            window.alert(JSON.stringify($.extend({}, error)));
+                            logger.error({
+                                message: 'loadError event of InAppBrowser',
+                                method: 'mobile.onLoginButtonClick',
+                                error: error
+                            });
+                            $(document).trigger(AUTHENTICATION_FAILURE);
                         };
+                        window.alert('InAppBrowser');
                         var inAppBrowser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
                         inAppBrowser.addEventListener('loadstart', loadStart);
                         inAppBrowser.addEventListener('loaderror', loadError);
@@ -1195,7 +1190,7 @@ if (typeof(require) === 'function') {
                 })
                 .fail(function (xhr, status, error) {
                     alert('error obtaining a signin url');
-                    // app.notification.error(i18n.culture.header.notifications.signinUrlFailure);
+                    // mobile.notification.error(i18n.culture.header.notifications.signinUrlFailure);
                     logger.error({
                         message: 'error obtaining a signin url',
                         method: 'controller.onSignInDialogButtonsClick',
