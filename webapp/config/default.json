@@ -146,6 +146,7 @@
             "icons": "./img/%s.svg"
         },
         "webapp": {
+            "blank": "/blank",
             "editor": "/%s/e/%s/%s",
             "error": "/%s/error",
             "finder": "/%s",

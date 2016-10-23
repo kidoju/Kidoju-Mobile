@@ -135,6 +135,7 @@
                 icons: convertFormat('<%- uris.mobile.icons %>')
             },
             webapp: {
+                blank: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.blank %>')),
                 editor: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.editor %>')),
                 error: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.error %>')),
                 finder: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.finder %>')),
