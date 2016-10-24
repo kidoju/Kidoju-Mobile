@@ -1210,7 +1210,6 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var provider = e.button.attr(kendo.attr('provider'));
-            window.alert(provider);
             // In Phonegap, windows.location.href = "x-wmapp0:www/index.html" and Kidoju-Server cannot redirect the InAppBrowser to such location
             // The oAuth recommendation is to use the redirect_uri "urn:ietf:wg:oauth:2.0:oob" which sets the authorization code in the browser's title.
             // However, we can't access the title of the InAppBrowser in Phonegap.
@@ -1222,30 +1221,31 @@ if (typeof(require) === 'function') {
                 .done(function (url) {
                     if (mobile.support.cordova) {
                         // running in Phonegap -> open InAppBrowser
-                        var loadStop = function (e) {
-                            var url = e.url;
-                            window.alert(url);
-                            var data = app.rapi.util.parseToken(url);
+                        var close = function () {
+                            browser.removeEventListener('loadstart', loadStart);
+                            browser.removeEventListener('loaderror', loadError);
+                            browser.close();
+                            browser = undefined;
+                        };
+                        var loadStart = function (e) {
+                            var token = app.rapi.util.parseToken(e.url);
                             // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
-                            if ($.isPlainObject(data) && !$.isEmptyObject(data)) {
-                                browser.removeEventListener('loadStop', loadStop);
-                                browser.removeEventListener('loadError', loadError);
-                                browser.close();
-                                browser = undefined;
+                            if ($.isPlainObject(token) && !$.isEmptyObject(token)) {
+                                window.alert(provider + ': success');
+                                // We have a token, we are done
+                                close();
                             }
-                            // the loadstart event is triggered each time a new url (redirection) is loaded
+                            // otherwise continue with the oAuth flow,
+                            // as the loadstart event is triggered each time a new url (redirection) is loaded
                             logger.debug({
-                                message: 'loadstop event of InAppBrowser',
+                                message: 'loadstart event of InAppBrowser',
                                 method: 'mobile.onLoginButtonClick',
                                 data: { url: url }
                             });
                         };
                         var loadError = function (error) {
                             window.alert(JSON.stringify($.extend({}, error)));
-                            browser.removeEventListener('loadStop', loadStop);
-                            browser.removeEventListener('loadError', loadError);
-                            browser.close();
-                            browser = undefined;
+                            close();
                             logger.error({
                                 message: 'loaderror event of InAppBrowser',
                                 method: 'mobile.onLoginButtonClick',
@@ -1253,11 +1253,10 @@ if (typeof(require) === 'function') {
                                 data: { url: error.url }
                             });
                         };
-                        window.alert('InAppBrowser');
                         var browser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
                         // browser.addEventListener('exit', exit);
-                        // browser.addEventListener('loadstart', loadStart);
-                        browser.addEventListener('loadstop', loadStop);
+                        browser.addEventListener('loadstart', loadStart);
+                        // browser.addEventListener('loadstop', loadStop);
                         browser.addEventListener('loaderror', loadError);
                     } else {
                         // this is a browser --> simply redirect to login url
@@ -1265,7 +1264,7 @@ if (typeof(require) === 'function') {
                     }
                 })
                 .fail(function (xhr, status, error) {
-                    window.alert('error obtaining a signin url');
+                    window.alert('error obtaining a signin url:' + error);
                     // mobile.notification.error(i18n.culture.header.notifications.signinUrlFailure);
                     logger.error({
                         message: 'error obtaining a signin url',
