@@ -1080,7 +1080,7 @@ if (typeof(require) === 'function') {
             viewModel.set('themes', i18n.culture.viewModel.themes);
             // Initialize application
             mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                initial: DEVICE_SELECTOR + VIEW.SIGNIN,
+                initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
                 skin: theme.skin,
                 // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                 // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
@@ -1207,6 +1207,7 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onSigninButtonClick = function (e) {
+            mobile.enableSigninButtons(false);
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var provider = e.button.attr(kendo.attr('provider'));
@@ -1219,7 +1220,8 @@ if (typeof(require) === 'function') {
             var returnUrl = mobile.support.cordova ? app.uris.rapi.blank : window.location.href;
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (url) {
-                    if (mobile.support.cordova) {
+                    // console.log(url);
+                    if (mobile.support.cordova && mobile.support.inAppBrowser) {
                         // running in Phonegap -> open InAppBrowser
                         var close = function () {
                             browser.removeEventListener('loadstart', loadStart);
@@ -1253,7 +1255,7 @@ if (typeof(require) === 'function') {
                                 data: { url: error.url }
                             });
                         };
-                        var browser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
+                        var browser = mobile.InAppBrowser.open(url, '_blank', 'location=no,clearsessioncache=yes,clearcache=yes');
                         // browser.addEventListener('exit', exit);
                         browser.addEventListener('loadstart', loadStart);
                         // browser.addEventListener('loadstop', loadStop);
@@ -1271,7 +1273,23 @@ if (typeof(require) === 'function') {
                         method: 'controller.onSignInDialogButtonsClick',
                         data: { provider: provider, status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
                     });
+                })
+                .always(function () {
+                    mobile.enableSigninButtons(true);
                 });
+        };
+
+        /**
+         * Enable/disable signin buttons (to prevent double-clicks)
+         * @param enable
+         */
+        mobile.enableSigninButtons = function (enable) {
+            $(DEVICE_SELECTOR + VIEW.SIGNIN).find(kendo.roleSelector('button')).each(function () {
+                var buttonWidget = $(this).data('kendoMobileButton');
+                if (buttonWidget instanceof kendo.mobile.ui.Button) {
+                    buttonWidget.enable(enable);
+                }
+            });
         };
 
         /**

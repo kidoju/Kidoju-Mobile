@@ -593,7 +593,7 @@
                 });
                 var ajax = $.Deferred();
                 var logout = $.Deferred();
-                if (provider === 'live') {
+                if (provider === 'live' && $.type(window.cordova) === UNDEFINED) { // chrome apps?
                     // logout from Live to force a login screen (no need to clean up because there should be a redirection)
                     var iframe = $('#live-logout');
                     if (iframe.length) {
