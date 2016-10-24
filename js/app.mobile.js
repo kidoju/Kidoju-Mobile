@@ -1221,42 +1221,44 @@ if (typeof(require) === 'function') {
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (url) {
                     if (mobile.support.cordova) {
-                        // running under Phonegap -> open InAppBrowser
-                        var loadStart = function (e) {
+                        // running in Phonegap -> open InAppBrowser
+                        var loadStop = function (e) {
                             var url = e.url;
                             window.alert(url);
                             var data = app.rapi.util.parseToken(url);
                             // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
                             if ($.isPlainObject(data) && !$.isEmptyObject(data)) {
-                                inAppBrowser.removeEventListener('loadStart', loadStart);
-                                inAppBrowser.removeEventListener('loadError', loadError);
-                                inAppBrowser.close();
-                                inAppBrowser = undefined;
+                                browser.removeEventListener('loadStop', loadStop);
+                                browser.removeEventListener('loadError', loadError);
+                                browser.close();
+                                browser = undefined;
                             }
                             // the loadstart event is triggered each time a new url (redirection) is loaded
                             logger.debug({
-                                message: 'loadstart event of InAppBrowser',
+                                message: 'loadstop event of InAppBrowser',
                                 method: 'mobile.onLoginButtonClick',
                                 data: { url: url }
                             });
                         };
                         var loadError = function (error) {
                             window.alert(JSON.stringify($.extend({}, error)));
-                            inAppBrowser.removeEventListener('loadStart', loadStart);
-                            inAppBrowser.removeEventListener('loadError', loadError);
-                            inAppBrowser.close();
-                            inAppBrowser = undefined;
+                            browser.removeEventListener('loadStop', loadStop);
+                            browser.removeEventListener('loadError', loadError);
+                            browser.close();
+                            browser = undefined;
                             logger.error({
-                                message: 'loadError event of InAppBrowser',
+                                message: 'loaderror event of InAppBrowser',
                                 method: 'mobile.onLoginButtonClick',
                                 error: error,
                                 data: { url: error.url }
                             });
                         };
                         window.alert('InAppBrowser');
-                        var inAppBrowser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
-                        inAppBrowser.addEventListener('loadstart', loadStart);
-                        inAppBrowser.addEventListener('loaderror', loadError);
+                        var browser = mobile.InAppBrowser.open(url, '_blank', 'location=no');
+                        // browser.addEventListener('exit', exit);
+                        // browser.addEventListener('loadstart', loadStart);
+                        browser.addEventListener('loadstop', loadStop);
+                        browser.addEventListener('loaderror', loadError);
                     } else {
                         // this is a browser --> simply redirect to login url
                         window.location.assign(url);
