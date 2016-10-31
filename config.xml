@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.kidoju.mobile" version="0.2.63" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="com.kidoju.mobile" version="0.2.63" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <log level="DEBUG" />
     <name>Kidoju Mobile</name>
     <description>Create and share phenomenal quizzes.</description>
@@ -144,5 +144,8 @@
     </gap:config-file>
     <gap:config-file parent="UIViewControllerBasedStatusBarAppearance" platform="ios">
         <false />
+    </gap:config-file>
+    <gap:config-file parent="/manifest" platform="android">
+        <application android:hardwareAccelerated="false" />
     </gap:config-file>
 </widget>
