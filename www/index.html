@@ -237,9 +237,10 @@
             <ul data-role="listview" data-click="app.mobile.onDrawerListViewClick">
                 <li data-icon="home"><a href="#phone-categories">Explore</a></li>
                 <li data-icon="scan" data-bind="visible: hasBarCodeScanner$"><a href="#">Scan</a></li>
-                <li data-icon="favourites"><a href="#phone-favourites">Favourites</a></li>
+                <!--li data-icon="favourites"><a href="#phone-favourites">Favourites</a></li-->
+                <!--li data-icon="downloads"><a href="#phone-downloads">Downloads</a></li-->
                 <li data-icon="activities"><a href="#phone-activities">Activities</a></li>
-                <!-- TODO challenges -->
+                <!-- li data-icon="challenges"><a href="#phone-challenges">Challenges</a></li-->
                 <li data-icon="settings"><a href="#phone-settings">Settings</a></li>
             </ul>
         </div>
@@ -260,7 +261,7 @@
         <ul data-role="listview" data-bind="source: categories" data-template="phone-categories-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-categories-template">
-            <a href="\#phone-summaries?filter%5Bfield%5D=categories&filter%5Boperator%5D=eq&filter%5Bvalue%5D=#: id #" style="margin-left: #: depth - 1 #em;">
+            <a href="\#phone-finder?filter%5Bfield%5D=categories&filter%5Boperator%5D=eq&filter%5Bvalue%5D=#: id #" style="margin-left: #: depth - 1 #em;">
                 <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
                 <span>#: name #</span>
             </a>
@@ -273,6 +274,39 @@
         </ul>
         <script type="text/x-kendo-template" id="phone-favourites-template">
             <a href="\#phone-player">#: title #</a>
+        </script>
+    </div>
+
+    <!-- Finder view -->
+    <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
+        <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-finder-template"></ul>
+        <ul id="phone-finder-actionsheet" data-role="actionsheet">
+            <li><a data-action="app.mobile.onFinderActionPlay" class="km-actionsheet-play">Play</a></li>
+            <li data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onFinderActionShare" class="km-actionsheet-share">Share</a></li>
+        </ul>
+        <script type="text/x-kendo-template" id="phone-finder-template">
+            <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
+            <div class="summary">
+                <h4>#: title #</h4>
+                # var tags = tags$(); if (Array.isArray(tags) && tags.length) { #
+                <div class="tags"><i class="kf kf-tags"></i>
+                    # for (var i = 0; i < tags.length; i++) { #
+                    <span>#: tags[i].name #</span># if (i < tags.length -1) { #, # } #
+                    # } #
+                </div>
+                # } #
+                <!--div class="author">
+                    <%- __('finder.list.author.publishedOn') %><span>#: kendo.toString(published, "<%- __('dateFormat') %>") #</span><%- __('finder.list.author.by') %><a href="#= authorUri$() #">#: authorName$() #</a>
+                </div-->
+                <div class="metrics">
+                    <span class="kf"><input data-role="rating" value="#: ratings #" readonly></span>
+                    <i class="kf kf-view"></i><span>#: views #</span>
+                    # if (scores) { #<i class="kf kf-score"></i><span>#: kendo.toString(scores, 'n0') #%</span># } #
+                </div>
+                <a class="km-primary km-button-right km-widget km-button" data-role="button" data-rel="actionsheet" data-actionsheet-context="#: id #" href="\#phone-finder-actionsheet">
+                    <span class="km-text">Go</span>
+                </a>
+            </div>
         </script>
     </div>
 
@@ -293,6 +327,11 @@
                 <div class="markdown" data-role="markdown" data-bind="value: selectedPage.instructions"></div>
             </div>
         </div>
+    </div>
+
+    <!-- Progress (sync) view -->
+    <div id="phone-progress" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="slide" data-model="app.mobile.viewModel" data-use-native-scrolling="true" data-show="app.mobile.onProgressViewShow">
+        <div data-role="grid"></div>
     </div>
 
     <!-- Score view -->
@@ -349,43 +388,6 @@
                 </li>
             </ul>
         </form>
-    </div>
-
-    <!-- Summaries view -->
-    <div id="phone-summaries" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-model="app.mobile.viewModel" data-before-show="app.mobile.onSummariesBeforeViewShow" data-show="app.mobile.onSummariesViewShow">
-
-        <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-summaries-template"></ul>
-        <!-- TODO http://www.telerik.com/forums/totally-puzzled-with-virtual-scrolling-and-load-more -->
-
-        <!--ul data-role="listview" data-bind="source: summaries" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-summaries-template"></ul-->
-        <ul id="phone-summaries-actionsheet" data-role="actionsheet">
-            <li><a data-action="app.mobile.onSummariesActionPlay" class="km-actionsheet-play">Play</a></li>
-            <li data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onSummariesActionShare" class="km-actionsheet-share">Share</a></li>
-        </ul>
-        <script type="text/x-kendo-template" id="phone-summaries-template">
-            <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
-            <div class="summary">
-                <h4>#: title #</h4>
-                # var tags = tags$(); if (Array.isArray(tags) && tags.length) { #
-                <div class="tags"><i class="kf kf-tags"></i>
-                    # for (var i = 0; i < tags.length; i++) { #
-                    <span>#: tags[i].name #</span># if (i < tags.length -1) { #, # } #
-                    # } #
-                </div>
-                # } #
-                <!--div class="author">
-                    <%- __('finder.list.author.publishedOn') %><span>#: kendo.toString(published, "<%- __('dateFormat') %>") #</span><%- __('finder.list.author.by') %><a href="#= authorUri$() #">#: authorName$() #</a>
-                </div-->
-                <div class="metrics">
-                    <span class="kf"><input data-role="rating" value="#: ratings #" readonly></span>
-                    <i class="kf kf-view"></i><span>#: views #</span>
-                    # if (scores) { #<i class="kf kf-score"></i><span>#: kendo.toString(scores, 'n0') #%</span># } #
-                </div>
-                <a class="km-primary km-button-right km-widget km-button" data-role="button" data-rel="actionsheet" data-actionsheet-context="#: id #" href="\#phone-summaries-actionsheet">
-                    <span class="km-text">Go</span>
-                </a>
-            </div>
-        </script>
     </div>
 
     <!-- User view -->

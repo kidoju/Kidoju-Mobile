@@ -60,12 +60,25 @@
             favourites: {
                 viewTitle: 'Favourites'
             },
+            // Finder view
+            finder: {
+                viewTitle: 'Search',
+                actionSheet: {
+                    cancel: 'Cancel',
+                    play: 'Play',
+                    share: 'Share'
+                }
+            },
             // Player view
             player: {
                 explanations: 'Explanations',
                 instructions: 'Instructions',
                 viewTitle: 'Page {0} of {1}'
             },
+            // Progress view
+            progress: {},
+            // Score view
+            score: {},
             // Settings view
             settings: {
                 viewTitle: 'Settings',
@@ -78,15 +91,6 @@
             signin: {
                 viewTitle: 'Sign in',
                 groupTitle: 'Please choose an authentication provider'
-            },
-            // Summaries view
-            summaries: {
-                viewTitle: 'Search',
-                actionSheet: {
-                    cancel: 'Cancel',
-                    play: 'Play',
-                    share: 'Share'
-                }
             },
             // User view
             user: {

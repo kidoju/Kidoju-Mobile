@@ -60,12 +60,25 @@
             favourites: {
                 viewTitle: 'Favoris'
             },
+            // Finder view
+            finder: {
+                viewTitle: 'Recherche',
+                actionSheet: {
+                    cancel: 'Annuler',
+                    play: 'Jouer',
+                    share: 'Partager'
+                }
+            },
             // Player view
             player: {
                 explanations: 'Explications',
                 instructions: 'Instructions',
                 viewTitle: 'Page {0} de {1}'
             },
+            // Progress view
+            progress: {},
+            // Score view
+            score: {},
             // Settings view
             settings: {
                 viewTitle: 'Réglages',
@@ -78,15 +91,6 @@
             signin: {
                 viewTitle: 'Identification',
                 groupTitle: 'Veuillez choisir un service d\'authentification.'
-            },
-            // Summaries view
-            summaries: {
-                viewTitle: 'Recherche',
-                actionSheet: {
-                    cancel: 'Annuler',
-                    play: 'Jouer',
-                    share: 'Partager'
-                }
             },
             // User view
             user: {

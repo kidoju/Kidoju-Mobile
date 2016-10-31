@@ -123,11 +123,12 @@ if (typeof(require) === 'function') {
             CATEGORIES: '-categories',
             DRAWER: '-drawer',
             FAVOURITES: '-favourites',
+            FINDER: '-summaries',
             PLAYER: '-player',
+            PROGRESS: '-progress',
             SCORE: '-score',
             SETTINGS: '-settings',
             SIGNIN: '-signin',
-            SUMMARIES: '-summaries',
             USER: '-user'
         };
         var DEFAULT = {
@@ -719,12 +720,20 @@ if (typeof(require) === 'function') {
                     showDrawerButton = true;
                     showSyncButton = true;
                     break;
+                case DEVICE_SELECTOR + VIEW.FINDER:
+                    showDrawerButton = true;
+                    showHomeButton = true;
+                    // showSearchButton = true;
+                    // showSortButtons = true;
+                    break;
                 case DEVICE_SELECTOR + VIEW.PLAYER:
                     showDrawerButton = true;
                     showPreviousButton = !viewModel.isFirstPage$();
                     showNextButton = !viewModel.isSubmitPage$();
                     showLastButton = !viewModel.isSubmitPage$();
                     showSubmitButton = viewModel.isSubmitPage$();
+                    break;
+                case DEVICE_SELECTOR + VIEW.PROGRESS:
                     break;
                 case DEVICE_SELECTOR + VIEW.SCORE:
                     showDrawerButton = true;
@@ -733,11 +742,9 @@ if (typeof(require) === 'function') {
                     showDrawerButton = true;
                     showSyncButton = true;
                     break;
-                case DEVICE_SELECTOR + VIEW.SUMMARIES:
-                    showDrawerButton = true;
-                    showHomeButton = true;
-                    // showSearchButton = true;
-                    // showSortButtons = true;
+                case DEVICE_SELECTOR + VIEW.SIGNIN:
+                    break;
+                case DEVICE_SELECTOR + VIEW.USER:
                     break;
             }
             // Note: each view has all buttons by default, so let's fix that
@@ -808,40 +815,18 @@ if (typeof(require) === 'function') {
             i18n.load(language).then(function () {
                 viewModel.set(VIEWMODEL.LANGUAGES, i18n.culture.viewModel.languages);
                 viewModel.set(VIEWMODEL.THEMES, i18n.culture.viewModel.themes);
-                mobile._localizeDrawerView(language);
                 mobile._localizeActivitiesView(language);
                 mobile._localizeCategoriesView(language);
+                mobile._localizeDrawerView(language);
                 mobile._localizeFavouritesView(language);
+                mobile._localizeFinderView(language);
                 mobile._localizePlayerView(language);
+                mobile._localizeProgressView(language);
+                mobile._localizeScoreView(language);
                 mobile._localizeSettingsView(language);
                 mobile._localizeSigninView(language);
-                mobile._localizeSummariesView(language);
                 mobile._localizeUserView(language);
             });
-        };
-
-        /**
-         * Localize the drawer
-         * @param language
-         * @private
-         */
-        mobile._localizeDrawerView = function (language) {
-            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
-            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
-            var drawerCulture = i18n.culture.drawer;
-            var drawerViewElement = $(DEVICE_SELECTOR + VIEW.DRAWER);
-            // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
-            var categoriesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(0)');
-            categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.categories));
-            var scanElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(1)');
-            scanElement.html(scanElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.scan));
-            var favouritesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
-            favouritesElement.html(favouritesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.favourites));
-            var activitiesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(3)');
-            activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.activities));
-            var settingsElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(4)');
-            settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.settings));
         };
 
         /**
@@ -879,6 +864,30 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Localize the drawer
+         * @param language
+         * @private
+         */
+        mobile._localizeDrawerView = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
+            var drawerCulture = i18n.culture.drawer;
+            var drawerViewElement = $(DEVICE_SELECTOR + VIEW.DRAWER);
+            // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
+            var categoriesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(0)');
+            categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.categories));
+            var scanElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(1)');
+            scanElement.html(scanElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.scan));
+            // var favouritesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
+            // favouritesElement.html(favouritesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.favourites));
+            var activitiesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
+            activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.activities));
+            var settingsElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(3)');
+            settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.settings));
+        };
+
+        /**
          * Localize the favourites view
          * @param language
          * @private
@@ -896,6 +905,30 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Localize the summaries view
+         * @param language
+         * @private
+         */
+        mobile._localizeFinderView = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var finderCulture = i18n.culture.finder;
+            var finderViewElement = $(DEVICE_SELECTOR + VIEW.FINDER);
+            // The view may not have been intialized yet
+            var finderView = finderViewElement.data('kendoMobileView');
+            if (finderView instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(finderView, finderCulture.viewTitle);
+            }
+            // TODO localize Go button or use icon
+
+            // Localize actionsheet (it is not not within summariesViewElement)
+            var finderActionSheetElement = $(DEVICE_SELECTOR + VIEW.FINDER + '-actionsheet');
+            finderActionSheetElement.find('li.km-actionsheet-cancel > a').text(finderCulture.actionSheet.cancel);
+            finderActionSheetElement.find('li.km-actionsheet-play > a').text(finderCulture.actionSheet.play);
+            finderActionSheetElement.find('li.km-actionsheet-share > a').text(finderCulture.actionSheet.share);
+        };
+
+        /**
          * Localize the player view
          * @param language
          * @private
@@ -908,6 +941,36 @@ if (typeof(require) === 'function') {
             // mobile._setNavBarTitle is called when selectedPage is changed in the viewModel
             playersViewElement.find('span.instructions').html(playerCulture.instructions);
             playersViewElement.find('span.explanations').html(playerCulture.explanations);
+        };
+
+        /**
+         * Localize the progress view
+         * @param language
+         * @private
+         */
+        mobile._localizeProgressView = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var progressCulture = i18n.culture.progress;
+            var progressViewElement = $(DEVICE_SELECTOR + VIEW.PROGRESS);
+            // mobile._setNavBarTitle is called when selectedPage is changed in the viewModel
+            // progressViewElement.find('span.instructions').html(progressCulture.instructions);
+            // progressViewElement.find('span.explanations').html(progressCulture.explanations);
+        };
+
+        /**
+         * Localize the score view
+         * @param language
+         * @private
+         */
+        mobile._localizeScoreView = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var scoreCulture = i18n.culture.score;
+            var scoreViewElement = $(DEVICE_SELECTOR + VIEW.SCORE);
+            // mobile._setNavBarTitle is called when selectedPage is changed in the viewModel
+            // scoreViewElement.find('span.instructions').html(scoreCulture.instructions);
+            // scoreViewElement.find('span.explanations').html(scoreCulture.explanations);
         };
 
         /**
@@ -951,30 +1014,6 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Localize the summaries view
-         * @param language
-         * @private
-         */
-        mobile._localizeSummariesView = function (language) {
-            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
-            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var summariesCulture = i18n.culture.summaries;
-            var summariesViewElement = $(DEVICE_SELECTOR + VIEW.SUMMARIES);
-            // The view may not have been intialized yet
-            var summariesView = summariesViewElement.data('kendoMobileView');
-            if (summariesView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(summariesView, summariesCulture.viewTitle);
-            }
-            // TODO localize Go button or use icon
-
-            // Localize actionsheet (it is not not within summariesViewElement)
-            var summariesActionSheetElement = $(DEVICE_SELECTOR + VIEW.SUMMARIES + '-actionsheet');
-            summariesActionSheetElement.find('li.km-actionsheet-cancel > a').text(summariesCulture.actionSheet.cancel);
-            summariesActionSheetElement.find('li.km-actionsheet-play > a').text(summariesCulture.actionSheet.play);
-            summariesActionSheetElement.find('li.km-actionsheet-share > a').text(summariesCulture.actionSheet.share);
-        };
-
-        /**
          * Localize the user view
          * @param language
          * @private
@@ -984,7 +1023,7 @@ if (typeof(require) === 'function') {
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
             var userCulture = i18n.culture.user;
             var userViewElement = $(DEVICE_SELECTOR + VIEW.USER);
-            // The view may not have been intialized yet
+            // The view may not have been initialized yet
             var userView = userViewElement.data('kendoMobileView');
             if (userView instanceof kendo.mobile.ui.View) {
                 mobile._setNavBarTitle(userView, userCulture.viewTitle);
@@ -1192,6 +1231,165 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Event handler triggered before showing the Summaries view
+         */
+        mobile.onFinderBeforeViewShow = function () {
+            // Unfortunately, the following does not display the loader
+            // if (mobile.application instanceof kendo.mobile.Application) {
+            //    mobile.application.pane.loader.show();
+            // }
+            // Workaround
+            // ------------
+            // Clearing here the summaries data source avoids a "flickering" effect
+            // where previous results are replaced by new results after the view is shown
+            // Note that we have tried unsuccessfully to use the loader to hide the UI changes as explained at
+            // http://www.telerik.com/forums/-bug-report-databound-event-not-firing-for-kendomobilelistview
+            viewModel.summaries.data([]);
+        };
+
+        /**
+         * Event handler triggered when showing the Summaries view
+         * Note: the view event is triggered each time the view is requested
+         * @param e
+         */
+        mobile.onFinderViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            mobile._localizeFinderView(viewModel.get(VIEWMODEL.LANGUAGE));
+            mobile._setNavBar(e.view);
+            // Launch the query
+            var query = {
+                filter: mobile._getDataFilter(e.view.params),
+                page: 1,
+                pageSize: viewModel.summaries.pageSize()
+            };
+            viewModel.loadLazySummaries(query);
+            // See comment for mobile.onSummariesBeforeViewShow
+            // .always(function () {
+            //    mobile.application.pane.loader.hide();
+            // });
+        };
+
+        /**
+         * Event handler for clicking the play option in the action sheet displayed from the GO button of summaries
+         * @param e
+         */
+        mobile.onFinderActionPlay = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.match(RX_MONGODB_ID, e.context, kendo.format(assert.messages.match.default, 'e.context', RX_MONGODB_ID));
+            var summaryId = e.context;
+            // Find latest version (previous versions are not available in the mobile app)
+            viewModel.loadLazyVersions(summaryId)
+                .done(function () {
+                    var version = viewModel.versions.at(0); // First is latest version
+                    assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
+                    assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
+                });
+        };
+
+        /**
+         * Event handler for clicking the share option in the action sheet displayed from the GO button of summaries
+         * @see https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
+         * @param e
+         */
+        mobile.onFinderActionShare = function (e) {
+            if (mobile.support.socialsharing) {
+                mobile.socialsharing.shareWithOptions(
+                    {
+                        // this is the complete list of currently supported params on can pass to the social share plugin (all optional)
+                        message: 'share this', // not supported on some apps (Facebook, Instagram)
+                        subject: 'the subject', // fi. for email
+                        files: ['', ''], // an array of filenames either locally or remotely
+                        url: 'https://www.website.com/foo/#bar?a=b',
+                        chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
+                    },
+                    function (result) {
+                        mobile.notification.info('Share completed? ' + result.completed + '/' + result.app);
+                        // On Android apps mostly return result.completed=false even while it's true
+                        // On Android result.app (the app shared to) is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
+                    },
+                    function (msg) {
+                        mobile.notification.error('Sharing failed: ' + msg);
+                    }
+                );
+            }
+        };
+
+        /**
+         * Event handler triggered when initializing the Player view
+         * Note: the init event is triggered the first time the view is requested
+         * @param e
+         */
+        mobile.onPlayerViewInit = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            e.view.content.kendoTouch({
+                enableSwipe: true,
+                minXDelta: 200,
+                maxDuration: 500,
+                swipe: function (e) {
+                    // Is there a way to test this has not been initiated by one of our draggables?
+                    if (e.direction === 'left') {
+                        viewModel.nextPage();
+                    } else if (e.direction === 'right') {
+                        viewModel.previousPage();
+                    }
+                }
+            });
+        };
+
+        /**
+         * Event handler triggered when showing the Player view
+         * Note: the view event is triggered each time the view is requested
+         * @param e
+         */
+        mobile.onPlayerViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.match(RX_MONGODB_ID, e.view.params.summaryId, kendo.format(assert.messages.match.default, 'e.view.params.summaryId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, e.view.params.versionId, kendo.format(assert.messages.match.default, 'e.view.params.versionId', RX_MONGODB_ID));
+            // Localize UI (cannot be done in init because it may have changed during the session)
+            mobile._localizeSettingsView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
+            mobile._setNavBar(e.view);
+            // Load the viewModel with relevant version
+            viewModel.loadVersion(e.view.params.summaryId, e.view.params.versionId)
+                .done(function () {
+                    mobile._resizePlayer(e.view);
+                    viewModel.setCurrent();
+                    viewModel.set(VIEWMODEL.SELECTED_PAGE, viewModel.get(VIEWMODEL.PAGES_COLLECTION).at(0));
+                });
+        };
+
+        /**
+         * Event handler triggered when showing the progress view when syncing
+         * @param e
+         */
+        mobile.onProgressViewShow = function (e) {
+            // TODO
+        };
+
+        /**
+         * Event handler triggered when showing the score view after submitting a score
+         * @param e
+         */
+        mobile.onScoreViewShow = function (e) {
+            // TODO
+        };
+
+        /**
+         * Event handler triggered when showing the Settings view
+         * Note: the view event is triggered each time the view is requested
+         * @param e
+         */
+        mobile.onSettingsViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            mobile._localizeSettingsView(viewModel.get(VIEWMODEL.LANGUAGE));
+            mobile._setNavBar(e.view);
+        };
+
+        /**
          * Event handler triggered when showing the signin view
          * @param e
          */
@@ -1304,158 +1502,6 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler triggered when initializing the Player view
-         * Note: the init event is triggered the first time the view is requested
-         * @param e
-         */
-        mobile.onPlayerViewInit = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            e.view.content.kendoTouch({
-                enableSwipe: true,
-                minXDelta: 200,
-                maxDuration: 500,
-                swipe: function (e) {
-                    // Is there a way to test this has not been initiated by one of our draggables?
-                    if (e.direction === 'left') {
-                        viewModel.nextPage();
-                    } else if (e.direction === 'right') {
-                        viewModel.previousPage();
-                    }
-                }
-            });
-        };
-
-        /**
-         * Event handler triggered when showing the Player view
-         * Note: the view event is triggered each time the view is requested
-         * @param e
-         */
-        mobile.onPlayerViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
-            assert.match(RX_MONGODB_ID, e.view.params.summaryId, kendo.format(assert.messages.match.default, 'e.view.params.summaryId', RX_MONGODB_ID));
-            assert.match(RX_MONGODB_ID, e.view.params.versionId, kendo.format(assert.messages.match.default, 'e.view.params.versionId', RX_MONGODB_ID));
-            // Localize UI (cannot be done in init because it may have changed during the session)
-            mobile._localizeSettingsView(viewModel.get(VIEWMODEL.LANGUAGE));
-            // Set the navigation bar buttons
-            mobile._setNavBar(e.view);
-            // Load the viewModel with relevant version
-            viewModel.loadVersion(e.view.params.summaryId, e.view.params.versionId)
-                .done(function () {
-                    mobile._resizePlayer(e.view);
-                    viewModel.setCurrent();
-                    viewModel.set(VIEWMODEL.SELECTED_PAGE, viewModel.get(VIEWMODEL.PAGES_COLLECTION).at(0));
-                });
-        };
-
-        /**
-         *
-         * @param e
-         */
-        mobile.onScoreViewShow = function (e) {
-            // TODO
-        };
-
-        /**
-         * Event handler triggered when showing the Settings view
-         * Note: the view event is triggered each time the view is requested
-         * @param e
-         */
-        mobile.onSettingsViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeSettingsView(viewModel.get(VIEWMODEL.LANGUAGE));
-            mobile._setNavBar(e.view);
-        };
-
-        /**
-         * Event handler triggered before showing the Summaries view
-         */
-        mobile.onSummariesBeforeViewShow = function () {
-            // Unfortunately, the following does not display the loader
-            // if (mobile.application instanceof kendo.mobile.Application) {
-            //    mobile.application.pane.loader.show();
-            // }
-            // Workaround
-            // ------------
-            // Clearing here the summaries data source avoids a "flickering" effect
-            // where previous results are replaced by new results after the view is shown
-            // Note that we have tried unsuccessfully to use the loader to hide the UI changes as explained at
-            // http://www.telerik.com/forums/-bug-report-databound-event-not-firing-for-kendomobilelistview
-            viewModel.summaries.data([]);
-        };
-
-        /**
-         * Event handler triggered when showing the Summaries view
-         * Note: the view event is triggered each time the view is requested
-         * @param e
-         */
-        mobile.onSummariesViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            mobile._localizeSummariesView(viewModel.get(VIEWMODEL.LANGUAGE));
-            mobile._setNavBar(e.view);
-            // Launch the query
-            var query = {
-                filter: mobile._getDataFilter(e.view.params),
-                page: 1,
-                pageSize: viewModel.summaries.pageSize()
-            };
-            viewModel.loadLazySummaries(query);
-            // See comment for mobile.onSummariesBeforeViewShow
-            // .always(function () {
-            //    mobile.application.pane.loader.hide();
-            // });
-        };
-
-        /**
-         * Event handler for clicking the play option in the action sheet displayed from the GO button of summaries
-         * @param e
-         */
-        mobile.onSummariesActionPlay = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.match(RX_MONGODB_ID, e.context, kendo.format(assert.messages.match.default, 'e.context', RX_MONGODB_ID));
-            var summaryId = e.context;
-            // Find latest version (previous versions are not available in the mobile app)
-            viewModel.loadLazyVersions(summaryId)
-                .done(function () {
-                    var version = viewModel.versions.at(0); // First is latest version
-                    assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
-                    assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
-                });
-        };
-
-        /**
-         * Event handler for clicking the share option in the action sheet displayed from the GO button of summaries
-         * @see https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
-         * @param e
-         */
-        mobile.onSummariesActionShare = function (e) {
-            if (mobile.support.socialsharing) {
-                mobile.socialsharing.shareWithOptions(
-                    {
-                        // this is the complete list of currently supported params on can pass to the social share plugin (all optional)
-                        message: 'share this', // not supported on some apps (Facebook, Instagram)
-                        subject: 'the subject', // fi. for email
-                        files: ['', ''], // an array of filenames either locally or remotely
-                        url: 'https://www.website.com/foo/#bar?a=b',
-                        chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
-                    },
-                    function (result) {
-                        mobile.notification.info('Share completed? ' + result.completed + '/' + result.app);
-                        // On Android apps mostly return result.completed=false even while it's true
-                        // On Android result.app (the app shared to) is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
-                    },
-                    function (msg) {
-                        mobile.notification.error('Sharing failed: ' + msg);
-                    }
-                );
-            }
-        };
-
-
-        /**
          * Event handler for clicking the previous button in the navbar
          * @param e
          */
@@ -1516,9 +1562,9 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onNavbarSearchClick = function (e) {
-            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARIES);
+            mobile.application.navigate(DEVICE_SELECTOR + VIEW.FINDER);
             // @see http://www.telerik.com/forums/hiding-filter-input-in-mobile-listview
-            // var summaryView = $(DEVICE_SELECTOR + VIEW.SUMMARIES);
+            // var summaryView = $(DEVICE_SELECTOR + VIEW.FINDER);
             // summaryView.find(kendo.roleSelector('listview')).getKendoMobileListView()._filter._clearFilter({ preventDefault: $.noop });
             // summaryView.find('.km-filter-form').show();
         };

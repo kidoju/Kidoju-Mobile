@@ -2,23 +2,6 @@ html, body, #phone {
     height: 100%;
     margin: 0;
     /**********************************************************
-    * Drawer
-    **********************************************************/
-    #phone-drawer {
-        .km-view-title {
-            text-align: left;
-            margin-left: 0.5em;
-        }
-        .km-scroll-container {
-            // Make sure drawer items are aligned to the top especially with nova theme */
-            display: initial;
-            // Make list items larger for all themes
-            .km-listview > li {
-                padding: .84em .7em;
-            }
-        }
-    }
-    /**********************************************************
     * Activities view
     **********************************************************/
     #phone-activities {
@@ -40,10 +23,67 @@ html, body, #phone {
         }
     }
     /**********************************************************
+    * Drawer
+    **********************************************************/
+    #phone-drawer {
+        .km-view-title {
+            text-align: left;
+            margin-left: 0.5em;
+        }
+        .km-scroll-container {
+            // Make sure drawer items are aligned to the top especially with nova theme */
+            display: initial;
+            // Make list items larger for all themes
+            .km-listview > li {
+                padding: .84em .7em;
+            }
+        }
+    }
+    /**********************************************************
     * Favourites view
     **********************************************************/
     #phone-favourites {
 
+    }
+    /**********************************************************
+    * Finder view (search results)
+    **********************************************************/
+    #phone-finder {
+        .km-listview {
+            li {
+                padding-top: 0.7em;
+                padding-bottom: 0.7em;
+                .km-thumbnail {
+                    border: none;
+                    border-radius: 0;
+                    height: 3.35rem;
+                    width: 3.35rem;
+                    margin-right: 0;
+                    float: left;
+                }
+                .summary {
+                    margin-left: 4rem;
+                    h4 {
+                        margin: 0 .2em;
+                        font-weight: bold;
+                        font-size: 1.1em;
+                    }
+                    .tags {
+                        margin: 0 .2em;
+                        font-size: 0.8em;
+                    }
+                    .metrics {
+                        margin: 0 .2em;
+                        font-size: 0.8em;
+                        font-size: 0.8em;
+                    }
+                    .km-button-right {
+                        margin-top: -1em;
+                        float: right;
+                    }
+                }
+            }
+        }
     }
     /**********************************************************
     * Player view
@@ -69,6 +109,12 @@ html, body, #phone {
                 }
             }
         }
+    }
+    /**********************************************************
+     * Progress view
+     **********************************************************/
+    #phone-progress {
+
     }
     /**********************************************************
      * Score view
@@ -141,44 +187,10 @@ html, body, #phone {
         }
     }
     /**********************************************************
-    * Summaries view (search results)
-    **********************************************************/
-    #phone-summaries {
-        .km-listview {
-            li {
-                padding-top: 0.7em;
-                padding-bottom: 0.7em;
-                .km-thumbnail {
-                    border: none;
-                    border-radius: 0;
-                    height: 3.35rem;
-                    width: 3.35rem;
-                    margin-right: 0;
-                    float: left;
-                }
-                .summary {
-                    margin-left: 4rem;
-                    h4 {
-                        margin: 0 .2em;
-                        font-weight: bold;
-                        font-size: 1.1em;
-                    }
-                    .tags {
-                        margin: 0 .2em;
-                        font-size: 0.8em;
-                    }
-                    .metrics {
-                        margin: 0 .2em;
-                        font-size: 0.8em;
-                        font-size: 0.8em;
-                    }
-                    .km-button-right {
-                        margin-top: -1em;
-                        float: right;
-                    }
-                }
-            }
-        }
+     * User view
+     **********************************************************/
+    #phone-user {
+
     }
 }
 
