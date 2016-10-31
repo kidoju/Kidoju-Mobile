@@ -11,7 +11,7 @@
     <!-- The following is our CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: filesystem: gap: kidoju: https://*.kidoju.com https://s3.amazonaws.com https://accounts.google.com https://www.facebook.com https://login.live.com  https://api.twitter.com https://ssl.gstatic.com https://*.phonegap.com http://10.0.0.105:* ws://10.0.0.105:*; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
-    <script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script>
+    <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
     <!--script src="https://debug2.phonegap.com/target/target-script-min.js#13dd8fec-91f0-11e6-8d6a-06a5c274e813"></script-->
     <script src="./cordova.js"></script>
     <script src="./build/jquery.min.js"></script>
@@ -247,7 +247,7 @@
     </div>
 
     <!-- Activities view -->
-    <div id="phone-activities" data-role="view" data-layout="phone-main-layout" data-title="Activities" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
+    <div id="phone-activities" data-role="view" data-layout="phone-main-layout" data-title="Activities" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
         <ul data-role="listview" data-bind="source: scores" data-template="phone-activities-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-activities-template">
@@ -256,7 +256,7 @@
     </div>
 
     <!-- Categories view -->
-    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
+    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
         <!-- Display search button -->
         <ul data-role="listview" data-bind="source: categories" data-template="phone-categories-template">
         </ul>
@@ -269,7 +269,7 @@
     </div>
 
     <!-- Favourites view -->
-    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
+    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
         <ul data-role="listview" data-bind="source: favourites" data-template="phone-favourites-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-favourites-template">
@@ -278,7 +278,7 @@
     </div>
 
     <!-- Finder view -->
-    <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
+    <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="slide" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
         <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-finder-template"></ul>
         <ul id="phone-finder-actionsheet" data-role="actionsheet">
             <li><a data-action="app.mobile.onFinderActionPlay" class="km-actionsheet-play">Play</a></li>
@@ -330,17 +330,17 @@
     </div>
 
     <!-- Progress (sync) view -->
-    <div id="phone-progress" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="slide" data-model="app.mobile.viewModel" data-use-native-scrolling="true" data-show="app.mobile.onProgressViewShow">
-        <div data-role="grid"></div>
+    <div id="phone-progress" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onProgressViewShow">
+        <div></div>
     </div>
 
     <!-- Score view -->
-    <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="slide" data-model="app.mobile.viewModel" data-use-native-scrolling="true" data-show="app.mobile.onScoreViewShow">
+    <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
         <div data-role="grid"></div>
     </div>
 
     <!-- Settings view -->
-    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-model="app.mobile.viewModel" data-use-native-scrolling="true" data-show="app.mobile.onSettingsViewShow">
+    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onSettingsViewShow">
         <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
         <form>
             <ul data-role="listview" data-style="inset">
@@ -375,7 +375,7 @@
     </div>
 
     <!-- Sign-in view -->
-    <div id="phone-signin" data-role="view" data-layout="phone-main-layout" data-title="Sign in" data-show="app.mobile.onSigninViewShow">
+    <div id="phone-signin" data-role="view" data-layout="phone-main-layout" data-title="Sign in" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onSigninViewShow">
         <form>
             <ul data-role="listview" data-type="group" data-style="inset">
                 <li>Please choose an authentication provider
@@ -390,9 +390,28 @@
         </form>
     </div>
 
-    <!-- User view -->
-    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-show="app.mobile.onUserViewShow">
+    <!-- Summary view -->
+    <div id="phone-summary" data-role="view" data-layout="phone-main-layout" data-title="Details" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
+        <form>
+            <ul data-role="listview" data-style="inset">
+                <li><label>Type text<input type="text" value="Text" /></label></li>
+                <li><label>Type text<input type="text" value="Text" /></label></li>
+                <li><label>Type text<input type="text" value="Text" /></label></li>
+                <li><label>Type text<input type="text" value="Text" /></label></li>
+            </ul>
+        </form>
+    </div>
 
+    <!-- User view -->
+    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onUserViewShow">
+        <form>
+            <ul data-role="listview" data-style="inset">
+                <li><label>Type text<input type="text" value="Text" /></label></li>
+                <li><label>Type text<input type="text" value="Text" /></label></li>
+                <li><label>Type text<input type="text" value="Text" /></label></li>
+                <li><label>Type text<input type="text" value="Text" /></label></li>
+            </ul>
+        </form>
     </div>
 
 </div>

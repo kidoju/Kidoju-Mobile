@@ -123,11 +123,12 @@ if (typeof(require) === 'function') {
             CATEGORIES: '-categories',
             DRAWER: '-drawer',
             FAVOURITES: '-favourites',
-            FINDER: '-summaries',
+            FINDER: '-finder',
             PLAYER: '-player',
             PROGRESS: '-progress',
             SCORE: '-score',
             SETTINGS: '-settings',
+            SUMMARY: '-summary',
             SIGNIN: '-signin',
             USER: '-user'
         };
@@ -706,6 +707,7 @@ if (typeof(require) === 'function') {
             var showSyncButton = false;
             var showSearchButton = false;
             var showSortButtons = false;
+            debugger;
             switch (view.id) {
                 case '/':
                 case DEVICE_SELECTOR + VIEW.ACTIVITIES:
@@ -743,6 +745,8 @@ if (typeof(require) === 'function') {
                     showSyncButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.SIGNIN:
+                    break;
+                case DEVICE_SELECTOR + VIEW.SUMMARY:
                     break;
                 case DEVICE_SELECTOR + VIEW.USER:
                     break;
@@ -825,6 +829,7 @@ if (typeof(require) === 'function') {
                 mobile._localizeScoreView(language);
                 mobile._localizeSettingsView(language);
                 mobile._localizeSigninView(language);
+                mobile._localizeSummaryView(language);
                 mobile._localizeUserView(language);
             });
         };
@@ -1011,6 +1016,23 @@ if (typeof(require) === 'function') {
                 mobile._setNavBarTitle(signinView, signinCulture.viewTitle);
             }
             // TODO localize the group title
+        };
+
+        /**
+         * Localize the summary view
+         * @param language
+         * @private
+         */
+        mobile._localizeSummaryView = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var summaryCulture = i18n.culture.summary;
+            var summaryViewElement = $(DEVICE_SELECTOR + VIEW.SUMMARY);
+            // The view may not have been initialized yet
+            var summaryView = summaryViewElement.data('kendoMobileView');
+            if (summaryView instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(summaryView, summaryCulture.viewTitle);
+            }
         };
 
         /**
@@ -1488,6 +1510,14 @@ if (typeof(require) === 'function') {
                     buttonWidget.enable(enable);
                 }
             });
+        };
+
+        /**
+         * Event handler triggered when showing the summary view
+         * @param e
+         */
+        mobile.onSummaryViewShow = function (e) {
+            // TODO
         };
 
         /**

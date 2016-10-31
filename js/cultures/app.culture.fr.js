@@ -76,9 +76,13 @@
                 viewTitle: 'Page {0} de {1}'
             },
             // Progress view
-            progress: {},
+            progress: {
+                viewTitle: 'Synchronisation'
+            },
             // Score view
-            score: {},
+            score: {
+                viewTitle: 'Score'
+            },
             // Settings view
             settings: {
                 viewTitle: 'Réglages',
@@ -91,6 +95,10 @@
             signin: {
                 viewTitle: 'Identification',
                 groupTitle: 'Veuillez choisir un service d\'authentification.'
+            },
+            // Summary view
+            summary: {
+                viewTitle: 'Détails'
             },
             // User view
             user: {
