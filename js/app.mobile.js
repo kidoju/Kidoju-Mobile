@@ -340,41 +340,6 @@ if (typeof(require) === 'function') {
         var viewModel = mobile.viewModel = kendo.observable({
 
             /**
-             * Categories
-             */
-            categories: new app.models.LazyCategoryDataSource(),
-
-            /**
-             * Summaries
-             */
-            summaries: new app.models.LazySummaryDataSource(),
-
-            /**
-             * Favourites
-             */
-            favourites: [],
-
-            /**
-             * Versions
-             */
-            versions: new app.models.LazyVersionDataSource(),
-
-            /**
-             * Selected version
-             */
-            version: new app.models.Version(),
-
-            /**
-             * The selected page displayed in the player
-             */
-            selectedPage: undefined,
-
-            /**
-             * Current test
-             */
-            current: { test: undefined },
-
-            /**
              * Activities (scores to start with)
              */
             activities: [
@@ -386,14 +351,30 @@ if (typeof(require) === 'function') {
             ],
 
             /**
+             * Categories
+             */
+            categories: new app.models.LazyCategoryDataSource(),
+
+            /**
+             * Current test
+             */
+            current: { test: undefined },
+
+            /**
+             * Favourites
+             */
+            favourites: [],
+
+            /**
              * Languages
              */
             languages: [],
 
+
             /**
-             * Themes
+             * The selected page displayed in the player
              */
-            themes: [],
+            selectedPage: undefined,
 
             /**
              * User settings
@@ -404,6 +385,36 @@ if (typeof(require) === 'function') {
                 language: DEFAULT.LANGUAGE,
                 theme: DEFAULT.THEME
             },
+
+            /**
+             * Summaries
+             */
+            summaries: new app.models.LazySummaryDataSource(),
+
+            /**
+             * Selected summary
+             */
+            summary: new app.models.Summary(),
+
+            /**
+             * Themes
+             */
+            themes: [],
+
+            /**
+             * Signed-in user
+             */
+            user: new app.models.User(),
+
+            /**
+             * Selected version
+             */
+            version: new app.models.Version(),
+
+            /**
+             * Versions
+             */
+            versions: new app.models.LazyVersionDataSource(),
 
             hasBarCodeScanner$: function () {
                 return mobile.support.barcodeScanner;
@@ -707,7 +718,6 @@ if (typeof(require) === 'function') {
             var showSyncButton = false;
             var showSearchButton = false;
             var showSortButtons = false;
-            debugger;
             switch (view.id) {
                 case '/':
                 case DEVICE_SELECTOR + VIEW.ACTIVITIES:
