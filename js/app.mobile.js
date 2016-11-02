@@ -202,6 +202,10 @@ if (typeof(require) === 'function') {
             if (mobile.support.barcodeScanner) {
                 mobile.barcodeScanner = window.cordova.plugins.barcodeScanner;
             }
+            // device requires cordova-plugin-device
+            if (mobile.support.cordova) {
+                mobile.device = window.device;
+            }
             // ga requires cordova-plugin-google-analytics
             if (mobile.support.ga) {
                 mobile.ga = window.ga;
@@ -1151,12 +1155,14 @@ if (typeof(require) === 'function') {
             viewModel.set('themes', i18n.culture.viewModel.themes);
             // Initialize application
             mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                initial: DEVICE_SELECTOR + VIEW.CATEGORIES,
+                initial: DEVICE_SELECTOR + VIEW.SIGNIN, // VIEW.CATEGORIES,
                 skin: theme.skin,
+                // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
                 // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
                 // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
                 // http://devgirl.org/2014/07/31/phonegap-developers-guid/
                 // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
+                statusBarStyle: 'hidden',
                 init: function (e) {
                     // Localise the application
                     mobile.localize(viewModel.get(VIEWMODEL.LANGUAGE));
@@ -1447,11 +1453,16 @@ if (typeof(require) === 'function') {
             // Instead, we pass redirect_uri of "http://localhost", which means the authorization code will get set in the url.
             // We can access this url in the loadstart and loadstop events.
             // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted us access to their data.
-            var returnUrl = mobile.support.cordova ? app.uris.rapi.blank : window.location.href;
+            var returnUrl = mobile.device && mobile.device.model !== 'Safari' && mobile.support.inAppBrowser ?
+                app.uris.rapi.blank : window.location.protocol + '//' + window.location.host + '/' + DEVICE_SELECTOR + VIEW.USER;
             app.rapi.oauth.getSignInUrl(provider, returnUrl)
-                .done(function (url) {
-                    // console.log(url);
-                    if (mobile.support.cordova && mobile.support.inAppBrowser) {
+                .done(function (signInUrl) {
+                    logger.debug({
+                        message: 'getSignInUrl',
+                        method: 'mobile.onSigninButtonClick',
+                        data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
+                    });
+                    if (mobile.device && mobile.device.model !== 'Safari' && mobile.support.inAppBrowser) {
                         // running in Phonegap -> open InAppBrowser
                         var close = function () {
                             browser.removeEventListener('loadstart', loadStart);
@@ -1460,48 +1471,50 @@ if (typeof(require) === 'function') {
                             browser = undefined;
                         };
                         var loadStart = function (e) {
+                            logger.debug({
+                                message: 'loadstart event of InAppBrowser',
+                                method: 'mobile.onSigninButtonClick',
+                                data: { url: e.url }
+                            });
                             var token = app.rapi.util.parseToken(e.url);
                             // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
                             if ($.isPlainObject(token) && !$.isEmptyObject(token)) {
-                                window.alert(provider + ': success');
+                                // window.alert(provider + ': success');
                                 // We have a token, we are done
                                 close();
+                                mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+
                             }
                             // otherwise continue with the oAuth flow,
                             // as the loadstart event is triggered each time a new url (redirection) is loaded
-                            logger.debug({
-                                message: 'loadstart event of InAppBrowser',
-                                method: 'mobile.onLoginButtonClick',
-                                data: { url: url }
-                            });
                         };
                         var loadError = function (error) {
-                            window.alert(JSON.stringify($.extend({}, error)));
-                            close();
+                            window.alert(JSON.stringify($.extend({}, error))); // TODO
                             logger.error({
                                 message: 'loaderror event of InAppBrowser',
-                                method: 'mobile.onLoginButtonClick',
+                                method: 'mobile.onSigninButtonClick',
                                 error: error,
-                                data: { url: error.url }
+                                data: {url: error.url}
                             });
+                            close();
                         };
-                        var browser = mobile.InAppBrowser.open(url, '_blank', 'location=no,clearsessioncache=yes,clearcache=yes');
+                        var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=no,clearsessioncache=yes,clearcache=yes');
                         // browser.addEventListener('exit', exit);
                         browser.addEventListener('loadstart', loadStart);
                         // browser.addEventListener('loadstop', loadStop);
                         browser.addEventListener('loaderror', loadError);
                     } else {
                         // this is a browser --> simply redirect to login url
-                        window.location.assign(url);
+                        window.location.assign(signInUrl);
                     }
                 })
                 .fail(function (xhr, status, error) {
-                    window.alert('error obtaining a signin url:' + error);
+                    window.alert('error obtaining a signin url:' + error); // TODO
                     // mobile.notification.error(i18n.culture.header.notifications.signinUrlFailure);
                     logger.error({
                         message: 'error obtaining a signin url',
-                        method: 'controller.onSignInDialogButtonsClick',
-                        data: { provider: provider, status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
+                        method: 'controller.onSigninButtonClick',
+                        data: {provider: provider, status: status, error: error, response: xhr.responseText} // TODO xhr.responseText
                     });
                 })
                 .always(function () {
