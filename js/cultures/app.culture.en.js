@@ -69,6 +69,17 @@
                     share: 'Share'
                 }
             },
+            // Notification messages
+            notifications: {
+                networkOffline: 'You are not connected to the Internet',
+                settingsLoadFailure: 'There was an error loading settings.',
+                signinUrlFailure: 'There has been an error obtaining a sign-in url.',
+                summariesQueryFailure: 'There was an error querying the database.',
+                summaryLoadFailure: 'There was an error loading summary data.',
+                userLoadFailure: 'Il y a eu une erreur dans le chargement du profil utilisateur.',
+                versionLoadFailure: 'There was an error loading version data.',
+                versionsLoadFailure: 'There was an error loading versions.'
+            },
             // Player view
             player: {
                 explanations: 'Explanations',

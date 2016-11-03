@@ -69,6 +69,17 @@
                     share: 'Partager'
                 }
             },
+            // Notification messages
+            notifications: {
+                networkOffline: 'Vous n\'êtes pas connecté à Internet.',
+                settingsLoadFailure: 'Il y a eu une erreur dans le chargement des paramètres.',
+                signinUrlFailure: 'Il y a eu une erreur d\'obtention d\'url de connexion pour le service d\'authentification.',
+                summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
+                summaryLoadFailure: 'Il y a eu une erreur dans le chargement des données du résumé descriptif.',
+                userLoadFailure: 'There was an error loading user data.',
+                versionLoadFailure: 'Il y a eu une erreur dans le chargement de votre version.',
+                versionsLoadFailure: 'Il y a eu une erreur dans le chargement des versions.'
+            },
             // Player view
             player: {
                 explanations: 'Explications',
