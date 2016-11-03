@@ -800,6 +800,7 @@ if (typeof(require) === 'function') {
          * @private
          */
         mobile._getDataFilter = function (params) {
+            debugger; // TODO kendo function
             // TODO If it gets more complicated, consider using $.deparam from app.utils.js in Kidoju.WebApp
             // assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
             assert.type(OBJECT, params, kendo.format(assert.messages.type.default, 'params', OBJECT));
@@ -856,12 +857,12 @@ if (typeof(require) === 'function') {
         mobile._localizeActivitiesView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var activitiesCulture = i18n.culture.activities;
-            var activitiesViewElement = $(DEVICE_SELECTOR + VIEW.ACTIVITIES);
+            var culture = i18n.culture.activities;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.ACTIVITIES);
             // Note: the view might not have been initialized yet
-            var activitiesView = activitiesViewElement.data('kendoMobileView');
-            if (activitiesView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(activitiesView, activitiesCulture.viewTitle);
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
         };
 
@@ -873,12 +874,12 @@ if (typeof(require) === 'function') {
         mobile._localizeCategoriesView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var categoriesCulture = i18n.culture.categories;
-            var categoriesViewElement = $(DEVICE_SELECTOR + VIEW.CATEGORIES);
+            var culture = i18n.culture.categories;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.CATEGORIES);
             // Note: the view might not have been initialized yet
-            var categoriesView = categoriesViewElement.data('kendoMobileView');
-            if (categoriesView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(categoriesView, categoriesCulture.viewTitle);
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
         };
 
@@ -891,19 +892,19 @@ if (typeof(require) === 'function') {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
             var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
-            var drawerCulture = i18n.culture.drawer;
-            var drawerViewElement = $(DEVICE_SELECTOR + VIEW.DRAWER);
+            var culture = i18n.culture.drawer;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.DRAWER);
             // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
-            var categoriesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(0)');
-            categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.categories));
-            var scanElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(1)');
-            scanElement.html(scanElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.scan));
+            var categoriesElement = viewElement.find('ul>li>a.km-listview-link:eq(0)');
+            categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + culture.categories));
+            var scanElement = viewElement.find('ul>li>a.km-listview-link:eq(1)');
+            scanElement.html(scanElement.html().replace(RX_REPLACE, '$1$2' + culture.scan));
             // var favouritesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
             // favouritesElement.html(favouritesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.favourites));
-            var activitiesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
-            activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.activities));
-            var settingsElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(3)');
-            settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.settings));
+            var activitiesElement = viewElement.find('ul>li>a.km-listview-link:eq(2)');
+            activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + culture.activities));
+            var settingsElement = viewElement.find('ul>li>a.km-listview-link:eq(3)');
+            settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + culture.settings));
         };
 
         /**
@@ -914,12 +915,12 @@ if (typeof(require) === 'function') {
         mobile._localizeFavouritesView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var favouritesCulture = i18n.culture.favourites;
-            var favouritesViewElement = $(DEVICE_SELECTOR + VIEW.FAVOURITES);
+            var culture = i18n.culture.favourites;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.FAVOURITES);
             // The view may not have been intialized yet
-            var favouritesView = favouritesViewElement.data('kendoMobileView');
-            if (favouritesView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(favouritesView, favouritesCulture.viewTitle);
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
         };
 
@@ -931,20 +932,20 @@ if (typeof(require) === 'function') {
         mobile._localizeFinderView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var finderCulture = i18n.culture.finder;
-            var finderViewElement = $(DEVICE_SELECTOR + VIEW.FINDER);
+            var culture = i18n.culture.finder;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.FINDER);
             // The view may not have been intialized yet
-            var finderView = finderViewElement.data('kendoMobileView');
-            if (finderView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(finderView, finderCulture.viewTitle);
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
             // TODO localize Go button or use icon
 
             // Localize actionsheet (it is not not within summariesViewElement)
             var finderActionSheetElement = $(DEVICE_SELECTOR + VIEW.FINDER + '-actionsheet');
-            finderActionSheetElement.find('li.km-actionsheet-cancel > a').text(finderCulture.actionSheet.cancel);
-            finderActionSheetElement.find('li.km-actionsheet-play > a').text(finderCulture.actionSheet.play);
-            finderActionSheetElement.find('li.km-actionsheet-share > a').text(finderCulture.actionSheet.share);
+            finderActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.actionSheet.cancel);
+            finderActionSheetElement.find('li.km-actionsheet-play > a').text(culture.actionSheet.play);
+            finderActionSheetElement.find('li.km-actionsheet-share > a').text(culture.actionSheet.share);
         };
 
         /**
@@ -955,11 +956,15 @@ if (typeof(require) === 'function') {
         mobile._localizePlayerView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var playerCulture = i18n.culture.player;
-            var playersViewElement = $(DEVICE_SELECTOR + VIEW.PLAYER);
+            var culture = i18n.culture.player;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.PLAYER);
             // mobile._setNavBarTitle is called when selectedPage is changed in the viewModel
-            playersViewElement.find('span.instructions').html(playerCulture.instructions);
-            playersViewElement.find('span.explanations').html(playerCulture.explanations);
+            // var viewWidget = viewElement.data('kendoMobileView');
+            // if (viewWidget instanceof kendo.mobile.ui.View) {
+            //     mobile._setNavBarTitle(viewWidget, culture.viewTitle);
+            // }
+            viewElement.find('span.instructions').html(culture.instructions);
+            viewElement.find('span.explanations').html(culture.explanations);
         };
 
         /**
@@ -970,11 +975,13 @@ if (typeof(require) === 'function') {
         mobile._localizeProgressView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var progressCulture = i18n.culture.progress;
-            var progressViewElement = $(DEVICE_SELECTOR + VIEW.PROGRESS);
-            // mobile._setNavBarTitle is called when selectedPage is changed in the viewModel
-            // progressViewElement.find('span.instructions').html(progressCulture.instructions);
-            // progressViewElement.find('span.explanations').html(progressCulture.explanations);
+            var culture = i18n.culture.progress;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.PROGRESS);
+            // The view may not have been intialized yet
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
+            }
         };
 
         /**
@@ -985,11 +992,13 @@ if (typeof(require) === 'function') {
         mobile._localizeScoreView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var scoreCulture = i18n.culture.score;
-            var scoreViewElement = $(DEVICE_SELECTOR + VIEW.SCORE);
-            // mobile._setNavBarTitle is called when selectedPage is changed in the viewModel
-            // scoreViewElement.find('span.instructions').html(scoreCulture.instructions);
-            // scoreViewElement.find('span.explanations').html(scoreCulture.explanations);
+            var culture = i18n.culture.score;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.SCORE);
+            // The view may not have been intialized yet
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
+            }
         };
 
         /**
@@ -1000,18 +1009,18 @@ if (typeof(require) === 'function') {
         mobile._localizeSettingsView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var settingsCulture = i18n.culture.settings;
-            var settingsViewElement = $(DEVICE_SELECTOR + VIEW.SETTINGS);
+            var culture = i18n.culture.settings;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.SETTINGS);
             // The view may not have been intialized yet
-            var settingsView = settingsViewElement.data('kendoMobileView');
-            if (settingsView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(settingsView, settingsCulture.viewTitle);
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
             // Localize field labels
-            settingsViewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(settingsCulture.user);
-            settingsViewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(settingsCulture.version);
-            settingsViewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(settingsCulture.language);
-            settingsViewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(settingsCulture.theme);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.user);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.version);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.language);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.theme);
         };
 
         /**
@@ -1022,12 +1031,12 @@ if (typeof(require) === 'function') {
         mobile._localizeSigninView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var signinCulture = i18n.culture.signin;
-            var signinViewElement = $(DEVICE_SELECTOR + VIEW.SIGNIN);
+            var culture = i18n.culture.signin;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.SIGNIN);
             // The view may not have been intialized yet
-            var signinView = signinViewElement.data('kendoMobileView');
-            if (signinView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(signinView, signinCulture.viewTitle);
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
             // TODO localize the group title
         };
@@ -1040,12 +1049,12 @@ if (typeof(require) === 'function') {
         mobile._localizeSummaryView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var summaryCulture = i18n.culture.summary;
-            var summaryViewElement = $(DEVICE_SELECTOR + VIEW.SUMMARY);
+            var culture = i18n.culture.summary;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.SUMMARY);
             // The view may not have been initialized yet
-            var summaryView = summaryViewElement.data('kendoMobileView');
-            if (summaryView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(summaryView, summaryCulture.viewTitle);
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
         };
 
@@ -1057,12 +1066,12 @@ if (typeof(require) === 'function') {
         mobile._localizeUserView = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
-            var userCulture = i18n.culture.user;
-            var userViewElement = $(DEVICE_SELECTOR + VIEW.USER);
+            var culture = i18n.culture.user;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.USER);
             // The view may not have been initialized yet
-            var userView = userViewElement.data('kendoMobileView');
-            if (userView instanceof kendo.mobile.ui.View) {
-                mobile._setNavBarTitle(userView, userCulture.viewTitle);
+            var viewWidget = viewElement.data('kendoMobileView');
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
         };
 
@@ -1240,7 +1249,9 @@ if (typeof(require) === 'function') {
         mobile.onActivitiesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeActivitiesView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
             mobile._setNavBar(e.view);
         };
 
@@ -1252,7 +1263,9 @@ if (typeof(require) === 'function') {
         mobile.onCategoriesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeCategoriesView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
             mobile._setNavBar(e.view);
         };
 
@@ -1264,7 +1277,9 @@ if (typeof(require) === 'function') {
         mobile.onFavouritesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeFavouritesView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
             mobile._setNavBar(e.view);
         };
 
@@ -1292,7 +1307,10 @@ if (typeof(require) === 'function') {
          */
         mobile.onFinderViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeFinderView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
             mobile._setNavBar(e.view);
             // Launch the query
             var query = {
@@ -1387,8 +1405,8 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
             assert.match(RX_MONGODB_ID, e.view.params.summaryId, kendo.format(assert.messages.match.default, 'e.view.params.summaryId', RX_MONGODB_ID));
             assert.match(RX_MONGODB_ID, e.view.params.versionId, kendo.format(assert.messages.match.default, 'e.view.params.versionId', RX_MONGODB_ID));
-            // Localize UI (cannot be done in init because it may have changed during the session)
-            mobile._localizeSettingsView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Localize UI (cannot be done in init because language may have changed during the session)
+            mobile._localizePlayerView(viewModel.get(VIEWMODEL.LANGUAGE));
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
             // Load the viewModel with relevant version
@@ -1405,6 +1423,12 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onProgressViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
+            mobile._localizeProgressView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
+            mobile._setNavBar(e.view);
             // TODO
         };
 
@@ -1413,6 +1437,12 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onScoreViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
+            mobile._localizeScoreView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
+            mobile._setNavBar(e.view);
             // TODO
         };
 
@@ -1423,7 +1453,10 @@ if (typeof(require) === 'function') {
          */
         mobile.onSettingsViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeSettingsView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
             mobile._setNavBar(e.view);
         };
 
@@ -1434,7 +1467,9 @@ if (typeof(require) === 'function') {
         mobile.onSigninViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeSigninView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
             mobile._setNavBar(e.view);
         };
 
@@ -1540,7 +1575,12 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onSummaryViewShow = function (e) {
-            // TODO
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
+            mobile._localizeSummaryView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
+            mobile._setNavBar(e.view);
         };
 
         /**
@@ -1550,7 +1590,9 @@ if (typeof(require) === 'function') {
         mobile.onUserViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeUserView(viewModel.get(VIEWMODEL.LANGUAGE));
+            // Set the navigation bar buttons
             mobile._setNavBar(e.view);
         };
 
