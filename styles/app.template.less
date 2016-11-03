@@ -1,10 +1,16 @@
 /*********************************************************************************************
 * Common theming styles
 **********************************************************************************************/
-
 .km-navbar {
     height: 3rem; // We need this because we want the navbar in the drawer to be the same size as the navbar in the main layout
     padding-top: 0 !important; // We need this because we do not display the iOS 7 status bar (with carrier signal and battery level)
+    // Navbar buttons
+    .km-button {
+        padding: .2em .5em !important;
+        .km-notext {
+            margin: 0 .5em 0 0 !important;
+        }
+    }
 }
 
 /*********************************************************************************************
