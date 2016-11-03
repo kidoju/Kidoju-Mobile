@@ -9,7 +9,7 @@
     <!-- The following CSP is the one added by default bu the Phonegap Developper App -->
     <!--meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;img-src 'self' data: content:;style-src 'self' 'unsafe-inline' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"-->
     <!-- The following is our CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: filesystem: gap: kidoju: https://*.kidoju.com https://s3.amazonaws.com https://accounts.google.com https://www.facebook.com https://login.live.com  https://api.twitter.com https://ssl.gstatic.com https://*.phonegap.com http://10.0.0.105:* ws://10.0.0.105:*; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: data: gap: kidoju: https://*.kidoju.com https://s3.amazonaws.com https://accounts.google.com https://www.facebook.com https://login.live.com  https://api.twitter.com https://ssl.gstatic.com https://*.phonegap.com http://10.0.0.105:* ws://10.0.0.105:*; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
     <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
     <!--script src="https://debug2.phonegap.com/target/target-script-min.js#13dd8fec-91f0-11e6-8d6a-06a5c274e813"></script-->
@@ -406,10 +406,11 @@
     <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onUserViewShow">
         <form>
             <ul data-role="listview" data-style="inset">
-                <li><label>Type text<input type="text" value="Text" /></label></li>
-                <li><label>Type text<input type="text" value="Text" /></label></li>
-                <li><label>Type text<input type="text" value="Text" /></label></li>
-                <li><label>Type text<input type="text" value="Text" /></label></li>
+                <li><img data-bind="attr: { src: user.mobilePicture$(), alt: user.fullName$() }" /></li>
+                <li><label>First Name<input type="text" value="Text" data-bind="value: user.firstName" readonly /></label></li>
+                <li><label>Last Name<input type="text" value="Text" data-bind="value: user.lastName" readonly /></label></li>
+                <li><label>PIN<input type="text" value="Text" /></label></li>
+                <li><label>Retype PIN<input type="text" value="Text" /></label></li>
             </ul>
         </form>
     </div>
