@@ -112,10 +112,12 @@
     <access origin="https://*.phonegap.com/*" />
     <access origin="https://s3.amazonaws.com/*" />
     <access origin="https://ssl.gtatic.com/*" />
+    <access origin="cdvfile://*" />
     <allow-intent href="https://*.kidoju.com/*" />
     <allow-intent href="https://*.phonegap.com/*" />
     <allow-intent href="https://s3.amazonaws.com/*" />
     <allow-intent href="https://ssl.gtatic.com/*" />
+    <allow-intent href="cdvfile:*" />
     <allow-intent href="data:*" />
     <allow-intent href="blob:*" />
     <allow-intent href="gap:*" />
