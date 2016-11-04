@@ -10,8 +10,8 @@
 (function (f, define) {
     'use strict';
     define([
-        'window.assert',
-        'window.logger'
+        './window.assert',
+        './window.logger'
     ], f);
 })(function (lf) {
 
@@ -21,14 +21,13 @@
 
         var app = window.app = window.app || {};
         var mobile = app.mobile = app.mobile || {};
+        var NUMBER = 'number';
         var OBJECT = 'object';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var STORAGE_SIZE = 5 * 1024 * 1024;
-        var ROOT = ['cdvfile://localhost/temporary/']
-            PERSISTENT: 'cdvfile://localhost/persistent/',
-            TEMPORARY: 'cdvfile://localhost/temporary/'
-        };
+        // The following allows ROOT[window.TEMPORARY] and ROOT[window.PERSISTENT];
+        var ROOT = ['cdvfile://localhost/temporary/', 'cdvfile://localhost/persistent/'];
 
         /**
          * The FileSystem prototype
@@ -44,7 +43,7 @@
             var that = this;
             var dfd = $.Deferred();
             window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-            if (window.requestFileSystem) {
+            if (window.requestFileSystem && $.type(window.TEMPORARY) === NUMBER) {
                 if ($.type(that._fs) === UNDEFINED) {
                     // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
                     window.requestFileSystem(

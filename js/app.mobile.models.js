@@ -149,6 +149,10 @@
 
         /**
          * MobileUser model (stored locally with PIN in SecureStorage)
+         * We cannot use models.CurrentUser because of the complex storage model on mobile devices:
+         * - Users stored in localForage database
+         * - Pictures stored in Filesystem
+         * - PINS stored in SecureStorage
          * @type {kidoju.data.Model}
          */
         models.MobileUser = Model.define({
@@ -205,6 +209,10 @@
                     pin: this.defaults.pin
                 });
             },
+            /**
+             * Load user from Kidoju-Server
+             * @returns {*}
+             */
             load: function () {
                 var that = this;
                 return app.cache.getMe()
@@ -225,7 +233,19 @@
                         }
                     });
             },
-            downloadPicture: function () {
+            /**
+             * Load user from device database
+             */
+            loadMobile: function () {
+                debugger;
+            },
+            /**
+             * Save user to device database
+             */
+            saveMobile: function () {
+                debugger;
+            },
+            saveMobilePicture: function () {
                 var that = this;
                 var dfd = $.Deferred();
                 if (window.FileTransfer) {
@@ -264,10 +284,10 @@
                 }
                 return dfd.promise();
             },
-            loadMobile: function () {
-
+            savePin: function () {
+                debugger;
             },
-            saveMobile: function () {
+            checkPin: function (pin) {
                 debugger;
             }
         });
