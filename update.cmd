@@ -99,13 +99,13 @@ REM Copy HighlightJS
 XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\js\vendor\highlight /C /E /I /R /Y
 ATTRIB +R .\js\vendor\highlight\*.* /S
 
+REM copy KateX
+XCOPY ..\Kidoju.Widgets\src\js\vendor\katex .\js\vendor\katex /C /E /I /R /Y
+ATTRIB +R .\js\vendor\katex\*.* /S
+
 REM Copy Markdown-It
 XCOPY ..\Kidoju.Widgets\src\js\vendor\markdown-it .\js\vendor\markdown-it /C /E /I /R /Y
 ATTRIB +R .\js\vendor\markdown-it\*.* /S
-
-REM copy logentries
-XCOPY ..\Kidoju.Server\client\js\vendor\logentries .\js\vendor\logentries /C /E /I /R /Y
-ATTRIB +R .\js\vendor\logentries\*.* /S
 
 REM copy valve/fingerprintjs
 XCOPY ..\Kidoju.Server\client\js\vendor\valve .\js\vendor\valve /C /E /I /R /Y
@@ -151,9 +151,13 @@ REM Copy Kidoju webfonts
 XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\styles\fonts\ /C /E /I /R /Y
 ATTRIB +R .\styles\fonts\*
 
-REM Copy CodeMirror
+REM Copy CodeMirror - Not used in mobile app
 REM XCOPY ..\Kidoju.Widgets\src\styles\vendor\codemirror .\styles\vendor\codemirror /C /E /I /R /Y
 REM ATTRIB +R .\styles\vendor\codemirror\*.* /S
+
+REM Copy KaTex
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\katex .\styles\vendor\katex /C /E /I /R /Y
+ATTRIB +R .\styles\vendor\katex\*.* /S
 
 REM Copy HighlightJS
 XCOPY ..\Kidoju.Widgets\src\styles\vendor\highlight .\styles\vendor\highlight /C /E /I /R /Y

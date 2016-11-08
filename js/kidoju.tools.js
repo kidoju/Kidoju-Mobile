@@ -1,4 +1,4 @@
-﻿/*
+﻿/**
  * Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
@@ -276,7 +276,7 @@
             mathexpression: {
                 description: 'Mathematic Expression',
                 attributes: {
-                    formula: { title: 'Formula', defaultValue: '#sum_(i=1)^n i^3=((n(n+1))/2)^2#' },
+                    formula: { title: 'Formula', defaultValue: '\\sum_{n=1}^{\\infty}2^{-n}=1' },
                     style: { title: 'Style' }
                 }
             },
@@ -2813,14 +2813,14 @@
             templates: {
                 default: '<div data-#= ns #role="mathexpression" style="#: attributes.style #" data-#= ns #value="#: attributes.formula #"></div>'
             },
-            height: 150,
-            width: 480,
+            height: 80,
+            width: 370,
             attributes: {
                 formula: new adapters.TextAdapter(
                     { title: i18n.mathexpression.attributes.formula.title, defaultValue: i18n.mathexpression.attributes.formula.defaultValue },
                     { rows: 4, style: 'resize:vertical; width: 100%;' }
                 ),
-                style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size: 40px;' })
+                style: new adapters.StyleAdapter({ title: i18n.mathexpression.attributes.style.title, defaultValue: 'font-size: 50px;' })
             },
 
             /**

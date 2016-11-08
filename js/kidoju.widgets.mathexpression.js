@@ -9,49 +9,16 @@
 (function (f, define) {
     'use strict';
     define([
+        './vendor/katex/katex', // Keep at the top considering function parameter below
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.userevents',
         './vendor/kendo/kendo.draganddrop'
-        // './vendor/kendo/kendo.multiselect' // required because of a test in kendo.binder.js
     ], f);
-})(function () {
+})(function (katX) {
 
     'use strict';
-
-    // Load MathJax 2.7 dynamically - see https://docs.mathjax.org/en/v2.7-latest/advanced/dynamic.html
-    // See configuration options - see http://mathjax.readthedocs.org/en/latest/configuration.html
-    // And combined configuration options - see http://mathjax.readthedocs.org/en/latest/config-files.html
-    (function () {
-        var TYPE = 'text/x-mathjax-config';
-        var head = document.getElementsByTagName('head')[0];
-        var scripts = head.getElementsByTagName('script');
-        var found = false;
-        for (var i = 0; i < scripts.length; i++) {
-            if (scripts[i].type === TYPE) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            var script = document.createElement('script');
-            script.type = TYPE;
-            // TODO OPTIMIZE without MathML input
-            script[(window.opera ? 'innerHTML' : 'text')] =
-                'MathJax.Hub.Config({\n' +
-                '  showMathMenu: false,\n' + // Hide contextual menu
-                '  asciimath2jax: { delimiters: [["#","#"], ["`","`"]] }\n' +
-                '});';
-            head.appendChild(script);
-            script = document.createElement('script');
-            script.type = 'text/javascript';
-            // script.src  = 'https://cdn.mathjax.org/mathjax/2.7-latest/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
-            script.src = 'https://cdn.mathjax.org/mathjax/2.7-latest/MathJax.js?config=TeX-MML-AM_HTMLorMML';
-            script.crossorigin = 'anonymous';
-            head.appendChild(script);
-        }
-    })();
 
     (function ($, undefined) {
 
@@ -59,11 +26,13 @@
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.mathexpression');
+        var katex = window.katex || katX;
+        var FUNCTION = 'function';
         var STRING = 'string';
         var NULL = 'null';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
-        // var NS = '.kendoDropZone';
+        // var NS = '.kendoMathExpression';
         var WIDGET_CLASS = 'kj-mathexpression'; // 'k-widget kj-mathexpression';
 
         /*********************************************************************************
@@ -72,7 +41,7 @@
 
         /**
          * MathExpression
-         * @class MathExpression Widget (kendoDropZone)
+         * @class MathExpression Widget (kendoMathExpression)
          */
         var MathExpression = Widget.extend({
 
@@ -99,7 +68,9 @@
              */
             options: {
                 name: 'MathExpression',
-                value: null
+                value: null,
+                errorColor: '#cc0000',
+                displayMode: false
             },
 
             /**
@@ -142,13 +113,15 @@
              * Refresh the widget
              */
             refresh: function () {
-                var element = this.element;
-                element.text(this.value() || '');
-                // If MathJax is not yet loaded it will parse the page anyway
-                var MathJax = window.MathJax;
-                if (MathJax) {
-                    // See http://mathjax.readthedocs.org/en/latest/advanced/typeset.html
-                    MathJax.Hub.Queue(['Typeset', MathJax.Hub, element[0]]);
+                assert.type(FUNCTION, katex.render, 'Make sure KaTeX is available.');
+                var that = this;
+                var element = that.element;
+                var options = that.options;
+                // KaTeX option { throwOnError: false } is not equivalent to the following which is required to display an error
+                try {
+                    katex.render(that.value() || '', element[0], { displayMode: options.displayMode });
+                } catch (ex) {
+                    element.html('<span style="color:' + options.errorColor + '">' + kendo.htmlEncode(ex.message) + '</span>');
                 }
                 logger.debug('widget refreshed');
             },
@@ -160,15 +133,16 @@
              */
             _clear: function () {
                 var that = this;
+                var element = that.element;
                 // unbind kendo
-                // kendo.unbind($(that.element));
+                // kendo.unbind(element);
                 // unbind all other events
-                $(that.element).find('*').off();
-                $(that.element).off();
+                element.find('*').off();
+                element.off();
                 // remove descendants
-                $(that.element).empty();
+                element.empty();
                 // remove element classes
-                // $(that.element).removeClass(WIDGET_CLASS);
+                element.removeClass(WIDGET_CLASS);
             },
 
             /**
