@@ -14,11 +14,11 @@
     var secureStorage = window.secureStorage;
 
     var KEY1 = '123456789012345678901234';
-    var KEY2 = '987654321098765432109876';
+    // var KEY2 = '987654321098765432109876';
     var VALUE1 = '1234';
-    var VALUE2 = '9876';
+    // var VALUE2 = '9876';
 
-    describe('SecureStorage', function () {
+    describe('app.secure', function () {
 
         before (function () {
             secureStorage.init('Kidoju.App');
