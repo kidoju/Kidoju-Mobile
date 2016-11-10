@@ -112,8 +112,8 @@
          * @returns {*}
          */
         SecureStorage.prototype.setItem =  function (key, value) {
-            assert.type(this._ss, OBJECT, '`this._ss` should be an object after calling init');
-            assert.type(key, STRING, '`key` should be a `string`');
+            assert.type(OBJECT, this._ss, '`this._ss` should be an object after calling init');
+            assert.type(STRING, key, '`key` should be a `string`');
             var dfd = $.Deferred();
             this._ss.set(dfd.resolve, dfd.reject, key, value);
             return dfd.promise();
@@ -125,8 +125,8 @@
          * @returns {*}
          */
         SecureStorage.prototype.getItem =  function (key) {
-            assert.type(this._ss, OBJECT, '`this._ss` should be an object after calling init');
-            assert.type(key, STRING, '`key` should be a `string`');
+            assert.type(OBJECT, this._ss, '`this._ss` should be an object after calling init');
+            assert.type(STRING, key, '`key` should be a `string`');
             var dfd = $.Deferred();
             this._ss.get(dfd.resolve, dfd.reject, key);
             return dfd.promise();
@@ -138,8 +138,8 @@
          * @returns {*}
          */
         SecureStorage.prototype.removeItem =  function (key) {
-            assert.type(this._ss, OBJECT, '`this._ss` should be an object after calling init');
-            assert.type(key, STRING, '`key` should be a `string`');
+            assert.type(OBJECT, this._ss, '`this._ss` should be an object after calling init');
+            assert.type(STRING, key, '`key` should be a `string`');
             var dfd = $.Deferred();
             this._ss.remove(dfd.resolve, dfd.reject, key);
             return dfd.promise();
