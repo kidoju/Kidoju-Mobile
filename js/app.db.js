@@ -375,9 +375,9 @@
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
-            if (update[idField]) {
+            if ($.type(update[idField]) !== UNDEFINED) {
                 dfd.reject(ERROR.XHR, ERROR.STATUS, idField + 'cannot be updated');
-            } else if ($.type(query) === OBJECT && $.type(query[idField]) === STRING) {
+            } else if ($.type(query) === OBJECT && RX_MONGODB_ID.test(query[idField])) {
                 // We have an id to get straight to the document
                 // https://mozilla.github.io/localForage/#getitem
                 that._collection.getItem(query[idField], function (err, item) {
