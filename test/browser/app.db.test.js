@@ -306,13 +306,10 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].insert(HERO3)
-                    .done(function (doc3) {
-                        // This should not happen
-                        expect(true).to.be.false;
-                        done();
+                    .done(function () {
+                        done(new Error('Inserting a duplicate id should fail'));
                     })
-                    .fail(function (err) {
-                        expect(err).to.be.an.instanceof(Error);
+                    .fail(function (xhr, status, error) {
                         done();
                     });
             });
