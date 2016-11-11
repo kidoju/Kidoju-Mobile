@@ -24,7 +24,7 @@
     </plugin>
     <plugin name="cordova-plugin-device" spec="~1.1.3" />
     <plugin name="cordova-plugin-dialogs" spec="~1.3.0" />
-    <plugin name="cordova-plugin-file" spec="~4.1.1" />
+    <plugin name="cordova-plugin-file" spec="~4.3.0" />
     <plugin name="cordova-plugin-file-transfer" spec="~1.6.0" />
     <plugin name="cordova-plugin-google-analytics" spec="~1.6.0" />
     <plugin name="cordova-plugin-inappbrowser" spec="~1.5.0" />
