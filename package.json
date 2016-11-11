@@ -28,7 +28,7 @@
     "url": "https://github.com/Kidoju/Kidoju-Mobile/issues"
   },
   "devDependencies": {
-    "autoprefixer": "^6.5.2",
+    "autoprefixer": "^6.5.3",
     "bundle-loader": "^0.5.4",
     "chai": "^3.5.0",
     "css-loader": "^0.25.0",
@@ -52,7 +52,7 @@
     "karma-coverage": "^1.1.1",
     "karma-firefox-launcher": "^1.0.0",
     "karma-ie-launcher": "^1.0.0",
-    "karma-mocha": "^1.2.0",
+    "karma-mocha": "^1.3.0",
     "karma-opera-launcher": "^1.0.0",
     "karma-phantomjs-launcher": "^1.0.2",
     "karma-safari-launcher": "^1.0.0",
@@ -62,7 +62,7 @@
     "mocha": "^3.1.2",
     "nconf": "^0.8.4",
     "phantomjs-prebuilt": "^2.1.13",
-    "postcss-loader": "^1.1.0",
+    "postcss-loader": "^1.1.1",
     "selenium-standalone": "^5.8.0",
     "sinon": "^1.17.6",
     "style-loader": "^0.13.1",
