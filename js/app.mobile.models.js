@@ -9,21 +9,21 @@
 (function (f, define) {
     'use strict';
     define([
+        './vendor/blueimp/md5', // Keep at the top considering function arguments
         './vendor/kendo/kendo.core',
         './vendor/kendo/kendo.data',
         './window.assert',
         './window.logger',
+        './kidoju.data',
+        './kidoju.tools',
         './app.logger',
         './app.rapi',
         './app.cache',
         './app.db',
-        './app.fs',
-        // './app.models',
-        './app.secure',
-        './kidoju.data',
-        './kidoju.tools'
+        './app.fs'
+        // './app.models'
     ], f);
-})(function (md5) {
+})(function (md5H) {
 
     'use strict';
 
@@ -53,13 +53,13 @@
         var kidoju = window.kidoju;
         var Model = kidoju.data.Model;
         var DataSource = kidoju.data.DataSource;
-        var Stream = kidoju.data.Stream;
-        var Node = kendo.data.Node;
-        var HierarchicalDataSource = kendo.data.HierarchicalDataSource;
         var assert = window.assert;
         var logger = new window.Logger('app.mobile.models');
+        var md5 = md5H || window.md5;
         var rapi = app.rapi;
         var models = app.models = app.models || {};
+        var pongodb = window.pongodb;
+        var db = app.db = new pongodb.Database({ name: 'KidojuDB', size: 5 * 1024 * 1024, collections: ['users'] });
         var i18n = app.i18n = app.i18n || {
                 locale: function () { return 'en'; },
                 culture: {
@@ -118,13 +118,15 @@
                 user        : window.location.protocol + '//' + window.location.host + '/{0}/u/{1}',
                 summary     : window.location.protocol + '//' + window.location.host + '/{0}/s/{1}'
             };
+        var DATE = 'date';
+        var FUNCTION = 'function';
         var STRING = 'string';
         // var NUMBER = 'number';
-        // var DATE = 'date';
         // var BOOLEAN = 'boolean';
         // var CHANGE = 'change';
         // var ITEMCHANGE = 'itemchange';
         var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
+        var DATE_0 = new Date(2000, 1, 1);
         var DOT = '.';
         // var HASHBANG = '#!';
         // var HOME = 'home';
@@ -132,20 +134,8 @@
         // var CATEGORIES = 'categories';
         // var VERSION_STATE = { DRAFT: 0, PUBLISHED: 5 };
         // var MD5_A = '0cc175b9c0f1b6a831c399e269772661';
-
-
-
-        /**
-         * MobileVersion model (stored localy and sycnhronized)
-         * @type {kidoju.data.Model}
-         */
-        // models.MobileActivity = Model.define({});
-
-        /**
-         * MobileActivityDataSource datasource (stored localy and sycnhronized)
-         * @type {kidoju.data.DataSource}
-         */
-        // models.MobileActivityDataSource = DataSource.define({});
+        // The following allows FS_ROOT[window.TEMPORARY] and FS_ROOT[window.PERSISTENT];
+        var FS_ROOT = ['cdvfile://localhost/temporary/', 'cdvfile://localhost/persistent/'];
 
         /**
          * MobileUser model (stored locally with PIN in SecureStorage)
@@ -158,30 +148,45 @@
         models.MobileUser = Model.define({
             id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
-                id: {
+                id: { // mobile id, which cannot be the same as server id otherwise isNew won't work and appropriate transports won't be triggered in DataSource
                     type: STRING,
                     editable: false,
                     nullable: true
                 },
+                sid: { // mongodb server id
+                    type: STRING,
+                    editable: false,
+                    nullable: false
+                },
                 firstName: {
                     type: STRING,
-                    editable: false
+                    editable: false,
+                    nullable: false
                 },
                 lastName: {
                     type: STRING,
-                    editable: false
+                    editable: false,
+                    nullable: false
+                },
+                // The current user is the user with the most recent lastUse
+                lastUse: {
+                    type: DATE,
+                    editable: true,
+                    nullable: false,
+                    defaultValue: DATE_0
+                },
+                md5pin: {
+                    type: STRING,
+                    editable: true,
+                    nullable: true
                 },
                 picture: {
                     type: STRING,
                     editable: false,
-                    nullable: true
-                },
-                // timezone (for display of dates), born (for searches)
-                pin: {
-                    type: STRING,
-                    editable: true,
                     nullable: false
                 }
+                // consider locale (for display of numbers, dates and currencies)
+                // consider timezone (for display of dates), born (for searches)
             },
             fullName$: function () {
                 return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
@@ -190,24 +195,39 @@
                 return this.get('picture') || kendo.format(uris.cdn.icons, 'user');
             },
             mobilePicture$: function () {
-                // Note: we might want to check that we have a well known image extension
-                return FILESYSTEM.PERSISTENT + 'users/' + this.get('id') + DOT + this.picture$().split(DOT).pop();
+                // Note: we might want to check that this.picture$().split(DOT).pop() is a well known image extension
+                return FS_ROOT[window.TEMPORARY] + 'users/' + this.get('id') + DOT + this.picture$().split(DOT).pop();
             },
-            // isAuthenticated$: function () {
-            //    return RX_MONGODB_ID.test(this.get('id'));
-            // },
-            // userUri$: function () {
-            //     return kendo.format(uris.webapp.user, i18n.locale(), this.get('id'));
-            // },
-            reset: function () {
-                // Since we have marked fields as non editable, we cannot use 'that.set'
-                this.accept({
-                    id: this.defaults.id,
-                    firstName: this.defaults.firstName,
-                    lastName: this.defaults.lastName,
-                    picture: this.defaults.picture,
-                    pin: this.defaults.pin
-                });
+            /**
+             * Add a pin
+             * @param pin
+             */
+            addPin: function (pin) {
+                assert.type(STRING, pin, kendo.format(assert.messages.type.default, 'pin', STRING));
+                assert.type(FUNCTION, md5, kendo.format(assert.messages.type.default, 'md5', FUNCTION));
+                var salt = this.get('sid');
+                assert.match(RX_MONGODB_ID, salt, kendo.format(assert.messages.match.default, 'salt', RX_MONGODB_ID));
+                var md5pin = md5(salt + pin);
+                this.set('md5pin', md5pin);
+            },
+            /**
+             * Reset pin
+             * @param pin
+             */
+            resetPin: function () {
+                this.set('md5pin', null);
+            },
+            /**
+             * Verify pin
+             * @param pin
+             */
+            verifyPin: function (pin) {
+                assert.type(STRING, pin, kendo.format(assert.messages.type.default, 'pin', STRING));
+                assert.type(FUNCTION, md5, kendo.format(assert.messages.type.default, 'md5', FUNCTION));
+                var salt = this.get('sid');
+                assert.match(RX_MONGODB_ID, salt, kendo.format(assert.messages.match.default, 'salt', RX_MONGODB_ID));
+                var md5pin = md5(salt + pin);
+                return this.get('md5pin') === md5pin;
             },
             /**
              * Load user from Kidoju-Server
@@ -221,31 +241,39 @@
                             // Since we have marked fields as non editable, we cannot use 'that.set',
                             // This should raise a change event on the parent viewModel
                             that.accept({
-                                id: data.id,
+                                sid: data.id,
                                 firstName: data.firstName,
                                 lastName: data.lastName,
-                                picture: data.picture,
-                                pin: data.picture
+                                lastUse: new Date(),
+                                picture: data.picture
                             });
-                            that.downloadPicture();
                         } else {
                             that.reset();
                         }
                     });
             },
             /**
-             * Load user from device database
+             * Reset user
              */
-            loadMobile: function () {
-                debugger;
+            reset: function () {
+                // Since we have marked fields as non editable, we cannot use 'that.set'
+                this.accept({
+                    id: this.defaults.id,
+                    sid: this.defaults.sid,
+                    firstName: this.defaults.firstName,
+                    lastName: this.defaults.lastName,
+                    lastUse: this.default.lastUse,
+                    md5pin: this.defaults.md5pin,
+                    picture: this.defaults.picture
+                });
             },
             /**
-             * Save user to device database
+             * _saveMobilePicture should not be used directly
+             * This is called from MobileUserDataSource
+             * @returns {*}
+             * @private
              */
-            saveMobile: function () {
-                debugger;
-            },
-            saveMobilePicture: function () {
+            _saveMobilePicture: function () {
                 var that = this;
                 var dfd = $.Deferred();
                 if (window.FileTransfer) {
@@ -283,12 +311,174 @@
                     });
                 }
                 return dfd.promise();
+            }
+        });
+
+        /**
+         * MobileUserDataSource model (stored localy and sycnhronized)
+         * @type {kidoju.data.Model}
+         */
+        models.MobileUserDataSource = DataSource.extend({
+
+            /**
+             * Datasource constructor
+             * @param options
+             */
+            init: function (options) {
+
+                var that = this;
+
+                // Cache the userId from options
+                that.userId = options && options.userId;
+
+                DataSource.fn.init.call(that, $.extend(true, {}, {
+                    transport: {
+                        create: $.proxy(that._transport._create, that),
+                        destroy: $.proxy(that._transport._destroy, that),
+                        read: $.proxy(that._transport._read, that),
+                        update: $.proxy(that._transport._update, that)
+                    },
+                    // serverFiltering: true,
+                    // serverSorting: true,
+                    // pageSize: 5,
+                    // serverPaging: true,
+                    schema: {
+                        data: 'data',
+                        total: 'total',
+                        errors: 'error',
+                        modelBase: models.MobileUser,
+                        model: models.MobileUser
+                        // parse: function (response) {
+                        //     return response;
+                        // }
+                    }
+                }, options));
+
             },
-            savePin: function () {
-                debugger;
+
+            /**
+             * Datasource loader from local database
+             * @param options
+             * @returns {*}
+             */
+            load: function (options) {
+                var that = this;
+                that.userId = options && options.userId;
+                return that.query(options);
             },
-            checkPin: function (pin) {
-                debugger;
+
+            /**
+             * Setting _transport._read here with a reference above is a trick
+             * so as to be able to replace this function in mockup scenarios
+             */
+            _transport: {
+                _create: function (options) {
+                    var that = this;
+                    logger.debug({
+                        message: 'User data creation',
+                        method: 'app.models.MobileUserDataSource.transport.create'
+                    });
+                    var user = options.data;
+                    if ($.type(user.md5pin) !== STRING) {
+                        // Do not save a user without a pin
+                        return options.error(undefined, 'error', 'Missing pin');
+                    }
+                    // This replaces the machine id in the mongoDB server id by MACHINE_ID
+                    // This ensures uniqueness of user in mobile app when sid is unique without further checks
+                    // i.e. same user with the same sid recorded twice under different ids in mobile device
+                    user.id = new pongodb.ObjectId(user.sid).toMobileId();
+                    user.lastUse = new Date();
+                    db.users.insert(user)
+                        .done(function  () {
+                            // TODO save image
+                            options.success(user);
+                        })
+                        .fail(options.error);
+                },
+                _destroy: function (options) {
+                    var that = this;
+                    logger.debug({
+                        message: 'User data deletion',
+                        method: 'app.models.MobileUserDataSource.transport.destroy'
+                    });
+                    if (options && options.data && RX_MONGODB_ID.test(options.data.id)) {
+                        db.users.remove({ id: options.data.id })
+                            .done(function (result) {
+                                if (result && result.nRemoved === 1) {
+                                    options.success(options.data);
+                                } else {
+                                    options.error(undefined, 'error', 'Failed to remove user from mobile database');
+                                }
+                            })
+                            .fail(options.error);
+                    } else {
+                        options.error(undefined, 'error', 'Missing user id');
+                    }
+                },
+                _read: function (options) {
+                    var that = this;
+                    logger.debug({
+                        message: 'User data read',
+                        method: 'app.models.MobileUserDataSource.transport.read'
+                    });
+                    db.users.find()
+                        .done(function (result) {
+                            if ($.isArray(result)) {
+                                options.success({ total: result.length, data: result });
+                            } else {
+                                options.error(undefined, 'error', '`result` should be an `array`, possibly empty');
+                            }
+                        })
+                        .fail(options.error);
+                },
+                _update: function (options) {
+                    var that = this;
+                    logger.debug({
+                        message: 'User data update',
+                        method: 'app.models.MobileUserDataSource.transport.update'
+                    });
+                    var user = options.data;
+                    if (!RX_MONGODB_ID.test(user.id)) {
+                        return options.error(undefined, 'error', 'Missing user id');
+                    }
+                    if ($.type(user.md5pin) !== STRING) {
+                        // Do not save a user without a pin
+                        return options.error(undefined, 'error', 'Missing pin');
+                    }
+                    var id = user.id;
+                    user.id = undefined;
+                    db.users.update({ id: id }, user)
+                        .done(function (result) {
+                            if (result && result.nMatched === 1 && result.nModified === 1) {
+                                // TODO Save image
+                                user.id = id;
+                                options.success({ total: 1, data: user });
+                            } else {
+                                options.error(undefined, 'error', 'Failed to remove user from mobile database');
+                            }
+                        })
+                        .fail(options.error);
+                }
+            }
+        });
+
+        /**
+         * MobileVersion model (stored localy and sycnhronized)
+         * @type {kidoju.data.Model}
+         */
+        models.MobileActivity = Model.define({
+            // TODO
+        });
+
+        /**
+         * MobileActivityDataSource datasource (stored localy and sycnhronized)
+         * @type {kidoju.data.DataSource}
+         */
+        models.MobileActivityDataSource = DataSource.extend({
+            // TODO
+            init: function (options) {
+                var that = this;
+                DataSource.fn.init.call(that, options);
             }
         });
 

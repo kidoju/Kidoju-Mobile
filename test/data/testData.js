@@ -32,23 +32,33 @@
      */
     window.testData = {
 
+        pins: [
+            '1111',
+            '1234'
+        ],
         /**
          * Mobile users
          */
         users: [
             {
+                // This is a user as we would have in the database
                 id: objectId(),
+                sid: objectId(),
                 firstName: 'Peter',
                 lastName: 'Parker',
-                picture: '',
-                pin: '0000'
+                lastUse: new Date(),
+                md5pin: '7ae6c1927bd0854ab818407de7323042',
+                picture: 'http://vignette1.wikia.nocookie.net/marvelmovies/images/b/bc/Peter_Parker_AG_thumb.jpg/revision/latest?cb=20120705122015'
             },
             {
-                id: objectId(),
+                // This is a user as we would get it from our remote server
+                id: null,
+                sid: objectId(),
                 firstName: 'Bruce',
                 lastName: 'Whayne',
-                picture: '',
-                pin: '1111'
+                // lastUse: new Date(),
+                // md5pin: '4f935727fe450f3971e6666db6d85c22',
+                picture: 'http://images6.fanpop.com/image/photos/36000000/Bruce-Wayne-image-bruce-wayne-36050167-392-379.jpg'
             }
         ]
 
