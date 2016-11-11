@@ -14,6 +14,12 @@
     ], f);
 })(function () {
 
+    /**
+     * IMPORTANT: This is a wrapper for https://github.com/Crypho/cordova-plugin-secure-storage
+     * We have discarded it for now because the limitations on Android and Windows compromise the experience
+     * We are better off with a salt and a hash for now
+     */
+
     'use strict';
 
     (function ($, undefined) {
