@@ -190,21 +190,21 @@
                 var fn2 = function () {
                     var objectId = new ObjectId(100);
                 };
-                expect(fn1).to.throw(TypeError);
-                expect(fn2).to.throw(TypeError);
+                expect(fn1).to.throw(Error);
+                expect(fn2).to.throw(Error);
             });
 
             it('constructor with valid params', function () {
                 var id = '9876543210abcdef98765432';
                 var objectId = new ObjectId(id);
-                expect(objectId.isLocalOnly()).to.be.false;
+                expect(objectId.isMobileId()).to.be.false;
                 expect(objectId.toString()).to.equal(id);
             });
 
             it('constructor without param', function () {
                 var now = new Date();
                 var objectId = new ObjectId();
-                expect(objectId.isLocalOnly()).to.be.true;
+                expect(objectId.isMobileId()).to.be.true;
                 expect(objectId.toString()).to.match(RX_MONGODB_ID);
                 var diff =  Math.abs(objectId.getTimestamp() - now);
                 expect(diff).to.be.lte(1000); // 1000 ms = 1 sec

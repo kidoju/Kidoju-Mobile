@@ -8,11 +8,14 @@
     <!--script src="../vendor/blanket.js" data-cover-adapter="../vendor/blanket_mocha.js"></script-->
     <!--script src="../vendor/blanket.min.js" data-cover-flags="debug" data-cover-adapter="../vendor/blanket_mocha.min.js"></script-->
     <script src="../../js/vendor/jQuery/jquery-3.1.1.min.js"></script>
+    <script src="../../js/vendor/localForage/localforage.js"></script>
+    <script src="../../js/vendor/kendo/kendo.core.js"></script>
+    <script src="../../js/window.assert.js"></script>
+    <script src="../../js/window.logger.js"></script>
     <script>
         mocha.setup('bdd');
         mocha.timeout(10000);
     </script>
-    <script src="../../js/vendor/localForage/localforage.js"></script>
     <script src="../../js/app.db.js" data-cover></script>
 </head>
 <body>

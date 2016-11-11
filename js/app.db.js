@@ -14,9 +14,25 @@
         // localforage without promises performs better
         // also promises in localforage display strange behaviours with jQuery deferred
         // and deferreds are better because they can notify progress callbacks for long operations like sync
-        './vendor/localForage/localforage.nopromises.js'
+        './vendor/localForage/localforage.nopromises.js',
+        './vendor/kendo.core',
+        './window.assert',
+        './window.logger'
     ], f);
 })(function (lf) {
+
+    /**
+     * We will be closely monitoring browser database projects like
+     * - https://github.com/Irrelon/ForerunnerDB
+     * - https://github.com/techfort/LokiJS
+     * - https://github.com/typicaljoe/taffydb
+     * - https://pouchdb.com/ (more or less related to couchdb, not mongodb)
+     * - http://brian.io/lawnchair/ (obsolete)
+     *
+     * My opinion at this stage is most of these projects are overkill for a couple of collections, e.g ForerunnerDB is 1MB+
+     * and they provide no solution for the complex part which is the synchronization with mongoDB.
+     * For anything serious the SQL-Lite cordova plugin is a better option unless one of these libraries finally provides synchronization with mongoDB out of the box.
+     */
 
     'use strict';
 
@@ -25,33 +41,14 @@
 
     (function ($, undefined) {
 
+        var kendo = window.kendo;
+        var assert = window.assert;
+        var logger = new window.Logger('app.db'); // TODO : use ir
         var OBJECT = 'object';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var MACHINE_ID = '000000';
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
-
-        /**
-         * Assert objects (options and documents)
-         * @param obj
-         * @param fields
-         * @param undef
-         */
-        var assert = function (obj, fields, undef) {
-            if (undef && $.type(obj) === UNDEFINED) {
-                return;
-            }
-            if ($.type(obj) !== OBJECT) {
-                throw new TypeError('`obj` is not an object');
-            }
-            if ($.isArray(fields)) {
-                for (var i = 0, length = fields.length; i < length; i++) {
-                    if ($.type(obj[fields[i]]) === UNDEFINED) {
-                        throw new TypeError('`obj` is missing field `' + fields[i] + '`');
-                    }
-                }
-            }
-        };
 
         /* Blocks are nested too deeply. */
         /* jshint -W073 */
@@ -65,8 +62,8 @@
          * @param doc
          */
         var match = function (query, doc) {
-            assert(doc);
-            assert(query, undefined, true);
+            assert.typeOrUndef(OBJECT, query, kendo.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
+            assert.type(OBJECT, doc, kendo.format(assert.messages.type.default, 'doc', OBJECT));
             var match = true;
             if ($.type(query) === OBJECT) {
                 for (var prop in query) {
@@ -125,9 +122,7 @@
          * @constructor
          */
         var ObjectId = pongodb.ObjectId = function (id) {
-            if ($.type(id) !== UNDEFINED && !RX_MONGODB_ID.test(id)) {
-                throw new TypeError('`id` should be undefined or an hexadecimal string with a length of 24 characters');
-            }
+            assert.ok($.type(id) === UNDEFINED || RX_MONGODB_ID.test(id), '`id` is expected to be an hexadecimal string with a length of 24 characters or undefined');
             /* jshint -W016 */
             function makeOne() {
                 var epoch = (new Date().getTime() / 1000 | 0).toString(16);
@@ -141,10 +136,10 @@
         };
 
         /**
-         * Test whether the ObjectId is local only (not synchronized)
+         * Test whether the ObjectId is a mobile id (as opposed to a mongodb server id)
          * @returns {boolean}
          */
-        ObjectId.prototype.isLocalOnly = function () {
+        ObjectId.prototype.isMobileId = function () {
             return this._id.substr(8, 6) === MACHINE_ID;
         };
 
@@ -170,7 +165,9 @@
          * @constructor
          */
         var Collection = pongodb.Collection = function (options) {
-            assert(options, ['db', 'name']);
+            assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+            assert.instanceof(Database, options.db, kendo.format(assert.messages.instanceof.default, 'options.db', 'pongodb.Database'));
+            assert.type(STRING, options.name, kendo.format(assert.messages.isPlainObject.default, 'options.name', STRING));
             this._db = options.db;
             this._name = options.name;
             this._collection = localForage.createInstance({
@@ -186,7 +183,7 @@
          * @param query
          */
         Collection.prototype.find = function (query) {
-            assert(query, undefined, true);
+            assert.typeOrUndef(OBJECT, query, kendo.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
@@ -254,7 +251,7 @@
          * @param query
          */
         Collection.prototype.count = function (query) {
-            assert(query, undefined, true);
+            assert.typeOrUndef(OBJECT, query, kendo.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var count = 0;
@@ -313,7 +310,7 @@
          * @param doc
          */
         Collection.prototype.insert = function (doc) {
-            assert(doc);
+            assert.type(OBJECT, doc, kendo.format(assert.messages.type.default, 'doc', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
@@ -359,8 +356,8 @@
          * @param update
          */
         Collection.prototype.update = function (query, update) {
-            assert(query, undefined, true);
-            assert(update);
+            assert.typeOrUndef(OBJECT, query, kendo.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
+            assert.type(OBJECT, update, kendo.format(assert.messages.type.default, 'update', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
@@ -456,8 +453,9 @@
          * @param query
          */
         Collection.prototype.remove = function (query) {
-            // assert(query, undefined, true); <-- if query is undefined, use clear
-            assert(query);
+            // Note: if query is undefined, use Collection.prototype.clear
+            // TODO: What if query is an empty object {}?
+            assert.type(OBJECT, query, kendo.format(assert.messages.type.default, 'query', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
@@ -615,7 +613,9 @@
          * @constructor
          */
         var Database = pongodb.Database = function (options) {
-            assert(options, ['name', 'collections']);
+            assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+            assert.type(STRING, options.name, kendo.format(assert.messages.isPlainObject.default, 'options.name', STRING));
+            assert.isArray(options.collections, kendo.format(assert.messages.isArray.default, 'db', 'options.collections'));
 
             this._options = options;
             this._idField = options.idField || 'id';
@@ -636,10 +636,8 @@
 
             // Add collections
             var collections = options.collections;
-            if ($.isArray(collections)) {
-                for (var i = 0, length = collections.length; i < length; i++) {
-                    this[collections[i]] = new Collection({ db: this, name: collections[i] });
-                }
+            for (var i = 0, length = collections.length; i < length; i++) {
+                this[collections[i]] = new Collection({ db: this, name: collections[i] });
             }
         };
 
@@ -665,6 +663,6 @@
 
     }(window.jQuery));
 
-    return pongodb.Database;
+    return pongodb;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
