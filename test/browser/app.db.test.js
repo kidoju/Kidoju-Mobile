@@ -206,9 +206,12 @@
                 var objectId = new ObjectId();
                 expect(objectId.isMobileId()).to.be.true;
                 expect(objectId.toString()).to.match(RX_MONGODB_ID);
+                expect(objectId.toString()).to.equal(objectId.toMobileId());
                 var diff =  Math.abs(objectId.getTimestamp() - now);
                 expect(diff).to.be.lte(1000); // 1000 ms = 1 sec
             });
+
+
 
         });
 

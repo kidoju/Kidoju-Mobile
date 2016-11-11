@@ -47,6 +47,7 @@
         var OBJECT = 'object';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
+        var MACHINE_POS = 8;
         var MACHINE_ID = '000000';
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
 
@@ -136,11 +137,19 @@
         };
 
         /**
+         * Convert a server id (sid) into a mobile id
+         * @returns {boolean}
+         */
+        ObjectId.prototype.toMobileId = function () {
+            return this._id.substr(0, MACHINE_POS) + MACHINE_ID + this._id.substr(MACHINE_POS + MACHINE_ID.length);
+        };
+
+        /**
          * Test whether the ObjectId is a mobile id (as opposed to a mongodb server id)
          * @returns {boolean}
          */
         ObjectId.prototype.isMobileId = function () {
-            return this._id.substr(8, 6) === MACHINE_ID;
+            return this._id.substr(MACHINE_POS, MACHINE_ID.length) === MACHINE_ID;
         };
 
         /**
