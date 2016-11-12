@@ -46,6 +46,7 @@
                 sid: objectId(),
                 firstName: 'Peter',
                 lastName: 'Parker',
+                lastSync: new Date(),
                 lastUse: new Date(),
                 md5pin: '7ae6c1927bd0854ab818407de7323042',
                 picture: 'http://vignette1.wikia.nocookie.net/marvelmovies/images/b/bc/Peter_Parker_AG_thumb.jpg/revision/latest?cb=20120705122015'
