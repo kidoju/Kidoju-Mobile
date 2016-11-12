@@ -404,15 +404,19 @@
 
     <!-- User view -->
     <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onUserViewShow">
+        <img data-bind="attr: { src: user.mobilePicture$(), alt: user.fullName$() }" class="km-thumbnail picture">
         <form>
             <ul data-role="listview" data-style="inset">
-                <li><img data-bind="attr: { src: user.mobilePicture$(), alt: user.fullName$() }" /></li>
                 <li><label>First Name<input type="text" value="Text" data-bind="value: user.firstName" readonly /></label></li>
                 <li><label>Last Name<input type="text" value="Text" data-bind="value: user.lastName" readonly /></label></li>
-                <li><label>PIN<input type="text" value="Text" /></label></li>
-                <li><label>Retype PIN<input type="text" value="Text" /></label></li>
+                <li><label>PIN<input data-role="maskedtextbox" type="password" /></label></li>
+                <li><label>Confirm<input data-role="maskedtextbox" type="password" /></label></li>
             </ul>
         </form>
+        <div class="buttons">
+            <a data-role="button" class="km-justified km-primary km-large km-widget km-button" data-click="app.mobile.onUserSaveClick">Save</a>
+            <a data-role="button" class="km-justified km-primary km-large km-widget km-button" data-click="app.mobile.onUserSignInClick">Signin</a>
+        </div>
     </div>
 
 </div>
