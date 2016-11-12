@@ -15,7 +15,6 @@
         // also promises in localforage display strange behaviours with jQuery deferred
         // and deferreds are better because they can notify progress callbacks for long operations like sync
         './vendor/localForage/localforage.nopromises.js',
-        './vendor/kendo.core',
         './window.assert',
         './window.logger'
     ], f);
@@ -44,7 +43,6 @@
 
     (function ($, undefined) {
 
-        var kendo = window.kendo;
         var assert = window.assert;
         var logger = new window.Logger('app.db'); // TODO : use ir
         var OBJECT = 'object';
@@ -71,8 +69,8 @@
          * @param doc
          */
         var match = function (query, doc) {
-            assert.typeOrUndef(OBJECT, query, kendo.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
-            assert.type(OBJECT, doc, kendo.format(assert.messages.type.default, 'doc', OBJECT));
+            assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
+            assert.type(OBJECT, doc, assert.format(assert.messages.type.default, 'doc', OBJECT));
             var match = true;
             if ($.type(query) === OBJECT) {
                 for (var prop in query) {
@@ -182,9 +180,9 @@
          * @constructor
          */
         var Collection = pongodb.Collection = function (options) {
-            assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-            assert.instanceof(Database, options.db, kendo.format(assert.messages.instanceof.default, 'options.db', 'pongodb.Database'));
-            assert.type(STRING, options.name, kendo.format(assert.messages.isPlainObject.default, 'options.name', STRING));
+            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.instanceof(Database, options.db, assert.format(assert.messages.instanceof.default, 'options.db', 'pongodb.Database'));
+            assert.type(STRING, options.name, assert.format(assert.messages.isPlainObject.default, 'options.name', STRING));
             this._db = options.db;
             this._name = options.name;
             this._collection = localForage.createInstance({
@@ -200,7 +198,7 @@
          * @param query
          */
         Collection.prototype.find = function (query) {
-            assert.typeOrUndef(OBJECT, query, kendo.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
+            assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
@@ -268,7 +266,7 @@
          * @param query
          */
         Collection.prototype.count = function (query) {
-            assert.typeOrUndef(OBJECT, query, kendo.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
+            assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var count = 0;
@@ -327,7 +325,7 @@
          * @param doc
          */
         Collection.prototype.insert = function (doc) {
-            assert.type(OBJECT, doc, kendo.format(assert.messages.type.default, 'doc', OBJECT));
+            assert.type(OBJECT, doc, assert.format(assert.messages.type.default, 'doc', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
@@ -373,8 +371,8 @@
          * @param update
          */
         Collection.prototype.update = function (query, update) {
-            assert.typeOrUndef(OBJECT, query, kendo.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
-            assert.type(OBJECT, update, kendo.format(assert.messages.type.default, 'update', OBJECT));
+            assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
+            assert.type(OBJECT, update, assert.format(assert.messages.type.default, 'update', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
@@ -472,7 +470,7 @@
         Collection.prototype.remove = function (query) {
             // Note: if query is undefined, use Collection.prototype.clear
             // TODO: What if query is an empty object {}?
-            assert.type(OBJECT, query, kendo.format(assert.messages.type.default, 'query', OBJECT));
+            assert.type(OBJECT, query, assert.format(assert.messages.type.default, 'query', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
@@ -630,9 +628,9 @@
          * @constructor
          */
         var Database = pongodb.Database = function (options) {
-            assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-            assert.type(STRING, options.name, kendo.format(assert.messages.isPlainObject.default, 'options.name', STRING));
-            assert.isArray(options.collections, kendo.format(assert.messages.isArray.default, 'db', 'options.collections'));
+            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.type(STRING, options.name, assert.format(assert.messages.isPlainObject.default, 'options.name', STRING));
+            assert.isArray(options.collections, assert.format(assert.messages.isArray.default, 'db', 'options.collections'));
 
             this._options = options;
             this._idField = options.idField || 'id';
