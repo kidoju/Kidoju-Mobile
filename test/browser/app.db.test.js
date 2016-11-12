@@ -353,8 +353,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].find({ id: HERO2.id })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (docs) {
                         expect(docs).to.be.an.instanceof(Array).with.property('length', 1);
@@ -371,8 +371,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].find({ id: (new ObjectId()).toString() })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (docs) {
                         expect(docs).to.be.an.instanceof(Array).with.property('length', 0);
@@ -386,8 +386,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].find({ year: { $lte: 2012 } })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (docs) {
                         expect(docs).to.be.an.instanceof(Array).with.property('length', 2);
@@ -417,8 +417,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].count({ id: HERO2.id })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (count) {
                         expect(count).to.equal(1);
@@ -432,8 +432,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].count({ year: { $lte: 2012 } })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (count) {
                         expect(count).to.equal(2);
@@ -447,8 +447,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].update({ id: HERO2.id }, { mask: false, cape: true })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nMatched').that.is.equal(1);
@@ -464,8 +464,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].update({ id: (new ObjectId()).toString() }, { mask: false, cape: true })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nMatched').that.is.equal(0);
@@ -481,8 +481,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].update({ title: { $regex: /^Man/ } }, { producer: 'DC Comics' })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nMatched').that.is.equal(1);
@@ -498,8 +498,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].remove({ id: HERO3.id })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nRemoved').that.is.equal(1);
@@ -520,8 +520,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].remove({ id: (new ObjectId()).toString() })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nRemoved').that.is.equal(0);
@@ -542,8 +542,8 @@
                 expect(db).to.be.an.instanceof(Database);
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].remove({ producer: 'DC Comics' })
-                    .progress(function (percent) {
-                        expect(percent).to.be.a('number').gt(0).and.lte(1);
+                    .progress(function (status) {
+                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nRemoved').that.is.equal(1);
