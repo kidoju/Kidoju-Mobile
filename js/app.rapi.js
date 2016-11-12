@@ -95,7 +95,7 @@
             myActivities: '/api/v1/users/me/{0}/activities',
             myFavourites: '/api/v1/users/me/{0}/favourites',
             myFavourite: '/api/v1/users/me/{0}/favourites/{1}',
-            allLanguages: '/api/v1/languages',
+            languages: '/api/v1/languages',
             language: '/api/v1/languages/{0}',
             categories: '/api/v1/languages/{0}/categories',
             summaries: '/api/v1/{0}/summaries',
@@ -879,7 +879,7 @@
                  * @returns {*}
                  */
                 getAllLanguages: function () {
-                    var url = uris.rapi.root + uris.rapi.v1.allLanguages;
+                    var url = uris.rapi.root + uris.rapi.v1.languages;
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.taxonomy.getAllLanguages',
