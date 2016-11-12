@@ -49,10 +49,11 @@
                 expect(user).to.have.property('sid', user0.sid);
                 expect(user).to.have.property('firstName', user0.firstName);
                 expect(user).to.have.property('lastName', user0.lastName);
+                expect(user).to.have.property('lastSync', user0.lastSync);
                 expect(user).to.have.property('lastUse', user0.lastUse);
                 expect(user).to.have.property('md5pin', user0.md5pin);
                 expect(user).to.have.property('picture', user0.picture);
-                // TODO: test field$ functions here
+                // TODO: test fullName$, picture$ and mobilePicture$ functions here
             });
 
             it('MobileUser should be able to reset a pin', function () {
@@ -267,7 +268,20 @@
             });
         });
 
-        xdescribe('', function () {
+        describe('MobileActivity', function () {
+
+            var MobileActivity = models.MobileActivity;
+
+            xit('', function () {
+
+            });
+
+        });
+
+        describe('MobileActivityDataSource', function () {
+
+            var MobileActivity = models.MobileActivity;
+            var MobileActivityDataSource = models.MobileActivityDataSource;
 
             xit('', function () {
 

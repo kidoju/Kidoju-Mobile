@@ -60,89 +60,26 @@
         var models = app.models = app.models || {};
         var pongodb = window.pongodb;
         var db = app.db = new pongodb.Database({ name: 'KidojuDB', size: 5 * 1024 * 1024, collections: ['users'] });
-        var i18n = app.i18n = app.i18n || {
-                locale: function () { return 'en'; },
-                culture: {
-                    dateFormat: 'dd MMM yyyy',
-                    languages: [
-                        {
-                            value: 'en',
-                            name: 'English',
-                            icon: ''
-                        },
-                        {
-                            value: 'fr',
-                            name: 'French',
-                            icon: ''
-                        }
-                    ],
-                    finder: {
-                        treeview: {
-                            rootNodes: {
-                                home: {
-                                    text: 'Home',
-                                    icon: 'home'
-                                },
-                                favourites: {
-                                    text: 'Favourites',
-                                    icon: 'star'
-                                },
-                                categories: {
-                                    text: 'Categories',
-                                    icon: 'folders2'
-                                }
-                            }
-                        }
-                    },
-                    versions: {
-                        draft: {
-                            name: 'Draft'
-                        },
-                        published: {
-                            name: 'Version {0}'
-                        }
-                    }
+        // var i18n = app.i18n = app.i18n || { };
+        var uris = app.uris = app.uris || {
+                cdn: {
+                    icons: 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg'
+                },
+                mobile: {
+                    icons: './img/{0}.svg'
                 }
-            };
-        var uris = app.uris = app.uris || {}; // we expect to have app.uris.rapi = {...}
-        uris.cdn = uris.cdn || {
-                icons: 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg'
-            };
-        uris.mobile = {
-            icons: './img/{0}.svg'
-        };
-        uris.webapp = uris.webapp  || { // this is for testing only
-                editor      : window.location.protocol + '//' + window.location.host + '/{0}/e/{1}/{2}',
-                finder      : window.location.protocol + '//' + window.location.host + '/{0}',
-                player      : window.location.protocol + '//' + window.location.host + '/{0}/x/{1}/{2}',
-                user        : window.location.protocol + '//' + window.location.host + '/{0}/u/{1}',
-                summary     : window.location.protocol + '//' + window.location.host + '/{0}/s/{1}'
             };
         var DATE = 'date';
         var FUNCTION = 'function';
         var STRING = 'string';
-        // var NUMBER = 'number';
-        // var BOOLEAN = 'boolean';
-        // var CHANGE = 'change';
-        // var ITEMCHANGE = 'itemchange';
         var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
         var DATE_0 = new Date(2000, 1, 1);
         var DOT = '.';
-        // var HASHBANG = '#!';
-        // var HOME = 'home';
-        // var FAVOURITES = 'favourites';
-        // var CATEGORIES = 'categories';
-        // var VERSION_STATE = { DRAFT: 0, PUBLISHED: 5 };
-        // var MD5_A = '0cc175b9c0f1b6a831c399e269772661';
         // The following allows FS_ROOT[window.TEMPORARY] and FS_ROOT[window.PERSISTENT];
         var FS_ROOT = ['cdvfile://localhost/temporary/', 'cdvfile://localhost/persistent/'];
 
         /**
-         * MobileUser model (stored locally with PIN in SecureStorage)
-         * We cannot use models.CurrentUser because of the complex storage model on mobile devices:
-         * - Users stored in localForage database
-         * - Pictures stored in Filesystem
-         * - PINS stored in SecureStorage
+         * MobileUser model
          * @type {kidoju.data.Model}
          */
         models.MobileUser = Model.define({
@@ -168,6 +105,13 @@
                     editable: false,
                     nullable: false
                 },
+                // Last time when the mobile device was synchronized with the server for that specific user
+                lastSync: {
+                    type: DATE,
+                    editable: true,
+                    nullable: false,
+                    defaultValue: DATE_0
+                },
                 // The current user is the user with the most recent lastUse
                 lastUse: {
                     type: DATE,
@@ -185,6 +129,7 @@
                     editable: false,
                     nullable: false
                 }
+                // TODO: Consider theme and language
                 // consider locale (for display of numbers, dates and currencies)
                 // consider timezone (for display of dates), born (for searches)
             },
@@ -197,6 +142,51 @@
             mobilePicture$: function () {
                 // Note: we might want to check that this.picture$().split(DOT).pop() is a well known image extension
                 return FS_ROOT[window.TEMPORARY] + 'users/' + this.get('id') + DOT + this.picture$().split(DOT).pop();
+            },
+            /**
+             * _saveMobilePicture should not be used directly
+             * This is called from MobileUserDataSource
+             * @returns {*}
+             * @private
+             */
+            _saveMobilePicture: function () {
+                var that = this;
+                var dfd = $.Deferred();
+                if (window.FileTransfer) {
+                    var fileTransfer = new FileTransfer();
+                    var source = window.encodeURI(this.picture$());
+                    var target = this.mobilePicture$();
+                    fileTransfer.download(
+                        source,
+                        target,
+                        function (fileEntry) {
+                            dfd.resolve(fileEntry);
+                            logger.debug({
+                                method: 'models.MobileUser.downloadPicture',
+                                message: 'User picture successfully downloaded'
+
+                            });
+                            // Trigger the set event to reset data binding
+                            that.trigger('set', { field: 'picture', value: that.get('picture') });
+                        },
+                        function (fileTransferError) {
+                            dfd.reject(fileTransferError);
+                            debugger;
+                            logger.debug({
+                                method: 'models.MobileUser.downloadPicture',
+                                message: 'User picture failed to download',
+                                error: fileTransferError
+                            });
+                        }
+                    );
+                } else {
+                    dfd.reject(new Error('window.FileTransfer is missing.'));
+                    logger.error({
+                        method: 'models.MobileUser.downloadPicture',
+                        message: 'window.FileTransfer is missing'
+                    });
+                }
+                return dfd.promise();
             },
             /**
              * Add a pin
@@ -215,6 +205,7 @@
              * @param pin
              */
             resetPin: function () {
+                // TODO: remove if not used considering we check pin before
                 this.set('md5pin', null);
             },
             /**
@@ -266,56 +257,11 @@
                     md5pin: this.defaults.md5pin,
                     picture: this.defaults.picture
                 });
-            },
-            /**
-             * _saveMobilePicture should not be used directly
-             * This is called from MobileUserDataSource
-             * @returns {*}
-             * @private
-             */
-            _saveMobilePicture: function () {
-                var that = this;
-                var dfd = $.Deferred();
-                if (window.FileTransfer) {
-                    var fileTransfer = new FileTransfer();
-                    var source = window.encodeURI(this.picture$());
-                    var target = this.mobilePicture$();
-                    fileTransfer.download(
-                        source,
-                        target,
-                        function (fileEntry) {
-                            dfd.resolve(fileEntry);
-                            logger.debug({
-                                method: 'models.MobileUser.downloadPicture',
-                                message: 'User picture successfully downloaded'
-
-                            });
-                            // Trigger the set event to reset data binding
-                            that.trigger('set', { field: 'picture', value: that.get('picture') });
-                        },
-                        function (fileTransferError) {
-                            dfd.reject(fileTransferError);
-                            debugger;
-                            logger.debug({
-                                method: 'models.MobileUser.downloadPicture',
-                                message: 'User picture failed to download',
-                                error: fileTransferError
-                            });
-                        }
-                    );
-                } else {
-                    dfd.reject(new Error('window.FileTransfer is missing.'));
-                    logger.error({
-                        method: 'models.MobileUser.downloadPicture',
-                        message: 'window.FileTransfer is missing'
-                    });
-                }
-                return dfd.promise();
             }
         });
 
         /**
-         * MobileUserDataSource model (stored localy and sycnhronized)
+         * MobileUserDataSource model (stored localy)
          * @type {kidoju.data.Model}
          */
         models.MobileUserDataSource = DataSource.extend({
@@ -328,8 +274,237 @@
 
                 var that = this;
 
+                DataSource.fn.init.call(that, $.extend(true, {}, {
+                    transport: {
+                        create: $.proxy(that._transport._create, that),
+                        destroy: $.proxy(that._transport._destroy, that),
+                        read: $.proxy(that._transport._read, that),
+                        update: $.proxy(that._transport._update, that)
+                    },
+                    // no serverFiltering, serverSorting or serverPaging considering the limited number of users
+                    schema: {
+                        data: 'data',
+                        total: 'total',
+                        errors: 'error', // <--------------------- TODO: look at this properly for error reporting
+                        modelBase: models.MobileUser,
+                        model: models.MobileUser
+                    }
+                }, options));
+
+            },
+
+            /**
+             * Validate user before saving
+             * @param user
+             */
+            _validate: function (user) {
+                var errors = [];
+                if ($.type(user.md5pin) !== STRING) {
+                    errors.push('Missing user pin'); // TODO i18n
+                }
+                return errors;
+            },
+
+            /**
+             * Setting _transport here with a reference above is a trick
+             * so as to be able to replace these CRUD function in mockup scenarios
+             */
+            _transport: {
+
+                /**
+                 * Create transport
+                 * @param options
+                 * @returns {*}
+                 * @private
+                 */
+                _create: function (options) {
+                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                    logger.debug({
+                        message: 'User data creation',
+                        method: 'app.models.MobileUserDataSource.transport.create'
+                    });
+                    var user = options.data;
+                    var errors = this._validate(user);
+                    if (errors.length) {
+                        // Do not save a user without a pin
+                        // TODO: report errors properly: in xhr.responseText?
+                        return options.error(undefined, 'error', 'Invalid user');
+                    }
+                    // This replaces the machine id in the mongoDB server id by MACHINE_ID
+                    // This ensures uniqueness of user in mobile app when sid is unique without further checks
+                    // i.e. same user with the same sid recorded twice under different ids in mobile device
+                    user.id = new pongodb.ObjectId(user.sid).toMobileId();
+                    user.lastUse = new Date();
+                    db.users.insert(user)
+                        .done(function  () {
+                            // TODO save image
+                            options.success(user);
+                        })
+                        .fail(options.error);
+                },
+
+                /**
+                 * Destroy transport
+                 * @param options
+                 * @private
+                 */
+                _destroy: function (options) {
+                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                    logger.debug({
+                        message: 'User data deletion',
+                        method: 'app.models.MobileUserDataSource.transport.destroy'
+                    });
+                    var id = options.data.id;
+                    if (RX_MONGODB_ID.test(id)) {
+                        db.users.remove({ id: id })
+                            .done(function (result) {
+                                if (result && result.nRemoved === 1) {
+                                    options.success(options.data);
+                                } else {
+                                    options.error(undefined, 'error', 'User not found');
+                                }
+                            })
+                            .fail(options.error);
+                    } else {
+                        // No need to hit the database, it won't be found
+                        options.error(undefined, 'error', 'User not found');
+                    }
+                },
+
+                /**
+                 * Read transport
+                 * @param options
+                 * @private
+                 */
+                _read: function (options) {
+                    logger.debug({
+                        message: 'User data read',
+                        method: 'app.models.MobileUserDataSource.transport.read'
+                    });
+                    db.users.find()
+                        .done(function (result) {
+                            if ($.isArray(result)) {
+                                options.success({ total: result.length, data: result });
+                            } else {
+                                options.error(undefined, 'error', '`result` should be an `array`, possibly empty');
+                            }
+                        })
+                        .fail(options.error);
+                },
+
+                /**
+                 * Update transport
+                 * @param options
+                 * @returns {*}
+                 * @private
+                 */
+                _update: function (options) {
+                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                    logger.debug({
+                        message: 'User data update',
+                        method: 'app.models.MobileUserDataSource.transport.update'
+                    });
+                    var user = options.data;
+                    var errors = this._validate(user);
+                    if (errors.length) {
+                        // Do not save a user without a pin
+                        // TODO: report errors properly: in xhr.responseText?
+                        return options.error(undefined, 'error', 'Invalid user');
+                    }
+                    var id = user.id;
+                    if (RX_MONGODB_ID.test(id)) {
+                        user.id = undefined;
+                        db.users.update({ id: id }, user)
+                            .done(function (result) {
+                                if (result && result.nMatched === 1 && result.nModified === 1) {
+                                    // TODO Save image
+                                    user.id = id;
+                                    options.success({total: 1, data: user});
+                                } else {
+                                    options.error(undefined, 'error', 'User not found');
+                                }
+                            })
+                            .fail(options.error);
+                    } else {
+                        // No need to hit the database, it won't be found
+                        options.error(undefined, 'error', 'User not found');
+                    }
+                }
+            }
+
+        });
+
+        /**
+         * MobileVersion model
+         * @type {kidoju.data.Model}
+         */
+        models.MobileActivity = Model.define({
+            id: 'id', // the identifier of the model, which is required for isNew() to work
+            fields: {
+                id: {
+                    type: STRING,
+                    editable: true,
+                    nullable: true
+                },
+                // An activity without a sid does not exist on the server
+                sid: {
+                    type: STRING,
+                    editable: true,
+                    nullable: true
+                },
+                actorId: {
+                    type: STRING,
+                    editable: false
+                },
+                // Data varies depending on the type of activity
+                data: {
+                    type: STRING,
+                    editable: false
+                },
+                language: {
+                    type: STRING,
+                    editable: false
+                },
+                summaryId: {
+                    type: STRING,
+                    editable: false
+                },
+                title: {
+                    type: STRING,
+                    editable: false
+                },
+                type: {
+                    type: STRING,
+                    editable: false
+                },
+                versionId: {
+                    type: STRING,
+                    editable: false
+                }
+                // Do we need a date or can we rely on the updated date?
+                // Do we need any additional value/text to display in the mobile app?
+            }
+        });
+
+        /**
+         * MobileActivityDataSource datasource (stored localy and sycnhronized)
+         * @type {kidoju.data.DataSource}
+         */
+        models.MobileActivityDataSource = DataSource.extend({
+
+            /**
+             * Datasource constructor
+             * @param options
+             */
+            init: function (options) {
+
+                var that = this;
+
                 // Cache the userId from options
-                that.userId = options && options.userId;
+                that._userId = options && options.userId;
 
                 DataSource.fn.init.call(that, $.extend(true, {}, {
                     transport: {
@@ -345,9 +520,9 @@
                     schema: {
                         data: 'data',
                         total: 'total',
-                        errors: 'error',
-                        modelBase: models.MobileUser,
-                        model: models.MobileUser
+                        errors: 'error', // <--------------------- TODO: look at this properly for error reporting
+                        modelBase: models.MobileActivity,
+                        model: models.MobileActivity
                         // parse: function (response) {
                         //     return response;
                         // }
@@ -357,71 +532,110 @@
             },
 
             /**
-             * Datasource loader from local database
-             * @param options
-             * @returns {*}
+             * Load possibly with a new userId
+             * @param userId
              */
             load: function (options) {
                 var that = this;
-                that.userId = options && options.userId;
-                return that.query(options);
+                var dfd = $.Deferred();
+                if (that.hasChanges()) {
+                    dfd.reject(undefined, 'error', 'Cannot load with pending changes.');
+                } else {
+                    if (options && options.userId) {
+                        that._userId = options.userId;
+                    }
+                    that.query(options).done(dfd.resolve).fail(dfd.reject);
+                }
+                return dfd.promise;
             },
 
             /**
-             * Setting _transport._read here with a reference above is a trick
-             * so as to be able to replace this function in mockup scenarios
+             * Validate activity
+             * @param activity
+             * @private
+             */
+            _validate: function (activity) {
+                var errors = [];
+                // TODO
+                return errors;
+            },
+
+            /**
+             * Setting _transport here with a reference above is a trick
+             * so as to be able to replace these CRUD function in mockup scenarios
              */
             _transport: {
+
+                /**
+                 * Create transport
+                 * @param options
+                 * @returns {*}
+                 * @private
+                 */
                 _create: function (options) {
-                    var that = this;
+                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                     logger.debug({
-                        message: 'User data creation',
-                        method: 'app.models.MobileUserDataSource.transport.create'
+                        message: 'Activity data creation',
+                        method: 'app.models.MobileActivityDataSource.transport.create'
                     });
-                    var user = options.data;
-                    if ($.type(user.md5pin) !== STRING) {
-                        // Do not save a user without a pin
-                        return options.error(undefined, 'error', 'Missing pin');
+                    var activity = options.data;
+                    var errors = this._validate(activity);
+                    if (errors.length) {
+                        // TODO: report errors properly: in xhr.responseText?
+                        return options.error(undefined, 'error', 'Invalid activity');
                     }
-                    // This replaces the machine id in the mongoDB server id by MACHINE_ID
-                    // This ensures uniqueness of user in mobile app when sid is unique without further checks
-                    // i.e. same user with the same sid recorded twice under different ids in mobile device
-                    user.id = new pongodb.ObjectId(user.sid).toMobileId();
-                    user.lastUse = new Date();
-                    db.users.insert(user)
-                        .done(function  () {
-                            // TODO save image
-                            options.success(user);
+                    activity.id = new pongodb.ObjectId();
+                    // TODO activity date????
+                    // TODO activity actorId????
+                    db.activities.insert(activity)
+                        .done(function (a) {
+                            debugger;
+                            options.success(activity);
                         })
                         .fail(options.error);
                 },
+
+                /**
+                 * Destroy transport
+                 * @param options
+                 * @private
+                 */
                 _destroy: function (options) {
-                    var that = this;
+                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                     logger.debug({
-                        message: 'User data deletion',
-                        method: 'app.models.MobileUserDataSource.transport.destroy'
+                        message: 'Activity data deletion',
+                        method: 'app.models.MobileActivityDataSource.transport.destroy'
                     });
-                    if (options && options.data && RX_MONGODB_ID.test(options.data.id)) {
-                        db.users.remove({ id: options.data.id })
+                    var id = options.data.id;
+                    if (RX_MONGODB_ID.test(id)) {
+                        db.activities.remove({ id: id })
                             .done(function (result) {
                                 if (result && result.nRemoved === 1) {
                                     options.success(options.data);
                                 } else {
-                                    options.error(undefined, 'error', 'Failed to remove user from mobile database');
+                                    options.error(undefined, 'error', 'Activity not found');
                                 }
                             })
                             .fail(options.error);
                     } else {
-                        options.error(undefined, 'error', 'Missing user id');
+                        // No need to hit the database, it won't be found
+                        options.error(undefined, 'error', 'Activity not found');
                     }
                 },
+
+                /**
+                 * Read transport
+                 * @param options
+                 * @private
+                 */
                 _read: function (options) {
-                    var that = this;
                     logger.debug({
-                        message: 'User data read',
-                        method: 'app.models.MobileUserDataSource.transport.read'
+                        message: 'Activity data read',
+                        method: 'app.models.MobileActivityDataSource.transport.read'
                     });
-                    db.users.find()
+                    db.activities.find({ actorId: this._userId })
                         .done(function (result) {
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
@@ -431,68 +645,110 @@
                         })
                         .fail(options.error);
                 },
+
+                /**
+                 * Update transpoort
+                 * @param options
+                 * @returns {*}
+                 * @private
+                 */
                 _update: function (options) {
-                    var that = this;
+                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                     logger.debug({
-                        message: 'User data update',
-                        method: 'app.models.MobileUserDataSource.transport.update'
+                        message: 'Activity data update',
+                        method: 'app.models.MobileActivityDataSource.transport.update'
                     });
-                    var user = options.data;
-                    if (!RX_MONGODB_ID.test(user.id)) {
-                        return options.error(undefined, 'error', 'Missing user id');
+                    var activity = options.data;
+                    var errors = this._validate(activity);
+                    if (errors.length) {
+                        // Do not save a activity without a pin
+                        // TODO: report errors properly: in xhr.responseText?
+                        return options.error(undefined, 'error', 'Invalid activity');
                     }
-                    if ($.type(user.md5pin) !== STRING) {
-                        // Do not save a user without a pin
-                        return options.error(undefined, 'error', 'Missing pin');
+                    var id = activity.id;
+                    if (RX_MONGODB_ID.test(id)) {
+                        activity.id = undefined;
+                        // TODO: check userId?
+                        db.users.update({ id: id }, activity)
+                            .done(function (result) {
+                                if (result && result.nMatched === 1 && result.nModified === 1) {
+                                    // TODO Save image
+                                    activity.id = id;
+                                    options.success({total: 1, data: activity});
+                                } else {
+                                    options.error(undefined, 'error', 'Activity not found');
+                                }
+                            })
+                            .fail(options.error);
+                    } else {
+                        // No need to hit the database, it won't be found
+                        options.error(undefined, 'error', 'Activity not found');
                     }
-                    var id = user.id;
-                    user.id = undefined;
-                    db.users.update({ id: id }, user)
-                        .done(function (result) {
-                            if (result && result.nMatched === 1 && result.nModified === 1) {
-                                // TODO Save image
-                                user.id = id;
-                                options.success({ total: 1, data: user });
-                            } else {
-                                options.error(undefined, 'error', 'Failed to remove user from mobile database');
-                            }
-                        })
-                        .fail(options.error);
                 }
-            }
-        });
+            },
 
-        /**
-         * MobileVersion model (stored localy and sycnhronized)
-         * @type {kidoju.data.Model}
-         */
-        models.MobileActivity = Model.define({
-            // TODO
-        });
-
-        /**
-         * MobileActivityDataSource datasource (stored localy and sycnhronized)
-         * @type {kidoju.data.DataSource}
-         */
-        models.MobileActivityDataSource = DataSource.extend({
-            // TODO
-            init: function (options) {
+            /**
+             * Synchronizes user activities with the server
+             */
+            serverSync: function () {
                 var that = this;
-                DataSource.fn.init.call(that, options);
+                return $.when(
+                    // First, upload all new activities
+                    that._uploadNewActivities(),
+                    // Second, purge old activities (including possibly some just uploaded new activities if last serverSync is very old)
+                    that._purgeOldActivities(),
+                    // Third, download recently added and updated activities (considering activities are always created, never updated, on the mobile device.
+                    that._downloadRecentActivities()
+                );
+            },
+
+            /**
+             * Upload new activities and update sid
+             * @returns {*}
+             * @private
+             */
+            _uploadNewActivities: function () {
+                var dfd = $.Deferred();
+                // TODO $.when.apply($, my_array);
+                return dfd.promise();
+            },
+
+            /**
+             * Purge old activities
+             * @returns {*}
+             * @private
+             */
+            _purgeOldActivities: function () {
+                var dfd = $.Deferred();
+                // TODO $.when.apply($, my_array);
+                return dfd.promise();
+            },
+
+            /**
+             * Download recently updated activities
+             * @returns {*}
+             * @private
+             */
+            _downloadRecentActivities: function () {
+                var dfd = $.Deferred();
+                // TODO
+                return dfd.promise();
             }
+
         });
 
         /**
-         * MobileVersion model (stored localy and sycnhronized)
+         * MobileDownload model
          * @type {kidoju.data.Model}
          */
-        // models.MobileVersion = Model.define({});
+        // models.MobileDownload = Model.define({});
 
         /**
-         * MobileVersion datasource (stored localy and sycnhronized)
+         * MobileDownload datasource (stored localy)
          * @type {kidoju.data.Model}
          */
-        // models.MobileVersionDataSource = DataSource.define({});
+        // models.MobileDownload = DataSource.define({});
 
     }(window.jQuery));
 

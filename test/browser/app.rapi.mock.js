@@ -17,15 +17,15 @@
             rapi: {
                 root: 'https://www.kidoju.com',
                 v1: {
-                    activities: '',
-                    activity: '',
-                    allLanguages: '',
+                    activities: '/api/v1/{0}/summaries/{1}/activities',
+                    activity: '/api/v1/{0}/summaries/{1}/activities/{2}',
                     categories: '',
                     file: '',
                     files: '',
                     language: '',
+                    languages: '',
                     me: '/api/v1/users/me',
-                    myActivities: '',
+                    myActivities: '/api/v1/users/me/{0}/activities',
                     myFavourite: '',
                     myFavourites: '',
                     mySummaries: '',
@@ -257,7 +257,37 @@
                     this.statusText = HTTP_STATUS.UNAUTHORIZED;
                 }
             }
+        },
+
+        /**
+         * /api/v1/users/me/{0}/activities
+         */
+        {
+            url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.myActivities).replace('{0}', '[a-z]{2}')) ,
+            response: function (request) {
+                debugger;
+                if (request.headers.Authorization) {
+                    var access = request.headers.Authorization.substr(BEARER_LENGTH);
+                    var token = mockDB.tokens.findOne({ access: access });
+                    if (token) {
+                        var user = mockDB.users.findOne({id: token.userId});
+                        if (user) {
+                            this.responseText = mockDB._toObject(user, request.data.fields);
+                        } else {
+                            this.status = 404;
+                            this.statusText = HTTP_STATUS.NOT_FOUND;
+                        }
+                    } else {
+                        this.status = 404;
+                        this.statusText = HTTP_STATUS.NOT_FOUND;
+                    }
+                } else {
+                    this.status = 401;
+                    this.statusText = HTTP_STATUS.UNAUTHORIZED;
+                }
+            }
         }
+
 
 
     ]);
