@@ -54,7 +54,7 @@
             XHR: undefined,
             STATUS: 'error'
         };
-        var NOT_IMPLEMENTED = 'Not yet imeplemented';
+        var NOT_IMPLEMENTED = 'Not yet implemented';
 
         /* Blocks are nested too deeply. */
         /* jshint -W073 */
@@ -234,7 +234,7 @@
                                 if (match(query, item)) {
                                     found.push(item);
                                 }
-                                dfd.notify(index / length); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
                             },
                             function (err) {
                                 if (err) {
@@ -302,7 +302,7 @@
                                 if (match(query, item)) {
                                     count++;
                                 }
-                                dfd.notify(index / length); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
                             },
                             function (err) {
                                 if (err) {
@@ -429,7 +429,7 @@
                                         updates[key].resolve();
                                     });
                                 }
-                                dfd.notify(index / length); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
                             },
                             function (err) {
                                 if (err) {
@@ -516,7 +516,7 @@
                                         removals[key].resolve();
                                     });
                                 }
-                                dfd.notify(index / length); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
                             },
                             function (err) {
                                 if (err) {
