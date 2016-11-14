@@ -5,6 +5,8 @@
     <link href="../vendor/mocha.css" rel="stylesheet" />
     <script src="../vendor/mocha.js"></script>
     <script src="../vendor/chai.js"></script>
+    <script src="../vendor/sinon.js"></script>
+    <script src="../vendor/sinon-chai.js"></script>
     <!--script src="../vendor/blanket.js" data-cover-adapter="../vendor/blanket_mocha.js"></script-->
     <!--script src="../vendor/blanket.min.js" data-cover-flags="debug" data-cover-adapter="../vendor/blanket_mocha.min.js"></script-->
     <script src="../../js/vendor/jQuery/jquery-3.1.1.min.js"></script>
@@ -22,7 +24,7 @@
 
 <script src="app.fs.test.js"></script>
 <script>
-    mocha.checkLeaks().globals(['grandTotalTemplate', 'blanket_toggleSource', 'SIG_EXT', 'requestFileSystem', 'storageInfo']);
+    mocha.checkLeaks().globals(['grandTotalTemplate', 'blanket_toggleSource', 'SIG_EXT', 'requestFileSystem', 'storageInfo', 'resolveLocalFileSystemURL', 'FileTransfer']);
     if (!window.blanket && !window.PHANTOMJS) {
         mocha.run();
     }

@@ -19,8 +19,6 @@
 
     (function ($, undefined) {
 
-        var app = window.app = window.app || {};
-        var mobile = app.mobile = app.mobile || {};
         var STRING = 'string';
         var OBJECT = 'object';
         var FUNCTION = 'function';
@@ -33,13 +31,13 @@
          * The FileSystem prototype
          * @constructor
          */
-        mobile.FileSystem = function () {};
+        var FileSystem = window.FileSystem = function () {};
 
         /**
          * Initialize the temporary file system
          * @private
          */
-        mobile.FileSystem.prototype._initTemporary = function () {
+        FileSystem.prototype._initTemporary = function () {
             var that = this;
             var dfd = $.Deferred();
             window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
@@ -77,7 +75,7 @@
          * Initialize the persistent file system
          * @private
          */
-        mobile.FileSystem.prototype._initPersistent = function () {
+        FileSystem.prototype._initPersistent = function () {
             var that = this;
             var dfd = $.Deferred();
             window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
@@ -117,7 +115,7 @@
          * @returns {*}
          * @private
          */
-        mobile.FileSystem.prototype._getFileSystem = function (type) {
+        FileSystem.prototype._getFileSystem = function (type) {
             if (type === window.PERSISTENT) {
                 return this._persistent;
             } else {
@@ -128,7 +126,7 @@
         /**
          * Initialization of FileSystem
          */
-        mobile.FileSystem.prototype.init = function () {
+        FileSystem.prototype.init = function () {
             var that = this;
             return $.when(
                 that._initTemporary(),  // Temporary by default
@@ -142,7 +140,7 @@
          * @param path (from that._fs.root)
          * @param type
          */
-        mobile.FileSystem.prototype.getDirectoryEntry = function (path, type) {
+        FileSystem.prototype.getDirectoryEntry = function (path, type) {
             type = type || window.TEMPORARY;
             assert.type(STRING, path, assert.format(assert.messages.type.default, 'path', STRING));
             assert.ok(type === window.TEMPORARY || type === window.PERSISTENT, '`type` should either be window.TEMPORARY or window.PERSISTENT');
@@ -184,7 +182,7 @@
          * @param directoryEntry (determines file storage type)
          * @param fileName
          */
-        mobile.FileSystem.prototype.getFileEntry = function (directoryEntry, fileName) {
+        FileSystem.prototype.getFileEntry = function (directoryEntry, fileName) {
             assert.type(OBJECT, directoryEntry, assert.format(assert.messages.type.default, 'directoryEntry', OBJECT));
             assert.type(FUNCTION, directoryEntry.getFile, assert.format(assert.messages.type.default, 'directoryEntry.getFile', FUNCTION));
             assert.type(STRING, fileName, assert.format(assert.messages.type.default, 'fileName', STRING));
@@ -205,7 +203,7 @@
          * @param fileEntry
          * @param headers
          */
-        mobile.FileSystem.prototype.download = function (remoteUrl, fileEntry, headers) {
+        FileSystem.prototype.download = function (remoteUrl, fileEntry, headers) {
             assert.type(STRING, remoteUrl, assert.format(assert.messages.type.default, 'remoteUrl', STRING));
             assert.type(OBJECT, fileEntry, assert.format(assert.messages.type.default, 'fileEntry', OBJECT));
             assert.isOptionalObject(headers, assert.format(assert.messages.isOptionalObject.default, 'headers'));
@@ -213,6 +211,11 @@
             var dfd = $.Deferred();
             var fileTransfer = new window.FileTransfer();
             var fileURL = fileEntry.toURL();
+
+            fileTransfer.onProgress = function (evt) {
+                debugger;
+                dfd.notify(evt);
+            };
 
             fileTransfer.download(
                 remoteUrl,
@@ -232,7 +235,7 @@
          * @param fileEntry
          * @param remoteUrl
          */
-        // mobile.FileSystem.prototype.upload = function (fileEntry, remoteUrl) {};
+        // FileSystem.prototype.upload = function (fileEntry, remoteUrl) {};
 
         /**
          * File saveAS
@@ -241,6 +244,6 @@
 
     }(window.jQuery));
 
-    // return mobile;
+    return window.FileSystem;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

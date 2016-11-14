@@ -11,7 +11,8 @@
     'use strict';
 
     var expect = window.chai.expect;
-    var FileSystem = app.mobile.FileSystem;
+    var sinon = window.sinon;
+    var FileSystem = window.FileSystem;
 
     describe('app.fs', function () {
 
@@ -28,13 +29,9 @@
                                 expect(fs).to.equal(temporary);
                                 done();
                             })
-                            .fail(function () {
-                                done(new Error('Reinitializing a temporary FileSystem should not fail'));
-                            });
+                            .fail(done);
                     })
-                    .fail(function () {
-                        done(new Error('Initializing a temporary FileSystem should not fail'));
-                    });
+                    .fail(done);
             });
 
             it('it should init a window.PERSISTENT file system', function (done) {
@@ -48,13 +45,9 @@
                                 expect(fs).to.equal(persistent);
                                 done();
                             })
-                            .fail(function () {
-                                done(new Error('Reinitializing a persistent FileSystem should not fail'));
-                            });
+                            .fail(done);
                     })
-                    .fail(function () {
-                        done(new Error('Initializing a persistent FileSystem should not fail'));
-                    });
+                    .fail(done);
             });
 
             it('it should init a file system (temporary and persistent)', function (done) {
@@ -67,19 +60,17 @@
                         expect(persistent).not.to.be.undefined;
                         done();
                     })
-                    .fail(function () {
-                        done(new Error('Initializing a FileSystem should not fail'));
-                    });
+                    .fail(done);
             });
 
         });
 
-        describe('MakeDir', function () {
+        describe('getDirectoryEntry', function () {
 
-            it('it should fail to make a directory if FileSystem has not been initialized', function (done) {
+            it('it should fail to get a directoryEntry if FileSystem has not been initialized', function (done) {
                 var fileSystem = new FileSystem();
-                var fullPath = '/images';
-                fileSystem.getDirectoryEntry(fullPath, window.TEMPORARY)
+                var path = '/images';
+                fileSystem.getDirectoryEntry(path, window.TEMPORARY)
                     .done(function () {
                         done(new Error('Making a directory without initializing a FileSystem should fail'));
                     })
@@ -89,42 +80,132 @@
                     });
             });
 
-            it('it should make a directory in a temporary FileSystem', function (done) {
+            it('it should get a directoryEntry in a temporary FileSystem', function (done) {
                 var fileSystem = new FileSystem();
                 fileSystem.init()
                     .done(function () {
-                        var fullPath = '/images';
-                        fileSystem.getDirectoryEntry(fullPath, window.TEMPORARY)
+                        var path = '/images';
+                        fileSystem.getDirectoryEntry(path, window.TEMPORARY)
                             .done(function (directoryEntry) {
                                 expect(directoryEntry).not.to.be.undefined;
                                 expect(directoryEntry.isDirectory).to.be.true;
-                                expect(directoryEntry.fullPath).to.equal(fullPath);
+                                expect(directoryEntry.fullPath).to.equal(path);
                                 done();
                             })
                             .fail(done);
                     })
-                    .fail(function () {
-                        done(new Error('Initializing a FileSystem should not fail'));
-                    });
+                    .fail(done);
             });
 
-            it('it should make a directory in a persistent FileSystem', function (done) {
+            it('it should get a directoryEntry in a persistent FileSystem', function (done) {
                 var fileSystem = new FileSystem();
                 fileSystem.init()
                     .done(function (fs) {
-                        var fullPath = '/images/icons/office';
-                        fileSystem.getDirectoryEntry(fullPath, window.PERSISTENT)
+                        var path = '/images/icons/office';
+                        fileSystem.getDirectoryEntry(path, window.PERSISTENT)
                             .done(function (directoryEntry) {
                                 expect(directoryEntry).not.to.be.undefined;
                                 expect(directoryEntry.isDirectory).to.be.true;
-                                expect(directoryEntry.fullPath).to.equal(fullPath);
+                                expect(directoryEntry.fullPath).to.equal(path);
                                 done();
                             })
                             .fail(done);
                     })
-                    .fail(function () {
-                        done(new Error('Initializing a FileSystem should not fail'));
+                    .fail(done);
+            });
+
+        });
+
+        describe('getFileEntry', function () {
+
+            it('it should get a fileEntry in a temporary FileSystem', function (done) {
+                var fileSystem = new FileSystem();
+                var path = '/images';
+                var fileName = 'temp.jpg';
+                fileSystem.init()
+                    .done(function () {
+                        fileSystem.getDirectoryEntry(path, window.TEMPORARY)
+                            .done(function (directoryEntry) {
+                                fileSystem.getFileEntry(directoryEntry, fileName)
+                                    .done(function (fileEntry) {
+                                        expect(fileEntry).not.to.be.undefined;
+                                        expect(fileEntry.isFile).to.be.true;
+                                        expect(fileEntry.name).to.equal(fileName);
+                                        expect(fileEntry.fullPath).to.equal(path + '/' + fileName);
+                                        done();
+                                    })
+                                    .fail(done);
+                            })
+                            .fail(done);
+                    })
+                    .fail(done);
+            });
+
+            it('it should get a fileEntry in a persistent FileSystem', function (done) {
+                var fileSystem = new FileSystem();
+                var path = '/images';
+                var fileName = 'temp.jpg';
+                fileSystem.init()
+                    .done(function () {
+                        fileSystem.getDirectoryEntry(path, window.PERSISTENT)
+                            .done(function (directoryEntry) {
+                                fileSystem.getFileEntry(directoryEntry, fileName)
+                                    .done(function (fileEntry) {
+                                        expect(fileEntry).not.to.be.undefined;
+                                        expect(fileEntry.isFile).to.be.true;
+                                        expect(fileEntry.name).to.equal(fileName);
+                                        expect(fileEntry.fullPath).to.equal(path + '/' + fileName);
+                                        done();
+                                    })
+                                    .fail(done);
+                            })
+                            .fail(done);
+                    })
+                    .fail(done);
+            });
+
+        });
+
+        describe('download', function () {
+
+            var transfer = sinon.spy();
+
+            before(function () {
+                // Create a stub for window.FileTransfer
+                window.FileTransfer = function () {};
+                window.FileTransfer.prototype.download = function(remoteUrl, fileUrl, successCallback, errorCallback, trueAllHosts, options) {
+                    window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL || window.webkitResolveLocalFileSystemURL;
+                    window.resolveLocalFileSystemURL(fileUrl, function(fileEntry) {
+                        transfer(fileUrl);
+                        successCallback(fileEntry);
                     });
+                }
+            });
+
+            it('it should download a remote url to a temporary FileSystem', function (done) {
+                var fileSystem = new FileSystem();
+                var remoteUrl = 'https://cdn.kidoju.com/kidoju/kidoju.logo.png';
+                var path = '/images';
+                var fileName = 'logo.png';
+                fileSystem.init()
+                    .done(function () {
+                        fileSystem.getDirectoryEntry(path, window.TEMPORARY)
+                            .done(function (directoryEntry) {
+                                fileSystem.getFileEntry(directoryEntry, fileName)
+                                    .done(function (fileEntry) {
+                                        fileSystem.download(remoteUrl, fileEntry)
+                                            .done(function (entry) {
+                                                expect(transfer).to.have.been.calledOnce;
+                                                expect(transfer).to.have.been.calledWith(entry.toURL());
+                                                done();
+                                            })
+                                            .fail(done);
+                                    })
+                                    .fail(done);
+                            })
+                            .fail(done);
+                    })
+                    .fail(done);
             });
 
         });
