@@ -12,7 +12,7 @@
     var uuid = function() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             /* jshint -W016 */
-            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
             /* jshint +W016 */
             return v.toString(16);
         });
@@ -20,7 +20,7 @@
     var objectId = function() {
         return 'xxxxxxxxxxxxxxxxxxxxxxxx'.replace(/x/g, function(c) {
             /* jshint -W016 */
-            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
             /* jshint +W016 */
             return v.toString(16);
         });
@@ -32,10 +32,14 @@
      */
     window.testData = {
 
+        /**
+         * Pins
+         */
         pins: [
             '1111',
             '1234'
         ],
+
         /**
          * Mobile users
          */
@@ -61,8 +65,32 @@
                 // md5pin: '4f935727fe450f3971e6666db6d85c22',
                 picture: 'http://images6.fanpop.com/image/photos/36000000/Bruce-Wayne-image-bruce-wayne-36050167-392-379.jpg'
             }
-        ]
+        ],
 
+        activities: [
+            {
+                id: objectId(),
+                sid: objectId(),
+                actorId: objectId(),
+                // data:
+                language: 'en',
+                summaryId: objectId(),
+                title: 'A math assessment',
+                type: 'test',
+                versionId: objectId()
+            },
+            {
+                id: null,
+                sid: objectId(),
+                actorId: null,    // to be defined
+                // data:
+                language: 'en',
+                summaryId: objectId(),
+                title: 'A math assessment',
+                type: 'test',
+                versionId: objectId()
+            }
+        ]
 
     };
 

@@ -59,7 +59,7 @@
         var rapi = app.rapi;
         var models = app.models = app.models || {};
         var pongodb = window.pongodb;
-        var db = app.db = new pongodb.Database({ name: 'KidojuDB', size: 5 * 1024 * 1024, collections: ['users'] });
+        var db = app.db = new pongodb.Database({ name: 'KidojuDB', size: 5 * 1024 * 1024, collections: ['users', 'activities'] });
         // var i18n = app.i18n = app.i18n || { };
         var uris = app.uris = app.uris || {
                 cdn: {
@@ -337,7 +337,7 @@
                     user.id = new pongodb.ObjectId(user.sid).toMobileId();
                     user.lastUse = new Date();
                     db.users.insert(user)
-                        .done(function  () {
+                        .done(function () {
                             // TODO save image
                             options.success(user);
                         })
@@ -461,8 +461,10 @@
                 },
                 // Data varies depending on the type of activity
                 data: {
-                    type: STRING,
-                    editable: false
+                    // type: UNDEFINED,
+                    editable: true, // TODO: false?
+                    nullable: true,
+                    defaultValue: null
                 },
                 language: {
                     type: STRING,
@@ -503,8 +505,10 @@
 
                 var that = this;
 
-                // Cache the userId from options
-                that._userId = options && options.userId;
+                // Get the user id from options
+                var sid = options && options.userId;
+                assert.ok(!new pongodb.ObjectId(sid).isMobileId(), '`options.userId` is expected to be a sid');
+                that._userId = sid;
 
                 DataSource.fn.init.call(that, $.extend(true, {}, {
                     transport: {
@@ -541,12 +545,14 @@
                 if (that.hasChanges()) {
                     dfd.reject(undefined, 'error', 'Cannot load with pending changes.');
                 } else {
-                    if (options && options.userId) {
-                        that._userId = options.userId;
-                    }
-                    that.query(options).done(dfd.resolve).fail(dfd.reject);
+                    var sid = options && options.userId;
+                    assert.ok(!new pongodb.ObjectId(sid).isMobileId(), '`options.userId` is expected to be a sid');
+                    that._userId = sid;
+                    that.read()
+                        .done(dfd.resolve)
+                        .fail(dfd.reject);
                 }
-                return dfd.promise;
+                return dfd.promise();
             },
 
             /**
@@ -556,7 +562,9 @@
              */
             _validate: function (activity) {
                 var errors = [];
-                // TODO
+                if (!RX_MONGODB_ID.test(activity.actorId) || activity.actorId !== this._userId) {
+                    errors.push('Cannot delegate the creation of activities.');
+                }
                 return errors;
             },
 
@@ -587,12 +595,8 @@
                     }
                     activity.id = new pongodb.ObjectId();
                     // TODO activity date????
-                    // TODO activity actorId????
                     db.activities.insert(activity)
-                        .done(function (a) {
-                            debugger;
-                            options.success(activity);
-                        })
+                        .done(options.success)
                         .fail(options.error);
                 },
 
@@ -670,7 +674,7 @@
                     if (RX_MONGODB_ID.test(id)) {
                         activity.id = undefined;
                         // TODO: check userId?
-                        db.users.update({ id: id }, activity)
+                        db.activities.update({ id: id }, activity)
                             .done(function (result) {
                                 if (result && result.nMatched === 1 && result.nModified === 1) {
                                     // TODO Save image
@@ -693,14 +697,40 @@
              */
             serverSync: function () {
                 var that = this;
+                /*
                 return $.when(
-                    // First, upload all new activities
-                    that._uploadNewActivities(),
-                    // Second, purge old activities (including possibly some just uploaded new activities if last serverSync is very old)
+                    that._uploadPendingActivities(),
                     that._purgeOldActivities(),
-                    // Third, download recently added and updated activities (considering activities are always created, never updated, on the mobile device.
                     that._downloadRecentActivities()
                 );
+                */
+                var dfd = $.Deferred();
+                // First, upload all new activities
+                that._uploadPendingActivities()
+                    .progress(function (progress) {
+                        dfd.notify($.extend({ step: 1 }, progress))
+                    })
+                    .done(function () {
+                        // Second, purge old activities (including possibly some just uploaded new activities if last serverSync is very old)
+                        that._purgeOldActivities()
+                            .progress(function (progress) {
+                                dfd.notify($.extend({ step: 2 }, progress))
+                            })
+                            .done(function () {
+                                // Third, download recently added and updated activities (considering activities are always created, never updated, on the mobile device.
+                                that._downloadRecentActivities()
+                                    .progress(function (progress) {
+                                        dfd.notify($.extend({ step: 3 }, progress))
+                                    })
+                                    .done(function () {
+                                        dfd.resolve(); // Add statistics { nUploaded, nPurged, nDownloaded }
+                                    })
+                                    .fail(dfd.reject);
+                            })
+                            .fail(dfd.reject);
+                    })
+                    .fail(dfd.reject);
+                return dfd.promise();
             },
 
             /**
@@ -708,9 +738,11 @@
              * @returns {*}
              * @private
              */
-            _uploadNewActivities: function () {
+            _uploadPendingActivities: function () {
                 var dfd = $.Deferred();
                 // TODO $.when.apply($, my_array);
+                dfd.notify({ percent: 1 });
+                dfd.resolve();
                 return dfd.promise();
             },
 
@@ -722,6 +754,8 @@
             _purgeOldActivities: function () {
                 var dfd = $.Deferred();
                 // TODO $.when.apply($, my_array);
+                dfd.notify({ percent: 1 });
+                dfd.resolve();
                 return dfd.promise();
             },
 
@@ -732,7 +766,9 @@
              */
             _downloadRecentActivities: function () {
                 var dfd = $.Deferred();
-                // TODO
+                // TODO $.when.apply($, my_array);
+                dfd.notify({ percent: 1 });
+                dfd.resolve();
                 return dfd.promise();
             }
 

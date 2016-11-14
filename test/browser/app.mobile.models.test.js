@@ -16,7 +16,6 @@
     var mockDB = app.mockDB;
     var rapi = app.rapi;
     var testData = window.testData;
-    var runData = {};
 
     /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
     var TOKEN = { access_token: 'anAccessTokenForUser0' + 'xx'.replace(/x/g, function() { return '' + Math.floor(1 + 9 * Math.random()) }), expires: 10000000, ts: Date.now() };
@@ -105,6 +104,7 @@
 
             var MobileUser = models.MobileUser;
             var MobileUserDataSource = models.MobileUserDataSource;
+            var me;
 
             beforeEach(function () {
                 window.sessionStorage.removeItem('me');
@@ -114,7 +114,7 @@
 
             it('MobileUserDataSource should fail to add a user without a pin', function (done) {
                 var user = new MobileUser();
-                var users = new models.MobileUserDataSource();
+                var users = new MobileUserDataSource();
                 user.load()
                     .done(function() {
                         // Add to dataSource
@@ -135,7 +135,7 @@
 
             it('MobileUserDataSource should successfully add a new user with a pin', function (done) {
                 var user = new MobileUser();
-                var users = new models.MobileUserDataSource();
+                var users = new MobileUserDataSource();
                 user.load()
                     .done(function() {
                         // Add pin to user
@@ -143,12 +143,12 @@
                         // Add to dataSource
                         users.add(user);
                         // Keep track of data for further tests
-                        runData.user = user.toJSON();
+                        me = user.toJSON();
                         // Sync dataSource
                         users.sync()
                             .done(done)
-                            .fail(function () {
-                                done(new Error('Creating a new user with a pin should succeed'));
+                            .fail(function(xhr, status, error) {
+                                done(new Error(error));
                             });
                     })
                     .fail(function(xhr, status, error) {
@@ -158,15 +158,13 @@
 
             it('MobileUserDataSource should fail to add the same user twice', function (done) {
                 var user = new MobileUser();
-                var users = new models.MobileUserDataSource();
+                var users = new MobileUserDataSource();
                 user.load()
                     .done(function() {
                         // Add pin to user
                         user.addPin(testData.pins[0]);
                         // Add to dataSource
                         users.add(user);
-                        // No need to keep track of data for further tests, we have done it already
-                        // runData.user = user.toJSON();
                         // Sync dataSource
                         users.sync()
                             .done(function () {
@@ -190,14 +188,14 @@
                         expect(users.total()).to.be.gt(0);
                         done();
                     })
-                    .fail(function () {
-                        done(new Error('Reading users should succeed'));
+                    .fail(function (xhr, status, error) {
+                        done(new Error(error));
                     });
             });
 
             it('MobileUserDataSource should filter users', function (done) {
                 var users = new MobileUserDataSource();
-                users.query({ filter: { field: 'sid', operator: 'eq', value: runData.user.sid } })
+                users.query({ filter: { field: 'sid', operator: 'eq', value: me.sid } })
                     .done(function () {
                         expect(users.total()).to.equal(1);
                         done();
@@ -228,20 +226,23 @@
 
             it('MobileUserDataSource should update users', function (done) {
                 var users = new MobileUserDataSource();
-                users.query({ filter: { field: 'sid', operator: 'eq', value: runData.user.sid } })
+                users.query({ filter: { field: 'sid', operator: 'eq', value: me.sid } })
                     .done(function () {
                         expect(users.total()).to.equal(1);
-                        users.at(0).addPin(testData.pins[1]);
+                        var user = users.at(0);
+                        expect(user.dirty).to.be.false;
+                        user.addPin(testData.pins[1]);
+                        expect(user.dirty).to.be.true;
                         users.sync()
                             .done(function () {
                                 expect(users.at(0).verifyPin(testData.pins[1])).to.be.true;
                                 done();
                             })
-                            .fail(function () {
-                                done(new Error('Updating a user should succeed'));
+                            .fail(function (xhr, status, error) {
+                                done(new Error(error));
                             });
                     })
-                    .fail(function () {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     })
             });
@@ -272,8 +273,19 @@
 
             var MobileActivity = models.MobileActivity;
 
-            xit('', function () {
-
+            it('MobileActivity should have certain fields and calculated fields', function () {
+                var activity0 = testData.activities[0];
+                var activity = new MobileActivity(activity0);
+                expect(activity).to.have.property('id', activity0.id);
+                expect(activity).to.have.property('sid', activity0.sid);
+                expect(activity).to.have.property('actorId', activity0.actorId);
+                // expect(activity).to.have.property('data', activity0.data);
+                expect(activity).to.have.property('language', activity0.language);
+                expect(activity).to.have.property('summaryId', activity0.summaryId);
+                expect(activity).to.have.property('title', activity0.title);
+                expect(activity).to.have.property('type', activity0.type);
+                expect(activity).to.have.property('versionId', activity0.versionId);
+                // TODO: test field$ functions here
             });
 
         });
@@ -282,9 +294,198 @@
 
             var MobileActivity = models.MobileActivity;
             var MobileActivityDataSource = models.MobileActivityDataSource;
+            var MobileUser = models.MobileUser;
+            var me;
 
-            xit('', function () {
+            beforeEach(function (done) {
+                window.sessionStorage.removeItem('me');
+                window.localStorage.removeItem('token');
+                rapi.util.setToken(TOKEN);
+                me = new MobileUser();
+                me.load().done(function () { done(); }).fail(done);
+            });
 
+            it('MobileActivityDataSource should successfully add a new user activity', function (done) {
+                // First activity (from another user which does not exist in the users collection)
+                var activity0 = testData.activities[0];
+                activity0.id = null; // Otherwise it is not new for kendo
+                activity0 = new MobileActivity(activity0);
+                var activities0 = new MobileActivityDataSource({ userId: activity0.get('actorId') });
+                activities0.add(activity0);
+                // Second activity (from me)
+                var activity1 = testData.activities[1];
+                activity1.id = null; // Otherwise it is not new for kendo
+                activity1.actorId = me.get('sid');
+                activity1 = new MobileActivity(activity1);
+                var activities1 = new MobileActivityDataSource({ userId: activity1.get('actorId') });
+                activities1.add(activity1);
+                // Sync
+                $.when(
+                    activities0.sync(),
+                    activities1.sync()
+                )
+                    .done(done)
+                    .fail(function (xhr, status, error) {
+                        done(new Error(error));
+                    });
+            });
+
+            it('MobileActivityDataSource should fail to add an new activity for another user', function (done) {
+                var activity1 = testData.activities[1];
+                expect(activity1.id).to.be.null; // Otherwise it is not new for kendo
+                activity1.actorId = testData.users[0].sid;
+                var activity = new MobileActivity(activity1);
+                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                activities.add(activity);
+                activities.sync()
+                    .done(function () {
+                        done(new Error('Creating a new activity for another user should fail'));
+                    })
+                    .fail(function () {
+                        done();
+                    });
+            });
+
+            it('MobileActivityDataSource should read and load activities for different users (user switch)', function (done) {
+                var activity0 = testData.activities[0];
+                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                expect(activities.total()).to.equal(0);
+                activities.read()
+                    .done(function () {
+                        expect(activities.total()).to.equal(1);
+                        expect(activities.at(0).get('actorId')).to.equal(me.get('sid'));
+                        activities.load({ userId: activity0.actorId })
+                            .done(function () {
+                                expect(activities.total()).to.equal(1);
+                                expect(activities.at(0).get('actorId')).to.equal(activity0.actorId);
+                                done();
+                            })
+                            .fail(function (xhr, status, error) {
+                                done(new Error(error));
+                            });
+                    })
+                    .fail(function (xhr, status, error) {
+                        done(new Error(error));
+                    });
+            });
+
+            it('MobileActivityDataSource should filter activities', function (done) {
+                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                activities.query({ filter: { field: 'language', operator: 'eq', value: 'fr' } })
+                    .done(function () {
+                        expect(activities.total()).to.equal(0);
+                        done();
+                    })
+                    .fail(function(xhr, status, error) {
+                        done(new Error(error));
+                    });
+            });
+
+            it('MobileActivityDataSource should update activities', function (done) {
+                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var DATA = 'Whatever';
+                activities.read()
+                    .done(function () {
+                        expect(activities.total()).to.equal(1);
+                        var activity = activities.at(0);
+                        expect(activity.dirty).to.be.false;
+                        activity.set('data', DATA);
+                        expect(activity.dirty).to.be.true;
+                        activities.sync()
+                            .done(function () {
+                                expect(activities.at(0).get('data') === DATA).to.be.true;
+                                done();
+                            })
+                            .fail(function (xhr, status, error) {
+                                done(new Error(error));
+                            });
+                    })
+                    .fail(function (xhr, status, error) {
+                        done(new Error(error));
+                    })
+            });
+
+
+            it('MobileActivityDataSource should upload pending activities (serverSync step 1)', function (done) {
+                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                activities._uploadPendingActivities()
+                    .progress(function (progress) {
+                        // expect(progress)
+                    })
+                    .done(function () {
+                        // TODO
+                        done();
+                    })
+                    .fail(function(xhr, status, error) {
+                        done(new Error(error));
+                    });
+            });
+
+            it('MobileActivityDataSource should purge old activities (serverSync step 2)', function (done) {
+                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                activities._purgeOldActivities()
+                    .progress(function (progress) {
+                        // expect(progress)
+                    })
+                    .done(function () {
+                        // TODO
+                        done();
+                    })
+                    .fail(function(xhr, status, error) {
+                        done(new Error(error));
+                    });
+            });
+
+            it('MobileActivityDataSource should download recent activities (serverSync step 3)', function (done) {
+                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                activities._downloadRecentActivities()
+                    .progress(function (progress) {
+                        // expect(progress)
+                    })
+                    .done(function () {
+                        // TODO
+                        done();
+                    })
+                    .fail(function(xhr, status, error) {
+                        done(new Error(error));
+                    });
+            });
+
+
+            it('MobileActivityDataSource should sync activities', function (done) {
+                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                activities.serverSync()
+                    .progress(function (progress) {
+                        // expect(progress)
+                    })
+                    .done(function () {
+                        // TODO
+                        done();
+                    })
+                    .fail(function(xhr, status, error) {
+                        done(new Error(error));
+                    });
+            });
+
+            it('MobileActivityDataSource should destroy activities', function (done) {
+                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                activities.read()
+                    .done(function () {
+                        while(activities.total()) {
+                            activities.remove(activities.at(0));
+                        }
+                        activities.sync()
+                            .done(function () {
+                                expect(activities.total()).to.equal(0);
+                                done();
+                            })
+                            .fail(function(xhr, status, error) {
+                                done(new Error(error));
+                            });
+                    })
+                    .fail(function(xhr, status, error) {
+                        done(new Error(error));
+                    });
             });
 
         });
