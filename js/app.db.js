@@ -196,15 +196,17 @@
          * Note: The order is determined by ObjectId which is random
          * @see https://docs.mongodb.com/manual/reference/method/db.collection.find/
          * @param query
+         * @param projection // not implemented, for future use
+         * @param breakOnFirst
          */
-        Collection.prototype.find = function (query) {
+        Collection.prototype.find = function (query, projection, breakOnFirst) {
             assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
             if ($.type(query) === OBJECT && $.type(query[idField]) === STRING) {
                 // We have an id to get straight to the document
-                // https://mozilla.github.io/localForage/#getitem
+                // https://localforage.github.io/localForage/#data-api-getitem
                 that._collection.getItem(query[idField], function (err, item) {
                     if (err) {
                         dfd.reject(err);
@@ -220,7 +222,7 @@
                 });
             } else {
                 // Without an id, we need to iterate
-                // https://mozilla.github.io/localForage/#length
+                // https://localforage.github.io/localForage/#data-api-length
                 that._collection.length(function (err, length) {
                     if (err) {
                         dfd.reject(err);
@@ -229,11 +231,15 @@
                         dfd.resolve([]);
                     } else {
                         var found = [];
-                        // https://mozilla.github.io/localForage/#iterate
+                        // https://localforage.github.io/localForage/#data-api-iterate
                         that._collection.iterate(
                             function (item, key, index) {
                                 if (match(query, item)) {
                                     found.push(item);
+                                }
+                                if (breakOnFirst) {
+                                    // return something to stop iterating
+                                    return item;
                                 }
                                 dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
                             },
@@ -255,9 +261,18 @@
          * FindOne
          * @see https://docs.mongodb.com/manual/reference/method/db.collection.findOne/
          * @param query
+         * @param projection // not implemented, for future use
          */
-        Collection.prototype.findOne = function (query) {
-            throw new Error(NOT_IMPLEMENTED);
+        Collection.prototype.findOne = function (query, projection) {
+            var dfd = $.Deferred();
+            this.find(query, projection, true)
+                .done(function (results) {
+                    assert.isArray(results, assert.format(assert.messages.isArray.default, 'results'));
+                    assert.ok(results.length === 1, '`results` should have a length of 1');
+                    dfd.resolve(results[0]);
+                });
+                fail(dfd.reject);
+            return dfd.promise();
         };
 
         /**
@@ -273,7 +288,7 @@
             var dfd = $.Deferred();
             if ($.type(query) === OBJECT && $.type(query[idField]) === STRING) {
                 // We have an id to get straight to the document
-                // https://mozilla.github.io/localForage/#getitem
+                // https://localforage.github.io/localForage/#data-api-getitem
                 that._collection.getItem(query[idField], function (err, item) {
                     if (err) {
                         dfd.reject(err);
@@ -289,7 +304,7 @@
                 });
             } else {
                 // Without an id, we need to iterate
-                // https://mozilla.github.io/localForage/#length
+                // https://localforage.github.io/localForage/#data-api-length
                 that._collection.length(function (err, length) {
                     if (err) {
                         dfd.reject(err);
@@ -297,7 +312,7 @@
                         // Without length, no need to iterate
                         dfd.resolve(count); // 0
                     } else {
-                        // https://mozilla.github.io/localForage/#iterate
+                        // https://localforage.github.io/localForage/#data-api-iterate
                         that._collection.iterate(
                             function (item, key, index) {
                                 if (match(query, item)) {
@@ -332,7 +347,7 @@
             if ($.type(doc[idField]) !== STRING) {
                 // Insertion without an id requires that we create one
                 doc[idField] = (new ObjectId()).toString();
-                // https://mozilla.github.io/localForage/#setitem
+                // https://localforage.github.io/localForage/#data-api-setitem
                 that._collection.setItem(doc[idField], doc, function (err, item) {
                     if (err) {
                         dfd.reject(err);
@@ -342,14 +357,14 @@
                 });
             } else {
                 // Insertion with an id requires that we check it does not already exist
-                // https://mozilla.github.io/localForage/#getitem
+                // https://localforage.github.io/localForage/#data-api-getitem
                 that._collection.getItem(doc[idField], function (err, item) {
                     if (err) {
                         dfd.reject(err);
                     } else if (item) {
                         dfd.reject(ERROR.XHR, ERROR.STATUS, 'Cannot insert a document with an ' + idField + ' `' + doc[idField] + '` which already exists.');
                     } else {
-                        // https://mozilla.github.io/localForage/#setitem
+                        // https://localforage.github.io/localForage/#data-api-setitem
                         that._collection.setItem(doc[idField], doc, function (err, item) {
                             if (err) {
                                 dfd.reject(err);
@@ -380,14 +395,14 @@
                 dfd.reject(ERROR.XHR, ERROR.STATUS, idField + 'cannot be updated');
             } else if ($.type(query) === OBJECT && RX_MONGODB_ID.test(query[idField])) {
                 // We have an id to get straight to the document
-                // https://mozilla.github.io/localForage/#getitem
+                // https://localforage.github.io/localForage/#data-api-getitem
                 that._collection.getItem(query[idField], function (err, item) {
                     if (err) {
                         dfd.reject(err);
                     } else if (item) {
                         // If found, check that the entire query matches
                         if (match(query, item)) {
-                            // https://mozilla.github.io/localForage/#setitem
+                            // https://localforage.github.io/localForage/#data-api-setitem
                             // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
                             that._collection.setItem(item[idField], $.extend(true, item, update), function (err, item) {
                                 if (err) {
@@ -407,7 +422,7 @@
                 });
             } else {
                 // Without an id, we need to iterate
-                // https://mozilla.github.io/localForage/#length
+                // https://localforage.github.io/localForage/#data-api-length
                 that._collection.length(function (err, length) {
                     if (err) {
                         dfd.reject(err);
@@ -416,11 +431,11 @@
                         dfd.resolve({ nMatched: 0, nUpserted: 0, nModified: 0 });
                     } else {
                         var updates = {};
-                        // https://mozilla.github.io/localForage/#iterate
+                        // https://localforage.github.io/localForage/#data-api-iterate
                         that._collection.iterate(
                             function (item, key, index) {
                                 if (match(query, item)) {
-                                    // https://mozilla.github.io/localForage/#setitem
+                                    // https://localforage.github.io/localForage/#data-api-setitem
                                     // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
                                     updates[key] = $.Deferred();
                                     that._collection.setItem(item[idField], $.extend(true, item, update), function (err) { // }, doc) {
@@ -481,7 +496,7 @@
                     if (err) {
                         dfd.reject(err);
                     } else if (item) {
-                        // https://mozilla.github.io/localForage/#removeitem
+                        // https://localforage.github.io/localForage/#data-api-removeitem
                         that._collection.removeItem(query[idField], function (err, item) {
                             if (err) {
                                 dfd.reject(err);
@@ -495,7 +510,7 @@
                 });
             } else {
                 // Without an id, we need to iterate
-                // https://mozilla.github.io/localForage/#length
+                // https://localforage.github.io/localForage/#data-api-length
                 that._collection.length(function (err, length) {
                     if (err) {
                         dfd.reject(err);
@@ -504,12 +519,12 @@
                         dfd.resolve({ nRemoved : 0 });
                     } else {
                         var removals = {};
-                        // https://mozilla.github.io/localForage/#iterate
+                        // https://localforage.github.io/localForage/#data-api-iterate
                         that._collection.iterate(
                             function (item, key, index) {
                                 if (match(query, item)) {
                                     removals[key] = $.Deferred();
-                                    // https://mozilla.github.io/localForage/#removeitem
+                                    // https://localforage.github.io/localForage/#data-api-removeitem
                                     that._collection.removeItem(item[idField], function (err) {
                                         if (err) {
                                             return err; // return something to stop iterating
@@ -556,7 +571,7 @@
          */
         Collection.prototype.clear = function () {
             var dfd = $.Deferred();
-            // https://mozilla.github.io/localForage/#clear
+            // https://localforage.github.io/localForage/#data-api-clear
             this._collection.clear(function (err) {
                 if (err) {
                     dfd.reject(err);
