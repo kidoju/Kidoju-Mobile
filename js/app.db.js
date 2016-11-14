@@ -573,7 +573,8 @@
          * @param name
          */
         Collection.prototype.drop = function () {
-            throw new Error(NOT_IMPLEMENTED); // Waiting for localforage to implement drop...
+            // TODO as and when localForage implements it - see https://github.com/localForage/localForage/issues/620
+            throw new Error(NOT_IMPLEMENTED);
         };
 
         /**
@@ -670,9 +671,7 @@
          * @see https://docs.mongodb.com/manual/reference/method/db.dropDatabase/
          */
         Database.prototype.dropDatabase = function () {
-            // TODO
-            // 1. read the driver from localforage
-            // 2. switch solutions
+            // TODO as and when localForage implements it - see https://github.com/localForage/localForage/issues/620
             throw new Error(NOT_IMPLEMENTED);
         };
 
