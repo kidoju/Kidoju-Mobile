@@ -62,6 +62,7 @@
         var logger = new window.Logger('app.models');
         var rapi = app.rapi;
         var models = app.models = app.models || {};
+        // Have some values for testing
         var i18n = app.i18n = app.i18n || {
                 locale: function () { return 'en'; },
                 culture: {
@@ -106,27 +107,30 @@
                     }
                 }
             };
-        var uris = app.uris = app.uris || {}; // we expect to have app.uris.rapi = {...}
-        uris.cdn = uris.cdn || {
+        // Have some values for testing
+        var uris = app.uris = app.uris || {
+            cdn: {
                 icons: 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg'
-            };
-        uris.mobile = {
-            icons: './img/{0}.svg'
-        };
-        uris.webapp = uris.webapp  || { // this is for testing only
+            },
+            mobile: {
+                icons: './img/{0}.svg'
+            },
+            // rapi
+            webapp: {
                 editor      : window.location.protocol + '//' + window.location.host + '/{0}/e/{1}/{2}',
                 finder      : window.location.protocol + '//' + window.location.host + '/{0}',
                 player      : window.location.protocol + '//' + window.location.host + '/{0}/x/{1}/{2}',
                 user        : window.location.protocol + '//' + window.location.host + '/{0}/u/{1}',
                 summary     : window.location.protocol + '//' + window.location.host + '/{0}/s/{1}'
-            };
+            }
+        };
         var STRING = 'string';
         var NUMBER = 'number';
         var DATE = 'date';
         var BOOLEAN = 'boolean';
         var CHANGE = 'change';
         var ITEMCHANGE = 'itemchange';
-        var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
+        var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var HASHBANG = '#!';
         var HOME = 'home';
         var FAVOURITES = 'favourites';
