@@ -34,6 +34,19 @@
         describe('MobileUser', function () {
 
             var MobileUser = models.MobileUser;
+            var transfer = sinon.spy();
+
+            before(function () {
+                // Create a stub for window.FileTransfer
+                window.FileTransfer = function () {};
+                window.FileTransfer.prototype.download = function(remoteUrl, fileUrl, successCallback, errorCallback, trueAllHosts, options) {
+                    window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL || window.webkitResolveLocalFileSystemURL;
+                    window.resolveLocalFileSystemURL(fileUrl, function(fileEntry) {
+                        transfer(fileUrl);
+                        successCallback(fileEntry);
+                    });
+                }
+            });
 
             beforeEach(function () {
                 window.sessionStorage.removeItem('me');
@@ -73,6 +86,18 @@
                 expect(user).to.have.property('md5pin').that.is.a('string');
                 expect(user.verifyPin(pin0)).to.be.true;
                 expect(user.verifyPin(pin1)).to.be.false;
+            });
+
+            it('MobileUser should be able to save picture', function () {
+                var user1 = testData.users[1];
+                var user = new MobileUser(user1);
+                user._saveMobilePicture()
+                    .done(function (a, b) {
+                        debugger;
+                    })
+                    .fail(function (a, b) {
+                        debugger;
+                    });
             });
 
             it('MobileUser should load current user (me) from remote server', function (done) {

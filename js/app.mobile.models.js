@@ -60,6 +60,7 @@
         var models = app.models = app.models || {};
         var pongodb = window.pongodb;
         var db = app.db = new pongodb.Database({ name: 'KidojuDB', size: 5 * 1024 * 1024, collections: ['users', 'activities'] });
+        var fileSystem = new window.FileSystem();
         // var i18n = app.i18n = app.i18n || { };
         var uris = app.uris = app.uris || {
                 cdn: {
@@ -152,40 +153,33 @@
             _saveMobilePicture: function () {
                 var that = this;
                 var dfd = $.Deferred();
-                if (window.FileTransfer) {
-                    var fileTransfer = new FileTransfer();
-                    var source = window.encodeURI(this.picture$());
-                    var target = this.mobilePicture$();
-                    fileTransfer.download(
-                        source,
-                        target,
-                        function (fileEntry) {
-                            dfd.resolve(fileEntry);
-                            logger.debug({
-                                method: 'models.MobileUser.downloadPicture',
-                                message: 'User picture successfully downloaded'
-
+                fileSystem.init()
+                    .done(function () {
+                        fileSystem.getDirectoryEntry('/users', window.TEMPORARY)
+                            .done(function (directoryEntry) {
+                                var fileName = that.get('id') + DOT + that.picture$().split(DOT).pop();
+                                fileSystem.getFileEntry(directoryEntry, fileName)
+                                    .done(function (fileEntry) {
+                                        var remoteUrl = that.picture$();
+                                        fileSystem.download(remoteUrl, fileEntry)
+                                            .done(function (fileEntry) {
+                                                debugger;
+                                            })
+                                            .fail(function () {
+                                                // TODO: report error but we do not want app.notification here!
+                                            });
+                                    })
+                                    .fail(function () {
+                                        // TODO
+                                    });
+                            })
+                            .fail(function () {
+                                // TODO
                             });
-                            // Trigger the set event to reset data binding
-                            that.trigger('set', { field: 'picture', value: that.get('picture') });
-                        },
-                        function (fileTransferError) {
-                            dfd.reject(fileTransferError);
-                            debugger;
-                            logger.debug({
-                                method: 'models.MobileUser.downloadPicture',
-                                message: 'User picture failed to download',
-                                error: fileTransferError
-                            });
-                        }
-                    );
-                } else {
-                    dfd.reject(new Error('window.FileTransfer is missing.'));
-                    logger.error({
-                        method: 'models.MobileUser.downloadPicture',
-                        message: 'window.FileTransfer is missing'
+                    })
+                    .fail(function () {
+                        // TODO
                     });
-                }
                 return dfd.promise();
             },
             /**
@@ -505,10 +499,12 @@
 
                 var that = this;
 
-                // Get the user id from options
+                // Get the userId from options (if available at this stage)
                 var sid = options && options.userId;
-                assert.ok(!new pongodb.ObjectId(sid).isMobileId(), '`options.userId` is expected to be a sid');
-                that._userId = sid;
+                if (RX_MONGODB_ID.test(sid)) {
+                    assert.ok(!new pongodb.ObjectId(sid).isMobileId(), '`options.userId` is expected to be a sid');
+                    that._userId = sid;
+                }
 
                 DataSource.fn.init.call(that, $.extend(true, {}, {
                     transport: {
@@ -742,6 +738,7 @@
                 var dfd = $.Deferred();
                 // TODO $.when.apply($, my_array);
                 dfd.notify({ percent: 1 });
+                // IMPORTANT update sid once done
                 dfd.resolve();
                 return dfd.promise();
             },
@@ -767,6 +764,8 @@
             _downloadRecentActivities: function () {
                 var dfd = $.Deferred();
                 // TODO $.when.apply($, my_array);
+                // IMPORTANT doanload from oldest to most recent and update lastSync accordingly
+                // Nevertheless check whether activity does not already exist using sid
                 dfd.notify({ percent: 1 });
                 dfd.resolve();
                 return dfd.promise();
