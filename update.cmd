@@ -219,6 +219,11 @@ ATTRIB -R .\js\app.theme.js
 COPY ..\Kidoju.WebApp\js\app.theme.js .\js /Y
 ATTRIB +R .\js\app.theme.js
 
+REM ./js/app.utils
+ATTRIB -R .\js\app.utils.js
+COPY ..\Kidoju.WebApp\js\app.utils.js .\js /Y
+ATTRIB +R .\js\app.utils.js
+
 REM ./webapp/config
 REM ATTRIB -R .\webapp\config\*.*
 REM XCOPY ..\Kidoju.WebApp\webapp\config .\webapp\config /C /E /I /R /Y

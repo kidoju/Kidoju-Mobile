@@ -21,6 +21,7 @@ if (typeof(require) === 'function') {
 
     // Load config
     require('./app.config.jsx?env=' + __NODE_ENV__);
+    // require('./app.support.js');
 }
 
 (function (f, define) {
@@ -34,6 +35,7 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.drawing',
         './vendor/kendo/kendo.list',
         './vendor/kendo/kendo.dropdownlist',
+        './vendor/kendo/kendo.maskedtextbox',
         './vendor/kendo/kendo.notification',
         './vendor/kendo/kendo.fx',
         './vendor/kendo/kendo.userevents',
@@ -48,9 +50,9 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.mobile.actionsheet',
         './vendor/kendo/kendo.router',
         './vendor/kendo/kendo.mobile.application',
+        './vendor/kendo/kendo.mobile.button',
         './vendor/kendo/kendo.mobile.buttongroup',
         './vendor/kendo/kendo.mobile.drawer',
-        './vendor/kendo/kendo.mobile.button',
         './vendor/kendo/kendo.mobile.listview',
         './vendor/kendo/kendo.mobile.navbar',
         './vendor/kendo/kendo.mobile.scrollview',
@@ -76,7 +78,8 @@ if (typeof(require) === 'function') {
         './app.logger',
         './app.i18n',
         './app.theme',
-        './app.assets',
+        './app.utils',
+        './app.assets', // TODO <---------------- really used?
         './app.models',
         './app.mobile.models'
     ], f);
@@ -89,13 +92,14 @@ if (typeof(require) === 'function') {
 
     (function ($, undefined) {
 
+        var app = window.app = window.app || {};
+        var mobile = app.mobile = app.mobile || {};
         var kendo = window.kendo;
         var kidoju = window.kidoju;
         var assert = window.assert;
         var localStorage = window.localStorage;
         var logger = new window.Logger('app.mobile');
-        var app = window.app = window.app || {};
-        var mobile = app.mobile = app.mobile || {};
+        var models = app.models;
         var i18n = app.i18n;
         var rapi = app.rapi;
         var Page = kidoju.data.Page;
@@ -110,6 +114,7 @@ if (typeof(require) === 'function') {
         var CHANGE = 'change';
         var LOADED = 'i18n.loaded';
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
+        var RX_PIN = /^[\d]{4}$/;
         var VIRTUAL_PAGE_SIZE = 30; // Display 10 items * 3 DOM Element * 2
         var HASH = '#';
         var PHONE = 'phone';
@@ -184,6 +189,48 @@ if (typeof(require) === 'function') {
             }, 100);
         };
 
+        /**
+         * Generic FileError handler to display app.notification
+         * @see https://www.html5rocks.com/en/tutorials/file/filesystem/
+         * @param e
+         * // TODO
+         */
+        /*
+        function onFileError(err) {
+            var msg = 'Default message';
+            // TODO: FileSystem.FileTransferErrorCode
+            if (err instanceof window.FileError) {
+                switch (err.code) {
+                    case FileSystem.FileErrorCode.QUOTA_EXCEEDED_ERR:
+                        msg = 'TODO';
+                        break;
+                    case FileSystem.FileErrorCode.NOT_FOUND_ERR:
+                        msg = 'TODO';
+                        break;
+                    case FileSystem.FileErrorCode.SECURITY_ERR:
+                        msg = 'TODO';
+                        break;
+                    case FileSystem.FileErrorCode.INVALID_MODIFICATION_ERR:
+                        msg = 'TODO';
+                        break;
+                    case FileSystem.FileErrorCode.INVALID_STATE_ERR:
+                        msg = 'TODO';
+                        break;
+                    default:
+                        break;
+                };
+            } else if (err instanceof FileTransferError) {
+                switch (err.code) {
+                };
+            }
+            app.notification.error(msg);
+            logger.error({
+                message: msg
+            });
+        }
+        */
+
+
         /*******************************************************************************************
          * Shortcuts
          *******************************************************************************************/
@@ -219,6 +266,7 @@ if (typeof(require) === 'function') {
                 mobile.InAppBrowser = window.cordova.InAppBrowser;
             }
             // notification requires cordova-plugin-dialogs
+            // TODO: remove????
             mobile.notification = {
                 info: function (message, callback) {
                     if (mobile.support.alert) {
@@ -255,7 +303,7 @@ if (typeof(require) === 'function') {
                 mobile.socialsharing = window.plugins.socialsharing;
             }
             // socialSharing requires cordova-plugin-secure-storage
-            mobile.secureStorage = window.secureStorage;
+            // mobile.secureStorage = window.secureStorage;
             // splashscreen requires cordova-plugin-splashscreen
             if (mobile.support.splashscreen) {
                 mobile.splashscreen = window.navigator.splashscreen;
@@ -345,23 +393,18 @@ if (typeof(require) === 'function') {
         // Setup ajax with longer timeout on mobile devices
         $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
 
+        // The one and only viewModel
         var viewModel = mobile.viewModel = kendo.observable({
 
             /**
              * Activities (scores to start with)
              */
-            activities: [
-                { title: 'Test of Mathematics', score: 10 },
-                { title: 'Test of Physics', score: 20 },
-                { title: 'Test of English', score: 30 },
-                { title: 'Test of Geography', score: 40 },
-                { title: 'Test of History', score: 50 }
-            ],
+            activities: new models.MobileActivityDataSource(),
 
             /**
              * Categories
              */
-            categories: new app.models.LazyCategoryDataSource(),
+            categories: new models.LazyCategoryDataSource(),
 
             /**
              * Current test
@@ -371,7 +414,7 @@ if (typeof(require) === 'function') {
             /**
              * Favourites
              */
-            favourites: [],
+            // favourites: [],
 
             /**
              * Languages
@@ -388,7 +431,7 @@ if (typeof(require) === 'function') {
              * User settings
              */
             settings: {
-                user: 'TODO',
+                user: null,
                 version: app.version,
                 language: DEFAULT.LANGUAGE,
                 theme: DEFAULT.THEME
@@ -397,12 +440,12 @@ if (typeof(require) === 'function') {
             /**
              * Summaries
              */
-            summaries: new app.models.LazySummaryDataSource(),
+            summaries: new models.LazySummaryDataSource(),
 
             /**
              * Selected summary
              */
-            summary: new app.models.Summary(),
+            summary: new models.Summary(),
 
             /**
              * Themes
@@ -412,26 +455,51 @@ if (typeof(require) === 'function') {
             /**
              * Signed-in user
              */
-            user: new app.models.MobileUser(),
+            user: new models.MobileUser(),
+
+            /**
+             * Mobile device users
+             */
+            users: new models.MobileUserDataSource(),
 
             /**
              * Selected version
              */
-            version: new app.models.Version(),
+            version: new models.Version(),
 
             /**
              * Versions
              */
-            versions: new app.models.LazyVersionDataSource(),
+            versions: new models.LazyVersionDataSource(),
 
+            /**
+             * Barcode scanner feature detection (remove drawer menu options)
+             * @returns {*}
+             */
             hasBarCodeScanner$: function () {
                 return mobile.support.barcodeScanner;
             },
 
+            /**
+             * Current user set (and saved)
+             */
+            hasMobileUser$: function () {
+                var user = viewModel.get('user');
+                return user instanceof models.MobileUser && !user.isNew() &&
+                    viewModel.users.total() > 0 && user === viewModel.users.at(0);
+            },
+
+            /**
+             * Social Sharing feature detection (remove actionsheet menu option)
+             * @returns {protocol|*|SocialSharing}
+             */
             hasSocialSharing$: function () {
                 return mobile.support.socialsharing;
             },
 
+            /**
+             * Resets all data when switching users
+             */
             reset: function () {
                 // this.activities.data([]);
                 // this.categories.data([]);
@@ -439,7 +507,7 @@ if (typeof(require) === 'function') {
                 // this.favourites.data([]);
                 this.summaries.data([]);
                 this.versions.data([]);
-                this.set(VIEWMODEL.VERSION, new app.models.Version());
+                this.set(VIEWMODEL.VERSION, new models.Version());
                 this.set(VIEWMODEL.SELECTED_PAGE, undefined);
                 this.set(VIEWMODEL.CURRENT, { test: undefined });
             },
@@ -468,6 +536,39 @@ if (typeof(require) === 'function') {
                             message: 'error loading summaries',
                             method: 'viewModel.loadLazySummaries',
                             data: { query: query, status: status, error: error } // TODO xhr.responseText
+                        });
+                    });
+            },
+
+            /**
+             * Load user from remote server
+             * @returns {*}
+             */
+            loadUser: function () {
+                return viewModel.user.load()
+                    .fail(function (xhr, status, error) {
+                        app.notification.error(i18n.culture.notifications.userLoadFailure);
+                        logger.error({
+                            message: 'error loading user',
+                            method: 'viewModel.loadUser',
+                            data:  { status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
+                        });
+                    });
+            },
+
+            /**
+             * Load users
+             * @returns {*}
+             */
+            loadUsers: function () {
+                return viewModel.users.query({ sort: { field: 'lastUse', dir: 'desc' } })
+                    .fail(function (xhr, status, error) {
+                        // TODO: not sure app.notification is available yet
+                        app.notification.error(i18n.culture.notifications.userLoadFailure);
+                        logger.error({
+                            message: 'error loading users',
+                            method: 'viewModel.loadUsers',
+                            data:  { status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
                         });
                     });
             },
@@ -801,36 +902,27 @@ if (typeof(require) === 'function') {
             var notification = $("#notification");
             assert.hasLength(notification, kendo.format(assert.messages.hasLength.default, '#notification'));
             if (app && app.notification instanceof kendo.ui.Notification) {
+                // Do not leave pending notifications
+                var notifications = app.notification.getNotifications();
+                notifications.each(function(){
+                    $(this).parent().remove();
+                });
+                // Destroy before re-creating
                 app.notification.destroy();
             }
+            // Note: the navbar is not available for notifications occurring before kendo.mobile.Application is initialized,
+            // in other words notifications while displaying the splash screen, especially for loadSettings and loadUsers.
+            var navbar = $('.km-navbar');
             app.notification = notification.kendoNotification({
                 button: true,
                 position: {
                     left: 0,
-                    top: $('.km-header').height()
+                    top: navbar.length ? navbar.height() + 1 : 0 // navbar or splashscreen
                 },
-                // stacking: 'down',
+                stacking: 'down',
                 width: $(window).width() - 2 // - 2 is for borders as box-sizing on .k-notification-wrap does not help
             }).data('kendoNotification');
             assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-        };
-
-        /**
-         * Converts params into a kendo.data.DataSource filter
-         * @param params
-         * @private
-         */
-        mobile._getDataFilter = function (params) {
-            debugger; // TODO kendo function
-            // TODO If it gets more complicated, consider using $.deparam from app.utils.js in Kidoju.WebApp
-            // assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
-            assert.type(OBJECT, params, kendo.format(assert.messages.type.default, 'params', OBJECT));
-            var field = params['filter[field]'];
-            var operator = params['filter[operator]'];
-            var value = params['filter[value]'];
-            if ($.type(field) === STRING && $.type(operator) === STRING && $.type(value) === STRING) {
-                return { field: field, operator: operator, value: value };
-            }
         };
 
         /*******************************************************************************************
@@ -1152,16 +1244,18 @@ if (typeof(require) === 'function') {
          * Loads the application, especially initialize plugins (which where not available until now)
          */
         mobile.onDeviceReady = function () {
-            // Set shortcusts
+            // Set feature shortcuts
             setShortcuts();
             // Set google analytics
             setAnalytics();
+            // Initialize notifications for loadSettings and loadUsers
+            mobile._initNotification();
             // Load settings including locale and theme
             viewModel.loadSettings();
             // Initialize pageSize for virtual scrolling
             viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // initialize secure storage
-            mobile.secureStorage.init(app.constants.kidoju);
+            // mobile.secureStorage.init(app.constants.kidoju);
             // initialize the user interface
             $(document).one(LOADED, mobile.oni18nLoaded);
             // Wire the resize event handler for changes of device orientation
@@ -1184,27 +1278,37 @@ if (typeof(require) === 'function') {
             // Load viewModel with languages and themes
             viewModel.set('languages', i18n.culture.viewModel.languages);
             viewModel.set('themes', i18n.culture.viewModel.themes);
-            // Initialize application
-            mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                initial: DEVICE_SELECTOR + VIEW.SIGNIN, // VIEW.CATEGORIES,
-                skin: theme.skin,
-                // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
-                // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
-                // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
-                // http://devgirl.org/2014/07/31/phonegap-developers-guid/
-                // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
-                statusBarStyle: 'hidden',
-                init: function (e) {
-                    // Localise the application
-                    mobile.localize(viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE));
-                    // hide the splash screen
-                    setTimeout(function () {
-                        if (mobile.support.splashscreen) {
-                            mobile.splashscreen.hide();
+            // Load mobile users from localForage
+            viewModel.loadUsers()
+                .done(function () {
+                    // Set user to most recent user
+                    if (viewModel.users.total() > 0) {
+                        viewModel.set('user', viewModel.users.at(0));
+                    }
+                    // Initialize application
+                    mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
+                        initial: DEVICE_SELECTOR + (viewModel.hasMobileUser$() ? VIEW.USER : VIEW.SIGNIN),
+                        skin: theme.skin,
+                        // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
+                        // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
+                        // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
+                        // http://devgirl.org/2014/07/31/phonegap-developers-guid/
+                        // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
+                        statusBarStyle: 'hidden',
+                        init: function (e) {
+                            // Localise the application
+                            mobile.localize(viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE));
+                            // Reinitialize notifications now that we know the size of .km-header
+                            mobile._initNotification();
+                            // hide the splash screen
+                            setTimeout(function () {
+                                if (mobile.support.splashscreen) {
+                                    mobile.splashscreen.hide();
+                                }
+                            }, 500); // + 500 default fadeOut time
                         }
-                    }, 500); // + 500 default fadeOut time
-                }
-            });
+                    });
+                });
         };
 
         /**
@@ -1217,7 +1321,7 @@ if (typeof(require) === 'function') {
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             if (e.item.is('li[data-icon=scan]') && mobile.support.barcodeScanner) {
                 var QR_CODE = 'QR_CODE';
-                var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-z0-9]{24})$/i;
+                var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-f0-9]{24})$/i;
                 e.preventDefault();
                 mobile.barcodeScanner.scan(
                     function (result) {
@@ -1233,7 +1337,7 @@ if (typeof(require) === 'function') {
                                     viewModel.loadLazyVersions(summaryId)
                                         .done(function () {
                                             var version = viewModel.versions.at(0); // First is latest version
-                                            assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
+                                            assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
                                             assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
                                             mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
                                         });
@@ -1331,11 +1435,22 @@ if (typeof(require) === 'function') {
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
             // Launch the query
-            var query = {
-                filter: mobile._getDataFilter(e.view.params),
-                page: 1,
-                pageSize: viewModel.summaries.pageSize()
-            };
+            // Kendo UI is not good at building the e.view.params object from query string params
+            // Here we would typically get e.view.params like:
+            // {
+            //  'filter[field]': 'categories',
+            //  'filter[operator]': 'eq',
+            //  'filter[value]': '000100010002000000000000'
+            // }
+            // instead of
+            // {
+            //   filter: {
+            //    field: 'categories',
+            //    operator: 'eq',
+            //    value: '000100010002000000000000'
+            //   }
+            // }
+            var query = $.extend(true, { page: 1, pageSize: viewModel.summaries.pageSize() }, $.deparam($.param(e.view.params)));
             viewModel.loadLazySummaries(query);
             // See comment for mobile.onSummariesBeforeViewShow
             // .always(function () {
@@ -1355,7 +1470,7 @@ if (typeof(require) === 'function') {
             viewModel.loadLazyVersions(summaryId)
                 .done(function () {
                     var version = viewModel.versions.at(0); // First is latest version
-                    assert.instanceof(app.models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'app.models.LazyVersion'));
+                    assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
                     assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
                     mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
                 });
@@ -1606,6 +1721,26 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Event handler triggered when initializing the user view
+         * @param e
+         */
+        mobile.onUserViewInit = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Init masked textboxes if not already initialized
+            e.view.element.find(kendo.roleSelector('maskedtextbox'))
+                .on('focus', function () {
+                    $(this).data('kendoMaskedTextBox').value('');
+                })
+                .each(function () {
+                    // We cannot define data-mask in html with data binding
+                    $(this).kendoMaskedTextBox({
+                        mask: '0000'
+                    });
+                });
+        };
+
+        /**
          * Event handler triggered when showing the user view
          * @param e
          */
@@ -1616,21 +1751,76 @@ if (typeof(require) === 'function') {
             mobile._localizeUserView(viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE));
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
-            // Parse the token if necessary
+            // Parse the oAuth token if necessary
             if (!mobile.device || mobile.device.platform === 'browser' || !mobile.support.inAppBrowser) {
                 rapi.util.parseToken(window.location.href);
                 rapi.util.cleanHistory();
             }
-            // Load the user
-            viewModel.user.load()
-                .fail(function (xhr, status, error) {
-                    app.notification.error(i18n.culture.notifications.userLoadFailure);
-                    logger.error({
-                        message: 'error loading user',
-                        method: 'mobile.onUserViewShowonSigninButtonClick',
-                        data:  { status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
+            // Load the remote mobile user (me) using the oAuth token
+            if (!viewModel.hasMobileUser$()) {
+                viewModel.user.load()
+                    .done(function () {
+                        app.notification.info('Please enter and confirm your 4-digit pin before saving.'); // TODO
+                        e.view.element.find(kendo.roleSelector('maskedtextbox')).first().focus();
                     });
-                })
+            }
+        };
+
+        /**
+         * Evenet handler for clicking the save button of the user view
+         * @param e
+         */
+        mobile.onUserSaveClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+
+            // Do we have matching pins?
+            var view = e.button.closest(kendo.roleSelector('view'));
+            var pinElements = view.find(kendo.roleSelector('maskedtextbox'));
+            assert.equal(2, pinElements.length, kendo.format(assert.messages.equal.default, 'pinElements.length', '2'));
+            var pinWidget = pinElements.first().data('kendoMaskedTextBox');
+            assert.instanceof(kendo.ui.MaskedTextBox, pinWidget, kendo.format(assert.messages.instanceof.default, 'pinWidget', 'kendo.ui.MaskedTextBox'));
+            var confirmWidget = pinElements.last().data('kendoMaskedTextBox');
+            assert.instanceof(kendo.ui.MaskedTextBox, confirmWidget, kendo.format(assert.messages.instanceof.default, 'confirmWidget', 'kendo.ui.MaskedTextBox'));
+            if (RX_PIN.test(pinWidget.value()) && confirmWidget.value() === pinWidget.value()) {
+
+                // Does the user already exist in database?
+                var sid = viewModel.get('user.sid');
+                var found = viewModel.users.data().find(function (user) {
+                    return user.get('sid') === sid;
+                });
+                if (found instanceof models.MobileUser) {
+                    // Update user
+                    found.addPin(pinWidget.value());
+                    found.set('lastUse', new Date());
+                    // other fields to update?
+                } else {
+                    // Add user
+                    found = viewModel.get('user');
+                    viewModel.users.add(found);
+                }
+                viewModel.users.sync()
+                    .done(function () {
+                        viewModel.set('user', found);
+                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
+                    })
+                    .fail(function (xhr, status, error) {
+                        // Note: xhr can be an error
+                        app.notification.error('There was an error creating or updating users.'); // TODO
+                        debugger;
+                    });
+            } else {
+                app.notification.warning('Please enter and confirm a 4 digit pin.')
+            }
+        };
+
+        /**
+         * Event handler for clicking the signin button of the user view
+         * @param e
+         */
+        mobile.onUserSignInClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            alert('signin');
         };
 
         /**
