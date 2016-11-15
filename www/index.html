@@ -74,6 +74,7 @@
                     <li>Best</li>
                 </ul>
             </div>
+            <div id="notification"></div>
         </header>
     </div>
 
@@ -403,19 +404,20 @@
     </div>
 
     <!-- User view -->
-    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onUserViewShow">
+    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="slide" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
         <img data-bind="attr: { src: user.mobilePicture$(), alt: user.fullName$() }" class="km-thumbnail picture">
         <form>
             <ul data-role="listview" data-style="inset">
                 <li><label>First Name<input type="text" value="Text" data-bind="value: user.firstName" readonly /></label></li>
                 <li><label>Last Name<input type="text" value="Text" data-bind="value: user.lastName" readonly /></label></li>
+                <li><label>Last Use<input type="text" value="Text" data-bind="value: user.lastUse" data-format="g" readonly /></label></li>
                 <li><label>PIN<input data-role="maskedtextbox" type="password" /></label></li>
-                <li><label>Confirm<input data-role="maskedtextbox" type="password" /></label></li>
+                <li data-bind="invisible: hasMobileUser$"><label>Confirm<input data-role="maskedtextbox" type="password" /></label></li>
             </ul>
         </form>
         <div class="buttons">
-            <a data-role="button" class="km-justified km-primary km-large km-widget km-button" data-click="app.mobile.onUserSaveClick">Save</a>
-            <a data-role="button" class="km-justified km-primary km-large km-widget km-button" data-click="app.mobile.onUserSignInClick">Signin</a>
+            <a data-role="button" data-bind="invisible: hasMobileUser$" class="km-justified km-primary km-large km-widget km-button" data-click="app.mobile.onUserSaveClick">Save</a>
+            <a data-role="button" data-bind="visible: hasMobileUser$" class="km-justified km-primary km-large km-widget km-button" data-click="app.mobile.onUserSignInClick">Signin</a>
         </div>
     </div>
 
