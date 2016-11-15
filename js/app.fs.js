@@ -34,6 +34,41 @@
         var FileSystem = window.FileSystem = function () {};
 
         /**
+         * File error codes
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/FileError
+         * @returns {*}
+         * @private
+         */
+        FileSystem.FileErrorCodes = {
+            NOT_FOUND_ERR: 1,
+            SECURITY_ERR: 2,
+            // NOT_USED: 3,
+            NOT_READABLE_ERR: 4,
+            ENCODING_ERR: 5,
+            NO_MODIFICATION_ALLOWED_ERR: 6,
+            INVALID_STATE_ERR: 7,
+            // NOT_USED: 8,
+            INVALID_MODIFICATION_ERR: 9,
+            QUOTA_EXCEEDED_ERR: 10,
+            TYPE_MISMATCH_ERR: 11,
+            PATH_EXISTS_ERR: 12
+        };
+
+        /**
+         * FileTransfer error codes
+         * @see https://github.com/apache/cordova-plugin-file-transfer#filetransfererror
+         * @returns {*}
+         * @private
+         */
+        FileSystem.FileTransferErrorCodes = {
+            FILE_NOT_FOUND_ERR: 1,
+            INVALID_URL_ERR: 2,
+            CONNECTION_ERR: 3,
+            ABORT_ERR: 4,
+            NOT_MODIFIED_ERR: 5
+        };
+
+        /**
          * Initialize the temporary file system
          * @private
          */
