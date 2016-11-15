@@ -88,16 +88,16 @@
                 expect(user.verifyPin(pin1)).to.be.false;
             });
 
-            it('MobileUser should be able to save picture', function () {
+            it('MobileUser should be able to save picture', function (done) {
                 var user1 = testData.users[1];
                 var user = new MobileUser(user1);
+                // This might trigger an authorization confirmation to use file storage
                 user._saveMobilePicture()
-                    .done(function (a, b) {
-                        debugger;
+                    .done(function (fileEntry) {
+                        expect(fileEntry.isFile).to.be.true;
+                        done();
                     })
-                    .fail(function (a, b) {
-                        debugger;
-                    });
+                    .fail(done);
             });
 
             it('MobileUser should load current user (me) from remote server', function (done) {
