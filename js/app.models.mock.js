@@ -30,7 +30,7 @@
         var logger = app.logger;
         var models = app.models;
         var STRING = 'string';
-        var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
+        var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var ERROR = 'error';
         // var BAD_REQUEST = 'Bad Request';
         // var NOT_FOUND = 'Not Found';

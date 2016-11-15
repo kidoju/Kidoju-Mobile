@@ -56,7 +56,7 @@
         var FORM_CONTENT_TYPE = 'application/x-www-form-urlencoded';
         var JSON_CONTENT_TYPE = 'application/json';
         var RX_IEXPLORE = /;\s(MSIE\s|Trident\/)/;
-        var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
+        var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var RX_LANGUAGE = /^[a-z]{2}$/;
         var RX_URL = /^https?\:\/\//;
         var AUTHENTICATION_SUCCESS = 'auth.success';
