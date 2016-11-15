@@ -67,7 +67,7 @@
     "sinon": "^1.17.6",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
-    "wdio-mocha-framework": "^0.5.3",
+    "wdio-mocha-framework": "^0.5.4",
     "wdio-selenium-standalone-service": "0.0.7",
     "webdriverio": "^4.4.0",
     "webpack": "^1.13.3",
