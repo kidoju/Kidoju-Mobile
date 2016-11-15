@@ -49,6 +49,7 @@
          */
 
         var app = window.app = window.app || {};
+        var models = app.models = app.models || {};
         var kendo = window.kendo;
         var kidoju = window.kidoju;
         var Model = kidoju.data.Model;
@@ -57,7 +58,6 @@
         var logger = new window.Logger('app.mobile.models');
         var md5 = md5H || window.md5;
         var rapi = app.rapi;
-        var models = app.models = app.models || {};
         var pongodb = window.pongodb;
         var db = app.db = new pongodb.Database({ name: 'KidojuDB', size: 5 * 1024 * 1024, collections: ['users', 'activities'] });
         var fileSystem = new window.FileSystem();
@@ -73,11 +73,14 @@
         var DATE = 'date';
         var FUNCTION = 'function';
         var STRING = 'string';
-        var RX_MONGODB_ID = /^[a-z0-9]{24}$/;
+        var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var DATE_0 = new Date(2000, 1, 1);
         var DOT = '.';
-        // The following allows FS_ROOT[window.TEMPORARY] and FS_ROOT[window.PERSISTENT];
-        var FS_ROOT = ['cdvfile://localhost/temporary/', 'cdvfile://localhost/persistent/'];
+
+        /**
+         * Initialize fileSystem ASAP
+         */
+        fileSystem.init(); // TODO: it can fail if the user does not allow storage
 
         /**
          * MobileUser model
@@ -138,11 +141,34 @@
                 return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
             },
             picture$: function () {
-                return this.get('picture') || kendo.format(uris.cdn.icons, 'user');
+                /**
+                 * Facebook
+                 * --------
+                 *
+                 *
+                 * Google
+                 * --------
+                 *
+                 *
+                 * Live
+                 * --------
+                 *
+                 *
+                 * Twitter
+                 * --------
+                 * Twitter urls are in the form https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_normal.jpg
+                 * We need to replace normal by 400x400 as in https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_400x400.jpg
+                 */
+                return this.get('picture') || kendo.format(app.uris.mobile.icons, 'user');
             },
             mobilePicture$: function () {
-                // Note: we might want to check that this.picture$().split(DOT).pop() is a well known image extension
-                return FS_ROOT[window.TEMPORARY] + 'users/' + this.get('id') + DOT + this.picture$().split(DOT).pop();
+                var temporary = fileSystem._temporary;
+                if (temporary) {
+                    // Note: we might want to check that this.picture$().split(DOT).pop() is a well known image extension
+                    return kendo.format(app.uris.mobile.pictures, temporary.root.toURL(), this.get('sid') + DOT + this.picture$().split(DOT).pop());
+                } else {
+                    return kendo.format(app.uris.mobile.icons, 'user');
+                }
             },
             /**
              * _saveMobilePicture should not be used directly
@@ -162,24 +188,14 @@
                                     .done(function (fileEntry) {
                                         var remoteUrl = that.picture$();
                                         fileSystem.download(remoteUrl, fileEntry)
-                                            .done(function (fileEntry) {
-                                                debugger;
-                                            })
-                                            .fail(function () {
-                                                // TODO: report error but we do not want app.notification here!
-                                            });
+                                            .done(dfd.resolve)
+                                            .fail(dfd.reject);
                                     })
-                                    .fail(function () {
-                                        // TODO
-                                    });
+                                    .fail(dfd.reject);
                             })
-                            .fail(function () {
-                                // TODO
-                            });
+                            .fail(dfd.reject);
                     })
-                    .fail(function () {
-                        // TODO
-                    });
+                    .fail(dfd.reject);
                 return dfd.promise();
             },
             /**
@@ -247,7 +263,7 @@
                     sid: this.defaults.sid,
                     firstName: this.defaults.firstName,
                     lastName: this.defaults.lastName,
-                    lastUse: this.default.lastUse,
+                    lastUse: this.defaults.lastUse,
                     md5pin: this.defaults.md5pin,
                     picture: this.defaults.picture
                 });
@@ -330,6 +346,7 @@
                     // i.e. same user with the same sid recorded twice under different ids in mobile device
                     user.id = new pongodb.ObjectId(user.sid).toMobileId();
                     user.lastUse = new Date();
+                    debugger;
                     db.users.insert(user)
                         .done(function () {
                             // TODO save image
