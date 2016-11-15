@@ -179,14 +179,21 @@
             _saveMobilePicture: function () {
                 var that = this;
                 var dfd = $.Deferred();
+                // The following allows app.models.MobileUser.fn._saveMobilePicture.call(user) in MobileUserDataSource
+                // where user is a plain object with a sid and picture
+                var sid = that instanceof models.MobileUser ? that.get('sid') : that.sid;
+                var remoteUrl = that instanceof models.MobileUser ? that.picture$() : that.picture;
+                assert.match(RX_MONGODB_ID, sid, kendo.format(assert.messages.match.default, 'sid', RX_MONGODB_ID));
                 fileSystem.init()
                     .done(function () {
                         fileSystem.getDirectoryEntry('/users', window.TEMPORARY)
                             .done(function (directoryEntry) {
-                                var fileName = that.get('id') + DOT + that.picture$().split(DOT).pop();
+                                // Maybe we should verify that remoteUrl.split(DOT).pop() is a well-known extension
+                                // especially since there might be not extension at all
+                                // Should we find the content type?
+                                var fileName = sid + DOT + remoteUrl.split(DOT).pop();
                                 fileSystem.getFileEntry(directoryEntry, fileName)
                                     .done(function (fileEntry) {
-                                        var remoteUrl = that.picture$();
                                         fileSystem.download(remoteUrl, fileEntry)
                                             .done(dfd.resolve)
                                             .fail(dfd.reject);
@@ -345,12 +352,15 @@
                     // This ensures uniqueness of user in mobile app when sid is unique without further checks
                     // i.e. same user with the same sid recorded twice under different ids in mobile device
                     user.id = new pongodb.ObjectId(user.sid).toMobileId();
-                    user.lastUse = new Date();
-                    debugger;
+                    // user.lastUse = new Date();
                     db.users.insert(user)
                         .done(function () {
-                            // TODO save image
-                            options.success(user);
+                            models.MobileUser.fn._saveMobilePicture.call(user)
+                                .done(function () {
+                                    options.success(user);
+                                    // TODO reload image in UI = MVVM = trigger change on user
+                                })
+                                .fail(options.error);
                         })
                         .fail(options.error);
                 },
@@ -431,9 +441,14 @@
                         db.users.update({ id: id }, user)
                             .done(function (result) {
                                 if (result && result.nMatched === 1 && result.nModified === 1) {
-                                    // TODO Save image
+                                    // Restore id and return
                                     user.id = id;
-                                    options.success({total: 1, data: user});
+                                    models.MobileUser.fn._saveMobilePicture.call(user)
+                                        .done(function () {
+                                            options.success({total: 1, data: user});
+                                            // TODO reload image in UI = MVVM = trigger change on user
+                                        })
+                                        .fail(options.error);
                                 } else {
                                     options.error(undefined, 'error', 'User not found');
                                 }

@@ -19,11 +19,11 @@
                 v1: {
                     activities: '/api/v1/{0}/summaries/{1}/activities',
                     activity: '/api/v1/{0}/summaries/{1}/activities/{2}',
-                    categories: '',
+                    categories: '/api/v1/languages/{0}/categories',
                     file: '',
                     files: '',
-                    language: '',
-                    languages: '',
+                    language: '/api/v1/languages/{0}',
+                    languages: '/api/v1/languages',
                     me: '/api/v1/users/me',
                     myActivities: '/api/v1/users/me/{0}/activities',
                     myFavourite: '',
@@ -224,18 +224,59 @@
      * @type {string}
      */
     $.mockjaxSettings.contentType = 'application/json';
-    // $.mockjaxSettings.namespace = root; // <-- this does not work
+    // $.mockjaxSettings.namespace = root; // <-- this does not seem to work, so we have complete urls here below
 
     /**
      * $.mockjax
      */
     $.mockjax([
 
+        /***************************************************************************************************************
+         * Taxonomy
+         ***************************************************************************************************************/
+
+        /**
+         * /api/v1/languages
+         */
+        {
+            url: uris.rapi.root + uris.rapi.v1.languages,
+            response: function (request) {
+                // TODO: can this be dynamic considering json files?
+                this.responseText = '{"total":2,"data":[{"language":"en"},{"language":"fr"}]}';
+            }
+        },
+
+        /**
+         * /api/v1/languages/{0}
+         */
+        {
+            url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.languages).replace('{0}', '[a-z]{2}')) ,
+            response: function (request) {
+                this.responseText = { language: 'en' }; // TODO Analyse url
+            }
+        },
+
+        /**
+         * /api/v1/languages/{0}/categories
+         */
+        {
+            url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.categories).replace('{0}', '[a-z]{2}')) ,
+            response: function (request) {
+                var categories = mockDB.categories.find({ language: 'en' }); // TODO Analyse url
+                assert.isArray(categories, assert.format(assert.messages.isArray.default, 'categories'));
+                this.responseText = categories.map(function (category) { return mockDB._toObject(category, request.data.fields); });
+            }
+        },
+
+        /***************************************************************************************************************
+         * Users
+         ***************************************************************************************************************/
+
         /**
          * /api/v1/users/me
          */
         {
-            url: uris.rapi.root + uris.rapi.v1.me, // url: uris.rapi.me does not work in conjunction with $.mockjaxSettings.namespace
+            url: uris.rapi.root + uris.rapi.v1.me,
             response: function (request) {
                 if (request.headers.Authorization) {
                     var access = request.headers.Authorization.substr(BEARER_LENGTH);

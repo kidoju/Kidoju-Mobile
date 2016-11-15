@@ -1735,7 +1735,7 @@ if (typeof(require) === 'function') {
                 .each(function () {
                     // We cannot define data-mask in html with data binding
                     $(this).kendoMaskedTextBox({
-                        mask: '0000'
+                        mask: '0000' // 4 digits
                     });
                 });
         };
@@ -1763,6 +1763,10 @@ if (typeof(require) === 'function') {
                         app.notification.info('Please enter and confirm your 4-digit pin before saving.'); // TODO
                         e.view.element.find(kendo.roleSelector('maskedtextbox')).first().focus();
                     });
+                // } else {
+                // The mobile user is already loaded
+            } else {
+                e.view.element.find(kendo.roleSelector('maskedtextbox')).first().focus();
             }
         };
 
@@ -1782,6 +1786,7 @@ if (typeof(require) === 'function') {
             assert.instanceof(kendo.ui.MaskedTextBox, pinWidget, kendo.format(assert.messages.instanceof.default, 'pinWidget', 'kendo.ui.MaskedTextBox'));
             var confirmWidget = pinElements.last().data('kendoMaskedTextBox');
             assert.instanceof(kendo.ui.MaskedTextBox, confirmWidget, kendo.format(assert.messages.instanceof.default, 'confirmWidget', 'kendo.ui.MaskedTextBox'));
+
             if (RX_PIN.test(pinWidget.value()) && confirmWidget.value() === pinWidget.value()) {
 
                 // Does the user already exist in database?
@@ -1789,16 +1794,15 @@ if (typeof(require) === 'function') {
                 var found = viewModel.users.data().find(function (user) {
                     return user.get('sid') === sid;
                 });
-                if (found instanceof models.MobileUser) {
-                    // Update user
-                    found.addPin(pinWidget.value());
-                    found.set('lastUse', new Date());
-                    // other fields to update?
-                } else {
+                if (!(found instanceof models.MobileUser)) {
                     // Add user
                     found = viewModel.get('user');
                     viewModel.users.add(found);
                 }
+                // Set properties
+                found.addPin(pinWidget.value()); // Note a good test to trigger an error is to comment this line
+                found.set('lastUse', new Date());
+                // Synchronize
                 viewModel.users.sync()
                     .done(function () {
                         viewModel.set('user', found);
@@ -1809,6 +1813,7 @@ if (typeof(require) === 'function') {
                         app.notification.error('There was an error creating or updating users.'); // TODO
                         debugger;
                     });
+
             } else {
                 app.notification.warning('Please enter and confirm a 4 digit pin.')
             }
@@ -1820,7 +1825,20 @@ if (typeof(require) === 'function') {
          */
         mobile.onUserSignInClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            alert('signin');
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+
+            // Check the correct pin
+            var view = e.button.closest(kendo.roleSelector('view'));
+            var pinElement = view.find(kendo.roleSelector('maskedtextbox') + ':visible');
+            assert.equal(1, pinElement.length, kendo.format(assert.messages.equal.default, 'pinElement.length', '1'));
+            var pinWidget = pinElement.data('kendoMaskedTextBox');
+            assert.instanceof(kendo.ui.MaskedTextBox, pinWidget, kendo.format(assert.messages.instanceof.default, 'pinWidget', 'kendo.ui.MaskedTextBox'));
+
+            if (viewModel.user.verifyPin(pinWidget.value())) {
+                mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
+            } else {
+                app.notification.warning('Wrong pin.'); // TODO
+            }
         };
 
         /**
