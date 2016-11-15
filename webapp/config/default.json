@@ -144,7 +144,8 @@
             "images": "/kidoju/%s"
         },
         "mobile": {
-            "icons": "./img/%s.svg"
+            "icons": "./img/%s.svg",
+            "pictures": "%susers/%s"
         },
         "webapp": {
             "editor": "/%s/e/%s/%s",

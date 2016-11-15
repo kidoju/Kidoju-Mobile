@@ -133,7 +133,8 @@
                 icons: url.join('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))
             },
             mobile: {
-                icons: convertFormat('<%- uris.mobile.icons %>')
+                icons: convertFormat('<%- uris.mobile.icons %>'),
+                pictures: convertFormat('<%- uris.mobile.pictures %>')
             },
             webapp: {
                 editor: url.join('<%- uris.webapp.root %>', convertFormat('<%- uris.webapp.editor %>')),
