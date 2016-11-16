@@ -1771,6 +1771,10 @@
 	                            browser.removeEventListener('loaderror', loadError);
 	                            browser.close();
 	                            browser = undefined;
+	                            logger.debug({
+	                                message: 'closed InAppBrowser',
+	                                method: 'mobile.onSigninButtonClick'
+	                            });
 	                        };
 	                        var loadStart = function (e) {
 	                            logger.debug({
@@ -1785,7 +1789,7 @@
 	                                // We have a token, we are done
 	                                close();
 	                                if (token.error) {
-	                                    app.notification.error('There has been an error with the oAuth flow');
+	                                    app.notification.error('There has been an error with the oAuth flow'); // TODO
 	                                    logger.error({
 	                                        message: token.error,
 	                                        method: 'mobile.onSigninButtonClick',
@@ -1814,6 +1818,11 @@
 	                        browser.addEventListener('loadstart', loadStart);
 	                        // browser.addEventListener('loadstop', loadStop);
 	                        browser.addEventListener('loaderror', loadError);
+	                        logger.debug({
+	                            message: 'opening InAppBrowser',
+	                            method: 'mobile.onSigninButtonClick'
+	                        });
+	
 	                    } else {
 	                        // this is a browser --> simply redirect to login url
 	                        window.location.assign(signInUrl);
@@ -1953,9 +1962,12 @@
 	                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
 	                    })
 	                    .fail(function (xhr, status, error) {
-	                        // Note: xhr can be an error
-	                        app.notification.error('There was an error creating or updating users.'); // TODO
-	                        debugger;
+	                        app.notification.error('There was an error saving the user.');  // TODO
+	                        logger.error({
+	                            message: 'error saving user',
+	                            method: 'mobile.onUserSaveClick',
+	                            data:  { status: status, error: error, response: xhr && (xhr.responseText || xhr.message) } // TODO xhr.responseText
+	                        });
 	                    });
 	
 	            } else {
