@@ -13,7 +13,12 @@ phonegap plugin add cordova-plugin-splashscreen --save
 phonegap plugin add cordova-plugin-statusbar --save
 phonegap plugin add cordova-plugin-tts --save
 phonegap plugin add cordova-plugin-whitelist --save
-phonegap plugin add cordova-plugin-wkwebview-engine --save
+REM phonegap plugin add cordova-plugin-wkwebview-engine --save
+REM There is an incompatibility between InAppBrowser and WkWebView that prevents
+REM the loadstart event to be triggered in an oAuth flow if cordova-plugin-wkwebview-engine is installed
+REM See https://issues.apache.org/jira/browse/CB-10698
+REM See https://issues.apache.org/jira/browse/CB-11136
+REM Seems to have been fixed in https://github.com/apache/cordova-plugin-inappbrowser/pull/187
 phonegap plugin add cordova-plugin-x-socialsharing --save
 phonegap plugin add phonegap-plugin-barcodescanner --variable CAMERA_USAGE_DESCRIPTION="To Scan QR Codes" --save
 
