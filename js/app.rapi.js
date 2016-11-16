@@ -291,7 +291,7 @@
                     // remove any trailing # and split along &
                     var keyValues = url.substr(pos1 + 1).split('#')[0].split('&');
 
-                    // then iterate through key=value pairs to pupulate qs, our querystring object
+                    // then iterate through key=value pairs to populate qs, our querystring object
                     $.each(keyValues, function (index, keyValue) {
                         var pos2 = keyValue.indexOf(EQUALS);
                         if (pos2 > 0 && pos2 < keyValue.length - EQUALS.length) {
@@ -302,28 +302,31 @@
                         }
                     });
 
+                    // Check error
+                    var hasError = ($.type(qs.error) === STRING);
+
                     // Check access_token
                     // Note: We could not find any better rule to match access tokens from facebook, google, live and twitter
-                    var accessTokenCheck = ($.type(qs.access_token) === STRING && qs.access_token.length > 10);
+                    var hasVerifiedToken = ($.type(qs.access_token) === STRING && qs.access_token.length > 10);
 
                     // Note: We could check expires (Google and Windows Live are 3600 = 60*60 = 1h amd Facebook and Twitter are 5184000 = 60*60*24*60 = 60d)
 
                     // Check state
                     // Note: rapi.util.getState() erases state, so it is not indempotent
-                    var stateCheck = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
+                    var hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
 
                     // Check timestamp
                     var now = Date.now();
                     // Note there might be a lag, therefore -30s is required
-                    var tsCheck = ((now - qs.ts > -30 * 1000) && (now - qs.ts < 5 * 60 * 1000));
+                    var hasVerifiedTimestamp = ((now - qs.ts > -30 * 1000) && (now - qs.ts < 5 * 60 * 1000));
 
                     logger.debug({
                         message: 'token verified',
                         method: 'parseToken',
-                        data: { qs: qs, accessTokenCheck: accessTokenCheck, stateCheck: stateCheck, tsCheck: tsCheck }
+                        data: { qs: qs, hasError: hasError, hasVerifiedToken: hasVerifiedToken, hasVerifiedState: hasVerifiedState, hasVerifiedTimestamp: hasVerifiedTimestamp }
                     });
 
-                    if (accessTokenCheck && stateCheck && tsCheck) {
+                    if (hasVerifiedToken && hasVerifiedState && hasVerifiedTimestamp) {
                         // purge unwanted properties (especially state and token_type)
                         // as stated in https://github.com/Memba/Kidoju-Server/issues/29
                         token = {
@@ -335,11 +338,14 @@
                         rapi.util.setToken(token);
                         // Notify page
                         setTimeout(function () { $(document).trigger(AUTHENTICATION_SUCCESS); }, 500);
-                    } else {
+                    } else if (hasError) {
+                        token = {
+                            error: qs.error
+                        };
                         // Let's simply discard any attempt to set a token that does not pass the checks here above
                         rapi.util.clearToken();
-                        // Notify page
-                        setTimeout(function () { $(document).trigger(AUTHENTICATION_FAILURE); }, 500);
+                        // Notify page (we may have qs.error)
+                        setTimeout(function () { $(document).trigger(AUTHENTICATION_FAILURE, { error: qs.error }); }, 500);
                     }
 
                 }

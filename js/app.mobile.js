@@ -1677,7 +1677,7 @@ if (typeof(require) === 'function') {
                             logger.debug({
                                 message: 'loadstart event of InAppBrowser',
                                 method: 'mobile.onSigninButtonClick',
-                                data: { url: e.url }
+                                data: { provider: provider, url: e.url }
                             });
                             var token = rapi.util.parseToken(e.url);
                             // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
@@ -1685,7 +1685,16 @@ if (typeof(require) === 'function') {
                                 // window.alert(provider + ': success');
                                 // We have a token, we are done
                                 close();
-                                mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+                                if (token.error) {
+                                    app.notification.error('There has been an error with the oAuth flow');
+                                    logger.error({
+                                        message: token.error,
+                                        method: 'mobile.onSigninButtonClick',
+                                        data: { provider: provider, url: e.url }
+                                    });
+                                } else {
+                                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+                                }
 
                             }
                             // otherwise continue with the oAuth flow,
