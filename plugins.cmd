@@ -19,6 +19,7 @@ REM the loadstart event to be triggered in an oAuth flow if cordova-plugin-wkweb
 REM See https://issues.apache.org/jira/browse/CB-10698
 REM See https://issues.apache.org/jira/browse/CB-11136
 REM Seems to have been fixed in https://github.com/apache/cordova-plugin-inappbrowser/pull/187
+REM Has yet to be released - see https://github.com/kidoju/Kidoju-Mobile/issues/34
 phonegap plugin add cordova-plugin-x-socialsharing --save
 phonegap plugin add phonegap-plugin-barcodescanner --variable CAMERA_USAGE_DESCRIPTION="To Scan QR Codes" --save
 

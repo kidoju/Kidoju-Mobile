@@ -1683,6 +1683,7 @@ if (typeof(require) === 'function') {
                             // See https://issues.apache.org/jira/browse/CB-10698
                             // See https://issues.apache.org/jira/browse/CB-11136
                             // Seems to have been fixed in https://github.com/apache/cordova-plugin-inappbrowser/pull/187
+                            // Has yet to be released - https://github.com/kidoju/Kidoju-Mobile/issues/34
                             logger.debug({
                                 message: 'loadstart event of InAppBrowser',
                                 method: 'mobile.onSigninButtonClick',
