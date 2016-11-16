@@ -194,7 +194,6 @@
 	        var mobile = app.mobile = app.mobile || {};
 	        var kendo = window.kendo;
 	        var kidoju = window.kidoju;
-	        var assert = window.assert;
 	        var localStorage = window.localStorage;
 	        var logger = new window.Logger('app.mobile');
 	        var models = app.models;
@@ -1768,7 +1767,7 @@
 	                        // running in Phonegap -> open InAppBrowser
 	                        var close = function () {
 	                            browser.removeEventListener('loadstart', loadStart);
-	                            browser.removeEventListener('loadstop', loadStop);
+	                            // browser.removeEventListener('loadstop', loadStop);
 	                            browser.removeEventListener('loaderror', loadError);
 	                            browser.close();
 	                            browser = undefined;
@@ -1778,8 +1777,11 @@
 	                            });
 	                        };
 	                        var loadStart = function (e) {
-	                            // https://issues.apache.org/jira/browse/CB-11136
-	                            // https://issues.apache.org/jira/browse/CB-10698
+	                            // There is an incompatibility between InAppBrowser and WkWebView that prevents
+	                            // the loadstart event to be triggered in an oAuth flow if cordova-plugin-wkwebview-engine is installed
+	                            // See https://issues.apache.org/jira/browse/CB-10698
+	                            // See https://issues.apache.org/jira/browse/CB-11136
+	                            // Seems to have been fixed in https://github.com/apache/cordova-plugin-inappbrowser/pull/187
 	                            logger.debug({
 	                                message: 'loadstart event of InAppBrowser',
 	                                method: 'mobile.onSigninButtonClick',
@@ -1806,13 +1808,6 @@
 	                            // otherwise continue with the oAuth flow,
 	                            // as the loadstart event is triggered each time a new url (redirection) is loaded
 	                        };
-	                        var loadStop = function (e) {
-	                            logger.debug({
-	                                message: 'loadstop event of InAppBrowser',
-	                                method: 'mobile.onSigninButtonClick',
-	                                data: {provider: provider, url: e.url}
-	                            });
-	                        };
 	                        var loadError = function (error) {
 	                            window.alert(JSON.stringify($.extend({}, error))); // TODO
 	                            logger.error({
@@ -1826,7 +1821,7 @@
 	                        var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=no,clearsessioncache=yes,clearcache=yes');
 	                        // browser.addEventListener('exit', exit);
 	                        browser.addEventListener('loadstart', loadStart);
-	                        browser.addEventListener('loadstop', loadStop);
+	                        // browser.addEventListener('loadstop', loadStop);
 	                        browser.addEventListener('loaderror', loadError);
 	                        logger.debug({
 	                            message: 'opening InAppBrowser',
@@ -23960,6 +23955,8 @@
 	
 	    (function ($, undefined) {
 	
+	        var assert = window.assert;
+	        var logger = new window.Logger('app.fs');
 	        var STRING = 'string';
 	        var OBJECT = 'object';
 	        var FUNCTION = 'function';
@@ -23977,18 +23974,19 @@
 	        /**
 	         * File error codes
 	         * @see https://developer.mozilla.org/en-US/docs/Web/API/FileError
+	         * @see https://github.com/apache/cordova-plugin-file/blob/master/README.md#list-of-error-codes-and-meanings
 	         * @returns {*}
 	         * @private
 	         */
 	        FileSystem.FileErrorCodes = {
 	            NOT_FOUND_ERR: 1,
 	            SECURITY_ERR: 2,
-	            // NOT_USED: 3,
+	            ABORT_ERR: 3,
 	            NOT_READABLE_ERR: 4,
 	            ENCODING_ERR: 5,
 	            NO_MODIFICATION_ALLOWED_ERR: 6,
 	            INVALID_STATE_ERR: 7,
-	            // NOT_USED: 8,
+	            SYNTAX_ERR: 8,
 	            INVALID_MODIFICATION_ERR: 9,
 	            QUOTA_EXCEEDED_ERR: 10,
 	            TYPE_MISMATCH_ERR: 11,
@@ -24018,6 +24016,11 @@
 	            var dfd = $.Deferred();
 	            window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
 	            window.storageInfo = window.storageInfo || window.webkitStorageInfo;
+	            logger.debug({
+	                message: 'Initializing temporary file system.',
+	                method: 'FileSystem.prototype._initTemporary',
+	                data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
+	            });
 	            if (window.requestFileSystem && window.storageInfo && $.type(window.TEMPORARY) !== UNDEFINED) {
 	                if ($.type(that._temporary) === UNDEFINED) {
 	                    // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
@@ -24032,6 +24035,11 @@
 	                                function (temporary) {
 	                                    that._temporary = temporary;
 	                                    dfd.resolve(temporary);
+	                                    logger.debug({
+	                                        message: 'Temporary file system granted',
+	                                        method: 'FileSystem.prototype._initTemporary',
+	                                        data: { grantedBytes: grantedBytes }
+	                                    });
 	                                },
 	                                dfd.reject
 	                            );
@@ -24056,6 +24064,11 @@
 	            var dfd = $.Deferred();
 	            window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
 	            window.storageInfo = window.storageInfo || window.webkitStorageInfo;
+	            logger.debug({
+	                message: 'Initializing persistent file system.',
+	                method: 'FileSystem.prototype._initPersistent',
+	                data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
+	            });
 	            if (window.requestFileSystem && window.storageInfo && $.type(window.PERSISTENT) !== UNDEFINED) {
 	                if ($.type(that._persistent) === UNDEFINED) {
 	                    // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
@@ -24070,6 +24083,11 @@
 	                                function (persistent) {
 	                                    that._persistent = persistent;
 	                                    dfd.resolve(persistent);
+	                                    logger.debug({
+	                                        message: 'Persistent file system gramted',
+	                                        method: 'FileSystem.prototype._initPersistent',
+	                                        data: { grantedBytes: grantedBytes }
+	                                    });
 	                                },
 	                                dfd.reject
 	                            );
@@ -25310,7 +25328,7 @@
 /***/ 326:
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_14__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_13__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_12__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_11__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_10__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_9__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_8__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_7__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_6__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_5__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_4__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_3__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_2__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_1__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_0__;/** 
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_0__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_1__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_2__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_3__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_4__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_5__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_6__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_7__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_8__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_9__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_10__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_11__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_12__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_13__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_14__;var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/** 
 	 * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
 	 * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
 	 *                                                                                                                                                                                                      

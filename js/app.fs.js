@@ -19,6 +19,8 @@
 
     (function ($, undefined) {
 
+        var assert = window.assert;
+        var logger = new window.Logger('app.fs');
         var STRING = 'string';
         var OBJECT = 'object';
         var FUNCTION = 'function';
@@ -36,18 +38,19 @@
         /**
          * File error codes
          * @see https://developer.mozilla.org/en-US/docs/Web/API/FileError
+         * @see https://github.com/apache/cordova-plugin-file/blob/master/README.md#list-of-error-codes-and-meanings
          * @returns {*}
          * @private
          */
         FileSystem.FileErrorCodes = {
             NOT_FOUND_ERR: 1,
             SECURITY_ERR: 2,
-            // NOT_USED: 3,
+            ABORT_ERR: 3,
             NOT_READABLE_ERR: 4,
             ENCODING_ERR: 5,
             NO_MODIFICATION_ALLOWED_ERR: 6,
             INVALID_STATE_ERR: 7,
-            // NOT_USED: 8,
+            SYNTAX_ERR: 8,
             INVALID_MODIFICATION_ERR: 9,
             QUOTA_EXCEEDED_ERR: 10,
             TYPE_MISMATCH_ERR: 11,
@@ -77,6 +80,11 @@
             var dfd = $.Deferred();
             window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
             window.storageInfo = window.storageInfo || window.webkitStorageInfo;
+            logger.debug({
+                message: 'Initializing temporary file system.',
+                method: 'FileSystem.prototype._initTemporary',
+                data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
+            });
             if (window.requestFileSystem && window.storageInfo && $.type(window.TEMPORARY) !== UNDEFINED) {
                 if ($.type(that._temporary) === UNDEFINED) {
                     // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
@@ -91,6 +99,11 @@
                                 function (temporary) {
                                     that._temporary = temporary;
                                     dfd.resolve(temporary);
+                                    logger.debug({
+                                        message: 'Temporary file system granted',
+                                        method: 'FileSystem.prototype._initTemporary',
+                                        data: { grantedBytes: grantedBytes }
+                                    });
                                 },
                                 dfd.reject
                             );
@@ -115,6 +128,11 @@
             var dfd = $.Deferred();
             window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
             window.storageInfo = window.storageInfo || window.webkitStorageInfo;
+            logger.debug({
+                message: 'Initializing persistent file system.',
+                method: 'FileSystem.prototype._initPersistent',
+                data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
+            });
             if (window.requestFileSystem && window.storageInfo && $.type(window.PERSISTENT) !== UNDEFINED) {
                 if ($.type(that._persistent) === UNDEFINED) {
                     // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
@@ -129,6 +147,11 @@
                                 function (persistent) {
                                     that._persistent = persistent;
                                     dfd.resolve(persistent);
+                                    logger.debug({
+                                        message: 'Persistent file system gramted',
+                                        method: 'FileSystem.prototype._initPersistent',
+                                        data: { grantedBytes: grantedBytes }
+                                    });
                                 },
                                 dfd.reject
                             );
