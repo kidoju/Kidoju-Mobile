@@ -8,11 +8,11 @@
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
     <!-- The following CSP is the one added by default bu the Phonegap Developper App -->
     <!--meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;img-src 'self' data: content:;style-src 'self' 'unsafe-inline' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"-->
-    <!-- The following is our CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: data: filesystem: gap: kidoju: https://*.kidoju.com https://accounts.google.com https://www.facebook.com https://login.live.com https://*.phonegap.com http://10.0.0.105:*; connect-src https://*.kidoju.com https://api.twitter.com https://ssl.gstatic.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' data: filesystem: https://*.kidoju.com https://s3.amazonaws.com https://*.twimg.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
+    <!-- The following is our CSP    https://accounts.google.com https://www.facebook.com https://login.live.com; -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: data: filesystem: gap: kidoju: https://*.kidoju.com; connect-src https://*.kidoju.com https://api.twitter.com https://ssl.gstatic.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' data: filesystem: https://*.kidoju.com https://s3.amazonaws.com https://*.twimg.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://*.phonegap.com; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
     <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
-    <!--script src="https://debug2.phonegap.com/target/target-script-min.js#13dd8fec-91f0-11e6-8d6a-06a5c274e813"></script-->
+    <script src="https://debug2.phonegap.com/target/target-script-min.js#13dd8fec-91f0-11e6-8d6a-06a5c274e813"></script>
     <script src="./cordova.js"></script>
     <script src="./build/jquery.min.js"></script>
     <script>
@@ -348,14 +348,14 @@
                 <li>
                     <label>
                         <span>User</span>
-                        <input type="text" data-bind="value: settings.user" readonly disabled />
+                        <input type="text" data-bind="value: user.fullName$" disabled="disabled" />
                         <!-- TODO Show login button -->
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Version</span>
-                        <input type="text" data-bind="value: settings.version" readonly disabled />
+                        <input type="text" data-bind="value: settings.version" disabled="disabled" />
                         <!-- TODO Show upgrade sign if it does not match server -->
                     </label>
                 </li>
@@ -373,20 +373,26 @@
                 </li>
             </ul>
         </form>
+        <div class="buttons">
+            <a data-role="button" class="km-large km-justified km-primary" data-click="app.mobile.onSettingsSwitchClick">Switch User</a>
+        </div>
     </div>
 
     <!-- Sign-in view -->
     <div id="phone-signin" data-role="view" data-layout="phone-main-layout" data-title="Sign in" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onSigninViewShow">
+        <div class="k-widget k-notification k-notification-info" data-role="alert">
+            <div class="k-notification-wrap">
+                <span class="k-icon k-i-info">Info</span>
+                <span class="k-text">Please select an authentication provider.</span>
+                <!--span class="k-icon k-i-close">Hide</span-->
+            </div>
+        </div>
         <form>
-            <ul data-role="listview" data-type="group" data-style="inset">
-                <li>Please choose an authentication provider
-                    <ul>
-                        <li><button data-role="button" class="km-large km-justified" data-icon="google" data-provider="google" data-click="app.mobile.onSigninButtonClick">Google</button></li>
-                        <li><button data-role="button" class="km-large km-justified" data-icon="facebook" data-provider="facebook" data-click="app.mobile.onSigninButtonClick">Facebook</button></li>
-                        <li><button data-role="button" class="km-large km-justified" data-icon="twitter" data-provider="twitter" data-click="app.mobile.onSigninButtonClick">Twitter</button></li>
-                        <li><button data-role="button" class="km-large km-justified" data-icon="live" data-provider="live" data-click="app.mobile.onSigninButtonClick">Windows Live</button></li>
-                    </ul>
-                </li>
+            <ul data-role="listview" data-style="inset">
+                <li><button data-role="button" class="km-large km-justified" data-icon="google" data-provider="google" data-click="app.mobile.onSigninButtonClick">Google</button></li>
+                <li><button data-role="button" class="km-large km-justified" data-icon="facebook" data-provider="facebook" data-click="app.mobile.onSigninButtonClick">Facebook</button></li>
+                <li><button data-role="button" class="km-large km-justified" data-icon="twitter" data-provider="twitter" data-click="app.mobile.onSigninButtonClick">Twitter</button></li>
+                <li><button data-role="button" class="km-large km-justified" data-icon="live" data-provider="live" data-click="app.mobile.onSigninButtonClick">Windows Live</button></li>
             </ul>
         </form>
     </div>
@@ -395,10 +401,12 @@
     <div id="phone-summary" data-role="view" data-layout="phone-main-layout" data-title="Details" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
         <form>
             <ul data-role="listview" data-style="inset">
-                <li><label>Type text<input type="text" value="Text" /></label></li>
-                <li><label>Type text<input type="text" value="Text" /></label></li>
-                <li><label>Type text<input type="text" value="Text" /></label></li>
-                <li><label>Type text<input type="text" value="Text" /></label></li>
+                <li>
+                    <label>
+                        <span>Type text</span>
+                        <input type="text" value="Text" />
+                    </label>
+                </li>
             </ul>
         </form>
     </div>
@@ -409,16 +417,42 @@
         <img data-bind="visible: hasMobileUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <form>
             <ul data-role="listview" data-style="inset">
-                <li><label>First Name<input type="text" data-bind="value: user.firstName" readonly /></label></li>
-                <li><label>Last Name<input type="text" data-bind="value: user.lastName" readonly /></label></li>
-                <li data-bind="visible: hasMobileUser$"><label>Last Use<input type="text" data-bind="value: user.lastUse" data-format="d:g" readonly /></label></li>
-                <li><label>PIN<input data-role="maskedtextbox" type="password" /></label></li>
-                <li data-bind="invisible: hasMobileUser$"><label>Confirm<input data-role="maskedtextbox" type="password" /></label></li>
+                <li>
+                    <label>
+                        <span>First Name</span>
+                        <input type="text" data-bind="value: user.firstName" disabled="disabled" />
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span>Last Name</span>
+                        <input type="text" data-bind="value: user.lastName"  disabled="disabled" />
+                    </label>
+                </li>
+                <li data-bind="visible: hasMobileUser$">
+                    <label>
+                        <span>Last Use</span>
+                        <input type="datetime-local" data-bind="value: user.lastUse" disabled="disabled" />
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span>PIN</span>
+                        <input type="password" class="pin" autocomplete="off" />
+                    </label>
+                </li>
+                <li data-bind="invisible: hasMobileUser$">
+                    <label>
+                        <span>Confirm</span>
+                        <input type="password" class="pin" autocomplete="off" />
+                    </label>
+                </li>
             </ul>
         </form>
         <div class="buttons">
-            <a data-role="button" data-bind="invisible: hasMobileUser$" class="km-justified km-primary km-large km-widget km-button" data-click="app.mobile.onUserSaveClick">Save</a>
-            <a data-role="button" data-bind="visible: hasMobileUser$" class="km-justified km-primary km-large km-widget km-button" data-click="app.mobile.onUserSignInClick">Signin</a>
+            <a data-role="button" data-bind="invisible: hasMobileUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSaveClick">Save</a>
+            <a data-role="button" data-bind="visible: hasMobileUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSignInClick">Signin</a>
+            <a data-role="button" data-bind="visible: hasMobileUser$" class="km-large km-justified"  data-click="app.mobile.onUserNewClick">New User</a>
         </div>
     </div>
 

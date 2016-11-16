@@ -71,7 +71,7 @@
             },
             // Notification messages
             notifications: {
-                networkOffline: 'You are not connected to the Internet',
+                networkOffline: 'You are disconnected from the Internet',
                 settingsLoadFailure: 'There was an error loading settings.',
                 signinUrlFailure: 'There has been an error obtaining a sign-in url.',
                 summariesQueryFailure: 'There was an error querying the database.',
@@ -97,23 +97,39 @@
             // Settings view
             settings: {
                 viewTitle: 'Settings',
+                // Labels
                 user: 'User',
                 version: 'Version',
                 language: 'Language',
-                theme: 'Theme'
+                theme: 'Theme',
+                // Buttons
+                switch: 'Switch User'
             },
             // Sign-in view
             signin: {
                 viewTitle: 'Sign in',
-                groupTitle: 'Please choose an authentication provider'
+                // Notification
+                welcome: 'Please select an authentication provider.'
             },
             // Summary view
             summary: {
                 viewTitle: 'Details'
+                // Labels
+                // Buttons
             },
             // User view
             user: {
-                viewTitle: 'User'
+                viewTitle: 'User',
+                // Labels
+                firstName: 'First Name',
+                lastName: 'Last Name',
+                lastUse: 'Last Use',
+                pin: 'PIN',
+                confirm: 'Confirm',
+                // Buttons
+                save: 'Save',
+                signIn: 'Sign In',
+                newUser: 'New User'
             },
             // viewModel
             viewModel: {

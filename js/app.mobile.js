@@ -35,7 +35,6 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.drawing',
         './vendor/kendo/kendo.list',
         './vendor/kendo/kendo.dropdownlist',
-        './vendor/kendo/kendo.maskedtextbox',
         './vendor/kendo/kendo.notification',
         './vendor/kendo/kendo.fx',
         './vendor/kendo/kendo.userevents',
@@ -166,6 +165,9 @@ if (typeof(require) === 'function') {
             THEMES: 'themes',
             USER: 'user',
             VERSION: 'version'
+        };
+        var SELECTORS = {
+            PIN: '.pin'
         };
 
         /*******************************************************************************************
@@ -856,11 +858,11 @@ if (typeof(require) === 'function') {
                     break;
                 case DEVICE_SELECTOR + VIEW.SETTINGS:
                     showDrawerButton = true;
-                    showSyncButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.SIGNIN:
                     break;
                 case DEVICE_SELECTOR + VIEW.SUMMARY:
+                    showDrawerButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.USER:
                     break;
@@ -923,6 +925,11 @@ if (typeof(require) === 'function') {
                 width: $(window).width() - 2 // - 2 is for borders as box-sizing on .k-notification-wrap does not help
             }).data('kendoNotification');
             assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+            // Modify default TEMPLATE (see kendo.notification.js) to wrap text properly
+            // var TEMPLATE = '<div class="k-notification-wrap">' + '<span class="k-icon k-i-#=typeIcon#">#=typeIcon#</span>' + '#=content#' + '<span class="k-icon k-i-close">Hide</span>' + '</div>';
+            var TEMPLATE = '<div class="k-notification-wrap">' + '<span class="k-icon k-i-#=typeIcon#">#=typeIcon#</span><span class="k-text">' + '#=content#' + '</span><span class="k-icon k-i-close">Hide</span>' + '</div>';
+            app.notification._defaultCompiled = kendo.template(TEMPLATE);
+            app.notification._safeCompiled = kendo.template(TEMPLATE.replace('#=content#', '#:content#'));
         };
 
         /*******************************************************************************************
@@ -1124,7 +1131,7 @@ if (typeof(require) === 'function') {
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
             var culture = i18n.culture.settings;
             var viewElement = $(DEVICE_SELECTOR + VIEW.SETTINGS);
-            // The view may not have been intialized yet
+            // The view may not have been initialized yet
             var viewWidget = viewElement.data('kendoMobileView');
             if (viewWidget instanceof kendo.mobile.ui.View) {
                 mobile._setNavBarTitle(viewWidget, culture.viewTitle);
@@ -1134,6 +1141,8 @@ if (typeof(require) === 'function') {
             viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.version);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.language);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.theme);
+            // Localize buttons
+            viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.switch);
         };
 
         /**
@@ -1151,7 +1160,8 @@ if (typeof(require) === 'function') {
             if (viewWidget instanceof kendo.mobile.ui.View) {
                 mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
-            // TODO localize the group title
+            // Welcome notification
+            viewElement.find('.k-notification-wrap>span.k-text').text(culture.welcome);
         };
 
         /**
@@ -1186,6 +1196,16 @@ if (typeof(require) === 'function') {
             if (viewWidget instanceof kendo.mobile.ui.View) {
                 mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
+            // Localize field labels
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.firstName);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.lastName);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.lastUse);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.pin);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.confirm);
+            // Localize buttons
+            viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.save);
+            viewElement.find('.buttons>.km-button>span.km-text:eq(1)').text(culture.signIn);
+            viewElement.find('.buttons>.km-button>span.km-text:eq(2)').text(culture.newUser);
         };
 
         /*******************************************************************************************
@@ -1459,7 +1479,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for clicking the play option in the action sheet displayed from the GO button of summaries
+         * Event handler triggered when clicking the play option in the action sheet displayed from the GO button of summaries
          * @param e
          */
         mobile.onFinderActionPlay = function (e) {
@@ -1477,7 +1497,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for clicking the share option in the action sheet displayed from the GO button of summaries
+         * Event handler triggered when clicking the share option in the action sheet displayed from the GO button of summaries
          * @see https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
          * @param e
          */
@@ -1591,6 +1611,18 @@ if (typeof(require) === 'function') {
             mobile._localizeSettingsView(viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE));
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
+        };
+
+        /**
+         *
+         * @param e
+         */
+        mobile.onSettingsSwitchClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+
+            // Navigate to the user view
+            mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
         };
 
         /**
@@ -1716,8 +1748,8 @@ if (typeof(require) === 'function') {
             mobile._localizeSummaryView(viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE));
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
-            // Load the current user
-            viewModel.user
+
+            // TODO
         };
 
         /**
@@ -1727,16 +1759,23 @@ if (typeof(require) === 'function') {
         mobile.onUserViewInit = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            // Init masked textboxes if not already initialized
-            e.view.element.find(kendo.roleSelector('maskedtextbox'))
-                .on('focus', function () {
-                    $(this).data('kendoMaskedTextBox').value('');
+            // Init pin textboxes if not already initialized
+            // We have removed kendo.ui.MaskedTextBox because the experience was not great
+            // especially because it always displays 4 password dots making the number of characters actually typed unclear
+            e.view.element.find(SELECTORS.PIN)
+                .off('focus keypress')
+                .on('focus', function (e) {
+                    assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                    assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
+                    $(e.target).val('');
                 })
-                .each(function () {
-                    // We cannot define data-mask in html with data binding
-                    $(this).kendoMaskedTextBox({
-                        mask: '0000' // 4 digits
-                    });
+                .on('keypress', function (e) {
+                    assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                    assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
+                    // Special characters including backspace, delete, end, home and arrows do not trigger the keypress event (they trigger keydown though)
+                    if (e.which < 48 || e.which > 57 || $(e.target).val().length > 3) {
+                        e.preventDefault();
+                    }
                 });
         };
 
@@ -1756,22 +1795,21 @@ if (typeof(require) === 'function') {
                 rapi.util.parseToken(window.location.href);
                 rapi.util.cleanHistory();
             }
-            // Load the remote mobile user (me) using the oAuth token
             if (!viewModel.hasMobileUser$()) {
+                // Load the remote mobile user (me) using the oAuth token
                 viewModel.user.load()
                     .done(function () {
                         app.notification.info('Please enter and confirm your 4-digit pin before saving.'); // TODO
-                        e.view.element.find(kendo.roleSelector('maskedtextbox')).first().focus();
+                        e.view.element.find(SELECTORS.PIN).val('').first().focus();
                     });
-                // } else {
-                // The mobile user is already loaded
             } else {
-                e.view.element.find(kendo.roleSelector('maskedtextbox')).first().focus();
+                // The mobile user is already loaded
+                e.view.element.find(SELECTORS.PIN).val('').first().focus();
             }
         };
 
         /**
-         * Evenet handler for clicking the save button of the user view
+         * Evenet handler when clicking the save button of the user view
          * @param e
          */
         mobile.onUserSaveClick = function (e) {
@@ -1780,14 +1818,12 @@ if (typeof(require) === 'function') {
 
             // Do we have matching pins?
             var view = e.button.closest(kendo.roleSelector('view'));
-            var pinElements = view.find(kendo.roleSelector('maskedtextbox'));
+            var pinElements = view.find(SELECTORS.PIN);
             assert.equal(2, pinElements.length, kendo.format(assert.messages.equal.default, 'pinElements.length', '2'));
-            var pinWidget = pinElements.first().data('kendoMaskedTextBox');
-            assert.instanceof(kendo.ui.MaskedTextBox, pinWidget, kendo.format(assert.messages.instanceof.default, 'pinWidget', 'kendo.ui.MaskedTextBox'));
-            var confirmWidget = pinElements.last().data('kendoMaskedTextBox');
-            assert.instanceof(kendo.ui.MaskedTextBox, confirmWidget, kendo.format(assert.messages.instanceof.default, 'confirmWidget', 'kendo.ui.MaskedTextBox'));
+            var pinValue = pinElements.first().val();
+            var confirmValue = pinElements.last().val();
 
-            if (RX_PIN.test(pinWidget.value()) && confirmWidget.value() === pinWidget.value()) {
+            if (RX_PIN.test(pinValue) && confirmValue === pinValue) {
 
                 // Does the user already exist in database?
                 var sid = viewModel.get('user.sid');
@@ -1800,7 +1836,7 @@ if (typeof(require) === 'function') {
                     viewModel.users.add(found);
                 }
                 // Set properties
-                found.addPin(pinWidget.value()); // Note a good test to trigger an error is to comment this line
+                found.addPin(pinValue); // Note a good test to trigger an error is to comment this line
                 found.set('lastUse', new Date());
                 // Synchronize
                 viewModel.users.sync()
@@ -1820,7 +1856,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for clicking the signin button of the user view
+         * Event handler triggered when clicking the signin button of the user view
          * @param e
          */
         mobile.onUserSignInClick = function (e) {
@@ -1829,12 +1865,11 @@ if (typeof(require) === 'function') {
 
             // Check the correct pin
             var view = e.button.closest(kendo.roleSelector('view'));
-            var pinElement = view.find(kendo.roleSelector('maskedtextbox') + ':visible');
+            var pinElement = view.find(SELECTORS.PIN + ':visible');
             assert.equal(1, pinElement.length, kendo.format(assert.messages.equal.default, 'pinElement.length', '1'));
-            var pinWidget = pinElement.data('kendoMaskedTextBox');
-            assert.instanceof(kendo.ui.MaskedTextBox, pinWidget, kendo.format(assert.messages.instanceof.default, 'pinWidget', 'kendo.ui.MaskedTextBox'));
+            var pinValue = pinElement.val();
 
-            if (viewModel.user.verifyPin(pinWidget.value())) {
+            if (viewModel.user.verifyPin(pinValue)) {
                 mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
             } else {
                 app.notification.warning('Wrong pin.'); // TODO
@@ -1842,7 +1877,18 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for clicking the previous button in the navbar
+         * Event handler triggered when clicking the new user button of the user view
+         * @param e
+         */
+        mobile.onUserNewClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+
+            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SIGNIN);
+        };
+
+        /**
+         * Event handler triggered when clicking the previous button in the navbar
          * @param e
          */
         mobile.onNavbarPreviousClick = function (e) {
@@ -1850,7 +1896,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for clicking the next button in the navbar
+         * Event handler triggered when clicking the next button in the navbar
          * @param e
          */
         mobile.onNavbarNextClick = function (e) {
@@ -1858,7 +1904,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for clicking the last button in the navbar
+         * Event handler triggered when clicking the last button in the navbar
          * @param e
          */
         mobile.onNavbarLastClick = function (e) {
@@ -1866,7 +1912,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for clicking the submit button in the navbar
+         * Event handler triggered when clicking the submit button in the navbar
          * @param e
          */
         mobile.onNavbarSubmitClick = function (e) {
@@ -1879,7 +1925,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for confirming after clicking the submit button in the navbar
+         * Event handler triggered when confirming after clicking the submit button in the navbar
          * @param buttonIndex
          */
         mobile.onNavbarSubmitConfirm = function (buttonIndex) {
@@ -1890,7 +1936,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for clicking the sync button in the navbar
+         * Event handler triggered when clicking the sync button in the navbar
          * @param e
          */
         mobile.onNavbarSyncClick = function (e) {
@@ -1898,7 +1944,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler for clicking the search button in the navbar
+         * Event handler triggered when clicking the search button in the navbar
          * @param e
          */
         mobile.onNavbarSearchClick = function (e) {

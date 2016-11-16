@@ -97,23 +97,39 @@
             // Settings view
             settings: {
                 viewTitle: 'Réglages',
+                // Labels
                 user: 'Utilisateur',
                 version: 'Version',
                 language: 'Langue',
-                theme: 'Thème'
+                theme: 'Thème',
+                // Buttons
+                switch: 'Changer d\'Utilisateur'
             },
             // Sign-in view
             signin: {
                 viewTitle: 'Identification',
-                groupTitle: 'Veuillez choisir un service d\'authentification.'
+                // Notification
+                welcome: 'Veuillez sélectionner un service d\'authentification.'
             },
             // Summary view
             summary: {
                 viewTitle: 'Détails'
+                // Labels
+                // Buttons
             },
             // User view
             user: {
-                viewTitle: 'Utilisateur'
+                viewTitle: 'Utilisateur',
+                // Labels
+                firstName: 'Prénom',
+                lastName: 'Nom',
+                lastUse: 'Dern. Util.',
+                pin: 'PIN',
+                confirm: 'Confirmation',
+                // Buttons
+                save: 'Enregistrer',
+                signIn: 'S\'identifier',
+                newUser: 'Nouvel Utilisateur'
             },
             // viewModel
             viewModel: {

@@ -1,10 +1,31 @@
 html, body, #phone {
     height: 100%;
     margin: 0;
-    .buttons {
-        margin: 1em;
-        .km-button {
-            width: 100%;
+    .km-view {
+        .k-notification {
+            // This is for static notifications in a .km-view
+            margin: 1em;
+            display: block;
+            opacity: 1;
+        }
+        .buttons {
+            margin: 1em;
+            .km-button {
+                width: 100%;
+            }
+        }
+    }
+    .k-notification-wrap {
+        // This wraps all notifications when text is too wide
+        width: 100%;
+        white-space: normal;
+        .k-icon {
+            float:left;
+        }
+        .k-text {
+            display:block;
+            margin-left: 1.5em;
+            margin-right: 1em;
         }
     }
     /**********************************************************
@@ -136,12 +157,9 @@ html, body, #phone {
     **********************************************************/
     // #phone-summary {}
     /**********************************************************
-* Sign-in view
-**********************************************************/
+    * Sign-in view
+    **********************************************************/
     #phone-signin {
-        .km-group-title {
-            text-indent: initial; // Fix poor indentation of first line
-        }
         ul.km-list {
             >li {
                 >span.km-icon {
