@@ -1782,6 +1782,7 @@
 	                            // See https://issues.apache.org/jira/browse/CB-10698
 	                            // See https://issues.apache.org/jira/browse/CB-11136
 	                            // Seems to have been fixed in https://github.com/apache/cordova-plugin-inappbrowser/pull/187
+	                            // Has yet to be released - https://github.com/kidoju/Kidoju-Mobile/issues/34
 	                            logger.debug({
 	                                message: 'loadstart event of InAppBrowser',
 	                                method: 'mobile.onSigninButtonClick',
@@ -24021,10 +24022,14 @@
 	                method: 'FileSystem.prototype._initTemporary',
 	                data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
 	            });
-	            if (window.requestFileSystem && window.storageInfo && $.type(window.TEMPORARY) !== UNDEFINED) {
-	                if ($.type(that._temporary) === UNDEFINED) {
+	            window.storageInfo = window.storageInfo || {
+	                requestQuota: function (type, requestedBytes, successCallback, errorCallback) {
 	                    // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
-	                    // TODO use window.navigator.webkitTemporaryStorage
+	                        successCallback(requestedBytes);
+	                }
+	            };
+	            if (window.requestFileSystem && $.type(window.TEMPORARY) !== UNDEFINED) {
+	                if ($.type(that._temporary) === UNDEFINED) {
 	                    window.storageInfo.requestQuota(
 	                        window.TEMPORARY,
 	                        STORAGE_SIZE,
@@ -24069,7 +24074,13 @@
 	                method: 'FileSystem.prototype._initPersistent',
 	                data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
 	            });
-	            if (window.requestFileSystem && window.storageInfo && $.type(window.PERSISTENT) !== UNDEFINED) {
+	            window.storageInfo = window.storageInfo || {
+	                    requestQuota: function (type, requestedBytes, successCallback, errorCallback) {
+	                        // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
+	                        successCallback(requestedBytes);
+	                    }
+	                };
+	            if (window.requestFileSystem && $.type(window.PERSISTENT) !== UNDEFINED) {
 	                if ($.type(that._persistent) === UNDEFINED) {
 	                    // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
 	                    // TODO use window.navigator.webkitPersistentStorage
@@ -25328,7 +25339,7 @@
 /***/ 326:
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_0__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_1__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_2__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_3__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_4__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_5__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_6__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_7__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_8__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_9__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_10__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_11__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_12__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_13__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_14__;var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/** 
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_14__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_13__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_12__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_11__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_10__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_9__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_8__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_7__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_6__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_5__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_4__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_3__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_2__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_1__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_0__;/** 
 	 * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
 	 * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
 	 *                                                                                                                                                                                                      

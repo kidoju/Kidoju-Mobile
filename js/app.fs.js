@@ -85,10 +85,14 @@
                 method: 'FileSystem.prototype._initTemporary',
                 data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
             });
-            if (window.requestFileSystem && window.storageInfo && $.type(window.TEMPORARY) !== UNDEFINED) {
-                if ($.type(that._temporary) === UNDEFINED) {
+            window.storageInfo = window.storageInfo || {
+                requestQuota: function (type, requestedBytes, successCallback, errorCallback) {
                     // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
-                    // TODO use window.navigator.webkitTemporaryStorage
+                        successCallback(requestedBytes);
+                }
+            };
+            if (window.requestFileSystem && $.type(window.TEMPORARY) !== UNDEFINED) {
+                if ($.type(that._temporary) === UNDEFINED) {
                     window.storageInfo.requestQuota(
                         window.TEMPORARY,
                         STORAGE_SIZE,
@@ -133,7 +137,13 @@
                 method: 'FileSystem.prototype._initPersistent',
                 data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
             });
-            if (window.requestFileSystem && window.storageInfo && $.type(window.PERSISTENT) !== UNDEFINED) {
+            window.storageInfo = window.storageInfo || {
+                    requestQuota: function (type, requestedBytes, successCallback, errorCallback) {
+                        // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
+                        successCallback(requestedBytes);
+                    }
+                };
+            if (window.requestFileSystem && $.type(window.PERSISTENT) !== UNDEFINED) {
                 if ($.type(that._persistent) === UNDEFINED) {
                     // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
                     // TODO use window.navigator.webkitPersistentStorage
