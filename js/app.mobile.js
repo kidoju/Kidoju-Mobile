@@ -1669,6 +1669,7 @@ if (typeof(require) === 'function') {
                         // running in Phonegap -> open InAppBrowser
                         var close = function () {
                             browser.removeEventListener('loadstart', loadStart);
+                            browser.removeEventListener('loadstop', loadStop);
                             browser.removeEventListener('loaderror', loadError);
                             browser.close();
                             browser = undefined;
@@ -1678,6 +1679,8 @@ if (typeof(require) === 'function') {
                             });
                         };
                         var loadStart = function (e) {
+                            // https://issues.apache.org/jira/browse/CB-11136
+                            // https://issues.apache.org/jira/browse/CB-10698
                             logger.debug({
                                 message: 'loadstart event of InAppBrowser',
                                 method: 'mobile.onSigninButtonClick',
@@ -1704,6 +1707,13 @@ if (typeof(require) === 'function') {
                             // otherwise continue with the oAuth flow,
                             // as the loadstart event is triggered each time a new url (redirection) is loaded
                         };
+                        var loadStop = function (e) {
+                            logger.debug({
+                                message: 'loadstop event of InAppBrowser',
+                                method: 'mobile.onSigninButtonClick',
+                                data: {provider: provider, url: e.url}
+                            });
+                        };
                         var loadError = function (error) {
                             window.alert(JSON.stringify($.extend({}, error))); // TODO
                             logger.error({
@@ -1717,7 +1727,7 @@ if (typeof(require) === 'function') {
                         var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=no,clearsessioncache=yes,clearcache=yes');
                         // browser.addEventListener('exit', exit);
                         browser.addEventListener('loadstart', loadStart);
-                        // browser.addEventListener('loadstop', loadStop);
+                        browser.addEventListener('loadstop', loadStop);
                         browser.addEventListener('loaderror', loadError);
                         logger.debug({
                             message: 'opening InAppBrowser',
