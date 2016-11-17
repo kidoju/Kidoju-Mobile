@@ -164,6 +164,7 @@ if (typeof(require) === 'function') {
             SUMMARY: 'summary',
             THEMES: 'themes',
             USER: 'user',
+            USERS: 'users',
             VERSION: 'version'
         };
         var SELECTORS = {
@@ -486,7 +487,7 @@ if (typeof(require) === 'function') {
              * Current user set (and saved)
              */
             hasMobileUser$: function () {
-                var user = viewModel.get('user');
+                var user = viewModel.get(VIEWMODEL.USER);
                 return user instanceof models.MobileUser && !user.isNew() &&
                     viewModel.users.total() > 0 && user === viewModel.users.at(0);
             },
@@ -661,6 +662,55 @@ if (typeof(require) === 'function') {
             },
 
             /**
+             * Check first user
+             */
+            isFirstUser$: function () {
+                var user = this.get(VIEWMODEL.USER);
+                var userDataSource = this.get(VIEWMODEL.USERS);
+                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                var index = userDataSource.indexOf(user);
+                return !user.isNew() && index === 0;
+            },
+
+            /**
+             * Check last user
+             * @returns {boolean}
+             */
+            isLastUser$: function () {
+                var user = this.get(VIEWMODEL.USER);
+                var userDataSource = this.get(VIEWMODEL.USERS);
+                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                var index = userDataSource.indexOf(user);
+                return !user.isNew() && index === userDataSource.total() - 1;
+            },
+
+            /**
+             * Select the previous page from viewModel.version.stream.pages
+             */
+            previousUser: function () {
+                var user = this.get(VIEWMODEL.USER);
+                var userDataSource = this.get(VIEWMODEL.USERS);
+                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                var index = userDataSource.indexOf(user);
+                if ($.type(index) === NUMBER && index > 0) {
+                    this.set(VIEWMODEL.USER, userDataSource.at(index - 1));
+                }
+            },
+
+            /**
+             * Select the next page from viewModel.version.stream.pages
+             */
+            nextUser: function () {
+                var user = this.get(VIEWMODEL.USER);
+                var userDataSource = this.get(VIEWMODEL.USERS);
+                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                var index = userDataSource.indexOf(user);
+                if ($.type(index) === NUMBER && index < userDataSource.total() - 1) {
+                    this.set(VIEWMODEL.USER, userDataSource.at(index + 1));
+                }
+            },
+
+            /**
              * Check first page
              * @returns {boolean}
              */
@@ -817,9 +867,11 @@ if (typeof(require) === 'function') {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var showDrawerButton = false;
             var showHomeButton = false;
-            var showPreviousButton = false;
-            var showNextButton = false;
-            var showLastButton = false;
+            var showPreviousPageButton = false;
+            var showPreviousUserButton = false;
+            var showNextUserButton = false;
+            var showNextPageButton = false;
+            var showLastPageButton = false;
             var showSubmitButton = false;
             var showSyncButton = false;
             var showSearchButton = false;
@@ -846,9 +898,9 @@ if (typeof(require) === 'function') {
                     break;
                 case DEVICE_SELECTOR + VIEW.PLAYER:
                     showDrawerButton = true;
-                    showPreviousButton = !viewModel.isFirstPage$();
-                    showNextButton = !viewModel.isSubmitPage$();
-                    showLastButton = !viewModel.isSubmitPage$();
+                    showPreviousPageButton = !viewModel.isFirstPage$();
+                    showNextPageButton = !viewModel.isSubmitPage$();
+                    showLastPageButton = !viewModel.isSubmitPage$();
                     showSubmitButton = viewModel.isSubmitPage$();
                     break;
                 case DEVICE_SELECTOR + VIEW.PROGRESS:
@@ -865,14 +917,18 @@ if (typeof(require) === 'function') {
                     showDrawerButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.USER:
+                    showPreviousUserButton = !viewModel.isFirstUser$();
+                    showNextUserButton = !viewModel.isLastUser$();
                     break;
             }
             // Note: each view has all buttons by default, so let's fix that
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous').css({ display: showPreviousButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next').css({ display: showNextButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-last').css({ display: showLastButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous-page').css({ display: showPreviousPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous-user').css({ display: showPreviousUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next-user').css({ display: showNextUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next-page').css({ display: showNextPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-last-page').css({ display: showLastPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-submit').css({ display: showSubmitButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
@@ -1303,7 +1359,7 @@ if (typeof(require) === 'function') {
                 .done(function () {
                     // Set user to most recent user
                     if (viewModel.users.total() > 0) {
-                        viewModel.set('user', viewModel.users.at(0));
+                        viewModel.set(VIEWMODEL.USER, viewModel.users.at(0));
                     }
                     // Initialize application
                     mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
@@ -1852,7 +1908,7 @@ if (typeof(require) === 'function') {
                 });
                 if (!(found instanceof models.MobileUser)) {
                     // Add user
-                    found = viewModel.get('user');
+                    found = viewModel.get(VIEWMODEL.USER);
                     viewModel.users.add(found);
                 }
                 // Set properties
@@ -1861,9 +1917,9 @@ if (typeof(require) === 'function') {
                 // Synchronize
                 viewModel.users.sync()
                     .done(function () {
-                        viewModel.set('user', found);
+                        viewModel.set(VIEWMODEL.USER, found);
                         // Trigger a change event to update user + settings view data bindings
-                        viewModel.trigger('change', { field: 'user' });
+                        viewModel.trigger('change', { field: VIEWMODEL.USER });
                         mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
                     })
                     .fail(function (xhr, status, error) {
@@ -1913,26 +1969,42 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler triggered when clicking the previous button in the navbar
+         * Event handler triggered when clicking the previous user button in the navbar
          * @param e
          */
-        mobile.onNavbarPreviousClick = function (e) {
+        mobile.onNavbarPreviousUserClick = function (e) {
+            viewModel.previousUser();
+        };
+
+        /**
+         * Event handler triggered when clicking the next user button in the navbar
+         * @param e
+         */
+        mobile.onNavbarNextuserClick = function (e) {
+            viewModel.nextUser();
+        };
+
+        /**
+         * Event handler triggered when clicking the previous page button in the navbar
+         * @param e
+         */
+        mobile.onNavbarPreviousPageClick = function (e) {
             viewModel.previousPage();
         };
 
         /**
-         * Event handler triggered when clicking the next button in the navbar
+         * Event handler triggered when clicking the next page button in the navbar
          * @param e
          */
-        mobile.onNavbarNextClick = function (e) {
+        mobile.onNavbarNextPageClick = function (e) {
             viewModel.nextPage();
         };
 
         /**
-         * Event handler triggered when clicking the last button in the navbar
+         * Event handler triggered when clicking the last page button in the navbar
          * @param e
          */
-        mobile.onNavbarLastClick = function (e) {
+        mobile.onNavbarLastPageClick = function (e) {
             viewModel.lastPage();
         };
 

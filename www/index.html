@@ -9,7 +9,7 @@
     <!-- The following CSP is the one added by default bu the Phonegap Developper App -->
     <!--meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;img-src 'self' data: content:;style-src 'self' 'unsafe-inline' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"-->
     <!-- The following is our CSP    https://accounts.google.com https://www.facebook.com https://login.live.com; -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: data: filesystem: gap: kidoju: https://*.kidoju.com; connect-src https://*.kidoju.com https://*.phonegap.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' data: filesystem: https://*.kidoju.com https://s3.amazonaws.com https://*.twimg.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://*.phonegap.com; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: data: filesystem: gap: kidoju: https://*.kidoju.com; connect-src https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' cdvfile: data: filesystem: https://*.kidoju.com https://s3.amazonaws.com https://*.twimg.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://*.phonegap.com http://10.0.0.105:*; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
     <script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script>
     <script src="./cordova.js"></script>
@@ -60,10 +60,12 @@
             <div data-role="navbar" class="km-accent">
                 <a id="phone-main-layout-drawer" data-role="button" class="nav-button" data-align="left" data-icon="drawer-icon" href="#phone-drawer" data-rel="drawer"></a>
                 <a id="phone-main-layout-home" data-role="button" class="nav-button" data-align="left" data-icon="home" href="#phone-categories"></a>
-                <a id="phone-main-layout-previous" data-role="button" class="nav-button" data-align="left" data-icon="previous" data-click="app.mobile.onNavbarPreviousClick"></a>
+                <a id="phone-main-layout-previous-page" data-role="button" class="nav-button" data-align="left" data-icon="previous" data-click="app.mobile.onNavbarPreviousPageClick"></a>
+                <a id="phone-main-layout-previous-user" data-role="button" class="nav-button" data-align="left" data-icon="previous" data-click="app.mobile.onNavbarPreviousUserClick"></a>
                 <span data-role="view-title"></span>
-                <a id="phone-main-layout-next" data-role="button" class="nav-button" data-align="right" data-icon="next" data-click="app.mobile.onNavbarNextClick"></a>
-                <a id="phone-main-layout-last" data-role="button" class="nav-button" data-align="right" data-icon="last" data-click="app.mobile.onNavbarLastClick"></a>
+                <a id="phone-main-layout-next-user" data-role="button" class="nav-button" data-align="right" data-icon="next" data-click="app.mobile.onNavbarNextUserClick"></a>
+                <a id="phone-main-layout-next-page" data-role="button" class="nav-button" data-align="right" data-icon="next" data-click="app.mobile.onNavbarNextPageClick"></a>
+                <a id="phone-main-layout-last-page" data-role="button" class="nav-button" data-align="right" data-icon="last" data-click="app.mobile.onNavbarLastPageClick"></a>
                 <a id="phone-main-layout-submit" data-role="button" class="nav-button" data-align="right" data-icon="submit" data-click="app.mobile.onNavbarSubmitClick"></a>
                 <a id="phone-main-layout-sync" data-role="button" class="nav-button" data-align="right" data-icon="sync" data-click="app.mobile.onNavbarSyncClick"></a>
                 <a id="phone-main-layout-search" data-role="button" class="nav-button" data-align="right" data-icon="search" data-click="app.mobile.onNavbarSearchClick"></a>
