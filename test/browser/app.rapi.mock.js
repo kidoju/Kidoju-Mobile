@@ -134,7 +134,7 @@
         if ($.type(fields) === STRING) {
             var fieldArray = fields.split(/[,;\s]/);
             var tmp = {};
-            $.each(fieldArray, function(index, field) {
+            $.each(fieldArray, function (index, field) {
                 // TODO split fields like author.userId and arrays
                 if ($.type(ret[field]) !== UNDEFINED) {
                     tmp[field] = ret[field];
@@ -251,7 +251,7 @@
          * /api/v1/languages/{0}
          */
         {
-            url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.languages).replace('{0}', '[a-z]{2}')) ,
+            url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.languages).replace('{0}', '[a-z]{2}')),
             response: function (request) {
                 this.responseText = { language: 'en' }; // TODO Analyse url
             }
@@ -261,7 +261,7 @@
          * /api/v1/languages/{0}/categories
          */
         {
-            url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.categories).replace('{0}', '[a-z]{2}')) ,
+            url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.categories).replace('{0}', '[a-z]{2}')),
             response: function (request) {
                 var categories = mockDB.categories.find({ language: 'en' }); // TODO Analyse url
                 assert.isArray(categories, assert.format(assert.messages.isArray.default, 'categories'));
@@ -283,7 +283,7 @@
                     var access = request.headers.Authorization.substr(BEARER_LENGTH);
                     var token = mockDB.tokens.findOne({ access: access });
                     if (token) {
-                        var user = mockDB.users.findOne({id: token.userId});
+                        var user = mockDB.users.findOne({ id: token.userId });
                         if (user) {
                             this.responseText = mockDB._toObject(user, request.data.fields);
                         } else {
@@ -305,13 +305,13 @@
          * /api/v1/users/me/{0}/activities
          */
         {
-            url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.myActivities).replace('{0}', '[a-z]{2}')) ,
+            url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.myActivities).replace('{0}', '[a-z]{2}')),
             response: function (request) {
                 if (request.headers.Authorization) {
                     var access = request.headers.Authorization.substr(BEARER_LENGTH);
                     var token = mockDB.tokens.findOne({ access: access });
                     if (token) {
-                        var user = mockDB.users.findOne({id: token.userId});
+                        var user = mockDB.users.findOne({ id: token.userId });
                         if (user) {
                             this.responseText = mockDB._toObject(user, request.data.fields);
                         } else {

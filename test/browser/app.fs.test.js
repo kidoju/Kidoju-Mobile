@@ -4,7 +4,7 @@
  */
 
 /* jshint browser: true, expr: true */
-/* global describe, it, before */
+/* globals describe, it, before */
 
 ;(function ($, undefined) {
 
@@ -173,13 +173,19 @@
             before(function () {
                 // Create a stub for window.FileTransfer
                 window.FileTransfer = function () {};
-                window.FileTransfer.prototype.download = function(remoteUrl, fileUrl, successCallback, errorCallback, trueAllHosts, options) {
+
+                /* This function has too many parameters. */
+                /* jshint -W072 */
+
+                window.FileTransfer.prototype.download = function (remoteUrl, fileUrl, successCallback, errorCallback, trueAllHosts, options) {
                     window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL || window.webkitResolveLocalFileSystemURL;
-                    window.resolveLocalFileSystemURL(fileUrl, function(fileEntry) {
+                    window.resolveLocalFileSystemURL(fileUrl, function (fileEntry) {
                         transfer(fileUrl);
                         successCallback(fileEntry);
                     });
-                }
+                };
+
+                /* jshint +W072 */
             });
 
             it('it should download a remote url to a temporary FileSystem', function (done) {

@@ -100,7 +100,7 @@
                     window.storageInfo.requestQuota(
                         window.TEMPORARY,
                         STORAGE_SIZE,
-                        function(grantedBytes) {
+                        function (grantedBytes) {
                             window.requestFileSystem(
                                 window.TEMPORARY,
                                 grantedBytes,
@@ -154,7 +154,7 @@
                     window.storageInfo.requestQuota(
                         window.PERSISTENT,
                         STORAGE_SIZE,
-                        function(grantedBytes) {
+                        function (grantedBytes) {
                             window.requestFileSystem(
                                 window.PERSISTENT,
                                 grantedBytes,
@@ -203,7 +203,7 @@
             return $.when(
                 that._initTemporary(),  // Temporary by default
                 that._initPersistent()
-            )
+            );
         };
 
         /**
@@ -323,7 +323,7 @@
                 fileURL,
                 dfd.resolve,
                 dfd.reject,
-                false, //trustAllHosts
+                false, // trustAllHosts
                 $.isPlainObject(headers) ? { headers: headers } : {}
             );
 

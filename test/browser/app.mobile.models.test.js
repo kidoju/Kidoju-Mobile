@@ -3,14 +3,15 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true */
-/* global describe, it, expect */
+/* jshint browser: true, jquery: true, expr: true */
+/* globals describe, it, before, beforeEach */
 
-;(function (window) {
+;(function ($) {
 
     'use strict';
 
     var expect = window.chai.expect;
+    var sinon = window.sinon;
     var app = window.app;
     var models = app.models;
     var mockDB = app.mockDB;
@@ -18,15 +19,15 @@
     var testData = window.testData;
 
     /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
-    var TOKEN = { access_token: 'anAccessTokenForUser0' + 'xx'.replace(/x/g, function() { return '' + Math.floor(1 + 9 * Math.random()) }), expires: 10000000, ts: Date.now() };
+    var TOKEN = { access_token: 'anAccessTokenForUser0' + 'xx'.replace(/x/g, function () { return '' + Math.floor(1 + 9 * Math.random()); }), expires: 10000000, ts: Date.now() };
     /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
 
     describe('app.mobile.models', function () {
 
-        before(function(done) {
+        before(function (done) {
             mockDB.load()
                 .done(done)
-                .fail(function(xhr, status, error) {
+                .fail(function (xhr, status, error) {
                     done(new Error(this.url + ' ' + error));
                 });
         });
@@ -39,13 +40,19 @@
             before(function () {
                 // Create a stub for window.FileTransfer
                 window.FileTransfer = function () {};
-                window.FileTransfer.prototype.download = function(remoteUrl, fileUrl, successCallback, errorCallback, trueAllHosts, options) {
+
+                /* This function has too many parameters. */
+                /* jshint -W072 */
+
+                window.FileTransfer.prototype.download = function (remoteUrl, fileUrl, successCallback, errorCallback, trueAllHosts, options) {
                     window.resolveLocalFileSystemURL = window.resolveLocalFileSystemURL || window.webkitResolveLocalFileSystemURL;
-                    window.resolveLocalFileSystemURL(fileUrl, function(fileEntry) {
+                    window.resolveLocalFileSystemURL(fileUrl, function (fileEntry) {
                         transfer(fileUrl);
                         successCallback(fileEntry);
                     });
-                }
+                };
+
+                /* jshint +W072 */
             });
 
             beforeEach(function () {
@@ -110,7 +117,7 @@
                         expect(data).to.have.property('lastName').that.is.a('STRING');
                         expect(data).to.have.property('picture').that.is.a('STRING');
                         // User
-                        expect(user).to.have.property('sid', data.id); //id becomes sid, a server id
+                        expect(user).to.have.property('sid', data.id); // id becomes sid, a server id
                         expect(user).to.have.property('firstName', data.firstName);
                         expect(user).to.have.property('lastName', data.lastName);
                         expect(user).to.have.property('lastUse').that.is.an.instanceof(Date);
@@ -141,7 +148,7 @@
                 var user = new MobileUser();
                 var users = new MobileUserDataSource();
                 user.load()
-                    .done(function() {
+                    .done(function () {
                         // Add to dataSource
                         users.add(user);
                         // Sync dataSource
@@ -153,7 +160,7 @@
                                 done();
                             });
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -162,7 +169,7 @@
                 var user = new MobileUser();
                 var users = new MobileUserDataSource();
                 user.load()
-                    .done(function() {
+                    .done(function () {
                         // Add pin to user
                         user.addPin(testData.pins[0]);
                         // Add to dataSource
@@ -172,11 +179,11 @@
                         // Sync dataSource
                         users.sync()
                             .done(done)
-                            .fail(function(xhr, status, error) {
+                            .fail(function (xhr, status, error) {
                                 done(new Error(error));
                             });
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -185,7 +192,7 @@
                 var user = new MobileUser();
                 var users = new MobileUserDataSource();
                 user.load()
-                    .done(function() {
+                    .done(function () {
                         // Add pin to user
                         user.addPin(testData.pins[0]);
                         // Add to dataSource
@@ -200,7 +207,7 @@
                                 done();
                             });
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -225,7 +232,7 @@
                         expect(users.total()).to.equal(1);
                         done();
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -234,17 +241,17 @@
                 var users = new MobileUserDataSource();
                 users.read()
                     .done(function () {
-                        var sorted = users.data().sort(function (a, b) { return b.lastUse - a.lastUse });
+                        var sorted = users.data().sort(function (a, b) { return b.lastUse - a.lastUse; });
                         users.query({ sort: { field: 'lastUse', dir: 'desc' } })
                             .done(function () {
                                 expect(users.at(0)).to.equal(sorted[0]);
                                 done();
                             })
-                            .fail(function(xhr, status, error) {
+                            .fail(function (xhr, status, error) {
                                 done(new Error(error));
                             });
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -269,14 +276,14 @@
                     })
                     .fail(function (xhr, status, error) {
                         done(new Error(error));
-                    })
+                    });
             });
 
             it('MobileUserDataSource should destroy users', function (done) {
                 var users = new MobileUserDataSource();
                 users.read()
                     .done(function () {
-                        while(users.total()) {
+                        while (users.total()) {
                             users.remove(users.at(0));
                         }
                         users.sync()
@@ -284,11 +291,11 @@
                                 expect(users.total()).to.equal(0);
                                 done();
                             })
-                            .fail(function(xhr, status, error) {
+                            .fail(function (xhr, status, error) {
                                 done(new Error(error));
                             });
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -401,7 +408,7 @@
                         expect(activities.total()).to.equal(0);
                         done();
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -427,7 +434,7 @@
                     })
                     .fail(function (xhr, status, error) {
                         done(new Error(error));
-                    })
+                    });
             });
 
 
@@ -441,7 +448,7 @@
                         // TODO
                         done();
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -456,7 +463,7 @@
                         // TODO
                         done();
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -471,7 +478,7 @@
                         // TODO
                         done();
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -487,7 +494,7 @@
                         // TODO
                         done();
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -496,7 +503,7 @@
                 var activities = new MobileActivityDataSource({ userId: me.get('sid') });
                 activities.read()
                     .done(function () {
-                        while(activities.total()) {
+                        while (activities.total()) {
                             activities.remove(activities.at(0));
                         }
                         activities.sync()
@@ -504,11 +511,11 @@
                                 expect(activities.total()).to.equal(0);
                                 done();
                             })
-                            .fail(function(xhr, status, error) {
+                            .fail(function (xhr, status, error) {
                                 done(new Error(error));
                             });
                     })
-                    .fail(function(xhr, status, error) {
+                    .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
             });
@@ -517,4 +524,4 @@
 
     });
 
-}(this));
+}(window.jQuery));

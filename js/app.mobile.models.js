@@ -74,7 +74,7 @@
         var FUNCTION = 'function';
         var STRING = 'string';
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
-        var DATE_0 = new Date(2000, 1, 1);
+        var DATE_0 = new Date(2000, 0, 1); // 1/1/2000
         var DOT = '.';
 
         /**
@@ -305,6 +305,13 @@
                         errors: 'error', // <--------------------- TODO: look at this properly for error reporting
                         modelBase: models.MobileUser,
                         model: models.MobileUser
+                        /**
+                        // This is for debugging only
+                        parse: function(response) {
+                            debugger;
+                            return response;
+                        }
+                        */
                     }
                 }, options));
 
@@ -352,13 +359,12 @@
                     // This ensures uniqueness of user in mobile app when sid is unique without further checks
                     // i.e. same user with the same sid recorded twice under different ids in mobile device
                     user.id = new pongodb.ObjectId(user.sid).toMobileId();
-                    // user.lastUse = new Date();
-                    db.users.insert(user)
+                    // Start with saving the picture to avoid a broken image in UI if user is saved without
+                    models.MobileUser.fn._saveMobilePicture.call(user)
                         .done(function () {
-                            models.MobileUser.fn._saveMobilePicture.call(user)
+                            db.users.insert(user)
                                 .done(function () {
-                                    options.success(user);
-                                    // TODO reload image in UI = MVVM = trigger change on user
+                                    options.success({ total: 1, data: [user] });
                                 })
                                 .fail(options.error);
                         })
@@ -377,12 +383,13 @@
                         message: 'User data deletion',
                         method: 'app.models.MobileUserDataSource.transport.destroy'
                     });
-                    var id = options.data.id;
+                    var user = options.data;
+                    var id = user.id;
                     if (RX_MONGODB_ID.test(id)) {
                         db.users.remove({ id: id })
                             .done(function (result) {
                                 if (result && result.nRemoved === 1) {
-                                    options.success(options.data);
+                                    options.success({ total: 1, data: [user] });
                                 } else {
                                     options.error(undefined, 'error', 'User not found');
                                 }
@@ -437,21 +444,21 @@
                     }
                     var id = user.id;
                     if (RX_MONGODB_ID.test(id)) {
-                        user.id = undefined;
-                        db.users.update({ id: id }, user)
-                            .done(function (result) {
-                                if (result && result.nMatched === 1 && result.nModified === 1) {
-                                    // Restore id and return
-                                    user.id = id;
-                                    models.MobileUser.fn._saveMobilePicture.call(user)
-                                        .done(function () {
-                                            options.success({total: 1, data: user});
-                                            // TODO reload image in UI = MVVM = trigger change on user
-                                        })
-                                        .fail(options.error);
-                                } else {
-                                    options.error(undefined, 'error', 'User not found');
-                                }
+                        // Start with saving the picture to avoid a broken image in UI if user is saved without
+                        models.MobileUser.fn._saveMobilePicture.call(user)
+                            .done(function () {
+                                user.id = undefined;
+                                db.users.update({ id: id }, user)
+                                    .done(function (result) {
+                                        if (result && result.nMatched === 1 && result.nModified === 1) {
+                                            // Restore id and return
+                                            user.id = id;
+                                            options.success({ total: 1, data: [user] });
+                                        } else {
+                                            options.error(undefined, 'error', 'User not found');
+                                        }
+                                    })
+                                    .fail(options.error);
                             })
                             .fail(options.error);
                     } else {
@@ -553,11 +560,14 @@
                         data: 'data',
                         total: 'total',
                         errors: 'error', // <--------------------- TODO: look at this properly for error reporting
-                        modelBase: models.MobileActivity,
-                        model: models.MobileActivity
-                        // parse: function (response) {
-                        //     return response;
-                        // }
+                        modelBase: models.MobileActivity
+                        /**
+                         // This is for debugging only
+                         parse: function(response) {
+                            debugger;
+                            return response;
+                        }
+                         */
                     }
                 }, options));
 
@@ -624,7 +634,9 @@
                     activity.id = new pongodb.ObjectId();
                     // TODO activity date????
                     db.activities.insert(activity)
-                        .done(options.success)
+                        .done(function (result) {
+                            options.success({ total: 1, data: [activity] });
+                        })
                         .fail(options.error);
                 },
 
@@ -640,12 +652,13 @@
                         message: 'Activity data deletion',
                         method: 'app.models.MobileActivityDataSource.transport.destroy'
                     });
-                    var id = options.data.id;
+                    var activity = options.data;
+                    var id = activity.id;
                     if (RX_MONGODB_ID.test(id)) {
                         db.activities.remove({ id: id })
                             .done(function (result) {
                                 if (result && result.nRemoved === 1) {
-                                    options.success(options.data);
+                                    options.success({ total: 1, data: [activity] });
                                 } else {
                                     options.error(undefined, 'error', 'Activity not found');
                                 }
@@ -705,9 +718,8 @@
                         db.activities.update({ id: id }, activity)
                             .done(function (result) {
                                 if (result && result.nMatched === 1 && result.nModified === 1) {
-                                    // TODO Save image
                                     activity.id = id;
-                                    options.success({total: 1, data: activity});
+                                    options.success({ total: 1, data: [activity] });
                                 } else {
                                     options.error(undefined, 'error', 'Activity not found');
                                 }
@@ -736,19 +748,19 @@
                 // First, upload all new activities
                 that._uploadPendingActivities()
                     .progress(function (progress) {
-                        dfd.notify($.extend({ step: 1 }, progress))
+                        dfd.notify($.extend({ step: 1 }, progress));
                     })
                     .done(function () {
                         // Second, purge old activities (including possibly some just uploaded new activities if last serverSync is very old)
                         that._purgeOldActivities()
                             .progress(function (progress) {
-                                dfd.notify($.extend({ step: 2 }, progress))
+                                dfd.notify($.extend({ step: 2 }, progress));
                             })
                             .done(function () {
                                 // Third, download recently added and updated activities (considering activities are always created, never updated, on the mobile device.
                                 that._downloadRecentActivities()
                                     .progress(function (progress) {
-                                        dfd.notify($.extend({ step: 3 }, progress))
+                                        dfd.notify($.extend({ step: 3 }, progress));
                                     })
                                     .done(function () {
                                         dfd.resolve(); // Add statistics { nUploaded, nPurged, nDownloaded }

@@ -270,8 +270,8 @@
                     assert.isArray(results, assert.format(assert.messages.isArray.default, 'results'));
                     assert.ok(results.length === 1, '`results` should have a length of 1');
                     dfd.resolve(results[0]);
-                });
-                fail(dfd.reject);
+                })
+                .fail(dfd.reject);
             return dfd.promise();
         };
 

@@ -96,6 +96,7 @@ if (typeof(require) === 'function') {
         var kendo = window.kendo;
         var kidoju = window.kidoju;
         var localStorage = window.localStorage;
+        var assert = window.assert;
         var logger = new window.Logger('app.mobile');
         var models = app.models;
         var i18n = app.i18n;
@@ -900,12 +901,12 @@ if (typeof(require) === 'function') {
          * @private
          */
         mobile._initNotification = function () {
-            var notification = $("#notification");
+            var notification = $('#notification');
             assert.hasLength(notification, kendo.format(assert.messages.hasLength.default, '#notification'));
             if (app && app.notification instanceof kendo.ui.Notification) {
                 // Do not leave pending notifications
                 var notifications = app.notification.getNotifications();
-                notifications.each(function(){
+                notifications.each(function () {
                     $(this).parent().remove();
                 });
                 // Destroy before re-creating
@@ -1711,7 +1712,7 @@ if (typeof(require) === 'function') {
                                 message: 'loaderror event of InAppBrowser',
                                 method: 'mobile.onSigninButtonClick',
                                 error: error,
-                                data: {url: error.url}
+                                data: { url: error.url }
                             });
                             close();
                         };
@@ -1735,7 +1736,7 @@ if (typeof(require) === 'function') {
                     logger.error({
                         message: 'error obtaining a signin url',
                         method: 'mobile.onSigninButtonClick',
-                        data:  {provider: provider, status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
+                        data: { provider: provider, status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
                     });
                 })
                 .always(function () {
@@ -1861,6 +1862,8 @@ if (typeof(require) === 'function') {
                 viewModel.users.sync()
                     .done(function () {
                         viewModel.set('user', found);
+                        // Trigger a change event to update user + settings view data bindings
+                        viewModel.trigger('change', { field: 'user' });
                         mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
                     })
                     .fail(function (xhr, status, error) {
@@ -1873,7 +1876,7 @@ if (typeof(require) === 'function') {
                     });
 
             } else {
-                app.notification.warning('Please enter and confirm a 4 digit pin.')
+                app.notification.warning('Please enter and confirm a 4 digit pin.');
             }
         };
 
