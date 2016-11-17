@@ -11,7 +11,7 @@
     <!-- The following is our CSP    https://accounts.google.com https://www.facebook.com https://login.live.com; -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' cdvfile: data: filesystem: gap: kidoju: https://*.kidoju.com; connect-src https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' cdvfile: data: filesystem: https://*.kidoju.com https://s3.amazonaws.com https://*.twimg.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://*.phonegap.com http://10.0.0.105:*; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
-    <script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script>
+    <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
     <script src="./cordova.js"></script>
     <script src="./build/jquery.min.js"></script>
     <script>
@@ -249,7 +249,7 @@
     </div>
 
     <!-- Activities view -->
-    <div id="phone-activities" data-role="view" data-layout="phone-main-layout" data-title="Activities" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
+    <div id="phone-activities" data-role="view" data-layout="phone-main-layout" data-title="Activities" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
         <ul data-role="listview" data-bind="source: scores" data-template="phone-activities-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-activities-template">
@@ -258,7 +258,7 @@
     </div>
 
     <!-- Categories view -->
-    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
+    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
         <!-- Display search button -->
         <ul data-role="listview" data-bind="source: categories" data-template="phone-categories-template">
         </ul>
@@ -271,7 +271,7 @@
     </div>
 
     <!-- Favourites view -->
-    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
+    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
         <ul data-role="listview" data-bind="source: favourites" data-template="phone-favourites-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-favourites-template">
@@ -280,7 +280,7 @@
     </div>
 
     <!-- Finder view -->
-    <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="slide" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
+    <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="overlay" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
         <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-finder-template"></ul>
         <ul id="phone-finder-actionsheet" data-role="actionsheet">
             <li><a data-action="app.mobile.onFinderActionPlay" class="km-actionsheet-play">Play</a></li>
@@ -313,7 +313,7 @@
     </div>
 
     <!-- Player view -->
-    <div id="phone-player" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 1" data-transition="slide" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow">
+    <div id="phone-player" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 1" data-transition="overlay" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow">
         <div class="stretched-item">
             <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
         </div>
@@ -332,17 +332,17 @@
     </div>
 
     <!-- Progress (sync) view -->
-    <div id="phone-progress" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onProgressViewShow">
+    <div id="phone-progress" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onProgressViewShow">
         <div></div>
     </div>
 
     <!-- Score view -->
-    <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
+    <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
         <div data-role="grid"></div>
     </div>
 
     <!-- Settings view -->
-    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onSettingsViewShow">
+    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onSettingsViewShow">
         <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
         <form>
             <ul data-role="listview" data-style="inset">
@@ -380,7 +380,7 @@
     </div>
 
     <!-- Sign-in view -->
-    <div id="phone-signin" data-role="view" data-layout="phone-main-layout" data-title="Sign in" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onSigninViewShow">
+    <div id="phone-signin" data-role="view" data-layout="phone-main-layout" data-title="Sign in" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onSigninViewShow">
         <div class="k-widget k-notification k-notification-info" data-role="alert">
             <div class="k-notification-wrap">
                 <span class="k-icon k-i-info">Info</span>
@@ -399,7 +399,7 @@
     </div>
 
     <!-- Summary view -->
-    <div id="phone-summary" data-role="view" data-layout="phone-main-layout" data-title="Details" data-transition="slide" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
+    <div id="phone-summary" data-role="view" data-layout="phone-main-layout" data-title="Details" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
         <form>
             <ul data-role="listview" data-style="inset">
                 <li>
@@ -413,9 +413,9 @@
     </div>
 
     <!-- User view -->
-    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="slide" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
-        <img data-bind="invisible: hasMobileUser$, attr: { src: user.picture$(), alt: user.fullName$() }" class="km-thumbnail picture">
-        <img data-bind="visible: hasMobileUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
+    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="overlay" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
+        <img data-bind="invisible: isSavedUser$, attr: { src: user.picture$(), alt: user.fullName$() }" class="km-thumbnail picture">
+        <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <form>
             <ul data-role="listview" data-style="inset">
                 <li>
@@ -430,7 +430,7 @@
                         <input type="text" data-bind="value: user.lastName"  disabled="disabled" />
                     </label>
                 </li>
-                <li data-bind="visible: hasMobileUser$">
+                <li data-bind="visible: isSavedUser$">
                     <label>
                         <span>Last Use</span>
                         <input type="datetime-local" data-bind="value: user.lastUse" disabled="disabled" />
@@ -442,7 +442,7 @@
                         <input type="password" class="pin" autocomplete="off" />
                     </label>
                 </li>
-                <li data-bind="invisible: hasMobileUser$">
+                <li data-bind="invisible: isSavedUser$">
                     <label>
                         <span>Confirm</span>
                         <input type="password" class="pin" autocomplete="off" />
@@ -451,9 +451,9 @@
             </ul>
         </form>
         <div class="buttons">
-            <a data-role="button" data-bind="invisible: hasMobileUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSaveClick">Save</a>
-            <a data-role="button" data-bind="visible: hasMobileUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSignInClick">Signin</a>
-            <a data-role="button" data-bind="visible: hasMobileUser$" class="km-large km-justified"  data-click="app.mobile.onUserNewClick">New User</a>
+            <a data-role="button" data-bind="invisible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSaveClick">Save</a>
+            <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSignInClick">Signin</a>
+            <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified"  data-click="app.mobile.onUserNewClick">New User</a>
         </div>
     </div>
 

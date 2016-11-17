@@ -152,6 +152,8 @@ if (typeof(require) === 'function') {
             THEME: 'theme'
         };
         var VIEWMODEL = {
+            ACTIVITIES: 'activities',
+            CATEGORIES: 'categories',
             CURRENT: 'current',
             CURRENT_ID: 'current.id',
             LANGUAGES: 'languages',
@@ -162,10 +164,12 @@ if (typeof(require) === 'function') {
                 THEME: 'settings.theme'
             },
             SUMMARY: 'summary',
+            SUMMARIES: 'summaries',
             THEMES: 'themes',
             USER: 'user',
             USERS: 'users',
-            VERSION: 'version'
+            VERSION: 'version',
+            VERSIONS: 'versions'
         };
         var SELECTORS = {
             PIN: '.pin'
@@ -486,10 +490,10 @@ if (typeof(require) === 'function') {
             /**
              * Current user set (and saved)
              */
-            hasMobileUser$: function () {
+            isSavedUser$: function () {
                 var user = viewModel.get(VIEWMODEL.USER);
                 return user instanceof models.MobileUser && !user.isNew() &&
-                    viewModel.users.total() > 0 && user === viewModel.users.at(0);
+                    viewModel.users.indexOf(user) > -1;
             },
 
             /**
@@ -917,8 +921,8 @@ if (typeof(require) === 'function') {
                     showDrawerButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.USER:
-                    showPreviousUserButton = !viewModel.isFirstUser$();
-                    showNextUserButton = !viewModel.isLastUser$();
+                    showPreviousUserButton = viewModel.isSavedUser$() && !viewModel.isFirstUser$();
+                    showNextUserButton = viewModel.isSavedUser$() && !viewModel.isLastUser$();
                     break;
             }
             // Note: each view has all buttons by default, so let's fix that
@@ -1363,7 +1367,7 @@ if (typeof(require) === 'function') {
                     }
                     // Initialize application
                     mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                        initial: DEVICE_SELECTOR + (viewModel.hasMobileUser$() ? VIEW.USER : VIEW.SIGNIN),
+                        initial: DEVICE_SELECTOR + (viewModel.isSavedUser$() ? VIEW.USER : VIEW.SIGNIN),
                         skin: theme.skin,
                         // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
                         // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
@@ -1692,6 +1696,28 @@ if (typeof(require) === 'function') {
             mobile._localizeSigninView(viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE));
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
+            // Parse the token and load the new user when we redirect signin without InAppBrowser
+            if (!(mobile.device && mobile.device.platform !== 'browser' && mobile.support.inAppBrowser)) {
+                // parseToken sets the token in localStorage
+                var token = rapi.util.parseToken(window.location.href);
+                rapi.util.cleanHistory();
+                if (token && token.error) {
+                    app.notification.error('There has been an error with the oAuth flow'); // TODO
+                    logger.error({
+                        message: token.error,
+                        method: 'mobile.onSigninViewShow',
+                        data: { url: window.location.href }
+                    });
+                    /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+                } else if (token && token.access_token) {
+                    /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
+                    // Load the remote mobile user (me) using the oAuth token
+                    viewModel.loadUser()
+                        .done(function () {
+                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+                        });
+                }
+            }
         };
 
         /**
@@ -1711,7 +1737,7 @@ if (typeof(require) === 'function') {
             // We can then access this returnUrl in the loadstart and loadstop events of the InAppBrowser.
             // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted access to their data.
             var returnUrl = mobile.device && mobile.device.platform !== 'browser' && mobile.support.inAppBrowser ?
-                app.uris.rapi.blank : window.location.protocol + '//' + window.location.host + '/' + DEVICE_SELECTOR + VIEW.USER;
+                app.uris.rapi.blank : window.location.protocol + '//' + window.location.host + '/' + DEVICE_SELECTOR + VIEW.SIGNIN;
             // When running in a browser via phonegap serve, the InAppBrowser turns into an iframe but authentication providers prevent running in an iframe by setting 'X-Frame-Options' to 'SAMEORIGIN'
             // So if the device platform is a browser, we need to keep the sameflow as Kidoju-WebApp with a redirectUrl that targets the user view
             rapi.oauth.getSignInUrl(provider, returnUrl)
@@ -1747,19 +1773,29 @@ if (typeof(require) === 'function') {
                                 data: { provider: provider, url: e.url }
                             });
                             if (e.url.startsWith(returnUrl)) {
+                                // parseToken sets the token in localStorage
                                 var token = rapi.util.parseToken(e.url);
-                                // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
-                                if (token.error) {
+                                // rapi.util.cleanHistory(); // No need because we close InAppBrowser
+                                if (token && token.error) {
                                     app.notification.error('There has been an error with the oAuth flow'); // TODO
                                     logger.error({
                                         message: token.error,
                                         method: 'mobile.onSigninButtonClick',
                                         data: { provider: provider, url: e.url }
                                     });
-                                } else {
-                                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+                                    close();
+                                    /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+                                } else if (token && token.access_token) {
+                                    /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
+                                    // Load the remote mobile user (me) using the oAuth token
+                                    viewModel.loadUser()
+                                        .done(function () {
+                                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+                                        })
+                                        .always(function () {
+                                            close();
+                                        });
                                 }
-                                close();
                             }
                         };
                         var loadError = function (error) {
@@ -1866,22 +1902,14 @@ if (typeof(require) === 'function') {
             mobile._localizeUserView(viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE));
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
-            // Parse the oAuth token if necessary
-            if (!mobile.device || mobile.device.platform === 'browser' || !mobile.support.inAppBrowser) {
-                rapi.util.parseToken(window.location.href);
-                rapi.util.cleanHistory();
-            }
-            if (!viewModel.hasMobileUser$()) {
-                // Load the remote mobile user (me) using the oAuth token
-                viewModel.user.load()
-                    .done(function () {
-                        app.notification.info('Please enter and confirm your 4-digit pin before saving.'); // TODO
-                        e.view.element.find(SELECTORS.PIN).val('').first().focus();
-                    });
+            // Display a notification
+            if (viewModel.isSavedUser$()) {
+                app.notification.info('Please enter your pin to sign in.'); // TODO
             } else {
-                // The mobile user is already loaded
-                e.view.element.find(SELECTORS.PIN).val('').first().focus();
+                app.notification.info('Please enter and confirm your 4-digit pin before saving.'); // TODO
             }
+            // Focus on PIN
+            e.view.element.find(SELECTORS.PIN).val('').first().focus();
         };
 
         /**
@@ -1973,15 +2001,29 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onNavbarPreviousUserClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            var viewElement = e.button.closest('.km-view');
+            assert.hasLength(viewElement, kendo.format(assert.messages.hasLength.default, 'viewElement'));
+            var viewWidget = viewElement.data('kendoMobileView');
+            assert.instanceof(kendo.mobile.ui.View, viewWidget, kendo.format(assert.messages.instanceof.default, 'viewWidget', 'kendo.mobile.ui.View'));
             viewModel.previousUser();
+            mobile._setNavBar(viewWidget);
         };
 
         /**
          * Event handler triggered when clicking the next user button in the navbar
          * @param e
          */
-        mobile.onNavbarNextuserClick = function (e) {
+        mobile.onNavbarNextUserClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            var viewElement = e.button.closest('.km-view');
+            assert.hasLength(viewElement, kendo.format(assert.messages.hasLength.default, 'viewElement'));
+            var viewWidget = viewElement.data('kendoMobileView');
+            assert.instanceof(kendo.mobile.ui.View, viewWidget, kendo.format(assert.messages.instanceof.default, 'viewWidget', 'kendo.mobile.ui.View'));
             viewModel.nextUser();
+            mobile._setNavBar(viewWidget);
         };
 
         /**
