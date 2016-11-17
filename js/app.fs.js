@@ -86,9 +86,11 @@
                 data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
             });
             window.storageInfo = window.storageInfo || {
+                // Stub requestQuota for systems that do not implement/require it, including iOS Cordova
                 requestQuota: function (type, requestedBytes, successCallback, errorCallback) {
-                    // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
-                        successCallback(requestedBytes);
+                    // @see https://github.com/apache/cordova-plugin-file#create-a-temporary-file
+                    // @see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
+                    successCallback(requestedBytes);
                 }
             };
             if (window.requestFileSystem && $.type(window.TEMPORARY) !== UNDEFINED) {
@@ -138,15 +140,15 @@
                 data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
             });
             window.storageInfo = window.storageInfo || {
-                    requestQuota: function (type, requestedBytes, successCallback, errorCallback) {
-                        // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
-                        successCallback(requestedBytes);
-                    }
-                };
+                // Stub requestQuota for systems that do not implement/require it, including iOS Cordova
+                requestQuota: function (type, requestedBytes, successCallback, errorCallback) {
+                    // @see https://github.com/apache/cordova-plugin-file#create-a-persistent-file-
+                    // @see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
+                    successCallback(requestedBytes);
+                }
+            };
             if (window.requestFileSystem && $.type(window.PERSISTENT) !== UNDEFINED) {
                 if ($.type(that._persistent) === UNDEFINED) {
-                    // see https://www.html5rocks.com/en/tutorials/file/filesystem/#toc-requesting
-                    // TODO use window.navigator.webkitPersistentStorage
                     window.storageInfo.requestQuota(
                         window.PERSISTENT,
                         STORAGE_SIZE,
@@ -158,7 +160,7 @@
                                     that._persistent = persistent;
                                     dfd.resolve(persistent);
                                     logger.debug({
-                                        message: 'Persistent file system gramted',
+                                        message: 'Persistent file system granted',
                                         method: 'FileSystem.prototype._initPersistent',
                                         data: { grantedBytes: grantedBytes }
                                     });
