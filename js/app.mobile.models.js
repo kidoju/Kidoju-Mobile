@@ -57,7 +57,6 @@
         var assert = window.assert;
         var logger = new window.Logger('app.mobile.models');
         var md5 = md5H || window.md5;
-        var rapi = app.rapi;
         var pongodb = window.pongodb;
         var db = app.db = new pongodb.Database({ name: 'KidojuDB', size: 5 * 1024 * 1024, collections: ['users', 'activities'] });
         var fileSystem = new window.FileSystem();
