@@ -224,16 +224,30 @@
             });
 
             function makeDir(root, folders) {
+                assert.type(OBJECT, root, assert.format(assert.messages.type.default, 'root', OBJECT));
+                assert.ok(root.isDirectory, 'root should be a DirectoryEntry and therefore return directoryEntry.isDirectory === true');
+                assert.isArray(folders, assert.format(assert.messages.isArray.default, 'folders'));
+
                 // Throw out './' or '/' and move on to prevent something like '/foo/.//bar'.
                 if (folders[0] === '.' || folders[0] === '') {
                     folders = folders.slice(1);
                 }
+                if (folders.length === 0) {
+                    return root;
+                }
+
+                logger.debug({
+                    message: 'Calling DirectoryEntry.getDirectory',
+                    method: 'FileSystem.prototype.getDirectoryEntry',
+                    data: { directoryEntry: $.isFunction(root.getDirectory), folder: folders[0] }
+                });
+
                 root.getDirectory(
                     folders[0],
                     { create: true },
                     function (directoryEntry) {
                         // Recursively add the new subfolder (if we still have another to create).
-                        if (folders.length) {
+                        if (folders.length > 1) {
                             makeDir(directoryEntry, folders.slice(1));
                         } else {
                             dfd.resolve(directoryEntry);
