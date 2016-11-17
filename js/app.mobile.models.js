@@ -560,7 +560,8 @@
                         data: 'data',
                         total: 'total',
                         errors: 'error', // <--------------------- TODO: look at this properly for error reporting
-                        modelBase: models.MobileActivity
+                        modelBase: models.MobileActivity,
+                        model: models.MobileActivity
                         /**
                          // This is for debugging only
                          parse: function(response) {

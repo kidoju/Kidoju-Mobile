@@ -18,6 +18,11 @@
     var rapi = app.rapi;
     var testData = window.testData;
 
+    var MobileUser = models.MobileUser;
+    var MobileUserDataSource = models.MobileUserDataSource;
+    var MobileActivity = models.MobileActivity;
+    var MobileActivityDataSource = models.MobileActivityDataSource;
+
     /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
     var TOKEN = { access_token: 'anAccessTokenForUser0' + 'xx'.replace(/x/g, function () { return '' + Math.floor(1 + 9 * Math.random()); }), expires: 10000000, ts: Date.now() };
     /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
@@ -34,7 +39,6 @@
 
         describe('MobileUser', function () {
 
-            var MobileUser = models.MobileUser;
             var transfer = sinon.spy();
 
             before(function () {
@@ -134,8 +138,6 @@
 
         describe('MobileUserDataSource', function () {
 
-            var MobileUser = models.MobileUser;
-            var MobileUserDataSource = models.MobileUserDataSource;
             var me;
 
             beforeEach(function () {
@@ -303,8 +305,6 @@
 
         describe('MobileActivity', function () {
 
-            var MobileActivity = models.MobileActivity;
-
             it('MobileActivity should have certain fields and calculated fields', function () {
                 var activity0 = testData.activities[0];
                 var activity = new MobileActivity(activity0);
@@ -324,9 +324,6 @@
 
         describe('MobileActivityDataSource', function () {
 
-            var MobileActivity = models.MobileActivity;
-            var MobileActivityDataSource = models.MobileActivityDataSource;
-            var MobileUser = models.MobileUser;
             var me;
 
             beforeEach(function (done) {
@@ -437,7 +434,6 @@
                     });
             });
 
-
             it('MobileActivityDataSource should upload pending activities (serverSync step 1)', function (done) {
                 var activities = new MobileActivityDataSource({ userId: me.get('sid') });
                 activities._uploadPendingActivities()
@@ -482,7 +478,6 @@
                         done(new Error(error));
                     });
             });
-
 
             it('MobileActivityDataSource should sync activities', function (done) {
                 var activities = new MobileActivityDataSource({ userId: me.get('sid') });
