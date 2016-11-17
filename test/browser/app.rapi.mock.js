@@ -10,6 +10,7 @@
 (function ($) {
 
     var app = window.app = window.app || {};
+    var assert = window.assert;
     var kendo = window.kendo;
     var Loki = window.loki;
 
@@ -306,7 +307,6 @@
         {
             url: new RegExp(('^' + uris.rapi.root + uris.rapi.v1.myActivities).replace('{0}', '[a-z]{2}')) ,
             response: function (request) {
-                debugger;
                 if (request.headers.Authorization) {
                     var access = request.headers.Authorization.substr(BEARER_LENGTH);
                     var token = mockDB.tokens.findOne({ access: access });
