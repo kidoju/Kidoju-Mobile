@@ -252,7 +252,8 @@ if (typeof(require) === 'function') {
                 barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan),
                 cordova: $.type(window.cordova) !== UNDEFINED,
                 ga: window.ga && $.isFunction(window.ga.startTrackerWithId),
-                inAppBrowser: window.cordova && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
+                // Note: InAppBrowser uses iFrame on browser platform which is incompatible with oAuth flow
+                inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
                 socialsharing: window && window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
                 splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
             };
@@ -261,7 +262,7 @@ if (typeof(require) === 'function') {
                 mobile.barcodeScanner = window.cordova.plugins.barcodeScanner;
             }
             // device requires cordova-plugin-device
-            if (mobile.support.cordova) {
+            if ($.type(window.device) !== UNDEFINED) {
                 mobile.device = window.device;
             }
             // ga requires cordova-plugin-google-analytics
@@ -552,6 +553,7 @@ if (typeof(require) === 'function') {
              * @returns {*}
              */
             loadUser: function () {
+                viewModel.set(VIEWMODEL.USER, new models.MobileUser());
                 return viewModel.user.load()
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.userLoadFailure);
@@ -1674,7 +1676,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         *
+         * Event handler triggered when clicking the Switch button of the Settings view
          * @param e
          */
         mobile.onSettingsSwitchClick = function (e) {
@@ -1683,6 +1685,73 @@ if (typeof(require) === 'function') {
 
             // Navigate to the user view
             mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+        };
+
+        /**
+         * Event handler triggered when clicking the Reset button of the SignIn view
+         * @param e
+         */
+        mobile.onSignInResetClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+
+            if (viewModel.users.total() === 0) {
+                return app.notification.warning('Database already cleared.');
+            }
+            viewModel.users.data().forEach(function (user) {
+                viewModel.users.remove(user);
+            });
+
+            viewModel.users.sync()
+                .done(function () {
+                    app.notification.success('Database cleared.')
+                })
+                .fail(function () {
+                    app.notification.error('Error clearing database.');
+                });
+        };
+
+        /**
+         * Parse token and load user
+         * @param url
+         * @param callback
+         * @private
+         */
+        mobile._parseTokenAndLoadUser = function (url, callback) {
+            // parseToken sets the token in localStorage
+            var token = rapi.util.parseToken(url);
+            // No need to clean the history when opening in InAppBrowser
+            if (!mobile.support.inAppBrowser) {
+                rapi.util.cleanHistory();
+            }
+            if (token && token.error) {
+                app.notification.error('There has been an error with the oAuth flow'); // TODO
+                logger.error({
+                    message: token.error,
+                    method: 'mobile._parseTokenAndLoadUser',
+                    data: { url: url }
+                });
+                if ($.isFunction(callback)) {
+                    callback();
+                }
+                /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
+            } else if (token && token.access_token) {
+                /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
+                // Load the remote mobile user (me) using the oAuth token
+                viewModel.loadUser()
+                    .done(function () {
+                        // Yield time for transition effects to complete, especially when testing in the browser
+                        // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
+                        setTimeout(function() {
+                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+                        }, 0);
+                    })
+                    .always(function () {
+                        if ($.isFunction(callback)) {
+                            callback();
+                        }
+                    })
+            }
         };
 
         /**
@@ -1697,26 +1766,8 @@ if (typeof(require) === 'function') {
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
             // Parse the token and load the new user when we redirect signin without InAppBrowser
-            if (!(mobile.device && mobile.device.platform !== 'browser' && mobile.support.inAppBrowser)) {
-                // parseToken sets the token in localStorage
-                var token = rapi.util.parseToken(window.location.href);
-                rapi.util.cleanHistory();
-                if (token && token.error) {
-                    app.notification.error('There has been an error with the oAuth flow'); // TODO
-                    logger.error({
-                        message: token.error,
-                        method: 'mobile.onSigninViewShow',
-                        data: { url: window.location.href }
-                    });
-                    /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
-                } else if (token && token.access_token) {
-                    /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
-                    // Load the remote mobile user (me) using the oAuth token
-                    viewModel.loadUser()
-                        .done(function () {
-                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
-                        });
-                }
+            if (!mobile.support.inAppBrowser) {
+                mobile._parseTokenAndLoadUser(window.location.href);
             }
         };
 
@@ -1736,8 +1787,7 @@ if (typeof(require) === 'function') {
             // The trick is to use a blank returnUrl at https://www.kidoju.com/api/blank with a CSP that does not allow the execution of any code
             // We can then access this returnUrl in the loadstart and loadstop events of the InAppBrowser.
             // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted access to their data.
-            var returnUrl = mobile.device && mobile.device.platform !== 'browser' && mobile.support.inAppBrowser ?
-                app.uris.rapi.blank : window.location.protocol + '//' + window.location.host + '/' + DEVICE_SELECTOR + VIEW.SIGNIN;
+            var returnUrl = mobile.support.inAppBrowser ? app.uris.rapi.blank : window.location.protocol + '//' + window.location.host + '/' + DEVICE_SELECTOR + VIEW.SIGNIN;
             // When running in a browser via phonegap serve, the InAppBrowser turns into an iframe but authentication providers prevent running in an iframe by setting 'X-Frame-Options' to 'SAMEORIGIN'
             // So if the device platform is a browser, we need to keep the sameflow as Kidoju-WebApp with a redirectUrl that targets the user view
             rapi.oauth.getSignInUrl(provider, returnUrl)
@@ -1747,7 +1797,7 @@ if (typeof(require) === 'function') {
                         method: 'mobile.onSigninButtonClick',
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
-                    if (mobile.device && mobile.device.platform !== 'browser' && mobile.support.inAppBrowser) {
+                    if (mobile.support.inAppBrowser) {
                         // running in Phonegap -> open InAppBrowser
                         var close = function () {
                             browser.removeEventListener('loadstart', loadStart);
@@ -1773,29 +1823,7 @@ if (typeof(require) === 'function') {
                                 data: { provider: provider, url: e.url }
                             });
                             if (e.url.startsWith(returnUrl)) {
-                                // parseToken sets the token in localStorage
-                                var token = rapi.util.parseToken(e.url);
-                                // rapi.util.cleanHistory(); // No need because we close InAppBrowser
-                                if (token && token.error) {
-                                    app.notification.error('There has been an error with the oAuth flow'); // TODO
-                                    logger.error({
-                                        message: token.error,
-                                        method: 'mobile.onSigninButtonClick',
-                                        data: { provider: provider, url: e.url }
-                                    });
-                                    close();
-                                    /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
-                                } else if (token && token.access_token) {
-                                    /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
-                                    // Load the remote mobile user (me) using the oAuth token
-                                    viewModel.loadUser()
-                                        .done(function () {
-                                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
-                                        })
-                                        .always(function () {
-                                            close();
-                                        });
-                                }
+                                mobile._parseTokenAndLoadUser(e.url, close);
                             }
                         };
                         var loadError = function (error) {
@@ -1928,7 +1956,6 @@ if (typeof(require) === 'function') {
             var confirmValue = pinElements.last().val();
 
             if (RX_PIN.test(pinValue) && confirmValue === pinValue) {
-
                 // Does the user already exist in database?
                 var sid = viewModel.get('user.sid');
                 var found = viewModel.users.data().find(function (user) {
@@ -1992,7 +2019,6 @@ if (typeof(require) === 'function') {
         mobile.onUserNewClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-
             mobile.application.navigate(DEVICE_SELECTOR + VIEW.SIGNIN);
         };
 

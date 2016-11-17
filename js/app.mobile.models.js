@@ -73,7 +73,9 @@
         var DATE = 'date';
         var FUNCTION = 'function';
         var STRING = 'string';
+        var UNDEFINED = 'undefined';
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
+        var RX_EXT = /^(gif|jpe?g|png)$/;
         var DATE_0 = new Date(2000, 0, 1); // 1/1/2000
         var DOT = '.';
 
@@ -163,9 +165,11 @@
             },
             mobilePicture$: function () {
                 var temporary = fileSystem._temporary;
-                if (temporary) {
+                var sid = this.get('sid');
+                var ext = this.picture$().split(DOT).pop();
+                if ($.type(temporary) !== UNDEFINED && $.type(sid) === STRING && RX_EXT.test(ext)) {
                     // Note: we might want to check that this.picture$().split(DOT).pop() is a well known image extension
-                    return kendo.format(app.uris.mobile.pictures, temporary.root.toURL(), this.get('sid') + DOT + this.picture$().split(DOT).pop());
+                    return kendo.format(app.uris.mobile.pictures, temporary.root.toURL(), sid + DOT + ext);
                 } else {
                     return kendo.format(app.uris.mobile.icons, 'user');
                 }
@@ -243,16 +247,21 @@
              */
             load: function () {
                 var that = this;
+                assert.ok(that.isNew(), 'Cannot load a new user into an existing user!');
+                app.cache.removeMe();
                 return app.cache.getMe()
                     .done(function (data) {
                         if ($.isPlainObject(data) && RX_MONGODB_ID.test(data.id)) {
                             // Since we have marked fields as non editable, we cannot use 'that.set',
                             // This should raise a change event on the parent viewModel
                             that.accept({
+                                id: that.defaults.id,
                                 sid: data.id,
                                 firstName: data.firstName,
                                 lastName: data.lastName,
+                                lastSync: that.defaults.lastSync,
                                 lastUse: new Date(),
+                                md5pin: that.defaults.md5pin,
                                 picture: data.picture
                             });
                         } else {
@@ -270,6 +279,7 @@
                     sid: this.defaults.sid,
                     firstName: this.defaults.firstName,
                     lastName: this.defaults.lastName,
+                    lastSync: this.defaults.lastSync,
                     lastUse: this.defaults.lastUse,
                     md5pin: this.defaults.md5pin,
                     picture: this.defaults.picture
