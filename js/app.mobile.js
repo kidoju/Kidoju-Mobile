@@ -1689,12 +1689,9 @@ if (typeof(require) === 'function') {
                                 method: 'mobile.onSigninButtonClick',
                                 data: { provider: provider, url: e.url }
                             });
-                            var token = rapi.util.parseToken(e.url);
-                            // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
-                            if ($.isPlainObject(token) && !$.isEmptyObject(token)) {
-                                // window.alert(provider + ': success');
-                                // We have a token, we are done
-                                close();
+                            if (e.url.startsWith(returnUrl)) {
+                                var token = rapi.util.parseToken(e.url);
+                                // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
                                 if (token.error) {
                                     app.notification.error('There has been an error with the oAuth flow'); // TODO
                                     logger.error({
@@ -1705,10 +1702,8 @@ if (typeof(require) === 'function') {
                                 } else {
                                     mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
                                 }
-
+                                close();
                             }
-                            // otherwise continue with the oAuth flow,
-                            // as the loadstart event is triggered each time a new url (redirection) is loaded
                         };
                         var loadError = function (error) {
                             window.alert(JSON.stringify($.extend({}, error))); // TODO

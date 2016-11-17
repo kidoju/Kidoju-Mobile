@@ -1788,12 +1788,9 @@
 	                                method: 'mobile.onSigninButtonClick',
 	                                data: { provider: provider, url: e.url }
 	                            });
-	                            var token = rapi.util.parseToken(e.url);
-	                            // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
-	                            if ($.isPlainObject(token) && !$.isEmptyObject(token)) {
-	                                // window.alert(provider + ': success');
-	                                // We have a token, we are done
-	                                close();
+	                            if (e.url.startsWith(returnUrl)) {
+	                                var token = rapi.util.parseToken(e.url);
+	                                // rapi.util.cleanHistory(); // Not needed because we close InAppBrowser
 	                                if (token.error) {
 	                                    app.notification.error('There has been an error with the oAuth flow'); // TODO
 	                                    logger.error({
@@ -1804,10 +1801,8 @@
 	                                } else {
 	                                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
 	                                }
-	
+	                                close();
 	                            }
-	                            // otherwise continue with the oAuth flow,
-	                            // as the loadstart event is triggered each time a new url (redirection) is loaded
 	                        };
 	                        var loadError = function (error) {
 	                            window.alert(JSON.stringify($.extend({}, error))); // TODO
@@ -23965,6 +23960,8 @@
 	        var STORAGE_SIZE = 100 * 1024 * 1024; // 100 MB
 	        // The following allows FS_ROOT[window.TEMPORARY] and FS_ROOT[window.PERSISTENT];
 	        // var FS_ROOT = ['cdvfile://localhost/temporary/', 'cdvfile://localhost/persistent/'];
+	        var FS_ERROR_MISSING_API = 'HTML 5 FileSystem API not supported';
+	        var FS_ERROR_INIT = 'FileSystem has not been initialized';
 	
 	        /**
 	         * The FileSystem prototype
@@ -24018,7 +24015,7 @@
 	            window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
 	            window.storageInfo = window.storageInfo || window.webkitStorageInfo;
 	            logger.debug({
-	                message: 'Initializing temporary file system.',
+	                message: 'Initializing temporary file system',
 	                method: 'FileSystem.prototype._initTemporary',
 	                data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
 	            });
@@ -24057,7 +24054,7 @@
 	                    dfd.resolve(that._temporary);
 	                }
 	            } else {
-	                dfd.reject(new Error('HTML 5 FileSystem API not supported'));
+	                dfd.reject(new Error(FS_ERROR_MISSING_API));
 	            }
 	            return dfd.promise();
 	        };
@@ -24072,7 +24069,7 @@
 	            window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
 	            window.storageInfo = window.storageInfo || window.webkitStorageInfo;
 	            logger.debug({
-	                message: 'Initializing persistent file system.',
+	                message: 'Initializing persistent file system',
 	                method: 'FileSystem.prototype._initPersistent',
 	                data: { requestFileSystem: $.type(window.requestFileSystem) !== UNDEFINED, storageInfo: $.type(window.storageInfo) !== UNDEFINED }
 	            });
@@ -24111,7 +24108,7 @@
 	                    dfd.resolve(that._persistent);
 	                }
 	            } else {
-	                dfd.reject(new Error('HTML 5 FileSystem API not supported'));
+	                dfd.reject(new Error(FS_ERROR_MISSING_API));
 	            }
 	            return dfd.promise();
 	        };
@@ -24152,6 +24149,12 @@
 	            assert.type(STRING, path, assert.format(assert.messages.type.default, 'path', STRING));
 	            assert.ok(type === window.TEMPORARY || type === window.PERSISTENT, '`type` should either be window.TEMPORARY or window.PERSISTENT');
 	
+	            logger.debug({
+	                message: 'Getting directory',
+	                method: 'FileSystem.prototype.getDirectoryEntry',
+	                data: { path: path, type: type }
+	            });
+	
 	            function makeDir(root, folders) {
 	                // Throw out './' or '/' and move on to prevent something like '/foo/.//bar'.
 	                if (folders[0] === '.' || folders[0] === '') {
@@ -24172,14 +24175,13 @@
 	                );
 	            }
 	
-	            var that = this;
 	            var dfd = $.Deferred();
-	            var fs = that._getFileSystem(type);
+	            var fs = this._getFileSystem(type);
 	            if ($.type(fs) !== UNDEFINED) {
 	                // assert.instanceof(window.DirectoryEntry, fs.root, assert.format(assert.messages.instanceof.default, 'fs.root', 'window.DirectoryEntry'));
 	                makeDir(fs.root, path.split('/'));
 	            } else {
-	                dfd.reject(new Error('FileSystem has not been initialized'));
+	                dfd.reject(new Error(FS_ERROR_INIT));
 	            }
 	            return dfd.promise();
 	        };
@@ -24191,8 +24193,15 @@
 	         */
 	        FileSystem.prototype.getFileEntry = function (directoryEntry, fileName) {
 	            assert.type(OBJECT, directoryEntry, assert.format(assert.messages.type.default, 'directoryEntry', OBJECT));
-	            assert.type(FUNCTION, directoryEntry.getFile, assert.format(assert.messages.type.default, 'directoryEntry.getFile', FUNCTION));
+	            assert.ok(directoryEntry.isDirectory, 'directoryEntry should be a DirectoryEntry and therefore return directoryEntry.isDirectory === true');
 	            assert.type(STRING, fileName, assert.format(assert.messages.type.default, 'fileName', STRING));
+	
+	            logger.debug({
+	                message: 'Getting file entry',
+	                method: 'FileSystem.prototype.getFileEntry',
+	                data: { directoryEntry: directoryEntry.toURL(), fileName: fileName }
+	            });
+	
 	            var dfd = $.Deferred();
 	            directoryEntry.getFile(
 	                fileName,
@@ -24212,17 +24221,20 @@
 	         */
 	        FileSystem.prototype.download = function (remoteUrl, fileEntry, headers) {
 	            assert.type(STRING, remoteUrl, assert.format(assert.messages.type.default, 'remoteUrl', STRING));
-	            assert.type(OBJECT, fileEntry, assert.format(assert.messages.type.default, 'fileEntry', OBJECT));
+	            assert.ok(fileEntry.isFile, 'fileEntry should be a FileEntry and therefore return fileEntry.isFile === true');
 	            assert.isOptionalObject(headers, assert.format(assert.messages.isOptionalObject.default, 'headers'));
 	
 	            var dfd = $.Deferred();
 	            var fileTransfer = new window.FileTransfer();
 	            var fileURL = fileEntry.toURL();
 	
-	            fileTransfer.onProgress = function (evt) {
-	                debugger;
-	                dfd.notify(evt);
-	            };
+	            logger.debug({
+	                message: 'Downloading a file',
+	                method: 'FileSystem.prototype.download',
+	                data: { remoteUrl: remoteUrl,  fileEntry: fileEntry.toURL(), headers: JSON.stringify(headers) }
+	            });
+	
+	            fileTransfer.onProgress = dfd.notify; // Consider reviewing event parameter passed to dfd.notify without formatting
 	
 	            fileTransfer.download(
 	                remoteUrl,
@@ -24243,11 +24255,6 @@
 	         * @param remoteUrl
 	         */
 	        // FileSystem.prototype.upload = function (fileEntry, remoteUrl) {};
-	
-	        /**
-	         * File saveAS
-	         * See https://eligrey.com/blog/saving-generated-files-on-the-client-side/
-	         */
 	
 	    }(window.jQuery));
 	
@@ -25341,7 +25348,7 @@
 /***/ 326:
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_0__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_1__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_2__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_3__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_4__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_5__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_6__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_7__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_8__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_9__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_10__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_11__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_12__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_13__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_14__;var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/** 
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_14__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_13__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_12__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_11__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_10__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_9__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_8__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_7__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_6__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_5__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_4__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_3__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_2__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_1__;var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_LOCAL_MODULE_0__;/** 
 	 * Kendo UI v2016.3.1028 (http://www.telerik.com/kendo-ui)                                                                                                                                              
 	 * Copyright 2016 Telerik AD. All rights reserved.                                                                                                                                                      
 	 *                                                                                                                                                                                                      
