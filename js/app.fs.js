@@ -233,13 +233,13 @@
                     folders = folders.slice(1);
                 }
                 if (folders.length === 0) {
-                    return root;
+                    return dfd.resolve(root);
                 }
 
                 logger.debug({
                     message: 'Calling DirectoryEntry.getDirectory',
                     method: 'FileSystem.prototype.getDirectoryEntry',
-                    data: { directoryEntry: $.isFunction(root.getDirectory), folder: folders[0] }
+                    data: { directoryEntry: root.toURL(), folder: folders[0] }
                 });
 
                 root.getDirectory(
