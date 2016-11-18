@@ -1,12 +1,31 @@
 html, body, #phone {
     height: 100%;
     margin: 0;
+    /**********************************************************
+    * Kendo UI
+    **********************************************************/
     .km-view {
         .k-notification {
             // This is for static notifications in a .km-view
             margin: 1em;
             display: block;
             opacity: 1;
+        }
+        form {
+            .km-list {
+                li {
+                    min-height: 3.8em;
+                    .form-value {
+                        // This is to display readonly values in forms instead of disabled="disabled" on input fields
+                        margin-left: 50%;
+                        margin-top: -1.75em;
+                        width: 45%;
+                        min-width: 6em;
+                        padding: .4em;
+                        font-size: 1em;
+                    }
+                }
+            }
         }
         .buttons {
             margin: 1em;
@@ -74,42 +93,25 @@ html, body, #phone {
     #phone-finder {
         .km-listview {
             li {
-                padding-top: 0.7em;
-                padding-bottom: 0.7em;
-                height: 10em;
-                .km-thumbnail {
-                    border: none;
-                    border-radius: 0;
-                    height: 3.35rem;
-                    width: 3.35rem;
-                    margin-right: 0;
-                    float: left;
-                }
-                .summary {
-                    margin-left: 4rem;
-                    h4 {
-                        margin: 0 .2em;
-                        font-weight: bold;
-                        font-size: 1.1em;
-                        line-height: 1.2;
-                        height: 2.44em;
-                        overflow: hidden;
+                .km-listview-link {
+                    height: 10em; // a fixed height is required for endless scrolling
+                    line-height: 1.25;
+                    .km-thumbnail {
+                        border: none;
+                        border-radius: 0;
+                        height: 3.35rem;
+                        width: 3.35rem;
+                        margin-right: 0;
+                        float: left;
                     }
-                    .tags {
-                        margin: 0 .2em;
-                        font-size: 0.8em;
-                        line-height: 1.2;
-                        height: 2.44em;
-                        overflow: hidden;
-                    }
-                    .metrics {
-                        margin: 0 .2em;
-                        font-size: 0.8em;
-                        font-size: 0.8em;
-                    }
-                    .km-button-right {
-                        margin-top: -1em;
-                        float: right;
+                    .summary {
+                        margin-left: 4rem;
+                        h4 {
+                            margin: 0;
+                        }
+                        .tags, .metrics {
+                            font-size: 0.8em;
+                        }
                     }
                 }
             }
@@ -155,7 +157,15 @@ html, body, #phone {
     /**********************************************************
     * Summary view
     **********************************************************/
-    // #phone-summary {}
+    #phone-summary {
+        .picture {
+            width: 10em;
+            height: 10em;
+            margin: 1em auto;
+            display: block;
+            float: none;
+        }
+    }
     /**********************************************************
     * Sign-in view
     **********************************************************/
