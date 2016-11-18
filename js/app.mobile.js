@@ -1322,24 +1322,36 @@ if (typeof(require) === 'function') {
         mobile._resizePlayer = function () {
             var content = $(DEVICE_SELECTOR + VIEW.PLAYER).find(kendo.roleSelector('content'));
             var stageElement = content.find(kendo.roleSelector('stage'));
+            var stageWidget = stageElement.data('kendoStage');
             // If the stage widget has not yet been initialized, we won't get the correct stageWrapper
-            if (stageElement.data('kendoStage') instanceof kendo.ui.Stage) {
-                var height = content.height();
-                var width = content.width();
+            if (kendo.ui.Stage && stageWidget instanceof kendo.ui.Stage) {
+                /**
+                 * ATTENTION jQuery 3 breaking change
+                 * There is a breaking change in jQuery 3 regarding height and width
+                 * jQuery 2 reports the actual CSS value (clientHeight, clientWidth)
+                 * jQuery 3 reports the scaled value
+                 */
+                var HEIGHT = stageElement.outerHeight();
+                assert.equal(HEIGHT, 768, kendo.format(assert.messages.equal.default, 'HEIGHT', '768'));
+                var WIDTH = stageElement.outerWidth();
+                assert.equal(WIDTH, 1024, kendo.format(assert.messages.equal.default, 'WIDTH', '1024'));
+                var height = content.height();  // The screen height minus layout header and footer
+                var width = content.width();    // The screen width minus layout header and footer
+                var scale = (height > width) ? width / WIDTH : height / HEIGHT;
+                // Resize the stage
+                stageWidget.scale(scale);
                 var stageWrapper = stageElement.parent();
                 assert.ok(stageWrapper.hasClass('kj-stage'), 'Stage wrapper is expected to have class `kj-stage`');
                 var stageContainer = stageWrapper.closest('.stretched-item');
+                stageContainer.height(Math.floor(scale * HEIGHT));
+                stageContainer.width(Math.floor(scale * WIDTH));
+                // Resize the markdown container and scroller for instructons/explanations
                 var markdownElement = content.find(kendo.roleSelector('markdown'));
                 var markdownScrollerElement = markdownElement.closest(kendo.roleSelector('scroller'));
                 var markdownScroller = markdownScrollerElement.data('kendoMobileScroller');
+                assert.instanceof(kendo.mobile.ui.Scroller, markdownScroller, kendo.format(assert.messages.instanceof.default, 'markdownScroller', 'kendo.mobile.ui.Scroller'));
                 var markdownContainer = markdownElement.closest('.stretched-item');
                 var markdownHeading = markdownContainer.children('.heading');
-                // Resize the stage
-                var scale = (height > width) ? width / stageWrapper.outerWidth() : height / stageWrapper.outerHeight();
-                stageWrapper.css('transform', 'scale(' + scale + ')');
-                stageContainer.height(Math.floor(scale * stageWrapper.outerHeight()));
-                stageContainer.width(Math.floor(scale * stageWrapper.outerWidth()));
-                // Resize the markdown container and scroller for instructons/explanations
                 markdownContainer.outerHeight((height > width) ? height - stageContainer.outerHeight() : height);
                 markdownContainer.outerWidth((height > width) ? width : width - stageContainer.outerWidth());
                 markdownScroller.destroy();
@@ -1435,14 +1447,12 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler trigger when clicking an item in teh drawe menu
+         * Scan a QR Code
          * @see https://github.com/phonegap/phonegap-plugin-barcodescanner
-         * @param e
+         * @private
          */
-        mobile.onDrawerListViewClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
-            if (e.item.is('li[data-icon=scan]') && mobile.support.barcodeScanner) {
+        mobile._scanQRCode = function () {
+            if (mobile.support.barcodeScanner) {
                 var QR_CODE = 'QR_CODE';
                 var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-f0-9]{24})$/i;
                 e.preventDefault();
@@ -1456,33 +1466,38 @@ if (typeof(require) === 'function') {
                                 var language = matches[1];
                                 var summaryId = matches[2];
                                 if (viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE) === language) {
-                                    // Find latest version (previous versions are not available in the mobile app)
-                                    viewModel.loadLazyVersions(summaryId)
-                                        .done(function () {
-                                            var version = viewModel.versions.at(0); // First is latest version
-                                            assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
-                                            assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
-                                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
-                                        });
+                                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY + '?summaryId=' + window.encodeURIComponent(summaryId));
                                 } else {
-                                    mobile.notification.alert('Change language settings to scan this code');
+                                    mobile.notification.alert('Change language settings to scan this code'); // TODO
                                 }
                             } else {
-                                mobile.notification.alert('This QR code does not match');
+                                mobile.notification.alert('This QR code does not match'); // TODO
                             }
                         }
                     },
                     function (error) {
-                        mobile.notification.alert('Scanning failed: ' + error);
+                        mobile.notification.alert('Scanning failed: ' + error); // TODO
                     },
                     {
                         preferFrontCamera: false, // iOS and Android
                         showFlipCameraButton: false, // iOS and Android
-                        prompt: 'Place a barcode inside the scan area', // supported on Android only
+                        prompt: 'Place a barcode inside the scan area', // TODO supported on Android only
                         formats: QR_CODE // default: all but PDF_417 and RSS_EXPANDED
                         // "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
                     }
                 );
+            }
+        };
+
+        /**
+         * Event handler trigger when clicking an item in the drawer menu
+         * @param e
+         */
+        mobile.onDrawerListViewClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
+            if (e.item.is('li[data-icon=scan]')) {
+                mobile._scanQRCode();
             }
         };
 
@@ -1886,7 +1901,7 @@ if (typeof(require) === 'function') {
             // Scroll to the top
             e.view.scroller.reset();
             // load the summary
-            viewModel.loadSummary(e.view.params.id);
+            viewModel.loadSummary(e.view.params.summaryId);
         };
 
 
@@ -1897,6 +1912,7 @@ if (typeof(require) === 'function') {
         mobile.onSummaryActionPlay = function () {
             // assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             var summaryId = viewModel.get('summary.id');
+
             // Find latest version (previous versions are not available in the mobile app)
             viewModel.loadLazyVersions(summaryId)
                 .done(function () {
