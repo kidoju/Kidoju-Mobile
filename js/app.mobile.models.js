@@ -215,7 +215,6 @@
             _saveMobilePicture: function () {
                 var that = this;
                 var dfd = $.Deferred();
-                debugger;
                 // The following allows app.models.MobileUser.fn._saveMobilePicture.call(user) in MobileUserDataSource
                 // where user is a plain object with a sid and picture
                 var sid = that instanceof models.MobileUser ? that.get('sid') : that.sid;
