@@ -17,6 +17,8 @@
 
     (function (undefined) {
 
+        // TODO: This is redundant with ./js/app.config.jsx
+
         var app = window.app = window.app || {};
         app.constants = {
             kidoju: 'kidoju',

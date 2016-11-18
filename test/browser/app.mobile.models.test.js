@@ -79,6 +79,7 @@
                 // TODO: test fullName$, picture$ and mobilePicture$ functions here
             });
 
+            /*
             it('MobileUser should be able to reset a pin', function () {
                 var user0 = testData.users[0];
                 var user = new MobileUser(user0);
@@ -86,6 +87,7 @@
                 user.resetPin();
                 expect(user).to.have.property('md5pin', null);
             });
+            */
 
             it('MobileUser should be able to add and verify a pin', function () {
                 var user1 = testData.users[1];

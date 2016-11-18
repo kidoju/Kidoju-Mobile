@@ -56,32 +56,37 @@
         var DataSource = kidoju.data.DataSource;
         var assert = window.assert;
         var logger = new window.Logger('app.mobile.models');
+        var fileSystem = new window.FileSystem();
         var md5 = md5H || window.md5;
         var pongodb = window.pongodb;
-        var db = app.db = new pongodb.Database({ name: 'KidojuDB', size: 5 * 1024 * 1024, collections: ['users', 'activities'] });
-        var fileSystem = new window.FileSystem();
+        var db = app.db = new pongodb.Database({
+            // TODO: we should probably get these values from config files
+            name: 'KidojuDB',
+            size: 5 * 1024 * 1024,
+            collections: ['users', 'activities']
+        });
         // var i18n = app.i18n = app.i18n || { };
-        var uris = app.uris = app.uris || {
-                cdn: {
-                    icons: 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg'
-                },
-                mobile: {
-                    icons: './img/{0}.svg'
-                }
-            };
+        // This is for testing only because we should get values from config files (see ./js/app.config.jsx)
+        var uris = app.uris = app.uris || {};
+        uris.cdn = uris.cdn || {
+            icons: 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg'
+        };
+        uris.mobile = uris.mobile || {
+            icons: './img/{0}.svg',
+            pictures: '{0}users/{1}'
+        };
         var DATE = 'date';
         var FUNCTION = 'function';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
-        var RX_EXT = /^(gif|jpe?g|png)$/;
         var DATE_0 = new Date(2000, 0, 1); // 1/1/2000
-        var DOT = '.';
+        var DOT_JPEG = '.jpg';
 
         /**
          * Initialize fileSystem ASAP
          */
-        fileSystem.init(); // TODO: it can fail if the user does not allow storage
+        fileSystem.init();
 
         /**
          * MobileUser model
@@ -141,71 +146,103 @@
             fullName$: function () {
                 return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
             },
+            /**
+             * Facebook
+             * --------
+             * Small:  https://scontent.xx.fbcdn.net/v/t1.0-1/p50x50/12509115_942778785793063_9199238178311708429_n.jpg?oh=af39b0956408500676ee12db7bf5ea31&oe=58B8E1A9
+             * Large:  https://scontent.xx.fbcdn.net/v/t1.0-1/p160x160/12509115_942778785793063_9199238178311708429_n.jpg?oh=333006a975ce0fbebcd1ad7519f1bc45&oe=58CACE38
+             * Larger: https://scontent.xx.fbcdn.net/t31.0-8/12487039_942778785793063_9199238178311708429_o.jpg
+             * Small and large images cannot be accessed without query string but there is also https://graph.facebook.com/username_or_id/picture?width=9999
+             *
+             * Google
+             * --------
+             * Small: https://lh3.googleusercontent.com/-nma3Tmew9CI/AAAAAAAAAAI/AAAAAAAAAAA/AEMOYSCbFzy-DifyDo-I9xTQ6EUh8cQ4Xg/s64-c-mo/photo.jpg
+             * Large: https://lh3.googleusercontent.com/-nma3Tmew9CI/AAAAAAAAAAI/AAAAAAAAAAA/AEMOYSCbFzy-DifyDo-I9xTQ6EUh8cQ4Xg/mo/photo.jpg
+             *
+             * Live
+             * --------
+             * Small: https://apis.live.net/v5.0/USER_ID/picture?type=small (96x96)
+             * Medium: https://apis.live.net/v5.0/cid-bad501d98dfe21b3/picture?type=medium (160x160)
+             * Large: https://apis.live.net/v5.0/USER_ID/picture?type=large (360x360)
+             * If your user id is cid-bad501d98dfe21b3 use bad501d98dfe21b3 as USER_ID
+             *
+             * Twitter
+             * --------
+             * Small: https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_normal.jpg
+             * Large: https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_400x400.jpg
+             *
+             */
             picture$: function () {
-                /**
-                 * Facebook
-                 * --------
-                 *
-                 *
-                 * Google
-                 * --------
-                 *
-                 *
-                 * Live
-                 * --------
-                 *
-                 *
-                 * Twitter
-                 * --------
-                 * Twitter urls are in the form https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_normal.jpg
-                 * We need to replace normal by 400x400 as in https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_400x400.jpg
-                 */
-                return this.get('picture') || kendo.format(app.uris.mobile.icons, 'user');
+                var picture = this.get('picture');
+                if ($.type(picture) === STRING && picture.length) {
+                    return picture;
+                } else {
+                    return kendo.format(uris.mobile.icons, 'user');
+                }
+            },
+            largerPicture$: function () {
+                var that = this;
+                var picture = that instanceof models.MobileUser ? that.get('picture') : that.picture;
+                if ($.type(picture) === STRING && picture.length) {
+                    return picture
+                        .replace('/p50x50/', '/p160x160/') // Facebook
+                        .replace('/s64-c-mo/', '/s160-c-mo/') // Google
+                        .replace('?type=small', '?type=medium') // Live
+                        .replace('_normal.', '_400x400.'); // Twitter
+                } else {
+                    return kendo.format(uris.mobile.icons, 'user');
+                }
             },
             mobilePicture$: function () {
+                var that = this;
+                var picture = that instanceof models.MobileUser ? that.get('picture') : that.picture;
+                var sid = that instanceof models.MobileUser ? that.get('sid') : that.sid;
                 var temporary = fileSystem._temporary;
-                var sid = this.get('sid');
-                var ext = this.picture$().split(DOT).pop();
-                if ($.type(temporary) !== UNDEFINED && $.type(sid) === STRING && RX_EXT.test(ext)) {
-                    // Note: we might want to check that this.picture$().split(DOT).pop() is a well known image extension
-                    return kendo.format(app.uris.mobile.pictures, temporary.root.toURL(), sid + DOT + ext);
+                // To have a mobile picture, there needs to have been a valid picture in the first place and a temporary file system to save it
+                if ($.type(temporary) !== UNDEFINED && RX_MONGODB_ID.test(sid) && $.type(picture) === STRING && picture.length) {
+                    // Facebook, Google, Live and Twitter all use JPG images
+                    return kendo.format(uris.mobile.pictures, temporary.root.toURL(), sid + DOT_JPEG);
                 } else {
-                    return kendo.format(app.uris.mobile.icons, 'user');
+                    return kendo.format(uris.mobile.icons, 'user');
                 }
             },
             /**
              * _saveMobilePicture should not be used directly
-             * This is called from MobileUserDataSource
+             * This is called from within MobileUserDataSource transport CRUD methods
              * @returns {*}
              * @private
              */
             _saveMobilePicture: function () {
                 var that = this;
                 var dfd = $.Deferred();
+                debugger;
                 // The following allows app.models.MobileUser.fn._saveMobilePicture.call(user) in MobileUserDataSource
                 // where user is a plain object with a sid and picture
                 var sid = that instanceof models.MobileUser ? that.get('sid') : that.sid;
-                var remoteUrl = that instanceof models.MobileUser ? that.picture$() : that.picture;
-                assert.match(RX_MONGODB_ID, sid, kendo.format(assert.messages.match.default, 'sid', RX_MONGODB_ID));
-                fileSystem.init()
-                    .done(function () {
-                        fileSystem.getDirectoryEntry('/users', window.TEMPORARY)
-                            .done(function (directoryEntry) {
-                                // Maybe we should verify that remoteUrl.split(DOT).pop() is a well-known extension
-                                // especially since there might be not extension at all
-                                // Should we find the content type?
-                                var fileName = sid + DOT + remoteUrl.split(DOT).pop();
-                                fileSystem.getFileEntry(directoryEntry, fileName)
-                                    .done(function (fileEntry) {
-                                        fileSystem.download(remoteUrl, fileEntry)
-                                            .done(dfd.resolve)
-                                            .fail(dfd.reject);
-                                    })
-                                    .fail(dfd.reject);
-                            })
-                            .fail(dfd.reject);
-                    })
-                    .fail(dfd.reject);
+                var remoteUrl = that instanceof models.MobileUser ? that.largerPicture$() : models.MobileUser.fn.largerPicture$.call(that);
+                if (remoteUrl === kendo.format(uris.mobile.icons, 'user')) {
+                    dfd.resolve();
+                } else {
+                    assert.match(RX_MONGODB_ID, sid, kendo.format(assert.messages.match.default, 'sid', RX_MONGODB_ID));
+                    // Note: this may fail if user does not allow storage space
+                    fileSystem.init()
+                        .done(function () {
+                            var directoryPath = kendo.format(uris.mobile.pictures, '', '');
+                            var fileName = sid + DOT_JPEG;
+                            fileSystem.getDirectoryEntry(directoryPath, window.TEMPORARY)
+                                .done(function (directoryEntry) {
+                                    fileSystem.getFileEntry(directoryEntry, fileName)
+                                        .done(function (fileEntry) {
+                                            fileSystem.download(remoteUrl, fileEntry)
+                                                .done(dfd.resolve)
+                                                .fail(dfd.reject);
+                                        })
+                                        .fail(dfd.reject);
+                                })
+                                .fail(dfd.reject);
+                        })
+                        .fail(dfd.reject);
+                }
                 return dfd.promise();
             },
             /**
@@ -224,10 +261,11 @@
              * Reset pin
              * @param pin
              */
+            /*
             resetPin: function () {
-                // TODO: remove if not used considering we check pin before
                 this.set('md5pin', null);
             },
+            */
             /**
              * Verify pin
              * @param pin
@@ -453,21 +491,21 @@
                     }
                     var id = user.id;
                     if (RX_MONGODB_ID.test(id)) {
-                        // Start with saving the picture to avoid a broken image in UI if user is saved without
-                        models.MobileUser.fn._saveMobilePicture.call(user)
-                            .done(function () {
-                                user.id = undefined;
-                                db.users.update({ id: id }, user)
-                                    .done(function (result) {
-                                        if (result && result.nMatched === 1 && result.nModified === 1) {
-                                            // Restore id and return
-                                            user.id = id;
-                                            options.success({ total: 1, data: [user] });
-                                        } else {
-                                            options.error(undefined, 'error', 'User not found');
-                                        }
-                                    })
-                                    .fail(options.error);
+                        // pongodb does not allow the id to be part of the update
+                        user.id = undefined;
+                        db.users.update({ id: id }, user)
+                            .done(function (result) {
+                                if (result && result.nMatched === 1 && result.nModified === 1) {
+                                    // Update the image from time to time
+                                    if (Math.floor(4 * Math.random()) === 0) {
+                                        models.MobileUser.fn._saveMobilePicture.call(user);
+                                    }
+                                    // Restore id and return updated user to datasource
+                                    user.id = id;
+                                    options.success({ total: 1, data: [user] });
+                                } else {
+                                    options.error(undefined, 'error', 'User not found');
+                                }
                             })
                             .fail(options.error);
                     } else {

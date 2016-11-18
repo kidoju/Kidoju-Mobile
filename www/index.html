@@ -417,7 +417,7 @@
 
     <!-- User view -->
     <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="overlay" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
-        <img data-bind="invisible: isSavedUser$, attr: { src: user.picture$(), alt: user.fullName$() }" class="km-thumbnail picture">
+        <img data-bind="invisible: isSavedUser$, attr: { src: user.largerPicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <form>
             <ul data-role="listview" data-style="inset">
