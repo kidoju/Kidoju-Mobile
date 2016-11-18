@@ -283,33 +283,28 @@
     <!-- Finder view -->
     <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
         <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-finder-template"></ul>
-        <ul id="phone-finder-actionsheet" data-role="actionsheet">
-            <li><a data-action="app.mobile.onFinderActionPlay" class="km-actionsheet-play">Play</a></li>
-            <li data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onFinderActionShare" class="km-actionsheet-share">Share</a></li>
-        </ul>
         <script type="text/x-kendo-template" id="phone-finder-template">
-            <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
-            <div class="summary">
-                <h4>#: title #</h4>
-                # var tags = tags$(); if (Array.isArray(tags) && tags.length) { #
-                <div class="tags"><i class="kf kf-tags"></i>
-                    # for (var i = 0; i < tags.length; i++) { #
-                    <span>#: tags[i].name #</span># if (i < tags.length -1) { #, # } #
+            <a href="\#phone-summary?id=#: id #">
+                <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
+                <div class="summary">
+                    <h4>#: title #</h4>
+                    # var tags = tags$(); if (Array.isArray(tags) && tags.length) { #
+                    <div class="tags"><i class="kf kf-tags"></i>
+                        # for (var i = 0; i < tags.length; i++) { #
+                        <span>#: tags[i].name #</span># if (i < tags.length -1) { #, # } #
+                        # } #
+                    </div>
                     # } #
+                    <!--div class="author">
+                        <%- __('finder.list.author.publishedOn') %><span>#: kendo.toString(published, "<%- __('dateFormat') %>") #</span><%- __('finder.list.author.by') %><a href="#= authorUri$() #">#: authorName$() #</a>
+                    </div-->
+                    <div class="metrics">
+                        <span class="kf"><input data-role="rating" value="#: ratings #" readonly></span>
+                        <i class="kf kf-view"></i><span>#: views #</span>
+                        # if (scores) { #<i class="kf kf-score"></i><span>#: kendo.toString(scores, 'n0') #%</span># } #
+                    </div>
                 </div>
-                # } #
-                <!--div class="author">
-                    <%- __('finder.list.author.publishedOn') %><span>#: kendo.toString(published, "<%- __('dateFormat') %>") #</span><%- __('finder.list.author.by') %><a href="#= authorUri$() #">#: authorName$() #</a>
-                </div-->
-                <div class="metrics">
-                    <span class="kf"><input data-role="rating" value="#: ratings #" readonly></span>
-                    <i class="kf kf-view"></i><span>#: views #</span>
-                    # if (scores) { #<i class="kf kf-score"></i><span>#: kendo.toString(scores, 'n0') #%</span># } #
-                </div>
-                <a class="km-primary km-button-right km-widget km-button" data-role="button" data-rel="actionsheet" data-actionsheet-context="#: id #" href="\#phone-finder-actionsheet">
-                    <span class="km-text">Go</span>
-                </a>
-            </div>
+            </a>
         </script>
     </div>
 
@@ -404,16 +399,43 @@
 
     <!-- Summary view -->
     <div id="phone-summary" data-role="view" data-layout="phone-main-layout" data-title="Details" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
+        <img data-bind="attr: { src: summary.icon$, alt: summary.title }" class="km-thumbnail picture">
         <form>
             <ul data-role="listview" data-style="inset">
                 <li>
                     <label>
-                        <span>Type text</span>
-                        <input type="text" value="Text" />
+                        <span>Title</span>
+                        <div data-bind="text: summary.title" class="k-state-disabled" />
                     </label>
                 </li>
+                <li>
+                    <label>
+                        <span>Categories</span>
+                        <div data-bind="text: summary.categories$" class="k-state-disabled" />
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span>Tags</span>
+                        <div data-bind="text: summary.tags$" class="k-state-disabled" />
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span>Description</span>
+                        <div data-bind="text: summary.description" class="k-state-disabled" />
+                    </label>
+                </li>
+                <!-- author, creation date, metrics, etc. -->
             </ul>
         </form>
+        <div class="buttons">
+            <a data-role="button" class="km-large km-justified km-primary" data-rel="actionsheet" href="#phone-summary-actionsheet">GO</a>
+        </div>
+        <ul id="phone-summary-actionsheet" data-role="actionsheet" >
+            <li><a data-action="app.mobile.onSummaryActionPlay" class="km-actionsheet-play">Play</a></li>
+            <li data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onSummaryActionShare" class="km-actionsheet-share">Share</a></li>
+        </ul>
     </div>
 
     <!-- User view -->
@@ -425,19 +447,19 @@
                 <li>
                     <label>
                         <span>First Name</span>
-                        <input type="text" data-bind="value: user.firstName" disabled="disabled" />
+                        <div data-bind="text: user.firstName" class="form-value k-state-disabled" />
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Last Name</span>
-                        <input type="text" data-bind="value: user.lastName"  disabled="disabled" />
+                        <div data-bind="text: user.lastName" class="form-value k-state-disabled" />
                     </label>
                 </li>
                 <li data-bind="visible: isSavedUser$">
                     <label>
                         <span>Last Use</span>
-                        <input type="datetime-local" data-bind="value: user.lastUse" disabled="disabled" />
+                        <div data-bind="text: user.lastUse" data-format="g" class="form-value k-state-disabled" />
                     </label>
                 </li>
                 <li>

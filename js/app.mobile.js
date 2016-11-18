@@ -509,6 +509,7 @@ if (typeof(require) === 'function') {
              * Resets all data when switching users
              */
             reset: function () {
+                // TODO
                 // this.activities.data([]);
                 // this.categories.data([]);
                 this.categories.read();
@@ -537,6 +538,7 @@ if (typeof(require) === 'function') {
              * @param query
              */
             loadLazySummaries: function (query) {
+                // TODO: assert query
                 return viewModel.summaries.query(query)
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.summariesQueryFailure);
@@ -549,10 +551,27 @@ if (typeof(require) === 'function') {
             },
 
             /**
+             * Load summary from remote servers
+             */
+            loadSummary: function (id) {
+                assert.match(RX_MONGODB_ID, id, kendo.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
+                viewModel.summary.load(id)
+                    .fail(function (xhr, status, error) {
+                        app.notification.error(i18n.culture.notifications.summaryLoadFailure);
+                        logger.error({
+                            message: 'error loading summary',
+                            method: 'viewModel.loadSummary',
+                            data: { id: id, status: status, error: error } // TODO xhr.responseText
+                        });
+                    });
+            },
+
+            /**
              * Load user from remote server
              * @returns {*}
              */
             loadUser: function () {
+                // Set a new user since the existing user might be in the database and we do not want to change its properties
                 viewModel.set(VIEWMODEL.USER, new models.MobileUser());
                 return viewModel.user.load()
                     .fail(function (xhr, status, error) {
@@ -572,8 +591,7 @@ if (typeof(require) === 'function') {
             loadUsers: function () {
                 return viewModel.users.query({ sort: { field: 'lastUse', dir: 'desc' } })
                     .fail(function (xhr, status, error) {
-                        // TODO: not sure app.notification is available yet
-                        app.notification.error(i18n.culture.notifications.userLoadFailure);
+                        app.notification.error(i18n.culture.notifications.userQueryFailure);
                         logger.error({
                             message: 'error loading users',
                             method: 'viewModel.loadUsers',
@@ -1257,6 +1275,13 @@ if (typeof(require) === 'function') {
             if (viewWidget instanceof kendo.mobile.ui.View) {
                 mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
+            // Localize field labels
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.title);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.categories);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.tags);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.description);
+            // Localize buttons
+            viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.go);
         };
 
         /**
@@ -1554,52 +1579,6 @@ if (typeof(require) === 'function') {
             // .always(function () {
             //    mobile.application.pane.loader.hide();
             // });
-        };
-
-        /**
-         * Event handler triggered when clicking the play option in the action sheet displayed from the GO button of summaries
-         * @param e
-         */
-        mobile.onFinderActionPlay = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.match(RX_MONGODB_ID, e.context, kendo.format(assert.messages.match.default, 'e.context', RX_MONGODB_ID));
-            var summaryId = e.context;
-            // Find latest version (previous versions are not available in the mobile app)
-            viewModel.loadLazyVersions(summaryId)
-                .done(function () {
-                    var version = viewModel.versions.at(0); // First is latest version
-                    assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
-                    assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
-                });
-        };
-
-        /**
-         * Event handler triggered when clicking the share option in the action sheet displayed from the GO button of summaries
-         * @see https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
-         * @param e
-         */
-        mobile.onFinderActionShare = function (e) {
-            if (mobile.support.socialsharing) {
-                mobile.socialsharing.shareWithOptions(
-                    {
-                        // this is the complete list of currently supported params on can pass to the social share plugin (all optional)
-                        message: 'share this', // not supported on some apps (Facebook, Instagram)
-                        subject: 'the subject', // fi. for email
-                        files: ['', ''], // an array of filenames either locally or remotely
-                        url: 'https://www.website.com/foo/#bar?a=b',
-                        chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
-                    },
-                    function (result) {
-                        mobile.notification.info('Share completed? ' + result.completed + '/' + result.app);
-                        // On Android apps mostly return result.completed=false even while it's true
-                        // On Android result.app (the app shared to) is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
-                    },
-                    function (msg) {
-                        mobile.notification.error('Sharing failed: ' + msg);
-                    }
-                );
-            }
         };
 
         /**
@@ -1904,8 +1883,57 @@ if (typeof(require) === 'function') {
             mobile._localizeSummaryView(viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE));
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
+            // Scroll to the top
+            e.view.scroller.reset();
+            // load the summary
+            viewModel.loadSummary(e.view.params.id);
+        };
 
-            // TODO
+
+        /**
+         * Event handler triggered when clicking the play option in the action sheet displayed from the GO button of summaries
+         * @param e
+         */
+        mobile.onSummaryActionPlay = function () {
+            // assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            var summaryId = viewModel.get('summary.id');
+            // Find latest version (previous versions are not available in the mobile app)
+            viewModel.loadLazyVersions(summaryId)
+                .done(function () {
+                    var version = viewModel.versions.at(0); // First is latest version
+                    assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
+                    assert.match(RX_MONGODB_ID, version.id, kendo.format(assert.messages.match.default, 'version.id', RX_MONGODB_ID));
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id));
+                });
+        };
+
+        /**
+         * Event handler triggered when clicking the share option in the action sheet displayed from the GO button of summaries
+         * @see https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
+         * @param e
+         */
+        mobile.onSummaryActionShare = function () {
+            // TODO: finalize mobile sharing
+            if (mobile.support.socialsharing) {
+                mobile.socialsharing.shareWithOptions(
+                    {
+                        // this is the complete list of currently supported params on can pass to the social share plugin (all optional)
+                        message: 'share this', // not supported on some apps (Facebook, Instagram)
+                        subject: 'the subject', // fi. for email
+                        files: ['', ''], // an array of filenames either locally or remotely
+                        url: 'https://www.website.com/foo/#bar?a=b',
+                        chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
+                    },
+                    function (result) {
+                        mobile.notification.info('Share completed? ' + result.completed + '/' + result.app);
+                        // On Android apps mostly return result.completed=false even while it's true
+                        // On Android result.app (the app shared to) is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
+                    },
+                    function (msg) {
+                        mobile.notification.error('Sharing failed: ' + msg);
+                    }
+                );
+            }
         };
 
         /**
@@ -1946,6 +1974,8 @@ if (typeof(require) === 'function') {
             mobile._localizeUserView(viewModel.get(VIEWMODEL.SETTINGS.LANGUAGE));
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
+            // Scroll to the top
+            e.view.scroller.reset();
             // Display a notification
             if (viewModel.isSavedUser$()) {
                 app.notification.info('Please enter your pin to sign in.'); // TODO
@@ -1991,6 +2021,7 @@ if (typeof(require) === 'function') {
                         viewModel.set(VIEWMODEL.USER, found);
                         // Trigger a change event to update user + settings view data bindings
                         viewModel.trigger('change', { field: VIEWMODEL.USER });
+                        app.notification.success(kendo.format('Successfully saved and sign in as {0}.', viewModel.user.fullName$())); // TODO
                         mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
                     })
                     .fail(function (xhr, status, error) {
@@ -2022,6 +2053,7 @@ if (typeof(require) === 'function') {
             var pinValue = pinElement.val();
 
             if (viewModel.user.verifyPin(pinValue)) {
+                app.notification.success(kendo.format('Successfully signed in as {0}.', viewModel.user.fullName$())); // TODO
                 mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
             } else {
                 app.notification.warning('Wrong pin.'); // TODO

@@ -78,13 +78,14 @@
             // Notification messages
             notifications: {
                 networkOffline: 'Vous n\'êtes pas connecté à Internet.',
-                settingsLoadFailure: 'Il y a eu une erreur dans le chargement des paramètres.',
+                settingsLoadFailure: 'Il y a eu une erreur lors du chargement des paramètres.',
                 signinUrlFailure: 'Il y a eu une erreur d\'obtention d\'url de connexion pour le service d\'authentification.',
                 summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
-                summaryLoadFailure: 'Il y a eu une erreur dans le chargement des données du résumé descriptif.',
-                userLoadFailure: 'Il y a eu une erreur dans le chargement du profil utilisateur.',
-                versionLoadFailure: 'Il y a eu une erreur dans le chargement de votre version.',
-                versionsLoadFailure: 'Il y a eu une erreur dans le chargement des versions.'
+                summaryLoadFailure: 'Il y a eu une erreur lors du chargement des données du résumé descriptif.',
+                userLoadFailure: 'Il y a eu une erreur lors du chargement du profil utilisateur.',
+                userQueryFailure: 'Il y a eu une erreur lors du chargement de la list des utilisateurs.',
+                versionLoadFailure: 'Il y a eu une erreur lors du chargement de votre version.',
+                versionsLoadFailure: 'Il y a eu une erreur lors du chargement des versions.'
             },
             // Player view
             player: {
@@ -119,9 +120,14 @@
             },
             // Summary view
             summary: {
-                viewTitle: 'Détails'
+                viewTitle: 'Détails',
                 // Labels
+                categories: 'Catégories',
+                description: 'Description',
+                tags: 'Mots Clés',
+                title: 'Titre',
                 // Buttons
+                go: 'Aller'
             },
             // User view
             user: {

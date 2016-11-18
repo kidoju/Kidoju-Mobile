@@ -83,6 +83,7 @@
                 summariesQueryFailure: 'There was an error querying our remote servers.',
                 summaryLoadFailure: 'There was an error loading summary data.',
                 userLoadFailure: 'There was an error loading user data.',
+                userQueryFailure: 'There was an error loading the user list.',
                 versionLoadFailure: 'There was an error loading version data.',
                 versionsLoadFailure: 'There was an error loading versions.'
             },
@@ -119,9 +120,14 @@
             },
             // Summary view
             summary: {
-                viewTitle: 'Details'
+                viewTitle: 'Details',
                 // Labels
+                categories: 'Categories',
+                description: 'Description',
+                tags: 'Tags',
+                title: 'Title',
                 // Buttons
+                go: 'Go'
             },
             // User view
             user: {
