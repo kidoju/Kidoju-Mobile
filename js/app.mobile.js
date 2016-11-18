@@ -871,6 +871,7 @@ if (typeof(require) === 'function') {
         mobile._setNavBar = function (view) {
             /* jshint maxcomplexity: 13 */
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            var showBackButton = false;
             var showDrawerButton = false;
             var showHomeButton = false;
             var showPreviousPageButton = false;
@@ -918,7 +919,7 @@ if (typeof(require) === 'function') {
                     showDrawerButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.SIGNIN:
-                    showDrawerButton = viewModel.isSavedUser$();
+                    showBackButton = viewModel.isSavedUser$();
                     break;
                 case DEVICE_SELECTOR + VIEW.SUMMARY:
                     showDrawerButton = true;
@@ -928,7 +929,8 @@ if (typeof(require) === 'function') {
                     showNextUserButton = viewModel.isSavedUser$() && !viewModel.isLastUser$();
                     break;
             }
-            // Note: each view has all buttons by default, so let's fix that
+            // Note: each view has no button by default, so let's fix that
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-back').css({ display: showBackButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous-page').css({ display: showPreviousPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
@@ -1017,6 +1019,7 @@ if (typeof(require) === 'function') {
             i18n.load(language).then(function () {
                 viewModel.set(VIEWMODEL.LANGUAGES, i18n.culture.viewModel.languages);
                 viewModel.set(VIEWMODEL.THEMES, i18n.culture.viewModel.themes);
+                mobile._localizeMainLayout(language);
                 mobile._localizeActivitiesView(language);
                 mobile._localizeCategoriesView(language);
                 mobile._localizeDrawerView(language);
@@ -1030,6 +1033,18 @@ if (typeof(require) === 'function') {
                 mobile._localizeSummaryView(language);
                 mobile._localizeUserView(language);
             });
+        };
+
+        /**
+         * Localize the main layout, especially the navbar
+         * @param language
+         * @private
+         */
+        mobile._localizeMainLayout = function (language) {
+            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'language', app.locales));
+            var culture = i18n.culture.layout;
+            $(DEVICE_SELECTOR + LAYOUT.MAIN + '-back').text(culture.back);
         };
 
         /**

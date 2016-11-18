@@ -28,10 +28,12 @@
                 success: 'Success',
                 warning: 'Warning'
             },
+            /*
             secureStorage: {
                 success: 'With screen lock enabled, you benefit from confidential data encryption.',
                 warning: 'Screen lock is disabled. Sorry, but our app cannot store confidential data without it.'
             },
+            */
             versions: {
                 draft: {
                     name: 'Draft'
@@ -39,6 +41,10 @@
                 published: {
                     name: 'Version {0}'
                 }
+            },
+            // Main layout
+            layout: {
+                back: 'Back'
             },
             // Activities view
             activities: {
@@ -74,9 +80,9 @@
                 networkOffline: 'You are disconnected from the Internet',
                 settingsLoadFailure: 'There was an error loading settings.',
                 signinUrlFailure: 'There has been an error obtaining a sign-in url.',
-                summariesQueryFailure: 'There was an error querying the database.',
+                summariesQueryFailure: 'There was an error querying our remote servers.',
                 summaryLoadFailure: 'There was an error loading summary data.',
-                userLoadFailure: 'Il y a eu une erreur dans le chargement du profil utilisateur.',
+                userLoadFailure: 'There was an error loading user data.',
                 versionLoadFailure: 'There was an error loading version data.',
                 versionsLoadFailure: 'There was an error loading versions.'
             },

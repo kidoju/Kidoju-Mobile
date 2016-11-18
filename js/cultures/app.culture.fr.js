@@ -28,10 +28,12 @@
                 success: 'Succès',
                 warning: 'Attention'
             },
+            /*
             secureStorage: {
                 success: 'Avec le vérouillage écran activé, vous bénéficiez de l\'encryption des données confidentielles.',
                 warning: 'Le vérouillage écran est désactivé. Désolé, mais notre application ne peut pas stocker les données confidentielles sans.'
             },
+            */
             versions: {
                 draft: {
                     name: 'Brouillon'
@@ -39,6 +41,10 @@
                 published: {
                     name: 'Version {0}'
                 }
+            },
+            // Main layout
+            layout: {
+                back: 'Retour'
             },
             // Activities view
             activities: {
@@ -76,7 +82,7 @@
                 signinUrlFailure: 'Il y a eu une erreur d\'obtention d\'url de connexion pour le service d\'authentification.',
                 summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
                 summaryLoadFailure: 'Il y a eu une erreur dans le chargement des données du résumé descriptif.',
-                userLoadFailure: 'There was an error loading user data.',
+                userLoadFailure: 'Il y a eu une erreur dans le chargement du profil utilisateur.',
                 versionLoadFailure: 'Il y a eu une erreur dans le chargement de votre version.',
                 versionsLoadFailure: 'Il y a eu une erreur dans le chargement des versions.'
             },
