@@ -498,6 +498,7 @@
                                 if (result && result.nMatched === 1 && result.nModified === 1) {
                                     // Update the image from time to time
                                     if (Math.floor(4 * Math.random()) === 0) {
+                                        // We discard success/failure because we might be disconnected
                                         models.MobileUser.fn._saveMobilePicture.call(user);
                                     }
                                     // Restore id and return updated user to datasource
@@ -514,7 +515,6 @@
                     }
                 }
             }
-
         });
 
         /**

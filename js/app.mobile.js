@@ -923,6 +923,7 @@ if (typeof(require) === 'function') {
                     showDrawerButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.USER:
+                    showDrawerButton = viewModel.isSavedUser$();
                     showPreviousUserButton = viewModel.isSavedUser$() && !viewModel.isFirstUser$();
                     showNextUserButton = viewModel.isSavedUser$() && !viewModel.isLastUser$();
                     break;
@@ -2097,7 +2098,6 @@ if (typeof(require) === 'function') {
             if (buttonIndex !== 1) {
                 return;
             }
-
         };
 
         /**
