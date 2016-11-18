@@ -58,6 +58,7 @@
     <div data-role="layout" data-id="phone-main-layout">
         <header data-role="header">
             <div data-role="navbar" class="km-accent">
+                <a id="phone-main-layout-back" data-role="backbutton" class="nav-button" data-align="left">Back</a>
                 <a id="phone-main-layout-drawer" data-role="button" class="nav-button" data-align="left" data-icon="drawer-icon" href="#phone-drawer" data-rel="drawer"></a>
                 <a id="phone-main-layout-home" data-role="button" class="nav-button" data-align="left" data-icon="home" href="#phone-categories"></a>
                 <a id="phone-main-layout-previous-page" data-role="button" class="nav-button" data-align="left" data-icon="previous" data-click="app.mobile.onNavbarPreviousPageClick"></a>
@@ -249,7 +250,7 @@
     </div>
 
     <!-- Activities view -->
-    <div id="phone-activities" data-role="view" data-layout="phone-main-layout" data-title="Activities" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
+    <div id="phone-activities" data-role="view" data-layout="phone-main-layout" data-title="Activities" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
         <ul data-role="listview" data-bind="source: scores" data-template="phone-activities-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-activities-template">
@@ -258,7 +259,7 @@
     </div>
 
     <!-- Categories view -->
-    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
+    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
         <!-- Display search button -->
         <ul data-role="listview" data-bind="source: categories" data-template="phone-categories-template">
         </ul>
@@ -271,7 +272,7 @@
     </div>
 
     <!-- Favourites view -->
-    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
+    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
         <ul data-role="listview" data-bind="source: favourites" data-template="phone-favourites-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-favourites-template">
@@ -280,7 +281,7 @@
     </div>
 
     <!-- Finder view -->
-    <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="overlay" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
+    <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
         <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-finder-template"></ul>
         <ul id="phone-finder-actionsheet" data-role="actionsheet">
             <li><a data-action="app.mobile.onFinderActionPlay" class="km-actionsheet-play">Play</a></li>
@@ -313,7 +314,7 @@
     </div>
 
     <!-- Player view -->
-    <div id="phone-player" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 1" data-transition="overlay" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow">
+    <div id="phone-player" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow">
         <div class="stretched-item">
             <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
         </div>
@@ -332,17 +333,17 @@
     </div>
 
     <!-- Progress (sync) view -->
-    <div id="phone-progress" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onProgressViewShow">
+    <div id="phone-progress" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onProgressViewShow">
         <div></div>
     </div>
 
     <!-- Score view -->
-    <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
+    <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
         <div data-role="grid"></div>
     </div>
 
     <!-- Settings view -->
-    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onSettingsViewShow">
+    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSettingsViewShow">
         <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
         <form>
             <ul data-role="listview" data-style="inset">
@@ -380,7 +381,7 @@
     </div>
 
     <!-- Sign-in view -->
-    <div id="phone-signin" data-role="view" data-layout="phone-main-layout" data-title="Sign in" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onSigninViewShow">
+    <div id="phone-signin" data-role="view" data-layout="phone-main-layout" data-title="Sign in" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSigninViewShow">
         <div class="k-widget k-notification k-notification-info" data-role="alert">
             <div class="k-notification-wrap">
                 <span class="k-icon k-i-info">Info</span>
@@ -402,7 +403,7 @@
     </div>
 
     <!-- Summary view -->
-    <div id="phone-summary" data-role="view" data-layout="phone-main-layout" data-title="Details" data-transition="overlay" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
+    <div id="phone-summary" data-role="view" data-layout="phone-main-layout" data-title="Details" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
         <form>
             <ul data-role="listview" data-style="inset">
                 <li>
@@ -416,7 +417,7 @@
     </div>
 
     <!-- User view -->
-    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="overlay" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
+    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="fade" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
         <img data-bind="invisible: isSavedUser$, attr: { src: user.largerPicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <form>
