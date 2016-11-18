@@ -8,7 +8,13 @@
 
 // Style fixes
 .km-material {
-
+    /**********************************************************
+    * Buttons
+    **********************************************************/
+    .km-button.km-primary {
+        background-color: @selected-background;
+        color: @base;
+    }
     /**********************************************************
      * Navbar
      **********************************************************/
@@ -36,9 +42,11 @@
         .km-content, .km-list > li {
             background-color: @selected-background;
             color: @base;
-            // Allow some space between icons and text
             .km-listview-link > .km-icon {
+                // Allow some space between icons and text
                 margin: -1em .7em 0 .3em;
+                // Reduce icon size
+                font-size: 1em;
             }
         }
     }
@@ -65,5 +73,4 @@
             }
         }
     }
-
 }
