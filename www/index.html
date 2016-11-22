@@ -345,14 +345,13 @@
                 <li>
                     <label>
                         <span>User</span>
-                        <input type="text" data-bind="value: user.fullName$" disabled="disabled" />
-                        <!-- TODO Show login button -->
+                        <div data-bind="text: user.fullName$" class="form-value k-state-disabled" />
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Version</span>
-                        <input type="text" data-bind="value: settings.version" disabled="disabled" />
+                        <div data-bind="text: settings.version" class="form-value k-state-disabled" />
                         <!-- TODO Show upgrade sign if it does not match server -->
                     </label>
                 </li>
@@ -423,7 +422,7 @@
                 <li>
                     <label>
                         <span>Description</span>
-                        <div data-bind="text: summary.description" class="k-state-disabled" />
+                        <div data-role="markdown" data-bind="value: summary.description" class="k-state-disabled" />
                     </label>
                 </li>
                 <!-- author, creation date, metrics, etc. -->
