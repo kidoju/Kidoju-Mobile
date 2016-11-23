@@ -312,13 +312,12 @@
                 var activity = new MobileActivity(activity0);
                 expect(activity).to.have.property('id', activity0.id);
                 expect(activity).to.have.property('sid', activity0.sid);
-                expect(activity).to.have.property('actorId', activity0.actorId);
-                // expect(activity).to.have.property('data', activity0.data);
-                expect(activity).to.have.property('language', activity0.language);
-                expect(activity).to.have.property('summaryId', activity0.summaryId);
-                expect(activity).to.have.property('title', activity0.title);
                 expect(activity).to.have.property('type', activity0.type);
-                expect(activity).to.have.property('versionId', activity0.versionId);
+                expect(activity).to.have.deep.property('actor.userId', activity0.actor.userId);
+                expect(activity).to.have.deep.property('version.language', activity0.version.language);
+                expect(activity).to.have.deep.property('version.summaryId', activity0.version.summaryId);
+                expect(activity).to.have.deep.property('version.title', activity0.version.title);
+                expect(activity).to.have.deep.property('version.versionId', activity0.version.versionId);
                 // TODO: test field$ functions here
             });
 
@@ -341,14 +340,14 @@
                 var activity0 = testData.activities[0];
                 activity0.id = null; // Otherwise it is not new for kendo
                 activity0 = new MobileActivity(activity0);
-                var activities0 = new MobileActivityDataSource({ userId: activity0.get('actorId') });
+                var activities0 = new MobileActivityDataSource({ userId: activity0.get('actor.userId') });
                 activities0.add(activity0);
                 // Second activity (from me)
                 var activity1 = testData.activities[1];
                 activity1.id = null; // Otherwise it is not new for kendo
-                activity1.actorId = me.get('sid');
+                activity1.actor.userId = me.get('sid');
                 activity1 = new MobileActivity(activity1);
-                var activities1 = new MobileActivityDataSource({ userId: activity1.get('actorId') });
+                var activities1 = new MobileActivityDataSource({ userId: activity1.get('actor.userId') });
                 activities1.add(activity1);
                 // Sync
                 $.when(
@@ -364,7 +363,7 @@
             it('MobileActivityDataSource should fail to add an new activity for another user', function (done) {
                 var activity1 = testData.activities[1];
                 expect(activity1.id).to.be.null; // Otherwise it is not new for kendo
-                activity1.actorId = testData.users[0].sid;
+                activity1.actor.userId = testData.users[0].sid;
                 var activity = new MobileActivity(activity1);
                 var activities = new MobileActivityDataSource({ userId: me.get('sid') });
                 activities.add(activity);
@@ -384,11 +383,11 @@
                 activities.read()
                     .done(function () {
                         expect(activities.total()).to.equal(1);
-                        expect(activities.at(0).get('actorId')).to.equal(me.get('sid'));
-                        activities.load({ userId: activity0.actorId })
+                        expect(activities.at(0).get('actor.userId')).to.equal(me.get('sid'));
+                        activities.load({ userId: activity0.actor.userId })
                             .done(function () {
                                 expect(activities.total()).to.equal(1);
-                                expect(activities.at(0).get('actorId')).to.equal(activity0.actorId);
+                                expect(activities.at(0).get('actor.userId')).to.equal(activity0.actor.userId);
                                 done();
                             })
                             .fail(function (xhr, status, error) {

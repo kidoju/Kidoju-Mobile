@@ -20,8 +20,8 @@
         './app.rapi',
         './app.cache',
         './app.db',
-        './app.fs'
-        // './app.models'
+        './app.fs',
+        './app.models'
     ], f);
 })(function (md5H) {
 
@@ -77,6 +77,7 @@
         };
         var DATE = 'date';
         var FUNCTION = 'function';
+        var NUMBER = 'number';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
@@ -528,42 +529,45 @@
                     editable: true,
                     nullable: true
                 },
-                // An activity without a sid does not exist on the server
+                // An activity without a sid does not exist on our servers
                 sid: {
                     type: STRING,
                     editable: true,
                     nullable: true
                 },
-                actorId: {
-                    type: STRING,
-                    editable: false
+                actor: { // <--- models.UserReference
+                    // For complex types, the recommendation is to leave the type undefined and set a default value
+                    // See: http://www.telerik.com/forums/model---complex-model-with-nested-objects-or-list-of-objects
+                    // See: http://demos.telerik.com/kendo-ui/grid/editing-custom
+                    defaultValue: null,
+                    parse: function (value) {
+                        return (value instanceof models.UserReference || value === null) ? value : new models.UserReference(value);
+                    }
                 },
-                // Data varies depending on the type of activity
-                data: {
+                // score is used for activities of type score
+                score: {
+                    type: NUMBER,
+                    editable: false,
+                    nullable: true
+                },
+                // test is used for activities of type score
+                test: {
                     // type: UNDEFINED,
-                    editable: true, // TODO: false?
-                    nullable: true,
-                    defaultValue: null
-                },
-                language: {
-                    type: STRING,
-                    editable: false
-                },
-                summaryId: {
-                    type: STRING,
-                    editable: false
-                },
-                title: {
-                    type: STRING,
-                    editable: false
+                    editable: false,
+                    nullable: true
                 },
                 type: {
                     type: STRING,
                     editable: false
                 },
-                versionId: {
-                    type: STRING,
-                    editable: false
+                version: { // <--- models.VersionReference
+                    // For complex types, the recommendation is to leave the type undefined and set a default value
+                    // See: http://www.telerik.com/forums/model---complex-model-with-nested-objects-or-list-of-objects
+                    // See: http://demos.telerik.com/kendo-ui/grid/editing-custom
+                    defaultValue: null,
+                    parse: function (value) {
+                        return (value instanceof models.VersionReference || value === null) ? value : new models.VersionReference(value);
+                    }
                 }
                 // Do we need a date or can we rely on the updated date?
                 // Do we need any additional value/text to display in the mobile app?
@@ -631,9 +635,9 @@
                     dfd.reject(undefined, 'error', 'Cannot load with pending changes.');
                 } else {
                     var sid = options && options.userId;
-                    assert.ok(!new pongodb.ObjectId(sid).isMobileId(), '`options.userId` is expected to be a sid');
+                    assert.ok(!new pongodb.ObjectId(sid).isMobileId(), '`options.userId` is expected to be a sid'); // A sid is a server id
                     that._userId = sid;
-                    that.read()
+                    that.read() // Calls _transport._read
                         .done(dfd.resolve)
                         .fail(dfd.reject);
                 }
@@ -647,7 +651,8 @@
              */
             _validate: function (activity) {
                 var errors = [];
-                if (!RX_MONGODB_ID.test(activity.actorId) || activity.actorId !== this._userId) {
+                var actorId = activity.actor.userId;
+                if (!RX_MONGODB_ID.test(actorId) || actorId !== this._userId) {
                     errors.push('Cannot delegate the creation of activities.');
                 }
                 return errors;
@@ -727,7 +732,7 @@
                         message: 'Activity data read',
                         method: 'app.models.MobileActivityDataSource.transport.read'
                     });
-                    db.activities.find({ actorId: this._userId })
+                    db.activities.find({ 'actor.userId': this._userId })
                         .done(function (result) {
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });

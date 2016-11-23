@@ -74,41 +74,47 @@
             var match = true;
             if ($.type(query) === OBJECT) {
                 for (var prop in query) {
-                    if (query.hasOwnProperty(prop)) {
+                    if (prop && query.hasOwnProperty(prop)) {
+                        var path = prop.split('.');
+                        var value = doc;
+                        while (path.length > 0) {
+                            value = value && value[path[0]];
+                            path.shift();
+                        }
                         var criterion = query[prop];
                         if (criterion instanceof RegExp) {
-                            match = match && criterion.test(doc[prop]);
+                            match = match && criterion.test(value);
                         } else if ($.type(criterion) === OBJECT) {
                             for (var operator in criterion) {
                                 if (criterion.hasOwnProperty(operator)) {
                                     // @see http://docs.mongodb.org/manual/reference/operator/query/
                                     switch (operator) {
                                         case '$eq':
-                                            match = match && (doc[prop] === criterion[operator]);
+                                            match = match && (value === criterion[operator]);
                                             break;
                                         case '$gt':
-                                            match = match && (doc[prop] > criterion[operator]);
+                                            match = match && (value > criterion[operator]);
                                             break;
                                         case '$gte':
-                                            match = match && (doc[prop] >= criterion[operator]);
+                                            match = match && (value >= criterion[operator]);
                                             break;
                                         case '$lt':
-                                            match = match && (doc[prop] < criterion[operator]);
+                                            match = match && (value < criterion[operator]);
                                             break;
                                         case '$lte':
-                                            match = match && (doc[prop] <= criterion[operator]);
+                                            match = match && (value <= criterion[operator]);
                                             break;
                                         case '$ne':
-                                            match = match && (doc[prop] !== criterion[operator]);
+                                            match = match && (value !== criterion[operator]);
                                             break;
                                         case '$regex':
-                                            match = match && criterion[operator].test(doc[prop]);
+                                            match = match && criterion[operator].test(value);
                                             break;
                                     }
                                 }
                             }
                         } else {
-                            match = match && (doc[prop] === criterion);
+                            match = match && (value === criterion);
                         }
                     }
                     if (!match) {

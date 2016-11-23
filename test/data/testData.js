@@ -73,24 +73,30 @@
             {
                 id: objectId(),
                 sid: objectId(),
-                actorId: objectId(),
-                // data:
-                language: 'en',
-                summaryId: objectId(),
-                title: 'A math assessment',
-                type: 'test',
-                versionId: objectId()
+                actor: {
+                    userId: objectId()
+                },
+                type: 'score',
+                version: {
+                    language: 'en',
+                    summaryId: objectId(),
+                    title: 'A math assessment',
+                    versionId: objectId()
+                }
             },
             {
                 id: null,
                 sid: objectId(),
-                actorId: null,    // to be defined
-                // data:
-                language: 'en',
-                summaryId: objectId(),
-                title: 'A math assessment',
-                type: 'test',
-                versionId: objectId()
+                actor: {
+                    userId: null // to be defined
+                },
+                type: 'score',
+                version: {
+                    language: 'en',
+                    summaryId: objectId(),
+                    title: 'A math assessment',
+                    versionId: objectId()
+                }
             }
         ]
 
