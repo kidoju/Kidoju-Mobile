@@ -67,6 +67,7 @@ if (typeof(require) === 'function') {
         './kidoju.widgets.markdown',
         './kidoju.widgets.mathexpression',
         './kidoju.widgets.mediaplayer',
+        './kidoju.widgets.messagebox',
         './kidoju.widgets.multicheckbox',
         // './kidoju.widgets.playbar',
         './kidoju.widgets.quiz',
@@ -106,6 +107,7 @@ if (typeof(require) === 'function') {
         var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
         // var PageComponentCollectionDataSource = kidoju.data.PageComponentCollectionDataSource;
         var UNDEFINED = 'undefined';
+        var FUNCTION = 'function';
         var NUMBER = 'number';
         var OBJECT = 'object';
         var STRING = 'string';
@@ -156,6 +158,7 @@ if (typeof(require) === 'function') {
             CATEGORIES: 'categories',
             CURRENT: 'current',
             CURRENT_ID: 'current.id',
+            CURRENT_TEST: 'current.test',
             LANGUAGES: 'languages',
             PAGES_COLLECTION: 'version.stream.pages',
             SELECTED_PAGE: 'selectedPage',
@@ -834,6 +837,80 @@ if (typeof(require) === 'function') {
                     });
                 }
                 return found;
+            },
+
+            /**
+             * Calculate test results
+             * @returns {*}
+             */
+            calculate: function () {
+                var pageCollectionDataSource = viewModel.get(VIEWMODEL.PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                return pageCollectionDataSource.validateTestFromProperties(viewModel.get(VIEWMODEL.CURRENT_TEST))
+                    .done(function (result) {
+                        assert.isPlainObject(result, kendo.format(assert.messages.isPlainObject.default, 'result'));
+                        assert.type(FUNCTION, result.percent, kendo.format(assert.messages.type.default, 'result.percent', FUNCTION));
+                        viewModel.set(VIEWMODEL.CURRENT_TEST, result);
+                    })
+                    .fail(function (xhr, status, error) {
+                        app.notification.error(i18n.culture.player.notifications.scoreCalculationFailure); // TODO
+                        var serverError;
+                        try { serverError = JSON.parse(xhr.responseText); } catch (ex) {} // TODO
+                        logger.error({
+                            message: 'Failed to calculate user score',
+                            method: 'viewModel.calculate',
+                            data: { status: status, error: error, serverError: serverError } // TODO
+                        });
+                    });
+            },
+
+            /**
+             * Save the score activity
+             * @returns {*}
+             */
+            saveScore: function () {
+                var currentId = this.get(VIEWMODEL.CURRENT_ID); // Should be undefined
+                var version = this.get('version');
+                var test = this.get(VIEWMODEL.CURRENT_TEST);
+                assert.type(FUNCTION, test.percent, kendo.format(assert.messages.type.default, 'test.percent', FUNCTION));
+                // assert.ok(version.state !== DRAFT_STATE, 'Cannot save score on a draft version');
+                // assert.isPlainObject(test, kendo.format(assert.messages.isPlainObject.default, 'test'));
+                var activity = new models.MobileActivity({
+                    type: 'score',
+                    test: test.toJSON(),
+                    score: test.percent(),
+                    version: {
+                        language: version.language,
+                        summaryId: version.summaryId,
+                        versionId: version.id
+                    }
+                });
+                return activity.save()
+                    .done(function (data) {
+                        // We cannot do here viewModel.set(CURRENT, new app.models.Score(data));
+                        // Because we would lose the percent() and getScoreArray() methods of Test which are constructed dynamically
+                        // https://github.com/jlchereau/Kidoju-Server/issues/133
+                        viewModel.set(CURRENT_ID, data.id);
+                        // We also need created and score to print a pdf
+                        viewModel.set('current.created', kendo.parseDate(data.created));
+                        viewModel.set('current.score', data.score);
+                        if (!viewModel.scores.get(data.id)) {
+                            // Add to scores
+                            viewModel.scores.insert(0, new app.models.Score(data));
+                        }
+                        dfd.resolve();
+                        app.notification.success(i18n.culture.player.notifications.scoreSaveSuccess); // TODO
+                    })
+                    .fail(function (xhr, status, error) {
+                        dfd.reject(xhr, status, error);
+                        app.notification.error(i18n.culture.player.notifications.scoreSaveFailure); // TODO
+                        // Log error
+                        logger.error({
+                            message: 'error saving score',
+                            method: 'viewModel.saveScore',
+                            data: { summaryId: hidden.summaryId, versionId: hidden.versionId, status: status, error: error } // TODO xhr.responseText
+                        });
+                    });
             }
 
         });
@@ -1345,7 +1422,7 @@ if (typeof(require) === 'function') {
                 var stageContainer = stageWrapper.closest('.stretched-item');
                 stageContainer.height(Math.floor(scale * HEIGHT));
                 stageContainer.width(Math.floor(scale * WIDTH));
-                // Resize the markdown container and scroller for instructons/explanations
+                // Resize the markdown container and scroller for instructions/explanations
                 var markdownElement = content.find(kendo.roleSelector('markdown'));
                 var markdownScrollerElement = markdownElement.closest(kendo.roleSelector('scroller'));
                 var markdownScroller = markdownScrollerElement.data('kendoMobileScroller');
@@ -1455,7 +1532,6 @@ if (typeof(require) === 'function') {
             if (mobile.support.barcodeScanner) {
                 var QR_CODE = 'QR_CODE';
                 var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-f0-9]{24})$/i;
-                e.preventDefault();
                 mobile.barcodeScanner.scan(
                     function (result) {
                         if (!result.cancelled) {
@@ -1497,6 +1573,7 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             if (e.item.is('li[data-icon=scan]')) {
+                e.preventDefault();
                 mobile._scanQRCode();
             }
         };
@@ -1547,10 +1624,11 @@ if (typeof(require) === 'function') {
          * Event handler triggered before showing the Summaries view
          */
         mobile.onFinderBeforeViewShow = function () {
-            // Unfortunately, the following does not display the loader
+            // The application loader is transparent by default and covers the entire layout
             // if (mobile.application instanceof kendo.mobile.Application) {
-            //    mobile.application.pane.loader.show();
+            //     mobile.application.showLoading();
             // }
+
             // Workaround
             // ------------
             // Clearing here the summaries data source avoids a "flickering" effect
@@ -1590,10 +1668,10 @@ if (typeof(require) === 'function') {
             // }
             var query = $.extend(true, { page: 1, pageSize: viewModel.summaries.pageSize() }, $.deparam($.param(e.view.params)));
             viewModel.loadLazySummaries(query);
-            // See comment for mobile.onSummariesBeforeViewShow
-            // .always(function () {
-            //    mobile.application.pane.loader.hide();
-            // });
+                // See comment for mobile.onSummariesBeforeViewShow
+                // .always(function () {
+                //     mobile.application.hideLoading();
+                // });
         };
 
         /**
@@ -2141,26 +2219,70 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Submit answers to calculate score
+         * @param page
+         * @private
+         */
+        mobile._submit = function (page) {
+            viewModel.calculate()
+                .done(function () { // Note: failure is already taken care of
+                    viewModel.saveScore()
+                        .done(function () {
+                            debugger;
+                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id)); // TODO: activityId
+                        });
+                    // save
+                    /*
+                    $.when(
+                        viewModel.saveScore(),
+                        viewModel.loadSummary()
+                    )
+                        .done(function () { // Note: failure is already taken care of
+                            var currentId = viewModel.get(CURRENT_ID);
+                            var isAuthenticated = viewModel.isAuthenticated$();
+                            var isAuthor = viewModel.isAuthor$();
+                            // if oAuth callback, clear cache
+                            if (isAuthenticated && !isAuthor) {
+                                app.cache._removeSessionItem(CACHE_NAME);
+                            }
+                            // init score view
+                            controller.initScore();
+                            // assertions
+                            if (isAuthenticated && !isAuthor) {
+                                assert.match(RX_MONGODB_ID, currentId, kendo.format(assert.messages.match.default, 'currentId', RX_MONGODB_ID));
+                            } else {
+                                assert.equal(SESSION_ID, currentId, kendo.format(assert.messages.equal.default, 'currentId', SESSION_ID));
+                            }
+                            // navigate
+                            router.navigate(SLASH + page + SLASH + currentId);
+                            // animate the loader if still visible
+                            $('body>div.k-loading-image:visible').fadeOut();
+                        });
+                      */
+                });
+        };
+
+        /**
          * Event handler triggered when clicking the submit button in the navbar
          * @param e
          */
         mobile.onNavbarSubmitClick = function (e) {
-            mobile.notification.confirm(
-                'You are the winner!', // message
-                mobile.onNavbarSubmitConfirm,       // callback to invoke with index of button pressed
-                'Confirm',             // title
-                ['Yes', 'No']           // buttonLabels
-            );
-        };
-
-        /**
-         * Event handler triggered when confirming after clicking the submit button in the navbar
-         * @param buttonIndex
-         */
-        mobile.onNavbarSubmitConfirm = function (buttonIndex) {
-            if (buttonIndex !== 1) {
-                return;
-            }
+            kendo.alertEx({
+                type: 'info',
+                title: 'Error',
+                message: 'Hey Houston, we\'ve got a problem!',
+                buttonLayout: 'stretched',
+                actions: [
+                    { action: 'yes', text: 'Yes', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg' }, // TODO
+                    { action: 'no', text: 'No', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg' } // TODO
+                ]
+            })
+                .done(function(result) {
+                    if (result.action === 'yes') {
+                        debugger;
+                        mobile._submit();
+                    }
+                });
         };
 
         /**

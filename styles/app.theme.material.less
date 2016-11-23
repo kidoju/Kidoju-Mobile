@@ -7,7 +7,11 @@
 @import "./app.template.less";
 
 // Style fixes
-.km-material {
+.k-material, .km-material {
+    // font-family is defined on .km-material, not on .k.material which we need especially for notifications
+    font-family: "Roboto", Helvetica, Arial, sans-serif;
+    // Without a font-weight, default is way too bold - see https://bugs.chromium.org/p/chromium/issues/detail?id=450326
+    font-weight: 400;
     /**********************************************************
     * Kendo UI
     **********************************************************/
@@ -22,11 +26,18 @@
     .k-notification .k-i-error {
         background-position: -178px -240px;
     }
+    .km-button > .km-icon,
     .km-listview-link > .km-icon {
         // Allow some space between icons and text
         margin: -1em .7em 0 .3em;
         // Reduce icon size
         font-size: 1em;
+    }
+    .km-list {
+        font-size: inherit;
+        input, select, textarea, .k-dropdown-wrap {
+            font-size: inherit;
+        }
     }
     /**********************************************************
      * Navbar
