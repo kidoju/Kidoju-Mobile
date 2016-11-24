@@ -48,7 +48,12 @@
             },
             // Activities view
             activities: {
-                viewTitle: 'Activités'
+                viewTitle: 'Activités',
+                grid: {
+                    date: 'Date',
+                    score: 'Score',
+                    title: 'Titre'
+                }
             },
             // Categories view
             categories: {

@@ -250,12 +250,8 @@
     </div>
 
     <!-- Activities view -->
-    <div id="phone-activities" data-role="view" data-layout="phone-main-layout" data-title="Activities" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
-        <ul data-role="listview" data-bind="source: scores" data-template="phone-activities-template">
-        </ul>
-        <script type="text/x-kendo-template" id="phone-activities-template">
-            <a href="\#phone-player">#: title # - #: score #</a>
-        </script>
+    <div id="phone-activities" data-role="view" data-layout="phone-main-layout" data-title="Activities" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
+        <div data-role="grid"></div>
     </div>
 
     <!-- Categories view -->

@@ -541,6 +541,7 @@
                     // See: http://demos.telerik.com/kendo-ui/grid/editing-custom
                     defaultValue: null,
                     parse: function (value) {
+                        // Important: foreign keys use sids
                         return (value instanceof models.UserReference || value === null) ? value : new models.UserReference(value);
                     }
                 },
@@ -560,18 +561,25 @@
                     type: STRING,
                     editable: false
                 },
+                updated: {
+                    type: DATE,
+                    editable: false
+                },
                 version: { // <--- models.VersionReference
                     // For complex types, the recommendation is to leave the type undefined and set a default value
                     // See: http://www.telerik.com/forums/model---complex-model-with-nested-objects-or-list-of-objects
                     // See: http://demos.telerik.com/kendo-ui/grid/editing-custom
                     defaultValue: null,
                     parse: function (value) {
+                        // Important: foreign keys use sids
                         return (value instanceof models.VersionReference || value === null) ? value : new models.VersionReference(value);
                     }
                 }
-                // Do we need a date or can we rely on the updated date?
-                // Do we need any additional value/text to display in the mobile app?
+            },
+            title$: function () {
+                return this.get('version.title');
             }
+            // TODO: uri$ to display score
         });
 
         /**
@@ -688,6 +696,7 @@
                     db.activities.insert(activity)
                         .done(function (result) {
                             options.success({ total: 1, data: [activity] });
+                            // TODO serverSync is connected
                         })
                         .fail(options.error);
                 },
@@ -713,6 +722,7 @@
                                     options.success({ total: 1, data: [activity] });
                                 } else {
                                     options.error(undefined, 'error', 'Activity not found');
+                                    // TODO serverSync if connected
                                 }
                             })
                             .fail(options.error);
@@ -772,6 +782,7 @@
                                 if (result && result.nMatched === 1 && result.nModified === 1) {
                                     activity.id = id;
                                     options.success({ total: 1, data: [activity] });
+                                    // TODO serverSync if connected
                                 } else {
                                     options.error(undefined, 'error', 'Activity not found');
                                 }
