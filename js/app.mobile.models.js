@@ -526,13 +526,11 @@
             fields: {
                 id: {
                     type: STRING,
-                    editable: true,
                     nullable: true
                 },
                 // An activity without a sid does not exist on our servers
                 sid: {
                     type: STRING,
-                    editable: true,
                     nullable: true
                 },
                 actor: { // <--- models.UserReference
@@ -553,17 +551,15 @@
                 },
                 // test is used for activities of type score
                 test: {
-                    // type: UNDEFINED,
-                    editable: false,
-                    nullable: true
+                    // For complex types, the recommendation is to leave the type undefined and set a default value
+                    defaultValue: null
                 },
                 type: {
                     type: STRING,
                     editable: false
                 },
                 updated: {
-                    type: DATE,
-                    editable: false
+                    type: DATE
                 },
                 version: { // <--- models.VersionReference
                     // For complex types, the recommendation is to leave the type undefined and set a default value
@@ -577,9 +573,82 @@
                 }
             },
             title$: function () {
-                return this.get('version.title');
+                return this.get('version.title'); // Flattens data depth
             }
-            // TODO: uri$ to display score
+            // TODO: See validateTestFromProperties in kidoju.data
+            /**
+            getScoreArray: function () {
+                function matchPageConnectors (pageIdx) {
+                    // Connectors are a match if they have the same solution
+                    var ret = {};
+                    var connectors = pageCollectionDataSource.at(pageIdx).components.data().filter(function (component) {
+                        return component.tool === 'connector';
+                    });
+                    for (var i = 0, length = connectors.length; i < length; i++) {
+                        var connector = connectors[i];
+                        var name = connector.properties.name;
+                        assert.match(RX_VALID_NAME, name, kendo.format(assert.messages.match.default, 'name', RX_VALID_NAME));
+                        var solution = connector.properties.solution;
+                        var found = false;
+                        for (var prop in ret) {
+                            if (ret.hasOwnProperty(prop)) {
+                                if (prop === name) {
+                                    // already processed
+                                    found = true;
+                                    break;
+                                } else if (ret[prop] === solution) {
+                                    // found matching connector, point to name
+                                    ret[prop] = name;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!found) {
+                            // Add first connector, waiting to find a matching one
+                            ret[name] = solution;
+                        }
+                    }
+                    return ret;
+                }
+                function matchConnectors () {
+                    // We need a separate function because matching connectors neded to have the same solution on the same page (not a different page)
+                    var ret = {};
+                    for (var pageIdx = 0, pageTotal = pageCollectionDataSource.total(); pageIdx < pageTotal; pageIdx++) {
+                        ret = $.extend(ret, matchPageConnectors(pageIdx));
+                    }
+                    return ret;
+                }
+                assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
+                var that = this; // this is variable `result`
+                var matchingConnectors = matchConnectors();
+                var redundantConnectors = {};
+                var scoreArray = [];
+                for (var name in that) {
+                    // Only display valid names in the form val_xxxxxx that are not redundant connectors
+                    if (that.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !redundantConnectors.hasOwnProperty(name)) {
+                        var testItem = that.get(name);
+                        var scoreItem = testItem.toJSON();
+                        // Improved display of values in score grids
+                        scoreItem.value = testItem.value$();
+                        scoreItem.solution = testItem.solution$();
+                        // Aggregate score of redundant items (connectors)
+                        var redundantName = matchingConnectors[name];
+                        if (that.hasOwnProperty(redundantName) && RX_VALID_NAME.test(redundantName)) {
+                            // If there is a redundancy, adjust scores
+                            var redundantItem = that.get(redundantName);
+                            scoreItem.failure += redundantItem.failure;
+                            scoreItem.omit += redundantItem.omit;
+                            scoreItem.score += redundantItem.score;
+                            scoreItem.success += redundantItem.success;
+                            redundantConnectors[redundantName] = true;
+                        }
+                        scoreArray.push(scoreItem);
+                    }
+                }
+                return scoreArray;
+            },
+            **/
         });
 
         /**

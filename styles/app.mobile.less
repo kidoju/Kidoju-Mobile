@@ -51,6 +51,23 @@ html, body, #phone {
         }
     }
     /**********************************************************
+    * Drawer
+    **********************************************************/
+    #phone-drawer {
+        .km-view-title {
+            text-align: left;
+            margin-left: 0.5em;
+        }
+        .km-scroll-container {
+            // Make sure drawer items are aligned to the top especially with nova theme */
+            display: initial;
+            // Make list items larger for all themes
+            .km-listview > li {
+                padding: .84em .7em;
+            }
+        }
+    }
+    /**********************************************************
     * Activities view
     **********************************************************/
     // #phone-activities {}
@@ -70,19 +87,27 @@ html, body, #phone {
         }
     }
     /**********************************************************
-    * Drawer
+    * Correction/Player view
     **********************************************************/
-    #phone-drawer {
-        .km-view-title {
-            text-align: left;
-            margin-left: 0.5em;
-        }
-        .km-scroll-container {
-            // Make sure drawer items are aligned to the top especially with nova theme */
-            display: initial;
-            // Make list items larger for all themes
-            .km-listview > li {
-                padding: .84em .7em;
+    #phone-correction, #phone-player {
+        .km-stretched-view {
+            // http://docs.telerik.com/kendo-ui/controls/hybrid/how-to/relative-content-size-using-flexboxes
+            display: flex;
+            flex-wrap: wrap;
+            .padding {
+                padding: 1em;
+                .heading {
+                    h2 {
+                        margin: 0;
+                        font-size: 1rem;
+                        img {
+                            height: 1.5em;
+                            width: 1.5em;
+                            margin-right: 0.5em;
+                            vertical-align: middle;
+                        }
+                    }
+                }
             }
         }
     }
@@ -121,54 +146,18 @@ html, body, #phone {
         }
     }
     /**********************************************************
-    * Player view
-    **********************************************************/
-    #phone-player {
-        .km-stretched-view {
-            // http://docs.telerik.com/kendo-ui/controls/hybrid/how-to/relative-content-size-using-flexboxes
-            display: flex;
-            flex-wrap: wrap;
-            .padding {
-                padding: 1em;
-                .heading {
-                    h2 {
-                        margin: 0;
-                        font-size: 1rem;
-                        img {
-                            height: 1.5em;
-                            width: 1.5em;
-                            margin-right: 0.5em;
-                            vertical-align: middle;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    /**********************************************************
-     * Progress view
-     **********************************************************/
-    // #phone-progress {}
-    /**********************************************************
      * Score view
      **********************************************************/
-    // #phone-score {}
+    #phone-score {
+        .icon {
+            height: 28px;
+            width: 28px;
+        }
+    }
     /**********************************************************
      * Settings view
      **********************************************************/
     // #phone-settings {}
-    /**********************************************************
-    * Summary view
-    **********************************************************/
-    #phone-summary {
-        .picture {
-            width: 10em;
-            height: 10em;
-            margin: 1em auto;
-            display: block;
-            float: none;
-        }
-    }
     /**********************************************************
     * Sign-in view
     **********************************************************/
@@ -224,6 +213,22 @@ html, body, #phone {
             }
         }
     }
+    /**********************************************************
+    * Summary view
+    **********************************************************/
+    #phone-summary {
+        .picture {
+            width: 10em;
+            height: 10em;
+            margin: 1em auto;
+            display: block;
+            float: none;
+        }
+    }
+    /**********************************************************
+     * Sync view
+     **********************************************************/
+    // #phone-sync {}
     /**********************************************************
      * User view
      **********************************************************/

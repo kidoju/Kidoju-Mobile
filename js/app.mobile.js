@@ -56,9 +56,9 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.notification',
         './vendor/kendo/kendo.color',
         './vendor/kendo/kendo.drawing',
-        './vendor/kendo/kendo.dataviz.core',
-        './vendor/kendo/kendo.dataviz.themes',
-        './vendor/kendo/kendo.dataviz.chart',
+        // './vendor/kendo/kendo.dataviz.core',
+        // './vendor/kendo/kendo.dataviz.themes',
+        // './vendor/kendo/kendo.dataviz.chart',
         './vendor/kendo/kendo.router',
         './vendor/kendo/kendo.mobile.application',
         './vendor/kendo/kendo.mobile.button',
@@ -125,7 +125,7 @@ if (typeof(require) === 'function') {
         var UNDEFINED = 'undefined';
         var FUNCTION = 'function';
         var NUMBER = 'number';
-        var OBJECT = 'object';
+        // var OBJECT = 'object';
         var STRING = 'string';
         var ARRAY = 'array';
         var CHANGE = 'change';
@@ -146,15 +146,16 @@ if (typeof(require) === 'function') {
         var VIEW = {
             ACTIVITIES: '-activities',
             CATEGORIES: '-categories',
+            CORRECTION: '-correction',
             DRAWER: '-drawer',
             FAVOURITES: '-favourites',
             FINDER: '-finder',
             PLAYER: '-player',
-            PROGRESS: '-progress',
             SCORE: '-score',
             SETTINGS: '-settings',
             SUMMARY: '-summary',
             SIGNIN: '-signin',
+            SYNC: '-sync',
             USER: '-user'
         };
         var DEFAULT = {
@@ -176,7 +177,9 @@ if (typeof(require) === 'function') {
             CURRENT: {
                 $: 'current',
                 ID: 'current.id',
-                TEST: 'current.test'
+                SCORE: 'current.score',
+                TEST: 'current.test',
+                UPDATED: 'current.updated'
             },
             LANGUAGES: 'languages',
             PAGES_COLLECTION: 'version.stream.pages', // TODO
@@ -561,7 +564,7 @@ if (typeof(require) === 'function') {
                 }));
 
                 // Current score/test
-                this.set(VIEW_MODEL.CURRENT.$, { test: undefined });
+                this.set(VIEW_MODEL.CURRENT.$, new models.MobileActivity());
 
                 // Favorites are not yet implemented
                 // this.set('favourites', []);
@@ -611,7 +614,7 @@ if (typeof(require) === 'function') {
                         logger.error({
                             message: 'error loading summaries',
                             method: 'viewModel.loadLazySummaries',
-                            data: { query: query, status: status, error: error } // TODO xhr.responseText
+                            data: { status: status, error: error } // TODO xhr.responseText
                         });
                     });
             },
@@ -660,7 +663,7 @@ if (typeof(require) === 'function') {
                         logger.error({
                             message: 'error loading summary',
                             method: 'viewModel.loadSummary',
-                            data: { id: id, status: status, error: error } // TODO xhr.responseText
+                            data: { status: status, error: error } // TODO xhr.responseText
                         });
                     });
             },
@@ -674,7 +677,6 @@ if (typeof(require) === 'function') {
                 viewModel.set(VIEW_MODEL.USER.$, new models.MobileUser());
                 return viewModel.user.load()
                     .fail(function (xhr, status, error) {
-                        dfd.reject(xhr, status, error);
                         app.notification.error(i18n.culture.notifications.userLoadFailure);
                         logger.error({
                             message: 'error loading user',
@@ -714,7 +716,7 @@ if (typeof(require) === 'function') {
                     logger.error({
                         message: 'error loading version',
                         method: 'viewModel.loadVersion',
-                        data: { language: i18n.locale(), summaryId: summaryId, versionId: versionId, status: status, error: error } // TODO xhr.responseText
+                        data: { language: options.language, summaryId: options.summaryId, versionId: options.versionId, status: status, error: error } // TODO xhr.responseText
                     });
                 }
 
@@ -765,22 +767,20 @@ if (typeof(require) === 'function') {
                         logger.error({
                             message: 'error loading versions',
                             method: 'viewModel.loadLazyVersions',
-                            data: { summaryId: summaryId, status: status, error: error } // TODO: xhr.responseText
+                            data: { language: options.language, summaryId: options.summaryId, status: status, error: error } // TODO: xhr.responseText
                         });
                     });
             },
 
             /**
-             * Set current test
+             * Get correction view title
              */
-            setCurrent: function () {
-                viewModel.set(VIEW_MODEL.CURRENT.$, {
-                    test: viewModel.version.stream.pages.getTestFromProperties(),
-                    version : {
-                        summaryId: viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID),
-                        versionId: viewModel.get(VIEW_MODEL.VERSION.ID)
-                    }
-                });
+            getCorrectionViewTitle: function () {
+                var page = this.get(VIEW_MODEL.SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                var index = pageCollectionDataSource.indexOf(page);
+                return kendo.format(i18n.culture.correction.viewTitle, index + 1, pageCollectionDataSource.total());
             },
 
             /**
@@ -946,6 +946,44 @@ if (typeof(require) === 'function') {
             },
 
             /**
+             * Reset current test
+             */
+            resetCurrent: function () {
+                var that = this;
+                // Assert ids
+                var userId = that.get(VIEW_MODEL.USER.SID); // Foreign keys use sids (server ids)
+                assert.match(RX_MONGODB_ID, userId, kendo.format(assert.messages.match.default, 'userId', RX_MONGODB_ID));
+                var language = i18n.locale();
+                assert.equal(language, that.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'this.get(\'summary.language\')', language));
+                assert.equal(language, that.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'this.get(\'version.language\')', language));
+                var summaryId = that.get(VIEW_MODEL.VERSION.SUMMARY_ID);
+                assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+                assert.equal(summaryId, this.get(VIEW_MODEL.SUMMARY.ID), kendo.format(assert.messages.equal.default, 'this.get(\'summary.id\')', summaryId));
+                var versionId = that.get(VIEW_MODEL.VERSION.ID);
+                assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+                // Set viewModel field
+                // IMPORTANT: viewModel.current is not a models.MobileActivity - For more information, see saveCurrent
+                // viewModel.set(VIEW_MODEL.CURRENT.$, new models.MobileActivity({
+                viewModel.set(VIEW_MODEL.CURRENT.$, {
+                    actor: {
+                        firstName: that.get(VIEW_MODEL.USER.FIRST_NAME),
+                        lastName: that.get(VIEW_MODEL.USER.LAST_NAME),
+                        userId: userId // Foreign keys use sids (server ids)
+                    },
+                    // test initialized for player data binding
+                    test: viewModel.version.stream.pages.getTestFromProperties(),
+                    type: 'score',
+                    version : {
+                        language: language,
+                        // TODO categories for better statistics
+                        summaryId: summaryId,
+                        title: that.get(VIEW_MODEL.SUMMARY.TITLE),
+                        versionId: versionId
+                    }
+                });
+            },
+
+            /**
              * Calculate test results
              * @returns {*}
              */
@@ -957,6 +995,7 @@ if (typeof(require) === 'function') {
                         assert.isPlainObject(result, kendo.format(assert.messages.isPlainObject.default, 'result'));
                         assert.type(FUNCTION, result.percent, kendo.format(assert.messages.type.default, 'result.percent', FUNCTION));
                         viewModel.set(VIEW_MODEL.CURRENT.TEST, result);
+                        // Note: result has methods including percent and getScoreArray
                     })
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.player.notifications.scoreCalculationFailure); // TODO
@@ -974,49 +1013,28 @@ if (typeof(require) === 'function') {
              * Save the score activity
              * @returns {*}
              */
-            saveScore: function () {
-                var currentId = this.get(VIEW_MODEL.CURRENT.ID);
-                assert.isUndefined(currentId, kendo.format(assert.messages.isUndefined.default, 'currentId'));
-                var userId = this.get(VIEW_MODEL.USER.SID); // Foreign keys use sids (server ids)
-                assert.match(RX_MONGODB_ID, userId, kendo.format(assert.messages.match.default, 'userId', RX_MONGODB_ID));
-                var language = this.get(VIEW_MODEL.VERSION.LANGUAGE);
-                assert.equal(language, i18n.locale(), kendo.format(assert.messages.equal.default, 'i18n.locale()', language));
-                assert.equal(language, this.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'this.get(\'summary.language\')', language));
-                var summaryId = this.get(VIEW_MODEL.VERSION.SUMMARY_ID);
-                assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
-                assert.equal(summaryId, this.get(VIEW_MODEL.SUMMARY.ID), kendo.format(assert.messages.equal.default, 'this.get(\'summary.id\')', summaryId));
-                var versionId = this.get(VIEW_MODEL.VERSION.ID);
-                assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
-                var test = this.get(VIEW_MODEL.CURRENT.TEST);
-                // assert.isPlainObject(test, kendo.format(assert.messages.isPlainObject.default, 'test'));
-                assert.type(FUNCTION, test.percent, kendo.format(assert.messages.type.default, 'test.percent', FUNCTION));
-
-                // Create activity
-                var activity = new models.MobileActivity({
-                    actor: {
-                        firstName: this.get(VIEW_MODEL.USER.FIRST_NAME),
-                        lastName: this.get(VIEW_MODEL.USER.LAST_NAME),
-                        userId: userId // Foreign keys use sids (server ids)
-                    },
-                    type: 'score',
-                    test: test.toJSON(),
-                    score: test.percent(),
-                    updated: new Date(),
-                    version: {
-                        language: language,
-                        // TODO categories for better statistics
-                        summaryId: summaryId,
-                        title: this.get(VIEW_MODEL.SUMMARY.TITLE),
-                        versionId: versionId
-                    }
-                });
-
+            saveCurrent: function () {
+                // Get current
+                var current = this.get(VIEW_MODEL.CURRENT.$);
+                // assert.instanceof(models.MobileActivity, current, kendo.format(assert.messages.instanceof.default, 'current', 'app.models.MobileActivity'));
+                assert.type(UNDEFINED, current.id, kendo.format(assert.messages.type.default, 'current.id', UNDEFINED));
+                assert.type(FUNCTION, current.test.percent, kendo.format(assert.messages.type.default, 'current.test.percent', FUNCTION));
+                assert.type(FUNCTION, current.test.getScoreArray, kendo.format(assert.messages.type.default, 'current.test.getScoreArray', FUNCTION));
+                // Update current
+                viewModel.set(VIEW_MODEL.CURRENT.SCORE, current.test.percent());
+                viewModel.set(VIEW_MODEL.CURRENT.UPDATED, new Date());
                 // Add to datasource and sync
                 var activities = this.activities;
                 assert.instanceof(models.MobileActivityDataSource, activities, kendo.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
+                var activity = new models.MobileActivity(current);
                 activities.add(activity);
                 return activities.sync()
                     .done(function () {
+                        // current is not a models.MobileActivity because since percent and getScoreArray are not model methods,
+                        // There are lost at this stage. We would need to make a model with percent and getScoreArray methods
+                        var activityId = activity.get('id');
+                        assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
+                        viewModel.set(VIEW_MODEL.CURRENT.ID, activityId);
                         // app.notification.success(i18n.culture.player.notifications.scoreSaveSuccess); // TODO
                         // TODO: server sync here or in DataSource???
                     })
@@ -1025,14 +1043,17 @@ if (typeof(require) === 'function') {
                         app.notification.error(i18n.culture.player.notifications.scoreSaveFailure); // TODO
                         // Log error
                         logger.error({
-                            message: 'error saving score',
-                            method: 'viewModel.saveScore',
-                            data: { summaryId: hidden.summaryId, versionId: hidden.versionId, status: status, error: error } // TODO xhr.responseText
+                            message: 'error saving score current',
+                            method: 'viewModel.saveCurrent',
+                            data: { status: status, error: error } // TODO xhr.responseText
                         });
                     });
             }
 
         });
+
+        /* This function's cyclomatic complexity is too high. */
+        /* jshint -W074 */
 
         /**
          * Event handler for the viewModel change event
@@ -1059,20 +1080,17 @@ if (typeof(require) === 'function') {
                     // else onDeviceReady has not yet been called and mobile.application has not yet een initialized with theme
                     break;
                 case VIEW_MODEL.SELECTED_PAGE:
-                    var playerViewElement = $(DEVICE_SELECTOR + VIEW.PLAYER);
-                    var playerView = playerViewElement.data('kendoMobileView');
-                    mobile._setNavBar(playerView);
-                    mobile._setNavBarTitle(playerView, viewModel.getPlayerViewTitle());
-                    var markdownScrollerElement = playerViewElement.find(kendo.roleSelector('scroller'));
-                    var markdownScroller = markdownScrollerElement.data('kendoMobileScroller');
-                    markdownScroller.reset();
-                    markdownScroller.contentResized();
+                    // Reset NavBar buttons and title
+                    mobile._localizeCorrectionView();
+                    mobile._localizePlayerView();
                     break;
                 case VIEW_MODEL.USER.$:
                     viewModel.reset();
                     break;
             }
         });
+
+        /* jshint +W074 */
 
         /*******************************************************************************************
          * Utility methods (prefixed with underscore)
@@ -1111,6 +1129,13 @@ if (typeof(require) === 'function') {
                     showDrawerButton = true;
                     showSearchButton = true;
                     break;
+                case DEVICE_SELECTOR + VIEW.CORRECTION:
+                    showDrawerButton = true;
+                    showPreviousPageButton = !viewModel.isFirstPage$();
+                    showNextPageButton = !viewModel.isSubmitPage$();
+                    showLastPageButton = !viewModel.isSubmitPage$();
+                    // TODO: showScoreButton = viewModel.isSubmitPage$();
+                    break;
                 case DEVICE_SELECTOR + VIEW.FAVOURITES:
                     showDrawerButton = true;
                     showSyncButton = true;
@@ -1128,10 +1153,9 @@ if (typeof(require) === 'function') {
                     showLastPageButton = !viewModel.isSubmitPage$();
                     showSubmitButton = viewModel.isSubmitPage$();
                     break;
-                case DEVICE_SELECTOR + VIEW.PROGRESS:
-                    break;
                 case DEVICE_SELECTOR + VIEW.SCORE:
                     showDrawerButton = true;
+                    // TODO showCorrectionButton: true;
                     break;
                 case DEVICE_SELECTOR + VIEW.SETTINGS:
                     showDrawerButton = true;
@@ -1141,6 +1165,8 @@ if (typeof(require) === 'function') {
                     break;
                 case DEVICE_SELECTOR + VIEW.SUMMARY:
                     showDrawerButton = true;
+                    break;
+                case DEVICE_SELECTOR + VIEW.SYNC:
                     break;
                 case DEVICE_SELECTOR + VIEW.USER:
                     showPreviousUserButton = viewModel.isSavedUser$() && !viewModel.isFirstUser$();
@@ -1240,15 +1266,16 @@ if (typeof(require) === 'function') {
                 mobile._localizeMainLayout();
                 mobile._localizeActivitiesView();
                 mobile._localizeCategoriesView();
+                mobile._localizeCorrectionView();
                 mobile._localizeDrawerView();
-                mobile._localizeFavouritesView();
+                // mobile._localizeFavouritesView();
                 mobile._localizeFinderView();
                 mobile._localizePlayerView();
-                mobile._localizeProgressView();
                 mobile._localizeScoreView();
                 mobile._localizeSettingsView();
                 mobile._localizeSigninView();
                 mobile._localizeSummaryView();
+                mobile._localizeSyncView();
                 mobile._localizeUserView();
             });
         };
@@ -1292,6 +1319,26 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Localize the correction view
+         * @private
+         */
+        mobile._localizeCorrectionView = function () {
+            var culture = i18n.culture.correction;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.CORRECTION);
+            var viewWidget = viewElement.data('kendoMobileView');
+            // Note: the view might not have been initialized yet
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBar(viewWidget);
+                mobile._setNavBarTitle(viewWidget, viewModel.getCorrectionViewTitle());
+                var markdownScrollerElement = viewElement.find(kendo.roleSelector('scroller'));
+                var markdownScroller = markdownScrollerElement.data('kendoMobileScroller');
+                markdownScroller.reset();
+                // markdownScroller.contentResized();
+            }
+            viewElement.find('span.explanations').html(culture.explanations);
+        };
+
+        /**
          * Localize the drawer
          * @private
          */
@@ -1316,6 +1363,7 @@ if (typeof(require) === 'function') {
          * Localize the favourites view
          * @private
          */
+        /*
         mobile._localizeFavouritesView = function () {
             var culture = i18n.culture.favourites;
             var viewElement = $(DEVICE_SELECTOR + VIEW.FAVOURITES);
@@ -1325,6 +1373,7 @@ if (typeof(require) === 'function') {
                 mobile._setNavBarTitle(viewWidget, culture.viewTitle);
             }
         };
+        */
 
         /**
          * Localize the summaries view
@@ -1354,23 +1403,26 @@ if (typeof(require) === 'function') {
         mobile._localizePlayerView = function () {
             var culture = i18n.culture.player;
             var viewElement = $(DEVICE_SELECTOR + VIEW.PLAYER);
-            // mobile._setNavBarTitle is called when selectedPage is changed in the viewModel
-            // var viewWidget = viewElement.data('kendoMobileView');
+            var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
-            // if (viewWidget instanceof kendo.mobile.ui.View) {
-            //     mobile._setNavBarTitle(viewWidget, culture.viewTitle);
-            // }
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBar(viewWidget);
+                mobile._setNavBarTitle(viewWidget, viewModel.getPlayerViewTitle());
+                var markdownScrollerElement = viewElement.find(kendo.roleSelector('scroller'));
+                var markdownScroller = markdownScrollerElement.data('kendoMobileScroller');
+                markdownScroller.reset();
+                // markdownScroller.contentResized();
+            }
             viewElement.find('span.instructions').html(culture.instructions);
-            viewElement.find('span.explanations').html(culture.explanations);
         };
 
         /**
-         * Localize the progress view
+         * Localize the sync view
          * @private
          */
-        mobile._localizeProgressView = function () {
-            var culture = i18n.culture.progress;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.PROGRESS);
+        mobile._localizeSyncView = function () {
+            var culture = i18n.culture.sync;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.SYNC);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1479,11 +1531,13 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         /**
-         * Resize player
+         * Resize player/correction stage and instructions/explanations markdown
+         * @param view
          * @private
          */
-        mobile._resizePlayer = function () {
-            var content = $(DEVICE_SELECTOR + VIEW.PLAYER).find(kendo.roleSelector('content'));
+        mobile._resizeStage = function (view) {
+            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            var content = view.element.find(kendo.roleSelector('content'));
             var stageElement = content.find(kendo.roleSelector('stage'));
             var stageWidget = stageElement.data('kendoStage');
             // If the stage widget has not yet been initialized, we won't get the correct stageWrapper
@@ -1493,6 +1547,7 @@ if (typeof(require) === 'function') {
                  * There is a breaking change in jQuery 3 regarding height and width
                  * jQuery 2 reports the actual CSS value (clientHeight, clientWidth)
                  * jQuery 3 reports the scaled value
+                 * See https://github.com/jquery/jquery/issues/3193
                  */
                 var HEIGHT = stageElement.outerHeight();
                 assert.equal(HEIGHT, 768, kendo.format(assert.messages.equal.default, 'HEIGHT', '768'));
@@ -1529,7 +1584,7 @@ if (typeof(require) === 'function') {
          */
         mobile.onResize = function () {
             mobile._initNotification();
-            mobile._resizePlayer();
+            mobile._resizeStage(mobile.application.view());
             // Anything else to resize?
         };
 
@@ -1563,6 +1618,7 @@ if (typeof(require) === 'function') {
             // Otherwise the ready event handler in app.i18n is not called
             // (in phonegap developer app, in packaged apps, but not in a browser served by phonegap)
             // and oni18nLoaded does not execute (strange but true)
+            // ATTENTION: https://github.com/jquery/jquery/issues/3288
             $.holdReady(false);
         };
 
@@ -1628,7 +1684,8 @@ if (typeof(require) === 'function') {
                                 var language = matches[1];
                                 var summaryId = matches[2];
                                 if (viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE) === language) {
-                                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY + '?summaryId=' + window.encodeURIComponent(summaryId));
+                                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY +
+                                        '?summaryId=' + window.encodeURIComponent(summaryId));
                                 } else {
                                     mobile.notification.alert('Change language settings to scan this code'); // TODO
                                 }
@@ -1665,20 +1722,14 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler triggered when showing the Activities view
-         * Note: the view event is triggered each time the view is requested
-         * @param e
+         * Initialize the activities grid
+         * @param view
+         * @private
          */
-        mobile.onActivitiesViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            // Localize UI (cannot be done in init because language may have changed during the session)
-            mobile._localizeActivitiesView();
-            // Set the navigation bar buttons
-            mobile._setNavBar(e.view);
-            // TODO set the activities dataSource if not set???
+        mobile._initActivitiesGrid = function (view) {
+            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             // Find and destroy the grid
-            var gridElement = e.view.element.find(kendo.roleSelector('grid'));
+            var gridElement = view.element.find(kendo.roleSelector('grid'));
             var gridWidget = gridElement.data('kendoGrid');
             if (gridWidget instanceof kendo.ui.Grid) {
                 // Destroying the adaptive grid is explained at
@@ -1697,32 +1748,66 @@ if (typeof(require) === 'function') {
             var culture = i18n.culture.activities;
             // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
             gridWidget = gridElement.kendoGrid({
+                change: function (e) {
+                    assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                    assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                    var selectedRows = e.sender.select();
+                    assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
+                    assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
+                    var dataItem = this.dataItem(selectedRows[0]);
+                    assert.instanceof(models.MobileActivity, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'app.models.MobileActivity'));
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
+                        // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
+                        // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
+                        // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
+                        '?activityId=' + window.encodeURIComponent(dataItem.get('id')) // Note: this is a local id, not a sid
+                    );
+                },
                 columnMenu: true,
                 columns: [
-                    // See http://docs.telerik.com/kendo-ui/framework/globalization/dateformatting
-                    { field: 'updated', title: culture.grid.date, format: '{0:MMM d}', width: '70px' },
-                    { field: 'version.title', title: culture.grid.title, template: '#: title$() #' },
-                    // See http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
-                    { field: 'score', title: culture.grid.score, template: '#: kendo.toString( score / 100, "p0") #', width: '50px' }
+                    {
+                        field: 'updated',
+                        format: '{0:MMM d}', // See http://docs.telerik.com/kendo-ui/framework/globalization/dateformatting
+                        title: culture.grid.columns.date,
+                        width: '70px'
+                    },
+                    {
+                        field: 'version.title',
+                        template: '#: title$() #',
+                        title: culture.grid.columns.title
+                    },
+                    {
+                        field: 'score',
+                        template: '#: kendo.toString( score / 100, "p0") #', // See http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
+                        title: culture.grid.columns.score,
+                        width: '50px'
+                    }
                     // TODO show sync status with icon ????
-                    // TODO link to score page when clicking entry
                 ],
                 dataSource: viewModel.activities, // TODO filter current user + sort by date desc
                 filterable: true,
-                mobile: true, // TODO test 'phone' and 'tablet'
-                change: function(e) {
-                    debugger;
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
-                        '?summaryId=' + // TODO add values
-                        '&versionId=' +
-                        '&activityId='
-                    );
-                },
+                mobile: true, // TODO try 'phone' and 'tablet'
                 resizable: true,
                 selectable: 'row',
                 sortable: true
                 // TODO: save state (column resizing and filters)
             });
+        };
+
+        /**
+         * Event handler triggered when showing the Activities view
+         * Note: the view event is triggered each time the view is requested
+         * @param e
+         */
+        mobile.onActivitiesViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
+            mobile._localizeActivitiesView();
+            // Set the navigation bar buttons
+            mobile._setNavBar(e.view);
+            // TODO set the activities dataSource if not set???
+            mobile._initActivitiesGrid(e.view);
         };
 
         /**
@@ -1740,10 +1825,60 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Event handler triggered when initializing the Correction view
+         * Note: the init event is triggered the first time the view is requested
+         * @param e
+         */
+        mobile.onCorrectionViewInit = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            e.view.content.kendoTouch({
+                enableSwipe: true,
+                minXDelta: 200,
+                maxDuration: 500,
+                swipe: function (e) {
+                    // Is there a way to test this has not been initiated by one of our draggables?
+                    if (e.direction === 'left') {
+                        viewModel.nextPage();
+                    } else if (e.direction === 'right') {
+                        viewModel.previousPage();
+                    }
+                }
+            });
+        };
+
+        /**
+         * Event handler triggered when showing the Correction view
+         * Note: the view event is triggered each time the view is requested
+         * @param e
+         */
+        mobile.onCorrectionViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE)
+            // var summaryId = e.view.params.summaryId;
+            // var versionId = e.view.params.versionId;
+            var activityId = e.view.params.activityId;
+            var page = e.view.params.page || 1;
+            // assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
+            // assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+            // Localize UI (cannot be done in init because language may have changed during the session)
+            mobile._localizeCorrectionView();
+            // version is already loaded - viewModel.loadVersion({ language: language, summaryId: summaryId, versionId: versionId }),
+            // activities are already loaded - viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
+            mobile._resizeStage(e.view);
+            viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(page - 1));
+            // Set the navigation bar buttons
+            mobile._setNavBar(e.view);
+        };
+
+        /**
          * Event handler triggered when showing the Favourites view
          * Note: the view event is triggered each time the view is requested
          * @param e
          */
+        /*
         mobile.onFavouritesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
@@ -1752,6 +1887,7 @@ if (typeof(require) === 'function') {
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
         };
+        */
 
         /**
          * Event handler triggered before showing the Summaries view
@@ -1801,10 +1937,10 @@ if (typeof(require) === 'function') {
             // }
             var query = $.extend(true, { page: 1, pageSize: viewModel.summaries.pageSize() }, $.deparam($.param(e.view.params)));
             viewModel.loadLazySummaries(query);
-                // See comment for mobile.onSummariesBeforeViewShow
-                // .always(function () {
-                //     mobile.application.hideLoading();
-                // });
+            // See comment for mobile.onSummariesBeforeViewShow
+            // .always(function () {
+            //     mobile.application.hideLoading();
+            // });
         };
 
         /**
@@ -1853,8 +1989,8 @@ if (typeof(require) === 'function') {
                 viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
             )
                 .done(function () {
-                    mobile._resizePlayer(e.view);
-                    viewModel.setCurrent();
+                    mobile._resizeStage(e.view);
+                    viewModel.resetCurrent();
                     viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(0));
                     // Set the navigation bar buttons
                     mobile._setNavBar(e.view);
@@ -1862,17 +1998,89 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler triggered when showing the progress view when syncing
-         * @param e
+         * Initialize score grid
+         * @param view
+         * @private
          */
-        mobile.onProgressViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            // Localize UI (cannot be done in init because language may have changed during the session)
-            mobile._localizeProgressView();
-            // Set the navigation bar buttons
-            mobile._setNavBar(e.view);
-            // TODO
+        mobile._initScoreGrid = function (view) {
+            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            // Find and destroy the grid (in case we have changed language)
+            var gridElement = view.element.find(kendo.roleSelector('grid'));
+            var gridWidget = gridElement.data('kendoGrid');
+            if (gridWidget instanceof kendo.ui.Grid) {
+                // Destroying the adaptive grid is explained at
+                // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
+                // var paneElement = gridElement.closest('.km-pane-wrapper');
+                // kendo.destroy(paneElement);
+                // var parentElement = paneElement.parent();
+                // gridElement = $('<div data-role="grid"></div>');
+                // parentElement.empty().append(gridElement);
+                // but the above does not apply to stretched views as reported at
+                // https://github.com/telerik/kendo-ui-core/issues/2481
+                assert.ok(gridElement.parent().is('.km-stretched-view'), 'The parent of the grid element should be a stretched view');
+                gridWidget.destroy();
+                gridElement.empty();
+            }
+            var culture = i18n.culture.score;
+            // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
+            gridWidget = gridElement.kendoGrid({
+                change: function (e) {
+                    assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                    assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                    var selectedRows = e.sender.select();
+                    assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
+                    assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
+                    var dataItem = this.dataItem(selectedRows[0]);
+                    assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
+                    var currentId = viewModel.get(VIEW_MODEL.CURRENT.ID);
+                    var page = dataItem.page + 1;
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.CORRECTION +
+                        // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
+                        // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
+                        // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
+                        '?activityId=' + window.encodeURIComponent(dataItem.get('id')) + // Note: this is a local id, not a sid
+                        '&page=' + window.encodeURIComponent(page)
+                    );
+                },
+                columnMenu: true,
+                columns: [
+                    {
+                        field: 'page',
+                        template: '#: page + 1 #',
+                        title: culture.grid.columns.page,
+                        width: '50px'
+                    },
+                    // { field: 'name' },
+                    {
+                        field: 'description',
+                        title: culture.grid.columns.description
+                    },
+                    // { field: 'value' },
+                    // { field: 'solution' },
+                    // { field: 'omit' },
+                    // { field: 'failure' },
+                    // { field: 'success' },
+                    // { field: 'score' },
+                    {
+                        field: 'result',
+                        title: culture.grid.columns.result,
+                        template: '# var src = result ? "ok" : "error"; # <img alt="#= src #" src="#= kendo.format(app.uris.cdn.icons, src) #" class="icon">',
+                        width: '50px'
+                    }
+                ],
+                dataSource: {
+                    // aggregate: [
+                    //     { field: 'score', aggregate: 'sum' }
+                    // ],
+                    data: viewModel.get(VIEW_MODEL.CURRENT.TEST).getScoreArray()
+                },
+                filterable: true,
+                mobile: true, // TODO try 'phone' and 'tablet'
+                resizable: true,
+                selectable: 'row',
+                sortable: true
+                // TODO: save state (column resizing and filters)
+            });
         };
 
         /**
@@ -1886,7 +2094,30 @@ if (typeof(require) === 'function') {
             mobile._localizeScoreView();
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
-            // TODO
+            // Get the activity id from params
+            var activityId = e.view.params.activityId; // Note: activityId is a local id (not a sid)
+            if (RX_MONGODB_ID.test(activityId)) {
+                // TODO: reload activities ???
+                // If we have an activityId, replace the current test to display score and correction
+                var activity = viewModel.activities.get(activityId);
+                assert.instanceof(models.MobileActivity, activity, kendo.format(assert.messages.instanceof.default, 'activity', 'app.models.MobileActivity'));
+                assert.equal('score', activity.type, kendo.format(assert.messages.instanceof.default, 'activity.type', 'score'));
+                $.when(
+                    viewModel.loadSummary({ language: i18n.locale(), id: activity.get('version.summaryId') }),
+                    viewModel.loadVersion({ language: i18n.locale(), summaryId: activity.get('version.summaryId'), versionId: activity.get('version.versionId') })
+                )
+                    .done(function () {
+                        viewModel.set(VIEW_MODEL.CURRENT.$, activity);
+                        viewModel.calculate()
+                            .done(function () {
+                                mobile._initScoreGrid(e.view);
+                            });
+                    });
+            } else {
+                // Otherwise, use the current test
+                // TODO assert current state (percent function?)
+                mobile._initScoreGrid(e.view);
+            }
         };
 
         /**
@@ -1910,7 +2141,6 @@ if (typeof(require) === 'function') {
         mobile.onSettingsSwitchClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-
             // Navigate to the user view
             mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
         };
@@ -1923,6 +2153,8 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
+            // TODO: review and add activities
+
             if (viewModel.users.total() === 0) {
                 return app.notification.warning('Database already cleared.');
             }
@@ -1932,7 +2164,7 @@ if (typeof(require) === 'function') {
 
             viewModel.users.sync()
                 .done(function () {
-                    app.notification.success('Database cleared.')
+                    app.notification.success('Database cleared.');
                 })
                 .fail(function () {
                     app.notification.error('Error clearing database.');
@@ -1970,7 +2202,7 @@ if (typeof(require) === 'function') {
                     .done(function () {
                         // Yield time for transition effects to complete, especially when testing in the browser
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
-                        setTimeout(function() {
+                        setTimeout(function () {
                             mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
                         }, 0);
                     })
@@ -1978,7 +2210,7 @@ if (typeof(require) === 'function') {
                         if ($.isFunction(callback)) {
                             callback();
                         }
-                    })
+                    });
             }
         };
 
@@ -2124,7 +2356,6 @@ if (typeof(require) === 'function') {
             viewModel.loadSummary({ language: language, id: summaryId });
         };
 
-
         /**
          * Event handler triggered when clicking the play option in the action sheet displayed from the GO button of summaries
          */
@@ -2176,6 +2407,20 @@ if (typeof(require) === 'function') {
                     }
                 );
             }
+        };
+
+        /**
+         * Event handler triggered when showing the sync view
+         * @param e
+         */
+        mobile.onSyncViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Localize UI (cannot be done in init because language may have changed during the session)
+            mobile._localizeSyncView();
+            // Set the navigation bar buttons
+            mobile._setNavBar(e.view);
+            // TODO ----------------------------------------------------------------------------------------------------------
         };
 
         /**
@@ -2368,44 +2613,15 @@ if (typeof(require) === 'function') {
 
         /**
          * Submit answers to calculate score
-         * @param page
          * @private
          */
-        mobile._submit = function (page) {
+        mobile._submit = function () {
             viewModel.calculate()
                 .done(function () { // Note: failure is already taken care of
-                    viewModel.saveScore()
+                    viewModel.saveCurrent()
                         .done(function () {
-                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE); // + '?summaryId=' + window.encodeURIComponent(summaryId) + '&versionId=' + window.encodeURIComponent(version.id)); // TODO: activityId
+                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE);
                         });
-                    // save
-                    /*
-                    $.when(
-                        viewModel.saveScore(),
-                        viewModel.loadSummary()
-                    )
-                        .done(function () { // Note: failure is already taken care of
-                            var currentId = viewModel.get(VIEW_MODEL.CURRENT.ID);
-                            var isAuthenticated = viewModel.isAuthenticated$();
-                            var isAuthor = viewModel.isAuthor$();
-                            // if oAuth callback, clear cache
-                            if (isAuthenticated && !isAuthor) {
-                                app.cache._removeSessionItem(CACHE_NAME);
-                            }
-                            // init score view
-                            controller.initScore();
-                            // assertions
-                            if (isAuthenticated && !isAuthor) {
-                                assert.match(RX_MONGODB_ID, currentId, kendo.format(assert.messages.match.default, 'currentId', RX_MONGODB_ID));
-                            } else {
-                                assert.equal(SESSION_ID, currentId, kendo.format(assert.messages.equal.default, 'currentId', SESSION_ID));
-                            }
-                            // navigate
-                            router.navigate(SLASH + page + SLASH + currentId);
-                            // animate the loader if still visible
-                            $('body>div.k-loading-image:visible').fadeOut();
-                        });
-                      */
                 });
         };
 
@@ -2424,7 +2640,7 @@ if (typeof(require) === 'function') {
                     { action: 'no', text: 'No', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg' } // TODO
                 ]
             })
-                .done(function(result) {
+                .done(function (result) {
                     if (result.action === 'yes') {
                         mobile._submit();
                     }

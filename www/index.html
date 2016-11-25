@@ -267,14 +267,32 @@
         </script>
     </div>
 
+    <!-- Correction view -->
+    <div id="phone-correction" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onCorrectionViewInit" data-show="app.mobile.onCorrectionViewShow">
+        <div class="stretched-item">
+            <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
+        </div>
+        <div class="stretched-item padding">
+            <div class="heading">
+                <h2>
+                    <img src="./img/teacher.svg" alt="Explanations">
+                    <span class="explanations">Explanations</span>
+                </h2><hr/>
+            </div>
+            <div data-role="scroller" data-use-native="true">
+                <div class="markdown" data-role="markdown" data-bind="value: selectedPage.explanations"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Favourites view -->
-    <div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
+    <!--div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
         <ul data-role="listview" data-bind="source: favourites" data-template="phone-favourites-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-favourites-template">
             <a href="\#phone-player">#: title #</a>
         </script>
-    </div>
+    </div-->
 
     <!-- Finder view -->
     <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
@@ -312,9 +330,8 @@
         <div class="stretched-item padding">
             <div class="heading">
                 <h2>
-                    <img src="./img/teacher.svg" alt="Instructions/Explanations">
+                    <img src="./img/teacher.svg" alt="Instructions">
                     <span class="instructions">Instructions</span>
-                    <span class="explanations" style="display: none;">Explanations</span>
                 </h2><hr/>
             </div>
             <div data-role="scroller" data-use-native="true">
@@ -323,13 +340,8 @@
         </div>
     </div>
 
-    <!-- Progress (sync) view -->
-    <div id="phone-progress" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onProgressViewShow">
-        <div></div>
-    </div>
-
     <!-- Score view -->
-    <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
+    <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
         <div data-role="grid"></div>
     </div>
 
@@ -431,6 +443,11 @@
             <li><a data-action="app.mobile.onSummaryActionPlay" class="km-actionsheet-play">Play</a></li>
             <li data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onSummaryActionShare" class="km-actionsheet-share">Share</a></li>
         </ul>
+    </div>
+
+    <!-- Sync view -->
+    <div id="phone-sync" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSyncViewShow">
+        <div></div>
     </div>
 
     <!-- User view -->

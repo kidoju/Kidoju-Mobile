@@ -49,15 +49,24 @@
             // Activities view
             activities: {
                 viewTitle: 'Activités',
+                // Grid
                 grid: {
-                    date: 'Date',
-                    score: 'Score',
-                    title: 'Titre'
+                    columns: {
+                        date: 'Date',
+                        score: 'Score',
+                        title: 'Titre'
+                    }
                 }
             },
             // Categories view
             categories: {
                 viewTitle: 'Explorer'
+            },
+            // Correction view
+            correction: {
+                viewTitle: 'Page {0} de {1}',
+                // Labels
+                explanations: 'Explications'
             },
             // Drawer
             drawer: {
@@ -94,17 +103,25 @@
             },
             // Player view
             player: {
-                explanations: 'Explications',
-                instructions: 'Instructions',
-                viewTitle: 'Page {0} de {1}'
+                viewTitle: 'Page {0} de {1}',
+                // Labels
+                instructions: 'Instructions'
             },
-            // Progress view
-            progress: {
+            // Sync view
+            sync: {
                 viewTitle: 'Synchronisation'
             },
             // Score view
             score: {
-                viewTitle: 'Score'
+                viewTitle: 'Score',
+                // Grid
+                grid: {
+                    columns: {
+                        description: 'Question',
+                        page: 'Page',
+                        result: 'Résultat'
+                    }
+                }
             },
             // Settings view
             settings: {

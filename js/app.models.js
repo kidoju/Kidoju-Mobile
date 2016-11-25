@@ -2109,6 +2109,7 @@
             init: function (options) {
                 var that = this;
 
+                // TODO that._language = options && options.language;
                 that.summaryId = options && options.summaryId;
 
                 DataSource.fn.init.call(that, $.extend(true, {}, {
@@ -2145,6 +2146,7 @@
             },
             load: function (options) {
                 var that = this;
+                // TODO that._language = options && options.language;
                 that.summaryId = options && options.summaryId;
                 return that.query(options);
                 // return that.read();
@@ -2172,6 +2174,7 @@
                     options.data.fields = 'state,summaryId';
                     options.data.sort = [{ field: 'id', dir: 'desc' }];
 
+                    // TODO: replace i18n.locale() by language and remove dependency on i18n
                     rapi.v1.content.findSummaryVersions(i18n.locale(), that.summaryId, options.data)
                         .done(function (response) {
                             options.success(response);
