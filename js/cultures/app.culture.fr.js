@@ -91,14 +91,26 @@
             },
             // Notification messages
             notifications: {
+                activitiesQueryFailure: 'Il y a eu une erreur lors du chargement des activités.',
                 networkOffline: 'Vous n\'êtes pas connecté à Internet.',
+                oAuthTokenFailure: 'Le service d\'authentification a retourné une erreur.',
+                pinSaveFailure: 'Les pins à 4 chiffres ne correspondent pas.',
+                pinSaveInfo: 'Veuillez saisir et confirmer votre pin à 4 chiffres avant d\'enregistrer.',
+                pinValidationFailure: 'Mauvais pin à 4 chiffres.',
+                pinValidationInfo: 'Veuillez saisir votre pin à 4 chiffres pour vous connecter.',
+                scoreCalculationFailure: 'Il y a eu une erreur de calcul de votre score.',
+                scoreSaveFailure: 'Il y a eu une erreur d\'enregistremenet de votre score.',
+                scoreSaveSuccess: 'Votre score a été enregistré avec succès.',
                 settingsLoadFailure: 'Il y a eu une erreur lors du chargement des paramètres.',
                 signinUrlFailure: 'Il y a eu une erreur d\'obtention d\'url de connexion pour le service d\'authentification.',
                 summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
                 summaryLoadFailure: 'Il y a eu une erreur lors du chargement des données du résumé descriptif.',
                 userLoadFailure: 'Il y a eu une erreur lors du chargement du profil utilisateur.',
-                userQueryFailure: 'Il y a eu une erreur lors du chargement de la list des utilisateurs.',
-                versionLoadFailure: 'Il y a eu une erreur lors du chargement de votre version.',
+                userSaveFailure: 'Il y a eu une erreur d\'enregistremenet de votre profil utilisateur.',
+                userSaveSuccess: 'Votre profil utilisateur a été enregistré avec succès.',
+                userSignInSuccess: 'Vous êtes connecté en tant que {0}.',
+                usersQueryFailure: 'Il y a eu une erreur lors du chargement de la liste des utilisateurs.',
+                versionLoadFailure: 'Il y a eu une erreur lors du chargement de la version.',
                 versionsLoadFailure: 'Il y a eu une erreur lors du chargement des versions.'
             },
             // Player view

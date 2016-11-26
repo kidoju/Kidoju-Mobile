@@ -610,7 +610,7 @@ if (typeof(require) === 'function') {
             loadActivities: function (options) {
                 return this.activities.load(options)
                     .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.myActivitiesQueryFailure);
+                        app.notification.error(i18n.culture.notifications.activitiesQueryFailure);
                         logger.error({
                             message: 'error loading summaries',
                             method: 'viewModel.loadLazySummaries',
@@ -693,7 +693,7 @@ if (typeof(require) === 'function') {
             loadUsers: function () {
                 return viewModel.users.query({ sort: { field: 'lastUse', dir: 'desc' } })
                     .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.userQueryFailure);
+                        app.notification.error(i18n.culture.notifications.usersQueryFailure);
                         logger.error({
                             message: 'error loading users',
                             method: 'viewModel.loadUsers',
@@ -998,7 +998,7 @@ if (typeof(require) === 'function') {
                         // Note: result has methods including percent and getScoreArray
                     })
                     .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.player.notifications.scoreCalculationFailure); // TODO
+                        app.notification.error(i18n.culture.notifications.scoreCalculationFailure);
                         var serverError;
                         try { serverError = JSON.parse(xhr.responseText); } catch (ex) {} // TODO
                         logger.error({
@@ -1035,12 +1035,12 @@ if (typeof(require) === 'function') {
                         var activityId = activity.get('id');
                         assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
                         viewModel.set(VIEW_MODEL.CURRENT.ID, activityId);
-                        // app.notification.success(i18n.culture.player.notifications.scoreSaveSuccess); // TODO
+                        app.notification.success(i18n.culture.notifications.scoreSaveSuccess);
                         // TODO: server sync here or in DataSource???
                     })
                     .fail(function (xhr, status, error) {
                         // dfd.reject(xhr, status, error);
-                        app.notification.error(i18n.culture.player.notifications.scoreSaveFailure); // TODO
+                        app.notification.error(i18n.culture.notifications.scoreSaveFailure);
                         // Log error
                         logger.error({
                             message: 'error saving score current',
@@ -2185,7 +2185,7 @@ if (typeof(require) === 'function') {
                 rapi.util.cleanHistory();
             }
             if (token && token.error) {
-                app.notification.error('There has been an error with the oAuth flow'); // TODO
+                app.notification.error(i18n.culture.notifications.oAuthTokenFailure);
                 logger.error({
                     message: token.error,
                     method: 'mobile._parseTokenAndLoadUser',
@@ -2465,9 +2465,9 @@ if (typeof(require) === 'function') {
             e.view.scroller.reset();
             // Display a notification
             if (viewModel.isSavedUser$()) {
-                app.notification.info('Please enter your pin to sign in.'); // TODO
+                app.notification.info(i18n.culture.notifications.pinValidationInfo);
             } else {
-                app.notification.info('Please enter and confirm your 4-digit pin before saving.'); // TODO
+                app.notification.info(i18n.culture.notifications.pinSaveInfo);
             }
             // Focus on PIN
             e.view.element.find(SELECTORS.PIN).val('').first().focus();
@@ -2508,11 +2508,12 @@ if (typeof(require) === 'function') {
                         viewModel.set(VIEW_MODEL.USER.$, found);
                         // Trigger a change event to update user + settings view data bindings
                         viewModel.trigger(CHANGE, { field: VIEW_MODEL.USER.$ });
-                        app.notification.success(kendo.format('Successfully saved and sign in as {0}.', viewModel.user.fullName$())); // TODO
+                        app.notification.success(kendo.format(i18n.culture.notifications.userSaveSuccess));
+                        app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
                         mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
                     })
                     .fail(function (xhr, status, error) {
-                        app.notification.error('There was an error saving the user.');  // TODO
+                        app.notification.error(i18n.culture.notifications.userSaveFailure);
                         logger.error({
                             message: 'error saving user',
                             method: 'mobile.onUserSaveClick',
@@ -2521,7 +2522,7 @@ if (typeof(require) === 'function') {
                     });
 
             } else {
-                app.notification.warning('Please enter and confirm a 4 digit pin.');
+                app.notification.warning(i18n.culture.notifications.pinSaveFailure);
             }
         };
 
@@ -2540,10 +2541,10 @@ if (typeof(require) === 'function') {
             var pinValue = pinElement.val();
 
             if (viewModel.user.verifyPin(pinValue)) {
-                app.notification.success(kendo.format('Successfully signed in as {0}.', viewModel.user.fullName$())); // TODO
+                app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
                 mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
             } else {
-                app.notification.warning('Wrong pin.'); // TODO
+                app.notification.warning(i18n.culture.notifications.pinValidationFailure);
             }
         };
 
