@@ -116,6 +116,7 @@
     <access origin="data://*" />
     <access origin="filesystem://*" />
     <access origin="gap://*" /-->
+    <allow-navigation href="*" />
     <platform name="android">
         <allow-intent href="market:*" />
         <preference name="AndroidPersistentFileLocation" value="Internal" />
