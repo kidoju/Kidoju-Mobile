@@ -1594,10 +1594,6 @@ if (typeof(require) === 'function') {
             var view = mobile.application.view();
             mobile._initNotification();
             mobile._resizeStage(view);
-            // We could also have resized grids as documented
-            // at http://docs.telerik.com/kendo-ui/styles-and-layout/using-kendo-in-responsive-web-pages#apply-resize-method
-            mobile._initActivitiesGrid(view);
-            mobile._initScoreGrid(view);
         };
 
         /*******************************************************************************************
@@ -1740,71 +1736,71 @@ if (typeof(require) === 'function') {
          */
         mobile._initActivitiesGrid = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            // Find and destroy the grid
-            var content = view.element.find(kendo.roleSelector('content'));
-            var gridElement = content.find(DEVICE_SELECTOR + VIEW.ACTIVITIES + '-grid'); // kendo.roleSelector('grid'));
-            // Only proceed if gridElement is found (see onResize)
-            if (gridElement.length) {
-                var gridWidget = gridElement.data('kendoGrid');
-                if (gridWidget instanceof kendo.ui.Grid) {
-                    // Destroying the adaptive grid is explained at
-                    // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
-                    var paneElement = gridElement.closest('.km-pane-wrapper');
-                    kendo.destroy(paneElement);
-                    var parentElement = paneElement.parent();
-                    gridElement = $('<div id="' + DEVICE_SELECTOR.substr(1) + VIEW.ACTIVITIES + '-grid"></div>'); //data-role="grid"></div>');
-                    parentElement.empty().append(gridElement);
-                }
-                var culture = i18n.culture.activities;
-                // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
-                gridWidget = gridElement.kendoGrid({
-                    change: function (e) {
-                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                        assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
-                        var selectedRows = e.sender.select();
-                        assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
-                        assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
-                        var dataItem = this.dataItem(selectedRows[0]);
-                        assert.instanceof(models.MobileActivity, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'app.models.MobileActivity'));
-                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
-                            // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
-                            // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
-                            // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
-                            '?activityId=' + window.encodeURIComponent(dataItem.get('id')) // Note: this is a local id, not a sid
-                        );
-                    },
-                    columnMenu: true,
-                    columns: [
-                        {
-                            field: 'updated',
-                            format: '{0:MMM d}', // See http://docs.telerik.com/kendo-ui/framework/globalization/dateformatting
-                            title: culture.grid.columns.date,
-                            width: '70px'
-                        },
-                        {
-                            field: 'version.title',
-                            template: '#: title$() #',
-                            title: culture.grid.columns.title
-                        },
-                        {
-                            field: 'score',
-                            template: '#: kendo.toString( score / 100, "p0") #', // See http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
-                            title: culture.grid.columns.score,
-                            width: '50px'
-                        }
-                        // TODO show sync status with icon ????
-                    ],
-                    dataSource: viewModel.activities, // TODO filter current user + sort by date desc
-                    filterable: true,
-                    height: content.height(),
-                    mobile: 'phone', // http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-mobile
-                    resizable: true,
-                    scrollable: true,
-                    selectable: 'row',
-                    sortable: true
-                    // TODO: save state (column resizing and filters)
-                });
+            // Find and destroy the grid as it needs to be rebuilt if locale changes
+            // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
+            // var gridElement = view.element.find(kendo.roleSelector('grid'));
+            var gridElement = view.element.find(DEVICE_SELECTOR + VIEW.ACTIVITIES + '-grid');
+            var gridWidget = gridElement.data('kendoGrid');
+            if (gridWidget instanceof kendo.ui.Grid) {
+                // Destroying the adaptive grid is explained at
+                // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
+                var paneElement = gridElement.closest('.km-pane-wrapper');
+                kendo.destroy(paneElement);
+                var parentElement = paneElement.parent();
+                // gridElement = $('<div data-role="grid"></div>');
+                gridElement = $('<div id="' + DEVICE_SELECTOR.substr(1) + VIEW.ACTIVITIES + '-grid"></div>');
+                parentElement.empty().append(gridElement);
             }
+            var culture = i18n.culture.activities;
+            // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
+            gridWidget = gridElement.kendoGrid({
+                change: function (e) {
+                    assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                    assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                    var selectedRows = e.sender.select();
+                    assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
+                    assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
+                    var dataItem = this.dataItem(selectedRows[0]);
+                    assert.instanceof(models.MobileActivity, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'app.models.MobileActivity'));
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
+                        // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
+                        // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
+                        // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
+                        '?activityId=' + window.encodeURIComponent(dataItem.get('id')) // Note: this is a local id, not a sid
+                    );
+                },
+                columnMenu: true,
+                columns: [
+                    {
+                        field: 'updated',
+                        format: '{0:MMM d}', // See http://docs.telerik.com/kendo-ui/framework/globalization/dateformatting
+                        title: culture.grid.columns.date,
+                        width: '70px'
+                    },
+                    {
+                        field: 'version.title',
+                        template: '#: title$() #',
+                        title: culture.grid.columns.title
+                    },
+                    {
+                        field: 'score',
+                        template: '#: kendo.toString( score / 100, "p0") #', // See http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
+                        title: culture.grid.columns.score,
+                        width: '50px'
+                    }
+                    // TODO show sync status with icon ????
+                ],
+                dataSource: viewModel.activities, // TODO filter current user + sort by date desc
+                filterable: true,
+                // This is not properly documented but without height: 'auto', the adaptive grid is not scrollable
+                height: 'auto',
+                mobile: 'phone', // http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-mobile
+                resizable: true,
+                scrollable: true,
+                selectable: 'row',
+                sortable: true
+                // TODO: save state (column resizing and filters)
+            });
         };
 
         /**
@@ -2022,83 +2018,84 @@ if (typeof(require) === 'function') {
          */
         mobile._initScoreGrid = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            // Find and destroy the grid (in case we have changed language)
-            var content = view.element.find(kendo.roleSelector('content'));
-            var gridElement = content.find(DEVICE_SELECTOR + VIEW.SCORE + '-grid'); // kendo.roleSelector('grid'));
-            // Only proceed if gridElement is found (see onResize)
-            if (gridElement.length) {
-                var gridWidget = gridElement.data('kendoGrid');
-                if (gridWidget instanceof kendo.ui.Grid) {
-                    // Destroying the adaptive grid is explained at
-                    // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
-                    var paneElement = gridElement.closest('.km-pane-wrapper');
-                    kendo.destroy(paneElement);
-                    var parentElement = paneElement.parent();
-                    gridElement = $('<div id="' + DEVICE_SELECTOR.substr(1) + VIEW.SCORE + '-grid"></div>'); // data-role="grid"></div>');
-                    parentElement.empty().append(gridElement);
-                }
-                var culture = i18n.culture.score;
-                // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
-                gridWidget = gridElement.kendoGrid({
-                    change: function (e) {
-                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                        assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
-                        var selectedRows = e.sender.select();
-                        assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
-                        assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
-                        var dataItem = this.dataItem(selectedRows[0]);
-                        assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
-                        var currentId = viewModel.get(VIEW_MODEL.CURRENT.ID);
-                        var page = dataItem.page + 1;
-                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CORRECTION +
-                            // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
-                            // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
-                            // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
-                            '?activityId=' + window.encodeURIComponent(dataItem.get('id')) + // Note: this is a local id, not a sid
-                            '&page=' + window.encodeURIComponent(page)
-                        );
-                    },
-                    columnMenu: true,
-                    columns: [
-                        {
-                            field: 'page',
-                            template: '#: page + 1 #',
-                            title: culture.grid.columns.page,
-                            width: '50px'
-                        },
-                        // { field: 'name' },
-                        {
-                            field: 'description',
-                            title: culture.grid.columns.description
-                        },
-                        // { field: 'value' },
-                        // { field: 'solution' },
-                        // { field: 'omit' },
-                        // { field: 'failure' },
-                        // { field: 'success' },
-                        // { field: 'score' },
-                        {
-                            field: 'result',
-                            title: culture.grid.columns.result,
-                            template: '# var src = result ? "ok" : "error"; # <img alt="#= src #" src="#= kendo.format(app.uris.cdn.icons, src) #" class="icon">',
-                            width: '50px'
-                        }
-                    ],
-                    dataSource: {
-                        // aggregate: [
-                        //     { field: 'score', aggregate: 'sum' }
-                        // ],
-                        data: viewModel.get(VIEW_MODEL.CURRENT.TEST).getScoreArray()
-                    },
-                    filterable: true,
-                    height: content.height(),
-                    mobile: 'phone', // http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-mobile
-                    resizable: true,
-                    selectable: 'row',
-                    sortable: true
-                    // TODO: save state (column resizing and filters)
-                });
+            // Find and destroy the grid as it needs to be rebuilt if locale changes
+            // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
+            // var gridElement = view.element.find(kendo.roleSelector('grid'));
+            var gridElement = view.element.find(DEVICE_SELECTOR + VIEW.SCORE + '-grid');
+            var gridWidget = gridElement.data('kendoGrid');
+            if (gridWidget instanceof kendo.ui.Grid) {
+                // Destroying the adaptive grid is explained at
+                // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
+                var paneElement = gridElement.closest('.km-pane-wrapper');
+                kendo.destroy(paneElement);
+                var parentElement = paneElement.parent();
+                // gridElement = $('<div data-role="grid"></div>');
+                gridElement = $('<div id="' + DEVICE_SELECTOR.substr(1) + VIEW.SCORE + '-grid"></div>');
+                parentElement.empty().append(gridElement);
             }
+            var culture = i18n.culture.score;
+            // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
+            gridWidget = gridElement.kendoGrid({
+                change: function (e) {
+                    assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                    assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                    var selectedRows = e.sender.select();
+                    assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
+                    assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
+                    var dataItem = this.dataItem(selectedRows[0]);
+                    assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
+                    var currentId = viewModel.get(VIEW_MODEL.CURRENT.ID);
+                    var page = dataItem.page + 1;
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.CORRECTION +
+                        // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
+                        // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
+                        // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
+                        '?activityId=' + window.encodeURIComponent(dataItem.get('id')) + // Note: this is a local id, not a sid
+                        '&page=' + window.encodeURIComponent(page)
+                    );
+                },
+                columnMenu: true,
+                columns: [
+                    {
+                        field: 'page',
+                        template: '#: page + 1 #',
+                        title: culture.grid.columns.page,
+                        width: '50px'
+                    },
+                    // { field: 'name' },
+                    {
+                        field: 'description',
+                        title: culture.grid.columns.description
+                    },
+                    // { field: 'value' },
+                    // { field: 'solution' },
+                    // { field: 'omit' },
+                    // { field: 'failure' },
+                    // { field: 'success' },
+                    // { field: 'score' },
+                    {
+                        field: 'result',
+                        title: culture.grid.columns.result,
+                        template: '# var src = result ? "ok" : "error"; # <img alt="#= src #" src="#= kendo.format(app.uris.cdn.icons, src) #" class="icon">',
+                        width: '50px'
+                    }
+                ],
+                dataSource: {
+                    // aggregate: [
+                    //     { field: 'score', aggregate: 'sum' }
+                    // ],
+                    data: viewModel.get(VIEW_MODEL.CURRENT.TEST).getScoreArray()
+                },
+                filterable: true,
+                // This is not properly documented but without height: 'auto', the adaptive grid is not scrollable
+                height: 'auto',
+                mobile: 'phone', // http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-mobile
+                resizable: true,
+                scrollable: true,
+                selectable: 'row',
+                sortable: true
+                // TODO: save state (column resizing and filters)
+            });
         };
 
         /**
