@@ -344,7 +344,10 @@
 
     <!-- Score view -->
     <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
-        <div id="phone-score-grid"></div>
+        <div class="stretched">
+            <div class="summary km-content" data-bind="text:summary.title"></div>
+            <div id="phone-score-grid"></div>
+        </div>
     </div>
 
     <!-- Settings view -->

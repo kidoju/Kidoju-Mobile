@@ -125,14 +125,15 @@
             },
             // Score view
             score: {
-                viewTitle: 'Score',
+                viewTitle: 'Score {0:p0}',
                 // Grid
                 grid: {
                     columns: {
                         description: 'Question',
                         page: 'Page',
                         result: 'Résultat'
-                    }
+                    },
+                    noRecords: 'Pas d\'activité'
                 }
             },
             // Settings view

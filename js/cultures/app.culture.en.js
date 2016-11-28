@@ -55,7 +55,8 @@
                         date: 'Date',
                         score: 'Score',
                         title: 'Title'
-                    }
+                    },
+                    noRecords: 'No activities'
                 }
             },
             // Categories view
@@ -125,7 +126,7 @@
             },
             // Score view
             score: {
-                viewTitle: 'Score',
+                viewTitle: 'Score {0:p0}',
                 // Grid
                 grid: {
                     columns: {
