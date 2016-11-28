@@ -868,11 +868,13 @@ if (typeof(require) === 'function') {
             },
 
             /**
-             * Check whether this is the submit page
+             * Select the previous page from viewModel.version.stream.pages
              */
-            isSubmitPage$: function () {
-                // It has to be the last page and the test should not have already been submitted/scored
-                return this.isLastPage$() && $.type(this.get(VIEW_MODEL.CURRENT.ID)) === UNDEFINED;
+            firstPage: function () {
+                var page = this.get(VIEW_MODEL.SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(0));
             },
 
             /**
@@ -992,10 +994,11 @@ if (typeof(require) === 'function') {
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 return pageCollectionDataSource.validateTestFromProperties(viewModel.get(VIEW_MODEL.CURRENT.TEST))
                     .done(function (result) {
+                        // Note: result has methods including percent and getScoreArray
                         assert.isPlainObject(result, kendo.format(assert.messages.isPlainObject.default, 'result'));
                         assert.type(FUNCTION, result.percent, kendo.format(assert.messages.type.default, 'result.percent', FUNCTION));
+                        assert.type(FUNCTION, result.getScoreArray, kendo.format(assert.messages.type.default, 'result.getScoreArray', FUNCTION));
                         viewModel.set(VIEW_MODEL.CURRENT.TEST, result);
-                        // Note: result has methods including percent and getScoreArray
                     })
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.scoreCalculationFailure);
@@ -1110,12 +1113,15 @@ if (typeof(require) === 'function') {
             var showBackButton = false;
             var showDrawerButton = false;
             var showHomeButton = false;
+            // We do not show the first page button to leave room for the drawer button
+            // var showFirstPageButton = false;
             var showPreviousPageButton = false;
             var showPreviousUserButton = false;
             var showNextUserButton = false;
             var showNextPageButton = false;
             var showLastPageButton = false;
             var showSubmitButton = false;
+            var showScoreButton = false;
             var showSyncButton = false;
             var showSearchButton = false;
             var showSortButtons = false;
@@ -1132,9 +1138,9 @@ if (typeof(require) === 'function') {
                 case DEVICE_SELECTOR + VIEW.CORRECTION:
                     showDrawerButton = true;
                     showPreviousPageButton = !viewModel.isFirstPage$();
-                    showNextPageButton = !viewModel.isSubmitPage$();
-                    showLastPageButton = !viewModel.isSubmitPage$();
-                    // TODO: showScoreButton = viewModel.isSubmitPage$();
+                    showNextPageButton = !viewModel.isLastPage$();
+                    showLastPageButton = !viewModel.isLastPage$();
+                    showScoreButton = viewModel.isLastPage$();
                     break;
                 case DEVICE_SELECTOR + VIEW.FAVOURITES:
                     showDrawerButton = true;
@@ -1149,9 +1155,9 @@ if (typeof(require) === 'function') {
                 case DEVICE_SELECTOR + VIEW.PLAYER:
                     showDrawerButton = true;
                     showPreviousPageButton = !viewModel.isFirstPage$();
-                    showNextPageButton = !viewModel.isSubmitPage$();
-                    showLastPageButton = !viewModel.isSubmitPage$();
-                    showSubmitButton = viewModel.isSubmitPage$();
+                    showNextPageButton = !viewModel.isLastPage$();
+                    showLastPageButton = !viewModel.isLastPage$();
+                    showSubmitButton = viewModel.isLastPage$();
                     break;
                 case DEVICE_SELECTOR + VIEW.SCORE:
                     showDrawerButton = true;
@@ -1177,12 +1183,14 @@ if (typeof(require) === 'function') {
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-back').css({ display: showBackButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            // view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-first-page').css({ display: showFirstPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous-page').css({ display: showPreviousPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous-user').css({ display: showPreviousUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next-user').css({ display: showNextUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next-page').css({ display: showNextPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-last-page').css({ display: showLastPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-submit').css({ display: showSubmitButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-score').css({ display: showScoreButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sort').css({ display: showSortButtons ? DISPLAY.INLINE : DISPLAY.NONE });
@@ -1583,9 +1591,13 @@ if (typeof(require) === 'function') {
          * @private
          */
         mobile.onResize = function () {
+            var view = mobile.application.view();
             mobile._initNotification();
-            mobile._resizeStage(mobile.application.view());
-            // Anything else to resize?
+            mobile._resizeStage(view);
+            // We could also have resized grids as documented
+            // at http://docs.telerik.com/kendo-ui/styles-and-layout/using-kendo-in-responsive-web-pages#apply-resize-method
+            mobile._initActivitiesGrid(view);
+            mobile._initScoreGrid(view);
         };
 
         /*******************************************************************************************
@@ -1729,69 +1741,70 @@ if (typeof(require) === 'function') {
         mobile._initActivitiesGrid = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             // Find and destroy the grid
-            var gridElement = view.element.find(kendo.roleSelector('grid'));
-            var gridWidget = gridElement.data('kendoGrid');
-            if (gridWidget instanceof kendo.ui.Grid) {
-                // Destroying the adaptive grid is explained at
-                // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
-                // var paneElement = gridElement.closest('.km-pane-wrapper');
-                // kendo.destroy(paneElement);
-                // var parentElement = paneElement.parent();
-                // gridElement = $('<div data-role="grid"></div>');
-                // parentElement.empty().append(gridElement);
-                // but the above does not apply to stretched views as reported at
-                // https://github.com/telerik/kendo-ui-core/issues/2481
-                assert.ok(gridElement.parent().is('.km-stretched-view'), 'The parent of the grid element should be a stretched view');
-                gridWidget.destroy();
-                gridElement.empty();
+            var content = view.element.find(kendo.roleSelector('content'));
+            var gridElement = content.find(DEVICE_SELECTOR + VIEW.ACTIVITIES + '-grid'); // kendo.roleSelector('grid'));
+            // Only proceed if gridElement is found (see onResize)
+            if (gridElement.length) {
+                var gridWidget = gridElement.data('kendoGrid');
+                if (gridWidget instanceof kendo.ui.Grid) {
+                    // Destroying the adaptive grid is explained at
+                    // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
+                    var paneElement = gridElement.closest('.km-pane-wrapper');
+                    kendo.destroy(paneElement);
+                    var parentElement = paneElement.parent();
+                    gridElement = $('<div id="' + DEVICE_SELECTOR.substr(1) + VIEW.ACTIVITIES + '-grid"></div>'); //data-role="grid"></div>');
+                    parentElement.empty().append(gridElement);
+                }
+                var culture = i18n.culture.activities;
+                // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
+                gridWidget = gridElement.kendoGrid({
+                    change: function (e) {
+                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                        assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                        var selectedRows = e.sender.select();
+                        assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
+                        assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
+                        var dataItem = this.dataItem(selectedRows[0]);
+                        assert.instanceof(models.MobileActivity, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'app.models.MobileActivity'));
+                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
+                            // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
+                            // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
+                            // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
+                            '?activityId=' + window.encodeURIComponent(dataItem.get('id')) // Note: this is a local id, not a sid
+                        );
+                    },
+                    columnMenu: true,
+                    columns: [
+                        {
+                            field: 'updated',
+                            format: '{0:MMM d}', // See http://docs.telerik.com/kendo-ui/framework/globalization/dateformatting
+                            title: culture.grid.columns.date,
+                            width: '70px'
+                        },
+                        {
+                            field: 'version.title',
+                            template: '#: title$() #',
+                            title: culture.grid.columns.title
+                        },
+                        {
+                            field: 'score',
+                            template: '#: kendo.toString( score / 100, "p0") #', // See http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
+                            title: culture.grid.columns.score,
+                            width: '50px'
+                        }
+                        // TODO show sync status with icon ????
+                    ],
+                    dataSource: viewModel.activities, // TODO filter current user + sort by date desc
+                    filterable: true,
+                    height: content.height(),
+                    mobile: 'phone', // http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-mobile
+                    resizable: true,
+                    scrollable: true,
+                    selectable: 'row',
+                    sortable: true
+                    // TODO: save state (column resizing and filters)
+                });
             }
-            var culture = i18n.culture.activities;
-            // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
-            gridWidget = gridElement.kendoGrid({
-                change: function (e) {
-                    assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                    assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
-                    var selectedRows = e.sender.select();
-                    assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
-                    assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
-                    var dataItem = this.dataItem(selectedRows[0]);
-                    assert.instanceof(models.MobileActivity, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'app.models.MobileActivity'));
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
-                        // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
-                        // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
-                        // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
-                        '?activityId=' + window.encodeURIComponent(dataItem.get('id')) // Note: this is a local id, not a sid
-                    );
-                },
-                columnMenu: true,
-                columns: [
-                    {
-                        field: 'updated',
-                        format: '{0:MMM d}', // See http://docs.telerik.com/kendo-ui/framework/globalization/dateformatting
-                        title: culture.grid.columns.date,
-                        width: '70px'
-                    },
-                    {
-                        field: 'version.title',
-                        template: '#: title$() #',
-                        title: culture.grid.columns.title
-                    },
-                    {
-                        field: 'score',
-                        template: '#: kendo.toString( score / 100, "p0") #', // See http://docs.telerik.com/kendo-ui/framework/globalization/numberformatting
-                        title: culture.grid.columns.score,
-                        width: '50px'
-                    }
-                    // TODO show sync status with icon ????
-                ],
-                dataSource: viewModel.activities, // TODO filter current user + sort by date desc
-                filterable: true,
-                mobile: true, // TODO try 'phone' and 'tablet'
-                resizable: true,
-                selectable: 'row',
-                sortable: true
-                // TODO: save state (column resizing and filters)
-            });
         };
 
         /**
@@ -1806,8 +1819,13 @@ if (typeof(require) === 'function') {
             mobile._localizeActivitiesView();
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
-            // TODO set the activities dataSource if not set???
-            mobile._initActivitiesGrid(e.view);
+            // if (viewModel.activities instanceof models.MobileActivityDataSource && viewModel.activities.total() > 0) {
+                // Already loaded
+                mobile._initActivitiesGrid(e.view);
+            // } else {
+                // Does not hurt to reload if there are no activities
+                // TODO
+            // }
         };
 
         /**
@@ -2005,82 +2023,82 @@ if (typeof(require) === 'function') {
         mobile._initScoreGrid = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             // Find and destroy the grid (in case we have changed language)
-            var gridElement = view.element.find(kendo.roleSelector('grid'));
-            var gridWidget = gridElement.data('kendoGrid');
-            if (gridWidget instanceof kendo.ui.Grid) {
-                // Destroying the adaptive grid is explained at
-                // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
-                // var paneElement = gridElement.closest('.km-pane-wrapper');
-                // kendo.destroy(paneElement);
-                // var parentElement = paneElement.parent();
-                // gridElement = $('<div data-role="grid"></div>');
-                // parentElement.empty().append(gridElement);
-                // but the above does not apply to stretched views as reported at
-                // https://github.com/telerik/kendo-ui-core/issues/2481
-                assert.ok(gridElement.parent().is('.km-stretched-view'), 'The parent of the grid element should be a stretched view');
-                gridWidget.destroy();
-                gridElement.empty();
+            var content = view.element.find(kendo.roleSelector('content'));
+            var gridElement = content.find(DEVICE_SELECTOR + VIEW.SCORE + '-grid'); // kendo.roleSelector('grid'));
+            // Only proceed if gridElement is found (see onResize)
+            if (gridElement.length) {
+                var gridWidget = gridElement.data('kendoGrid');
+                if (gridWidget instanceof kendo.ui.Grid) {
+                    // Destroying the adaptive grid is explained at
+                    // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
+                    var paneElement = gridElement.closest('.km-pane-wrapper');
+                    kendo.destroy(paneElement);
+                    var parentElement = paneElement.parent();
+                    gridElement = $('<div id="' + DEVICE_SELECTOR.substr(1) + VIEW.SCORE + '-grid"></div>'); // data-role="grid"></div>');
+                    parentElement.empty().append(gridElement);
+                }
+                var culture = i18n.culture.score;
+                // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
+                gridWidget = gridElement.kendoGrid({
+                    change: function (e) {
+                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                        assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
+                        var selectedRows = e.sender.select();
+                        assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
+                        assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
+                        var dataItem = this.dataItem(selectedRows[0]);
+                        assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
+                        var currentId = viewModel.get(VIEW_MODEL.CURRENT.ID);
+                        var page = dataItem.page + 1;
+                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CORRECTION +
+                            // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
+                            // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
+                            // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
+                            '?activityId=' + window.encodeURIComponent(dataItem.get('id')) + // Note: this is a local id, not a sid
+                            '&page=' + window.encodeURIComponent(page)
+                        );
+                    },
+                    columnMenu: true,
+                    columns: [
+                        {
+                            field: 'page',
+                            template: '#: page + 1 #',
+                            title: culture.grid.columns.page,
+                            width: '50px'
+                        },
+                        // { field: 'name' },
+                        {
+                            field: 'description',
+                            title: culture.grid.columns.description
+                        },
+                        // { field: 'value' },
+                        // { field: 'solution' },
+                        // { field: 'omit' },
+                        // { field: 'failure' },
+                        // { field: 'success' },
+                        // { field: 'score' },
+                        {
+                            field: 'result',
+                            title: culture.grid.columns.result,
+                            template: '# var src = result ? "ok" : "error"; # <img alt="#= src #" src="#= kendo.format(app.uris.cdn.icons, src) #" class="icon">',
+                            width: '50px'
+                        }
+                    ],
+                    dataSource: {
+                        // aggregate: [
+                        //     { field: 'score', aggregate: 'sum' }
+                        // ],
+                        data: viewModel.get(VIEW_MODEL.CURRENT.TEST).getScoreArray()
+                    },
+                    filterable: true,
+                    height: content.height(),
+                    mobile: 'phone', // http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-mobile
+                    resizable: true,
+                    selectable: 'row',
+                    sortable: true
+                    // TODO: save state (column resizing and filters)
+                });
             }
-            var culture = i18n.culture.score;
-            // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
-            gridWidget = gridElement.kendoGrid({
-                change: function (e) {
-                    assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                    assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
-                    var selectedRows = e.sender.select();
-                    assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
-                    assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
-                    var dataItem = this.dataItem(selectedRows[0]);
-                    assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
-                    var currentId = viewModel.get(VIEW_MODEL.CURRENT.ID);
-                    var page = dataItem.page + 1;
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.CORRECTION +
-                        // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
-                        // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
-                        // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
-                        '?activityId=' + window.encodeURIComponent(dataItem.get('id')) + // Note: this is a local id, not a sid
-                        '&page=' + window.encodeURIComponent(page)
-                    );
-                },
-                columnMenu: true,
-                columns: [
-                    {
-                        field: 'page',
-                        template: '#: page + 1 #',
-                        title: culture.grid.columns.page,
-                        width: '50px'
-                    },
-                    // { field: 'name' },
-                    {
-                        field: 'description',
-                        title: culture.grid.columns.description
-                    },
-                    // { field: 'value' },
-                    // { field: 'solution' },
-                    // { field: 'omit' },
-                    // { field: 'failure' },
-                    // { field: 'success' },
-                    // { field: 'score' },
-                    {
-                        field: 'result',
-                        title: culture.grid.columns.result,
-                        template: '# var src = result ? "ok" : "error"; # <img alt="#= src #" src="#= kendo.format(app.uris.cdn.icons, src) #" class="icon">',
-                        width: '50px'
-                    }
-                ],
-                dataSource: {
-                    // aggregate: [
-                    //     { field: 'score', aggregate: 'sum' }
-                    // ],
-                    data: viewModel.get(VIEW_MODEL.CURRENT.TEST).getScoreArray()
-                },
-                filterable: true,
-                mobile: true, // TODO try 'phone' and 'tablet'
-                resizable: true,
-                selectable: 'row',
-                sortable: true
-                // TODO: save state (column resizing and filters)
-            });
         };
 
         /**
@@ -2562,7 +2580,7 @@ if (typeof(require) === 'function') {
          * Event handler triggered when clicking the previous user button in the navbar
          * @param e
          */
-        mobile.onNavbarPreviousUserClick = function (e) {
+        mobile.onNavBarPreviousUserClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var viewElement = e.button.closest('.km-view');
@@ -2577,7 +2595,7 @@ if (typeof(require) === 'function') {
          * Event handler triggered when clicking the next user button in the navbar
          * @param e
          */
-        mobile.onNavbarNextUserClick = function (e) {
+        mobile.onNavBarNextUserClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var viewElement = e.button.closest('.km-view');
@@ -2589,10 +2607,18 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Event handler triggered when clicking the first page button in the navbar
+         * @param e
+         */
+        mobile.onNavBarFirstPageClick = function (e) {
+            viewModel.firstPage();
+        };
+
+        /**
          * Event handler triggered when clicking the previous page button in the navbar
          * @param e
          */
-        mobile.onNavbarPreviousPageClick = function (e) {
+        mobile.onNavBarPreviousPageClick = function (e) {
             viewModel.previousPage();
         };
 
@@ -2600,7 +2626,7 @@ if (typeof(require) === 'function') {
          * Event handler triggered when clicking the next page button in the navbar
          * @param e
          */
-        mobile.onNavbarNextPageClick = function (e) {
+        mobile.onNavBarNextPageClick = function (e) {
             viewModel.nextPage();
         };
 
@@ -2608,7 +2634,7 @@ if (typeof(require) === 'function') {
          * Event handler triggered when clicking the last page button in the navbar
          * @param e
          */
-        mobile.onNavbarLastPageClick = function (e) {
+        mobile.onNavBarLastPageClick = function (e) {
             viewModel.lastPage();
         };
 
@@ -2627,14 +2653,27 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Event handler triggered when clicking the score button in the navbar
+         * @param e
+         */
+        mobile.onNavBarScoreClick = function (e) {
+            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE
+                // '?language=' +
+                // '&summaryId=' +
+                // '&versionId=' +
+                // '&activityId=' +
+            );
+        };
+
+        /**
          * Event handler triggered when clicking the submit button in the navbar
          * @param e
          */
-        mobile.onNavbarSubmitClick = function (e) {
+        mobile.onNavBarSubmitClick = function (e) {
             kendo.alertEx({
                 type: 'info',
                 title: 'Error',
-                message: 'Hey Houston, we\'ve got a problem!',
+                message: 'Hey Houston, we\'ve got a problem!', // TODO ----------------------------------------------------------------------------------------------
                 buttonLayout: 'stretched',
                 actions: [
                     { action: 'yes', text: 'Yes', primary: true, imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg' }, // TODO
@@ -2652,7 +2691,7 @@ if (typeof(require) === 'function') {
          * Event handler triggered when clicking the sync button in the navbar
          * @param e
          */
-        mobile.onNavbarSyncClick = function (e) {
+        mobile.onNavBarSyncClick = function (e) {
             $.noop(e); // TODO
         };
 
@@ -2660,7 +2699,7 @@ if (typeof(require) === 'function') {
          * Event handler triggered when clicking the search button in the navbar
          * @param e
          */
-        mobile.onNavbarSearchClick = function (e) {
+        mobile.onNavBarSearchClick = function (e) {
             mobile.application.navigate(DEVICE_SELECTOR + VIEW.FINDER);
             // @see http://www.telerik.com/forums/hiding-filter-input-in-mobile-listview
             // var summaryView = $(DEVICE_SELECTOR + VIEW.FINDER);
