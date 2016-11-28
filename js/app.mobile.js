@@ -2203,6 +2203,14 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * TODO Just a test
+         * @param e
+         */
+        mobile.onSignInTestClick = function (e) {
+            window.location.assign('https://www.google.com');
+        };
+
+        /**
          * Parse token and load user
          * @param url
          * @param callback

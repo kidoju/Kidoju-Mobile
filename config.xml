@@ -116,6 +116,7 @@
     <access origin="data://*" />
     <access origin="filesystem://*" />
     <access origin="gap://*" /-->
+    <!-- TODO IMPORTANT DO NOT KEEP AS IS -->
     <allow-navigation href="*" />
     <allow-intent href="*" />
     <platform name="android">
