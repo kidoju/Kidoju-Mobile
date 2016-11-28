@@ -226,7 +226,7 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Event handler triggered when calling a url with the kidoju:// scheme
+         * Event handler triggered when calling a url with the com.kidoju.mobile:// scheme
          * @param url
          */
         window.handleOpenURL = function (url) {
@@ -2181,6 +2181,8 @@ if (typeof(require) === 'function') {
         mobile.onSignInResetClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+
+            return window.location.assign('com.kidoju.mobile://token_parser#auth_token=dsdsdsadasdasd');
 
             // TODO: review and add activities
 
