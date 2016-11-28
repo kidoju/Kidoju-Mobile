@@ -1647,6 +1647,9 @@ if (typeof(require) === 'function') {
                     if (viewModel.users.total() > 0) {
                         viewModel.set(VIEW_MODEL.USER.$, viewModel.users.at(0));
                     }
+                    // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
+                    // kendo.UserEvents.defaultThreshold(20);
+                    // Considering potential adverse effects with drag and drop, we are using http://docs.telerik.com/kendo-ui/api/javascript/mobile/ui/button#configuration-clickOn
                     // Initialize application
                     mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
                         initial: DEVICE_SELECTOR + (viewModel.isSavedUser$() ? VIEW.USER : VIEW.SIGNIN),
