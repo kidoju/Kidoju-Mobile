@@ -2275,6 +2275,11 @@ if (typeof(require) === 'function') {
          * @private
          */
         mobile._signInWithSafariViewController = function (signInUrl) {
+            logger.debug({
+                message: 'opening signInUrl in SafariViewController',
+                method: 'mobile._signInWithSafariViewController',
+                data: { signInUrl: signInUrl }
+            });
             SafariViewController.isAvailable(function (available) {
                 if (available) {
                     SafariViewController.show({
@@ -2289,18 +2294,28 @@ if (typeof(require) === 'function') {
                         },
                         // this success handler will be invoked for the lifecycle events 'opened', 'loaded' and 'closed'
                         function(result) {
+                            logger.debug({
+                                message: 'SafariViewController.show successCallback',
+                                method: 'mobile._signInWithSafariViewController',
+                                data: { result: result }
+                            });
                             if (result.event === 'opened') {
                                 console.log('opened');
                             } else if (result.event === 'loaded') {
                                 console.log('loaded');
+                                // SafariViewController.hide();
                             } else if (result.event === 'closed') {
                                 console.log('closed');
                             }
                         },
                         function(msg) {
-                            console.log("KO: " + msg);
+                            logger.debug({
+                                message: 'SafariViewController.show errorCallback',
+                                method: 'mobile._signInWithSafariViewController',
+                                data: { msg: msg }
+                            });
                         })
-                } // else { use InAppBrowser ? }
+                } // else { use InAppBrowser or app.notification ? }
             })
         };
 
@@ -2341,7 +2356,7 @@ if (typeof(require) === 'function') {
                 logger.debug({
                     message: 'loadstart event of InAppBrowser',
                     method: 'mobile._signInWithInAppBrowser',
-                    data: { provider: provider, url: e.url }
+                    data: { url: e.url }
                 });
                 if (e.url.startsWith(returnUrl)) {
                     mobile._parseTokenAndLoadUser(e.url, close);
