@@ -2413,7 +2413,7 @@ if (typeof(require) === 'function') {
                         method: 'mobile.onSigninButtonClick',
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
-                    if (mobile.support.safariView) {
+                    if (window.SafariViewController) { // (mobile.support.safariView) {
                         // running in Phonegap, using SFSafariViewController
                         // requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
                         // also requires https://github.com/EddyVerbruggen/Custom-URL-scheme
