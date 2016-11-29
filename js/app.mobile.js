@@ -2332,9 +2332,10 @@ if (typeof(require) === 'function') {
          * - Google has announced that as of April 2007 the oAuth flow with web views won't be supported - see https://github.com/kidoju/Kidoju-Mobile/issues/33
          *
          * @param signInUrl
+         * @param returnUrl
          * @private
          */
-        mobile._signInWithInAppBrowser = function (signInUrl) {
+        mobile._signInWithInAppBrowser = function (signInUrl, returnUrl) {
             var close = function () {
                 browser.removeEventListener('loadstart', loadStart);
                 // browser.removeEventListener('loadstop', loadStop);
@@ -2436,7 +2437,7 @@ if (typeof(require) === 'function') {
                     } else if (mobile.support.inAppBrowser) {
                         // running in Phonegap, using InAppBrowser
                         // requires https://github.com/apache/cordova-plugin-inappbrowser
-                        mobile._signInWithInAppBrowser(signInUrl);
+                        mobile._signInWithInAppBrowser(signInUrl, returnUrl);
                     } else {
                         // Running in a browser, simply redirect to signInUrl
                         mobile._signInWithinBrowser(signInUrl);
