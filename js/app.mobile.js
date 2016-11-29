@@ -2299,6 +2299,7 @@ if (typeof(require) === 'function') {
                                 method: 'mobile._signInWithSafariViewController',
                                 data: { result: result }
                             });
+                            /*
                             if (result.event === 'opened') {
                                 console.log('opened');
                             } else if (result.event === 'loaded') {
@@ -2307,6 +2308,7 @@ if (typeof(require) === 'function') {
                             } else if (result.event === 'closed') {
                                 console.log('closed');
                             }
+                            */
                         },
                         function(msg) {
                             logger.debug({
@@ -2429,6 +2431,7 @@ if (typeof(require) === 'function') {
                         method: 'mobile.onSigninButtonClick',
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
+                    alert(window.SafariViewController ? 'Yep' : 'Nope');
                     if (window.SafariViewController) { // (mobile.support.safariView) {
                         // running in Phonegap, using SFSafariViewController
                         // requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
