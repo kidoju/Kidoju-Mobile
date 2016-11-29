@@ -128,6 +128,7 @@
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
+        <preference name="deployment-target" value="9.0" />
         <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
         <preference name="iosPersistentFileLocation" value="Library" />
         <preference name="KeychainAccessibility" value="WhenUnlocked" />
