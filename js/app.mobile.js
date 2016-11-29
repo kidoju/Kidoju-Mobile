@@ -235,12 +235,10 @@ if (typeof(require) === 'function') {
                 method: 'window.handleOpenURL',
                 data: { url: url }
             });
+            if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
+                window.SafariViewController.hide();
+            }
             setTimeout(function () {
-                if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
-                    window.SafariViewController.hide();
-                }
-                // Try com.kidoju.mobile://hello?a=1&b=2
-                // ----------------------------------------------------------------------------------------------------------------------- TODO
                 mobile.notification.info('received url: ' + url);
             }, 100);
         };
