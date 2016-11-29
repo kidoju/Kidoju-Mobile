@@ -2182,8 +2182,6 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
-            return window.location.assign('com.kidoju.mobile://token_parser#auth_token=dsdsdsadasdasd');
-
             // TODO: review and add activities
 
             if (viewModel.users.total() === 0) {
@@ -2200,14 +2198,6 @@ if (typeof(require) === 'function') {
                 .fail(function () {
                     app.notification.error('Error clearing database.');
                 });
-        };
-
-        /**
-         * TODO Just a test
-         * @param e
-         */
-        mobile.onSignInTestClick = function (e) {
-            window.location.assign('https://www.google.com');
         };
 
         /**
@@ -2271,6 +2261,133 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * Sign in with SFSafariViewController
+         * requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
+         * also requires https://github.com/EddyVerbruggen/Custom-URL-scheme
+         *
+         * Note: Parsing the token is done by mobile._parseTokenAndLoadUser in handleOpenURL (see custom url scheme)
+         *
+         * Now that Google has deprecated oAuth flows from web views, this is the preferred way to sign in
+         * although this is only compatible with iOS 9 and above
+         * See: https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html
+         *
+         * @param signInUrl
+         * @private
+         */
+        mobile._signInWithSafariViewController = function (signInUrl) {
+            SafariViewController.isAvailable(function (available) {
+                if (available) {
+                    SafariViewController.show({
+                            url: signInUrl
+                            // hidden: false,
+                            // animated: false, // default true, note that 'hide' will reuse this preference (the 'Done' button will always animate though)
+                            // transition: 'curl', // (this only works in iOS 9.1/9.2 and lower) unless animated is false you can choose from: curl, flip, fade, slide (default)
+                            // enterReaderModeIfAvailable: readerMode, // default false
+                            // tintColor: "#00ffff", // default is ios blue
+                            // barColor: "#0000ff", // on iOS 10+ you can change the background color as well
+                            // controlTintColor: "#ffffff" // on iOS 10+ you can override the default tintColor
+                        },
+                        // this success handler will be invoked for the lifecycle events 'opened', 'loaded' and 'closed'
+                        function(result) {
+                            if (result.event === 'opened') {
+                                console.log('opened');
+                            } else if (result.event === 'loaded') {
+                                console.log('loaded');
+                            } else if (result.event === 'closed') {
+                                console.log('closed');
+                            }
+                        },
+                        function(msg) {
+                            console.log("KO: " + msg);
+                        })
+                } // else { use InAppBrowser ? }
+            })
+        };
+
+        /**
+         * Sign in with InAppBrowser
+         * Requires https://github.com/apache/cordova-plugin-inappbrowser
+         *
+         * Note: Parsing the token is done here by mobile._parseTokenAndLoadUser
+         *
+         * This is the old way applicable to iOS8 and prior versions
+         * This way has several limitations:
+         * - InAppBrowser uses UIWebView, not WKWebView on iOS
+         * - The oAuth flow is incompatible with WKWebView which has to be disabled to work - see https://github.com/kidoju/Kidoju-Mobile/issues/34
+         * - Google has announced that as of April 2007 the oAuth flow with web views won't be supported - see https://github.com/kidoju/Kidoju-Mobile/issues/33
+         *
+         * @param signInUrl
+         * @private
+         */
+        mobile._signInWithInAppBrowser = function (signInUrl) {
+            var close = function () {
+                browser.removeEventListener('loadstart', loadStart);
+                // browser.removeEventListener('loadstop', loadStop);
+                browser.removeEventListener('loaderror', loadError);
+                browser.close();
+                browser = undefined;
+                logger.debug({
+                    message: 'closed InAppBrowser',
+                    method: 'mobile._signInWithInAppBrowser'
+                });
+            };
+            var loadStart = function (e) {
+                // There is an incompatibility between InAppBrowser and WkWebView that prevents
+                // the loadstart event to be triggered in an oAuth flow if cordova-plugin-wkwebview-engine is installed
+                // See https://issues.apache.org/jira/browse/CB-10698
+                // See https://issues.apache.org/jira/browse/CB-11136
+                // Seems to have been fixed in https://github.com/apache/cordova-plugin-inappbrowser/pull/187
+                // Has yet to be released - https://github.com/kidoju/Kidoju-Mobile/issues/34
+                logger.debug({
+                    message: 'loadstart event of InAppBrowser',
+                    method: 'mobile._signInWithInAppBrowser',
+                    data: { provider: provider, url: e.url }
+                });
+                if (e.url.startsWith(returnUrl)) {
+                    mobile._parseTokenAndLoadUser(e.url, close);
+                }
+            };
+            var loadError = function (error) {
+                window.alert(JSON.stringify($.extend({}, error))); // TODO
+                logger.error({
+                    message: 'loaderror event of InAppBrowser',
+                    method: 'mobile._signInWithInAppBrowser',
+                    error: error,
+                    data: { url: error.url }
+                });
+                close();
+            };
+            var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=no,clearsessioncache=yes,clearcache=yes');
+            // browser.addEventListener('exit', exit);
+            browser.addEventListener('loadstart', loadStart);
+            // browser.addEventListener('loadstop', loadStop);
+            browser.addEventListener('loaderror', loadError);
+            logger.debug({
+                message: 'opening signInUrl in InAppBrowser',
+                method: 'mobile._signInWithInAppBrowser',
+                data: { signInUrl: signInUrl }
+            });
+        };
+
+        /**
+         * Sign in within the same browser as the application
+         *
+         * Note: Parsing the token is done by app.rapi.js
+         *
+         * @param signInUrl
+         * @private
+         */
+        mobile._signInWithinBrowser = function (signInUrl) {
+            logger.debug({
+                message: 'opening signInUrl in browser',
+                method: 'mobile._signInWithinBrowser',
+                data: { signInUrl: signInUrl }
+            });
+            //
+            window.location.assign(signInUrl);
+        };
+
+        /**
          * Event handler triggered when clicking a button on the sign-in view
          * @param e
          */
@@ -2296,58 +2413,18 @@ if (typeof(require) === 'function') {
                         method: 'mobile.onSigninButtonClick',
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
-                    if (mobile.support.inAppBrowser) {
-                        // running in Phonegap -> open InAppBrowser
-                        var close = function () {
-                            browser.removeEventListener('loadstart', loadStart);
-                            // browser.removeEventListener('loadstop', loadStop);
-                            browser.removeEventListener('loaderror', loadError);
-                            browser.close();
-                            browser = undefined;
-                            logger.debug({
-                                message: 'closed InAppBrowser',
-                                method: 'mobile.onSigninButtonClick'
-                            });
-                        };
-                        var loadStart = function (e) {
-                            // There is an incompatibility between InAppBrowser and WkWebView that prevents
-                            // the loadstart event to be triggered in an oAuth flow if cordova-plugin-wkwebview-engine is installed
-                            // See https://issues.apache.org/jira/browse/CB-10698
-                            // See https://issues.apache.org/jira/browse/CB-11136
-                            // Seems to have been fixed in https://github.com/apache/cordova-plugin-inappbrowser/pull/187
-                            // Has yet to be released - https://github.com/kidoju/Kidoju-Mobile/issues/34
-                            logger.debug({
-                                message: 'loadstart event of InAppBrowser',
-                                method: 'mobile.onSigninButtonClick',
-                                data: { provider: provider, url: e.url }
-                            });
-                            if (e.url.startsWith(returnUrl)) {
-                                mobile._parseTokenAndLoadUser(e.url, close);
-                            }
-                        };
-                        var loadError = function (error) {
-                            window.alert(JSON.stringify($.extend({}, error))); // TODO
-                            logger.error({
-                                message: 'loaderror event of InAppBrowser',
-                                method: 'mobile.onSigninButtonClick',
-                                error: error,
-                                data: { url: error.url }
-                            });
-                            close();
-                        };
-                        var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=no,clearsessioncache=yes,clearcache=yes');
-                        // browser.addEventListener('exit', exit);
-                        browser.addEventListener('loadstart', loadStart);
-                        // browser.addEventListener('loadstop', loadStop);
-                        browser.addEventListener('loaderror', loadError);
-                        logger.debug({
-                            message: 'opening InAppBrowser',
-                            method: 'mobile.onSigninButtonClick'
-                        });
-
+                    if (mobile.support.safariView) {
+                        // running in Phonegap, using SFSafariViewController
+                        // requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
+                        // also requires https://github.com/EddyVerbruggen/Custom-URL-scheme
+                        mobile._signInWithSafariViewController(signInUrl);
+                    } else if (mobile.support.inAppBrowser) {
+                        // running in Phonegap, using InAppBrowser
+                        // requires https://github.com/apache/cordova-plugin-inappbrowser
+                        mobile._signInWithInAppBrowser(signInUrl);
                     } else {
-                        // this is a browser --> simply redirect to login url
-                        window.location.assign(signInUrl);
+                        // Running in a browser, simply redirect to signInUrl
+                        mobile._signInWithinBrowser(signInUrl);
                     }
                 })
                 .fail(function (xhr, status, error) {
