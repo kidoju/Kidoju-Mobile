@@ -241,11 +241,11 @@ if (typeof(require) === 'function') {
                 window.SafariViewController.hide();
             }
             setTimeout(function () {
-                if (url.startsWith(URL_SCHEME + 'token_parser')) {
-                    mobile._parseTokenAndLoadUser(url);
-                } else {
+                // if (url.startsWith(URL_SCHEME + 'token_parser')) {
+                //    mobile._parseTokenAndLoadUser(url);
+                // } else {
                     mobile.notification.info('received url: ' + url);
-                }
+                // }
             }, 0);
         };
 
@@ -2282,6 +2282,7 @@ if (typeof(require) === 'function') {
          * Now that Google has deprecated oAuth flows from web views, this is the preferred way to sign in
          * although this is only compatible with iOS 9 and above
          * See: https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html
+         * There is also a huge benefit: social accounts are remembered and users do not have to re-enter their MFA codes each time they signin
          *
          * @param signInUrl
          * @private
@@ -2342,15 +2343,17 @@ if (typeof(require) === 'function') {
          */
         mobile._signInWithInAppBrowser = function (signInUrl, returnUrl) {
             var close = function () {
-                browser.removeEventListener('loadstart', loadStart);
-                // browser.removeEventListener('loadstop', loadStop);
-                browser.removeEventListener('loaderror', loadError);
-                browser.close();
-                browser = undefined;
-                logger.debug({
-                    message: 'closed InAppBrowser',
-                    method: 'mobile._signInWithInAppBrowser'
-                });
+                if (browser) {
+                    browser.removeEventListener('loadstart', loadStart);
+                    // browser.removeEventListener('loadstop', loadStop);
+                    browser.removeEventListener('loaderror', loadError);
+                    browser.close();
+                    browser = undefined;
+                    logger.debug({
+                        message: 'closed InAppBrowser',
+                        method: 'mobile._signInWithInAppBrowser'
+                    });
+                }
             };
             var loadStart = function (e) {
                 // There is an incompatibility between InAppBrowser and WkWebView that prevents
@@ -2364,18 +2367,23 @@ if (typeof(require) === 'function') {
                     method: 'mobile._signInWithInAppBrowser',
                     data: { url: e.url }
                 });
+                // Once https://github.com/apache/cordova-plugin-inappbrowser/pull/99 is fixed
+                // we should be able to have the same flow as in SafariViewController
                 if (e.url.startsWith(returnUrl)) {
                     mobile._parseTokenAndLoadUser(e.url, close);
                 }
             };
             var loadError = function (error) {
-                window.alert(JSON.stringify($.extend({}, error))); // TODO
+                // We have an issue with the InAppBrowser raises an error when opening custom url schemes
+                // See https://github.com/apache/cordova-plugin-inappbrowser/pull/99
+                // window.alert(JSON.stringify($.extend({}, error)));
                 logger.error({
                     message: 'loaderror event of InAppBrowser',
                     method: 'mobile._signInWithInAppBrowser',
                     error: error,
                     data: { url: error.url }
                 });
+                // Close may have already been called in loadStart
                 close();
             };
             var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=no,clearsessioncache=yes,clearcache=yes');
@@ -2434,7 +2442,7 @@ if (typeof(require) === 'function') {
                         method: 'mobile.onSigninButtonClick',
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
-                    alert(window.SafariViewController ? 'Yep' : 'Nope');
+                    // alert(window.SafariViewController ? 'Yep' : 'Nope');
                     if (window.SafariViewController) { // (mobile.support.safariView) {
                         // running in Phonegap, using SFSafariViewController
                         // requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
