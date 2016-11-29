@@ -240,12 +240,13 @@ if (typeof(require) === 'function') {
             if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
                 window.SafariViewController.hide();
             }
+            // Handle the url
             setTimeout(function () {
-                // if (url.startsWith(URL_SCHEME + 'token_parser')) {
-                //    mobile._parseTokenAndLoadUser(url);
-                // } else {
+                if (url.startsWith(URL_SCHEME + 'token_parser')) {
+                    mobile._parseTokenAndLoadUser(url);
+                } else {
                     mobile.notification.info('received url: ' + url);
-                // }
+                }
             }, 0);
         };
 
