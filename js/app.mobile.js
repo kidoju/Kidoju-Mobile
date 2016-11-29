@@ -215,6 +215,7 @@ if (typeof(require) === 'function') {
         var SELECTORS = {
             PIN: '.pin'
         };
+        var URL_SCHEME = 'com.kidoju.mobile://';
 
         /*******************************************************************************************
          * Global handlers
@@ -231,16 +232,21 @@ if (typeof(require) === 'function') {
          */
         window.handleOpenURL = function (url) {
             logger.debug({
-                message: 'App scheme url called',
+                message: 'App scheme called',
                 method: 'window.handleOpenURL',
                 data: { url: url }
             });
+            // Hide the SafariViewController in all circumstances
             if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
                 window.SafariViewController.hide();
             }
             setTimeout(function () {
-                mobile.notification.info('received url: ' + url);
-            }, 100);
+                if (url.startsWith(URL_SCHEME + 'token_parser')) {
+                    mobile._parseTokenAndLoadUser(url);
+                } else {
+                    mobile.notification.info('received url: ' + url);
+                }
+            }, 0);
         };
 
         /**
@@ -2300,27 +2306,18 @@ if (typeof(require) === 'function') {
                         },
                         // this success handler will be invoked for the lifecycle events 'opened', 'loaded' and 'closed'
                         function(result) {
+                            // result has only one property, event which can take any value among 'opened', 'loaded' and 'closed'
                             logger.debug({
-                                message: 'SafariViewController.show successCallback',
+                                message: 'show successCallback',
                                 method: 'mobile._signInWithSafariViewController',
-                                data: { result: result }
+                                data: { event: result.event }
                             });
-                            /*
-                            if (result.event === 'opened') {
-                                console.log('opened');
-                            } else if (result.event === 'loaded') {
-                                console.log('loaded');
-                                // SafariViewController.hide();
-                            } else if (result.event === 'closed') {
-                                console.log('closed');
-                            }
-                            */
                         },
                         function(msg) {
-                            logger.debug({
-                                message: 'SafariViewController.show errorCallback',
+                            logger.error({
+                                message: 'show errorCallback',
                                 method: 'mobile._signInWithSafariViewController',
-                                data: { msg: msg }
+                                error: new Error(msg)
                             });
                         })
                 } // else { use InAppBrowser or app.notification ? }
