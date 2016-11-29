@@ -245,7 +245,7 @@ if (typeof(require) === 'function') {
                 if (url.startsWith(URL_SCHEME + 'token_parser')) {
                     mobile._parseTokenAndLoadUser(url);
                 } else {
-                    mobile.notification.info('received url: ' + url);
+                    mobile.notification.info('called url: ' + url);
                 }
             }, 0);
         };
@@ -2834,6 +2834,38 @@ if (typeof(require) === 'function') {
             // var summaryView = $(DEVICE_SELECTOR + VIEW.FINDER);
             // summaryView.find(kendo.roleSelector('listview')).getKendoMobileListView()._filter._clearFilter({ preventDefault: $.noop });
             // summaryView.find('.km-filter-form').show();
+        };
+
+        /**
+         * Play text-to-speach synthesis
+         * @see https://github.com/vilic/cordova-plugin-tts
+         * @param e
+         */
+        mobile.onTTSClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            var field = e.button.attr(kendo.attr('tts'));
+            // TODO we might also need to process web and image links
+            var text = viewModel.get(field).replace('#', '');
+            if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
+                // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
+                var utterance = new window.SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-GB';
+                utterance.rate = 1;
+                speechSynthesis.speak(utterance);
+            } else if (window.TTS && $.isFunction(window.TTS.speak)) {
+                TTS.speak({
+                        text: text,
+                        locale: 'en-GB',
+                        rate: 1
+                    },
+                    function () {
+                        alert('success');
+                    },
+                    function (reason) {
+                        alert(reason);
+                    });
+            }
         };
 
         /*******************************************************************************************
