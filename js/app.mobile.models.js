@@ -767,14 +767,17 @@
                         // TODO: report errors properly: in xhr.responseText?
                         return options.error(undefined, 'error', 'Invalid activity');
                     }
-                    activity.id = new pongodb.ObjectId();
+                    // The database will give us an id
+                    // activity.id = new pongodb.ObjectId().toString();
                     // TODO activity date????
                     db.activities.insert(activity)
                         .done(function (result) {
                             options.success({ total: 1, data: [activity] });
                             // TODO serverSync is connected
                         })
-                        .fail(options.error);
+                        .fail(function (xhr, status, error) {
+                            options.error(xhr, status, error);
+                        });
                 },
 
                 /**

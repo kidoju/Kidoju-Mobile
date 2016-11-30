@@ -598,7 +598,7 @@ if (typeof(require) === 'function') {
                 }));
 
                 // Current score/test
-                this.set(VIEW_MODEL.CURRENT.$, new models.MobileActivity());
+                this.set(VIEW_MODEL.CURRENT.$, { test: undefined });
 
                 // Favorites are not yet implemented
                 // this.set('favourites', []);
@@ -2153,7 +2153,8 @@ if (typeof(require) === 'function') {
                     viewModel.loadVersion({ language: i18n.locale(), summaryId: activity.get('version.summaryId'), versionId: activity.get('version.versionId') })
                 )
                     .done(function () {
-                        viewModel.set(VIEW_MODEL.CURRENT.$, activity);
+                        // Note: We cannot assign the activity, otherwise calculate will make changes that will make it dirty in MobileActivityDataSource
+                        viewModel.set(VIEW_MODEL.CURRENT.$, activity.toJSON());
                         viewModel.calculate()
                             .done(function () {
                                 mobile._initScoreGrid(e.view);
