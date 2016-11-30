@@ -242,7 +242,9 @@ if (typeof(require) === 'function') {
             }
             // Handle the url
             setTimeout(function () {
-                if (url.startsWith(URL_SCHEME + 'token_parser')) {
+                if (url.startsWith(URL_SCHEME + 'oauth')) {
+                    // The whole flow is documented at
+                    // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                     mobile._parseTokenAndLoadUser(url);
                 } else {
                     mobile.notification.info('called url: ' + url);
