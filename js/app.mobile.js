@@ -2841,6 +2841,34 @@ if (typeof(require) === 'function') {
             // summaryView.find('.km-filter-form').show();
         };
 
+        mobile._doSpeak = function (text, language) {
+            var dfd = $.Deferred();
+            if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
+                // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
+                var utterance = new window.SpeechSynthesisUtterance(text);
+                utterance.lang = language;
+                // utterance.rate = 1;
+                utterance.onend = dfd.resolve;
+                utterance.onerror = dfd.reject;
+                speechSynthesis.speak(utterance);
+            } else if (window.TTS && $.isFunction(window.TTS.speak)) {
+                TTS.speak({ text: text, locale: language }, dfd.resolve, dfd.reject);
+            }
+            return dfd.promise();
+        };
+
+        mobile._cancelSpeak = function() {
+            var dfd =  $.Deferred();
+            if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
+                // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
+                speechSynthesis.cancel();
+                dfd.resolve();
+            } else if (window.TTS && $.isFunction(window.TTS.speak)) {
+                TTS.speak('', dfd.resolve, dfd.reject);
+            }
+            return dfd.promise();
+        };
+
         /**
          * Play text-to-speach synthesis
          * @see https://github.com/vilic/cordova-plugin-tts
@@ -2849,28 +2877,22 @@ if (typeof(require) === 'function') {
         mobile.onTTSClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-            var field = e.button.attr(kendo.attr('tts'));
-            // Process the markdown to remove markings that are irrelevant to speech
-            var text = viewModel.get(field)
-                .replace(/[#`>]/g, '') // remove headings, code and quotes
-                .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
-            if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
-                // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
-                var utterance = new window.SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-GB';
-                utterance.rate = 1;
-                speechSynthesis.speak(utterance);
-            } else if (window.TTS && $.isFunction(window.TTS.speak)) {
-                TTS.speak({
-                        text: text,
-                        locale: 'en-GB',
-                        rate: 1
-                    },
-                    function () {
-                        alert('success'); // TODO
-                    },
-                    function (reason) {
-                        alert(reason); // TODO
+            var running = e.button.attr(kendo.attr('running'));
+            if (!running) {
+                e.button.attr(kendo.attr('running'), true);
+                var field = e.button.attr(kendo.attr('tts'));
+                // Process the markdown to remove markings that are irrelevant to speech
+                var text = viewModel.get(field)
+                    .replace(/[#`>]/g, '') // remove headings, code and quotes
+                    .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
+                mobile._doSpeak(text, 'en-GB')
+                    .always(function () {
+                        e.button.removeAttr(kendo.attr('running'));
+                    });
+            } else {
+                mobile._cancelSpeak()
+                    .always(function () {
+                        e.button.removeAttr(kendo.attr('running'));
                     });
             }
         };
