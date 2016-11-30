@@ -968,6 +968,7 @@ if (typeof(require) === 'function') {
                 var userId = that.get(VIEW_MODEL.USER.SID); // Foreign keys use sids (server ids)
                 assert.match(RX_MONGODB_ID, userId, kendo.format(assert.messages.match.default, 'userId', RX_MONGODB_ID));
                 var language = i18n.locale();
+                assert.equal(language, that.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'this.get(\'settings.language\')', language));
                 assert.equal(language, that.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'this.get(\'summary.language\')', language));
                 assert.equal(language, that.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'this.get(\'version.language\')', language));
                 var summaryId = that.get(VIEW_MODEL.VERSION.SUMMARY_ID);
@@ -1663,7 +1664,7 @@ if (typeof(require) === 'function') {
                         viewModel.set(VIEW_MODEL.USER.$, viewModel.users.at(0));
                     }
                     // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
-                    // kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.device === 'android' ? 0 : 20);
+                    kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.device === 'android' ? 0 : 20);
                     // Considering potential adverse effects with drag and drop, we are using http://docs.telerik.com/kendo-ui/api/javascript/mobile/ui/button#configuration-clickOn
                     // Initialize application
                     mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
@@ -1837,13 +1838,14 @@ if (typeof(require) === 'function') {
             mobile._localizeActivitiesView();
             // Set the navigation bar buttons
             mobile._setNavBar(e.view);
-            // if (viewModel.activities instanceof models.MobileActivityDataSource && viewModel.activities.total() > 0) {
-                // Already loaded
-                mobile._initActivitiesGrid(e.view);
-            // } else {
-                // Does not hurt to reload if there are no activities
-                // TODO
-            // }
+            // Always reload
+            var language = i18n.locale();
+            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
+            var userId = viewModel.get(VIEW_MODEL.USER.SID);
+            viewModel.loadActivities({ language: language, userId: userId })
+                .done(function () {
+                    mobile._initActivitiesGrid(e.view);
+                });
         };
 
         /**
@@ -2847,8 +2849,10 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var field = e.button.attr(kendo.attr('tts'));
-            // TODO we might also need to process web and image links
-            var text = viewModel.get(field).replace('#', '');
+            // Process the markdown to remove markings that are irrelevant to speech
+            var text = viewModel.get(field)
+                .replace(/[#`>]/g, '') // remove headings, code and quotes
+                .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
             if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var utterance = new window.SpeechSynthesisUtterance(text);
@@ -2862,10 +2866,10 @@ if (typeof(require) === 'function') {
                         rate: 1
                     },
                     function () {
-                        alert('success');
+                        alert('success'); // TODO
                     },
                     function (reason) {
-                        alert(reason);
+                        alert(reason); // TODO
                     });
             }
         };

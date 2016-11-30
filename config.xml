@@ -150,4 +150,5 @@
     <gap:config-file parent="/manifest" platform="android">
         <application android:hardwareAccelerated="false" />
     </gap:config-file>
+    <plugin name="cordova-plugin-wkwebview-engine" spec="https://github.com/driftyco/cordova-plugin-wkwebview-engine.git" />
 </widget>

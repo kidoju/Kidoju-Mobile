@@ -80,6 +80,7 @@
         var NUMBER = 'number';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
+        var RX_LANGUAGE = /^[a-z]{2}$/;
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var DATE_0 = new Date(2000, 0, 1); // 1/1/2000
         var DOT_JPEG = '.jpg';
@@ -665,11 +666,15 @@
 
                 var that = this;
 
-                // Get the userId from options (if available at this stage)
-                var sid = options && options.userId;
-                if (RX_MONGODB_ID.test(sid)) {
-                    assert.ok(!new pongodb.ObjectId(sid).isMobileId(), '`options.userId` is expected to be a sid');
-                    that._userId = sid;
+                // Get the language and userId from options (if available at this stage)
+                var language = options && options.language;
+                var userId = options && options.userId;
+                if (RX_LANGUAGE.test(language)) {
+                    that._language = language;
+                }
+                if (RX_MONGODB_ID.test(userId)) {
+                    assert.ok(!new pongodb.ObjectId(userId).isMobileId(), '`options.userId` is expected to be a sid');
+                    that._userId = userId;
                 }
 
                 DataSource.fn.init.call(that, $.extend(true, {}, {
@@ -711,9 +716,11 @@
                 if (that.hasChanges()) {
                     dfd.reject(undefined, 'error', 'Cannot load with pending changes.');
                 } else {
-                    var sid = options && options.userId;
-                    assert.ok(!new pongodb.ObjectId(sid).isMobileId(), '`options.userId` is expected to be a sid'); // A sid is a server id
-                    that._userId = sid;
+                    var language = options && options.language;
+                    var userId = options && options.userId;
+                    assert.ok(!new pongodb.ObjectId(userId).isMobileId(), '`options.userId` is expected to be a sid'); // A sid is a server id
+                    that._language = language;
+                    that._userId = userId;
                     that.read() // Calls _transport._read
                         .done(dfd.resolve)
                         .fail(dfd.reject);
@@ -811,7 +818,7 @@
                         message: 'Activity data read',
                         method: 'app.models.MobileActivityDataSource.transport.read'
                     });
-                    db.activities.find({ 'actor.userId': this._userId })
+                    db.activities.find({ 'version.language': this._language, 'actor.userId': this._userId })
                         .done(function (result) {
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
