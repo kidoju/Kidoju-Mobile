@@ -2346,7 +2346,7 @@ if (typeof(require) === 'function') {
          */
         mobile._signInWithInAppBrowser = function (signInUrl, returnUrl) {
             var close = function () {
-                if (browser) {
+                if (browser) { // Makes it idempotent in case it has already been called
                     browser.removeEventListener('loadstart', loadStart);
                     // browser.removeEventListener('loadstop', loadStop);
                     browser.removeEventListener('loaderror', loadError);
@@ -2377,7 +2377,7 @@ if (typeof(require) === 'function') {
                 }
             };
             var loadError = function (error) {
-                // We have an issue with the InAppBrowser raises an error when opening custom url schemes
+                // We have an issue with the InAppBrowser which raises an error when opening custom url schemes, e.g. com.kidoju.mobile://oauth
                 // See https://github.com/apache/cordova-plugin-inappbrowser/pull/99
                 // window.alert(JSON.stringify($.extend({}, error)));
                 logger.error({
