@@ -203,6 +203,7 @@
                 // To have a mobile picture, there needs to have been a valid picture in the first place and a persistent file system to save it to
                 if ($.type(persistent) !== UNDEFINED && RX_MONGODB_ID.test(sid) && $.type(picture) === STRING && picture.length) {
                     // Facebook, Google, Live and Twitter all use JPG images
+                    alert(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG);
                     return kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG);
                 } else {
                     return kendo.format(uris.mobile.icons, 'user');

@@ -309,6 +309,8 @@
             var fileTransfer = new window.FileTransfer();
             var fileURL = fileEntry.toURL();
 
+            alert(fileURL); // TODO
+
             logger.debug({
                 message: 'Downloading a file',
                 method: 'FileSystem.prototype.download',
