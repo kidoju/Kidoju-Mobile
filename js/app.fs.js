@@ -23,7 +23,6 @@
         var logger = new window.Logger('app.fs');
         var STRING = 'string';
         var OBJECT = 'object';
-        var FUNCTION = 'function';
         var UNDEFINED = 'undefined';
         var STORAGE_SIZE = 100 * 1024 * 1024; // 100 MB
         // The following allows FS_ROOT[window.TEMPORARY] and FS_ROOT[window.PERSISTENT];
