@@ -2897,6 +2897,7 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var speaking = e.button.attr(kendo.attr(SPEAKING));
+            alert(speaking);
             if (!speaking) {
                 e.button.attr(kendo.attr(SPEAKING), 'true');
                 var field = e.button.attr(kendo.attr('tts'));
