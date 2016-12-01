@@ -312,7 +312,7 @@ if (typeof(require) === 'function') {
                 ga: window.ga && $.isFunction(window.ga.startTrackerWithId),
                 // Note: InAppBrowser uses iFrame on browser platform which is incompatible with oAuth flow
                 inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
-                safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.SafariViewController && $.isFunction(window.cordova.SafariViewController.show),
+                safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 socialsharing: window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
                 splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
             };
