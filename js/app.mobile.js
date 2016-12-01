@@ -312,7 +312,8 @@ if (typeof(require) === 'function') {
                 ga: window.ga && $.isFunction(window.ga.startTrackerWithId),
                 // Note: InAppBrowser uses iFrame on browser platform which is incompatible with oAuth flow
                 inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
-                socialsharing: window && window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
+                safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.SafariViewController && $.isFunction(window.cordova.InAppBrowser.show),
+                socialsharing: window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
                 splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
             };
             // barcodeScanner requires phonegap-plugin-barcodescanner
@@ -330,6 +331,10 @@ if (typeof(require) === 'function') {
             // InAppBrowser requires cordova-plugin-inappbrowser
             if (mobile.support.inAppBrowser) {
                 mobile.InAppBrowser = window.cordova.InAppBrowser;
+            }
+            // SafariViewController requires cordova-plugin-safariviewcontroller
+            if (mobile.support.safariViewController) {
+                mobile.SafariViewController = window.SafariViewController;
             }
             // notification requires cordova-plugin-dialogs
             // TODO: remove????
@@ -2301,9 +2306,9 @@ if (typeof(require) === 'function') {
                 method: 'mobile._signInWithSafariViewController',
                 data: { signInUrl: signInUrl }
             });
-            SafariViewController.isAvailable(function (available) {
+            mobile.SafariViewController.isAvailable(function (available) {
                 if (available) {
-                    SafariViewController.show({
+                    mobile.SafariViewController.show({
                             url: signInUrl
                             // hidden: false,
                             // animated: false, // default true, note that 'hide' will reuse this preference (the 'Done' button will always animate though)
@@ -2451,7 +2456,7 @@ if (typeof(require) === 'function') {
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
                     // alert(window.SafariViewController ? 'Yep' : 'Nope');
-                    if (window.SafariViewController) { // (mobile.support.safariView) {
+                    if (mobile.support.SafariViewController) {
                         // running in Phonegap, using SFSafariViewController
                         // requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
                         // also requires https://github.com/EddyVerbruggen/Custom-URL-scheme
