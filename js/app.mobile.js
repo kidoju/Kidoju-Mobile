@@ -2865,6 +2865,7 @@ if (typeof(require) === 'function') {
                 utterance.onerror = dfd.reject;
                 window.speechSynthesis.speak(utterance);
             } else if (window.TTS && $.isFunction(window.TTS.speak)) {
+                alert(text);
                 window.TTS.speak({ text: text, locale: language, rate: 1 }, dfd.resolve, dfd.reject);
             }
             return dfd.promise();
@@ -2904,6 +2905,9 @@ if (typeof(require) === 'function') {
                     .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
                     .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
                 mobile._doSpeak(text, 'en-GB')
+                    .fail(function (err) {
+                        alert(err);
+                    })
                     .always(function () {
                         e.button.removeAttr(kendo.attr(SPEAKING));
                     });
