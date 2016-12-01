@@ -17,6 +17,7 @@ if (typeof(require) === 'function') {
     require('../styles/kidoju.widgets.quiz.less');
     require('../styles/kidoju.widgets.rating.less');
     require('../styles/kidoju.widgets.stage.less');
+    require('../styles/kidoju.widgets.table.less');
     require('../styles/app.fonts.less');
     require('../styles/app.mobile.less');
 
@@ -56,9 +57,9 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.notification',
         './vendor/kendo/kendo.color',
         './vendor/kendo/kendo.drawing',
-        // './vendor/kendo/kendo.dataviz.core',
-        // './vendor/kendo/kendo.dataviz.themes',
-        // './vendor/kendo/kendo.dataviz.chart',
+        './vendor/kendo/kendo.dataviz.core',
+        './vendor/kendo/kendo.dataviz.themes',
+        './vendor/kendo/kendo.dataviz.chart',
         './vendor/kendo/kendo.router',
         './vendor/kendo/kendo.mobile.application',
         './vendor/kendo/kendo.mobile.button',
@@ -90,6 +91,7 @@ if (typeof(require) === 'function') {
         './kidoju.widgets.rating',
         // './kidoju.widgets.social',
         './kidoju.widgets.stage',
+        './kidoju.widgets.table',
         './app.constants',
         './app.logger',
         './app.i18n',
