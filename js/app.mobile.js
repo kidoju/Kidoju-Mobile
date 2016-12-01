@@ -2848,30 +2848,40 @@ if (typeof(require) === 'function') {
             // summaryView.find('.km-filter-form').show();
         };
 
+        /**
+         *
+         * @param text
+         * @param language
+         * @private
+         */
         mobile._doSpeak = function (text, language) {
             var dfd = $.Deferred();
             if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var utterance = new window.SpeechSynthesisUtterance(text);
                 utterance.lang = language;
-                // utterance.rate = 1;
-                utterance.onend = dfd.resolve;
+                utterance.rate = 1;
+                utterance.onend = dfd.resolve; // Returns a SpeechSynthesisEvent
                 utterance.onerror = dfd.reject;
-                speechSynthesis.speak(utterance);
+                window.speechSynthesis.speak(utterance);
             } else if (window.TTS && $.isFunction(window.TTS.speak)) {
-                TTS.speak({ text: text, locale: language }, dfd.resolve, dfd.reject);
+                window.TTS.speak({ text: text, locale: language, rate: 1 }, dfd.resolve, dfd.reject);
             }
             return dfd.promise();
         };
 
+        /**
+         *
+         * @private
+         */
         mobile._cancelSpeak = function() {
             var dfd =  $.Deferred();
             if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
-                speechSynthesis.cancel();
+                window.speechSynthesis.cancel();
                 dfd.resolve();
             } else if (window.TTS && $.isFunction(window.TTS.speak)) {
-                TTS.speak('', dfd.resolve, dfd.reject);
+                window.TTS.speak('', dfd.resolve, dfd.reject);
             }
             return dfd.promise();
         };
@@ -2882,24 +2892,25 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onTTSClick = function (e) {
+            var SPEAKING = 'speaking';
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-            var running = e.button.attr(kendo.attr('running'));
-            if (!running) {
-                e.button.attr(kendo.attr('running'), true);
+            var speaking = e.button.attr(kendo.attr(SPEAKING));
+            if (!speaking) {
+                e.button.attr(kendo.attr(SPEAKING), 'true');
                 var field = e.button.attr(kendo.attr('tts'));
                 // Process the markdown to remove markings that are irrelevant to speech
                 var text = viewModel.get(field)
-                    .replace(/[#`>]/g, '') // remove headings, code and quotes
+                    .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
                     .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
                 mobile._doSpeak(text, 'en-GB')
                     .always(function () {
-                        e.button.removeAttr(kendo.attr('running'));
+                        e.button.removeAttr(kendo.attr(SPEAKING));
                     });
             } else {
                 mobile._cancelSpeak()
                     .always(function () {
-                        e.button.removeAttr(kendo.attr('running'));
+                        e.button.removeAttr(kendo.attr(SPEAKING));
                     });
             }
         };
