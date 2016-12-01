@@ -2862,7 +2862,7 @@ if (typeof(require) === 'function') {
         mobile._doSpeak = function (text, language) {
             var dfd = $.Deferred();
             if (mobile.support.textToSpeech) {
-                mobile.textToSpeech.speak({ text: text, locale: language, rate: 1 }, dfd.resolve, dfd.reject);
+                mobile.textToSpeech.speak({ text: text, locale: language, rate: 0.75 }, dfd.resolve, dfd.reject);
             } else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
                 // Note: iOS WKWebView engine for cordova supports speechSynthesis but does not output any sound
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
