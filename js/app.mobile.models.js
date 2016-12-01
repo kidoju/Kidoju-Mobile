@@ -86,11 +86,6 @@
         var DOT_JPEG = '.jpg';
 
         /**
-         * Initialize fileSystem ASAP
-         */
-        fileSystem.init();
-
-        /**
          * MobileUser model
          * @type {kidoju.data.Model}
          */
@@ -203,7 +198,18 @@
                 // To have a mobile picture, there needs to have been a valid picture in the first place and a persistent file system to save it to
                 if ($.type(persistent) !== UNDEFINED && RX_MONGODB_ID.test(sid) && $.type(picture) === STRING && picture.length) {
                     // Facebook, Google, Live and Twitter all use JPG images
-                    alert(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG);
+                    // In the browser:
+                    // - toURL returns a url starting with filesystem://
+                    // - toInternalURL returns a url starting with cdvfile:// but the url scheme is not recognized by the browser
+                    // On Android,
+                    // - we get "Uncaught TypeError: FileSystem.encodeURIPath is not a function"
+                    // On iOS
+                    // - toURL returns a url starting with file://
+                    // - toInternalURL returns a url starting with cdvfile://
+                    //
+                    // window.alert(kendo.format(uris.mobile.pictures, persistent.root.toInternalURL(), sid + DOT_JPEG));
+                    // return kendo.format(uris.mobile.pictures, persistent.root.toInternalURL(), sid + DOT_JPEG);
+                    // window.alert(kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG));
                     return kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG);
                 } else {
                     return kendo.format(uris.mobile.icons, 'user');
@@ -307,6 +313,7 @@
                             that.reset();
                         }
                     });
+
             },
             /**
              * Reset user
@@ -460,15 +467,21 @@
                         message: 'User data read',
                         method: 'app.models.MobileUserDataSource.transport.read'
                     });
-                    db.users.find()
-                        .done(function (result) {
-                            if ($.isArray(result)) {
-                                options.success({ total: result.length, data: result });
-                            } else {
-                                options.error(undefined, 'error', '`result` should be an `array`, possibly empty');
-                            }
-                        })
-                        .fail(options.error);
+                    // Initialize the file system for mobilePicture$
+                    fileSystem.init()
+                        .done(function () {
+                            // Query the database of all users
+                            db.users.find()
+                                .done(function (result) {
+                                    if ($.isArray(result)) {
+                                        options.success({ total: result.length, data: result });
+                                    } else {
+                                        options.error(undefined, 'error', '`result` should be an `array`, possibly empty');
+                                    }
+                                })
+                                .fail(options.error);
+                        });
+                    // TODO: .fail(function () {});
                 },
 
                 /**

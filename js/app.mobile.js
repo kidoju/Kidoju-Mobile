@@ -2460,7 +2460,7 @@ if (typeof(require) === 'function') {
                         method: 'mobile.onSigninButtonClick',
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
-                    // alert(mobile.support.safariViewController ? 'Yep' : 'Nope');
+                    // window.alert(mobile.support.safariViewController ? 'Yep' : 'Nope');
                     if (mobile.support.safariViewController) {
                         // running in Phonegap, using SFSafariViewController
                         // requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
@@ -2862,13 +2862,14 @@ if (typeof(require) === 'function') {
         mobile._doSpeak = function (text, language) {
             var dfd = $.Deferred();
             if (mobile.support.textToSpeech) {
-                mobile.textToSpeech.speak({ text: text, locale: language, rate: 1 }, dfd.resolve, dfd.reject);
+                // mobile.textToSpeech.speak({ text: text, locale: language, rate: 1 }, dfd.resolve, dfd.reject);
+                mobile.textToSpeech.speak({ text: text, locale: language }, dfd.resolve, dfd.reject);
             } else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
                 // Note: iOS WKWebView engine for cordova supports speechSynthesis but does not output any sound
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var utterance = new window.SpeechSynthesisUtterance(text);
                 utterance.lang = language;
-                utterance.rate = 1;
+                // utterance.rate = 1;
                 utterance.onend = dfd.resolve; // Returns a SpeechSynthesisEvent
                 utterance.onerror = dfd.reject;
                 window.speechSynthesis.speak(utterance);
