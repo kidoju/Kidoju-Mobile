@@ -2455,8 +2455,8 @@ if (typeof(require) === 'function') {
                         method: 'mobile.onSigninButtonClick',
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
-                    // alert(window.SafariViewController ? 'Yep' : 'Nope');
-                    if (mobile.support.SafariViewController) {
+                    // alert(mobile.support.safariViewController ? 'Yep' : 'Nope');
+                    if (mobile.support.safariViewController) {
                         // running in Phonegap, using SFSafariViewController
                         // requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
                         // also requires https://github.com/EddyVerbruggen/Custom-URL-scheme
