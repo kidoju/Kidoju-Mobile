@@ -314,7 +314,8 @@ if (typeof(require) === 'function') {
                 inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
                 safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 socialsharing: window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
-                splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
+                splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide),
+                textToSpeech: window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak)
             };
             // barcodeScanner requires phonegap-plugin-barcodescanner
             if (mobile.support.barcodeScanner) {
@@ -335,6 +336,10 @@ if (typeof(require) === 'function') {
             // SafariViewController requires cordova-plugin-safariviewcontroller
             if (mobile.support.safariViewController) {
                 mobile.SafariViewController = window.SafariViewController;
+            }
+            // TTS requires cordova-plugin-TTS
+            if (mobile.support.textToSpeech) {
+                mobile.textToSpeech = window.TTS;
             }
             // notification requires cordova-plugin-dialogs
             // TODO: remove????
@@ -2856,9 +2861,10 @@ if (typeof(require) === 'function') {
          */
         mobile._doSpeak = function (text, language) {
             var dfd = $.Deferred();
-            alert('_doSpeak');
-            if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
-                alert('Oops! speechSynthesis');
+            if (mobile.support.textToSpeech) {
+                mobile.textToSpeech.speak({ text: text, locale: language, rate: 1 }, dfd.resolve, dfd.reject);
+            } else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
+                // Note: iOS WKWebView engine for cordova supports speechSynthesis but does not output any sound
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var utterance = new window.SpeechSynthesisUtterance(text);
                 utterance.lang = language;
@@ -2866,9 +2872,6 @@ if (typeof(require) === 'function') {
                 utterance.onend = dfd.resolve; // Returns a SpeechSynthesisEvent
                 utterance.onerror = dfd.reject;
                 window.speechSynthesis.speak(utterance);
-            } else if (window.TTS && $.isFunction(window.TTS.speak)) {
-                alert(text);
-                window.TTS.speak({ text: text, locale: language, rate: 1 }, dfd.resolve, dfd.reject);
             }
             return dfd.promise();
         };
@@ -2879,12 +2882,12 @@ if (typeof(require) === 'function') {
          */
         mobile._cancelSpeak = function() {
             var dfd =  $.Deferred();
-            if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
+            if (mobile.support.textToSpeech) {
+                mobile.textToSpeech.speak('', dfd.resolve, dfd.reject);
+            } else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
                 window.speechSynthesis.cancel();
                 dfd.resolve();
-            } else if (window.TTS && $.isFunction(window.TTS.speak)) {
-                window.TTS.speak('', dfd.resolve, dfd.reject);
             }
             return dfd.promise();
         };
@@ -2899,7 +2902,6 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var speaking = e.button.attr(kendo.attr(SPEAKING));
-            alert(speaking);
             if (!speaking) {
                 e.button.attr(kendo.attr(SPEAKING), 'true');
                 var field = e.button.attr(kendo.attr('tts'));
@@ -2907,10 +2909,7 @@ if (typeof(require) === 'function') {
                 var text = viewModel.get(field)
                     .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
                     .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
-                mobile._doSpeak(text, 'en-GB')
-                    .fail(function (err) {
-                        alert(err);
-                    })
+                mobile._doSpeak(text, 'en-GB') // TODO
                     .always(function () {
                         e.button.removeAttr(kendo.attr(SPEAKING));
                     });
