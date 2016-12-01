@@ -199,11 +199,11 @@
                 var that = this;
                 var picture = that instanceof models.MobileUser ? that.get('picture') : that.picture;
                 var sid = that instanceof models.MobileUser ? that.get('sid') : that.sid;
-                var temporary = fileSystem._temporary;
-                // To have a mobile picture, there needs to have been a valid picture in the first place and a temporary file system to save it
-                if ($.type(temporary) !== UNDEFINED && RX_MONGODB_ID.test(sid) && $.type(picture) === STRING && picture.length) {
+                var persistent = fileSystem._persistent;
+                // To have a mobile picture, there needs to have been a valid picture in the first place and a persistent file system to save it to
+                if ($.type(persistent) !== UNDEFINED && RX_MONGODB_ID.test(sid) && $.type(picture) === STRING && picture.length) {
                     // Facebook, Google, Live and Twitter all use JPG images
-                    return kendo.format(uris.mobile.pictures, temporary.root.toURL(), sid + DOT_JPEG);
+                    return kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG);
                 } else {
                     return kendo.format(uris.mobile.icons, 'user');
                 }
@@ -230,7 +230,7 @@
                         .done(function () {
                             var directoryPath = kendo.format(uris.mobile.pictures, '', '');
                             var fileName = sid + DOT_JPEG;
-                            fileSystem.getDirectoryEntry(directoryPath, window.TEMPORARY)
+                            fileSystem.getDirectoryEntry(directoryPath, window.PERSISTENT)
                                 .done(function (directoryEntry) {
                                     fileSystem.getFileEntry(directoryEntry, fileName)
                                         .done(function (fileEntry) {
