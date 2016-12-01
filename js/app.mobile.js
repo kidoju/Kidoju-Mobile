@@ -2856,7 +2856,9 @@ if (typeof(require) === 'function') {
          */
         mobile._doSpeak = function (text, language) {
             var dfd = $.Deferred();
+            alert('_doSpeak');
             if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
+                alert('Oops! speechSynthesis');
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var utterance = new window.SpeechSynthesisUtterance(text);
                 utterance.lang = language;
