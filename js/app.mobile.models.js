@@ -304,6 +304,7 @@
                 app.cache.removeMe();
                 return app.cache.getMe()
                     .done(function (data) {
+                        alert(JSON.stringify(data));
                         if ($.isPlainObject(data) && RX_MONGODB_ID.test(data.id)) {
                             // Since we have marked fields as non editable, we cannot use 'that.set',
                             // This should raise a change event on the parent viewModel

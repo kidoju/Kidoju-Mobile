@@ -245,7 +245,6 @@ if (typeof(require) === 'function') {
             // Handle the url
             setTimeout(function () {
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
-                    alert('parseToken');
                     // The whole flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                     mobile._parseTokenAndLoadUser(url);
@@ -657,6 +656,7 @@ if (typeof(require) === 'function') {
             loadActivities: function (options) {
                 return this.activities.load(options)
                     .fail(function (xhr, status, error) {
+                        alert(error); // TODO
                         app.notification.error(i18n.culture.notifications.activitiesQueryFailure);
                         logger.error({
                             message: 'error loading summaries',
@@ -2247,8 +2247,8 @@ if (typeof(require) === 'function') {
         mobile._parseTokenAndLoadUser = function (url, callback) {
             // parseToken sets the token in localStorage
             var token = rapi.util.parseToken(url);
-            // No need to clean the history when opening in InAppBrowser
-            if (!mobile.support.inAppBrowser) {
+            // No need to clean the history when opening in InAppBrowser or SafariViewController
+            if (!mobile.support.safariViewController && !mobile.support.inAppBrowser) {
                 rapi.util.cleanHistory();
             }
             if (token && token.error) {
@@ -2265,6 +2265,7 @@ if (typeof(require) === 'function') {
             } else if (token && token.access_token) {
                 /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                 // Load the remote mobile user (me) using the oAuth token
+                alert(token.access_token); // TODO
                 viewModel.loadUser()
                     .done(function () {
                         alert('user loaded!');
@@ -2272,7 +2273,7 @@ if (typeof(require) === 'function') {
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
                         setTimeout(function () {
                             mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
-                        }, 100);
+                        }, 0);
                     })
                     .always(function () {
                         if ($.isFunction(callback)) {
