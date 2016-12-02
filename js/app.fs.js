@@ -19,6 +19,7 @@
 
     (function ($, undefined) {
 
+        var app = window.app = window.app || app;
         var assert = window.assert;
         var logger = new window.Logger('app.fs');
         var STRING = 'string';
@@ -34,7 +35,7 @@
          * The FileSystem prototype
          * @constructor
          */
-        var FileSystem = window.FileSystem = function () {};
+        var FileSystem = app.FileSystem = function () {};
 
         /**
          * File error codes
@@ -352,6 +353,6 @@
 
     }(window.jQuery));
 
-    return window.FileSystem;
+    // return app.FileSystem;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

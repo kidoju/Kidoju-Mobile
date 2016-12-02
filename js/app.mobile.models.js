@@ -56,7 +56,7 @@
         var DataSource = kidoju.data.DataSource;
         var assert = window.assert;
         var logger = new window.Logger('app.mobile.models');
-        var fileSystem = new window.FileSystem();
+        var fileSystem = new app.FileSystem();
         var md5 = md5H || window.md5;
         var pongodb = window.pongodb;
         var db = app.db = new pongodb.Database({
