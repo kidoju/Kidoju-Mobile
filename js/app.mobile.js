@@ -245,6 +245,7 @@ if (typeof(require) === 'function') {
             // Handle the url
             setTimeout(function () {
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
+                    alert('parseToken');
                     // The whole flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                     mobile._parseTokenAndLoadUser(url);
@@ -2266,11 +2267,12 @@ if (typeof(require) === 'function') {
                 // Load the remote mobile user (me) using the oAuth token
                 viewModel.loadUser()
                     .done(function () {
+                        alert('user loaded!');
                         // Yield time for transition effects to complete, especially when testing in the browser
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
                         setTimeout(function () {
                             mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
-                        }, 0);
+                        }, 100);
                     })
                     .always(function () {
                         if ($.isFunction(callback)) {
