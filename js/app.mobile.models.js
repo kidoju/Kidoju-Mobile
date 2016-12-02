@@ -206,9 +206,11 @@
                     // On iOS
                     // - toURL returns a url starting with file://
                     // - toInternalURL returns a url starting with cdvfile://
-                    var rootUrl = window.cordova && window.device && window.device.platform !== 'browser' ?
+
+                    // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
+                    // and the way to test WkWebView against UIWebView is to test window.indexedDB
+                    var rootUrl = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB ?
                         persistent.root.toInternalURL() : persistent.root.toURL();
-                    // Note: cdvfile urls do not work in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
                     // var path = kendo.format(uris.mobile.pictures, persistent.root.toInternalURL(), sid + DOT_JPEG);
                     var path = kendo.format(uris.mobile.pictures, rootUrl, sid + DOT_JPEG);
                     logger.debug({

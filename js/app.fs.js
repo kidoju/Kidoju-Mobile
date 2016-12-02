@@ -235,7 +235,9 @@
                     return dfd.resolve(root);
                 }
 
-                var rootUrl = window.cordova && window.device && window.device.platform !== 'browser' ?
+                // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
+                // and the way to test WkWebView against UIWebView is to test window.indexedDB
+                var rootUrl = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB ?
                     root.toInternalURL() : root.toURL();
 
                 logger.debug({
@@ -280,7 +282,9 @@
             assert.ok(directoryEntry.isDirectory, 'directoryEntry should be a DirectoryEntry and therefore return directoryEntry.isDirectory === true');
             assert.type(STRING, fileName, assert.format(assert.messages.type.default, 'fileName', STRING));
 
-            var directoryURL = window.cordova && window.device && window.device.platform !== 'browser' ?
+            // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
+            // and the way to test WkWebView against UIWebView is to test window.indexedDB
+            var directoryURL = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB  ?
                 directoryEntry.toInternalURL() : directoryEntry.toURL();
 
             logger.debug({
@@ -313,7 +317,9 @@
 
             var dfd = $.Deferred();
             var fileTransfer = new window.FileTransfer();
-            var fileURL = window.cordova && window.device && window.device.platform !== 'browser' ?
+            // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
+            // and the way to test WkWebView against UIWebView is to test window.indexedDB
+            var fileURL = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB ?
                 fileEntry.toInternalURL() : fileEntry.toURL();
 
             logger.debug({
