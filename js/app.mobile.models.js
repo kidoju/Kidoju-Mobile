@@ -206,14 +206,17 @@
                     // On iOS
                     // - toURL returns a url starting with file://
                     // - toInternalURL returns a url starting with cdvfile://
+                    var rootUrl = window.cordova && window.device && window.device.platform !== 'browser' ?
+                        persistent.root.toInternalURL() : persistent.root.toURL();
+                    // Note: cdvfile urls do not work in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
+                    // var path = kendo.format(uris.mobile.pictures, persistent.root.toInternalURL(), sid + DOT_JPEG);
+                    var path = kendo.format(uris.mobile.pictures, rootUrl, sid + DOT_JPEG);
                     logger.debug({
                         message: 'binding to mobilePicture$',
                         method: 'MobileUser.mobilePicture$',
-                        data: { path: kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG) }
+                        data: { path: path }
                     });
-                    // Note: cdvfile urls do not work in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
-                    // return kendo.format(uris.mobile.pictures, persistent.root.toInternalURL(), sid + DOT_JPEG);
-                    return kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG);
+                    return path;
                 } else {
                     return kendo.format(uris.mobile.icons, 'user');
                 }

@@ -235,10 +235,13 @@
                     return dfd.resolve(root);
                 }
 
+                var rootUrl = window.cordova && window.device && window.device.platform !== 'browser' ?
+                    root.toInternalURL() : root.toURL();
+
                 logger.debug({
                     message: 'Calling DirectoryEntry.getDirectory',
                     method: 'FileSystem.prototype.getDirectoryEntry',
-                    data: { directoryEntry: root.toURL(), folder: folders[0] }
+                    data: { rootUrl: rootUrl, folder: folders[0] }
                 });
 
                 root.getDirectory(
@@ -277,10 +280,13 @@
             assert.ok(directoryEntry.isDirectory, 'directoryEntry should be a DirectoryEntry and therefore return directoryEntry.isDirectory === true');
             assert.type(STRING, fileName, assert.format(assert.messages.type.default, 'fileName', STRING));
 
+            var directoryURL = window.cordova && window.device && window.device.platform !== 'browser' ?
+                directoryEntry.toInternalURL() : directoryEntry.toURL();
+
             logger.debug({
                 message: 'Getting file entry',
                 method: 'FileSystem.prototype.getFileEntry',
-                data: { directoryEntry: directoryEntry.toURL(), fileName: fileName }
+                data: { directoryURL: directoryURL, fileName: fileName }
             });
 
             var dfd = $.Deferred();
@@ -307,12 +313,13 @@
 
             var dfd = $.Deferred();
             var fileTransfer = new window.FileTransfer();
-            var fileURL = fileEntry.toURL();
+            var fileURL = window.cordova && window.device && window.device.platform !== 'browser' ?
+                fileEntry.toInternalURL() : fileEntry.toURL();
 
             logger.debug({
                 message: 'Downloading a file',
                 method: 'FileSystem.prototype.download',
-                data: { remoteUrl: remoteUrl,  fileEntry: fileEntry.toURL(), headers: JSON.stringify(headers) }
+                data: { remoteUrl: remoteUrl,  fileURL: fileURL, headers: JSON.stringify(headers) }
             });
 
             fileTransfer.onProgress = dfd.notify; // Consider reviewing event parameter passed to dfd.notify without formatting
