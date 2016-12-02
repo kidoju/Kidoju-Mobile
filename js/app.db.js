@@ -660,9 +660,9 @@
             // Configure localForage
             options.storeName = options.name;
             // Force the use of WEBSQL in iOS WKWebView because indexedDB does not work properly
-            if (!window.chrome && window.webkit && window.indexedDB) {
-                options.driver = localForage.WEBSQL;
-            }
+            // if (!window.chrome && window.webkit && window.indexedDB) {
+            //     options.driver = localForage.WEBSQL;
+            // }
             localForage.config(options);
             /*
             localForage.config({
