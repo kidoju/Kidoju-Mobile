@@ -112,8 +112,6 @@
     <access origin="*" />
     <allow-intent href="*" />
     <!--access origin="https://*.kidoju.com/*" />
-    <!--access origin="https://*.kidoju.com/*" />
-    <!--access origin="https://*.kidoju.com/*" />
     <access origin="https://s3.amazonaws.com/*" />
     <access origin="blob://*" />
     <access origin="cdvfile://*" />
