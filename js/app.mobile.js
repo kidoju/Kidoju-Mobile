@@ -1099,7 +1099,7 @@ if (typeof(require) === 'function') {
                     break;
                 case VIEW_MODEL.SETTINGS.THEME:
                     app.theme.name(e.sender.get(VIEW_MODEL.SETTINGS.THEME));
-                    if (mobile && mobile.application instanceof kendo.mobile.Application) {
+                    if (mobile.application instanceof kendo.mobile.Application) {
                         var theme = viewModel.getTheme();
                         // mobile.application.options.platform = theme.platform;
                         // mobile.application.options.majorVersion = theme.majorVersion;
@@ -1617,11 +1617,14 @@ if (typeof(require) === 'function') {
          * @private
          */
         mobile.onResize = function () {
-            var view = mobile.application.view();
-            mobile._initNotification();
-            mobile._resizeStage(view);
-            // mobile._initActivitiesGrid(view); // <-- not necessary because we do not need to recalculate the height
-            mobile._initScoreGrid(view);
+            // In Android, onResize might be triggered before kendo.mobile.Application is instantiated
+            if (mobile.application instanceof kendo.mobile.Application) {
+                mobile._initNotification();
+                var view = mobile.application.view();
+                mobile._resizeStage(view);
+                // mobile._initActivitiesGrid(view); // <-- not necessary because we do not need to recalculate the height
+                mobile._initScoreGrid(view);
+            }
         };
 
         /*******************************************************************************************
