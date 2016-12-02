@@ -2001,6 +2001,10 @@ if (typeof(require) === 'function') {
         mobile.onPlayerViewInit = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            e.view.content.find('div.heading h2')
+                .click(function (e) {
+                   // debugger; // TODO
+                });
             e.view.content.kendoTouch({
                 enableSwipe: true,
                 minXDelta: 200,
