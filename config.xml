@@ -116,7 +116,9 @@
     <access origin="file://*" />
     <access origin="filesystem://*" />
     <access origin="gap://*" />
-    <allow-intent href="com.kidoju.mobile:*" />
+    <allow-intent href="com.kidoju.mobile://*/*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
     <platform name="android">
         <allow-intent href="market:*" />
         <preference name="AndroidPersistentFileLocation" value="Internal" />

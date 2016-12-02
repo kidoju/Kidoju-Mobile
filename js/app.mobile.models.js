@@ -206,10 +206,13 @@
                     // On iOS
                     // - toURL returns a url starting with file://
                     // - toInternalURL returns a url starting with cdvfile://
-                    //
-                    // window.alert(kendo.format(uris.mobile.pictures, persistent.root.toInternalURL(), sid + DOT_JPEG));
+                    logger.debug({
+                        message: 'binding to mobilePicture$',
+                        method: 'MobileUser.mobilePicture$',
+                        data: { path: kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG) }
+                    });
+                    // Note: cdvfile urls do not work in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
                     // return kendo.format(uris.mobile.pictures, persistent.root.toInternalURL(), sid + DOT_JPEG);
-                    // window.alert(kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG));
                     return kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG);
                 } else {
                     return kendo.format(uris.mobile.icons, 'user');
@@ -513,7 +516,7 @@
                                 if (result && result.nMatched === 1 && result.nModified === 1) {
                                     // Update the image from time to time
                                     if (Math.floor(4 * Math.random()) === 0) {
-                                        // We discard success/failure because we might be disconnected
+                                        // We discard success/failure because the user is saved
                                         models.MobileUser.fn._saveMobilePicture.call(user);
                                     }
                                     // Restore id and return updated user to datasource

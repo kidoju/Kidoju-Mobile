@@ -9,7 +9,7 @@
     <!-- The following CSP is the one added by default bu the Phonegap Developper App -->
     <!--meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;img-src 'self' data: content:;style-src 'self' 'unsafe-inline' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"-->
     <!-- The following is our CSP    https://accounts.google.com https://www.facebook.com https://login.live.com; -->
-    <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: cdvfile: data: filesystem: gap: kidoju: https://*.kidoju.com; connect-src https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' cdvfile: data: filesystem: https://*.kidoju.com https://s3.amazonaws.com https://*.twimg.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://*.phonegap.com http://10.0.0.105:*; style-src 'self' 'unsafe-inline';"-->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: cdvfile: data: file: filesystem: gap: com.kidoju.mobile: https://*.kidoju.com; connect-src https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' cdvfile: data: file: filesystem: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: http://10.0.0.105:*; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
     <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
     <script src="./cordova.js"></script>
