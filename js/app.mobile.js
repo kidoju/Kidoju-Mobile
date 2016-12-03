@@ -223,9 +223,11 @@ if (typeof(require) === 'function') {
          * Global handlers
          *******************************************************************************************/
 
-        // TODO Global Event Handler - See app.logger
         window.onerror = function (message, source, lineno, colno, error) {
-            window.alert(message);
+            setTimeout(function () { // setTimeout is for SafariViewController
+                window.alert(message);
+                // TODO Global Event Handler - See app.logger
+            }, 0);
         };
 
         /**
@@ -234,15 +236,9 @@ if (typeof(require) === 'function') {
          */
         window.handleOpenURL = function (url) {
 
-            window.SafariViewController.hide();
-
-            setTimeout(function() {
-                alert(url);
-            }, 0);
-
-            /*
             // Hide the SafariViewController in all circumstances
             // This has to be done before the setTimeout otherwise the SafariViewController does not close on iOS
+            // TODO mobile.support.safariViewController is iOS only until https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/51
             if (mobile.support.safariViewController) {
                 mobile.SafariViewController.hide();
             }
@@ -262,7 +258,6 @@ if (typeof(require) === 'function') {
                     mobile.notification.info('called url: ' + url);
                 }
             }, 0);
-            */
         };
 
         /**
@@ -323,7 +318,7 @@ if (typeof(require) === 'function') {
                 ga: window.ga && $.isFunction(window.ga.startTrackerWithId),
                 // Note: InAppBrowser uses iFrame on browser platform which is incompatible with oAuth flow
                 inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
-                safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
+                safariViewController: window.cordova && window.device && window.device.platform === 'iOS' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 socialsharing: window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
                 splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide),
                 textToSpeech: window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak)
