@@ -234,6 +234,8 @@ if (typeof(require) === 'function') {
          */
         window.handleOpenURL = function (url) {
 
+            console.log('handleOpenURL');
+
             setTimeout(function() {
                 alert(url);
             }, 0);
