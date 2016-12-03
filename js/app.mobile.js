@@ -235,17 +235,17 @@ if (typeof(require) === 'function') {
         window.handleOpenURL = function (url) {
             // Handle the url
             setTimeout(function () {
+                // Hide the SafariViewController in all circumstances
+                if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
+                    window.SafariViewController.hide();
+                }
                 logger.debug({
                     message: 'App scheme called',
                     method: 'window.handleOpenURL',
                     data: { url: url }
                 });
-                // Hide the SafariViewController in all circumstances
-                if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
-                    window.SafariViewController.hide();
-                }
-                window.alert(url);
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
+                    window.alert(url);
                     // The whole flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                     mobile._parseTokenAndLoadUser(url);
