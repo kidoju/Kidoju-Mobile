@@ -241,26 +241,24 @@ if (typeof(require) === 'function') {
             if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
                 window.SafariViewController.hide();
             }
+            */
 
             // Handle the url
             setTimeout(function () {
-            */
                 logger.debug({
                     message: 'App scheme called',
                     method: 'window.handleOpenURL',
                     data: { url: url }
                 });
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
-                    // alert('parse: ' + $.isFunction(mobile._parseTokenAndLoadUser));
+                    alert('parse: ' + $.isFunction(mobile._parseTokenAndLoadUser));
                     // The whole flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                     mobile._parseTokenAndLoadUser(url);
                 } else {
                     mobile.notification.info('called url: ' + url);
                 }
-            /*
             }, 0);
-            */
         };
 
         /**
