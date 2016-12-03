@@ -235,7 +235,6 @@ if (typeof(require) === 'function') {
         window.handleOpenURL = function (url) {
             // Handle the url
             setTimeout(function () {
-                window.alert(url);
                 logger.debug({
                     message: 'App scheme called',
                     method: 'window.handleOpenURL',
@@ -245,6 +244,7 @@ if (typeof(require) === 'function') {
                 if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
                     window.SafariViewController.hide();
                 }
+                window.alert(url);
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
                     // The whole flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
