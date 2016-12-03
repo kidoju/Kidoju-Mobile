@@ -233,12 +233,14 @@ if (typeof(require) === 'function') {
          * @param url
          */
         window.handleOpenURL = function (url) {
+
+            // Hide the SafariViewController in all circumstances
+            if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
+                window.SafariViewController.hide();
+            }
+
             // Handle the url
             setTimeout(function () {
-                // Hide the SafariViewController in all circumstances
-                if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
-                    window.SafariViewController.hide();
-                }
                 logger.debug({
                     message: 'App scheme called',
                     method: 'window.handleOpenURL',
