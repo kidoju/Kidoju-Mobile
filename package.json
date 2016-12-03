@@ -38,7 +38,7 @@
     "autoprefixer": "^6.5.3",
     "bundle-loader": "^0.5.4",
     "chai": "^3.5.0",
-    "css-loader": "^0.26.0",
+    "css-loader": "^0.26.1",
     "deasync": "^0.1.9",
     "deep-extend": "^0.4.1",
     "ejs": "^2.5.2",
