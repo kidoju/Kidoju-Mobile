@@ -234,7 +234,10 @@ if (typeof(require) === 'function') {
          */
         window.handleOpenURL = function (url) {
 
+            /*
+
             // Hide the SafariViewController in all circumstances
+            // This has to be done before the setTimeout otherwise the SafariViewController does not close on iOS
             if (window.SafariViewController && $.isFunction(window.SafariViewController.hide)) {
                 window.SafariViewController.hide();
             }
@@ -247,8 +250,7 @@ if (typeof(require) === 'function') {
                     data: { url: url }
                 });
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
-                    window.alert(url);
-                    window.alert('app:' + !!app + ' mobile:' + !!mobile);
+                    alert('parse: ' + $.isFunction(mobile._parseTokenAndLoadUser));
                     // The whole flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                     mobile._parseTokenAndLoadUser(url);
@@ -256,6 +258,8 @@ if (typeof(require) === 'function') {
                     mobile.notification.info('called url: ' + url);
                 }
             }, 0);
+
+            */
         };
 
         /**
