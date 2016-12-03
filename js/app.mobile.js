@@ -1016,17 +1016,20 @@ if (typeof(require) === 'function') {
              * @returns {*}
              */
             calculate: function () {
+                var dfd = $.Deferred();
                 var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
-                return pageCollectionDataSource.validateTestFromProperties(viewModel.get(VIEW_MODEL.CURRENT.TEST))
+                pageCollectionDataSource.validateTestFromProperties(viewModel.get(VIEW_MODEL.CURRENT.TEST))
                     .done(function (result) {
                         // Note: result has methods including percent and getScoreArray
                         assert.isPlainObject(result, kendo.format(assert.messages.isPlainObject.default, 'result'));
                         assert.type(FUNCTION, result.percent, kendo.format(assert.messages.type.default, 'result.percent', FUNCTION));
                         assert.type(FUNCTION, result.getScoreArray, kendo.format(assert.messages.type.default, 'result.getScoreArray', FUNCTION));
                         viewModel.set(VIEW_MODEL.CURRENT.TEST, result);
+                        dfd.resolve(); // ensures that saveCurrent is called only after viewModel has been set
                     })
                     .fail(function (xhr, status, error) {
+                        dfd.reject(xhr, status, error);
                         app.notification.error(i18n.culture.notifications.scoreCalculationFailure);
                         var serverError;
                         try { serverError = JSON.parse(xhr.responseText); } catch (ex) {} // TODO
@@ -1036,6 +1039,7 @@ if (typeof(require) === 'function') {
                             data: { status: status, error: error, serverError: serverError } // TODO
                         });
                     });
+                return dfd.promise();
             },
 
             /**
