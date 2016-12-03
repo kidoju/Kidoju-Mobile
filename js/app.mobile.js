@@ -234,7 +234,7 @@ if (typeof(require) === 'function') {
          */
         window.handleOpenURL = function (url) {
 
-            console.log('handleOpenURL');
+            window.SafariViewController.hide();
 
             setTimeout(function() {
                 alert(url);
