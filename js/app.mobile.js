@@ -318,8 +318,9 @@ if (typeof(require) === 'function') {
                 ga: window.ga && $.isFunction(window.ga.startTrackerWithId),
                 // Note: InAppBrowser uses iFrame on browser platform which is incompatible with oAuth flow
                 inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
-                // TODO safariViewController: window.cordova && window.device && window.device.platform === 'iOS' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
-                safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
+                // Note: it will have to be changed once the following is fixed
+                // safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
+                safariViewController: window.cordova && window.device && window.device.platform === 'iOS' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 socialsharing: window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
                 splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide),
                 textToSpeech: window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak)
