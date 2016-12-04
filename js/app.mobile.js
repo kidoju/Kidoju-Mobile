@@ -318,7 +318,7 @@ if (typeof(require) === 'function') {
                 ga: window.ga && $.isFunction(window.ga.startTrackerWithId),
                 // Note: InAppBrowser uses iFrame on browser platform which is incompatible with oAuth flow
                 inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
-                // Note: it will have to be changed once the following is fixed
+                // Note: it will have to be changed once the following is fixed - https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/51
                 // safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 safariViewController: window.cordova && window.device && window.device.platform === 'iOS' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 socialsharing: window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
@@ -2277,10 +2277,8 @@ if (typeof(require) === 'function') {
             } else if (token && token.access_token) {
                 /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                 // Load the remote mobile user (me) using the oAuth token
-                alert(token.access_token); // TODO
                 viewModel.loadUser()
                     .done(function () {
-                        alert('user loaded!');
                         // Yield time for transition effects to complete, especially when testing in the browser
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
                         setTimeout(function () {
