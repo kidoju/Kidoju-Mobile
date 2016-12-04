@@ -1,4 +1,4 @@
-/*! Copyright ©2013-2016 Memba® Sarl. All rights reserved. - Version 0.2.70 dated 12/3/2016 */
+/*! Copyright ©2013-2016 Memba® Sarl. All rights reserved. - Version 0.2.70 dated 12/4/2016 */
 webpackJsonp([1],{
 
 /***/ 402:
@@ -113,7 +113,7 @@ webpackJsonp([1],{
 	                summariesQueryFailure: 'There was an error querying our remote servers.',
 	                summaryLoadFailure: 'There was an error loading summary data.',
 	                userLoadFailure: 'There was an error loading your user profile.',
-	                userSaveFailure: 'There was an error saving your score.',
+	                userSaveFailure: 'There was an error saving your user profile.',
 	                userSaveSuccess: 'User profile successfully saved.',
 	                userSignInSuccess: 'Signed in as {0}.',
 	                usersQueryFailure: 'There was an error loading the users.',
