@@ -1858,6 +1858,8 @@ if (typeof(require) === 'function') {
         mobile.onActivitiesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loader
+            mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeActivitiesView();
             // Set the navigation bar buttons
@@ -1869,6 +1871,10 @@ if (typeof(require) === 'function') {
             viewModel.loadActivities({ language: language, userId: userId })
                 .done(function () {
                     mobile._initActivitiesGrid(e.view);
+                })
+                .always(function () {
+                    // Hide loader
+                    mobile.application.hideLoading();
                 });
         };
 
@@ -1880,6 +1886,8 @@ if (typeof(require) === 'function') {
         mobile.onCategoriesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loader
+            // mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeCategoriesView();
             // Set the navigation bar buttons
@@ -1935,6 +1943,8 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            // Show loader
+            // mobile.application.showLoading();
             // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE)
             // var summaryId = e.view.params.summaryId;
             // var versionId = e.view.params.versionId;
@@ -1961,6 +1971,8 @@ if (typeof(require) === 'function') {
         mobile.onFavouritesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loader
+            mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeFavouritesView();
             // Set the navigation bar buttons
@@ -1976,7 +1988,6 @@ if (typeof(require) === 'function') {
             // if (mobile.application instanceof kendo.mobile.Application) {
             //     mobile.application.showLoading();
             // }
-
             // Workaround
             // ------------
             // Clearing here the summaries data source avoids a "flickering" effect
@@ -1994,6 +2005,8 @@ if (typeof(require) === 'function') {
         mobile.onFinderViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loader
+            mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeFinderView();
             // Set the navigation bar buttons
@@ -2015,11 +2028,12 @@ if (typeof(require) === 'function') {
             //   }
             // }
             var query = $.extend(true, { page: 1, pageSize: viewModel.summaries.pageSize() }, $.deparam($.param(e.view.params)));
-            viewModel.loadLazySummaries(query);
-            // See comment for mobile.onSummariesBeforeViewShow
-            // .always(function () {
-            //     mobile.application.hideLoading();
-            // });
+            viewModel.loadLazySummaries(query)
+                // See comment for mobile.onSummariesBeforeViewShow
+                .always(function () {
+                    // Hide loading
+                    mobile.application.hideLoading();
+                });
         };
 
         /**
@@ -2071,6 +2085,8 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            // Show loading
+            mobile.application.showLoading();
             var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE)
             var summaryId = e.view.params.summaryId;
             var versionId = e.view.params.versionId;
@@ -2090,6 +2106,10 @@ if (typeof(require) === 'function') {
                     viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(0));
                     // Set the navigation bar buttons
                     mobile._setNavBar(e.view);
+                })
+                .always(function () {
+                    // Hide loading
+                    mobile.application.hideLoading();
                 });
         };
 
@@ -2194,6 +2214,8 @@ if (typeof(require) === 'function') {
         mobile.onScoreViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loading
+            mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeScoreView();
             // Set the navigation bar buttons
@@ -2217,11 +2239,17 @@ if (typeof(require) === 'function') {
                             .done(function () {
                                 mobile._initScoreGrid(e.view);
                             });
+                    })
+                    .always(function () {
+                        // Hide loading
+                        mobile.application.hideLoading();
                     });
             } else {
                 // Otherwise, use the current test
                 // TODO assert current state (percent function?)
                 mobile._initScoreGrid(e.view);
+                // Hide loading
+                mobile.application.hideLoading();
             }
         };
 
@@ -2233,6 +2261,8 @@ if (typeof(require) === 'function') {
         mobile.onSettingsViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loading
+            // mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeSettingsView();
             // Set the navigation bar buttons
@@ -2325,6 +2355,8 @@ if (typeof(require) === 'function') {
         mobile.onSigninViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loading
+            // mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeSigninView();
             // Set the navigation bar buttons
@@ -2553,6 +2585,8 @@ if (typeof(require) === 'function') {
         mobile.onSummaryViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loading
+            // mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeSummaryView();
             // Set the navigation bar buttons
@@ -2625,6 +2659,8 @@ if (typeof(require) === 'function') {
         mobile.onSyncViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loading
+            // mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeSyncView();
             // Set the navigation bar buttons
@@ -2666,6 +2702,8 @@ if (typeof(require) === 'function') {
         mobile.onUserViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Show loading
+            // mobile.application.showLoading();
             // Localize UI (cannot be done in init because language may have changed during the session)
             mobile._localizeUserView();
             // Set the navigation bar buttons
