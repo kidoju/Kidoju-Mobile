@@ -2233,29 +2233,6 @@ if (typeof(require) === 'function') {
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // TODO: review and add activities
-            alert('connectToService: ' + $.isFunction(window.SafariViewController.connectToService) + ', warmUp:' + $.isFunction(window.SafariViewController.warmUp));
-
-            window.SafariViewController.connectToService(
-                function() {
-                    window.SafariViewController.warmUp(
-                        function() {
-                            window.SafariViewController.show({
-                                url: 'http://10.0.0.105:8080/temp/scheme.html'
-                                // hidden: true,
-                                // animated: false
-                            });
-                        },
-                        function(e) {
-                            alert(e);
-                        }
-                    );
-                },
-                function(e) {
-                    alert(e);
-                }
-            );
-
-            /*
             if (viewModel.users.total() === 0) {
                 return app.notification.warning('Database already cleared.');
             }
@@ -2270,8 +2247,6 @@ if (typeof(require) === 'function') {
                 .fail(function () {
                     app.notification.error('Error clearing database.');
                 });
-
-            */
         };
 
         /**
