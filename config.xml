@@ -134,9 +134,10 @@
     <platform name="android">
         <allow-intent href="market:*" />
         <preference name="AndroidPersistentFileLocation" value="Internal" />
-        <preference name="SplashScreen" value="splash" />
+        <preference name="InAppBrowserStorageEnabled" value="false" />
         <preference name="SplashMaintainAspectRatio" value="true" />
         <preference name="SplashShowOnlyFirstTime" value="false" />
+        <preference name="SplashScreen" value="splash" />
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/images/browser/splashscreen.jpg" />
