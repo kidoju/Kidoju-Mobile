@@ -1905,14 +1905,18 @@ if (typeof(require) === 'function') {
                     var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
+                        buttonElement.addClass('km-state-active');
                         buttonWidget.trigger('click', { button: buttonElement });
+                        setTimeout(function() {
+                            buttonElement.removeClass('km-state-active');
+                        }, 250);
                     }
                 });
 
             // Add the ability to navigate pages by swiping the explanations/instructions panel
             e.view.content.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
-                minXDelta: 150,
+                minXDelta: 100,
                 maxDuration: 1000,
                 swipe: function (e) {
                     // Is there a way to test this has not been initiated by one of our draggables?
@@ -2036,14 +2040,18 @@ if (typeof(require) === 'function') {
                     var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
+                        buttonElement.addClass('km-state-active');
                         buttonWidget.trigger('click', { button: buttonElement });
+                        setTimeout(function() {
+                            buttonElement.removeClass('km-state-active');
+                        }, 250);
                     }
                 });
 
             // Add the ability to navigate pages by swiping the explanations/instructions panel
             e.view.content.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
-                minXDelta: 150,
+                minXDelta: 100,
                 maxDuration: 1000,
                 swipe: function (e) {
                     // Is there a way to test this has not been initiated by one of our draggables?
