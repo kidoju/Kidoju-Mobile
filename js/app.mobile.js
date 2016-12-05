@@ -223,7 +223,7 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         window.onerror = function (message, source, lineno, colno, error) {
-            setTimeout(function () { // setTimeout is for SafariViewController
+            setTimeout(function () { // setTimeout is for SafariViewController (Chrome Custom Tabs on Android)
                 window.alert(message);
                 // TODO Global Event Handler - See app.logger
             }, 0);
@@ -1580,8 +1580,8 @@ if (typeof(require) === 'function') {
          */
         mobile._resizeStage = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var content = view.element.find(kendo.roleSelector('content'));
-            var stageElement = content.find(kendo.roleSelector('stage'));
+            var contentElement = view.content;
+            var stageElement = contentElement.find(kendo.roleSelector('stage'));
             var stageWidget = stageElement.data('kendoStage');
             // If the stage widget has not yet been initialized, we won't get the correct stageWrapper
             if (kendo.ui.Stage && stageWidget instanceof kendo.ui.Stage) {
@@ -1596,8 +1596,8 @@ if (typeof(require) === 'function') {
                 assert.equal(HEIGHT, 768, kendo.format(assert.messages.equal.default, 'HEIGHT', '768'));
                 var WIDTH = stageElement.outerWidth();
                 assert.equal(WIDTH, 1024, kendo.format(assert.messages.equal.default, 'WIDTH', '1024'));
-                var height = content.height();  // The screen height minus layout header and footer
-                var width = content.width();    // The screen width minus layout header and footer
+                var height = contentElement.height();  // The screen height minus layout header and footer
+                var width = contentElement.width();    // The screen width minus layout header and footer
                 var scale = (height > width) ? width / WIDTH : height / HEIGHT;
                 // Resize the stage
                 stageWidget.scale(scale);
@@ -1607,7 +1607,7 @@ if (typeof(require) === 'function') {
                 stageContainer.height(Math.floor(scale * HEIGHT));
                 stageContainer.width(Math.floor(scale * WIDTH));
                 // Resize the markdown container and scroller for instructions/explanations
-                var markdownElement = content.find(kendo.roleSelector('markdown'));
+                var markdownElement = contentElement.find(kendo.roleSelector('markdown'));
                 var markdownScrollerElement = markdownElement.closest(kendo.roleSelector('scroller'));
                 var markdownScroller = markdownScrollerElement.data('kendoMobileScroller');
                 assert.instanceof(kendo.mobile.ui.Scroller, markdownScroller, kendo.format(assert.messages.instanceof.default, 'markdownScroller', 'kendo.mobile.ui.Scroller'));
@@ -1894,9 +1894,10 @@ if (typeof(require) === 'function') {
         mobile.onCorrectionViewInit = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            var contentElement = e.view.content;
 
             // The play TTS button is a bit small, so let's use the entire heading
-            e.view.content.find('div.heading h2')
+            contentElement.find('div.heading h2')
                 .click(function (e) {
                     var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
@@ -1910,7 +1911,7 @@ if (typeof(require) === 'function') {
                 });
 
             // Add the ability to navigate pages by swiping the explanations/instructions panel
-            e.view.content.children('div.stretched-item:has(.heading)').kendoTouch({
+            contentElement.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
                 minXDelta: 100,
                 maxDuration: 1000,
@@ -2029,9 +2030,10 @@ if (typeof(require) === 'function') {
         mobile.onPlayerViewInit = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            var contentElement = e.view.content;
 
             // The play TTS button is a bit small, so let's use the entire heading
-            e.view.content.find('div.heading h2')
+            contentElement.find('div.heading h2')
                 .click(function (e) {
                     var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
@@ -2045,7 +2047,7 @@ if (typeof(require) === 'function') {
                 });
 
             // Add the ability to navigate pages by swiping the explanations/instructions panel
-            e.view.content.children('div.stretched-item:has(.heading)').kendoTouch({
+            contentElement.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
                 minXDelta: 100,
                 maxDuration: 1000,
@@ -2098,7 +2100,7 @@ if (typeof(require) === 'function') {
          */
         mobile._initScoreGrid = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var contentElement = view.element.find(kendo.roleSelector('content'));
+            var contentElement = e.view.content;
             // Find and destroy the grid as it needs to be rebuilt if locale changes
             // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
             // var gridElement = view.element.find(kendo.roleSelector('grid'));
