@@ -2233,11 +2233,21 @@ if (typeof(require) === 'function') {
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // TODO: review and add activities
-            window.SafariViewController.show({
-                url: 'http://10.0.0.105:8080/temp/scheme.html'
-                // hidden: true,
-                // animated: false
-            });
+            window.SafariViewController.connectToService(
+                function() {
+                    window.SafariViewController.warmup(
+                        function() {
+                            window.SafariViewController.show({
+                                url: 'http://10.0.0.105:8080/temp/scheme.html'
+                                // hidden: true,
+                                // animated: false
+                            });
+                        },
+                        function() { }
+                    );
+                },
+                function () {}
+            );
 
             /*
             if (viewModel.users.total() === 0) {
