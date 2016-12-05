@@ -1909,11 +1909,11 @@ if (typeof(require) === 'function') {
                     }
                 });
 
-            // Add the ability to navigate pages by swiping
-            e.view.content.kendoTouch({
+            // Add the ability to navigate pages by swiping the explanations/instructions panel
+            e.view.content.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
-                minXDelta: 200,
-                maxDuration: 500,
+                minXDelta: 150,
+                maxDuration: 1000,
                 swipe: function (e) {
                     // Is there a way to test this has not been initiated by one of our draggables?
                     if (e.direction === 'left') {
@@ -2040,11 +2040,11 @@ if (typeof(require) === 'function') {
                     }
                 });
 
-            // Add the ability to navigate pages by swiping
-            e.view.content.kendoTouch({
+            // Add the ability to navigate pages by swiping the explanations/instructions panel
+            e.view.content.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
-                minXDelta: 200,
-                maxDuration: 500,
+                minXDelta: 150,
+                maxDuration: 1000,
                 swipe: function (e) {
                     // Is there a way to test this has not been initiated by one of our draggables?
                     if (e.direction === 'left') {
