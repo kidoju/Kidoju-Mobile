@@ -475,7 +475,19 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         // Setup ajax with longer timeout on mobile devices
-        $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
+        // $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
+
+        // Retry ajax queries that timeout (Copy-Pasted for future reference, not tested)
+        /*
+        $(document).ajaxError(function (e, xhr, options) {
+            if(xhr.status == 0){
+                setTimeout(function(){
+                    console.log('timeout, retry');
+                    $.ajax(options);
+                }, 5000);
+            }
+        });
+        */
 
         // The one and only viewModel
         var viewModel = mobile.viewModel = kendo.observable({
