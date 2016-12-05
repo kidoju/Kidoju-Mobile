@@ -1898,6 +1898,18 @@ if (typeof(require) === 'function') {
         mobile.onCorrectionViewInit = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+
+            // The play TTS button is a bit small, so let's use the entire heading
+            e.view.content.find('div.heading h2')
+                .click(function (e) {
+                    var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
+                    var buttonWidget = buttonElement.data('kendoMobileButton');
+                    if (buttonWidget instanceof kendo.mobile.ui.Button) {
+                        buttonWidget.trigger('click', { button: buttonElement });
+                    }
+                });
+
+            // Add the ability to navigate pages by swiping
             e.view.content.kendoTouch({
                 enableSwipe: true,
                 minXDelta: 200,
@@ -2017,10 +2029,18 @@ if (typeof(require) === 'function') {
         mobile.onPlayerViewInit = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+
+            // The play TTS button is a bit small, so let's use the entire heading
             e.view.content.find('div.heading h2')
                 .click(function (e) {
-                   // debugger; // TODO
+                    var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
+                    var buttonWidget = buttonElement.data('kendoMobileButton');
+                    if (buttonWidget instanceof kendo.mobile.ui.Button) {
+                        buttonWidget.trigger('click', { button: buttonElement });
+                    }
                 });
+
+            // Add the ability to navigate pages by swiping
             e.view.content.kendoTouch({
                 enableSwipe: true,
                 minXDelta: 200,
@@ -2880,10 +2900,12 @@ if (typeof(require) === 'function') {
          */
         mobile._doSpeak = function (text, language) {
             var dfd = $.Deferred();
-            // if (mobile.support.textToSpeech) {
-            //    mobile.textToSpeech.speak({ text: text, locale: language, rate: 1.5 }, dfd.resolve, dfd.reject);
-            // } else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
-                // Note: iOS WKWebView engine for cordova supports speechSynthesis but does not output any sound
+            if (mobile.support.textToSpeech) {
+                // For iOS and Android via TTS plugin
+                // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
+                mobile.textToSpeech.speak({ text: text, locale: language, rate: 1.5 }, dfd.resolve, dfd.reject);
+            } else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
+                // In the browser
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var utterance = new window.SpeechSynthesisUtterance(text);
                 utterance.lang = language;
@@ -2891,7 +2913,7 @@ if (typeof(require) === 'function') {
                 utterance.onend = dfd.resolve; // Returns a SpeechSynthesisEvent
                 utterance.onerror = dfd.reject;
                 window.speechSynthesis.speak(utterance);
-            // }
+            }
             return dfd.promise();
         };
 
@@ -2901,13 +2923,15 @@ if (typeof(require) === 'function') {
          */
         mobile._cancelSpeak = function() {
             var dfd =  $.Deferred();
-            // if (mobile.support.textToSpeech) {
-            //    mobile.textToSpeech.speak('', dfd.resolve, dfd.reject);
-            // }  else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
+            if (mobile.support.textToSpeech) {
+                // For iOS and Android via TTS plugin
+                mobile.textToSpeech.speak('', dfd.resolve, dfd.reject);
+            }  else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
+                // In the browser
                 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
                 window.speechSynthesis.cancel();
                 dfd.resolve();
-            // }
+            }
             return dfd.promise();
         };
 
@@ -2920,19 +2944,26 @@ if (typeof(require) === 'function') {
             var SPEAKING = 'speaking';
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+
+            // IMPORTANT: prevent bubbling considering parent element might have triggered the click
+            e.preventDefault();
+
+            // Record the speaking state on the button
             var speaking = e.button.attr(kendo.attr(SPEAKING));
             if (!speaking) {
                 e.button.attr(kendo.attr(SPEAKING), 'true');
                 var field = e.button.attr(kendo.attr('tts'));
-                // Process the markdown to remove markings that are irrelevant to speech
+                // Clear the markdown from markings that are irrelevant to speech
                 var text = viewModel.get(field)
                     .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
                     .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
+                // Speak
                 mobile._doSpeak(text, 'en-GB') // TODO
                     .always(function () {
                         e.button.removeAttr(kendo.attr(SPEAKING));
                     });
             } else {
+                // Cancel
                 mobile._cancelSpeak()
                     .always(function () {
                         e.button.removeAttr(kendo.attr(SPEAKING));
