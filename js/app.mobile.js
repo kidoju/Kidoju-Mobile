@@ -92,7 +92,6 @@ if (typeof(require) === 'function') {
         // './kidoju.widgets.social',
         './kidoju.widgets.stage',
         './kidoju.widgets.table',
-        './app.constants',
         './app.logger',
         './app.i18n',
         './app.theme',
@@ -404,7 +403,7 @@ if (typeof(require) === 'function') {
         function setAnalytics () {
             if (mobile.support.ga) {
                 var ga = mobile.ga;
-                ga.startTrackerWithId(app.constants.gaTrackingId);
+                ga.startTrackerWithId(app.analytics.gaTrackingId);
                 // ga.setUserId('my-user-id'); // TODO
                 // ga.setAppVersion('1.33.7'); // TODO
                 // ga.debugMode();
@@ -473,21 +472,6 @@ if (typeof(require) === 'function') {
         /*******************************************************************************************
          * viewModel
          *******************************************************************************************/
-
-        // Setup ajax with longer timeout on mobile devices
-        // $.ajaxSetup({ timeout: app.constants.ajaxTimeout });
-
-        // Retry ajax queries that timeout (Copy-Pasted for future reference, not tested)
-        /*
-        $(document).ajaxError(function (e, xhr, options) {
-            if(xhr.status == 0){
-                setTimeout(function(){
-                    console.log('timeout, retry');
-                    $.ajax(options);
-                }, 5000);
-            }
-        });
-        */
 
         // The one and only viewModel
         var viewModel = mobile.viewModel = kendo.observable({
@@ -1672,7 +1656,7 @@ if (typeof(require) === 'function') {
             // Initialize pageSize for virtual scrolling
             viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // initialize secure storage
-            // mobile.secureStorage.init(app.constants.kidoju);
+            // mobile.secureStorage.init('kidoju');
             // initialize the user interface
             $(document).one(LOADED, mobile.oni18nLoaded);
             // Wire the resize event handler for changes of device orientation

@@ -52,6 +52,12 @@
         app.locales = JSON.parse('<%- JSON.stringify(locales) %>');
 
         /**
+         * Google analytics
+         * @type {{clientId: string}}
+         */
+        app.analytics = { gaTrackingId: '<%- analytics.gaTrackingId %>' };
+
+        /**
          * Facebook
          * @type {{clientId: string}}
          */
