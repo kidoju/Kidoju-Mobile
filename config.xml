@@ -125,14 +125,9 @@
     <access origin="cdvfile:*" />
     <access origin="data:*" />
     <access origin="file:*" />
-    <access origin="filesystem:*" />
     <access origin="gap:*" />
-    <access origin="com.kidoju.mobile:*" />
-    <allow-intent href="com.kidoju.mobile://*/*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
-    <allow-intent href="cdvfile:*" />
-    <allow-intent href="file:*" />
     <platform name="android">
         <allow-intent href="market:*" />
         <preference name="AndroidPersistentFileLocation" value="Internal" />
