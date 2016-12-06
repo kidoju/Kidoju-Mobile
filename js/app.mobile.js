@@ -2120,7 +2120,7 @@ if (typeof(require) === 'function') {
          */
         mobile._initScoreGrid = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var contentElement = e.view.content;
+            var contentElement = view.content;
             // Find and destroy the grid as it needs to be rebuilt if locale changes
             // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
             // var gridElement = view.element.find(kendo.roleSelector('grid'));
