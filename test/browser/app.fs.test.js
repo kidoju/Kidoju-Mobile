@@ -12,7 +12,7 @@
 
     var expect = window.chai.expect;
     var sinon = window.sinon;
-    var FileSystem = window.FileSystem;
+    var FileSystem = window.app.FileSystem;
 
     describe('app.fs', function () {
 
