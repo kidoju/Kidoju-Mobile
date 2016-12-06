@@ -2693,6 +2693,11 @@ if (typeof(require) === 'function') {
                         e.preventDefault();
                     }
                 });
+
+            // TODO remove!
+            e.view.element.find('img').on('click', function(e) {
+                alert($(e.target).attr('src'));
+            });
         };
 
         /**
