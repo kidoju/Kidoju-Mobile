@@ -81,6 +81,6 @@
     "webpack-dev-server": "^1.16.2"
   },
   "dependencies": {
-    "ejs": "^2.5.4"
+    "ejs": "^2.5.5"
   }
 }
