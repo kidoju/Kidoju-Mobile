@@ -51,10 +51,6 @@
         var MACHINE_POS = 8;
         var MACHINE_ID = '000000';
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
-        var ERROR = {
-            XHR: undefined,
-            STATUS: 'error'
-        };
         var NOT_IMPLEMENTED = 'Not yet implemented';
 
         /* Blocks are nested too deeply. */
@@ -368,7 +364,7 @@
                     if (err) {
                         dfd.reject(err);
                     } else if (item) {
-                        dfd.reject(ERROR.XHR, ERROR.STATUS, 'Cannot insert a document with an ' + idField + ' `' + doc[idField] + '` which already exists.');
+                        dfd.reject(new Error('Duplicate ' + idField + ' `' + doc[idField] + '`'));
                     } else {
                         // https://localforage.github.io/localForage/#data-api-setitem
                         that._collection.setItem(doc[idField], doc, function (err, item) {
@@ -398,7 +394,7 @@
             var idField = that._db._idField;
             var dfd = $.Deferred();
             if ($.type(update[idField]) !== UNDEFINED) {
-                dfd.reject(ERROR.XHR, ERROR.STATUS, idField + 'cannot be updated');
+                dfd.reject(new Error('Cannot update ' + idField));
             } else if ($.type(query) === OBJECT && RX_MONGODB_ID.test(query[idField])) {
                 // We have an id to get straight to the document
                 // https://localforage.github.io/localForage/#data-api-getitem

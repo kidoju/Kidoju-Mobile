@@ -92,9 +92,17 @@
          * @constructor
          */
         function ErrorXHR(error) {
+            assert.instanceof(Error, error, kendo.format(assert.messages.instanceof.default, 'error', 'Error'));
             assert.type(STRING, error.message, kendo.format(assert.messages.type.default, 'error.message', STRING));
+            // JSON.stringify(error) is always {} - $.extend is a workaround to collect non-undefined error properties
+            var obj = $.extend({}, {
+                message: error.message,
+                type: error.type,
+                code: error.code,
+                stack: error.stack.toString()
+            });
             return [
-                { responseText: JSON.stringify({ error: $.extend({}, error) }) },
+                { responseText: JSON.stringify({ error: obj }) },
                 'error',
                 error.message
             ]
@@ -381,7 +389,7 @@
                     schema: {
                         data: 'data',
                         total: 'total',
-                        errors: 'error', // <--------------------- TODO: look at this properly for error reporting
+                        errors: 'error',
                         modelBase: models.MobileUser,
                         model: models.MobileUser
                         /**
@@ -403,7 +411,7 @@
             _validate: function (user) {
                 var errors = [];
                 if ($.type(user.md5pin) !== STRING) {
-                    errors.push('Missing user pin'); // TODO i18n
+                    errors.push('Missing user pin');
                 }
                 return errors;
             },
@@ -447,7 +455,9 @@
                                     options.error.apply(this, ErrorXHR(error));
                                 });
                         })
-                        .fail(options.error); // TODO
+                        .fail(function (error) {
+                            options.error.apply(this, ErrorXHR(error));
+                        });
                 },
 
                 /**
@@ -507,8 +517,10 @@
                                 .fail(function (error) {
                                     options.error.apply(this, ErrorXHR(error));
                                 });
+                        })
+                        .fail(function (error) {
+                            options.error.apply(this, ErrorXHR(error));
                         });
-                    // TODO: .fail(function () {});
                 },
 
                 /**

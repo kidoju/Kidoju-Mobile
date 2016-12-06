@@ -499,6 +499,7 @@
                 var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 activities.read()
                     .done(function () {
+                        expect(activities.total()).to.be.gt(0);
                         while (activities.total()) {
                             activities.remove(activities.at(0));
                         }
