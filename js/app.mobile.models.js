@@ -105,7 +105,7 @@
                 { responseText: JSON.stringify({ error: obj }) },
                 'error',
                 error.message
-            ]
+            ];
         }
 
         /**

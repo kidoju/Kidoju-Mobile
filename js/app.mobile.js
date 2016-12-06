@@ -302,14 +302,28 @@ if (typeof(require) === 'function') {
 
 
         /*******************************************************************************************
-         * Shortcuts
+         * Helpers
          *******************************************************************************************/
+
+        /**
+         * JSON parse wrapped in a try/catch
+         * @param xhr
+         */
+        function parseResponse(xhr) {
+            try {
+                return JSON.parse(xhr.responseText);
+            } catch (ex) {}
+        }
+
+        /* This function's cyclomatic complexity is too high. */
+        /* jshint -W074 */
 
         /**
          * These shortcuts can only be set in onDeviceReady when all cordova plugins are loaded
          * This is also structured so as to work in a browser independently from `phonegap serve`
          */
         function setShortcuts () {
+            /* jshint maxcomplexity: 9 */
             mobile.support = {
                 alert: window.navigator && window.navigator.notification && $.isFunction(window.navigator.notification.alert) && $.isFunction(window.navigator.notification.beep),
                 barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan),
@@ -392,6 +406,8 @@ if (typeof(require) === 'function') {
                 mobile.splashscreen = window.navigator.splashscreen;
             }
         }
+
+        /* jshint +W074 */
 
         /*******************************************************************************************
          * Google Analytics setup
@@ -660,12 +676,11 @@ if (typeof(require) === 'function') {
             loadActivities: function (options) {
                 return this.activities.load(options)
                     .fail(function (xhr, status, error) {
-                        alert(error); // TODO
                         app.notification.error(i18n.culture.notifications.activitiesQueryFailure);
                         logger.error({
                             message: 'error loading summaries',
                             method: 'viewModel.loadLazySummaries',
-                            data: { status: status, error: error } // TODO xhr.responseText
+                            data: { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
             },
@@ -694,7 +709,7 @@ if (typeof(require) === 'function') {
                         logger.error({
                             message: 'error loading summaries',
                             method: 'viewModel.loadLazySummaries',
-                            data: { query: query, status: status, error: error } // TODO xhr.responseText
+                            data: { query: query, status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
             },
@@ -714,7 +729,7 @@ if (typeof(require) === 'function') {
                         logger.error({
                             message: 'error loading summary',
                             method: 'viewModel.loadSummary',
-                            data: { status: status, error: error } // TODO xhr.responseText
+                            data: { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
             },
@@ -732,7 +747,7 @@ if (typeof(require) === 'function') {
                         logger.error({
                             message: 'error loading user',
                             method: 'viewModel.loadUser',
-                            data:  { status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
+                            data:  { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
             },
@@ -748,7 +763,7 @@ if (typeof(require) === 'function') {
                         logger.error({
                             message: 'error loading users',
                             method: 'viewModel.loadUsers',
-                            data:  { status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
+                            data:  { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
             },
@@ -818,7 +833,7 @@ if (typeof(require) === 'function') {
                         logger.error({
                             message: 'error loading versions',
                             method: 'viewModel.loadLazyVersions',
-                            data: { language: options.language, summaryId: options.summaryId, status: status, error: error } // TODO: xhr.responseText
+                            data: { language: options.language, summaryId: options.summaryId, status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
             },
@@ -1020,30 +1035,24 @@ if (typeof(require) === 'function') {
              * @returns {*}
              */
             calculate: function () {
-                var dfd = $.Deferred();
                 var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
-                pageCollectionDataSource.validateTestFromProperties(viewModel.get(VIEW_MODEL.CURRENT.TEST))
+                return pageCollectionDataSource.validateTestFromProperties(viewModel.get(VIEW_MODEL.CURRENT.TEST))
                     .done(function (result) {
                         // Note: result has methods including percent and getScoreArray
                         assert.isPlainObject(result, kendo.format(assert.messages.isPlainObject.default, 'result'));
                         assert.type(FUNCTION, result.percent, kendo.format(assert.messages.type.default, 'result.percent', FUNCTION));
                         assert.type(FUNCTION, result.getScoreArray, kendo.format(assert.messages.type.default, 'result.getScoreArray', FUNCTION));
                         viewModel.set(VIEW_MODEL.CURRENT.TEST, result);
-                        dfd.resolve(); // ensures that saveCurrent is called only after viewModel has been set
                     })
                     .fail(function (xhr, status, error) {
-                        dfd.reject(xhr, status, error);
                         app.notification.error(i18n.culture.notifications.scoreCalculationFailure);
-                        var serverError;
-                        try { serverError = JSON.parse(xhr.responseText); } catch (ex) {} // TODO
                         logger.error({
                             message: 'Failed to calculate user score',
                             method: 'viewModel.calculate',
-                            data: { status: status, error: error, serverError: serverError } // TODO
+                            data: { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
-                return dfd.promise();
             },
 
             /**
@@ -1076,13 +1085,11 @@ if (typeof(require) === 'function') {
                         // TODO: server sync here or in DataSource???
                     })
                     .fail(function (xhr, status, error) {
-                        // dfd.reject(xhr, status, error);
                         app.notification.error(i18n.culture.notifications.scoreSaveFailure);
-                        // Log error
                         logger.error({
                             message: 'error saving score current',
                             method: 'viewModel.saveCurrent',
-                            data: { status: status, error: error } // TODO xhr.responseText
+                            data: { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
             }
@@ -1840,7 +1847,7 @@ if (typeof(require) === 'function') {
                     // This is not properly documented but without height: 'auto', the adaptive grid is not scrollable
                     height: 'auto',
                     mobile: 'phone', // http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-mobile
-                    noRecords: {template: culture.grid.noRecords},
+                    noRecords: { template: culture.grid.noRecords },
                     resizable: true,
                     scrollable: true,
                     selectable: 'row',
@@ -1912,7 +1919,7 @@ if (typeof(require) === 'function') {
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
                         buttonElement.addClass('km-state-active');
                         buttonWidget.trigger('click', { button: buttonElement });
-                        setTimeout(function() {
+                        setTimeout(function () {
                             buttonElement.removeClass('km-state-active');
                         }, 250);
                     }
@@ -2054,7 +2061,7 @@ if (typeof(require) === 'function') {
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
                         buttonElement.addClass('km-state-active');
                         buttonWidget.trigger('click', { button: buttonElement });
-                        setTimeout(function() {
+                        setTimeout(function () {
                             buttonElement.removeClass('km-state-active');
                         }, 250);
                     }
@@ -2401,7 +2408,7 @@ if (typeof(require) === 'function') {
                             // controlTintColor: "#ffffff" // on iOS 10+ you can override the default tintColor
                         },
                         // this success handler will be invoked for the lifecycle events 'opened', 'loaded' and 'closed'
-                        function(result) {
+                        function (result) {
                             // result has only one property, event which can take any value among 'opened', 'loaded' and 'closed'
                             logger.debug({
                                 message: 'show successCallback',
@@ -2409,15 +2416,15 @@ if (typeof(require) === 'function') {
                                 data: { event: result.event }
                             });
                         },
-                        function(msg) {
+                        function (msg) {
                             logger.error({
                                 message: 'show errorCallback',
                                 method: 'mobile._signInWithSafariViewController',
                                 error: new Error(msg)
                             });
-                        })
+                        });
                 } // else { use InAppBrowser or app.notification ? }
-            })
+            });
         };
 
         /**
@@ -2557,7 +2564,7 @@ if (typeof(require) === 'function') {
                     logger.error({
                         message: 'error obtaining a signin url',
                         method: 'mobile.onSigninButtonClick',
-                        data: { provider: provider, status: status, error: error, response: xhr.responseText } // TODO xhr.responseText
+                        data: { provider: provider, status: status, error: error, response: parseResponse(xhr) }
                     });
                 })
                 .always(function () {
@@ -2696,7 +2703,7 @@ if (typeof(require) === 'function') {
 
             /*
             // This was used for debugging user pictures
-            e.view.element.find('img').on('click', function(e) {
+            e.view.element.find('img').on('click', function (e) {
                 alert($(e.target).attr('src'));
             });
             */
@@ -2771,7 +2778,7 @@ if (typeof(require) === 'function') {
                         logger.error({
                             message: 'error saving user',
                             method: 'mobile.onUserSaveClick',
-                            data:  { status: status, error: error, response: xhr && (xhr.responseText || xhr.message) } // TODO xhr.responseText
+                            data:  { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
 
@@ -2973,7 +2980,7 @@ if (typeof(require) === 'function') {
          *
          * @private
          */
-        mobile._cancelSpeak = function() {
+        mobile._cancelSpeak = function () {
             var dfd =  $.Deferred();
             if (mobile.support.textToSpeech) {
                 // For iOS and Android via TTS plugin
