@@ -1153,8 +1153,8 @@ if (typeof(require) === 'function') {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var showBackButton = false;
             var showDrawerButton = false;
-            var showHomeButton = false;
             // We do not show the first page button to leave room for the drawer button
+            var showHomeButton = false;
             // var showFirstPageButton = false;
             var showPreviousPageButton = false;
             var showPreviousUserButton = false;
@@ -1163,6 +1163,7 @@ if (typeof(require) === 'function') {
             var showLastPageButton = false;
             var showSubmitButton = false;
             var showScoreButton = false;
+            var showSummaryButton = false;
             var showSyncButton = false;
             var showSearchButton = false;
             var showSortButtons = false;
@@ -1202,7 +1203,7 @@ if (typeof(require) === 'function') {
                     break;
                 case DEVICE_SELECTOR + VIEW.SCORE:
                     showDrawerButton = true;
-                    // TODO showCorrectionButton: true;
+                    showSummaryButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.SETTINGS:
                     showDrawerButton = true;
@@ -1212,6 +1213,7 @@ if (typeof(require) === 'function') {
                     break;
                 case DEVICE_SELECTOR + VIEW.SUMMARY:
                     showDrawerButton = true;
+                    showHomeButton = true;
                     break;
                 case DEVICE_SELECTOR + VIEW.SYNC:
                     break;
@@ -1232,6 +1234,7 @@ if (typeof(require) === 'function') {
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-last-page').css({ display: showLastPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-submit').css({ display: showSubmitButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-score').css({ display: showScoreButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-summary').css({ display: showSummaryButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
             view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sort').css({ display: showSortButtons ? DISPLAY.INLINE : DISPLAY.NONE });
@@ -2929,6 +2932,19 @@ if (typeof(require) === 'function') {
                         mobile._submit();
                     }
                 });
+        };
+
+        /**
+         * Event handler triggered when clicking the summary button in the navbar
+         * @param e
+         */
+        mobile.onNavBarSummaryClick = function (e) {
+            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY
+                // '?language=' +
+                // '&summaryId=' +
+                // '&versionId=' +
+                // '&activityId=' +
+            );
         };
 
         /**
