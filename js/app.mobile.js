@@ -2491,7 +2491,7 @@ if (typeof(require) === 'function') {
                 // Close may have already been called in loadStart
                 close();
             };
-            var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=no,clearsessioncache=yes,clearcache=yes');
+            var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=yes,clearsessioncache=yes,clearcache=yes');
             // browser.addEventListener('exit', exit);
             browser.addEventListener('loadstart', loadStart);
             // browser.addEventListener('loadstop', loadStop);
