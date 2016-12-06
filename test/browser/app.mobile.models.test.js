@@ -340,14 +340,14 @@
                 var activity0 = testData.activities[0];
                 activity0.id = null; // Otherwise it is not new for kendo
                 activity0 = new MobileActivity(activity0);
-                var activities0 = new MobileActivityDataSource({ userId: activity0.get('actor.userId') });
+                var activities0 = new MobileActivityDataSource({ language: 'en', userId: activity0.get('actor.userId') });
                 activities0.add(activity0);
                 // Second activity (from me)
                 var activity1 = testData.activities[1];
                 activity1.id = null; // Otherwise it is not new for kendo
                 activity1.actor.userId = me.get('sid');
                 activity1 = new MobileActivity(activity1);
-                var activities1 = new MobileActivityDataSource({ userId: activity1.get('actor.userId') });
+                var activities1 = new MobileActivityDataSource({ language: 'en', userId: activity1.get('actor.userId') });
                 activities1.add(activity1);
                 // Sync
                 $.when(
@@ -365,7 +365,7 @@
                 expect(activity1.id).to.be.null; // Otherwise it is not new for kendo
                 activity1.actor.userId = testData.users[0].sid;
                 var activity = new MobileActivity(activity1);
-                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 activities.add(activity);
                 activities.sync()
                     .done(function () {
@@ -378,13 +378,13 @@
 
             it('MobileActivityDataSource should read and load activities for different users (user switch)', function (done) {
                 var activity0 = testData.activities[0];
-                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 expect(activities.total()).to.equal(0);
                 activities.read()
                     .done(function () {
                         expect(activities.total()).to.equal(1);
                         expect(activities.at(0).get('actor.userId')).to.equal(me.get('sid'));
-                        activities.load({ userId: activity0.actor.userId })
+                        activities.load({ language: 'en', userId: activity0.actor.userId })
                             .done(function () {
                                 expect(activities.total()).to.equal(1);
                                 expect(activities.at(0).get('actor.userId')).to.equal(activity0.actor.userId);
@@ -400,7 +400,7 @@
             });
 
             it('MobileActivityDataSource should filter activities', function (done) {
-                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 activities.query({ filter: { field: 'language', operator: 'eq', value: 'fr' } })
                     .done(function () {
                         expect(activities.total()).to.equal(0);
@@ -412,7 +412,7 @@
             });
 
             it('MobileActivityDataSource should update activities', function (done) {
-                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 var DATA = 'Whatever';
                 activities.read()
                     .done(function () {
@@ -436,7 +436,7 @@
             });
 
             it('MobileActivityDataSource should upload pending activities (serverSync step 1)', function (done) {
-                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 activities._uploadPendingActivities()
                     .progress(function (progress) {
                         // expect(progress)
@@ -451,7 +451,7 @@
             });
 
             it('MobileActivityDataSource should purge old activities (serverSync step 2)', function (done) {
-                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 activities._purgeOldActivities()
                     .progress(function (progress) {
                         // expect(progress)
@@ -466,7 +466,7 @@
             });
 
             it('MobileActivityDataSource should download recent activities (serverSync step 3)', function (done) {
-                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 activities._downloadRecentActivities()
                     .progress(function (progress) {
                         // expect(progress)
@@ -481,7 +481,7 @@
             });
 
             it('MobileActivityDataSource should sync activities', function (done) {
-                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 activities.serverSync()
                     .progress(function (progress) {
                         // expect(progress)
@@ -496,7 +496,7 @@
             });
 
             it('MobileActivityDataSource should destroy activities', function (done) {
-                var activities = new MobileActivityDataSource({ userId: me.get('sid') });
+                var activities = new MobileActivityDataSource({ language: 'en', userId: me.get('sid') });
                 activities.read()
                     .done(function () {
                         while (activities.total()) {
