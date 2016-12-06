@@ -1,4 +1,7 @@
 {
+    "analytics": {
+        "gaTrackingId": "UA-63281999-4"
+    },
     "application": {
         "name": "Kidoju.Webapp",
         "siteName": "Kidoju"
