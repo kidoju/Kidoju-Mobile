@@ -115,7 +115,7 @@
     <access origin="https://*.kidoju.com/*" />
     <access origin="https://s3.amazonaws.com/*" />
     <access origin="https://graph.facebook.com/*" />
-    <access origin="https://scontent.xx.fbcdn.net/*" />
+    <access origin="https://*.fbcdn.net/*" />
     <access origin="https://www.googleapis.com/*" />
     <access origin="https://*.googleusercontent.com/*" />
     <access origin="https://apis.live.net/*" />
