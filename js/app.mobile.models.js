@@ -86,6 +86,21 @@
         var DOT_JPEG = '.jpg';
 
         /**
+         * An error helper that converts an error into an array [xhr, status, error]
+         * @param error
+         * @returns {[*,string,*]}
+         * @constructor
+         */
+        function ErrorXHR(error) {
+            assert.type(STRING, error.message, kendo.format(assert.messages.type.default, 'error.message', STRING));
+            return [
+                { responseText: JSON.stringify({ error: $.extend({}, error) }) },
+                'error',
+                error.message
+            ]
+        }
+
+        /**
          * MobileUser model
          * @type {kidoju.data.Model}
          */
@@ -415,9 +430,7 @@
                     var user = options.data;
                     var errors = this._validate(user);
                     if (errors.length) {
-                        // Do not save a user without a pin
-                        // TODO: report errors properly: in xhr.responseText?
-                        return options.error(undefined, 'error', 'Invalid user');
+                        return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
                     }
                     // This replaces the machine id in the mongoDB server id by MACHINE_ID
                     // This ensures uniqueness of user in mobile app when sid is unique without further checks
@@ -430,9 +443,11 @@
                                 .done(function () {
                                     options.success({ total: 1, data: [user] });
                                 })
-                                .fail(options.error);
+                                .fail(function (error) {
+                                    options.error.apply(this, ErrorXHR(error));
+                                });
                         })
-                        .fail(options.error);
+                        .fail(options.error); // TODO
                 },
 
                 /**
@@ -455,13 +470,15 @@
                                 if (result && result.nRemoved === 1) {
                                     options.success({ total: 1, data: [user] });
                                 } else {
-                                    options.error(undefined, 'error', 'User not found');
+                                    options.error.apply(this, ErrorXHR(new Error('User not found')));
                                 }
                             })
-                            .fail(options.error);
+                            .fail(function (error) {
+                                options.error.apply(this, ErrorXHR(error));
+                            });
                     } else {
                         // No need to hit the database, it won't be found
-                        options.error(undefined, 'error', 'User not found');
+                        options.error.apply(this, ErrorXHR(new Error('User not found')));
                     }
                 },
 
@@ -484,10 +501,12 @@
                                     if ($.isArray(result)) {
                                         options.success({ total: result.length, data: result });
                                     } else {
-                                        options.error(undefined, 'error', '`result` should be an `array`, possibly empty');
+                                        options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
                                     }
                                 })
-                                .fail(options.error);
+                                .fail(function (error) {
+                                    options.error.apply(this, ErrorXHR(error));
+                                });
                         });
                     // TODO: .fail(function () {});
                 },
@@ -508,9 +527,7 @@
                     var user = options.data;
                     var errors = this._validate(user);
                     if (errors.length) {
-                        // Do not save a user without a pin
-                        // TODO: report errors properly: in xhr.responseText?
-                        return options.error(undefined, 'error', 'Invalid user');
+                        return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
                     }
                     var id = user.id;
                     if (RX_MONGODB_ID.test(id)) {
@@ -528,13 +545,15 @@
                                     user.id = id;
                                     options.success({ total: 1, data: [user] });
                                 } else {
-                                    options.error(undefined, 'error', 'User not found');
+                                    options.error.apply(this, ErrorXHR(new Error('User not found')));
                                 }
                             })
-                            .fail(options.error);
+                            .fail(function (error) {
+                                options.error.apply(this, ErrorXHR(error));
+                            });
                     } else {
                         // No need to hit the database, it won't be found
-                        options.error(undefined, 'error', 'User not found');
+                        options.error.apply(this, ErrorXHR(new Error('User not found')));
                     }
                 }
             }
@@ -786,19 +805,17 @@
                     var activity = options.data;
                     var errors = this._validate(activity);
                     if (errors.length) {
-                        // TODO: report errors properly: in xhr.responseText?
-                        return options.error(undefined, 'error', 'Invalid activity');
+                        return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
                     }
                     // The database will give us an id
                     // activity.id = new pongodb.ObjectId().toString();
                     // TODO activity date????
                     db.activities.insert(activity)
-                        .done(function (result) {
+                        .done(function () {
                             options.success({ total: 1, data: [activity] });
-                            // TODO serverSync is connected
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (error) {
+                            options.error.apply(this, ErrorXHR(error));
                         });
                 },
 
@@ -822,14 +839,15 @@
                                 if (result && result.nRemoved === 1) {
                                     options.success({ total: 1, data: [activity] });
                                 } else {
-                                    options.error(undefined, 'error', 'Activity not found');
-                                    // TODO serverSync if connected
+                                    options.error.apply(this, ErrorXHR(new Error('Activity not found')));
                                 }
                             })
-                            .fail(options.error);
+                            .fail(function (error) {
+                                options.error.apply(this, ErrorXHR(error));
+                            });
                     } else {
                         // No need to hit the database, it won't be found
-                        options.error(undefined, 'error', 'Activity not found');
+                        options.error.apply(this, ErrorXHR(new Error('Activity not found')));
                     }
                 },
 
@@ -848,10 +866,12 @@
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
                             } else {
-                                options.error(undefined, 'error', '`result` should be an `array`, possibly empty');
+                                options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
                             }
                         })
-                        .fail(options.error);
+                        .fail(function (error) {
+                            options.error.apply(this, ErrorXHR(error));
+                        });
                 },
 
                 /**
@@ -870,9 +890,7 @@
                     var activity = options.data;
                     var errors = this._validate(activity);
                     if (errors.length) {
-                        // Do not save a activity without a pin
-                        // TODO: report errors properly: in xhr.responseText?
-                        return options.error(undefined, 'error', 'Invalid activity');
+                        return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
                     }
                     var id = activity.id;
                     if (RX_MONGODB_ID.test(id)) {
@@ -885,13 +903,15 @@
                                     options.success({ total: 1, data: [activity] });
                                     // TODO serverSync if connected
                                 } else {
-                                    options.error(undefined, 'error', 'Activity not found');
+                                    options.error.apply(this, ErrorXHR(new Error('Activity not found')));
                                 }
                             })
-                            .fail(options.error);
+                            .fail(function (error) {
+                                options.error.apply(this, ErrorXHR(error));
+                            });
                     } else {
                         // No need to hit the database, it won't be found
-                        options.error(undefined, 'error', 'Activity not found');
+                        options.error.apply(this, ErrorXHR(new Error('Activity not found')));
                     }
                 }
             },
