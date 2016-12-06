@@ -121,11 +121,6 @@
     <access origin="https://apis.live.net/*" />
     <access origin="https://api.twitter.com/*" />
     <access origin="https://pbs.twimg.com/*" />
-    <!--access origin="blob:*" />
-    <access origin="cdvfile:*" />
-    <access origin="data:*" />
-    <access origin="file:*" />
-    <access origin="gap:*" /-->
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <platform name="android">
