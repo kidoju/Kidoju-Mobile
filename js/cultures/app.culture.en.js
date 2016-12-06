@@ -21,12 +21,33 @@
         var app = window.app = window.app || {};
         app.cultures = app.cultures || {};
         app.cultures.en = {
-            notification: {
+            dialogs: {
+                buttons: {
+                    cancel: {
+                        text: 'Cancel',
+                        icon: 'close'
+                    },
+                    no: {
+                        text: 'No',
+                        icon: 'close'
+                    },
+                    ok: {
+                        text: 'OK',
+                        icon: 'ok'
+                    },
+                    yes: {
+                        text: 'Yes',
+                        icon: 'ok'
+                    }
+                },
                 error: 'Error',
                 info: 'Information',
-                ok: 'OK',
                 success: 'Success',
-                warning: 'Warning'
+                warning: 'Warning',
+                submitQuestion: {
+                    message: 'Do you really want to submit to get your score and the correction?',
+                    title: 'Question'
+                }
             },
             /*
             secureStorage: {

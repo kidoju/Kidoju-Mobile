@@ -21,12 +21,33 @@
         var app = window.app = window.app || {};
         app.cultures = app.cultures || {};
         app.cultures.fr = {
-            notification: {
+            dialogs: {
+                buttons: {
+                    cancel: {
+                        text: 'Annuler',
+                        icon: 'close'
+                    },
+                    no: {
+                        text: 'Non',
+                        icon: 'close'
+                    },
+                    ok: {
+                        text: 'OK',
+                        icon: 'ok'
+                    },
+                    yes: {
+                        text: 'Oui',
+                        icon: 'ok'
+                    }
+                },
                 error: 'Erreur',
                 info: 'Information',
-                ok: 'OK',
                 success: 'Succès',
-                warning: 'Attention'
+                warning: 'Attention',
+                submitQuestion: {
+                    message: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
+                    title: 'Question'
+                }
             },
             /*
             secureStorage: {

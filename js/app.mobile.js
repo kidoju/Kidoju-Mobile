@@ -353,7 +353,7 @@ if (typeof(require) === 'function') {
             mobile.notification = {
                 info: function (message, callback) {
                     if (mobile.support.alert) {
-                        window.navigator.notification.alert(message, callback, i18n.culture.notification.info, i18n.culture.notification.ok);
+                        window.navigator.notification.alert(message, callback, i18n.culture.dialogs.info, i18n.culture.dialogs.buttons.ok.text);
                     } else {
                         window.alert(message);
                     }
@@ -361,21 +361,21 @@ if (typeof(require) === 'function') {
                 error: function (message, callback) {
                     if (mobile.support.alert) {
                         window.navigator.notification.beep(1);
-                        window.navigator.notification.alert(message, callback, i18n.culture.notification.error, i18n.culture.notification.ok);
+                        window.navigator.notification.alert(message, callback, i18n.culture.dialogs.error, i18n.culture.dialogs.buttons.ok.text);
                     } else {
                         window.alert(message);
                     }
                 },
                 success: function (message, callback) {
                     if (mobile.support.alert) {
-                        window.navigator.notification.alert(message, callback, i18n.culture.notification.success, i18n.culture.notification.ok);
+                        window.navigator.notification.alert(message, callback, i18n.culture.dialogs.success, i18n.culture.dialogs.buttons.ok.text);
                     } else {
                         window.alert(message);
                     }
                 },
                 warning: function (message, callback) {
                     if (mobile.support.alert) {
-                        window.navigator.notification.alert(message, callback, i18n.culture.notification.warning, i18n.culture.notification.ok);
+                        window.navigator.notification.alert(message, callback, i18n.culture.dialogs.warning, i18n.culture.dialogs.buttons.ok.text);
                     } else {
                         window.alert(message);
                     }
@@ -2694,10 +2694,12 @@ if (typeof(require) === 'function') {
                     }
                 });
 
-            // TODO remove!
+            /*
+            // This was used for debugging user pictures
             e.view.element.find('img').on('click', function(e) {
                 alert($(e.target).attr('src'));
             });
+            */
         };
 
         /**
@@ -2904,14 +2906,15 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onNavBarSubmitClick = function (e) {
+            var culture = i18n.culture.dialogs;
             kendo.alertEx({
                 type: 'info',
-                title: 'Error',
-                message: 'Hey Houston, we\'ve got a problem!', // TODO ----------------------------------------------------------------------------------------------
+                title: culture.submitQuestion.title,
+                message: culture.submitQuestion.message,
                 buttonLayout: 'stretched',
                 actions: [
-                    { action: 'yes', text: 'Yes', primary: true, imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg' }, // TODO
-                    { action: 'no', text: 'No', imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg' } // TODO
+                    { action: 'yes', text: culture.buttons.yes.text, primary: true, imageUrl: kendo.format(app.uris.cdn.icons, culture.buttons.yes.icon) },
+                    { action: 'no', text: culture.buttons.no.text, imageUrl: kendo.format(app.uris.cdn.icons, culture.buttons.no.icon) }
                 ]
             })
                 .done(function (result) {
