@@ -21,34 +21,6 @@
         var app = window.app = window.app || {};
         app.cultures = app.cultures || {};
         app.cultures.fr = {
-            dialogs: {
-                buttons: {
-                    cancel: {
-                        text: 'Annuler',
-                        icon: 'close'
-                    },
-                    no: {
-                        text: 'Non',
-                        icon: 'close'
-                    },
-                    ok: {
-                        text: 'OK',
-                        icon: 'ok'
-                    },
-                    yes: {
-                        text: 'Oui',
-                        icon: 'ok'
-                    }
-                },
-                error: 'Erreur',
-                info: 'Information',
-                success: 'Succès',
-                warning: 'Attention',
-                submitQuestion: {
-                    message: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
-                    title: 'Question'
-                }
-            },
             /*
             secureStorage: {
                 success: 'Avec le vérouillage écran activé, vous bénéficiez de l\'encryption des données confidentielles.',
@@ -89,6 +61,35 @@
                 // Labels
                 explanations: 'Explications'
             },
+            // Dialogs and alerts
+            dialogs: {
+                buttons: {
+                    cancel: {
+                        text: 'Annuler',
+                        icon: 'close'
+                    },
+                    no: {
+                        text: 'Non',
+                        icon: 'close'
+                    },
+                    ok: {
+                        text: 'OK',
+                        icon: 'ok'
+                    },
+                    yes: {
+                        text: 'Oui',
+                        icon: 'ok'
+                    }
+                },
+                error: 'Erreur',
+                info: 'Information',
+                success: 'Succès',
+                warning: 'Attention',
+                submitQuestion: {
+                    message: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
+                    title: 'Question'
+                }
+            },
             // Drawer
             drawer: {
                 activities: 'Activités',
@@ -103,12 +104,7 @@
             },
             // Finder view
             finder: {
-                viewTitle: 'Recherche',
-                actionSheet: {
-                    cancel: 'Annuler',
-                    play: 'Jouer',
-                    share: 'Partager'
-                }
+                viewTitle: 'Recherche'
             },
             // Notification messages
             notifications: {
@@ -188,7 +184,13 @@
                 tags: 'Mots Clés',
                 title: 'Titre',
                 // Buttons
-                go: 'Aller'
+                go: 'Aller',
+                // ActionSheet
+                actionSheet: {
+                    cancel: 'Annuler',
+                    play: 'Jouer',
+                    share: 'Partager'
+                }
             },
             // User view
             user: {
