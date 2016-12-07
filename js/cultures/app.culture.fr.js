@@ -119,7 +119,7 @@
                 pinSaveInfo: 'Veuillez saisir et confirmer votre pin à 4 chiffres avant d\'enregistrer.',
                 pinValidationFailure: 'Mauvais pin à 4 chiffres.',
                 pinValidationInfo: 'Veuillez saisir votre pin à 4 chiffres pour vous connecter.',
-                scanFailure: 'Erreur de scan.',
+                scanFailure: 'Erreur de scan. Vérifiez que l\'app soit autorisée à utiliser la caméra.',
                 scanPrompt: 'Veuillez placer un code dans l\'espace délimité.',
                 scanLanguageWarning: 'Veuillez changer de language dans les paramètres pour scanner ce code.',
                 scanMatchWarning: 'Ce code ne correspond pas.',

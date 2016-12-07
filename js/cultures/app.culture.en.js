@@ -120,7 +120,7 @@
                 pinSaveInfo: 'Please enter and confirm your 4-digit pin before saving.',
                 pinValidationFailure: 'Wrong pin.',
                 pinValidationInfo: 'Please enter your pin to sign in.',
-                scanFailure: 'Scan failure.',
+                scanFailure: 'Scan failure. Check the app is authorized to use the camera.',
                 scanLanguageWarning: 'Change language settings to scan this QR code.',
                 scanMatchWarning: 'This QR code does not match.',
                 scanPrompt: 'Place a QR code inside the scan area.',
