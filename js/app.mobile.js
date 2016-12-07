@@ -180,7 +180,12 @@ if (typeof(require) === 'function') {
                 ID: 'current.id',
                 SCORE: 'current.score',
                 TEST: 'current.test',
-                UPDATED: 'current.updated'
+                UPDATED: 'current.updated',
+                VERSION: {
+                    LANGUAGE: 'current.version.language',
+                    SUMMARY_ID: 'current.version.summaryId',
+                    VERSION_ID: 'current.version.versionId'
+                }
             },
             LANGUAGES: 'languages',
             PAGES_COLLECTION: 'version.stream.pages',
@@ -769,6 +774,7 @@ if (typeof(require) === 'function') {
              * @param options
              */
             loadActivities: function (options) {
+                // TODO check if already loaded
                 return this.activities.load(options)
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.activitiesQueryFailure);
@@ -798,15 +804,23 @@ if (typeof(require) === 'function') {
              */
             loadLazySummaries: function (query) {
                 // TODO: assert query
-                return viewModel.summaries.query(query)
-                    .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.summariesQueryFailure);
-                        logger.error({
-                            message: 'error loading summaries',
-                            method: 'viewModel.loadLazySummaries',
-                            data: { query: query, status: status, error: error, response: parseResponse(xhr) }
+                var dfd = $.Deferred();
+                if (window.navigator.connection.type === window.Connection.NONE) {
+                    app.notification.warning(i18n.culture.notifications.networkOffline);
+                    dfd.reject(undefined, 'offline', 'No network connection');
+                } else {
+                    viewModel.summaries.query(query)
+                        .done(dfd.resolve)
+                        .fail(function (xhr, status, error) {
+                            app.notification.error(i18n.culture.notifications.summariesQueryFailure);
+                            logger.error({
+                                message: 'error loading summaries',
+                                method: 'viewModel.loadLazySummaries',
+                                data: {query: query, status: status, error: error, response: parseResponse(xhr)}
+                            });
                         });
-                    });
+                }
+                return dfd.promise();
             },
 
             /**
@@ -819,8 +833,11 @@ if (typeof(require) === 'function') {
                 assert.match(RX_MONGODB_ID, options.id, kendo.format(assert.messages.match.default, 'options.id', RX_MONGODB_ID));
                 var dfd = $.Deferred();
                 if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warn(i18n.culture.notifications.networkOffline);
+                    app.notification.warning(i18n.culture.notifications.networkOffline);
                     dfd.reject(undefined, 'offline', 'No network connection');
+                } else if (viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE) === options.language &&
+                    viewModel.get(VIEW_MODEL.SUMMARY.ID) === options.id) {
+                    dfd.resolve();
                 } else {
                     // TODO viewModel.summary.load(options)
                     return viewModel.summary.load(options.id)
@@ -845,12 +862,12 @@ if (typeof(require) === 'function') {
             loadUser: function () {
                 var dfd = $.Deferred();
                 if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warn(i18n.culture.notifications.networkOffline);
+                    app.notification.warning(i18n.culture.notifications.networkOffline);
                     dfd.reject(undefined, 'offline', 'No network connection');
                 } else {
                     // Set a new user since the existing user might be in the database and we do not want to change its properties
                     viewModel.set(VIEW_MODEL.USER.$, new models.MobileUser());
-                    viewModel.user.load()
+                    return viewModel.user.load()
                         .done(dfd.resolve)
                         .fail(function (xhr, status, error) {
                             dfd.reject(xhr, status, error);
@@ -858,7 +875,7 @@ if (typeof(require) === 'function') {
                             logger.error({
                                 message: 'error loading user',
                                 method: 'viewModel.loadUser',
-                                data: {status: status, error: error, response: parseResponse(xhr)}
+                                data: { status: status, error: error, response: parseResponse(xhr) }
                             });
                         });
                 }
@@ -871,11 +888,10 @@ if (typeof(require) === 'function') {
              */
             loadUsers: function () {
                 var dfd = $.Deferred();
-                if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warn(i18n.culture.notifications.networkOffline);
-                    dfd.reject(undefined, 'offline', 'No network connection');
+                if (viewModel.users.total() > 0) {
+                    dfd.resolve();
                 } else {
-                    viewModel.users.query({sort: {field: 'lastUse', dir: 'desc'}})
+                    viewModel.users.query({ sort: { field: 'lastUse', dir: 'desc' } })
                         .done(dfd.resolve)
                         .fail(function (xhr, status, error) {
                             dfd.reject(xhr, status, error);
@@ -883,7 +899,7 @@ if (typeof(require) === 'function') {
                             logger.error({
                                 message: 'error loading users',
                                 method: 'viewModel.loadUsers',
-                                data: {status: status, error: error, response: parseResponse(xhr)}
+                                data: { status: status, error: error, response: parseResponse(xhr) }
                             });
                         });
                 }
@@ -916,8 +932,12 @@ if (typeof(require) === 'function') {
 
                 var dfd = $.Deferred();
                 if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warn(i18n.culture.notifications.networkOffline);
+                    app.notification.warning(i18n.culture.notifications.networkOffline);
                     dfd.reject(undefined, 'offline', 'No network connection');
+                } else if (viewModel.get(VIEW_MODEL.VERSION.LANGUAGE) === options.language &&
+                    viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID) === options.summaryId &&
+                    viewModel.get(VIEW_MODEL.VERSION.ID) === options.versionId) {
+                    dfd.resolve();
                 } else {
                     // TODO viewModel.version.load(options)
                     viewModel.version.load(options.summaryId, options.versionId)
@@ -955,8 +975,11 @@ if (typeof(require) === 'function') {
 
                 var dfd = $.Deferred();
                 if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warn(i18n.culture.notifications.networkOffline);
+                    app.notification.warning(i18n.culture.notifications.networkOffline);
                     dfd.reject(undefined, 'offline', 'No network connection');
+                } else if (viewModel.versions.total() > 0 &&
+                    viewModel.versions.at(0).get('summaryId') === options.summaryId) {
+                    dfd.resolve();
                 } else {
                     viewModel.versions.load(options)
                         .done(dfd.resolve)
@@ -1226,6 +1249,7 @@ if (typeof(require) === 'function') {
                         // TODO: server sync here or in DataSource???
                     })
                     .fail(function (xhr, status, error) {
+                        activities.remove(activity);
                         app.notification.error(i18n.culture.notifications.scoreSaveFailure);
                         logger.error({
                             message: 'error saving score current',
@@ -1940,7 +1964,8 @@ if (typeof(require) === 'function') {
                                 var summaryId = matches[2];
                                 if (viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE) === language) {
                                     mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY +
-                                        '?language=' + window.encodeURIComponent(language) + '&summaryId=' + window.encodeURIComponent(summaryId));
+                                        '?language=' + window.encodeURIComponent(language) +
+                                        '&summaryId=' + window.encodeURIComponent(summaryId));
                                 } else {
                                     mobile.notification.warn(i18n.culture.notifications.scanLanguageWarning);
                                 }
@@ -1975,9 +2000,22 @@ if (typeof(require) === 'function') {
         mobile.onDrawerListViewClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
-            if (e.item.is('li[data-icon=scan]')) {
-                e.preventDefault();
-                mobile._scanQRCode();
+            e.preventDefault();
+            var command = e.item.attr(kendo.attr('command'));
+            var language = i18n.locale();
+            switch (command) {
+                case 'categories':
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
+                    break;
+                case 'scan':
+                    mobile._scanQRCode();
+                case 'activities':
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language));
+                    break;
+                case 'settings':
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SETTINGS);
+                    break;
+
             }
         };
 
@@ -2016,11 +2054,19 @@ if (typeof(require) === 'function') {
                         assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
                         var dataItem = this.dataItem(selectedRows[0]);
                         assert.instanceof(models.MobileActivity, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'app.models.MobileActivity'));
+                        var language = dataItem.get('version.language');
+                        assert.match(RX_LANGUAGE, language, kendo.format(assert.messages.match.default, 'language', RX_LANGUAGE));
+                        var summaryId = dataItem.get('version.summaryId');
+                        assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+                        var versionId = dataItem.get('version.versionId');
+                        assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+                        var activityId = dataItem.get('id'); // Note: this is a local id, not a sid
+                        assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
                         mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
-                            // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
-                            // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
-                            // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
-                            '?activityId=' + window.encodeURIComponent(dataItem.get('id')) // Note: this is a local id, not a sid
+                            '?language=' + window.encodeURIComponent(language) +
+                            '&summaryId=' + window.encodeURIComponent(summaryId) +
+                            '&versionId=' + window.encodeURIComponent(versionId) +
+                            '&activityId=' + window.encodeURIComponent(activityId)
                         );
                     },
                     columnMenu: true,
@@ -2301,6 +2347,10 @@ if (typeof(require) === 'function') {
          */
         mobile._initScoreGrid = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            var language = view.params.language;
+            var summaryId = view.params.summaryId;
+            var versionId = view.params.versionId;
+
             var contentElement = view.content;
             // Find and destroy the grid as it needs to be rebuilt if locale changes
             // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
@@ -2334,10 +2384,10 @@ if (typeof(require) === 'function') {
                         var currentId = viewModel.get(VIEW_MODEL.CURRENT.ID);
                         var page = dataItem.page + 1;
                         mobile.application.navigate(DEVICE_SELECTOR + VIEW.CORRECTION +
-                            // '?language=' + window.encodeURIComponent(dataItem.get('version.language')) +
-                            // '&summaryId=' + window.encodeURIComponent(dataItem.get('version.summaryId')) +
-                            // '&versionId=' + window.encodeURIComponent(dataItem.get('version.versionId')) +
-                            '?activityId=' + window.encodeURIComponent(dataItem.get('id')) + // Note: this is a local id, not a sid
+                            '?language=' + window.encodeURIComponent(view.params.language) +
+                            '&summaryId=' + window.encodeURIComponent(view.params.summaryId) +
+                            '&versionId=' + window.encodeURIComponent(view.params.versionId) +
+                            '&activityId=' + window.encodeURIComponent(view.params.activityId) + // Note: this is a local id, not a sid
                             '&page=' + window.encodeURIComponent(page)
                         );
                     },
@@ -2736,7 +2786,7 @@ if (typeof(require) === 'function') {
             var language = i18n.locale();
             assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
             var summaryId = e.view.params.summaryId;
-            viewModel.loadSummary({language: language, id: summaryId})
+            viewModel.loadSummary({ language: language, id: summaryId })
                 .always(function () {
                     mobile.application.hideLoading();
                 });
@@ -2758,11 +2808,12 @@ if (typeof(require) === 'function') {
                     var version = viewModel.versions.at(0); // First is latest version
                     assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
                     assert.match(RX_MONGODB_ID, version.get('id'), kendo.format(assert.messages.match.default, 'version.get(\'id\')', RX_MONGODB_ID));
+                    // version has no language - we therfore assume same langauge
                     // assert.equal(language, version.get('language'), kendo.format(assert.messages.equal.default, 'version.get(\'language\')', language));
                     assert.equal(summaryId, version.get('summaryId'), kendo.format(assert.messages.equal.default, 'version.get(\'summaryId\')', summaryId));
                     mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER +
-                        // '?language=' + window.encodeURIComponent(language) +
-                        '?summaryId=' + window.encodeURIComponent(summaryId) +
+                        '?language=' + window.encodeURIComponent(language) +
+                        '&summaryId=' + window.encodeURIComponent(summaryId) +
                         '&versionId=' + window.encodeURIComponent(version.get('id'))
                     );
                 });
@@ -2878,6 +2929,9 @@ if (typeof(require) === 'function') {
             var confirmValue = pinElements.last().val();
 
             if (RX_PIN.test(pinValue) && confirmValue === pinValue) {
+                var language = i18n.language();
+                assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
+
                 // Does the user already exist in database?
                 var sid = viewModel.get(VIEW_MODEL.USER.SID);
                 var found = viewModel.users.data().find(function (user) {
@@ -2899,7 +2953,8 @@ if (typeof(require) === 'function') {
                         viewModel.trigger(CHANGE, { field: VIEW_MODEL.USER.$ });
                         app.notification.success(kendo.format(i18n.culture.notifications.userSaveSuccess));
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
-                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
+                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES +
+                            '?language=' + language);
                     })
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.userSaveFailure);
@@ -3010,31 +3065,25 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Submit answers to calculate score
-         * @private
-         */
-        mobile._submit = function () {
-            viewModel.calculate()
-                .done(function () { // Note: failure is already taken care of
-                    viewModel.saveCurrent()
-                        .done(function () {
-                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE);
-                        });
-                });
-        };
-
-        /**
          * Event handler triggered when clicking the score button in the navbar
          * @param e
          */
         mobile.onNavBarScoreClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE
-                // '?language=' +
-                // '&summaryId=' +
-                // '&versionId=' +
-                // '&activityId=' +
+            var language = viewModel.get(VIEW_MODEL.CURRENT.VERSION.LANGUAGE);
+            assert.match(RX_LANGUAGE, language, kendo.format(assert.messages.match.default, 'language', RX_LANGUAGE));
+            var summaryId = viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARY_ID);
+            assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+            var versionId = viewModel.get(VIEW_MODEL.CURRENT.VERSION.VERSION_ID);
+            assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+            var activityId = viewModel.get(VIEW_MODEL.CURRENT.ID);
+            assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
+            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
+                '?language=' + encodeURIComponent(language) +
+                '&summaryId=' + encodeURIComponent(summaryId) +
+                '&versionId=' + encodeURIComponent(versionId) +
+                '&activityId=' + encodeURIComponent(activityId) // This is not a sid
             );
         };
 
@@ -3043,11 +3092,19 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onNavBarSubmitClick = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             mobile.notification.confirm(
                 i18n.culture.notifications.confirmSubmit,
                 function (buttonIndex) {
                     if (buttonIndex === 1) {
-                        mobile._submit();
+                        viewModel.calculate()
+                            .done(function () { // Note: failure is already taken care of
+                                viewModel.saveCurrent()
+                                    .done(function () {
+                                        mobile.onNavBarScoreClick(e);
+                                    });
+                            });
                     }
                 }
             );

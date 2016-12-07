@@ -12,9 +12,22 @@
     /**********************************************************
     * Kendo UI
     **********************************************************/
+    .km-pane, .km-shim {
+        font: inherit;
+    }
     .km-button.km-primary {
         background-color: @selected-background;
         color: @selected-text-color;
+    }
+    .k-animation-container {
+        // This is for dropdowns to match actionsheets
+        .k-list-container {
+            .k-list-scroller {
+                .k-list {
+                    font-size: 1.4em;
+                }
+            }
+        }
     }
     /**********************************************************
      * Navbar
@@ -51,11 +64,12 @@
     .km-listview {
         // Align settings dropdowns with span.k-input
         span.k-dropdown {
-            margin-top: -1.4em;
+            font-size: 1em;
+            margin-top: -1.8em;
             span.k-dropdown-wrap {
-                padding: .4em 0;
+                font-size: inherit;
                 span.k-input {
-                    text-indent: 0;
+                    text-indent: 0.2em;
                 }
             }
         }
