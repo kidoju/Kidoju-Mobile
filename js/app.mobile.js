@@ -385,7 +385,7 @@ if (typeof(require) === 'function') {
             mobile.notification = {
                 confirm: function (message, callback) {
                     if (mobile.support.dialogs) {
-                        window.navigator.notification.confirm(message, callback, i18n.culture.dialogs.error, [i18n.culture.dialogs.buttons.ok.text, i18n.culture.dialogs.buttons.cancel.text]);
+                        window.navigator.notification.confirm(message, callback, i18n.culture.dialogs.confirm, [i18n.culture.dialogs.buttons.ok.text, i18n.culture.dialogs.buttons.cancel.text]);
                     } else {
                         kendo.alertEx({
                             type: 'info',
