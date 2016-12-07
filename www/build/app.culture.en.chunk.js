@@ -27,34 +27,6 @@ webpackJsonp([1],{
 	        var app = window.app = window.app || {};
 	        app.cultures = app.cultures || {};
 	        app.cultures.en = {
-	            dialogs: {
-	                buttons: {
-	                    cancel: {
-	                        text: 'Cancel',
-	                        icon: 'close'
-	                    },
-	                    no: {
-	                        text: 'No',
-	                        icon: 'close'
-	                    },
-	                    ok: {
-	                        text: 'OK',
-	                        icon: 'ok'
-	                    },
-	                    yes: {
-	                        text: 'Yes',
-	                        icon: 'ok'
-	                    }
-	                },
-	                error: 'Error',
-	                info: 'Information',
-	                success: 'Success',
-	                warning: 'Warning',
-	                submitQuestion: {
-	                    message: 'Do you really want to submit to get your score and the correction?',
-	                    title: 'Question'
-	                }
-	            },
 	            /*
 	            secureStorage: {
 	                success: 'With screen lock enabled, you benefit from confidential data encryption.',
@@ -96,6 +68,24 @@ webpackJsonp([1],{
 	                // Labels
 	                explanations: 'Explanations'
 	            },
+	            // Dialogs and alerts
+	            dialogs: {
+	                buttons: {
+	                    cancel: {
+	                        text: 'Cancel',
+	                        icon: 'close'
+	                    },
+	                    ok: {
+	                        text: 'OK',
+	                        icon: 'ok'
+	                    }
+	                },
+	                confirm: 'Confirm',
+	                error: 'Error',
+	                info: 'Information',
+	                success: 'Success',
+	                warning: 'Warning'
+	            },
 	            // Drawer
 	            drawer: {
 	                activities: 'Activities',
@@ -110,16 +100,12 @@ webpackJsonp([1],{
 	            },
 	            // Finder view
 	            finder: {
-	                viewTitle: 'Search',
-	                actionSheet: {
-	                    cancel: 'Cancel',
-	                    play: 'Play',
-	                    share: 'Share'
-	                }
+	                viewTitle: 'Search'
 	            },
 	            // Notification messages
 	            notifications: {
 	                activitiesQueryFailure: 'There was an error loading activities.',
+	                confirmSubmit: 'Do you really want to submit to get your score and the correction?',
 	                networkOffline: 'You are disconnected from the Internet',
 	                oAuthTokenFailure: 'The authentication service has returned an error.',
 	                pinSaveFailure: 'The 4 digit pins do not match.',
@@ -194,7 +180,13 @@ webpackJsonp([1],{
 	                tags: 'Tags',
 	                title: 'Title',
 	                // Buttons
-	                go: 'Go'
+	                go: 'Go',
+	                // ActionSheet
+	                actionSheet: {
+	                    cancel: 'Cancel',
+	                    play: 'Play',
+	                    share: 'Share'
+	                }
 	            },
 	            // User view
 	            user: {

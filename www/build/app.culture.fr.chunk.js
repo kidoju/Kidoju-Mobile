@@ -27,34 +27,6 @@ webpackJsonp([2],{
 	        var app = window.app = window.app || {};
 	        app.cultures = app.cultures || {};
 	        app.cultures.fr = {
-	            dialogs: {
-	                buttons: {
-	                    cancel: {
-	                        text: 'Annuler',
-	                        icon: 'close'
-	                    },
-	                    no: {
-	                        text: 'Non',
-	                        icon: 'close'
-	                    },
-	                    ok: {
-	                        text: 'OK',
-	                        icon: 'ok'
-	                    },
-	                    yes: {
-	                        text: 'Oui',
-	                        icon: 'ok'
-	                    }
-	                },
-	                error: 'Erreur',
-	                info: 'Information',
-	                success: 'Succès',
-	                warning: 'Attention',
-	                submitQuestion: {
-	                    message: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
-	                    title: 'Question'
-	                }
-	            },
 	            /*
 	            secureStorage: {
 	                success: 'Avec le vérouillage écran activé, vous bénéficiez de l\'encryption des données confidentielles.',
@@ -95,6 +67,27 @@ webpackJsonp([2],{
 	                // Labels
 	                explanations: 'Explications'
 	            },
+	            // Dialogs and alerts
+	            dialogs: {
+	                buttons: {
+	                    cancel: {
+	                        text: 'Annuler',
+	                        icon: 'close'
+	                    },
+	                    ok: {
+	                        text: 'OK',
+	                        icon: 'ok'
+	                    }
+	                },
+	                confirm: 'Confirmation',
+	                error: 'Erreur',
+	                info: 'Information',
+	                success: 'Succès',
+	                warning: 'Attention',
+	                submitQuestion: {
+	                    message: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?'
+	                }
+	            },
 	            // Drawer
 	            drawer: {
 	                activities: 'Activités',
@@ -109,16 +102,12 @@ webpackJsonp([2],{
 	            },
 	            // Finder view
 	            finder: {
-	                viewTitle: 'Recherche',
-	                actionSheet: {
-	                    cancel: 'Annuler',
-	                    play: 'Jouer',
-	                    share: 'Partager'
-	                }
+	                viewTitle: 'Recherche'
 	            },
 	            // Notification messages
 	            notifications: {
 	                activitiesQueryFailure: 'Il y a eu une erreur lors du chargement des activités.',
+	                confirmSubmit: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
 	                networkOffline: 'Vous n\'êtes pas connecté à Internet.',
 	                oAuthTokenFailure: 'Le service d\'authentification a retourné une erreur.',
 	                pinSaveFailure: 'Les pins à 4 chiffres ne correspondent pas.',
@@ -194,7 +183,13 @@ webpackJsonp([2],{
 	                tags: 'Mots Clés',
 	                title: 'Titre',
 	                // Buttons
-	                go: 'Aller'
+	                go: 'Aller',
+	                // ActionSheet
+	                actionSheet: {
+	                    cancel: 'Annuler',
+	                    play: 'Jouer',
+	                    share: 'Partager'
+	                }
 	            },
 	            // User view
 	            user: {
