@@ -126,6 +126,7 @@
                 signinUrlFailure: 'Il y a eu une erreur d\'obtention d\'url de connexion pour le service d\'authentification.',
                 summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
                 summaryLoadFailure: 'Il y a eu une erreur lors du chargement des données du résumé descriptif.',
+                unknownError: 'Il y a eu une erreur inconnue. Veuillez redémarrer l\'app',
                 userLoadFailure: 'Il y a eu une erreur lors du chargement du profil utilisateur.',
                 userSaveFailure: 'Il y a eu une erreur d\'enregistremenet de votre profil utilisateur.',
                 userSaveSuccess: 'Votre profil utilisateur a été enregistré avec succès.',

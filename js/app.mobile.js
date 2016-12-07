@@ -96,7 +96,7 @@ if (typeof(require) === 'function') {
         './app.i18n',
         './app.theme',
         './app.utils',
-        './app.assets', // TODO <---------------- really used?
+        './app.assets',
         './app.models',
         './app.mobile.models'
     ], f);
@@ -223,9 +223,18 @@ if (typeof(require) === 'function') {
          *******************************************************************************************/
 
         window.onerror = function (message, source, lineno, colno, error) {
-            setTimeout(function () { // setTimeout is for SafariViewController (Chrome Custom Tabs on Android)
-                window.alert(message);
-                // TODO Global Event Handler - See app.logger
+            // setTimeout is for SafariViewController and InAppBrowser
+            setTimeout(function () {
+                app.notification.error(i18n.culture.notifications.unknownError);
+                logger.crit({
+                    message: message,
+                    method: 'window.onerror',
+                    error: error,
+                    data: { source:  source, lineno: lineno, colno: colno }
+                });
+                if (app.DEBUG) {
+                    window.alert(message);
+                }
             }, 0);
         };
 
@@ -254,6 +263,7 @@ if (typeof(require) === 'function') {
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                     mobile._parseTokenAndLoadUser(url);
                 } else {
+                    // TODO
                     mobile.notification.info('called url: ' + url);
                 }
             }, 0);
@@ -422,6 +432,7 @@ if (typeof(require) === 'function') {
                 ga.startTrackerWithId(app.analytics.gaTrackingId);
                 // ga.setUserId('my-user-id'); // TODO
                 // ga.setAppVersion('1.33.7'); // TODO
+                ga.enableUncaughtExceptionReporting(true);
                 // ga.debugMode();
             }
 

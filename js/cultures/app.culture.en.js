@@ -127,6 +127,7 @@
                 signinUrlFailure: 'There was an error obtaining a sign-in url.',
                 summariesQueryFailure: 'There was an error querying our remote servers.',
                 summaryLoadFailure: 'There was an error loading summary data.',
+                unknownError: 'There has been an unknown error. Please restart the app',
                 userLoadFailure: 'There was an error loading your user profile.',
                 userSaveFailure: 'There was an error saving your user profile.',
                 userSaveSuccess: 'User profile successfully saved.',
