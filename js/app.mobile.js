@@ -183,7 +183,7 @@ if (typeof(require) === 'function') {
                 UPDATED: 'current.updated'
             },
             LANGUAGES: 'languages',
-            PAGES_COLLECTION: 'version.stream.pages', // TODO
+            PAGES_COLLECTION: 'version.stream.pages',
             SELECTED_PAGE: 'selectedPage',
             SETTINGS: {
                 $: 'settings',
@@ -271,7 +271,7 @@ if (typeof(require) === 'function') {
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                     mobile._parseTokenAndLoadUser(url);
                 } else {
-                    // TODO
+                    // TODO https://github.com/kidoju/Kidoju-Mobile/issues/24
                     mobile.notification.info('called url: ' + url);
                 }
             }, 0);
@@ -3019,7 +3019,7 @@ if (typeof(require) === 'function') {
                     .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
                     .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
                 // Speak
-                mobile._doSpeak(text, 'en-GB') // TODO
+                mobile._doSpeak(text, i18n.locale())
                     .always(function () {
                         e.button.removeAttr(kendo.attr(SPEAKING));
                     });
