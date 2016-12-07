@@ -447,8 +447,8 @@
             <a data-role="button" class="km-large km-justified km-primary" data-rel="actionsheet" href="#phone-summary-actionsheet">GO</a>
         </div>
         <ul id="phone-summary-actionsheet" data-role="actionsheet" >
-            <li><a data-action="app.mobile.onSummaryActionPlay" class="km-actionsheet-play">Play</a></li>
-            <li data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onSummaryActionShare" class="km-actionsheet-share">Share</a></li>
+            <li class="km-actionsheet-play"><a data-action="app.mobile.onSummaryActionPlay">Play</a></li>
+            <li class="km-actionsheet-share" data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onSummaryActionShare">Share</a></li>
         </ul>
     </div>
 

@@ -1721,8 +1721,8 @@ if (typeof(require) === 'function') {
             viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.go);
             // Localize actionsheet (it is not not within summariesViewElement)
             var summaryActionSheetElement = $(DEVICE_SELECTOR + VIEW.SUMMARY + '-actionsheet');
-            summaryActionSheetElement.find('li > a.km-actionsheet-play').text(culture.actionSheet.play);
-            summaryActionSheetElement.find('li > a.km-actionsheet-share').text(culture.actionSheet.share);
+            summaryActionSheetElement.find('li.km-actionsheet-play > a').text(culture.actionSheet.play);
+            summaryActionSheetElement.find('li.km-actionsheet-share > a').text(culture.actionSheet.share);
             summaryActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.actionSheet.cancel);
         };
 
