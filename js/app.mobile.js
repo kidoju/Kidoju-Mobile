@@ -2408,14 +2408,14 @@ if (typeof(require) === 'function') {
                         function (result) {
                             // result has only one property, event which can take any value among 'opened', 'loaded' and 'closed'
                             logger.debug({
-                                message: 'show successCallback',
+                                message: 'safari/chrome successfully opened',
                                 method: 'mobile._signInWithSafariViewController',
                                 data: { event: result.event }
                             });
                         },
                         function (msg) {
                             logger.error({
-                                message: 'show errorCallback',
+                                message: 'safari/chrome failed to opened',
                                 method: 'mobile._signInWithSafariViewController',
                                 error: new Error(msg)
                             });
@@ -2902,6 +2902,8 @@ if (typeof(require) === 'function') {
          */
         mobile.onNavBarSubmitClick = function (e) {
             var culture = i18n.culture.dialogs;
+
+
             kendo.alertEx({
                 type: 'info',
                 title: culture.submitQuestion.title,
