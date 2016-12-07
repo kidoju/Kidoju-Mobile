@@ -69,27 +69,16 @@
                         text: 'Cancel',
                         icon: 'close'
                     },
-                    no: {
-                        text: 'No',
-                        icon: 'close'
-                    },
                     ok: {
                         text: 'OK',
                         icon: 'ok'
-                    },
-                    yes: {
-                        text: 'Yes',
-                        icon: 'ok'
                     }
                 },
+                confirm: 'Confirm',
                 error: 'Error',
                 info: 'Information',
                 success: 'Success',
-                warning: 'Warning',
-                submitQuestion: {
-                    message: 'Do you really want to submit to get your score and the correction?',
-                    title: 'Question'
-                }
+                warning: 'Warning'
             },
             // Drawer
             drawer: {
@@ -110,6 +99,7 @@
             // Notification messages
             notifications: {
                 activitiesQueryFailure: 'There was an error loading activities.',
+                confirmSubmit: 'Do you really want to submit to get your score and the correction?',
                 networkOffline: 'You are disconnected from the Internet',
                 oAuthTokenFailure: 'The authentication service has returned an error.',
                 pinSaveFailure: 'The 4 digit pins do not match.',

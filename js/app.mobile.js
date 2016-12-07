@@ -344,9 +344,9 @@ if (typeof(require) === 'function') {
         function setShortcuts () {
             /* jshint maxcomplexity: 9 */
             mobile.support = {
-                alert: window.navigator && window.navigator.notification && $.isFunction(window.navigator.notification.alert) && $.isFunction(window.navigator.notification.beep),
                 barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan),
                 cordova: $.type(window.cordova) !== UNDEFINED,
+                dialogs: window.navigator && window.navigator.notification && $.isFunction(window.navigator.notification.alert) && $.isFunction(window.navigator.notification.confirm),
                 ga: window.ga && $.isFunction(window.ga.startTrackerWithId),
                 // Note: InAppBrowser uses iFrame on browser platform which is incompatible with oAuth flow
                 inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
@@ -382,35 +382,101 @@ if (typeof(require) === 'function') {
                 mobile.textToSpeech = window.TTS;
             }
             // notification requires cordova-plugin-dialogs
-            // TODO: remove????
             mobile.notification = {
-                info: function (message, callback) {
-                    if (mobile.support.alert) {
-                        window.navigator.notification.alert(message, callback, i18n.culture.dialogs.info, i18n.culture.dialogs.buttons.ok.text);
+                confirm: function (message, callback) {
+                    if (mobile.support.dialogs) {
+                        window.navigator.notification.confirm(message, callback, i18n.culture.dialogs.error, [i18n.culture.dialogs.buttons.ok.text, i18n.culture.dialogs.buttons.cancel.text]);
                     } else {
-                        window.alert(message);
+                        kendo.alertEx({
+                            type: 'info',
+                            title: i18n.culture.dialogs.confirm,
+                            message: message,
+                            buttonLayout: 'stretched',
+                            actions: [
+                                { action: 'ok', text: i18n.culture.dialogs.buttons.ok.text, primary: true, imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.ok.icon) },
+                                { action: 'cancel', text: i18n.culture.dialogs.buttons.cancel.text, imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.cancel.icon)}
+                            ]
+                        })
+                            .done(function (result) {
+                                if (result.action === 'ok') {
+                                    callback(1);
+                                } else {
+                                    callback(2);
+                                }
+                            });
                     }
                 },
                 error: function (message, callback) {
-                    if (mobile.support.alert) {
-                        window.navigator.notification.beep(1);
+                    if (mobile.support.dialogs) {
+                        // window.navigator.notification.beep(1);
                         window.navigator.notification.alert(message, callback, i18n.culture.dialogs.error, i18n.culture.dialogs.buttons.ok.text);
                     } else {
-                        window.alert(message);
+                        kendo.alertEx({
+                            type: 'error',
+                            title: i18n.culture.dialogs.error,
+                            message: message,
+                            buttonLayout: 'stretched',
+                            actions: [{
+                                action: 'ok',
+                                text: i18n.culture.dialogs.buttons.ok.text,
+                                primary: true,
+                                imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.ok.icon)
+                            }]
+                        }).done(callback);
+                    }
+                },
+                info: function (message, callback) {
+                    if (mobile.support.dialogs) {
+                        window.navigator.notification.alert(message, callback, i18n.culture.dialogs.info, i18n.culture.dialogs.buttons.ok.text);
+                    } else {
+                        kendo.alertEx({
+                            type: 'info',
+                            title: i18n.culture.dialogs.info,
+                            message: message,
+                            buttonLayout: 'stretched',
+                            actions: [{
+                                action: 'ok',
+                                text: i18n.culture.dialogs.buttons.ok.text,
+                                primary: true,
+                                imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.ok.icon)
+                            }]
+                        }).done(callback);
                     }
                 },
                 success: function (message, callback) {
-                    if (mobile.support.alert) {
+                    if (mobile.support.dialogs) {
                         window.navigator.notification.alert(message, callback, i18n.culture.dialogs.success, i18n.culture.dialogs.buttons.ok.text);
                     } else {
-                        window.alert(message);
+                        kendo.alertEx({
+                            type: 'success',
+                            title: i18n.culture.dialogs.success,
+                            message: message,
+                            buttonLayout: 'stretched',
+                            actions: [{
+                                action: 'ok',
+                                text: i18n.culture.dialogs.buttons.ok.text,
+                                primary: true,
+                                imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.ok.icon)
+                            }]
+                        }).done(callback);
                     }
                 },
                 warning: function (message, callback) {
-                    if (mobile.support.alert) {
+                    if (mobile.support.dialogs) {
                         window.navigator.notification.alert(message, callback, i18n.culture.dialogs.warning, i18n.culture.dialogs.buttons.ok.text);
                     } else {
-                        window.alert(message);
+                        kendo.alertEx({
+                            type: 'warning',
+                            title: i18n.culture.dialogs.warning,
+                            message: message,
+                            buttonLayout: 'stretched',
+                            actions: [{
+                                action: 'ok',
+                                text: i18n.culture.dialogs.buttons.ok.text,
+                                primary: true,
+                                imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.ok.icon)
+                            }]
+                        }).done(callback);
                     }
                 }
             };
@@ -2925,24 +2991,14 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onNavBarSubmitClick = function (e) {
-            var culture = i18n.culture.dialogs;
-
-
-            kendo.alertEx({
-                type: 'info',
-                title: culture.submitQuestion.title,
-                message: culture.submitQuestion.message,
-                buttonLayout: 'stretched',
-                actions: [
-                    { action: 'yes', text: culture.buttons.yes.text, primary: true, imageUrl: kendo.format(app.uris.cdn.icons, culture.buttons.yes.icon) },
-                    { action: 'no', text: culture.buttons.no.text, imageUrl: kendo.format(app.uris.cdn.icons, culture.buttons.no.icon) }
-                ]
-            })
-                .done(function (result) {
-                    if (result.action === 'yes') {
+            mobile.notification.confirm(
+                i18n.culture.notifications.confirmSubmit,
+                function (buttonIndex) {
+                    if (buttonIndex === 1) {
                         mobile._submit();
                     }
-                });
+                }
+            );
         };
 
         /**

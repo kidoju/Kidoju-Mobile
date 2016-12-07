@@ -68,26 +68,18 @@
                         text: 'Annuler',
                         icon: 'close'
                     },
-                    no: {
-                        text: 'Non',
-                        icon: 'close'
-                    },
                     ok: {
                         text: 'OK',
                         icon: 'ok'
-                    },
-                    yes: {
-                        text: 'Oui',
-                        icon: 'ok'
                     }
                 },
+                confirm: 'Confirmation',
                 error: 'Erreur',
                 info: 'Information',
                 success: 'Succès',
                 warning: 'Attention',
                 submitQuestion: {
-                    message: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
-                    title: 'Question'
+                    message: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?'
                 }
             },
             // Drawer
@@ -109,6 +101,7 @@
             // Notification messages
             notifications: {
                 activitiesQueryFailure: 'Il y a eu une erreur lors du chargement des activités.',
+                confirmSubmit: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
                 networkOffline: 'Vous n\'êtes pas connecté à Internet.',
                 oAuthTokenFailure: 'Le service d\'authentification a retourné une erreur.',
                 pinSaveFailure: 'Les pins à 4 chiffres ne correspondent pas.',
