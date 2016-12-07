@@ -887,6 +887,7 @@ if (typeof(require) === 'function') {
                             });
                         });
                 }
+                return dfd.promise();
             },
 
             /**
