@@ -248,6 +248,13 @@ if (typeof(require) === 'function') {
         };
 
         /**
+         * By default jQuery has no timeout (0), but let's time out at 30sec on mobile devices
+         */
+        $.ajaxSetup({
+            timeout: 30000 //Time in milliseconds
+        });
+
+        /**
          * Event handler triggered when calling a url with the com.kidoju.mobile:// scheme
          * @param url
          */
@@ -318,7 +325,6 @@ if (typeof(require) === 'function') {
             });
         }
         */
-
 
         /*******************************************************************************************
          * Helpers
@@ -811,16 +817,25 @@ if (typeof(require) === 'function') {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.match(RX_LANGUAGE, options.language, kendo.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
                 assert.match(RX_MONGODB_ID, options.id, kendo.format(assert.messages.match.default, 'options.id', RX_MONGODB_ID));
-                // TODO viewModel.summary.load(options)
-                return viewModel.summary.load(options.id)
-                    .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.summaryLoadFailure);
-                        logger.error({
-                            message: 'error loading summary',
-                            method: 'viewModel.loadSummary',
-                            data: { status: status, error: error, response: parseResponse(xhr) }
+                var dfd = $.Deferred();
+                if (window.navigator.connection.type === window.Connection.NONE) {
+                    app.notification.warn(i18n.culture.notifications.networkOffline);
+                    dfd.reject(undefined, 'offline', 'No network connection');
+                } else {
+                    // TODO viewModel.summary.load(options)
+                    return viewModel.summary.load(options.id)
+                        .done(dfd.resolve)
+                        .fail(function (xhr, status, error) {
+                            dfd.reject(xhr, status, error);
+                            app.notification.error(i18n.culture.notifications.summaryLoadFailure);
+                            logger.error({
+                                message: 'error loading summary',
+                                method: 'viewModel.loadSummary',
+                                data: {status: status, error: error, response: parseResponse(xhr)}
+                            });
                         });
-                    });
+                }
+                return dfd.promise();
             },
 
             /**
@@ -828,17 +843,26 @@ if (typeof(require) === 'function') {
              * @returns {*}
              */
             loadUser: function () {
-                // Set a new user since the existing user might be in the database and we do not want to change its properties
-                viewModel.set(VIEW_MODEL.USER.$, new models.MobileUser());
-                return viewModel.user.load()
-                    .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.userLoadFailure);
-                        logger.error({
-                            message: 'error loading user',
-                            method: 'viewModel.loadUser',
-                            data:  { status: status, error: error, response: parseResponse(xhr) }
+                var dfd = $.Deferred();
+                if (window.navigator.connection.type === window.Connection.NONE) {
+                    app.notification.warn(i18n.culture.notifications.networkOffline);
+                    dfd.reject(undefined, 'offline', 'No network connection');
+                } else {
+                    // Set a new user since the existing user might be in the database and we do not want to change its properties
+                    viewModel.set(VIEW_MODEL.USER.$, new models.MobileUser());
+                    viewModel.user.load()
+                        .done(dfd.resolve)
+                        .fail(function (xhr, status, error) {
+                            dfd.reject(xhr, status, error);
+                            app.notification.error(i18n.culture.notifications.userLoadFailure);
+                            logger.error({
+                                message: 'error loading user',
+                                method: 'viewModel.loadUser',
+                                data: {status: status, error: error, response: parseResponse(xhr)}
+                            });
                         });
-                    });
+                }
+                return dfd.promise();
             },
 
             /**
@@ -846,15 +870,23 @@ if (typeof(require) === 'function') {
              * @returns {*}
              */
             loadUsers: function () {
-                return viewModel.users.query({ sort: { field: 'lastUse', dir: 'desc' } })
-                    .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.usersQueryFailure);
-                        logger.error({
-                            message: 'error loading users',
-                            method: 'viewModel.loadUsers',
-                            data:  { status: status, error: error, response: parseResponse(xhr) }
+                var dfd = $.Deferred();
+                if (window.navigator.connection.type === window.Connection.NONE) {
+                    app.notification.warn(i18n.culture.notifications.networkOffline);
+                    dfd.reject(undefined, 'offline', 'No network connection');
+                } else {
+                    viewModel.users.query({sort: {field: 'lastUse', dir: 'desc'}})
+                        .done(dfd.resolve)
+                        .fail(function (xhr, status, error) {
+                            dfd.reject(xhr, status, error);
+                            app.notification.error(i18n.culture.notifications.usersQueryFailure);
+                            logger.error({
+                                message: 'error loading users',
+                                method: 'viewModel.loadUsers',
+                                data: {status: status, error: error, response: parseResponse(xhr)}
+                            });
                         });
-                    });
+                }
             },
 
             /**
@@ -875,34 +907,38 @@ if (typeof(require) === 'function') {
                     });
                 }
 
-                var dfd = $.Deferred();
-
                 // Load version and pages
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.match(RX_LANGUAGE, options.language, assert.messages.match.default, 'options.language', RX_LANGUAGE);
                 assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
                 assert.match(RX_MONGODB_ID, options.versionId, assert.messages.match.default, 'options.versionId', RX_MONGODB_ID);
 
-                // TODO viewModel.version.load(options)
-                viewModel.version.load(options.summaryId, options.versionId)
-                    .done(function () {
-                        // Load stream
-                        viewModel.version.stream.load()
-                            .done(function () {
-                                var promises = [];
-                                var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
-                                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
-                                $.each(pageCollectionDataSource.data(), function (idx, page) {
-                                    assert.instanceof(kidoju.data.Page, page, kendo.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
-                                    promises.push(page.load());
-                                });
-                                $.when(promises)
-                                    .done(dfd.resolve)
-                                    .fail(versionLoadFailure);
-                            })
-                            .fail(versionLoadFailure);
-                    })
-                    .fail(versionLoadFailure);
+                var dfd = $.Deferred();
+                if (window.navigator.connection.type === window.Connection.NONE) {
+                    app.notification.warn(i18n.culture.notifications.networkOffline);
+                    dfd.reject(undefined, 'offline', 'No network connection');
+                } else {
+                    // TODO viewModel.version.load(options)
+                    viewModel.version.load(options.summaryId, options.versionId)
+                        .done(function () {
+                            // Load stream
+                            viewModel.version.stream.load()
+                                .done(function () {
+                                    var promises = [];
+                                    var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
+                                    assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                                    $.each(pageCollectionDataSource.data(), function (idx, page) {
+                                        assert.instanceof(kidoju.data.Page, page, kendo.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
+                                        promises.push(page.load());
+                                    });
+                                    $.when(promises)
+                                        .done(dfd.resolve)
+                                        .fail(versionLoadFailure);
+                                })
+                                .fail(versionLoadFailure);
+                        })
+                        .fail(versionLoadFailure);
+                }
 
                 return dfd.promise();
             },
@@ -916,15 +952,30 @@ if (typeof(require) === 'function') {
                 assert.match(RX_LANGUAGE, options.language, assert.messages.match.default, 'options.language', RX_LANGUAGE);
                 assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
 
-                return viewModel.versions.load(options)
-                    .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.versionsLoadFailure);
-                        logger.error({
-                            message: 'error loading versions',
-                            method: 'viewModel.loadLazyVersions',
-                            data: { language: options.language, summaryId: options.summaryId, status: status, error: error, response: parseResponse(xhr) }
+                var dfd = $.Deferred();
+                if (window.navigator.connection.type === window.Connection.NONE) {
+                    app.notification.warn(i18n.culture.notifications.networkOffline);
+                    dfd.reject(undefined, 'offline', 'No network connection');
+                } else {
+                    viewModel.versions.load(options)
+                        .done(dfd.resolve)
+                        .fail(function (xhr, status, error) {
+                            dfd.reject(xhr, status, error);
+                            app.notification.error(i18n.culture.notifications.versionsLoadFailure);
+                            logger.error({
+                                message: 'error loading versions',
+                                method: 'viewModel.loadLazyVersions',
+                                data: {
+                                    language: options.language,
+                                    summaryId: options.summaryId,
+                                    status: status,
+                                    error: error,
+                                    response: parseResponse(xhr)
+                                }
+                            });
                         });
-                    });
+                }
+                return dfd.promise();
             },
 
             /**
