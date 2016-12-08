@@ -13,14 +13,16 @@
     * Kendo UI
     **********************************************************/
     .km-pane, .km-shim {
+        // This is because the root font is overridden with Sans Serif
         font: inherit;
     }
     .km-button.km-primary {
+        // This is for primary buttons which are missing
         background-color: @selected-background;
         color: @selected-text-color;
     }
     .k-animation-container {
-        // This is for dropdowns to match actionsheets
+        // This is for dropdown popups to match actionsheet popups
         .k-list-container {
             .k-list-scroller {
                 .k-list {
@@ -33,6 +35,7 @@
      * Navbar
      **********************************************************/
     .km-navbar {
+        // Replaces the default grey with a beautiful green
         background-color: @selected-background;
         color: @selected-text-color;
         // Navbar view title
@@ -59,10 +62,10 @@
         }
     }
     /**********************************************************
-     * Listview
+     * Listview forms
      **********************************************************/
     .km-listview {
-        // Align settings dropdowns with span.k-input
+        // Align dropdowns properly
         span.k-dropdown {
             font-size: 1em;
             margin-top: -1.8em;
