@@ -2929,7 +2929,7 @@ if (typeof(require) === 'function') {
             var confirmValue = pinElements.last().val();
 
             if (RX_PIN.test(pinValue) && confirmValue === pinValue) {
-                var language = i18n.language();
+                var language = i18n.locale();
                 assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
 
                 // Does the user already exist in database?
