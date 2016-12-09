@@ -3159,7 +3159,7 @@ if (typeof(require) === 'function') {
             if (mobile.support.textToSpeech) {
                 // For iOS and Android via TTS plugin
                 // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
-                mobile.textToSpeech.speak({ text: text, locale: language === 'fr' ? 'fr-FR' : 'en-US', rate: 1.6 }, dfd.resolve, dfd.reject);
+                mobile.textToSpeech.speak({ text: text, locale: language === 'fr' ? 'fr-FR' : 'en-US', rate: 1.5 }, dfd.resolve, dfd.reject);
             } else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var utterance = new window.SpeechSynthesisUtterance(text);
