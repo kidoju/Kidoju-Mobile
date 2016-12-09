@@ -11,7 +11,7 @@
     <!-- The following is a permissive CSP that works -->
     <!--meta http-equiv="Content-Security-Policy" content="default-src * blob: cdvfile: data: file: filesystem: gap: ws:; img-src * 'self' cdvfile: data: file: filesystem:; style-src 'self' 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval' blob: cdvfile: file: filesystem:;"-->
     <!-- The following is a restrictive CSP that works - https://github.com/kidoju/Kidoju-Mobile/issues/36 -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; child-src blob:; connect-src filesystem: https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' data: filesystem: https:; media-src filesystem: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com; child-src blob:; connect-src file: filesystem: https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' data: file: filesystem: https:; media-src file: filesystem: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' gap:; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
     <!--script src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
     <script src="./cordova.js"></script>
