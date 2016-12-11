@@ -15,14 +15,19 @@ html, body, #phone {
             .km-list {
                 li {
                     min-height: 3.8em;
-                    .form-value {
-                        // This is to display readonly values in forms instead of disabled="disabled" on input fields
-                        margin-left: 50%;
-                        margin-top: -1.75em;
-                        width: 45%;
-                        min-width: 6em;
-                        padding: .4em;
-                        font-size: 1em;
+                    label {
+                        span:first-child {
+                            font-weight: bold;
+                        }
+                        .form-readonly {
+                            // This is to display readonly values in forms
+                            margin-left: 50%;
+                            margin-top: -1.75em;
+                            width: 45%;
+                            min-width: 6em;
+                            padding: .4em;
+                            font-size: 1em;
+                        }
                     }
                 }
             }
@@ -268,6 +273,7 @@ html, body, #phone {
      **********************************************************/
     #phone-user {
         .picture {
+            border-radius: 50%;
             width: 10em;
             height: 10em;
             margin: 1em auto;
