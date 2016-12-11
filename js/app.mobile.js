@@ -1839,8 +1839,8 @@ if (typeof(require) === 'function') {
                 markdownContainer.outerWidth((height > width) ? width : width - stageContainer.outerWidth());
                 markdownScroller.destroy();
                 markdownScrollerElement.outerHeight(markdownContainer.height() - markdownHeading.outerHeight() - parseInt(markdownContainer.css('padding-bottom'), 10));
-                markdownScrollerElement.kendoMobileScroller();
-                markdownScrollerElement.reset();
+                var markdownScrollerWidget = markdownScrollerElement.kendoMobileScroller().data('kendoMobileScroller');
+                markdownScrollerWidget.reset();
             }
         };
 
