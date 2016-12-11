@@ -197,6 +197,7 @@ if (typeof(require) === 'function') {
             },
             SUMMARY: {
                 $: 'summary',
+                DESCRIPTION: 'summary.description',
                 ID: 'summary.id',
                 LANGUAGE: 'summary.language',
                 TITLE: 'summary.title'
@@ -2839,23 +2840,36 @@ if (typeof(require) === 'function') {
          * @see https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
          */
         mobile.onSummaryActionShare = function () {
-            // TODO: finalize mobile sharing
             if (mobile.support.socialsharing) {
+                var culture = i18n.culture.summary.socialSharing;
                 mobile.socialsharing.shareWithOptions(
                     {
-                        message: 'share this', // not supported on some apps (Facebook, Instagram)
-                        subject: 'the subject', // fi. for email
-                        files: ['', ''], // an array of filenames either locally or remotely
-                        url: 'https://www.website.com/foo/#bar?a=b',
-                        chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
+                        message: kendo.format(culture.message, // not supported on some apps (Facebook, Instagram)
+                            viewModel.get(VIEW_MODEL.SUMMARY.TITLE),
+                            viewModel.summary.summaryUri$(),
+                            viewModel.get(VIEW_MODEL.SUMMARY.DESCRIPTION)),
+                        subject: kendo.format(culture.subject, // for email
+                            viewModel.get(VIEW_MODEL.SUMMARY.TITLE)),
+                        // files: ['', ''], // an array of filenames either locally or remotely
+                        url: viewModel.summary.summaryUri$(),
+                        chooserTitle: culture.chooserTitle // Android only, you can override the default share sheet title
                     },
                     function (result) {
-                        mobile.notification.info('Share completed? ' + result.completed + '/' + result.app);
+                        app.notification.success(i18n.culture.notifications.sharingSuccess);
+                        // mobile.notification.info('Share completed? ' + result.completed + '/' + result.app);
                         // On Android apps mostly return result.completed=false even while it's true
                         // On Android result.app (the app shared to) is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
+                        // TODO: track sharing on Google
                     },
                     function (msg) {
-                        mobile.notification.error('Sharing failed: ' + msg);
+                        // mobile.notification.error('Sharing failed: ' + msg);
+                        app.notification.error(i18n.culture.notifications.sharingFailure);
+                        logger.error({
+                            message: 'Error sharing',
+                            method: 'mobile.onSummaryActionShare',
+                            error: new Error(msg)
+                        })
+
                     }
                 );
             }

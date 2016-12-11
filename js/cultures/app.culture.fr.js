@@ -116,6 +116,8 @@
                 scoreSaveFailure: 'Il y a eu une erreur d\'enregistremenet de votre score.',
                 scoreSaveSuccess: 'Votre score a été enregistré avec succès.',
                 settingsLoadFailure: 'Il y a eu une erreur lors du chargement des paramètres.',
+                sharingFailure: 'Il y a eu une erreur lors du partage du quiz.',
+                sharingSuccess: 'Ce quiz a été partagé avec succès.',
                 signinUrlFailure: 'Il y a eu une erreur d\'obtention d\'url de connexion pour le service d\'authentification.',
                 summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
                 summaryLoadFailure: 'Il y a eu une erreur lors du chargement des données du résumé descriptif.',
@@ -183,6 +185,12 @@
                     cancel: 'Annuler',
                     play: 'Jouer',
                     share: 'Partager'
+                },
+                // Social Sharing
+                socialSharing: {
+                    chooserTitle: 'Sélectionnez une application',
+                    message: 'Evaluez vos connaissances sur Kidoju.\n\nTitre:\t\t{0}\nLien:\t\t{1}\nDescription:\t{2}',
+                    subject: 'Que connaissez-vous à propos de \u201C{0}\u201D?'
                 }
             },
             // User view

@@ -114,6 +114,8 @@
                 scoreSaveFailure: 'There was an error saving your score.',
                 scoreSaveSuccess: 'Score saved successfully.',
                 settingsLoadFailure: 'There was an error loading settings.',
+                sharingFailure: 'There was an error sharing this quiz.',
+                sharingSuccess: 'This quiz has been successfully shared.',
                 signinUrlFailure: 'There was an error obtaining a sign-in url.',
                 summariesQueryFailure: 'There was an error querying our remote servers.',
                 summaryLoadFailure: 'There was an error loading summary data.',
@@ -180,6 +182,12 @@
                     cancel: 'Cancel',
                     play: 'Play',
                     share: 'Share'
+                },
+                // Social Sharing
+                socialSharing: {
+                    chooserTitle: 'Select an application',
+                    message: 'Assess your knowledge on Kidoju.\n\nTitle:\t\t{0}\nLink:\t\t{1}\nDescription:\t{2}',
+                    subject: 'How much do you know about \u201C{0}\u201D?'
                 }
             },
             // User view
