@@ -1806,7 +1806,21 @@ if (typeof(require) === 'function') {
                 assert.equal(WIDTH, 1024, kendo.format(assert.messages.equal.default, 'WIDTH', '1024'));
                 var height = contentElement.height();  // The screen height minus layout header and footer
                 var width = contentElement.width();    // The screen width minus layout header and footer
-                var scale = (height > width) ? width / WIDTH : height / HEIGHT;
+                var scale;
+                var infoHeight = 0;
+                var infoWidth = 0;
+                if (width > height) { // landsacpe mode
+                    // Note: we want the info panel to be between 25% and 33% of the screen real estate and at least 200px wide
+                    infoWidth = Math.min(0.33 * width, Math.max(200, 0.25 * width, width - height * WIDTH  / HEIGHT));
+                    // So we need to recalculate the stage scale
+                    scale = Math.min((width - infoWidth) / WIDTH, height / HEIGHT);
+                } else { // portrait mode
+                    // Note: we want the info panel to be between 25% and 33% of the screen real estate and at least 100px high
+                    // infoHeight = Math.min(0.33 * height, Math.max(180, 0.25 * height, height - width * HEIGHT / WIDTH));
+                    infoHeight = Math.max(100, 0.25 * height, height - width * HEIGHT / WIDTH);
+                    // So we need to recalculate the stage scale
+                    scale = Math.min((height - infoHeight) / HEIGHT, width / WIDTH);
+                }
                 // Resize the stage
                 stageWidget.scale(scale);
                 var stageWrapper = stageElement.parent();
@@ -1826,6 +1840,7 @@ if (typeof(require) === 'function') {
                 markdownScroller.destroy();
                 markdownScrollerElement.outerHeight(markdownContainer.height() - markdownHeading.outerHeight() - parseInt(markdownContainer.css('padding-bottom'), 10));
                 markdownScrollerElement.kendoMobileScroller();
+                markdownScrollerElement.reset();
             }
         };
 
