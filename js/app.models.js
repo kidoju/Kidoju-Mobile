@@ -1675,13 +1675,13 @@
                 return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
             },
             authorUri$: function () {
-                return kendo.format(uris.webapp.user, i18n.locale(), this.get('userId'));
+                return kendo.format(uris.webapp.user, this.get('language'), this.get('userId'));
             },
             icon$: function () {
                 return kendo.format(uris.cdn.icons, this.get('icon'));
             },
             summaryUri$: function () {
-                return kendo.format(uris.webapp.summary, i18n.locale(), this.get('id'));
+                return kendo.format(uris.webapp.summary, this.get('language'), this.get('id'));
             },
             tags$: function () {
                 var ret = [];
@@ -1949,6 +1949,9 @@
             },
             icon$: function () {
                 return kendo.format(uris.cdn.icons, this.get('icon'));
+            },
+            summaryUri$: function () {
+                return kendo.format(uris.webapp.summary, this.get('language'), this.get('id'));
             },
             tags$: function () {
                 return this.get('tags').join(', ');
