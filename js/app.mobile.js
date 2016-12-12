@@ -1748,6 +1748,7 @@ if (typeof(require) === 'function') {
             var summaryActionSheetElement = $(DEVICE_SELECTOR + VIEW.SUMMARY + '-actionsheet');
             summaryActionSheetElement.find('li.km-actionsheet-play > a').text(culture.actionSheet.play);
             summaryActionSheetElement.find('li.km-actionsheet-share > a').text(culture.actionSheet.share);
+            summaryActionSheetElement.find('li.km-actionsheet-feedback > a').text(culture.actionSheet.feedback);
             summaryActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.actionSheet.cancel);
         };
 
@@ -2873,6 +2874,14 @@ if (typeof(require) === 'function') {
                     }
                 );
             }
+        };
+
+        /**
+         * Event handler triggered when clicking the feedback option in the action sheet displayed from the GO button of summaries
+         */
+        mobile.onSummaryActionFeedback = function () {
+            // targeting _system should open the web browser instead of the InApp browser (target = _blank)
+            window.open(kendo.format('https://www.kidoju.com/support/{0}/contact?about={1}', i18n.locale(), encodeURIComponent(viewModel.summary.summaryUri$())), '_system');
         };
 
         /**

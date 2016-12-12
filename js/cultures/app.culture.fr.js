@@ -183,6 +183,7 @@
                 // ActionSheet
                 actionSheet: {
                     cancel: 'Annuler',
+                    feedback: 'Signaler',
                     play: 'Jouer',
                     share: 'Partager'
                 },

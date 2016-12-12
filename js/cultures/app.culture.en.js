@@ -180,6 +180,7 @@
                 // ActionSheet
                 actionSheet: {
                     cancel: 'Cancel',
+                    feedback: 'Feedback',
                     play: 'Play',
                     share: 'Share'
                 },
