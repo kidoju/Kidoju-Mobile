@@ -148,6 +148,9 @@
     <engine name="android" spec="~5.2.2" />
     <engine name="browser" spec="~4.1.0" />
     <engine name="ios" spec="~4.2.1" />
+    <gap:config-file parent="ITSAppUsesNonExemptEncryption" platform="ios">
+        <false/>
+    </gap:config-file>
     <gap:config-file parent="UIStatusBarHidden" platform="ios">
         <true />
     </gap:config-file>
