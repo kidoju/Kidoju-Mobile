@@ -28,6 +28,7 @@
     <plugin name="cordova-plugin-dialogs" spec="~1.3.0" />
     <plugin name="cordova-plugin-file" spec="~4.3.0" />
     <plugin name="cordova-plugin-file-transfer" spec="~1.6.0" />
+    <plugin name="cordova-plugin-globalization" spec="~1.0.4" />
     <plugin name="cordova-plugin-google-analytics" spec="~1.6.0" />
     <plugin name="cordova-plugin-inappbrowser" spec="~1.5.0" />
     <plugin name="cordova-plugin-network-information" spec="~1.3.0" />
@@ -148,16 +149,16 @@
     <engine name="android" spec="~5.2.2" />
     <engine name="browser" spec="~4.1.0" />
     <engine name="ios" spec="~4.2.1" />
-    <config-file platform="android" parent="/manifest">
+    <config-file parent="/manifest" platform="android">
         <application android:hardwareAccelerated="false" />
     </config-file>
-    <config-file platform="ios" parent="ITSAppUsesNonExemptEncryption" mode="add">
-        <false/>
+    <config-file mode="add" parent="ITSAppUsesNonExemptEncryption" platform="ios">
+        <false />
     </config-file>
-    <config-file platform="ios" parent="UIStatusBarHidden">
+    <config-file parent="UIStatusBarHidden" platform="ios">
         <true />
     </config-file>
-    <config-file platform="ios" parent="UIViewControllerBasedStatusBarAppearance">
+    <config-file parent="UIViewControllerBasedStatusBarAppearance" platform="ios">
         <false />
     </config-file>
 </widget>
