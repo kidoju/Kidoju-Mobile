@@ -161,7 +161,7 @@ if (typeof(require) === 'function') {
         };
         var DEFAULT = {
             LANGUAGE: 'en',
-            THEME: 'nova'
+            THEME: 'flat' // The default theme is actually defined in app.theme.js
         };
         var DISPLAY = {
             INLINE: 'inline-block',
@@ -791,12 +791,42 @@ if (typeof(require) === 'function') {
              * Load settings from local storage
              */
             loadSettings: function () {
-                // Language
-                var language = localStorage.getItem(STORAGE.LANGUAGE);
-                this.set(VIEW_MODEL.SETTINGS.LANGUAGE, language || DEFAULT.LANGUAGE);
+                var that = this;
+                var dfd = $.Deferred();
+
                 // Theme - We need the same localStorage location as in Kidoju.Webapp to be able to use app.theme.js to load themes
                 var theme = localStorage.getItem(STORAGE.THEME);
-                this.set(VIEW_MODEL.SETTINGS.THEME, theme || DEFAULT.THEME);
+                that.set(VIEW_MODEL.SETTINGS.THEME, theme);
+
+                // Language
+                var language = localStorage.getItem(STORAGE.LANGUAGE);
+                if (RX_LANGUAGE.test(language)) {
+                    // Language is already set
+                    that.set(VIEW_MODEL.SETTINGS.LANGUAGE, language);
+                    dfd.resolve();
+                } else if (window.cordova && window.navigator && window.navigator.globalization) {
+                    window.navigator.globalization.getLocaleName(
+                        function(locale) {
+                            // Device language found
+                            var language = locale.value.substr(0, 2);
+                            if (app.locales.indexOf(language) === -1) {
+                                language = DEFAULT.LANGUAGE
+                            }
+                            that.set(VIEW_MODEL.SETTINGS.LANGUAGE, language);
+                            dfd.resolve();
+                        },
+                        function () {
+                            // In case of error, use default language
+                            that.set(VIEW_MODEL.SETTINGS.LANGUAGE, DEFAULT.LANGUAGE);
+                            dfd.resolve();
+                        }
+                    );
+                } else {
+                    // Without cordova or cordova-plugin-globalization, use default language
+                    that.set(VIEW_MODEL.SETTINGS.LANGUAGE, DEFAULT.LANGUAGE);
+                    dfd.resolve();
+                }
+                return dfd.promise();
             },
 
             /**
@@ -1874,25 +1904,21 @@ if (typeof(require) === 'function') {
             setShortcuts();
             // Set google analytics
             setAnalytics();
-            // Initialize notifications for loadSettings and loadUsers
-            mobile._initNotification();
-            // Load settings including locale and theme
-            viewModel.loadSettings();
-            // Initialize pageSize for virtual scrolling
-            viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // initialize secure storage
             // mobile.secureStorage.init('kidoju');
-            // initialize the user interface
-            $(document).one(LOADED, mobile.oni18nLoaded);
-            // Wire the resize event handler for changes of device orientation
-            $(window).resize(mobile.onResize);
-            // Release the execution of jQuery's ready event (hold in index.html)
-            // @see https://api.jquery.com/jquery.holdready/
-            // Otherwise the ready event handler in app.i18n is not called
-            // (in phonegap developer app, in packaged apps, but not in a browser served by phonegap)
-            // and oni18nLoaded does not execute (strange but true)
-            // ATTENTION: https://github.com/jquery/jquery/issues/3288
-            $.holdReady(false);
+            // Load settings including locale and theme
+            viewModel.loadSettings()
+                .always(function () {
+                    // initialize the user interface
+                    $(document).one(LOADED, mobile.oni18nLoaded);
+                    // Release the execution of jQuery's ready event (hold in index.html)
+                    // @see https://api.jquery.com/jquery.holdready/
+                    // Otherwise the ready event handler in app.i18n is not called
+                    // (in phonegap developer app, in packaged apps, but not in a browser served by phonegap)
+                    // and oni18nLoaded does not execute (strange but true)
+                    // ATTENTION: https://github.com/jquery/jquery/issues/3288
+                    $.holdReady(false);
+                });
         };
 
         /**
@@ -1902,6 +1928,12 @@ if (typeof(require) === 'function') {
         mobile.oni18nLoaded = function () {
             assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'i18n.culture'));
             var theme = viewModel.getTheme();
+            // Initialize notifications
+            mobile._initNotification();
+            // Initialize pageSize for virtual scrolling
+            viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
+            // Wire the resize event handler for changes of device orientation
+            $(window).resize(mobile.onResize);
             // Load viewModel with languages and themes
             viewModel.set('languages', i18n.culture.viewModel.languages);
             viewModel.set('themes', i18n.culture.viewModel.themes);
