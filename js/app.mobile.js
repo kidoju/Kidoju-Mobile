@@ -1675,23 +1675,6 @@ if (typeof(require) === 'function') {
         };
 
         /**
-         * Localize the sync view
-         * @private
-         */
-        mobile._localizeSyncView = function () {
-            var culture = i18n.culture.sync;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.SYNC);
-            var viewWidget = viewElement.data('kendoMobileView');
-            // Note: the view might not have been initialized yet
-            if (viewWidget instanceof kendo.mobile.ui.View) {
-                mobile._setNavBar(viewWidget);
-                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
-                // Scroll to the top
-                viewWidget.scroller.reset();
-            }
-        };
-
-        /**
          * Localize the score view
          * @private
          */
@@ -1702,7 +1685,7 @@ if (typeof(require) === 'function') {
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
                 mobile._setNavBar(viewWidget);
-                mobile._setNavBarTitle(viewWidget, kendo.format(culture.viewTitle, viewModel.get(VIEW_MODEL.CURRENT.SCORE) / 100));
+                mobile._setNavBarTitle(viewWidget, kendo.format(culture.viewTitle, viewModel.get((VIEW_MODEL.CURRENT.SCORE) || 0) / 100));
                 // Stretched views do not have scrollers
                 // viewWidget.scroller.reset();
             }
@@ -1780,6 +1763,23 @@ if (typeof(require) === 'function') {
             summaryActionSheetElement.find('li.km-actionsheet-share > a').text(culture.actionSheet.share);
             summaryActionSheetElement.find('li.km-actionsheet-feedback > a').text(culture.actionSheet.feedback);
             summaryActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.actionSheet.cancel);
+        };
+
+        /**
+         * Localize the sync view
+         * @private
+         */
+        mobile._localizeSyncView = function () {
+            var culture = i18n.culture.sync;
+            var viewElement = $(DEVICE_SELECTOR + VIEW.SYNC);
+            var viewWidget = viewElement.data('kendoMobileView');
+            // Note: the view might not have been initialized yet
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBar(viewWidget);
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
+                // Scroll to the top
+                viewWidget.scroller.reset();
+            }
         };
 
         /**
@@ -2512,6 +2512,7 @@ if (typeof(require) === 'function') {
                         viewModel.set(VIEW_MODEL.CURRENT.$, activity.toJSON());
                         viewModel.calculate()
                             .done(function () {
+                                mobile._setNavBarTitle(e.view, kendo.format(i18n.culture.score.viewTitle, viewModel.get(VIEW_MODEL.CURRENT.SCORE) / 100));
                                 mobile._initScoreGrid(e.view);
                             });
                     })
