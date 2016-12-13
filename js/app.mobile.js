@@ -1324,12 +1324,16 @@ if (typeof(require) === 'function') {
                     var view = mobile.application.view();
                     if (view.id === DEVICE_SELECTOR + VIEW.CORRECTION) {
                         mobile._localizeCorrectionView();
-                        if (viewModel.isLastPage$()) {
+                        if (viewModel.isLastPage$() && !view.element.attr(kendo.attr('showScoreInfo'))) {
+                            // Let's remember that we have already displayed this notification for this test
+                            view.element.attr(kendo.attr('showScoreInfo', 'true'));
                             app.notification.info(i18n.culture.notifications.showScoreInfo);
                         }
                     } else if (view.id === DEVICE_SELECTOR + VIEW.PLAYER) {
                         mobile._localizePlayerView();
-                        if (viewModel.isLastPage$()) {
+                        if (viewModel.isLastPage$() && !view.element.attr(kendo.attr('clickSubmitInfo'))) {
+                            // Let's remember that we have already displayed this notification for this test
+                            view.element.attr(kendo.attr('clickSubmitInfo', 'true'));
                             app.notification.info(i18n.culture.notifications.clickSubmitInfo);
                         }
                     }
@@ -2247,6 +2251,8 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            // Let's remove the showScoreInfo attr (see viewModel.bind(CHANGE))
+            e.view.element.removeAttr(kendo.attr('showScoreInfo'));
             // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE)
             // var summaryId = e.view.params.summaryId;
             // var versionId = e.view.params.versionId;
@@ -2377,6 +2383,8 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            // Let's remove the clickSubmitInfo attr (see viewModel.bind(CHANGE))
+            e.view.element.removeAttr(kendo.attr('clickSubmitInfo'));
             var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE)
             var summaryId = e.view.params.summaryId;
             var versionId = e.view.params.versionId;
