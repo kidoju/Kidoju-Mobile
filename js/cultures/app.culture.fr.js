@@ -101,7 +101,9 @@
             // Notification messages
             notifications: {
                 activitiesQueryFailure: 'Il y a eu une erreur lors du chargement des activités.',
+                clickSubmitInfo: 'Pressez <i class="kf kf-submit"></i> pour calculer votre score.',
                 confirmSubmit: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
+                mavigateInfo: 'Pressez <i class="kf kf-previous"></i> et <i class="kf kf-next"></i> pour changer de page.',
                 networkOffline: 'Vous n\'êtes pas connecté à Internet.',
                 oAuthTokenFailure: 'Le service d\'authentification a retourné une erreur.',
                 pinSaveFailure: 'Les pins à 4 chiffres ne correspondent pas.',
@@ -118,6 +120,7 @@
                 settingsLoadFailure: 'Il y a eu une erreur lors du chargement des paramètres.',
                 sharingFailure: 'Il y a eu une erreur lors du partage du quiz.',
                 sharingSuccess: 'Ce quiz a été partagé avec succès.',
+                showScoreInfo: 'Pressez <i class="kf kf-score"></i> pour retourner à votre score.',
                 signinUrlFailure: 'Il y a eu une erreur d\'obtention d\'url de connexion pour le service d\'authentification.',
                 summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
                 summaryLoadFailure: 'Il y a eu une erreur lors du chargement des données du résumé descriptif.',

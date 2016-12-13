@@ -1321,8 +1321,18 @@ if (typeof(require) === 'function') {
                     break;
                 case VIEW_MODEL.SELECTED_PAGE:
                     // Reset NavBar buttons and title
-                    mobile._localizeCorrectionView();
-                    mobile._localizePlayerView();
+                    var view = mobile.application.view();
+                    if (view.id === DEVICE_SELECTOR + VIEW.CORRECTION) {
+                        mobile._localizeCorrectionView();
+                        if (viewModel.isLastPage$()) {
+                            app.notification.info(i18n.culture.notifications.showScoreInfo);
+                        }
+                    } else if (view.id === DEVICE_SELECTOR + VIEW.PLAYER) {
+                        mobile._localizePlayerView();
+                        if (viewModel.isLastPage$()) {
+                            app.notification.info(i18n.culture.notifications.clickSubmitInfo);
+                        }
+                    }
                     break;
                 case VIEW_MODEL.USER.$:
                     viewModel.reset();
@@ -2386,6 +2396,7 @@ if (typeof(require) === 'function') {
                     mobile._localizePlayerView();
                     mobile._resizeStage(e.view);
                     mobile.application.hideLoading();
+                    app.notification.info(i18n.culture.notifications.mavigateInfo);
                 });
         };
 

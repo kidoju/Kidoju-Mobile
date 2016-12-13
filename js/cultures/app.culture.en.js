@@ -99,7 +99,9 @@
             // Notification messages
             notifications: {
                 activitiesQueryFailure: 'There was an error loading activities.',
-                confirmSubmit: 'Do you really want to submit to get your score and the correction?',
+                clickSubmitInfo: 'Press <i class="kf kf-submit"></i> to calculate your score.',
+                confirmSubmit: 'Do you really want to submit to calculate your score?',
+                mavigateInfo: 'Press <i class="kf kf-previous"></i> and <i class="kf kf-next"></i> to scroll pages.',
                 networkOffline: 'You are disconnected from the Internet',
                 oAuthTokenFailure: 'The authentication service has returned an error.',
                 pinSaveFailure: 'The 4 digit pins do not match.',
@@ -116,6 +118,7 @@
                 settingsLoadFailure: 'There was an error loading settings.',
                 sharingFailure: 'There was an error sharing this quiz.',
                 sharingSuccess: 'This quiz has been successfully shared.',
+                showScoreInfo: 'Press <i class="kf kf-score"></i> to go back to your score.',
                 signinUrlFailure: 'There was an error obtaining a sign-in url.',
                 summariesQueryFailure: 'There was an error querying our remote servers.',
                 summaryLoadFailure: 'There was an error loading summary data.',
