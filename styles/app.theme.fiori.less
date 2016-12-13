@@ -7,8 +7,36 @@
 @import "./app.template.less";
 
 // Style fixes
-.km-fiori {
-
+.k-fiori, .km-fiori {
+    /**********************************************************
+    * Font
+    **********************************************************/
+    font: normal 1em "HelveticaNeue Light", "Roboto Light", "Slate Light", "Segoe WP", NokiaPureTextLight, sans-serif;
+    /**********************************************************
+    * Kendo UI
+    **********************************************************/
+    .km-pane, .km-shim {
+        // This is because the root font is overridden with Sans Serif
+        font: inherit;
+    }
+    .km-button.km-primary {
+        // This is for primary buttons which are missing
+        background-color: @selected-background;
+        color: @selected-text-color;
+    }
+    .k-notification.k-notification-info {
+        border-color: @fiori-button-border;
+    }
+    .k-animation-container {
+        // This is for dropdown popups to match actionsheet popups
+        .k-list-container {
+            .k-list-scroller {
+                .k-list {
+                    font-size: 1.4em;
+                }
+            }
+        }
+    }
     /**********************************************************
      * Navbar
      **********************************************************/
@@ -31,6 +59,11 @@
         // Drawer navbar colors
         .km-navbar {
             background-color: @fiori-inverse-background;
+            // Logo
+            #logo > g:first-child > path {
+                fill: #fff;
+                stroke: #fff;
+            }
         }
         // Drawer menu colors
         .km-content, .km-list > li {
@@ -47,13 +80,20 @@
      * Listview
      **********************************************************/
     .km-listview {
-        // Align settings dropdowns with span.k-input
-        span.k-dropdown {
-            margin-top: -.1em;
-            span.k-dropdown-wrap {
-                padding: .4em;
-                span.k-input {
-                    text-indent: 0;
+        label {
+            // Readonly values
+            .form-readonly {
+                margin-top: -2.2em;
+            }
+            // Align settings dropdowns with span.k-input
+            span.k-dropdown {
+                font-size: 1em;
+                margin-top: 0;
+                span.k-dropdown-wrap {
+                    font-size: inherit;
+                    span.k-input {
+                        text-indent: 0.2em;
+                    }
                 }
             }
         }

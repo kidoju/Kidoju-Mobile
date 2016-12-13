@@ -61,6 +61,11 @@
         // Drawer navbar colors
         .km-navbar {
             background-color: @accent;
+            // Logo
+            #logo > g:first-child > path {
+                fill: #fff;
+                stroke: #fff;
+            }
         }
         // Drawer menu colors
         .km-content, .km-list > li {
@@ -76,17 +81,19 @@
         li, li:first-child, li:last-child {
             border-width: 0 0 1px;
         }
-        // Remove underline of input fields to match dropdowns
-        input[type=text]:not(.k-input) {
-            border-width: 0;
-        }
-        // Align settings dropdowns with span.k-input
-        span.k-dropdown {
-            margin-top: -1.6em;
-            span.k-dropdown-wrap {
-                padding: .4em;
-                span.k-input {
-                    text-indent: 0;
+        label {
+            // Remove underline of input fields to match dropdowns
+            input[type=text]:not(.k-input) {
+                border-width: 0;
+            }
+            // Align settings dropdowns with span.k-input
+            span.k-dropdown {
+                margin-top: -1.6em;
+                span.k-dropdown-wrap {
+                    padding: .4em;
+                    span.k-input {
+                        text-indent: 0;
+                    }
                 }
             }
         }

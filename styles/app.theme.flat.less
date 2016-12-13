@@ -8,6 +8,9 @@
 
 // Style fixes
 .k-flat, .km-flat {
+    /**********************************************************
+    * Font
+    **********************************************************/
     font: normal 1em "HelveticaNeue Light", "Roboto Light", "Slate Light", "Segoe WP", NokiaPureTextLight, sans-serif;
     /**********************************************************
     * Kendo UI
@@ -50,6 +53,11 @@
         // Drawer navbar colors
         .km-navbar {
             background-color: @base;
+            // Logo
+            #logo > g:first-child > path {
+                fill: #fff;
+                stroke: #fff;
+            }
         }
         // Drawer menu colors
         .km-content, .km-list > li {
@@ -65,17 +73,26 @@
      * Listview forms
      **********************************************************/
     .km-listview {
-        // Align dropdowns properly
-        span.k-dropdown {
-            font-size: 1em;
-            margin-top: -1.8em;
-            span.k-dropdown-wrap {
-                font-size: inherit;
-                span.k-input {
-                    text-indent: 0.2em;
+        label {
+            // Readonly values
+            .form-readonly {
+                margin-top: -1.75em;
+            }
+            // User PIN
+            >input {
+                padding: .4em !important;
+            }
+            // Align dropdowns properly
+            span.k-dropdown {
+                font-size: 1em;
+                margin-top: -1.2em;
+                span.k-dropdown-wrap {
+                    font-size: inherit;
+                    span.k-input {
+                        text-indent: 0.2em;
+                    }
                 }
             }
         }
     }
-
 }

@@ -7,12 +7,11 @@
 @import "./app.template.less";
 
 // Style fixes
-.km-nova {
-
+.k-nova, .km-nova {
     /**********************************************************
     * Fonts
     **********************************************************/
-
+    font: normal 1em "Helvetica Neue", "Helvetica", "Roboto Light", "Arial", "Verdana", "sans-serif";
     // Fix otherwise you'll get plain squares or funny icons in the drawer or navbar
     li, li.km-state-active,
     .km-button, .km-button.km-state-active {
@@ -32,7 +31,13 @@
             }
         }
     }
-
+    /**********************************************************
+     * Kendo UI
+     **********************************************************/
+    .km-thumbnail {
+        border-radius: 0;
+        border-width: 0;
+    }
     /**********************************************************
      * Navbar
      **********************************************************/
@@ -52,7 +57,13 @@
      * Drawer
      **********************************************************/
     .km-drawer {
-        // .km-navbar {}
+        .km-navbar {
+            // Logo
+            #logo > g:first-child > path {
+                fill: #fff;
+                stroke: #fff;
+            }
+        }
         .km-content, .km-list > li {
             // Allow some space between icons and text
             .km-listview-link > .km-icon {
@@ -64,19 +75,25 @@
      * Listview
      **********************************************************/
     .km-listview {
-        // Align dropdowns with span.k-input
-        span.k-dropdown {
-            margin-top: -1.4em;
-            span.k-dropdown-wrap {
-                padding-left: 0;
-                span.k-input {
-                    text-indent: 0;
+        label {
+            // Readonly values
+            .form-readonly {
+                margin-top: -1.75em;
+            }
+            // Align dropdowns with span.k-input
+            span.k-dropdown {
+                margin-top: -1.4em;
+                span.k-dropdown-wrap {
+                    padding-left: 0;
+                    span.k-input {
+                        text-indent: 0;
+                    }
                 }
             }
         }
     }
     // Fix search box
     .km-filter-wrap > input {
-        font-size: 16px;
+        font-size: 1.1em;
     }
 }
