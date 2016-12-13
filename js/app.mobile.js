@@ -2991,8 +2991,7 @@ if (typeof(require) === 'function') {
                         viewModel.trigger(CHANGE, { field: VIEW_MODEL.USER.$ });
                         app.notification.success(kendo.format(i18n.culture.notifications.userSaveSuccess));
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
-                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES +
-                            '?language=' + language);
+                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES + '?language=' + language);
                     })
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.userSaveFailure);
@@ -3024,7 +3023,7 @@ if (typeof(require) === 'function') {
 
             if (viewModel.user.verifyPin(pinValue)) {
                 app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
-                mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES);
+                mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
             } else {
                 app.notification.warning(i18n.culture.notifications.pinValidationFailure);
             }
