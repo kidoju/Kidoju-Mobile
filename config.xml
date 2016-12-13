@@ -148,13 +148,16 @@
     <engine name="android" spec="~5.2.2" />
     <engine name="browser" spec="~4.1.0" />
     <engine name="ios" spec="~4.2.1" />
-    <gap:config-file parent="UIStatusBarHidden" platform="ios">
-        <true />
-    </gap:config-file>
-    <gap:config-file parent="UIViewControllerBasedStatusBarAppearance" platform="ios">
-        <false />
-    </gap:config-file>
-    <gap:config-file parent="/manifest" platform="android">
+    <config-file platform="android" parent="/manifest">
         <application android:hardwareAccelerated="false" />
-    </gap:config-file>
+    </config-file>
+    <config-file platform="ios" parent="ITSAppUsesNonExemptEncryption" mode="add">
+        <false/>
+    </config-file>
+    <config-file platform="ios" parent="UIStatusBarHidden">
+        <true />
+    </config-file>
+    <config-file platform="ios" parent="UIViewControllerBasedStatusBarAppearance">
+        <false />
+    </config-file>
 </widget>
