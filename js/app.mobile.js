@@ -2602,6 +2602,7 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeSigninView();
+            mobile.enableSigninButtons(true);
             // Parse the token and load the new user when we redirect signin without InAppBrowser
             if (!mobile.support.inAppBrowser) {
                 mobile._parseTokenAndLoadUser(window.location.href);
@@ -2761,9 +2762,12 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onSigninButtonClick = function (e) {
-            mobile.enableSigninButtons(false);
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+
+            // Disable buttons to avoid double clicks
+            mobile.enableSigninButtons(false);
+
             var provider = e.button.attr(kendo.attr('provider'));
             // In Phonegap, windows.location.href = "x-wmapp0:www/index.html" and Kidoju-Server cannot redirect the InAppBrowser to such location
             // The oAuth recommendation is to use the redirect_uri "urn:ietf:wg:oauth:2.0:oob" which sets the authorization code in the browser's title, however, we can't access the title of the InAppBrowser in Phonegap.
@@ -2969,6 +2973,7 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeUserView();
+            mobile.enableUserButtons(true);
             if (mobile.application instanceof kendo.mobile.Application) {
                 // mobile.application is not available on first view shown
                 mobile.application.hideLoading();
@@ -2990,6 +2995,9 @@ if (typeof(require) === 'function') {
         mobile.onUserSaveClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+
+            // Disable buttons to avoid double clicks
+            mobile.enableUserButtons(false);
 
             // Do we have matching pins?
             var view = e.button.closest(kendo.roleSelector('view'));
@@ -3032,10 +3040,14 @@ if (typeof(require) === 'function') {
                             method: 'mobile.onUserSaveClick',
                             data:  { status: status, error: error, response: parseResponse(xhr) }
                         });
+                    })
+                    .always(function () {
+                        mobile.enableUserButtons(true);
                     });
 
             } else {
                 app.notification.warning(i18n.culture.notifications.pinSaveFailure);
+                mobile.enableUserButtons(true);
             }
         };
 
@@ -3069,6 +3081,20 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             mobile.application.navigate(DEVICE_SELECTOR + VIEW.SIGNIN);
+        };
+
+
+        /**
+         * Enable/disable user buttons (to prevent double-clicks)
+         * @param enable
+         */
+        mobile.enableUserButtons = function (enable) {
+            $(DEVICE_SELECTOR + VIEW.USER).find(kendo.roleSelector('button')).each(function () {
+                var buttonWidget = $(this).data('kendoMobileButton');
+                if (buttonWidget instanceof kendo.mobile.ui.Button) {
+                    buttonWidget.enable(enable);
+                }
+            });
         };
 
         /**
