@@ -35,7 +35,7 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "autoprefixer": "^6.5.3",
+    "autoprefixer": "^6.5.4",
     "bundle-loader": "^0.5.4",
     "chai": "^3.5.0",
     "css-loader": "^0.26.1",
@@ -69,14 +69,14 @@
     "mocha": "^3.2.0",
     "nconf": "^0.8.4",
     "phantomjs-prebuilt": "^2.1.14",
-    "postcss-loader": "^1.2.0",
+    "postcss-loader": "^1.2.1",
     "selenium-standalone": "^5.9.0",
     "sinon": "^1.17.6",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
-    "wdio-mocha-framework": "^0.5.4",
+    "wdio-mocha-framework": "^0.5.7",
     "wdio-selenium-standalone-service": "0.0.7",
-    "webdriverio": "^4.4.0",
+    "webdriverio": "^4.5.0",
     "webpack": "^1.14.0",
     "webpack-dev-server": "^1.16.2"
   }
