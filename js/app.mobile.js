@@ -294,14 +294,18 @@ if (typeof(require) === 'function') {
                     // Note: we have already tested the url, so we know there is a match
                     var language = matches[1];
                     var summaryId = matches[3];
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' + encodeURIComponent(summaryId));
+                    if (language === i18n.locale()) {
+                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' + encodeURIComponent(summaryId));
+                    } else {
+                        app.notification.warning(i18n.culture.notifications.openUrlLanguage);
+                    }
                 } else {
                     logger.warn({
                         message: 'App scheme called with unknown url',
                         method: 'window.handleOpenURL',
                         data: { url: url }
                     });
-                    app.notification.warning(i18n.culture.notifications.unknownUrl);
+                    app.notification.warning(i18n.culture.notifications.openUrlUnknown);
                 }
             }, 0);
         };
