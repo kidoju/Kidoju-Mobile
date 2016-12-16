@@ -1195,12 +1195,12 @@ if (typeof(require) === 'function') {
                 var userId = that.get(VIEW_MODEL.USER.SID); // Foreign keys use sids (server ids)
                 assert.match(RX_MONGODB_ID, userId, kendo.format(assert.messages.match.default, 'userId', RX_MONGODB_ID));
                 var language = i18n.locale();
-                assert.equal(language, that.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
-                assert.equal(language, that.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'summary.language\')', language));
-                assert.equal(language, that.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'version.language\')', language));
+                assert.equal(language, that.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+                assert.equal(language, that.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
+                assert.equal(language, that.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
                 var summaryId = that.get(VIEW_MODEL.SUMMARY.ID);
                 assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
-                assert.equal(summaryId, this.get(VIEW_MODEL.VERSION.SUMMARY_ID), kendo.format(assert.messages.equal.default, 'viewModel.get(\'version.summaryId\')', summaryId));
+                assert.equal(summaryId, this.get(VIEW_MODEL.VERSION.SUMMARY_ID), kendo.format(assert.messages.equal.default, 'viewModel.get("version.summaryId")', summaryId));
                 var versionId = that.get(VIEW_MODEL.VERSION.ID);
                 assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
                 // Set viewModel field
@@ -2179,7 +2179,7 @@ if (typeof(require) === 'function') {
             mobile._localizeActivitiesView();
             // Always reload
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
             var userId = viewModel.get(VIEW_MODEL.USER.SID);
             viewModel.loadActivities({ language: language, userId: userId })
                 .done(function () {
@@ -2857,7 +2857,7 @@ if (typeof(require) === 'function') {
             mobile._localizeSummaryView();
             // load the summary
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
             var summaryId = e.view.params.summaryId;
             viewModel.loadSummary({ language: language, id: summaryId })
                 .always(function () {
@@ -2871,8 +2871,8 @@ if (typeof(require) === 'function') {
         mobile.onSummaryActionPlay = function () {
             // assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
-            assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'summary.language\')', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
 
             // Find latest version (version history is not available in the mobile app)
@@ -2880,10 +2880,10 @@ if (typeof(require) === 'function') {
                 .done(function () {
                     var version = viewModel.versions.at(0); // First is latest version
                     assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
-                    assert.match(RX_MONGODB_ID, version.get('id'), kendo.format(assert.messages.match.default, 'version.get(\'id\')', RX_MONGODB_ID));
+                    assert.match(RX_MONGODB_ID, version.get('id'), kendo.format(assert.messages.match.default, 'version.get(\'id")', RX_MONGODB_ID));
                     // version has no language - we therfore assume same langauge
-                    // assert.equal(language, version.get('language'), kendo.format(assert.messages.equal.default, 'version.get(\'language\')', language));
-                    assert.equal(summaryId, version.get('summaryId'), kendo.format(assert.messages.equal.default, 'version.get(\'summaryId\')', summaryId));
+                    // assert.equal(language, version.get('language'), kendo.format(assert.messages.equal.default, 'version.get(\'language")', language));
+                    assert.equal(summaryId, version.get('summaryId'), kendo.format(assert.messages.equal.default, 'version.get(\'summaryId")', summaryId));
                     mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER +
                         '?language=' + window.encodeURIComponent(language) +
                         '&summaryId=' + window.encodeURIComponent(summaryId) +
@@ -3028,7 +3028,7 @@ if (typeof(require) === 'function') {
 
             if (RX_PIN.test(pinValue) && confirmValue === pinValue) {
                 var language = i18n.locale();
-                assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
+                assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
 
                 // Does the user already exist in database?
                 var sid = viewModel.get(VIEW_MODEL.USER.SID);
@@ -3233,11 +3233,11 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'settings.language\')', language));
-            assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'summary.language\')', language));
-            assert.equal(language, viewModel.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get(\'version.language\')', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
-            assert.equal(summaryId, viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID), kendo.format(assert.messages.equal.default, 'viewModel.get(\'version.summaryId\')', summaryId));
+            assert.equal(summaryId, viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID), kendo.format(assert.messages.equal.default, 'viewModel.get("version.summaryId")', summaryId));
             mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY +
                 '?language=' + encodeURIComponent(language) +
                 '&summaryId=' + encodeURIComponent(summaryId)
