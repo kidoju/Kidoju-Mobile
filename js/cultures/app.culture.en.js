@@ -124,6 +124,7 @@
                 summaryLoadFailure: 'There was an error loading summary data.',
                 summaryViewInfo: 'Press the button at the bottom of the page.',
                 unknownError: 'There has been an unknown error. Please restart the app',
+                unknownUrl: 'There was an error opening an unknown url.',
                 userLoadFailure: 'There was an error loading your user profile.',
                 userSaveFailure: 'There was an error saving your user profile.',
                 userSaveSuccess: 'User profile successfully saved.',

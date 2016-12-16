@@ -126,6 +126,7 @@
                 summaryLoadFailure: 'Il y a eu une erreur lors du chargement des données du résumé descriptif.',
                 summaryViewInfo: 'Pressez le bouton en bas de page.',
                 unknownError: 'Il y a eu une erreur inconnue. Veuillez redémarrer l\'app',
+                unknownUrl: 'Il y a eu une erreur d\'ouverture d\'une url inconnue.',
                 userLoadFailure: 'Il y a eu une erreur lors du chargement du profil utilisateur.',
                 userSaveFailure: 'Il y a eu une erreur d\'enregistremenet de votre profil utilisateur.',
                 userSaveSuccess: 'Votre profil utilisateur a été enregistré avec succès.',

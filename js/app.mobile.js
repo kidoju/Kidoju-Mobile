@@ -229,6 +229,7 @@ if (typeof(require) === 'function') {
             PIN: '.pin'
         };
         var URL_SCHEME = 'com.kidoju.mobile://';
+        var RX_URL_SCHEME = new RegExp('^' + URL_SCHEME + '([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
 
         /*******************************************************************************************
          * Global handlers
@@ -284,18 +285,23 @@ if (typeof(require) === 'function') {
 
             // Handle the url
             setTimeout(function () {
-                logger.debug({
-                    message: 'App scheme called',
-                    method: 'window.handleOpenURL',
-                    data: { url: url }
-                });
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
-                    // The whole flow is documented at
+                    // The whole oAuth flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                     mobile._parseTokenAndLoadUser(url);
+                } else if (RX_URL_SCHEME.test(url)) {
+                    var matches = RX_URL_SCHEME.exec(url);
+                    // Note: we have already tested the url, so we know there is a match
+                    var language = matches[1];
+                    var summaryId = matches[3];
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' + encodeURIComponent(summaryId));
                 } else {
-                    // TODO https://github.com/kidoju/Kidoju-Mobile/issues/24
-                    mobile.notification.info('called url: ' + url);
+                    logger.warn({
+                        message: 'App scheme called with unknown url',
+                        method: 'window.handleOpenURL',
+                        data: { url: url }
+                    });
+                    app.notification.warning(i18n.culture.notifications.unknownUrl);
                 }
             }, 0);
         };
