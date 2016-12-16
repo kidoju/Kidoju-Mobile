@@ -133,7 +133,7 @@
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/images/browser/splashscreen.jpg" />
-        <preference name="SplashScreenBackgroundColor" value="green" />
+        <preference name="SplashScreenBackgroundColor" value="black" />
         <preference name="ShowSplashScreen" value="false" />
         <preference name="SplashScreenWidth" value="600" />
         <preference name="SplashScreenHeight" value="300" />
@@ -141,7 +141,6 @@
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
-        <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
         <preference name="iosPersistentFileLocation" value="Library" />
         <preference name="KeychainAccessibility" value="WhenUnlocked" />
         <preference name="StatusBarOverlaysWebView" value="true" />
