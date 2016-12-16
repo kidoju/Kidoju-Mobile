@@ -130,6 +130,11 @@ if (typeof(require) === 'function') {
         var STRING = 'string';
         var ARRAY = 'array';
         var CHANGE = 'change';
+        var CLICK = 'click';
+        var FOCUS = 'focus';
+        var INPUT = 'input';
+        var KEYDOWN = 'keydown';
+        var KEYPRESS = 'keypress';
         var LOADED = 'i18n.loaded';
         var RX_LANGUAGE = /^[a-z]{2}$/;
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
@@ -2220,7 +2225,7 @@ if (typeof(require) === 'function') {
                     var buttonWidget = buttonElement.data('kendoMobileButton');
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
                         buttonElement.addClass('km-state-active');
-                        buttonWidget.trigger('click', { button: buttonElement });
+                        buttonWidget.trigger(CLICK, { button: buttonElement });
                         setTimeout(function () {
                             buttonElement.removeClass('km-state-active');
                         }, 250);
@@ -2356,7 +2361,7 @@ if (typeof(require) === 'function') {
                     var buttonWidget = buttonElement.data('kendoMobileButton');
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
                         buttonElement.addClass('km-state-active');
-                        buttonWidget.trigger('click', { button: buttonElement });
+                        buttonWidget.trigger(CLICK, { button: buttonElement });
                         setTimeout(function () {
                             buttonElement.removeClass('km-state-active');
                         }, 250);
@@ -2967,14 +2972,34 @@ if (typeof(require) === 'function') {
             // Init pin textboxes if not already initialized
             // We have removed kendo.ui.MaskedTextBox because the experience was not great
             // especially because it always displays 4 password dots making the number of characters actually typed unclear
-            e.view.element.find(SELECTORS.PIN)
-                .off('focus keypress')
-                .on('focus', function (e) {
+            e.view.element
+                .off(FOCUS + ' ' + INPUT + ' ' + KEYDOWN + ' ' + KEYPRESS, SELECTORS.PIN)
+                .on(FOCUS, SELECTORS.PIN, function (e) {
                     assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                     assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
+                    // Empty the pin input on focus
                     $(e.target).val('');
                 })
-                .on('keypress', function (e) {
+                .on(INPUT, SELECTORS.PIN, function (e) {
+                    assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                    assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
+                    // Note: android does not trigger teh keypress event, so we need the input event
+                    $(e.target).val($(e.target).val().replace(/\D+/g, '').substr(0, 4));
+                })
+                .on(KEYDOWN, SELECTORS.PIN, function (e) {
+                    assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                    assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
+                    if (e.which === 13) {
+                        // This is a carriage return, so trigger the primary button
+                        var viewElement = $(e.target).closest(kendo.roleSelector('view'));
+                        var buttonElement = viewElement.find(kendo.roleSelector('button') + '.km-primary:visible');
+                        assert.equal(1, buttonElement.length, kendo.format(assert.messages.equal.default, 'buttonElement.length', '1'));
+                        var buttonWidget = buttonElement.data('kendoMobileButton');
+                        assert.instanceof(kendo.mobile.ui.Button, buttonWidget, kendo.format(assert.messages.instanceof.default, 'buttonWidget', 'kendo.mobile.ui.Button'));
+                        buttonWidget.trigger(CLICK, { button: buttonElement });
+                    }
+                })
+                .on(KEYPRESS, SELECTORS.PIN, function (e) {
                     assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                     assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
                     // Special characters including backspace, delete, end, home and arrows do not trigger the keypress event (they trigger keydown though)
@@ -2985,7 +3010,7 @@ if (typeof(require) === 'function') {
 
             /*
             // This was used for debugging user pictures
-            e.view.element.find('img').on('click', function (e) {
+            e.view.element.find('img').on(CLICK, function (e) {
                 alert($(e.target).attr('src'));
             });
             */
