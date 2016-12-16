@@ -869,13 +869,13 @@ if (typeof(require) === 'function') {
                 assert.match(RX_LANGUAGE, options.language, kendo.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
                 assert.match(RX_MONGODB_ID, options.id, kendo.format(assert.messages.match.default, 'options.id', RX_MONGODB_ID));
                 var dfd = $.Deferred();
-                if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warning(i18n.culture.notifications.networkOffline);
-                    dfd.reject(undefined, 'offline', 'No network connection');
-                } else if (viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE) === options.language &&
+                if (viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE) === options.language &&
                     viewModel.get(VIEW_MODEL.SUMMARY.ID) === options.id) {
                     dfd.resolve();
-                } else {
+                } else if (window.navigator.connection.type === window.Connection.NONE) {
+                    app.notification.warning(i18n.culture.notifications.networkOffline);
+                    dfd.reject(undefined, 'offline', 'No network connection');
+                } else  {
                     // TODO viewModel.summary.load(options)
                     return viewModel.summary.load(options.id)
                         .done(dfd.resolve)
@@ -968,13 +968,13 @@ if (typeof(require) === 'function') {
                 assert.match(RX_MONGODB_ID, options.versionId, assert.messages.match.default, 'options.versionId', RX_MONGODB_ID);
 
                 var dfd = $.Deferred();
-                if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warning(i18n.culture.notifications.networkOffline);
-                    dfd.reject(undefined, 'offline', 'No network connection');
-                } else if (viewModel.get(VIEW_MODEL.VERSION.LANGUAGE) === options.language &&
+                if (viewModel.get(VIEW_MODEL.VERSION.LANGUAGE) === options.language &&
                     viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID) === options.summaryId &&
                     viewModel.get(VIEW_MODEL.VERSION.ID) === options.versionId) {
                     dfd.resolve();
+                } else if (window.navigator.connection.type === window.Connection.NONE) {
+                    app.notification.warning(i18n.culture.notifications.networkOffline);
+                    dfd.reject(undefined, 'offline', 'No network connection');
                 } else {
                     // TODO viewModel.version.load(options)
                     viewModel.version.load(options.summaryId, options.versionId)
@@ -1011,12 +1011,12 @@ if (typeof(require) === 'function') {
                 assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
 
                 var dfd = $.Deferred();
-                if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warning(i18n.culture.notifications.networkOffline);
-                    dfd.reject(undefined, 'offline', 'No network connection');
-                } else if (viewModel.versions.total() > 0 &&
+                if (viewModel.versions.total() > 0 &&
                     viewModel.versions.at(0).get('summaryId') === options.summaryId) {
                     dfd.resolve();
+                } else if (window.navigator.connection.type === window.Connection.NONE) {
+                    app.notification.warning(i18n.culture.notifications.networkOffline);
+                    dfd.reject(undefined, 'offline', 'No network connection');
                 } else {
                     viewModel.versions.load(options)
                         .done(dfd.resolve)
@@ -2983,7 +2983,8 @@ if (typeof(require) === 'function') {
                 .on(INPUT, SELECTORS.PIN, function (e) {
                     assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                     assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
-                    // Note: android does not trigger teh keypress event, so we need the input event
+                    // Note: android does not trigger the keypress event, so we need the input event
+                    // Only keep the first 4 digits
                     $(e.target).val($(e.target).val().replace(/\D+/g, '').substr(0, 4));
                 })
                 .on(KEYDOWN, SELECTORS.PIN, function (e) {
