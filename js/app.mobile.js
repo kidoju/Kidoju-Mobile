@@ -1941,8 +1941,16 @@ if (typeof(require) === 'function') {
             });
             // Set feature shortcuts
             setShortcuts();
+            logger.debug({
+                message: 'Shortcuts set',
+                method: 'mobile.onDeviceReady'
+            });
             // Set google analytics
             setAnalytics();
+            logger.debug({
+                message: 'Analytics set',
+                method: 'mobile.onDeviceReady'
+            });
             // initialize secure storage
             // mobile.secureStorage.init('kidoju');
             // Load settings including locale and theme
