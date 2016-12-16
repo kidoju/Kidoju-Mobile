@@ -817,10 +817,18 @@ if (typeof(require) === 'function') {
 
                 // Theme - We need the same localStorage location as in Kidoju.Webapp to be able to use app.theme.js to load themes
                 var theme = localStorage.getItem(STORAGE.THEME);
-                that.set(VIEW_MODEL.SETTINGS.THEME, theme);
 
                 // Language
                 var language = localStorage.getItem(STORAGE.LANGUAGE);
+
+                logger.debug({
+                    message: 'Language and theme read from localStorage',
+                    method: 'viewModel.loadSettings',
+                    data: { language: language, theme: theme }
+                });
+
+                that.set(VIEW_MODEL.SETTINGS.THEME, theme);
+
                 if (RX_LANGUAGE.test(language)) {
                     // Language is already set
                     that.set(VIEW_MODEL.SETTINGS.LANGUAGE, language);
