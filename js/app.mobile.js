@@ -255,7 +255,10 @@ if (typeof(require) === 'function') {
                 if (app.DEBUG) {
                     window.alert(message);
                 }
-                mobile.application.hideLoading();
+                if (mobile.application instanceof kendo.mobile.Application) {
+                    // mobile.application is not available on first view shown
+                    mobile.application.hideLoading();
+                }
             }, 0);
         };
 
@@ -727,7 +730,7 @@ if (typeof(require) === 'function') {
 
                 // List of activities
                 this.set(VIEW_MODEL.ACTIVITIES, new models.MobileActivityDataSource({
-                    // TODO: language: this.get(VIEW_MODEL.SETTINGS.LANGUAGE),
+                    language: this.get(VIEW_MODEL.SETTINGS.LANGUAGE),
                     userId: this.get(VIEW_MODEL.USER.SID)
                 }));
 
@@ -781,16 +784,28 @@ if (typeof(require) === 'function') {
              * @param options
              */
             loadActivities: function (options) {
-                // TODO check if already loaded
-                return this.activities.load(options)
-                    .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.activitiesQueryFailure);
-                        logger.error({
-                            message: 'error loading summaries',
-                            method: 'viewModel.loadLazySummaries',
-                            data: { status: status, error: error, response: parseResponse(xhr) }
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.match(RX_LANGUAGE, options.language, kendo.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
+                assert.match(RX_MONGODB_ID, options.userId, kendo.format(assert.messages.match.default, 'options.userId', RX_MONGODB_ID));
+
+                var dfd = $.Deferred();
+                if (this.activities.total() > 0 &&
+                    this.activities._language === options.language && this.activities._userId === options.userId) {
+                    dfd.resolve();
+                } else {
+                    this.activities.load(options)
+                        .done(dfd.resolve)
+                        .fail(function (xhr, status, error) {
+                            dfd.reject(xhr, status, error);
+                            app.notification.error(i18n.culture.notifications.activitiesQueryFailure);
+                            logger.error({
+                                message: 'error loading summaries',
+                                method: 'viewModel.loadLazySummaries',
+                                data: {status: status, error: error, response: parseResponse(xhr)}
+                            });
                         });
-                    });
+                }
+                return dfd.promise();
             },
 
             /**
@@ -1920,6 +1935,10 @@ if (typeof(require) === 'function') {
          * Loads the application, especially initialize plugins (which where not available until now)
          */
         mobile.onDeviceReady = function () {
+            logger.debug({
+                message: 'Device is ready',
+                method: 'mobile.onDeviceReady'
+            });
             // Set feature shortcuts
             setShortcuts();
             // Set google analytics
@@ -1929,6 +1948,10 @@ if (typeof(require) === 'function') {
             // Load settings including locale and theme
             viewModel.loadSettings()
                 .always(function () {
+                    logger.debug({
+                        message: 'Settings are loaded',
+                        method: 'mobile.onDeviceReady'
+                    });
                     // initialize the user interface
                     $(document).one(LOADED, mobile.oni18nLoaded);
                     // Release the execution of jQuery's ready event (hold in index.html)
@@ -1947,6 +1970,10 @@ if (typeof(require) === 'function') {
          */
         mobile.oni18nLoaded = function () {
             assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'i18n.culture'));
+            logger.debug({
+                message: 'i18n culture is loaded',
+                method: 'mobile.oni18nLoaded'
+            });
             var theme = viewModel.getTheme();
             // Initialize notifications
             mobile._initNotification();
@@ -1960,6 +1987,10 @@ if (typeof(require) === 'function') {
             // Load mobile users from localForage
             viewModel.loadUsers()
                 .done(function () {
+                    logger.debug({
+                        message: 'User are loaded',
+                        method: 'mobile.oni18nLoaded'
+                    });
                     // Set user to most recent user
                     if (viewModel.users.total() > 0) {
                         viewModel.set(VIEW_MODEL.USER.$, viewModel.users.at(0));
@@ -1978,6 +2009,10 @@ if (typeof(require) === 'function') {
                         // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
                         statusBarStyle: 'hidden',
                         init: function (e) {
+                            logger.debug({
+                                message: 'Kendo mobile app is initialized',
+                                method: 'mobile.oni18nLoaded'
+                            });
                             // Localise the application
                             mobile.localize(viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE));
                             // Reinitialize notifications now that we know the size of .km-header
@@ -2071,7 +2106,8 @@ if (typeof(require) === 'function') {
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             e.preventDefault();
             var command = e.item.attr(kendo.attr('command'));
-            var language = i18n.locale();
+            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE);
+            var userId = viewModel.get(VIEW_MODEL.USER.SID);
             switch (command) {
                 case 'categories':
                     mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
@@ -2079,7 +2115,7 @@ if (typeof(require) === 'function') {
                 case 'scan':
                     mobile._scanQRCode();
                 case 'activities':
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language));
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language)) + '&userId=' + encodeURIComponent(userId);
                     break;
                 case 'settings':
                     mobile.application.navigate(DEVICE_SELECTOR + VIEW.SETTINGS);
@@ -2182,17 +2218,25 @@ if (typeof(require) === 'function') {
         mobile.onActivitiesViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            var language = e.view.params.language;
+            assert.equal(language, i18n.locale(), kendo.format(assert.messages.equal.default, 'i18n.locale()', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+            var userId = e.view.params.userId;
+
             mobile._localizeActivitiesView();
             // Always reload
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
             var userId = viewModel.get(VIEW_MODEL.USER.SID);
             viewModel.loadActivities({ language: language, userId: userId })
                 .done(function () {
                     mobile._initActivitiesGrid(e.view);
                 })
                 .always(function () {
-                    mobile.application.hideLoading();
+                    if (mobile.application instanceof kendo.mobile.Application) {
+                        // mobile.application is not available on first view shown
+                        mobile.application.hideLoading();
+                    }
                 });
         };
 
@@ -2205,7 +2249,10 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeCategoriesView();
-            mobile.application.hideLoading();
+            if (mobile.application instanceof kendo.mobile.Application) {
+                // mobile.application is not available on first view shown
+                mobile.application.hideLoading();
+            }
         };
 
         /**
@@ -2275,7 +2322,10 @@ if (typeof(require) === 'function') {
             viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(page - 1));
             mobile._localizeCorrectionView();
             mobile._resizeStage(e.view);
-            mobile.application.hideLoading();
+            if (mobile.application instanceof kendo.mobile.Application) {
+                // mobile.application is not available on first view shown
+                mobile.application.hideLoading();
+            }
             app.notification.info(i18n.culture.notifications.pageNavigationInfo);
         };
 
@@ -2289,7 +2339,10 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeFavouritesView();
-            mobile.application.hideLoading();
+            if (mobile.application instanceof kendo.mobile.Application) {
+                // mobile.application is not available on first view shown
+                mobile.application.hideLoading();
+            }
         };
         */
 
@@ -2339,8 +2392,10 @@ if (typeof(require) === 'function') {
             viewModel.loadLazySummaries(query)
                 // See comment for mobile.onSummariesBeforeViewShow
                 .always(function () {
-                    // Hide loading
-                    mobile.application.hideLoading();
+                    if (mobile.application instanceof kendo.mobile.Application) {
+                        // mobile.application is not available on first view shown
+                        mobile.application.hideLoading();
+                    }
                 });
         };
 
@@ -2413,7 +2468,10 @@ if (typeof(require) === 'function') {
                 .always(function () {
                     mobile._localizePlayerView();
                     mobile._resizeStage(e.view);
-                    mobile.application.hideLoading();
+                    if (mobile.application instanceof kendo.mobile.Application) {
+                        // mobile.application is not available on first view shown
+                        mobile.application.hideLoading();
+                    }
                     app.notification.info(i18n.culture.notifications.pageNavigationInfo);
                 });
         };
@@ -2546,15 +2604,19 @@ if (typeof(require) === 'function') {
                             });
                     })
                     .always(function () {
-                        // Hide loading
-                        mobile.application.hideLoading();
+                        if (mobile.application instanceof kendo.mobile.Application) {
+                            // mobile.application is not available on first view shown
+                            mobile.application.hideLoading();
+                        }
                     });
             } else {
                 // Otherwise, use the current test
                 // TODO assert current state (percent function?)
                 mobile._initScoreGrid(e.view);
-                // Hide loading
-                mobile.application.hideLoading();
+                if (mobile.application instanceof kendo.mobile.Application) {
+                    // mobile.application is not available on first view shown
+                    mobile.application.hideLoading();
+                }
             }
         };
 
@@ -2567,7 +2629,10 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeSettingsView();
-            mobile.application.hideLoading();
+            if (mobile.application instanceof kendo.mobile.Application) {
+                // mobile.application is not available on first view shown
+                mobile.application.hideLoading();
+            }
         };
 
         /**
@@ -2871,7 +2936,10 @@ if (typeof(require) === 'function') {
             var summaryId = e.view.params.summaryId;
             viewModel.loadSummary({ language: language, id: summaryId })
                 .always(function () {
-                    mobile.application.hideLoading();
+                    if (mobile.application instanceof kendo.mobile.Application) {
+                        // mobile.application is not available on first view shown
+                        mobile.application.hideLoading();
+                    }
                     app.notification.info(i18n.culture.notifications.summaryViewInfo);
                 });
         };
@@ -2959,7 +3027,10 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._localizeSyncView();
-            mobile.application.hideLoading();
+            if (mobile.application instanceof kendo.mobile.Application) {
+                // mobile.application is not available on first view shown
+                mobile.application.hideLoading();
+            }
         };
 
         /**

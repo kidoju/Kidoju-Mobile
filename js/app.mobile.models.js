@@ -722,6 +722,8 @@
                 // Get the language and userId from options (if available at this stage)
                 var language = options && options.language;
                 var userId = options && options.userId;
+
+                // Let's make them optional as we might want to load
                 if (RX_LANGUAGE.test(language)) {
                     that._language = language;
                 }
@@ -819,9 +821,7 @@
                     if (errors.length) {
                         return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
                     }
-                    // The database will give us an id
-                    // activity.id = new pongodb.ObjectId().toString();
-                    // TODO activity date????
+                    // The database will give us an id (but not a date)
                     db.activities.insert(activity)
                         .done(function () {
                             options.success({ total: 1, data: [activity] });
@@ -873,7 +873,15 @@
                         message: 'Activity data read',
                         method: 'app.models.MobileActivityDataSource.transport.read'
                     });
-                    db.activities.find({ 'version.language': this._language, 'actor.userId': this._userId })
+                    // TODO: use options to build query
+                    var query = {};
+                    if ($.type(this._language) !== UNDEFINED) {
+                        query['version.language'] = this._language;
+                    }
+                    if ($.type(this._userId) !== UNDEFINED) {
+                        query['actor.userId'] = this._userId;
+                    }
+                    db.activities.find(query)
                         .done(function (result) {
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
