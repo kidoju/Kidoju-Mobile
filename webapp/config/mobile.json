@@ -1,0 +1,42 @@
+{
+    "assets": {
+        "audio": {
+            "schemes": {
+                "data": "https://s3.amazonaws.com/kidoju.data/"
+            }
+        },
+        "image": {
+            "schemes": {
+                "data": "https://s3.amazonaws.com/kidoju.data/"
+            }
+        },
+        "video": {
+            "schemes": {
+                "data": "https://s3.amazonaws.com/kidoju.data/"
+            }
+        }
+    },
+    "debug": true,
+    "express": {
+        "port": 3000
+    },
+    "facebook": {
+        "clientID": "628502177236998"
+    },
+    "level": 0,
+    "twitter": {
+        "account": "kidoju"
+    },
+    "uris" : {
+        "rapi": {
+            "root": "http://10.0.0.105:3001"
+        },
+        "webapp": {
+            "root": "http://10.0.0.105:3001",
+            "logger": "/api/logger"
+        },
+        "webpack": {
+            "root": "./build/"
+        }
+    }
+}
