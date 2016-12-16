@@ -266,7 +266,7 @@ if (typeof(require) === 'function') {
          * By default jQuery has no timeout (0), but let's time out at 30sec on mobile devices
          */
         $.ajaxSetup({
-            timeout: 30000 //Time in milliseconds
+            timeout: 30000 // Time in milliseconds
         });
 
         /**
@@ -415,7 +415,7 @@ if (typeof(require) === 'function') {
                             buttonLayout: 'stretched',
                             actions: [
                                 { action: 'ok', text: i18n.culture.dialogs.buttons.ok.text, primary: true, imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.ok.icon) },
-                                { action: 'cancel', text: i18n.culture.dialogs.buttons.cancel.text, imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.cancel.icon)}
+                                { action: 'cancel', text: i18n.culture.dialogs.buttons.cancel.text, imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.cancel.icon) }
                             ]
                         })
                             .done(function (result) {
@@ -524,23 +524,22 @@ if (typeof(require) === 'function') {
          */
         function setAnalytics () {
             if (mobile.support.ga) {
-                var ga = mobile.ga;
 
                 // Set up analytics tracker
-                ga.startTrackerWithId(app.analytics.gaTrackingId);
+                mobile.ga.startTrackerWithId(app.analytics.gaTrackingId);
 
-                // ga.setUserId('my-user-id'); // TODO
+                // mobile.ga.setUserId('my-user-id'); // TODO
 
                 // Set a specific app version:
-                // ga.setAppVersion('1.33.7'); // TODO
+                // mobile.ga.setAppVersion('1.33.7'); // TODO
 
                 // Enable automatic reporting of uncaught exceptions
-                // ga.enableUncaughtExceptionReporting(true, success, error);
-                ga.enableUncaughtExceptionReporting(true);
+                // mobile.ga.enableUncaughtExceptionReporting(true, success, error);
+                mobile.ga.enableUncaughtExceptionReporting(true);
 
                 if (app.DEBUG) {
                     // Enable verbose logging
-                    ga.debugMode();
+                    mobile.ga.debugMode();
                 }
             }
 
@@ -801,7 +800,7 @@ if (typeof(require) === 'function') {
                             logger.error({
                                 message: 'error loading summaries',
                                 method: 'viewModel.loadLazySummaries',
-                                data: {status: status, error: error, response: parseResponse(xhr)}
+                                data: { status: status, error: error, response: parseResponse(xhr) }
                             });
                         });
                 }
@@ -827,7 +826,8 @@ if (typeof(require) === 'function') {
                     data: { language: language, theme: theme }
                 });
 
-                // Set theme
+                // Set theme (Would have been better via a callback from load method in app.theme.js)
+                // We need to be careful that the default themes match here and in app.theme.js
                 that.set(VIEW_MODEL.SETTINGS.THEME, theme || DEFAULT.THEME);
 
                 // Set language
@@ -836,39 +836,19 @@ if (typeof(require) === 'function') {
                     that.set(VIEW_MODEL.SETTINGS.LANGUAGE, language);
                     dfd.resolve();
                 } else if (window.cordova && window.navigator && window.navigator.globalization) {
-                    logger.debug({
-                        message: 'Using globalization plugin',
-                        method: 'viewModel.loadSettings',
-                        data: { language: language, theme: theme }
-                    });
                     window.navigator.globalization.getLocaleName(
-                        function(locale) {
-                            logger.debug({
-                                message: 'getLocaleName',
-                                method: 'viewModel.loadSettings',
-                                data: { locale: JSON.stringify(locale) }
-                            });
+                        function (locale) {
                             // Device language found
                             var language = locale.value.substr(0, 2);
                             if (app.locales.indexOf(language) === -1) {
-                                language = DEFAULT.LANGUAGE
+                                language = DEFAULT.LANGUAGE;
                             }
                             that.set(VIEW_MODEL.SETTINGS.LANGUAGE, language);
-                            logger.debug({
-                                message: 'getLocaleName withour error',
-                                method: 'viewModel.loadSettings',
-                                data: { language: language }
-                            });
                             dfd.resolve();
                         },
                         function () {
                             // In case of error, use default language
                             that.set(VIEW_MODEL.SETTINGS.LANGUAGE, DEFAULT.LANGUAGE);
-                            logger.debug({
-                                message: 'getLocaleName with error',
-                                method: 'viewModel.loadSettings',
-                                data: { language: DEFAULT.LANGUAGE }
-                            });
                             dfd.resolve();
                         }
                     );
@@ -898,7 +878,7 @@ if (typeof(require) === 'function') {
                             logger.error({
                                 message: 'error loading summaries',
                                 method: 'viewModel.loadLazySummaries',
-                                data: {query: query, status: status, error: error, response: parseResponse(xhr)}
+                                data: { query: query, status: status, error: error, response: parseResponse(xhr) }
                             });
                         });
                 }
@@ -920,7 +900,7 @@ if (typeof(require) === 'function') {
                 } else if (window.navigator.connection.type === window.Connection.NONE) {
                     app.notification.warning(i18n.culture.notifications.networkOffline);
                     dfd.reject(undefined, 'offline', 'No network connection');
-                } else  {
+                } else {
                     // TODO viewModel.summary.load(options)
                     return viewModel.summary.load(options.id)
                         .done(dfd.resolve)
@@ -930,7 +910,7 @@ if (typeof(require) === 'function') {
                             logger.error({
                                 message: 'error loading summary',
                                 method: 'viewModel.loadSummary',
-                                data: {status: status, error: error, response: parseResponse(xhr)}
+                                data: { status: status, error: error, response: parseResponse(xhr) }
                             });
                         });
                 }
@@ -2075,15 +2055,15 @@ if (typeof(require) === 'function') {
          * @param e
          */
         mobile.onRouterViewChange = function (e) {
+            // TODO consider for onLayoutViewShow
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.type(STRING, e.url, kendo.format(assert.messages.type.default, 'e.url', STRING));
             // Show loader
             mobile.application.showLoading();
             // Track in analytics
             if (mobile.support.ga) {
-                ga.trackView(e.url);
+                mobile.ga.trackView(e.url);
             }
-
         };
 
         /**
@@ -2152,6 +2132,7 @@ if (typeof(require) === 'function') {
                     break;
                 case 'scan':
                     mobile._scanQRCode();
+                    break;
                 case 'activities':
                     mobile.application.navigate(DEVICE_SELECTOR + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language)) + '&userId=' + encodeURIComponent(userId);
                     break;
@@ -2261,11 +2242,10 @@ if (typeof(require) === 'function') {
             assert.equal(language, i18n.locale(), kendo.format(assert.messages.equal.default, 'i18n.locale()', language));
             assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
             var userId = e.view.params.userId;
+            assert.equal(userId, viewModel.get(VIEW_MODEL.USER.SID), kendo.format(assert.messages.equal.default, 'viewModel.get("user.sid")', userId));
 
             mobile._localizeActivitiesView();
             // Always reload
-            var language = i18n.locale();
-            var userId = viewModel.get(VIEW_MODEL.USER.SID);
             viewModel.loadActivities({ language: language, userId: userId })
                 .done(function () {
                     mobile._initActivitiesGrid(e.view);
@@ -3042,7 +3022,7 @@ if (typeof(require) === 'function') {
                             message: 'Error sharing',
                             method: 'mobile.onSummaryActionShare',
                             error: new Error(msg)
-                        })
+                        });
 
                     }
                 );
