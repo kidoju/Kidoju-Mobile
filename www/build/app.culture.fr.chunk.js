@@ -1,4 +1,4 @@
-/*! Copyright ©2013-2016 Memba® Sarl. All rights reserved. - Version 0.2.74 dated 12/15/2016 */
+/*! Copyright ©2013-2016 Memba® Sarl. All rights reserved. - Version 0.2.74 dated 12/16/2016 */
 webpackJsonp([2],{
 
 /***/ 404:
@@ -109,9 +109,9 @@ webpackJsonp([2],{
 	                activitiesQueryFailure: 'Il y a eu une erreur lors du chargement des activités.',
 	                clickSubmitInfo: 'Pressez <i class="kf kf-submit"></i> pour calculer votre score.',
 	                confirmSubmit: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
-	                mavigateInfo: 'Pressez <i class="kf kf-previous"></i> et <i class="kf kf-next"></i> pour changer de page.',
 	                networkOffline: 'Vous n\'êtes pas connecté à Internet.',
 	                oAuthTokenFailure: 'Le service d\'authentification a retourné une erreur.',
+	                pageNavigationInfo: 'Pressez <i class="kf kf-previous"></i> et <i class="kf kf-next"></i> pour changer de page.',
 	                pinSaveFailure: 'Les pins à 4 chiffres ne correspondent pas.',
 	                pinSaveInfo: 'Veuillez saisir et confirmer votre pin à 4 chiffres avant d\'enregistrer.',
 	                pinValidationFailure: 'Mauvais pin à 4 chiffres.',
@@ -130,6 +130,7 @@ webpackJsonp([2],{
 	                signinUrlFailure: 'Il y a eu une erreur d\'obtention d\'url de connexion pour le service d\'authentification.',
 	                summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
 	                summaryLoadFailure: 'Il y a eu une erreur lors du chargement des données du résumé descriptif.',
+	                summaryViewInfo: 'Pressez le bouton en bas de page.',
 	                unknownError: 'Il y a eu une erreur inconnue. Veuillez redémarrer l\'app',
 	                userLoadFailure: 'Il y a eu une erreur lors du chargement du profil utilisateur.',
 	                userSaveFailure: 'Il y a eu une erreur d\'enregistremenet de votre profil utilisateur.',

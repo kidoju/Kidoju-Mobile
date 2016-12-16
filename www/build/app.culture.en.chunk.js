@@ -1,4 +1,4 @@
-/*! Copyright ©2013-2016 Memba® Sarl. All rights reserved. - Version 0.2.74 dated 12/15/2016 */
+/*! Copyright ©2013-2016 Memba® Sarl. All rights reserved. - Version 0.2.74 dated 12/16/2016 */
 webpackJsonp([1],{
 
 /***/ 401:
@@ -107,9 +107,9 @@ webpackJsonp([1],{
 	                activitiesQueryFailure: 'There was an error loading activities.',
 	                clickSubmitInfo: 'Press <i class="kf kf-submit"></i> to calculate your score.',
 	                confirmSubmit: 'Do you really want to submit to calculate your score?',
-	                mavigateInfo: 'Press <i class="kf kf-previous"></i> and <i class="kf kf-next"></i> to scroll pages.',
 	                networkOffline: 'You are disconnected from the Internet',
 	                oAuthTokenFailure: 'The authentication service has returned an error.',
+	                pageNavigationInfo: 'Press <i class="kf kf-previous"></i> and <i class="kf kf-next"></i> to navigate pages.',
 	                pinSaveFailure: 'The 4 digit pins do not match.',
 	                pinSaveInfo: 'Please enter and confirm your 4-digit pin before saving.',
 	                pinValidationFailure: 'Wrong pin.',
@@ -128,6 +128,7 @@ webpackJsonp([1],{
 	                signinUrlFailure: 'There was an error obtaining a sign-in url.',
 	                summariesQueryFailure: 'There was an error querying our remote servers.',
 	                summaryLoadFailure: 'There was an error loading summary data.',
+	                summaryViewInfo: 'Press the button at the bottom of the page.',
 	                unknownError: 'There has been an unknown error. Please restart the app',
 	                userLoadFailure: 'There was an error loading your user profile.',
 	                userSaveFailure: 'There was an error saving your user profile.',
