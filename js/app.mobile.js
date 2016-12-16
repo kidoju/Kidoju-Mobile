@@ -208,6 +208,7 @@ if (typeof(require) === 'function') {
                 $: 'user',
                 FIRST_NAME: 'user.firstName',
                 LAST_NAME: 'user.lastName',
+                LAST_USE: 'user.lastUse',
                 SID: 'user.sid'
             },
             USERS: 'users',
@@ -3032,21 +3033,24 @@ if (typeof(require) === 'function') {
 
                 // Does the user already exist in database?
                 var sid = viewModel.get(VIEW_MODEL.USER.SID);
-                var found = viewModel.users.data().find(function (user) {
-                    return user.get('sid') === sid;
+                var user = viewModel.users.data().find(function (data) {
+                    return data.get('sid') === sid;
                 });
-                if (!(found instanceof models.MobileUser)) {
-                    // Add user
-                    found = viewModel.get(VIEW_MODEL.USER.$);
-                    viewModel.users.add(found);
+
+                // If not found, add to local database
+                if (!(user instanceof models.MobileUser)) {
+                    user = viewModel.get(VIEW_MODEL.USER.$);
+                    viewModel.users.add(user);
                 }
-                // Set properties
-                found.addPin(pinValue); // Note a good test to trigger an error is to comment this line
-                found.set('lastUse', new Date());
+
+                // Set pin and lastUse properties
+                viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
+                user.addPin(pinValue);
+
                 // Synchronize
                 viewModel.users.sync()
                     .done(function () {
-                        viewModel.set(VIEW_MODEL.USER.$, found);
+                        viewModel.set(VIEW_MODEL.USER.$, user);
                         // Trigger a change event to update user + settings view data bindings
                         viewModel.trigger(CHANGE, { field: VIEW_MODEL.USER.$ });
                         app.notification.success(kendo.format(i18n.culture.notifications.userSaveSuccess));
@@ -3056,7 +3060,7 @@ if (typeof(require) === 'function') {
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.userSaveFailure);
                         logger.error({
-                            message: 'error saving user',
+                            message: 'error syncing users',
                             method: 'mobile.onUserSaveClick',
                             data:  { status: status, error: error, response: parseResponse(xhr) }
                         });
@@ -3086,8 +3090,22 @@ if (typeof(require) === 'function') {
             var pinValue = pinElement.val();
 
             if (viewModel.user.verifyPin(pinValue)) {
-                app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
-                mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
+
+                viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
+                viewModel.users.sync()
+                    .fail(function (xhr, status, error) {
+                        app.notification.error(i18n.culture.notifications.userSaveFailure);
+                        logger.error({
+                            message: 'error syncing users',
+                            method: 'mobile.onUserSignInClick',
+                            data:  { status: status, error: error, response: parseResponse(xhr) }
+                        });
+                    })
+                    .always(function () {
+                        app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
+                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
+                    });
+
             } else {
                 app.notification.warning(i18n.culture.notifications.pinValidationFailure);
             }
