@@ -2252,13 +2252,16 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+
             // Let's remove the showScoreInfo attr (see viewModel.bind(CHANGE))
             e.view.element.removeAttr(kendo.attr('showScoreInfo'));
+
             // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE)
             // var summaryId = e.view.params.summaryId;
             // var versionId = e.view.params.versionId;
             var activityId = e.view.params.activityId;
             var page = e.view.params.page || 1;
+            // TODO reload data iof not already reloaded - see
             // assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
             // assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
             // Localize UI (cannot be done in init because language may have changed during the session)
@@ -2268,6 +2271,7 @@ if (typeof(require) === 'function') {
             mobile._localizeCorrectionView();
             mobile._resizeStage(e.view);
             mobile.application.hideLoading();
+            app.notification.info(i18n.culture.notifications.pageNavigationInfo);
         };
 
         /**
@@ -2405,7 +2409,7 @@ if (typeof(require) === 'function') {
                     mobile._localizePlayerView();
                     mobile._resizeStage(e.view);
                     mobile.application.hideLoading();
-                    app.notification.info(i18n.culture.notifications.mavigateInfo);
+                    app.notification.info(i18n.culture.notifications.pageNavigationInfo);
                 });
         };
 
@@ -2863,6 +2867,7 @@ if (typeof(require) === 'function') {
             viewModel.loadSummary({ language: language, id: summaryId })
                 .always(function () {
                     mobile.application.hideLoading();
+                    app.notification.info(i18n.culture.notifications.summaryViewInfo);
                 });
         };
 
