@@ -827,26 +827,48 @@ if (typeof(require) === 'function') {
                     data: { language: language, theme: theme }
                 });
 
-                that.set(VIEW_MODEL.SETTINGS.THEME, theme);
+                // Set theme
+                that.set(VIEW_MODEL.SETTINGS.THEME, theme || DEFAULT.THEME);
 
+                // Set language
                 if (RX_LANGUAGE.test(language)) {
                     // Language is already set
                     that.set(VIEW_MODEL.SETTINGS.LANGUAGE, language);
                     dfd.resolve();
                 } else if (window.cordova && window.navigator && window.navigator.globalization) {
+                    logger.debug({
+                        message: 'Using globalization plugin',
+                        method: 'viewModel.loadSettings',
+                        data: { language: language, theme: theme }
+                    });
                     window.navigator.globalization.getLocaleName(
                         function(locale) {
+                            logger.debug({
+                                message: 'getLocaleName',
+                                method: 'viewModel.loadSettings',
+                                data: { locale: JSON.stringify(locale) }
+                            });
                             // Device language found
                             var language = locale.value.substr(0, 2);
                             if (app.locales.indexOf(language) === -1) {
                                 language = DEFAULT.LANGUAGE
                             }
                             that.set(VIEW_MODEL.SETTINGS.LANGUAGE, language);
+                            logger.debug({
+                                message: 'getLocaleName withour error',
+                                method: 'viewModel.loadSettings',
+                                data: { language: language }
+                            });
                             dfd.resolve();
                         },
                         function () {
                             // In case of error, use default language
                             that.set(VIEW_MODEL.SETTINGS.LANGUAGE, DEFAULT.LANGUAGE);
+                            logger.debug({
+                                message: 'getLocaleName with error',
+                                method: 'viewModel.loadSettings',
+                                data: { language: DEFAULT.LANGUAGE }
+                            });
                             dfd.resolve();
                         }
                     );
