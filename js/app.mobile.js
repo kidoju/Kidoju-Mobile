@@ -382,8 +382,8 @@ if (typeof(require) === 'function') {
                 // Note: InAppBrowser uses iFrame on browser platform which is incompatible with oAuth flow
                 inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
                 // Note: it will have to be changed once the following is fixed - https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/51
-                // safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
-                safariViewController: window.cordova && window.device && window.device.platform === 'iOS' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
+                safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
+                // safariViewController: window.cordova && window.device && window.device.platform === 'iOS' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 socialsharing: window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
                 splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide),
                 textToSpeech: window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak)
@@ -2144,12 +2144,11 @@ if (typeof(require) === 'function') {
                     mobile._scanQRCode();
                     break;
                 case 'activities':
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language)) + '&userId=' + encodeURIComponent(userId);
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language) + '&userId=' + encodeURIComponent(userId));
                     break;
                 case 'settings':
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SETTINGS);
+                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SETTINGS + '?userId=' + encodeURIComponent(userId));
                     break;
-
             }
         };
 
