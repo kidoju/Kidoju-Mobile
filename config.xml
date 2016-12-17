@@ -152,7 +152,7 @@
         <application hardwareAccelerated="false" />
     </config-file>
     <config-file parent="/manifest/application" platform="android">
-        <activity launchMode="singleInstance" />
+        <activity launchMode="standard" />
     </config-file>
     <config-file mode="add" parent="ITSAppUsesNonExemptEncryption" platform="ios">
         <false />
