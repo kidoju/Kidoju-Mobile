@@ -151,9 +151,6 @@
     <config-file parent="/manifest" platform="android">
         <application hardwareAccelerated="false" />
     </config-file>
-    <config-file parent="/manifest/application" platform="android">
-        <activity launchMode="singleTask" />
-    </config-file>
     <config-file mode="add" parent="ITSAppUsesNonExemptEncryption" platform="ios">
         <false />
     </config-file>
