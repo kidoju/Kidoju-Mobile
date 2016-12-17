@@ -2942,7 +2942,7 @@ if (typeof(require) === 'function') {
          * @param enable
          */
         mobile.enableSigninButtons = function (enable) {
-            $(DEVICE_SELECTOR + VIEW.SIGNIN).find(kendo.roleSelector('button')).each(function () {
+            $(DEVICE_SELECTOR + VIEW.SIGNIN).children(kendo.roleSelector('content')).find(kendo.roleSelector('button')).each(function () {
                 var buttonWidget = $(this).data('kendoMobileButton');
                 if (buttonWidget instanceof kendo.mobile.ui.Button) {
                     buttonWidget.enable(enable);
@@ -3257,7 +3257,7 @@ if (typeof(require) === 'function') {
          * @param enable
          */
         mobile.enableUserButtons = function (enable) {
-            $(DEVICE_SELECTOR + VIEW.USER).find(kendo.roleSelector('button')).each(function () {
+            $(DEVICE_SELECTOR + VIEW.USER).children(kendo.roleSelector('content')).find(kendo.roleSelector('button')).each(function () {
                 var buttonWidget = $(this).data('kendoMobileButton');
                 if (buttonWidget instanceof kendo.mobile.ui.Button) {
                     buttonWidget.enable(enable);
