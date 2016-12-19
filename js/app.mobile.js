@@ -10,6 +10,7 @@ if (typeof(require) === 'function') {
 
     // Load other CSS
     require('../styles/kidoju.widgets.markdown.less');
+    require('../styles/kidoju.widgets.mathexpression.less');
     require('../styles/kidoju.widgets.mediaplayer.less');
     require('../styles/kidoju.widgets.messagebox.less');
     require('../styles/kidoju.widgets.multicheckbox.less');
