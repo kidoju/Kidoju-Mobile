@@ -99,7 +99,7 @@
                 message: error.message,
                 type: error.type,
                 code: error.code,
-                stack: error.stack.toString()
+                stack: error.stack && error.stack.toString()
             });
             return [
                 { responseText: JSON.stringify({ error: obj }) },
