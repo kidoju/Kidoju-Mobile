@@ -1,7 +1,81 @@
-var path = require('path');
+/****************************************************************
+ * On any platform including Travis-CI
+ ****************************************************************/
+var seleniumArgs = {};
+var capabilities = [{
+    // maxInstances can get overwritten per capability. So if you have an in-house Selenium
+    // grid with only 5 firefox instance available you can make sure that not more than
+    // 5 instance gets started at a time.
+    maxInstances: 5,
+    // The following are the default drivers installed with selenium-standalone
+    // browserName: 'chrome'
+    // browserName: 'firefox' // gecko
+    // browserName: 'internet explorer'
+    // The following driver is installed with phantomjs-brebuilt
+    browserName: 'phantomjs'
+}];
+/****************************************************************
+ * On our Windows environment
+ ****************************************************************/
+if (/^win/.test(process.platform)) {
+    var path = require('path');
+    seleniumArgs = {
+        // Drivers can be downloaded at http://docs.seleniumhq.org/download/
+        javaArgs: [
+            // Add Microsoft Edge driver
+            '-Dwebdriver.edge.driver=' + path.join(__dirname, './test/bin/MicrosoftWebDriver.exe')
+            // Add opera driver
+            // '-Dwebdriver.opera.driver=' + path.join(__dirname, './test/bin/operadriver.exe')
+        ]
+        // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
+        // seleniumArgs: [],
+        // version
+        // spawnCb
+        // drivers
+        // basePath
+        // javaPath
+    };
+    capabilities = [
+        {
+            maxInstances: 1,
+            browserName: 'chrome'
+        },
+        {
+            maxInstances: 1,
+            browserName: 'firefox',
+            // @see https://github.com/vvo/selenium-standalone/issues/237
+            // @see http://stackoverflow.com/questions/38125581/how-to-enable-a-firefox-extension-when-testing-with-selenium-webdriverio
+            marionette: true
+        },
+        {
+            maxInstances: 1,
+            browserName: 'internet explorer'
+        },
+        {
+            maxInstances: 1,
+            browserName: 'MicrosoftEdge'
+        },
+        {
+            maxInstances: 1,
+            browserName: 'phantomjs',
+            // Without the path, phantomJS is not found on Windows
+            'phantomjs.binary.path': path.join(__dirname, './node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe')
+        }
+        /*
+        {
+            maxInstances: 1,
+            browserName: 'operablink'
+            operaOptions: {
+                // binary: 'C:\\Program Files (x86)\\Opera\\launcher.exe'
+                binary: 'C:\\Program Files (x86)\\Opera\\42.0.2393.94\\opera.exe'
+            }
+        }
+         */
+
+    ];
+}
 
 exports.config = {
-
     // =====================
     // Server Configurations
     // =====================
@@ -63,21 +137,7 @@ exports.config = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://docs.saucelabs.com/reference/platforms-configurator
     //
-    capabilities: [{
-        // maxInstances can get overwritten per capability. So if you have an in-house Selenium
-        // grid with only 5 firefox instance available you can make sure that not more than
-        // 5 instance gets started at a time.
-        maxInstances: 5,
-        //
-        // browserName: 'chrome'
-        // browserName: 'firefox'
-        // browserName: 'internet explorer'
-        // browserName: 'MicrosoftEdge'
-        browserName: 'phantomjs',
-
-        // Without the path, phantomJS is not found on Windows (not required on Travis CI)
-        'phantomjs.binary.path': path.join(__dirname, './node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe')
-    }],
+    capabilities: capabilities, // See above
     //
     // When enabled opens a debug port for node-inspector and pauses execution
     // on `debugger` statements. The node-inspector can be attached with:
@@ -89,8 +149,6 @@ exports.config = {
     //
     // Additional list node arguments to use when starting child processes
     // execArgv: null,
-    //
-    //
     //
     // ===================
     // Test Configurations
@@ -149,6 +207,11 @@ exports.config = {
     // commands. Instead, they hook themselves up into the test process.
     // services: [],
     services: ['selenium-standalone', 'static-server'],
+    // selenium-standalone configuration
+    // @see http://webdriver.io/guide/services/selenium-standalone.html
+    // @see https://www.npmjs.com/package/selenium-standalone
+    seleniumArgs: seleniumArgs,
+    // static-server configuration
     // @see http://webdriver.io/guide/services/static-server.html
     staticServerFolders: [
         { mount: '/', path: './www' }
