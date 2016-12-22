@@ -1,5 +1,30 @@
+var path = require('path');
+
 exports.config = {
 
+    // =====================
+    // Server Configurations
+    // =====================
+    // Host address of the running Selenium server. This information is usually obsolete as
+    // WebdriverIO automatically connects to localhost. Also, if you are using one of the
+    // supported cloud services like Sauce Labs, Browserstack, or Testing Bot you don't
+    // need to define host and port information because WebdriverIO can figure that out
+    // according to your user and key information. However, if you are using a private Selenium
+    // backend you should define the host address, port, and path here.
+    //
+    // host: '0.0.0.0',
+    // port: 4444,
+    // path: '/wd/hub',
+    //
+    // =================
+    // Service Providers
+    // =================
+    // WebdriverIO supports Sauce Labs, Browserstack, and Testing Bot (other cloud providers
+    // should work too though). These services define specific user and key (or access key)
+    // values you need to put in here in order to connect to these services.
+    //
+    // user: 'webdriverio',
+    // key:  'xxxxxxxxxxxxxxxx-xxxxxx-xxxxx-xxxxxxxxx',
     //
     // ==================
     // Specify Test Files
@@ -48,8 +73,24 @@ exports.config = {
         // browserName: 'firefox'
         // browserName: 'internet explorer'
         // browserName: 'MicrosoftEdge'
-        browserName: 'phantomjs'
+        browserName: 'phantomjs',
+
+        // Without the path, phantomJS is not found on Windows (not required on Travis CI)
+        'phantomjs.binary.path': path.join(__dirname, './node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe')
     }],
+    //
+    // When enabled opens a debug port for node-inspector and pauses execution
+    // on `debugger` statements. The node-inspector can be attached with:
+    // `node-inspector --debug-port 5859 --no-preload`
+    // When debugging it is also recommended to change the timeout interval of
+    // test runner (eg. jasmineNodeOpts.defaultTimeoutInterval) to a very high
+    // value and setting maxInstances to 1.
+    // debug: false,
+    //
+    // Additional list node arguments to use when starting child processes
+    // execArgv: null,
+    //
+    //
     //
     // ===================
     // Test Configurations
@@ -106,8 +147,14 @@ exports.config = {
     // Services take over a specific job you don't want to take care of. They enhance
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
-    // services: [],//
-    services: ['selenium-standalone'],
+    // services: [],
+    services: ['selenium-standalone', 'static-server'],
+    // @see http://webdriver.io/guide/services/static-server.html
+    staticServerFolders: [
+        { mount: '/', path: './www' }
+    ],
+    staticServerLog: true,
+    staticServerPort: 3000,
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
     // see also: http://webdriver.io/guide/testrunner/frameworks.html
@@ -125,7 +172,8 @@ exports.config = {
     // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd'
-    },
+    }
+    // ,
     //
     // =====
     // Hooks
@@ -136,9 +184,9 @@ exports.config = {
     // resolved to continue.
     //
     // Gets executed once before all workers get launched.
-    onPrepare: function (config, capabilities) {
-        // var app = require('./webapp/server'); // Start the web application
-    }
+    // onPrepare: function (config, capabilities) {
+    // var app = require('./webapp/server'); // Start the web application
+    // }
     //
     // Gets executed before test execution begins. At this point you can access all global
     // variables, such as `browser`. It is the perfect place to define custom commands.
