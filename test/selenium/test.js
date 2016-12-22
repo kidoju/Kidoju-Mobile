@@ -8,14 +8,20 @@
 
 'use strict';
 
-// var expect = require('chai').expect;
+var expect = require('chai').expect;
 // var util = require('util');
-var assert = require('assert');
 
-describe('webdriver.io page', function () {
+describe('index.html', function () {
+
+    before(function (done) {
+        browser.url('/index.html');
+        // Note: it won't work in PhantomJS without settings the window size
+        browser.windowHandleSize({ width:1280, height:800 });
+    });
+
     it('should have the right title - the fancy generator way', function () {
-        browser.url('http://webdriver.io');
+        browser.logger.info(browser.getUrl());
         var title = browser.getTitle();
-        assert.equal(title, 'WebdriverIO - Selenium 2.0 javascript bindings for nodejs');
+        expect(title).to.equal('Kidoju.Mobile');
     });
 });
