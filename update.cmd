@@ -67,9 +67,9 @@ REM COPY ..\Kidoju.Webapp\webpack.config.js .\ /Y
 REM ATTRIB +R .\webpack.config.js
 
 REM selenium
-ATTRIB -R .\wdio.conf.js
-COPY ..\Kidoju.Webapp\wdio.conf.js .\ /Y
-ATTRIB +R .\wdio.conf.js
+REM ATTRIB -R .\wdio.conf.js
+REM COPY ..\Kidoju.Webapp\wdio.conf.js .\ /Y
+REM ATTRIB +R .\wdio.conf.js
 
 REM ------------------------------------------------------------
 REM Graphics
