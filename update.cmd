@@ -183,6 +183,11 @@ REM ------------------------------------------------------------
 REM Tests
 REM ------------------------------------------------------------
 
+REM Copy ./test/selenium files
+ATTRIB -R .\test\selenium\selenium.js
+COPY ..\Kidoju.Webapp\test\selenium\selenium.js .\test\selenium /Y
+ATTRIB +R .\test\selenium\selenium.js
+
 REM Copy Vendor files
 XCOPY ..\Kidoju.Widgets\test\vendor .\test\vendor /C /E /I /R /Y
 ATTRIB +R .\test\vendor\*.* /S
