@@ -128,6 +128,8 @@ COPY ..\Kidoju.Server\client\js\app.logger.js .\js /Y
 ATTRIB +R .\js\app.logger.js
 COPY ..\Kidoju.Server\client\js\app.rapi.js .\js /Y
 ATTRIB +R .\js\app.rapi.js
+COPY ..\Kidoju.Server\client\js\app.rapi.mock.js .\js /Y
+ATTRIB +R .\js\app.rapi.mock.js
 COPY ..\Kidoju.Server\client\js\app.cache.js .\js /Y
 ATTRIB +R .\js\app.cache.js
 COPY ..\Kidoju.Server\client\js\app.models.js .\js /Y
