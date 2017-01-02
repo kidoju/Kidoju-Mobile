@@ -10,7 +10,6 @@
 
 var expect = require('chai').expect;
 // var util = require('util');
-require('./selenium')(browser);
 
 var WAIT = 2000;
 var IPHONE5 = {
@@ -21,7 +20,7 @@ var IPHONE5 = {
 /**
  * Enhance browser with our Ex functions
  */
-require('./selenium')(browser);
+require('./selenium');
 
 describe('Kidoju Mobile', function () {
 
@@ -34,8 +33,9 @@ describe('Kidoju Mobile', function () {
         }
         browser.url('/index.html');
         tabId = browser.getCurrentTabId();
-        // Note: it won't work in PhantomJS without settings the window size
+        // Note: it won't work in PhantomJS without setting the window size
         browser.windowHandleSize({ width: IPHONE5.WIDTH, height: IPHONE5.HEIGHT });
+        // Now load our $.ajax mockup scripts
         browser.execute(function () {
             var SRC = './js/app.rapi.mock.js';
             var head = document.getElementsByTagName('head')[0];
@@ -54,11 +54,13 @@ describe('Kidoju Mobile', function () {
                 head.appendChild(script);
             }
         });
+        // TODO: call reset to load JSON files into database
     });
 
     describe('TODO', function () {
 
-        // this.retries(2);
+        // Retry all tests in this suite up to 3 times
+        this.retries(3);
 
         beforeEach(function () {
             // browser.switchTab ensures we are running all tests on the same tab
@@ -68,11 +70,7 @@ describe('Kidoju Mobile', function () {
         });
 
         it('should have the right title', function () {
-            var title = browser.getTitle();
-            expect(title).to.equal('Kidoju.Mobile');
-        });
-
-        it('should have the right title - the fancy generator way', function () {
+            // TODO COnsider the page object patterm
             var title = browser.getTitle();
             expect(title).to.equal('Kidoju.Mobile');
         });
