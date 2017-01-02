@@ -1,5 +1,25 @@
-#Kidoju Mobile
+# Kidoju-Mobile
 
-[![Join the chat at https://gitter.im/Kidoju-Mobile/Lobby](https://badges.gitter.im/Kidoju-Mobile/Lobby.svg)](https://gitter.im/Kidoju-Mobile/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/Kidoju/Kidoju-Mobile](https://badges.gitter.im/Kidoju/Kidoju-Mobile.svg)](https://gitter.im/Kidoju/Kidoju-Mobile?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/kidoju/Kidoju-Mobile.svg?branch=master)](https://travis-ci.org/kidoju/Kidoju-Mobile)
+[![Dependency Status](https://david-dm.org/kidoju/Kidoju-Mobile/status.svg)](https://david-dm.org/kidoju/Kidoju-Mobile#info=dependencies)
+[![devDependency Status](https://david-dm.org/kidoju/Kidoju-Mobile/dev-status.svg)](https://david-dm.org/kidoju/Kidoju-Mobile#info=devDependencies)
 
-> Create and share phenomenal quizzes
+
+> Mobile application for the Kidoju platform.
+
+## Architecture and design
+
+This application is architected and designed in compliance with [Phonegap](http://phonegap.com/).
+
+## Requirements
+
+
+
+## Execution and tests
+
+TODO
+
+## Copyright
+
+Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
