@@ -12,7 +12,7 @@ var expect = require('chai').expect;
 // var util = require('util');
 
 var WAIT = 2000;
-var IPHONE5 = {
+var SCREEN = { // iPhone 5
     HEIGHT: 568,
     WIDTH: 320
 };
@@ -26,7 +26,7 @@ describe('Kidoju Mobile', function () {
 
     var tabId;
 
-    before(function (done) {
+    before(function () {
         if (browser.desiredCapabilities.browserName === 'firefox') {
             // This prevents `No such content frame; perhaps the listener was not registered?`
             browser.pause(200);
@@ -34,7 +34,7 @@ describe('Kidoju Mobile', function () {
         browser.url('/index.html');
         tabId = browser.getCurrentTabId();
         // Note: it won't work in PhantomJS without setting the window size
-        browser.windowHandleSize({ width: IPHONE5.WIDTH, height: IPHONE5.HEIGHT });
+        browser.windowHandleSize({ height: SCREEN.HEIGHT, width: SCREEN.WIDTH });
         // Now load our $.ajax mockup scripts
         browser.execute(function () {
             var SRC = './js/app.rapi.mock.js';
