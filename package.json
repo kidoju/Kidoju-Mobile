@@ -35,7 +35,7 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "autoprefixer": "^6.6.0",
+    "autoprefixer": "^6.6.1",
     "bundle-loader": "^0.5.4",
     "chai": "^3.5.0",
     "css-loader": "^0.26.1",
@@ -71,7 +71,7 @@
     "phantomjs-prebuilt": "^2.1.14",
     "postcss-loader": "^1.2.1",
     "selenium-standalone": "^5.9.0",
-    "sinon": "^1.17.6",
+    "sinon": "^1.17.7",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "wdio-mocha-framework": "^0.5.8",
