@@ -19,7 +19,7 @@
 
     (function ($, undefined) {
 
-        var app = window.app = window.app || app;
+        var app = window.app = window.app || {};
         var assert = window.assert;
         var logger = new window.Logger('app.fs');
         var STRING = 'string';

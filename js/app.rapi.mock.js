@@ -5,9 +5,9 @@
 
 /* jshint browser: true, jquery: true */
 
-'use strict';
-
 (function ($) {
+
+    'use strict';
 
     var app = window.app = window.app || {};
     var assert = window.assert;
