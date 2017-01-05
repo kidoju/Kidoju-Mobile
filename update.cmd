@@ -137,6 +137,10 @@ ATTRIB +R .\js\app.models.js
 COPY ..\Kidoju.Server\client\js\app.models.mock.js .\js /Y
 ATTRIB +R .\js\app.models.mock.js
 
+REM Kidoju webapp client API
+COPY ..\Kidoju.WebApp\js\app.tts.js .\js /Y
+ATTRIB +R .\js\app.tts.js
+
 REM Copy .jshintrc
 ATTRIB -R .\js\.jshintrc
 COPY ..\Kidoju.WebApp\js\.jshintrc .\js /Y
@@ -182,6 +186,11 @@ ATTRIB +R .\styles\images\*.png
 REM ------------------------------------------------------------
 REM Tests
 REM ------------------------------------------------------------
+
+REM Copy ./test/browser files
+ATTRIB -R .\test\browser\app.tts.*
+COPY ..\Kidoju.Webapp\test\browser\app.tts.js .\test\browser /Y
+ATTRIB +R .\test\browser\app.tts.*
 
 REM Copy ./test/selenium files
 ATTRIB -R .\test\selenium\selenium.js

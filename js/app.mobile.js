@@ -99,7 +99,8 @@ if (typeof(require) === 'function') {
         './app.utils',
         './app.assets',
         './app.models',
-        './app.mobile.models'
+        './app.mobile.models',
+        './app.tts'
     ], f);
 })(function () {
 
@@ -386,8 +387,7 @@ if (typeof(require) === 'function') {
                 // safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 safariViewController: window.cordova && window.device && window.device.platform === 'iOS' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 socialsharing: window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
-                splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide),
-                textToSpeech: window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak)
+                splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
             };
             // barcodeScanner requires phonegap-plugin-barcodescanner
             if (mobile.support.barcodeScanner) {
@@ -408,10 +408,6 @@ if (typeof(require) === 'function') {
             // SafariViewController requires cordova-plugin-safariviewcontroller
             if (mobile.support.safariViewController) {
                 mobile.SafariViewController = window.SafariViewController;
-            }
-            // TTS requires cordova-plugin-TTS
-            if (mobile.support.textToSpeech) {
-                mobile.textToSpeech = window.TTS;
             }
             // notification requires cordova-plugin-dialogs
             mobile.notification = {
@@ -3411,46 +3407,7 @@ if (typeof(require) === 'function') {
             // summaryView.find('.km-filter-form').show();
         };
 
-        /**
-         *
-         * @param text
-         * @param language
-         * @private
-         */
-        mobile._doSpeak = function (text, language) {
-            var dfd = $.Deferred();
-            if (mobile.support.textToSpeech) {
-                // For iOS and Android via TTS plugin
-                // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
-                mobile.textToSpeech.speak({ text: text, locale: language === 'fr' ? 'fr-FR' : 'en-US', rate: 1.5 }, dfd.resolve, dfd.reject);
-            } else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
-                // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
-                var utterance = new window.SpeechSynthesisUtterance(text);
-                utterance.lang = language;
-                utterance.rate = 1;
-                utterance.onend = dfd.resolve; // Returns a SpeechSynthesisEvent
-                utterance.onerror = dfd.reject;
-                window.speechSynthesis.speak(utterance);
-            }
-            return dfd.promise();
-        };
 
-        /**
-         *
-         * @private
-         */
-        mobile._cancelSpeak = function () {
-            var dfd =  $.Deferred();
-            if (mobile.support.textToSpeech) {
-                // For iOS and Android via TTS plugin
-                mobile.textToSpeech.speak('', dfd.resolve, dfd.reject);
-            }  else if (window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance)) {
-                // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
-                window.speechSynthesis.cancel();
-                dfd.resolve();
-            }
-            return dfd.promise();
-        };
 
         /**
          * Play text-to-speach synthesis
@@ -3470,18 +3427,15 @@ if (typeof(require) === 'function') {
             if (!speaking) {
                 e.button.attr(kendo.attr(SPEAKING), 'true');
                 var field = e.button.attr(kendo.attr('tts'));
-                // Clear the markdown from markings that are irrelevant to speech
-                var text = viewModel.get(field)
-                    .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
-                    .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
+                var text = viewModel.get(field);
                 // Speak
-                mobile._doSpeak(text, i18n.locale())
+                app.tts.doSpeak(text, i18n.locale(), true)
                     .always(function () {
                         e.button.removeAttr(kendo.attr(SPEAKING));
                     });
             } else {
                 // Cancel
-                mobile._cancelSpeak()
+                app.tts.cancelSpeak()
                     .always(function () {
                         e.button.removeAttr(kendo.attr(SPEAKING));
                     });
