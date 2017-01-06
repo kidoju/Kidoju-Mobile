@@ -42,9 +42,9 @@
         });
 
         it('useSpeechSynthesis should be true in Chrome and Safari', function () {
-            // Only Internet Explorer does not support SpeechSynthesis at this stage
-            //@see http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
-            expect(tts.useSpeechSynthesis).to.equal(!document.documentMode);
+            // Only Internet Explorer and PhantomJS do not support SpeechSynthesis at this stage
+            // @see http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
+            expect(tts.useSpeechSynthesis).to.equal(!document.documentMode && !window.PHANTOMJS);
         });
 
         it('_clearMarkdown should clear markings', function () {

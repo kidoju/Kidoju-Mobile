@@ -189,7 +189,7 @@ REM ------------------------------------------------------------
 
 REM Copy ./test/browser files
 ATTRIB -R .\test\browser\app.tts.*
-COPY ..\Kidoju.Webapp\test\browser\app.tts.js .\test\browser /Y
+COPY ..\Kidoju.Webapp\test\browser\app.tts.* .\test\browser /Y
 ATTRIB +R .\test\browser\app.tts.*
 
 REM Copy ./test/selenium files
