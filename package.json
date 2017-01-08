@@ -70,7 +70,7 @@
     "nconf": "^0.8.4",
     "phantomjs-prebuilt": "^2.1.14",
     "postcss-loader": "^1.2.1",
-    "selenium-standalone": "^5.9.0",
+    "selenium-standalone": "^5.9.1",
     "sinon": "^1.17.7",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
