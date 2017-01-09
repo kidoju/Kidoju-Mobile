@@ -91,6 +91,9 @@ module.exports = function (grunt) {
                 src: ['test/node/**/*.js']
             }
         },
+        nsp: {
+            package: grunt.file.readJSON('package.json')
+        },
         uglify: {
             build: {
                 options: {
@@ -127,23 +130,21 @@ module.exports = function (grunt) {
         }
     });
 
-    // Lint
-    grunt.loadNpmTasks('grunt-jscs');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    // grunt.loadNpmTasks('grunt-kendo-lint');
-
-    // Build
-    grunt.loadNpmTasks('grunt-webpack');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+    // Load npm tasks
     grunt.loadNpmTasks('grunt-contrib-copy');
-
-    // Tests
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-jscs');
+    // grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
+    grunt.loadNpmTasks('grunt-nsp');
     grunt.loadNpmTasks('grunt-webdriver');
+    grunt.loadNpmTasks('grunt-webpack');
+
 
     // Commands
-    grunt.registerTask('lint', ['jscs', 'jshint', 'kendo_lint']);
+    grunt.registerTask('lint', ['jscs', 'jshint', 'nsp']); // 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'copy']);
     grunt.registerTask('test', ['mocha', 'mochaTest', 'webdriver']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
