@@ -259,7 +259,11 @@
 
     <!-- Categories view -->
     <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
-        <!-- Display search button -->
+        <!-- dropdown of top categories -->
+        <div style="padding: 7px;">
+            <input data-role="dropdownlist" data-bind="value: user.categoryId, source: topCategories$()" data-value-field="id" data-text-field="name" style="width:100%">
+        </div>
+        <!-- listview of sub-categories -->
         <ul data-role="listview" data-bind="source: categories" data-template="phone-categories-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-categories-template">
@@ -373,14 +377,20 @@
                 </li>
                 <li>
                     <label>
+                        <span>Theme</span>
+                        <input data-role="dropdownlist" data-bind="value: settings.theme, source: themes" data-value-field="name" data-text-field="text" />
+                    </label>
+                </li>
+                <li>
+                    <label>
                         <span>Language</span>
                         <input data-role="dropdownlist" data-bind="value: settings.language, source: languages" data-value-field="value" data-text-field="text"  />
                     </label>
                 </li>
                 <li>
                     <label>
-                        <span>Theme</span>
-                        <input data-role="dropdownlist" data-bind="value: settings.theme, source: themes" data-value-field="name" data-text-field="text" />
+                        <span>Category</span>
+                        <input data-role="dropdownlist" data-bind="value: user.categoryId, source: topCategories$()" data-value-field="id" data-text-field="name"  />
                     </label>
                 </li>
             </ul>

@@ -160,10 +160,11 @@
             settings: {
                 viewTitle: 'Settings',
                 // Labels
-                user: 'User',
-                version: 'Version',
+                category: 'Curriculum',
                 language: 'Language',
                 theme: 'Theme',
+                user: 'User',
+                version: 'Version',
                 // Buttons
                 switch: 'Switch User'
             },

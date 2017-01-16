@@ -17,6 +17,7 @@
     var uris = app.uris = app.uris || {
             rapi: {
                 root: 'https://www.kidoju.com',
+                reset: '/reset',
                 v1: {
                     activities: '/api/v1/{0}/summaries/{1}/activities',
                     activity: '/api/v1/{0}/summaries/{1}/activities/{2}',
@@ -231,6 +232,20 @@
      * $.mockjax
      */
     $.mockjax([
+
+        /***************************************************************************************************************
+         * Reset
+         ***************************************************************************************************************/
+
+        /**
+         * /reset
+         */
+        {
+            url: uris.rapi.root + uris.rapi.reset,
+            response: function (request) {
+                // TODO: Clear + load JSON files in indexedb
+            }
+        },
 
         /***************************************************************************************************************
          * Taxonomy

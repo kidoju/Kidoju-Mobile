@@ -163,10 +163,11 @@
             settings: {
                 viewTitle: 'Réglages',
                 // Labels
-                user: 'Utilisateur',
-                version: 'Version',
+                category: 'Curriculum',
                 language: 'Langue',
                 theme: 'Thème',
+                user: 'Utilisateur',
+                version: 'Version',
                 // Buttons
                 switch: 'Changer d\'Utilisateur'
             },

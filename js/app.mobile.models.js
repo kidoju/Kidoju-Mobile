@@ -125,10 +125,18 @@
                     editable: false,
                     nullable: false
                 },
+                categoryId: {
+                    type: STRING,
+                    defaultValue: ''
+                },
                 firstName: {
                     type: STRING,
                     editable: false,
                     nullable: false
+                },
+                language: {
+                    type: STRING,
+                    defaultValue: 'en'
                 },
                 lastName: {
                     type: STRING,
@@ -158,8 +166,11 @@
                     type: STRING,
                     editable: false,
                     nullable: false
+                },
+                theme: {
+                    type: STRING,
+                    defaultValue: 'flat'
                 }
-                // TODO: Consider theme and language
                 // consider locale (for display of numbers, dates and currencies)
                 // consider timezone (for display of dates), born (for searches)
             },

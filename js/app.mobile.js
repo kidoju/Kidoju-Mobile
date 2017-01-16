@@ -213,10 +213,13 @@ if (typeof(require) === 'function') {
             THEMES: 'themes',
             USER: {
                 $: 'user',
+                CATEGORY_ID: 'user.categoryId',
                 FIRST_NAME: 'user.firstName',
+                LANGUAGE: 'user.language',
                 LAST_NAME: 'user.lastName',
                 LAST_USE: 'user.lastUse',
-                SID: 'user.sid'
+                SID: 'user.sid',
+                THEME: 'user.theme'
             },
             USERS: 'users',
             VERSION: {
@@ -1326,6 +1329,26 @@ if (typeof(require) === 'function') {
                             data: { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
+            },
+
+            /**
+             * Return an array of topCategories
+             */
+            topCategories$: function () {
+                var categories = this.get(VIEW_MODEL.CATEGORIES);
+                return categories.data()
+                    .filter(function (category) {
+                        return !RX_MONGODB_ID.test(category.parentId);
+                    })
+                    .sort(function (category1, category2) {
+                        if (category1.id < category2.id) {
+                            return -1;
+                        } else if (category1.id > category2.id) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    });
             }
 
         });
@@ -1341,6 +1364,9 @@ if (typeof(require) === 'function') {
             assert.type(STRING, e.field, kendo.format(assert.messages.type.default, 'e.field', STRING));
             assert.instanceof(kendo.Observable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.Observable'));
             switch (e.field) {
+                case VIEW_MODEL.USER.CATEGORY_ID:
+                    viewModel.categories.filter({ field: 'parentId', operator: 'eq', value: viewModel.get(VIEW_MODEL.USER.CATEGORY_ID) });
+                    break;
                 case VIEW_MODEL.SETTINGS.LANGUAGE:
                     if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {
                         mobile.localize(e.sender.get(VIEW_MODEL.SETTINGS.LANGUAGE));
@@ -1762,8 +1788,9 @@ if (typeof(require) === 'function') {
             // Localize field labels
             viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.user);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.version);
-            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.language);
-            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.theme);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.theme);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.language);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.category);
             // Localize buttons
             viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.switch);
         };
