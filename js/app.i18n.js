@@ -73,8 +73,6 @@
                         method: 'setLocale'
                     });
                     dfd.resolve();
-                    // trigger event for localization
-                    $(document).trigger(LOADED);
                 }
 
                 if (cultures[locale]) {
@@ -118,16 +116,11 @@
                     return (localStorage && localStorage.getItem(LANGUAGE)) || DEFAULT;
 
                 } else if ($.type(locale) === UNDEFINED) { // Kidoju-WebApp
-
                     return document.getElementsByTagName('html')[0].getAttribute('lang') || DEFAULT;
-
                 } else {
-
                     throw new TypeError('Bad locale');
-
                 }
             }
-
         };
 
         /**
@@ -145,7 +138,10 @@
                     });
 
                 // Load i18n locale
-                i18n.load(locale);
+                i18n.load(locale).done(function () {
+                    // trigger event for localization
+                    $(document).trigger(LOADED);
+                });
             });
         } else { // In Kidoju-Mobile
             // Wait for Cordova to load
@@ -158,16 +154,25 @@
                             if (app.locales.indexOf(locale) === -1) {
                                 locale = DEFAULT;
                             }
-                            i18n.load(locale);
+                            i18n.load(locale).done(function () {
+                                // trigger event for localization
+                                $(document).trigger(LOADED);
+                            });
                         },
                         function () {
                             // In case of error, use default language
-                            i18n.load(DEFAULT);
+                            i18n.load(DEFAULT).done(function () {
+                                // trigger event for localization
+                                $(document).trigger(LOADED);
+                            });
                         }
                     );
                 } else {
                     // Without cordova-plugin-globalization, use default language
-                    i18n.load(DEFAULT);
+                    i18n.load(DEFAULT).done(function () {
+                        // trigger event for localization
+                        $(document).trigger(LOADED);
+                    });
                 }
             }, false);
         }
