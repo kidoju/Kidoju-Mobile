@@ -82,8 +82,13 @@
         var UNDEFINED = 'undefined';
         var RX_LANGUAGE = /^[a-z]{2}$/;
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
-        var DATE_0 = new Date(2000, 0, 1); // 1/1/2000
         var DOT_JPEG = '.jpg';
+        var DEFAULT = {
+            CATEGORY_ID: '000100010000000000000000',
+            DATE: new Date(2000, 0, 1), // 1/1/2000
+            LANGUAGE: 'en',
+            THEME: 'flat' // The default theme is actually defined in app.theme.js - make sure they match!
+        };
 
         /**
          * An error helper that converts an error into an array [xhr, status, error]
@@ -122,54 +127,45 @@
                 },
                 sid: { // mongodb server id
                     type: STRING,
-                    editable: false,
-                    nullable: false
+                    editable: false
                 },
                 categoryId: {
                     type: STRING,
-                    defaultValue: ''
+                    defaultValue: DEFAULT.CATEGORY_ID
                 },
                 firstName: {
                     type: STRING,
-                    editable: false,
-                    nullable: false
+                    editable: false
                 },
                 language: {
                     type: STRING,
-                    defaultValue: 'en'
+                    defaultValue: DEFAULT.LANGUAGE
                 },
                 lastName: {
                     type: STRING,
-                    editable: false,
-                    nullable: false
+                    editable: false
                 },
                 // Last time when the mobile device was synchronized with the server for that specific user
                 lastSync: {
                     type: DATE,
-                    editable: true,
-                    nullable: false,
-                    defaultValue: DATE_0
+                    defaultValue: DEFAULT.DATE
                 },
                 // The current user is the user with the most recent lastUse
                 lastUse: {
                     type: DATE,
-                    editable: true,
-                    nullable: false,
-                    defaultValue: DATE_0
+                    defaultValue: DEFAULT.DATE
                 },
                 md5pin: {
                     type: STRING,
-                    editable: true,
                     nullable: true
                 },
                 picture: {
                     type: STRING,
-                    editable: false,
-                    nullable: false
+                    editable: false
                 },
                 theme: {
                     type: STRING,
-                    defaultValue: 'flat'
+                    defaultValue: DEFAULT.THEME
                 }
                 // consider locale (for display of numbers, dates and currencies)
                 // consider timezone (for display of dates), born (for searches)

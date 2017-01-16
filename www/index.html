@@ -371,20 +371,19 @@
                 <li>
                     <label>
                         <span>Version</span>
-                        <div data-bind="text: settings.version" class="form-readonly" />
-                        <!-- TODO Show upgrade sign if it does not match server -->
+                        <div data-bind="text: version$()" class="form-readonly" />
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Theme</span>
-                        <input data-role="dropdownlist" data-bind="value: settings.theme, source: themes" data-value-field="name" data-text-field="text" />
+                        <input data-role="dropdownlist" data-bind="value: user.theme, source: themes" data-value-field="name" data-text-field="text" />
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Language</span>
-                        <input data-role="dropdownlist" data-bind="value: settings.language, source: languages" data-value-field="value" data-text-field="text"  />
+                        <input data-role="dropdownlist" data-bind="value: user.language, source: languages" data-value-field="value" data-text-field="text"  />
                     </label>
                 </li>
                 <li>

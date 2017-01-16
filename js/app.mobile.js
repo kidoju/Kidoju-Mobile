@@ -166,10 +166,6 @@ if (typeof(require) === 'function') {
             SYNC: '-sync',
             USER: '-user'
         };
-        var DEFAULT = {
-            LANGUAGE: 'en',
-            THEME: 'flat' // The default theme is actually defined in app.theme.js
-        };
         var DISPLAY = {
             INLINE: 'inline-block',
             NONE: 'none',
@@ -197,11 +193,6 @@ if (typeof(require) === 'function') {
             LANGUAGES: 'languages',
             PAGES_COLLECTION: 'version.stream.pages',
             SELECTED_PAGE: 'selectedPage',
-            SETTINGS: {
-                $: 'settings',
-                LANGUAGE: 'settings.language',
-                THEME: 'settings.theme'
-            },
             SUMMARY: {
                 $: 'summary',
                 DESCRIPTION: 'summary.description',
@@ -251,7 +242,7 @@ if (typeof(require) === 'function') {
         window.onerror = function (message, source, lineno, colno, error) {
             // setTimeout is for SafariViewController and InAppBrowser
             setTimeout(function () {
-                app.notification.error(i18n.culture.notifications.unknownError);
+                i18n.culture && app.notification.error(i18n.culture.notifications.unknownError);
                 logger.crit({
                     message: message,
                     method: 'window.onerror',
@@ -643,16 +634,6 @@ if (typeof(require) === 'function') {
             selectedPage: undefined,
 
             /**
-             * User settings
-             */
-            settings: {
-                user: null,
-                version: app.version,
-                language: DEFAULT.LANGUAGE,
-                theme: DEFAULT.THEME
-            },
-
-            /**
              * Summaries
              */
             summaries: new models.LazySummaryDataSource(),
@@ -739,7 +720,7 @@ if (typeof(require) === 'function') {
 
                 // List of activities
                 this.set(VIEW_MODEL.ACTIVITIES, new models.MobileActivityDataSource({
-                    language: this.get(VIEW_MODEL.SETTINGS.LANGUAGE),
+                    language: this.get(VIEW_MODEL.USER.LANGUAGE),
                     userId: this.get(VIEW_MODEL.USER.SID)
                 }));
 
@@ -761,7 +742,7 @@ if (typeof(require) === 'function') {
                 this.set(VIEW_MODEL.SELECTED_PAGE, undefined);
 
                 // TODO: Settings
-                // this.set(VIEW_MODEL.SETTINGS, {});
+                // this.set(VIEW_MODEL.USER, {});
 
                 // Search (per category or full text)
                 this.set(VIEW_MODEL.SUMMARIES, new models.LazySummaryDataSource({
@@ -813,59 +794,6 @@ if (typeof(require) === 'function') {
                                 data: { status: status, error: error, response: parseResponse(xhr) }
                             });
                         });
-                }
-                return dfd.promise();
-            },
-
-            /**
-             * Load settings from local storage
-             */
-            loadSettings: function () {
-                var that = this;
-                var dfd = $.Deferred();
-
-                // Theme - We need the same localStorage location as in Kidoju.Webapp to be able to use app.theme.js to load themes
-                var theme = localStorage.getItem(STORAGE.THEME);
-
-                // Language
-                var language = localStorage.getItem(STORAGE.LANGUAGE);
-
-                logger.debug({
-                    message: 'Language and theme read from localStorage',
-                    method: 'viewModel.loadSettings',
-                    data: { language: language, theme: theme }
-                });
-
-                // Set theme (Would have been better via a callback from load method in app.theme.js)
-                // We need to be careful that the default themes match here and in app.theme.js
-                that.set(VIEW_MODEL.SETTINGS.THEME, theme || DEFAULT.THEME);
-
-                // Set language
-                if (RX_LANGUAGE.test(language)) {
-                    // Language is already set
-                    that.set(VIEW_MODEL.SETTINGS.LANGUAGE, language);
-                    dfd.resolve();
-                } else if (window.cordova && window.navigator && window.navigator.globalization) {
-                    window.navigator.globalization.getLocaleName(
-                        function (locale) {
-                            // Device language found
-                            var language = locale.value.substr(0, 2);
-                            if (app.locales.indexOf(language) === -1) {
-                                language = DEFAULT.LANGUAGE;
-                            }
-                            that.set(VIEW_MODEL.SETTINGS.LANGUAGE, language);
-                            dfd.resolve();
-                        },
-                        function () {
-                            // In case of error, use default language
-                            that.set(VIEW_MODEL.SETTINGS.LANGUAGE, DEFAULT.LANGUAGE);
-                            dfd.resolve();
-                        }
-                    );
-                } else {
-                    // Without cordova or cordova-plugin-globalization, use default language
-                    that.set(VIEW_MODEL.SETTINGS.LANGUAGE, DEFAULT.LANGUAGE);
-                    dfd.resolve();
                 }
                 return dfd.promise();
             },
@@ -1198,7 +1126,7 @@ if (typeof(require) === 'function') {
              * @param name
              */
             getTheme: function () {
-                var name = this.get(VIEW_MODEL.SETTINGS.THEME);
+                var name = this.get(VIEW_MODEL.USER.THEME);
                 if (!this.get(VIEW_MODEL.THEMES).length) {
                     this.set(VIEW_MODEL.THEMES, i18n.culture.viewModel.themes);
                 }
@@ -1236,7 +1164,7 @@ if (typeof(require) === 'function') {
                 var userId = that.get(VIEW_MODEL.USER.SID); // Foreign keys use sids (server ids)
                 assert.match(RX_MONGODB_ID, userId, kendo.format(assert.messages.match.default, 'userId', RX_MONGODB_ID));
                 var language = i18n.locale();
-                assert.equal(language, that.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+                assert.equal(language, that.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
                 assert.equal(language, that.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
                 assert.equal(language, that.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
                 var summaryId = that.get(VIEW_MODEL.SUMMARY.ID);
@@ -1332,13 +1260,19 @@ if (typeof(require) === 'function') {
             },
 
             /**
-             * Return an array of topCategories
+             * Return an array of top-level categories (ordered by id)
              */
             topCategories$: function () {
                 var categories = this.get(VIEW_MODEL.CATEGORIES);
                 return categories.data()
                     .filter(function (category) {
-                        return !RX_MONGODB_ID.test(category.parentId);
+                        // category.parentId is null
+                        // return !RX_MONGODB_ID.test(category.parentId);
+                        // Another way to look at it is
+                        // first 4 bytes is language
+                        // following four bytes is top category
+                        // the rest should be zeros
+                        return (/^[a-z0-9]{8}[0]{16}$/).test(category.id)
                     })
                     .sort(function (category1, category2) {
                         if (category1.id < category2.id) {
@@ -1349,6 +1283,13 @@ if (typeof(require) === 'function') {
                             return 0;
                         }
                     });
+            },
+
+            /**
+             * Application version
+             */
+            version$: function () {
+                return app.version;
             }
 
         });
@@ -1364,25 +1305,6 @@ if (typeof(require) === 'function') {
             assert.type(STRING, e.field, kendo.format(assert.messages.type.default, 'e.field', STRING));
             assert.instanceof(kendo.Observable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.Observable'));
             switch (e.field) {
-                case VIEW_MODEL.USER.CATEGORY_ID:
-                    viewModel.categories.filter({ field: 'parentId', operator: 'eq', value: viewModel.get(VIEW_MODEL.USER.CATEGORY_ID) });
-                    break;
-                case VIEW_MODEL.SETTINGS.LANGUAGE:
-                    if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {
-                        mobile.localize(e.sender.get(VIEW_MODEL.SETTINGS.LANGUAGE));
-                    }
-                    viewModel.reset();
-                    break;
-                case VIEW_MODEL.SETTINGS.THEME:
-                    app.theme.name(e.sender.get(VIEW_MODEL.SETTINGS.THEME));
-                    if (mobile.application instanceof kendo.mobile.Application) {
-                        var theme = viewModel.getTheme();
-                        // mobile.application.options.platform = theme.platform;
-                        // mobile.application.options.majorVersion = theme.majorVersion;
-                        mobile.application.skin(theme.skin || '');
-                    }
-                    // else onDeviceReady has not yet been called and mobile.application has not yet een initialized with theme
-                    break;
                 case VIEW_MODEL.SELECTED_PAGE:
                     // Reset NavBar buttons and title
                     var view = mobile.application.view();
@@ -1404,6 +1326,27 @@ if (typeof(require) === 'function') {
                     break;
                 case VIEW_MODEL.USER.$:
                     viewModel.reset();
+                    break;
+                case VIEW_MODEL.USER.CATEGORY_ID:
+                    // First 4 bytes define the language
+                    // Following 4 bytes define the selected top category
+                    viewModel.categories.filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.CATEGORY_ID).substr(0, 8) });
+                    break;
+                case VIEW_MODEL.USER.LANGUAGE:
+                    if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {
+                        mobile.localize(e.sender.get(VIEW_MODEL.USER.LANGUAGE));
+                    }
+                    viewModel.reset();
+                    break;
+                case VIEW_MODEL.USER.THEME:
+                    app.theme.name(e.sender.get(VIEW_MODEL.USER.THEME));
+                    if (mobile.application instanceof kendo.mobile.Application) {
+                        var theme = viewModel.getTheme();
+                        // mobile.application.options.platform = theme.platform;
+                        // mobile.application.options.majorVersion = theme.majorVersion;
+                        mobile.application.skin(theme.skin || '');
+                    }
+                    // else onDeviceReady has not yet been called and mobile.application has not yet een initialized with theme
                     break;
             }
         });
@@ -1547,8 +1490,7 @@ if (typeof(require) === 'function') {
                 // Destroy before re-creating
                 app.notification.destroy();
             }
-            // Note: the navbar is not available for notifications occurring before kendo.mobile.Application is initialized,
-            // in other words notifications while displaying the splash screen, especially for loadSettings and loadUsers.
+            // Note: the navbar is not available for notifications occurring before kendo.mobile.Application is initialized
             var navbar = $('.km-navbar');
             app.notification = notification.kendoNotification({
                 button: true,
@@ -1995,25 +1937,15 @@ if (typeof(require) === 'function') {
                 message: 'Analytics set',
                 method: 'mobile.onDeviceReady'
             });
-            // initialize secure storage
-            // mobile.secureStorage.init('kidoju');
-            // Load settings including locale and theme
-            viewModel.loadSettings()
-                .always(function () {
-                    logger.debug({
-                        message: 'Settings are loaded',
-                        method: 'mobile.onDeviceReady'
-                    });
-                    // initialize the user interface
-                    $(document).one(LOADED, mobile.oni18nLoaded);
-                    // Release the execution of jQuery's ready event (hold in index.html)
-                    // @see https://api.jquery.com/jquery.holdready/
-                    // Otherwise the ready event handler in app.i18n is not called
-                    // (in phonegap developer app, in packaged apps, but not in a browser served by phonegap)
-                    // and oni18nLoaded does not execute (strange but true)
-                    // ATTENTION: https://github.com/jquery/jquery/issues/3288
-                    $.holdReady(false);
-                });
+            // initialize the user interface after loading i18n resources
+            $(document).one(LOADED, mobile.oni18nLoaded);
+            // Release the execution of jQuery's ready event (hold in index.html)
+            // @see https://api.jquery.com/jquery.holdready/
+            // Otherwise the ready event handler in app.i18n is not called
+            // (in phonegap developer app, in packaged apps, but not in a browser served by phonegap)
+            // and oni18nLoaded does not execute (strange but true)
+            // ATTENTION: https://github.com/jquery/jquery/issues/3288
+            $.holdReady(false);
         };
 
         /**
@@ -2066,7 +1998,7 @@ if (typeof(require) === 'function') {
                                 method: 'mobile.oni18nLoaded'
                             });
                             // Localise the application
-                            mobile.localize(viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE));
+                            mobile.localize(viewModel.get(VIEW_MODEL.USER.LANGUAGE));
                             // Reinitialize notifications now that we know the size of .km-header
                             mobile._initNotification();
                             // hide the splash screen
@@ -2118,7 +2050,7 @@ if (typeof(require) === 'function') {
                             if ($.isArray(matches) && matches.length > 2) {
                                 var language = matches[1];
                                 var summaryId = matches[2];
-                                if (viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE) === language) {
+                                if (viewModel.get(VIEW_MODEL.USER.LANGUAGE) === language) {
                                     mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY +
                                         '?language=' + window.encodeURIComponent(language) +
                                         '&summaryId=' + window.encodeURIComponent(summaryId));
@@ -2158,7 +2090,7 @@ if (typeof(require) === 'function') {
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             e.preventDefault();
             var command = e.item.attr(kendo.attr('command'));
-            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE);
+            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.USER.LANGUAGE);
             var userId = viewModel.get(VIEW_MODEL.USER.SID);
             switch (command) {
                 case 'categories':
@@ -2273,7 +2205,7 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
             var language = e.view.params.language;
             assert.equal(language, i18n.locale(), kendo.format(assert.messages.equal.default, 'i18n.locale()', language));
-            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
             var userId = e.view.params.userId;
             assert.equal(userId, viewModel.get(VIEW_MODEL.USER.SID), kendo.format(assert.messages.equal.default, 'viewModel.get("user.sid")', userId));
 
@@ -2359,7 +2291,7 @@ if (typeof(require) === 'function') {
             // Let's remove the showScoreInfo attr (see viewModel.bind(CHANGE))
             e.view.element.removeAttr(kendo.attr('showScoreInfo'));
 
-            // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE)
+            // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.USER.LANGUAGE)
             // var summaryId = e.view.params.summaryId;
             // var versionId = e.view.params.versionId;
             var activityId = e.view.params.activityId;
@@ -2501,7 +2433,7 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
             // Let's remove the clickSubmitInfo attr (see viewModel.bind(CHANGE))
             e.view.element.removeAttr(kendo.attr('clickSubmitInfo'));
-            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE)
+            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.USER.LANGUAGE)
             var summaryId = e.view.params.summaryId;
             var versionId = e.view.params.versionId;
             assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
@@ -2983,7 +2915,7 @@ if (typeof(require) === 'function') {
             mobile._localizeSummaryView();
             // load the summary
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
             var summaryId = e.view.params.summaryId;
             viewModel.loadSummary({ language: language, id: summaryId })
                 .always(function () {
@@ -3001,7 +2933,7 @@ if (typeof(require) === 'function') {
         mobile.onSummaryActionPlay = function () {
             // assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
             assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
 
@@ -3182,7 +3114,7 @@ if (typeof(require) === 'function') {
 
             if (RX_PIN.test(pinValue) && confirmValue === pinValue) {
                 var language = i18n.locale();
-                assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+                assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
 
                 // Does the user already exist in database?
                 var sid = viewModel.get(VIEW_MODEL.USER.SID);
@@ -3404,7 +3336,7 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.SETTINGS.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("settings.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
             assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
             assert.equal(language, viewModel.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
@@ -3475,7 +3407,7 @@ if (typeof(require) === 'function') {
 
         if ($.type(window.cordova) === UNDEFINED) {
             // No need to wait
-            mobile.onDeviceReady;
+            mobile.onDeviceReady();
         } else {
             // Wait for Cordova to load
             document.addEventListener('deviceready', mobile.onDeviceReady, false);
