@@ -267,9 +267,10 @@
         <ul data-role="listview" data-bind="source: categories" data-template="phone-categories-template">
         </ul>
         <script type="text/x-kendo-template" id="phone-categories-template">
-            <a href="\#phone-finder?filter%5Bfield%5D=categories&filter%5Boperator%5D=eq&filter%5Bvalue%5D=#: id #" style="margin-left: #: depth - 1 #em;">
+            <a href="\#phone-finder?filter%5Bfield%5D=categories&filter%5Boperator%5D=eq&filter%5Bvalue%5D=#: id #" style="margin-left: #: depth$() - 1 #em;">
                 <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
                 <span>#: name #</span>
+                <span class="km-badge">#: count #</span>
             </a>
         </script>
     </div>
