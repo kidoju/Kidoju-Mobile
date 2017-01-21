@@ -1,3 +1,3 @@
-set NODE_ENV=development
+set NODE_ENV=mobile
 call grunt uglify
 webpack --watch
