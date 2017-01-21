@@ -61,6 +61,7 @@ if (typeof(require) === 'function') {
         './vendor/kendo/kendo.dataviz.core',
         './vendor/kendo/kendo.dataviz.themes',
         './vendor/kendo/kendo.dataviz.chart',
+        // './vendor/kendo/kendo.dataviz.chart.polar',
         './vendor/kendo/kendo.router',
         './vendor/kendo/kendo.mobile.application',
         './vendor/kendo/kendo.mobile.button',
@@ -142,6 +143,7 @@ if (typeof(require) === 'function') {
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
         var RX_PIN = /^[\d]{4}$/;
         var VIRTUAL_PAGE_SIZE = 30; // Display 10 items * 3 DOM Element * 2
+        var LEVEL_CHARS = 4;
         var HASH = '#';
         var PHONE = 'phone';
         var DEVICE_SELECTOR = HASH + PHONE;
@@ -725,9 +727,7 @@ if (typeof(require) === 'function') {
                 }));
 
                 // List of categories
-                this.set(VIEW_MODEL.CATEGORIES, new models.LazyCategoryDataSource({
-                    // TODO Language
-                }));
+                this.set(VIEW_MODEL.CATEGORIES, new models.LazyCategoryDataSource()); // ? locale?
 
                 // Current score/test
                 this.set(VIEW_MODEL.CURRENT.$, { test: undefined });
@@ -1272,7 +1272,7 @@ if (typeof(require) === 'function') {
                         // first 4 bytes is language
                         // following four bytes is top category
                         // the rest should be zeros
-                        return (/^[a-z0-9]{8}[0]{16}$/).test(category.id)
+                        return (/^[a-z0-9]{8}0{16}$/).test(category.id);
                     })
                     .sort(function (category1, category2) {
                         if (category1.id < category2.id) {
@@ -1330,7 +1330,9 @@ if (typeof(require) === 'function') {
                 case VIEW_MODEL.USER.CATEGORY_ID:
                     // First 4 bytes define the language
                     // Following 4 bytes define the selected top category
-                    viewModel.categories.filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.CATEGORY_ID).substr(0, 8) });
+                    var LEVEL_CHARS = 4;
+                    var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
+                    viewModel.categories.filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.CATEGORY_ID).substr(0, TOP_LEVEL_CHARS) });
                     break;
                 case VIEW_MODEL.USER.LANGUAGE:
                     if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {

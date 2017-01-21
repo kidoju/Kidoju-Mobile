@@ -40,6 +40,9 @@
         var ME = cache.ME = 'me'; // Public because used in app.models.js
         var CATEGORIES = 'categories.';
         var FAVOURITES = 'favourites.';
+        var LEVEL_CHARS = 4;
+        var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
+        var RX_TRIM_LEVEL = new RegExp('(0{' + LEVEL_CHARS + '})+$', 'g');
 
         /**
          * Sets an item in browser local storage
@@ -71,13 +74,14 @@
         /**
          * Gets an item from browser local storage
          * @param name
+         * @param noexpire
          * @returns {*}
          * @private
          */
-        cache._getLocalItem = function (name) {
+        cache._getLocalItem = function (name, noexpire) {
             if (!NOCACHE && localStorage) {
                 var item = JSON.parse(localStorage.getItem(name));
-                if ((!item) || (item.ts && item.expires && item.ts + 1000 * item.expires < Date.now())) {
+                if ((!item) || (!noexpire && item.ts && item.expires && item.ts + 1000 * item.expires < Date.now())) {
                     if (item) {
                         localStorage.removeItem(name);
                         logger.debug({
@@ -270,6 +274,7 @@
          * @param locale (ISO code)
          */
         cache.getAllCategories = function (locale) {
+            var dfd = $.Deferred();
             var categories = cache._getLocalItem(CATEGORIES + locale);
             if ($.isArray(categories)) {
                 logger.debug({
@@ -277,17 +282,24 @@
                     method: 'app.cache.getAllCategories',
                     data: { locale: locale }
                 });
-                var dfd = $.Deferred();
-                // setTimeout(function () {
                 dfd.resolve({ total: categories.length, data: categories });
-                // }, 0);
-                return dfd.promise();
             } else {
-                return rapi.v1.taxonomy.getAllCategories(locale)
+                rapi.v1.taxonomy.getAllCategories(locale)
                     .done(function (response) {
                         cache._setLocalItem(CATEGORIES + locale, response.data); // response = { total: ..., data: [...] }
+                        dfd.resolve(response);
+                    })
+                    .fail(function (xhr, status, error) {
+                        // Ensure that without network connection expired cache is nevertheless used
+                        var categories = cache._getLocalItem(CATEGORIES + locale, true);
+                        if ($.isArray(categories)) {
+                            dfd.resolve({ total: categories.length, data: categories });
+                        } else {
+                            dfd.reject(xhr, status, error);
+                        }
                     });
             }
+            return dfd.promise();
         };
 
         /**
@@ -306,10 +318,15 @@
                                 id: value.id,
                                 name: value.name,
                                 icon: value.icon,
-                                type: 2
+                                type: 2,
+                                count: value.count || 0
                             };
                         var id = value.id;
-                        var parentId = value.parentId || 'root';
+                        var trimmedId = id.replace(RX_TRIM_LEVEL, '');
+                        var parentId = 'root';
+                        if (trimmedId.length >= TOP_LEVEL_CHARS + LEVEL_CHARS) {
+                            parentId = (trimmedId.substr(0, trimmedId.length - LEVEL_CHARS) + '0000000000000000').substr(0, 24);
+                        }
                         hash[id] = hash[id] || [];
                         hash[parentId] = hash[parentId] || [];
                         item.items = hash[id];
@@ -317,44 +334,7 @@
                     });
                     dfd.resolve(hash.root || []);
                 })
-                .fail(function (xhr, status, error) {
-                    dfd.reject(xhr, status, error);
-                });
-            return dfd.promise();
-        };
-
-        /**
-         * Get a flat hierarchy of categories with depth level, in the same order as the hierarchy
-         * @param locale
-         * @returns {*}
-         */
-        cache.getLeveledCategories = function (locale) {
-            var dfd = $.Deferred();
-            cache.getCategoryHierarchy(locale)
-                .done(function (response) {
-                    function Flatten(categories, parentId, depth) {
-                        for (var i = 0, length = categories.length; i < length; i++) {
-                            var category = categories[i];
-                            flat.push({
-                                id: category.id,
-                                icon: category.icon,
-                                depth: depth, // `level` seems to be reserved in kendo.ui.TreeView
-                                name: category.name,
-                                parentId: parentId,
-                                type: category.type
-                            });
-                            if ($.isArray(category.items) && category.items.length) {
-                                Flatten(category.items, category.id, depth + 1);
-                            }
-                        }
-                    }
-                    var flat = [];
-                    Flatten(response, null, 0);
-                    dfd.resolve({ total: flat.length, data: flat });
-                })
-                .fail(function (xhr, status, error) {
-                    dfd.reject(xhr, status, error);
-                });
+                .fail(dfd.reject);
             return dfd.promise();
         };
 

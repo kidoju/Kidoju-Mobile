@@ -107,23 +107,21 @@
                     }
                 }
             };
-        // Have some values for testing
-        var uris = app.uris = app.uris || {
-            cdn: {
+        // Have some values for testing (uris.rapi probably already exists)
+        var uris = app.uris = app.uris || {};
+        uris.cdn = uris.cdn || {
                 icons: 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg'
-            },
-            mobile: {
+            };
+        uris.mobile = uris.mobile ||  {
                 icons: './img/{0}.svg'
-            },
-            // rapi
-            webapp: {
+            };
+        uris.webapp = uris.webapp ||  {
                 editor      : window.location.protocol + '//' + window.location.host + '/{0}/e/{1}/{2}',
                 finder      : window.location.protocol + '//' + window.location.host + '/{0}',
                 player      : window.location.protocol + '//' + window.location.host + '/{0}/x/{1}/{2}',
                 user        : window.location.protocol + '//' + window.location.host + '/{0}/u/{1}',
                 summary     : window.location.protocol + '//' + window.location.host + '/{0}/s/{1}'
-            }
-        };
+            };
         var STRING = 'string';
         var NUMBER = 'number';
         var DATE = 'date';
@@ -165,19 +163,23 @@
          // See kendo.date and kendo.timezone in kendo.core
          http://www.telerik.com/forums/undocumented-use-of-kendo-timezones
          function applyZone(date, fromZone, toZone) {
-         if (toZone) {
-         date = kendo.timezone.convert(date, fromZone, toZone);
-         } else {
-         date = kendo.timezone.remove(date, fromZone);
-         }
-         return date;
-         }
+             if (toZone) {
+                date = kendo.timezone.convert(date, fromZone, toZone);
+             } else {
+                date = kendo.timezone.remove(date, fromZone);
+             }
+             return date;
+          }
          */
 
 
         /*******************************************************************************
          * Taxonomy
          *******************************************************************************/
+
+        var LEVEL_CHARS = 4;
+        var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
+        var RX_TRIM_LEVEL = new RegExp('(0{' + LEVEL_CHARS + '})+$', 'g');
 
         /**
          * LazyCategory
@@ -191,6 +193,15 @@
                     editable: false,
                     nullable: true
                 },
+                count: {
+                    type: NUMBER,
+                    editable: false,
+                    parse: function (value) {
+                        // defaultValue: 0 does not work as we get null
+                        // default parse function is return kendo.parseFloat(value);
+                        return window.parseInt(value, 10) || 0;
+                    }
+                },
                 icon: {
                     type: STRING,
                     editable: false
@@ -199,22 +210,25 @@
                     type: STRING,
                     editable: false
                 },
-                depth: { // `level` seems to be reserved in kendo.ui.TreeView
-                    type: NUMBER,
-                    editable: false
-                },
                 name: {
                     type: STRING,
                     editable: false
-                },
-                parentId: {
-                    type: STRING,
-                    editable: false,
-                    nullable: true
                 }
+            },
+            // TODO add breadcrumb$
+            depth$: function () { // `level` seems to be reserved in kendo.ui.TreeView
+                // Top categories get a depth$ of zero
+                return (this.get(this.idField).replace(RX_TRIM_LEVEL, '').length - TOP_LEVEL_CHARS) / LEVEL_CHARS;
             },
             icon$: function () {
                 return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
+            },
+            parentId$: function () {
+                // Top categories have a parentId$ which is undefined
+                var trimmedId = this.get(this.idField).replace(RX_TRIM_LEVEL, '');
+                if (trimmedId.length >= TOP_LEVEL_CHARS + LEVEL_CHARS) {
+                    return (trimmedId.substr(0, trimmedId.length - LEVEL_CHARS) + '0000000000000000').substr(0, 24);
+                }
             }
         });
 
@@ -253,7 +267,7 @@
                         method: 'app.models.LazyCategoryDataSource.transport.read'
                         // data: options
                     });
-                    app.cache.getLeveledCategories(i18n.locale())
+                    app.cache.getAllCategories(i18n.locale())
                         .done(function (response) {
                             options.success(response);
                         })
