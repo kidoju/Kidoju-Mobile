@@ -84,7 +84,10 @@
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var DOT_JPEG = '.jpg';
         var DEFAULT = {
-            CATEGORY_ID: '000100010000000000000000',
+            CATEGORY_ID: {
+                en: '000100010000000000000000',
+                fr: '000100020000000000000000',
+            },
             DATE: new Date(2000, 0, 1), // 1/1/2000
             LANGUAGE: 'en',
             THEME: 'flat' // The default theme is actually defined in app.theme.js - make sure they match!
@@ -131,7 +134,7 @@
                 },
                 categoryId: {
                     type: STRING,
-                    defaultValue: DEFAULT.CATEGORY_ID
+                    defaultValue: DEFAULT.CATEGORY_ID[DEFAULT.LANGUAGE]
                 },
                 firstName: {
                     type: STRING,

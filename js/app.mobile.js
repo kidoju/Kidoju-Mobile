@@ -143,7 +143,11 @@ if (typeof(require) === 'function') {
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
         var RX_PIN = /^[\d]{4}$/;
         var VIRTUAL_PAGE_SIZE = 30; // Display 10 items * 3 DOM Element * 2
+        // First 4 bytes define the language
+        // Following 4 bytes define the selected top category
         var LEVEL_CHARS = 4;
+        var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
+        var RX_TOP_LEVEL_MATCH = new RegExp('^[a-z0-9]{' + TOP_LEVEL_CHARS + '}0{' + (24 - TOP_LEVEL_CHARS) + '}$')
         var HASH = '#';
         var PHONE = 'phone';
         var DEVICE_SELECTOR = HASH + PHONE;
@@ -228,6 +232,12 @@ if (typeof(require) === 'function') {
         };
         var URL_SCHEME = 'com.kidoju.mobile://';
         var RX_URL_SCHEME = new RegExp('^' + URL_SCHEME + '([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
+        var DEFAULT = {
+            CATEGORY_ID: {
+                en: '000100010000000000000000',
+                fr: '000200010000000000000000'
+            }
+        }
 
         /*******************************************************************************************
          * Global handlers
@@ -720,14 +730,19 @@ if (typeof(require) === 'function') {
              */
             reset: function () {
 
+                var language = this.get(VIEW_MODEL.USER.LANGUAGE);
+                var categoryId = this.get(VIEW_MODEL.USER.CATEGORY_ID) || DEFAULT.CATEGORY_ID[language];
+                var userId = this.get(VIEW_MODEL.USER.SID);
+
                 // List of activities
                 this.set(VIEW_MODEL.ACTIVITIES, new models.MobileActivityDataSource({
-                    language: this.get(VIEW_MODEL.USER.LANGUAGE),
-                    userId: this.get(VIEW_MODEL.USER.SID)
+                    language: language,
+                    userId: userId
                 }));
 
                 // List of categories
-                this.set(VIEW_MODEL.CATEGORIES, new models.LazyCategoryDataSource()); // ? locale?
+                this.set(VIEW_MODEL.CATEGORIES, new models.LazyCategoryDataSource());
+                this.get(VIEW_MODEL.CATEGORIES).filter({ field: 'id', operator: 'startsWith', value: categoryId.substr(0, TOP_LEVEL_CHARS) });
 
                 // Current score/test
                 this.set(VIEW_MODEL.CURRENT.$, { test: undefined });
@@ -741,15 +756,8 @@ if (typeof(require) === 'function') {
                 // Selected player page
                 this.set(VIEW_MODEL.SELECTED_PAGE, undefined);
 
-                // TODO: Settings
-                // this.set(VIEW_MODEL.USER, {});
-
                 // Search (per category or full text)
-                this.set(VIEW_MODEL.SUMMARIES, new models.LazySummaryDataSource({
-                    // TODO: Language
-                    // Category
-                    // Author/owner
-                }));
+                this.set(VIEW_MODEL.SUMMARIES, new models.LazySummaryDataSource());
 
                 // Summary being played
                 this.set(VIEW_MODEL.SUMMARY.$, new models.Summary());
@@ -1266,13 +1274,7 @@ if (typeof(require) === 'function') {
                 var categories = this.get(VIEW_MODEL.CATEGORIES);
                 return categories.data()
                     .filter(function (category) {
-                        // category.parentId is null
-                        // return !RX_MONGODB_ID.test(category.parentId);
-                        // Another way to look at it is
-                        // first 4 bytes is language
-                        // following four bytes is top category
-                        // the rest should be zeros
-                        return (/^[a-z0-9]{8}0{16}$/).test(category.id);
+                        return (RX_TOP_LEVEL_MATCH).test(category.id);
                     })
                     .sort(function (category1, category2) {
                         if (category1.id < category2.id) {
@@ -1328,16 +1330,14 @@ if (typeof(require) === 'function') {
                     viewModel.reset();
                     break;
                 case VIEW_MODEL.USER.CATEGORY_ID:
-                    // First 4 bytes define the language
-                    // Following 4 bytes define the selected top category
-                    var LEVEL_CHARS = 4;
-                    var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
                     viewModel.categories.filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.CATEGORY_ID).substr(0, TOP_LEVEL_CHARS) });
                     break;
                 case VIEW_MODEL.USER.LANGUAGE:
+                    var language = e.sender.get(VIEW_MODEL.USER.LANGUAGE);
                     if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {
-                        mobile.localize(e.sender.get(VIEW_MODEL.USER.LANGUAGE));
+                        mobile.localize(language);
                     }
+                    viewModel.set(VIEW_MODEL.USER.CATEGORY_ID, DEFAULT.CATEGORY_ID[language]);
                     viewModel.reset();
                     break;
                 case VIEW_MODEL.USER.THEME:
