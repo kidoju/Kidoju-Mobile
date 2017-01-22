@@ -1495,7 +1495,7 @@ if (typeof(require) === 'function') {
             // Note: the navbar is not available for notifications occurring before kendo.mobile.Application is initialized
             var navbar = $('.km-navbar');
             app.notification = notification.kendoNotification({
-                button: true,
+                // button: true, // only works with built-in templates
                 position: {
                     left: 0,
                     top: navbar.length ? navbar.height() + 1 : 0 // navbar or splashscreen
