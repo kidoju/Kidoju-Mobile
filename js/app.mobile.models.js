@@ -68,13 +68,11 @@
         // var i18n = app.i18n = app.i18n || { };
         // This is for testing only because we should get values from config files (see ./js/app.config.jsx)
         var uris = app.uris = app.uris || {};
-        uris.cdn = uris.cdn || {
-            icons: 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg'
-        };
-        uris.mobile = uris.mobile || {
-            icons: './img/{0}.svg',
-            pictures: '{0}users/{1}'
-        };
+        uris.cdn = uris.cdn || {};
+        uris.cdn.icons = uris.cdn.icons || 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg';
+        uris.mobile = uris.mobile || {};
+        uris.mobile.icons = uris.mobile.icons || './img/{0}.svg';
+        uris.mobile.pictures = uris.mobile.pictures || '{0}users/{1}';
         var DATE = 'date';
         var FUNCTION = 'function';
         var NUMBER = 'number';
