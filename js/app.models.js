@@ -109,19 +109,16 @@
             };
         // Have some values for testing (uris.rapi probably already exists)
         var uris = app.uris = app.uris || {};
-        uris.cdn = uris.cdn || {
-                icons: 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg'
-            };
-        uris.mobile = uris.mobile ||  {
-                icons: './img/{0}.svg'
-            };
-        uris.webapp = uris.webapp ||  {
-                editor      : window.location.protocol + '//' + window.location.host + '/{0}/e/{1}/{2}',
-                finder      : window.location.protocol + '//' + window.location.host + '/{0}',
-                player      : window.location.protocol + '//' + window.location.host + '/{0}/x/{1}/{2}',
-                user        : window.location.protocol + '//' + window.location.host + '/{0}/u/{1}',
-                summary     : window.location.protocol + '//' + window.location.host + '/{0}/s/{1}'
-            };
+        uris.cdn = uris.cdn || {};
+        uris.cdn.icons = uris.cdn.icons || 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg';
+        uris.mobile = uris.mobile || {};
+        uris.mobile.icons = uris.mobile.icons || './img/{0}.svg';
+        uris.webapp = uris.webapp ||  {};
+        uris.webapp.editor = uris.webapp.editor || (window.location.protocol + '//' + window.location.host + '/{0}/e/{1}/{2}');
+        uris.webapp.finder = uris.webapp.finder || (window.location.protocol + '//' + window.location.host + '/{0}');
+        uris.webapp.player = uris.webapp.player || (window.location.protocol + '//' + window.location.host + '/{0}/x/{1}/{2}');
+        uris.webapp.user = uris.webapp.user || (window.location.protocol + '//' + window.location.host + '/{0}/u/{1}');
+        uris.webapp.summary = uris.webapp.summary || (window.location.protocol + '//' + window.location.host + '/{0}/s/{1}');
         var STRING = 'string';
         var NUMBER = 'number';
         var DATE = 'date';
