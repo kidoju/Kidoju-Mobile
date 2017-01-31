@@ -15,7 +15,6 @@
 var path = require('path');
 var util = require('util');
 
-var autoprefixer = require('autoprefixer');
 var deasync = require('deasync');
 var webpack = require('webpack');
 
@@ -63,7 +62,7 @@ console.log('building version ' + pkg.version);
  * Add banner at the top of every bundle/chunk
  */
 var bannerPlugin =
-    new webpack.BannerPlugin(pkg.copyright + ' - Version ' + pkg.version + ' dated ' + (new Date()).toLocaleDateString());
+    new webpack.BannerPlugin({ banner: pkg.copyright + ' - Version ' + pkg.version + ' dated ' + new Date().toLocaleDateString(), raw: true, entryOnly: true });
 
 /**
  * SourceMapDevToolPlugin builds source maps
@@ -103,59 +102,90 @@ module.exports = {
         chunkFilename: '[name].chunk.js?v=' + pkg.version
     },
     resolve: {
-        // moduleDirectories: ['web_modules', 'node_modules'], this is default
-        root: path.resolve('.'),
-        // required since Kendo UI 2016.1.112
-        fallback: path.resolve('./js/vendor/kendo')
+        modules: [
+            path.resolve('.'),
+            path.resolve('./js/vendor/kendo'), // required since Kendo UI 2016.1.112
+            'node_modules'
+        ]
     },
     module: {
-        loaders: [
+        rules: [
             {
                 // Do not put a $ at the end of the test regex
                 test: /\.jsx/, // see ./web_modules/jsx-loader
-                loader: 'jsx?config=webapp/config'
+                use: [
+                    // { loader: './web_modules/jsx-loader', options: { config: 'webapp/config' } }
+                    { loader: './web_modules/jsx-loader?config=webapp/config' }
+                ]
             },
             {
                 test: /\.json$/,
-                loader: 'json'
+                use: [
+                    { loader: 'json-loader' }
+                ]
             },
             {
                 test: /app\.theme\.[a-z0-9]+\.less$/,
-                loader: 'bundle?name=[name]!style/useable!css!postcss!less'
+                use: [
+                    // { loader: 'bundle-loader', options: { name: '[name]' } },
+                    { loader: 'bundle-loader?name=[name]' },
+                    // { loader: "style-loader", options: { useable: true } },
+                    { loader: "style-loader/useable" },
+                    // { loader: 'css-loader', options: { importLoaders: 2 } },
+                    { loader: 'css-loader?importLoaders=2' },
+                    { loader: 'postcss-loader' },
+                    // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
+                    // { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
+                    { loader: 'less-loader' }
+                ]
             },
             {
                 test: /\.less$/,
                 exclude: /app\.theme\.[a-z0-9]+\.less$/,
-                loader: 'style!css!postcss!less'
+                use: [
+                    { loader: 'style-loader' },
+                    // { loader: 'css-loader', options: { importLoaders: 1 } },
+                    { loader: 'css-loader?importLoaders=1' },
+                    { loader: 'postcss-loader' },
+                    // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
+                    // { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
+                    { loader: 'less-loader' }
+                ]
             },
             {
                 test: /\.css$/,
-                loader: 'style!css!postcss'
+                use: [
+                    { loader: 'style-loader' },
+                    // { loader: 'css-loader', options: { importLoaders: 1 } },
+                    { loader: 'css-loader?importLoaders=1' },
+                    { loader: 'postcss-loader' }
+                ]
             },
             {
                 test: /\.(gif|png|jpe?g)$/,
-                loader: 'url?limit=8192'
+                use: [
+                    // { loader: 'url-loader', options: { limit: 8192 } }
+                    { loader: 'url-loader?limit=8192' }
+                ]
             },
             {
-                // test: /\.woff(2)?(\?v=[0-9]\.[0-9](\.[0-9])?)?$/,
                 test: /\.woff(2)?/,
-                loader: 'url?limit=10000&mimetype=application/font-woff'
+                use: [
+                    // { loader: 'url-loader', options: { limit: 10000, mimetype: 'application/font-woff' } }
+                    { loader: 'url-loader?limit=10000&mimetype=application/font-woff' }
+                ]
             },
             {
-                // test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9](\.[0-9])?)?$/,
                 test: /\.(ttf|eot|svg)/,
-                loader: 'file'
+                use: [
+                    { loader: 'file-loader' }
+                ]
             }
         ]
     },
-    postcss: function () {
-        return [autoprefixer];
-    },
     plugins: [
-        definePlugin,
-        bannerPlugin
-        // dedupePlugin,
-        // uglifyJsPlugin,
-        // sourceMapDevToolPlugin
+        definePlugin
+        // bannerPlugin breaks uglifyJS
+        // uglifyJsPlugin
     ]
 };

@@ -37,7 +37,7 @@
 
     (function ($, undefined) {
 
-        /* jshint maxcomplexity: 8 */
+        /* jshint maxcomplexity: 15 */
 
         /**
          * IMPORTANT NOTE 1

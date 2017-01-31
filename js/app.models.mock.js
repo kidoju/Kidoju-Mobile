@@ -22,7 +22,12 @@
     /*  This function has too many statements. */
     /* jshint -W071 */
 
+    /* This function's cyclomatic complexity is too high. */
+    /* jshint -W074 */
+
     (function ($, undefined) {
+
+        /* jshint maxcomplexity: 8 */
 
         var app = window.app = window.app || {};
         var kendo = window.kendo;
@@ -1252,6 +1257,8 @@
         var db = app.mockDB = new MockDB();
 
     }(window.jQuery));
+
+    /* jshint +W074 */
 
     /* jshint +W071 */
 

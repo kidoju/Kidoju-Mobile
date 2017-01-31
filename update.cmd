@@ -46,6 +46,11 @@ REM ATTRIB -R .\LICENSE-GPLv3
 REM COPY ..\Kidoju.Webapp\LICENSE-GPLv3 .\ /Y
 REM ATTRIB +R .\LICENSE-GPLv3
 
+REM postcss.config.js
+ATTRIB -R .\postcss.config.js
+COPY ..\Kidoju.Webapp\postcss.config.js .\ /Y
+ATTRIB +R .\postcss.config.js
+
 REM setup.cmd
 ATTRIB -R .\setup.cmd
 COPY ..\Kidoju.Webapp\setup.cmd .\ /Y
