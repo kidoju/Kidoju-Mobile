@@ -40,13 +40,15 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var DOT = '.';
-        var WIDGET = 'kendoDrawing';
+        var WIDGET = 'kendoCircling';
         var NS = DOT + WIDGET;
         var MOUSEDOWN = 'mousedown' + NS + ' ' + 'touchstart' + NS;
         var MOUSEMOVE = 'mousemove' + NS + ' ' + 'touchmove' + NS;
         var MOUSEUP = 'mouseup' + NS + ' ' + 'touchend' + NS;
         var DIV = '<div/>';
-        var WIDGET_CLASS = 'kj-drawing';
+        var WIDGET_CLASS = 'kj-circling';
+        var INNER_CLASS = 'kj-circling-inner';
+        var DRAGGABLE_CLASS = 'kj-draggable';
         var SURFACE_CLASS = WIDGET_CLASS + '-surface';
         var SURFACE = 'surface';
         // var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
@@ -141,7 +143,10 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug('widget initialized');
                 that._layout();
+                that._ensureSurface();
                 that._dataSource();
+                that._addMouseHandlers();
+                that.value(that.options.value);
                 that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 kendo.notify(that);
             },
@@ -158,6 +163,7 @@
                 scaler: 'div.kj-stage',
                 container: 'div.kj-stage>div[data-role="stage"]',
                 color: '#FF0000',
+                hasSurface: true,
                 enable: true
             },
 
@@ -192,106 +198,108 @@
                 var that = this;
                 that.wrapper = that.element;
                 // touch-action: 'none' is for Internet Explorer - https://github.com/jquery/jquery/issues/2987
+                // DRAGGABLE_WIDGET (which might be shared with other widgets) is used to position the drawing surface below draggable elements
                 that.element
                     .addClass(WIDGET_CLASS)
-                    .css({ touchAction: 'none' });
-                that.surface = drawing.Surface.create(that.element);
+                    // .addClass(DRAGGABLE_CLASS) // Contrary to connectors, Circlings are not draggables
+                    .css({ touchAction: 'none' })
+                    .append($(DIV).addClass(INNER_CLASS));
+            },
+
+            /**
+             * Ensure connection surface for all connectors
+             * @private
+             */
+            _ensureSurface: function () {
+                var that = this;
+                var options = that.options;
+                var container = that.element.closest(options.container);
+                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, options.container));
+                // ensure surface
+                var surface = container.data(SURFACE);
+                if (options.hasSurface && !(surface instanceof Surface)) {
+                    var surfaceElement = container.find(DOT + SURFACE_CLASS);
+                    if (surfaceElement.length === 0) {
+                        // assert.ok(this.element.hasClass(WIDGET_CLASS), 'this._layout should be called before this._ensureSurface');
+                        var firstElementWithDraggable = container.children().has(DOT + DRAGGABLE_CLASS).first();
+                        // assert.hasLength(firstElementWithDraggable, kendo.format(assert.messages.hasLength.default, 'firstElementWithDraggable'));
+                        surfaceElement = $(DIV)
+                            .addClass(SURFACE_CLASS)
+                            .css({ position: 'absolute', top: 0, left: 0 })
+                            .height(container.height())
+                            .width(container.width());
+                        // Circlings are not draggables so we have to consider that there is no firstElementWithDraggable
+                        if (firstElementWithDraggable instanceof $ && firstElementWithDraggable.length) {
+                            surfaceElement.insertBefore(firstElementWithDraggable);
+                        } else {
+                            surfaceElement.appendTo(container);
+                        }
+                        surfaceElement.empty();
+                        surface = kendo.drawing.Surface.create(surfaceElement);
+                        container.data(SURFACE, surface);
+                    }
+                }
             },
 
             /**
              * Add drag and drop handlers
              * @private
              */
-            _addDragAndDrop: function () {
+            _addMouseHandlers: function () {
                 // IMPORTANT
-                // We can have several containers containing connectors on a page
-                // But we only have one set of event handlers shared across all containers
-                // So we cannot use `this`, which is specific to this connector
-                var element;
+                // We can have several widgets for circlings on a page
+                // But we only have one set of event handlers shared across all circlings
+                // So we cannot use `this`, which is specific to this circling
+                var that = this;
                 var path;
-                var target;
                 $(document)
                     .off(NS)
-                    .on(MOUSEDOWN, DOT + WIDGET_CLASS, function (e) {
+                    .on(MOUSEDOWN, that.options.container, function (e) {
                         e.preventDefault(); // prevents from selecting the div
-                        element = $(e.currentTarget);
-                        var elementOffset = element.offset();
-                        var elementWidget = element.data(WIDGET);
-                        if (elementWidget instanceof Drawing && elementWidget._enabled) {
-                            elementWidget._dropConnection();
-                            var scaler = element.closest(elementWidget.options.scaler);
-                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                            var container = element.closest(elementWidget.options.container);
-                            assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
-                            var mouse = util.getMousePosition(e, container);
-                            var center = util.getElementCenter(element, container, scale);
-                            var surface = container.data(SURFACE);
-                            assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'surface', 'kendo.drawing.Surface'));
-                            path = new drawing.Path({
-                                stroke: {
-                                    color: elementWidget.options.color
-                                    // lineCap: PATH_LINECAP,
-                                    // width: PATH_WIDTH
-                                }
-                            });
-                            path.moveTo(center.left, center.top);
-                            path.lineTo(mouse.x / scale, mouse.y / scale);
-                            surface.draw(path);
-                        }
-                    })
-                    .on(MOUSEMOVE, function (e) {
-                        if (element instanceof $ && path instanceof kendo.drawing.Path) {
-                            var elementWidget = element.data(WIDGET);
-                            assert.instanceof(Drawing, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Drawing'));
-                            var scaler = element.closest(elementWidget.options.scaler);
-                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
-                            var container = element.closest(elementWidget.options.container);
-                            assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
-                            var mouse = util.getMousePosition(e, container);
-                            path.segments[1].anchor().move(mouse.x / scale, mouse.y / scale);
-                        }
-                    })
-                    .on(MOUSEUP, DOT + WIDGET_CLASS, function (e) {
-                        if (element instanceof $ && path instanceof kendo.drawing.Path) {
-                            var targetElement = e.originalEvent && e.originalEvent.changedTouches ?
-                                document.elementFromPoint(e.originalEvent.changedTouches[0].clientX, e.originalEvent.changedTouches[0].clientY) :
-                                e.currentTarget;
-                            target = $(targetElement).closest(DOT + WIDGET_CLASS);
-                            var targetWidget = target.data(WIDGET);
-                            // with touchend, target === element
-                            // BUG REPORT  here: https://github.com/jquery/jquery/issues/2987
-                            if (element.attr(kendo.attr(ID)) !== target.attr(kendo.attr(ID)) && targetWidget instanceof Drawing && targetWidget._enabled) {
-                                var elementWidget = element.data(WIDGET);
-                                assert.instanceof(Drawing, elementWidget, kendo.format(assert.messages.instanceof.default, 'elementWidget', 'kendo.ui.Drawing'));
-                                var container = element.closest(elementWidget.options.container);
-                                assert.hasLength(container, kendo.format(assert.messages.hasLength.default, elementWidget.options.container));
-                                var targetContainer = target.closest(targetWidget.options.container);
-                                assert.hasLength(targetContainer, kendo.format(assert.messages.hasLength.default, targetWidget.options.container));
-                                if (container[0] === targetContainer[0]) {
-                                    elementWidget._addConnection(target);
-                                } else {
-                                    // We cannot erase so we need to redraw all
-                                    elementWidget.refresh();
-                                }
-                            }  else {
-                                target = undefined;
+                        var container = $(e.currentTarget);
+                        var scaler = container.closest(that.options.scaler);
+                        var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                        var mouse = util.getMousePosition(e, container);
+                        var surface = container.data(SURFACE);
+                        assert.instanceof(Surface, surface, kendo.format(assert.messages.instanceof.default, 'surface', 'kendo.drawing.Surface'));
+                        path = new drawing.Path({
+                            stroke: {
+                                color: that.options.color,
+                                width: 2
                             }
-                        }
-                        // Note: The MOUSEUP events bubble and the following handler is always executed after this one
+                        });
+                        path.moveTo(mouse.x / scale, mouse.y / scale);
+                        surface.draw(path);
                     })
-                    .on(MOUSEUP, function (e) {
+                    .on(MOUSEMOVE, that.options.container, function (e) {
                         if (path instanceof kendo.drawing.Path) {
-                            path.close();
+                            var container = $(e.currentTarget);
+                            var scaler = container.closest(that.options.scaler);
+                            var scale = scaler.length ? util.getTransformScale(scaler) : 1;
+                            var mouse = util.getMousePosition(e, container);
+                            path.lineTo(mouse.x / scale, mouse.y / scale);
                         }
-                        if (element instanceof $ && $.type(target) === UNDEFINED) {
-                            var elementWidget = element.data(WIDGET);
-                            if (elementWidget instanceof Drawing) {
-                                elementWidget.refresh();
-                            }
+                    })
+                    .on(MOUSEUP, that.options.container, function (e) {
+                        if (path instanceof drawing.Path) {
+                            var bbox = path.bbox();
+                            var center = [bbox.origin.x + bbox.size.width / 2, bbox.origin.y + bbox.size.height / 2];
+                            var arcGeometry = new geometry.Arc(
+                                center,
+                                {
+                                    radiusX: bbox.size.width / 2,
+                                    radiusY: bbox.size.height / 2,
+                                    startAngle: 0,
+                                    endAngle: 360,
+                                    anticlockwise: false
+                                }
+                            );
+                            var arc = new drawing.Arc(arcGeometry).stroke(that.options.color, 1);
+                            // group.append(arc);
+                            // surface.clear();
+                            // surface.draw(group);
                         }
                         path = undefined;
-                        element = undefined;
-                        target = undefined;
                     });
             },
 
@@ -345,7 +353,6 @@
                 if (surface instanceof kendo.drawing.Surface) {
                     // Clear surface
                     surface.clear();
-
                 }
             },
 
@@ -353,7 +360,7 @@
              * Enable/disable user interactivity on connector
              */
             enable: function (enabled) {
-                // this._enabled is checked in _addDragAndDrop
+                // this._enabled is checked in _addMouseHandlers
                 this._enabled = enabled;
             },
 
