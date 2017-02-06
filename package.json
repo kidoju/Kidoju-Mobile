@@ -76,7 +76,7 @@
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "wdio-mocha-framework": "^0.5.8",
-    "wdio-selenium-standalone-service": "0.0.7",
+    "wdio-selenium-standalone-service": "0.0.8",
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.6.2",
     "webpack": "^2.2.1",
