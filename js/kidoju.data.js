@@ -1120,10 +1120,8 @@
                 var that = this;
                 var tools = kidoju.tools;
                 var test = {
-                    // Store for connections
-                    connections: [],
-                    // Store for positioning draggable items
-                    draggables: []
+                    // Store for interactions
+                    interactions: []
                 };
                 $.each(that.data(), function (pageIdx, page) {
                     $.each(page.components.data(), function (componentIdx, component) {
@@ -1156,13 +1154,12 @@
                 var workerPool = new WorkerPool((window.navigator.hardwareConcurrency || 2) - 1, workerTimeout());
                 // TODO: use an app.model and define a submodel with each field - see ValidatedTest above
                 var result = {
-                    connections: test.connections,
-                    draggables: test.draggables,
+                    interactions: test.interactions,
                     score: function () {
                         var score = 0;
                         assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                         for (var name in this) {
-                            if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
+                            if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !this.get(name + '.disabled')) {
                                 score += this.get(name + '.score');
                             }
                         }
@@ -1172,7 +1169,7 @@
                         var max = 0;
                         assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                         for (var name in this) {
-                            if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name)) {
+                            if (this.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !this.get(name + '.disabled')) {
                                 max += this.get(name + '.success');
                             }
                         }
@@ -1185,71 +1182,16 @@
                         return score === 0 || max === 0 ?  0 : 100 * score / max;
                     },
                     getScoreArray: function () {
-                        function matchPageConnectors (pageIdx) {
-                            // Connectors are a match if they have the same solution
-                            var ret = {};
-                            var connectors = pageCollectionDataSource.at(pageIdx).components.data().filter(function (component) {
-                                return component.tool === 'connector';
-                            });
-                            for (var i = 0, length = connectors.length; i < length; i++) {
-                                var connector = connectors[i];
-                                var name = connector.properties.name;
-                                assert.match(RX_VALID_NAME, name, kendo.format(assert.messages.match.default, 'name', RX_VALID_NAME));
-                                var solution = connector.properties.solution;
-                                var found = false;
-                                for (var prop in ret) {
-                                    if (ret.hasOwnProperty(prop)) {
-                                        if (prop === name) {
-                                            // already processed
-                                            found = true;
-                                            break;
-                                        } else if (ret[prop] === solution) {
-                                            // found matching connector, point to name
-                                            ret[prop] = name;
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (!found) {
-                                    // Add first connector, waiting to find a matching one
-                                    ret[name] = solution;
-                                }
-                            }
-                            return ret;
-                        }
-                        function matchConnectors () {
-                            // We need a separate function because matching connectors neded to have the same solution on the same page (not a different page)
-                            var ret = {};
-                            for (var pageIdx = 0, pageTotal = pageCollectionDataSource.total(); pageIdx < pageTotal; pageIdx++) {
-                                ret = $.extend(ret, matchPageConnectors(pageIdx));
-                            }
-                            return ret;
-                        }
                         assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
                         var that = this; // this is variable `result`
-                        var matchingConnectors = matchConnectors();
-                        var redundantConnectors = {};
                         var scoreArray = [];
                         for (var name in that) {
-                            // Only display valid names in the form val_xxxxxx that are not redundant connectors
-                            if (that.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !redundantConnectors.hasOwnProperty(name)) {
+                            if (that.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !this.get(name + '.disabled')) {
                                 var testItem = that.get(name);
                                 var scoreItem = testItem.toJSON();
                                 // Improved display of values in score grids
                                 scoreItem.value = testItem.value$();
                                 scoreItem.solution = testItem.solution$();
-                                // Aggregate score of redundant items (connectors)
-                                var redundantName = matchingConnectors[name];
-                                if (that.hasOwnProperty(redundantName) && RX_VALID_NAME.test(redundantName)) {
-                                    // If there is a redundancy, adjust scores
-                                    var redundantItem = that.get(redundantName);
-                                    scoreItem.failure += redundantItem.failure;
-                                    scoreItem.omit += redundantItem.omit;
-                                    scoreItem.score += redundantItem.score;
-                                    scoreItem.success += redundantItem.success;
-                                    redundantConnectors[redundantName] = true;
-                                }
                                 scoreArray.push(scoreItem);
                             }
                         }
@@ -1266,7 +1208,7 @@
                                         score: this.get(name + '.score'),
                                         value: this.get(name + '.value')
                                     };
-                                } else if (name === 'connections' || name === 'draggables') {
+                                } else if (name === 'interactions') {
                                     json[name] = this.get(name).toJSON(); // .slice();
                                 }
                             }
@@ -1277,8 +1219,7 @@
 
                 // Flatten test for validation formulas
                 var all = test.toJSON();
-                delete all.connections;
-                delete all.draggables;
+                delete all.interactions;
                 for (var prop in all) {
                     if (all.hasOwnProperty(prop) && $.type(all[prop]) === OBJECT) {
                         if (all[prop].value === null) {
@@ -1360,26 +1301,28 @@
                                         page: pageIdx,
                                         name: properties.name,
                                         description: properties.description,
+                                        tool: component.tool,
                                         value: test[properties.name].value,
                                         solution: properties.solution,
                                         result: undefined,
                                         omit: properties.omit,
                                         failure: properties.failure,
                                         success: properties.success,
+                                        disabled: properties.disabled,
                                         // Functions used by getScoreArray for improved display in score grid
                                         value$: function () {
                                             assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
                                             assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
-                                            var tool = kidoju.tools[component.tool];
+                                            var tool = kidoju.tools[component.tool]; // also this.tool
                                             assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
-                                            return tool.value$(test[properties.name].value);
+                                            return tool.value$(this);
                                         },
                                         solution$: function () {
                                             assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
                                             assert.instanceof(kendo.Observable, kidoju.tools, kendo.format(assert.messages.instanceof.default, 'kidoju.tools', 'kendo.Observable'));
-                                            var tool = kidoju.tools[component.tool];
+                                            var tool = kidoju.tools[component.tool]; // also this.tool
                                             assert.instanceof(kidoju.Tool, tool, kendo.format(assert.messages.instanceof.default, 'tool', 'kidoju.Tool'));
-                                            return tool.solution$(properties.solution);
+                                            return tool.solution$(this);
                                         }
                                     };
 

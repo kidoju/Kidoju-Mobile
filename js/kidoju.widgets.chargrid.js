@@ -43,6 +43,7 @@
         var BLUR = 'blur';
         var NS = '.kendoCharGrid';
         var WIDGET_CLASS = 'kj-chargrid'; // 'k-widget kj-chargrid';
+        var INTERACTIVE_CLASS = 'kj-interactive';
         // var BASE_CODE = 65; // for A (a = 97)
         var RX_WHITELIST = '^[{0}]$';
         var STROKE_WIDTH = 2;
@@ -160,7 +161,7 @@
                 var that = this;
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
-                logger.debug('widget initialized');
+                logger.debug({method: 'init', message: 'widget initialized'});
                 that._setValue(this.options.value);
                 that._layout();
                 // kendo.notify(that);
@@ -173,7 +174,7 @@
             options: {
                 name: 'CharGrid',
                 scaler: '.kj-stage',
-                container: '.kj-stage>div[data-role="stage"]',
+                container: '.kj-stage>div[data-' + kendo.ns + 'role="stage"]',
                 rotator: '.kj-element',
                 columns: 6,
                 rows: 4,
@@ -350,7 +351,10 @@
                 var element = that.element;
                 var options = that.options;
                 that.wrapper = element;
-                element.addClass(WIDGET_CLASS);
+                // INTERACTIVE_CLASS (which might be shared with other widgets) is used to position any drawing surface underneath interactive widgets
+                element
+                    .addClass(WIDGET_CLASS)
+                    .addClass(INTERACTIVE_CLASS);
                 that.surface = drawing.Surface.create(that.element);
                 // Note: we need an input to trigger the virtual keyboard on mobile devices
                 that.input = $('<input type="text" style="position:absolute;left:-5000px;">')

@@ -227,7 +227,8 @@
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
+                    omit: { title: 'Omit' },
+                    disabled: { title: 'Disable' }
                 }
             },
 
@@ -304,6 +305,24 @@
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
                     omit: { title: 'Omit' }
+                }
+            },
+
+            selector: {
+                description: 'Selector',
+                attributes: {
+                    color: { title: 'Color' },
+                    shape: { title: 'Shape' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    description: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' },
+                    disabled: { title: 'Disabled' }
                 }
             },
 
@@ -626,7 +645,7 @@
              */
             showResult: function () {
                 // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
-                return '<div class=".kj-element-result">' +
+                return '<div class=".kj-element-result" data-#= ns #bind="invisible: #: properties.name #.disabled">' +
                     '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.success + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                     '<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,' + Tool.fn.svg.failure + '); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>' +
                     '</div>';
@@ -635,19 +654,19 @@
             /**
              * Improved display of value in score grid
              * Note: search for getScoreArray in kidoju.data
-             * @param value
+             * @param testItem
              */
-            value$: function (value) {
-                return kendo.htmlEncode(value || '');
+            value$: function (testItem) {
+                return kendo.htmlEncode(testItem.value || '');
             },
 
             /**
              * Improved display of solution in score grid
              * Note: search for getScoreArray in kidoju.data
-             * @param solution
+             * @param testItem
              */
-            solution$: function (solution) {
-                return kendo.htmlEncode(solution || '');
+            solution$: function (testItem) {
+                return kendo.htmlEncode(testItem.solution || '');
             },
 
             // onEnable: function (e, component, enabled) {},
@@ -1222,6 +1241,21 @@
         });
 
         /**
+         * Disabled adapter
+         */
+        adapters.DisabledAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = BOOLEAN;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : false);
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, attributes);
+                this.attributes[kendo.attr('role')] = 'switch';
+                // TODO: set scores at 0 and disable test logic
+            }
+        });
+
+        /**
          * Enum adapter
          */
         adapters.EnumAdapter = BaseAdapter.extend({
@@ -1338,6 +1372,26 @@
                 this.attributes = $.extend({}, this.attributes, attributes);
                 this.attributes[kendo.attr('role')] = 'numerictextbox';
             }
+        });
+
+        /**
+         * Selector adapter
+         */
+        adapters.SelectorAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                this.editor = 'input';
+                this.attributes = $.extend({}, this.attributes, attributes, { type: 'text', class: 'k-textbox' });
+            },
+            library: [
+                {
+                    name: 'hit',
+                    formula: kendo.format(FORMULA, 'return parseInt(value, 10) === 1;')
+                }
+            ],
+            libraryDefault: 'hit'
         });
 
         /**
@@ -2146,15 +2200,16 @@
             },
 
             /**
-             * Improved display of value in score grid
-             * @param value
+             * Pretiffy array for results grid
+             * @param arr
+             * @private
              */
-            value$: function (value) {
+            _prettify: function (arr) {
                 // var ret = '<table>';
                 var ret = '';
-                if ($.isArray(value) || value instanceof ObservableArray) {
-                    for (var r = 0, rowTotal = value.length; r < rowTotal; r++) {
-                        var row = value[r];
+                if ($.isArray(arr) || arr instanceof ObservableArray) {
+                    for (var r = 0, rowTotal = arr.length; r < rowTotal; r++) {
+                        var row = arr[r];
                         // ret += '<tr>';
                         for (var c = 0, colTotal = row.length; c < colTotal; c++) {
                             // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
@@ -2165,30 +2220,22 @@
                     }
                 }
                 // ret += '</table>';
-                return ret;
+            },
+
+            /**
+             * Improved display of value in score grid
+             * @param testItem
+             */
+            value$: function (testItem) {
+                return this._prettify(testItem.value);
             },
 
             /**
              * Improved display of solution in score grid
-             * @param solution
+             * @param testItem
              */
-            solution$: function (solution) {
-                // var ret = '<table>';
-                var ret = '';
-                if ($.isArray(solution) || solution instanceof ObservableArray) {
-                    for (var r = 0, rowTotal = solution.length; r < rowTotal; r++) {
-                        var row = solution[r];
-                        // ret += '<tr>';
-                        for (var c = 0, colTotal = row.length; c < colTotal; c++) {
-                            // ret += '<td>' + kendo.htmlEncode(row[c] || '') + '</td>';
-                            ret += kendo.htmlEncode(row[c] || '') + (c === colTotal - 1 ? '' : ',');
-                        }
-                        // ret += '</tr>';
-                        ret += '<br/>';
-                    }
-                }
-                // ret += '</table>';
-                return ret;
+            solution$: function (testItem) {
+                return this._prettify(testItem.solution);
             },
 
             /**
@@ -2261,10 +2308,10 @@
 
             /**
              * Improved display of value in score grid
-             * @param value
+             * @param testItem
              */
-            value$: function (value) {
-                var ret = (value || []).slice();
+            value$: function (testItem) {
+                var ret = (testItem.value || []).slice();
                 for (var i = 0; i < ret.length; i++) {
                     ret[i] = kendo.htmlEncode(ret[i]);
                 }
@@ -2273,10 +2320,10 @@
 
             /**
              * Improved display of solution in score grid
-             * @param solution
+             * @param testItem
              */
-            solution$: function (solution) {
-                return kendo.htmlEncode(solution || '').split('\n').join('<br/>');
+            solution$: function (testItem) {
+                return kendo.htmlEncode(testItem.solution || '').split('\n').join('<br/>');
             },
 
             /**
@@ -2350,9 +2397,9 @@
             cursor: CURSOR_CROSSHAIR,
             weight: 0.25,
             templates: {
-                design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #show-surface="false"'),
-                play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections"'),
-                review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: connections" data-#= ns #enable="false"') + Tool.fn.showResult()
+                design: kendo.format(CONNECTOR, 'data-#= ns #enable="false" data-#= ns #create-surface="false"'),
+                play: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+                review: kendo.format(CONNECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 70,
             width: 70,
@@ -2366,7 +2413,8 @@
                 validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.connector.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 })
+                omit: new adapters.ScoreAdapter({ title: i18n.connector.properties.omit.title, defaultValue: 0 }),
+                disabled: new adapters.DisabledAdapter({ title: i18n.connector.properties.disabled.title, defaultValue: false })
             },
 
             /**
@@ -2421,7 +2469,7 @@
         });
         tools.register(Connector);
 
-        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #draggable=".kj-element:has([data-draggable=true])" data-#= ns #center="#: attributes.center #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
+        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-#= ns #role=stage]" data-#= ns #draggable=".kj-element:has([data-draggable=true])" data-#= ns #center="#: attributes.center #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
         /**
          * @class Connector tool
          * @type {void|*}
@@ -2434,8 +2482,8 @@
             weight: 1,
             templates: {
                 design: kendo.format(DROPZONE, 'data-#= ns #enable="false"'),
-                play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables"'),
-                review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: draggables" data-#= ns #enable="false"') + Tool.fn.showResult()
+                play: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+                review: kendo.format(DROPZONE, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
             height: 250,
             width: 250,
@@ -2456,10 +2504,10 @@
 
             /**
              * Improved display of value in score grid
-             * @param value
+             * @param testItem
              */
-            value$: function (value) {
-                var ret = (value || []).slice();
+            value$: function (testItem) {
+                var ret = (testItem.value || []).slice();
                 for (var i = 0; i < ret.length; i++) {
                     ret[i] = kendo.htmlEncode(ret[i]);
                 }
@@ -2468,10 +2516,10 @@
 
             /**
              * Improved display of solution in score grid
-             * @param solution
+             * @param testItem
              */
-            solution$: function (solution) {
-                return kendo.htmlEncode(solution || '').split('\n').join('<br/>');
+            solution$: function (testItem) {
+                return kendo.htmlEncode(testItem.solution || '').split('\n').join('<br/>');
             },
 
             /**
@@ -3036,6 +3084,116 @@
         });
         tools.register(Quiz);
 
+        var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #id="#: properties.name #" data-#= ns #shape="#: attributes.shape #" data-#= ns #shape-stroke="{ color: \'#: attributes.color #\', dashType: \'dot\', opacity: 0.6, width: 8 }" {0}></div>';
+        /**
+         * @class Connector tool
+         * @type {void|*}
+         */
+        var Selector = Tool.extend({
+            id: 'selector',
+            icon: 'arrow_circle',
+            description: i18n.selector.description,
+            cursor: CURSOR_CROSSHAIR,
+            weight: 1,
+            templates: {
+                design: kendo.format(SELECTOR, 'data-#= ns #enable="false" data-#= ns #create-surface="false"'),
+                play: kendo.format(SELECTOR, 'data-#= ns #toolbar="\\#floating .kj-floating-content" data-#= ns #draw-placeholder="false" data-#= ns #bind="value: #: properties.name #.value, source: interactions"'),
+                review: kendo.format(SELECTOR, 'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 150,
+            width: 250,
+            attributes: {
+                color: new adapters.ColorAdapter({ title: i18n.selector.attributes.color.title, defaultValue: '#FF0000' }),
+                shape: new adapters.EnumAdapter(
+                    { title: i18n.selector.attributes.shape.title, defaultValue: 'circle', enum: ['circle', 'cross', 'line'] },
+                    { style: 'width: 100%;' }
+                )
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.selector.properties.name.title }),
+                description: new adapters.DescriptionAdapter({ title: i18n.selector.properties.description.title }),
+                solution: new adapters.SelectorAdapter({ title: i18n.selector.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.selector.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.selector.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.selector.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.selector.properties.omit.title, defaultValue: 0 }),
+                disabled: new adapters.DisabledAdapter({ title: i18n.selector.properties.disabled.title, defaultValue: false })
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_CLASS), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div[' + kendo.attr('role') + '="selector"]');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                }
+                // Redraw the selector widget
+                var selectorWidget = content.data('kendoSelector');
+                assert.instanceof(kendo.ui.Selector, selectorWidget, kendo.format(assert.messages.instanceof.default, 'selectorWidget', 'kendo.ui.Selector'));
+                selectorWidget._drawPlaceholder();
+
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /**
+             * Improved display of value in score grid
+             * Note: search for getScoreArray in kidoju.data
+             * @param testItem
+             */
+            value$: function (testItem) {
+                if (testItem.result) {
+                    return kendo.htmlEncode(testItem.solution || '');
+                } else {
+                    return 'N/A'; // TODO translate
+                }
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * Note: search for getScoreArray in kidoju.data
+             * @param testItem
+             */
+            solution$: function (testItem) {
+                return kendo.htmlEncode(testItem.solution || '');
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (component.attributes) {
+                    if (component.attributes.color && !RX_COLOR.test(component.attributes.color)) {
+                        ret.push({
+                            type: WARNING,
+                            index: pageIdx,
+                            message: kendo.format(messages.invalidColor, description, pageIdx + 1)
+                        });
+                    }
+                }
+                return ret;
+            }
+
+        });
+        tools.register(Selector);
+
         /**
          * @class Static table tool
          * @type {void|*}
@@ -3103,7 +3261,7 @@
         });
         tools.register(Table);
 
-        var TEXTAREA = '<textarea id="#: properties.name #" class="k-textbox" style="#: attributes.style #" {0}></textarea>';
+        var TEXTAREA = '<textarea id="#: properties.name #" class="k-textbox kj-interactive" style="#: attributes.style #" {0}></textarea>';
         /**
          * @class Textarea tool
          * @type {void|*}
@@ -3201,7 +3359,7 @@
         tools.register(Textarea);
 
         // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
-        var TEXTBOX = '<input type="text" id="#: properties.name #" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
+        var TEXTBOX = '<input type="text" id="#: properties.name #" class="kj-interactive" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
         /**
          * @class Textbox tool
          * @type {void|*}
