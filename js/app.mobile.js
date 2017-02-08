@@ -9,6 +9,7 @@
 if (typeof(require) === 'function') {
 
     // Load other CSS
+    require('../styles/kidoju.widgets.floating.less');
     require('../styles/kidoju.widgets.markdown.less');
     require('../styles/kidoju.widgets.mathexpression.less');
     require('../styles/kidoju.widgets.mediaplayer.less');
@@ -83,6 +84,7 @@ if (typeof(require) === 'function') {
         './kidoju.widgets.chargrid',
         './kidoju.widgets.connector',
         './kidoju.widgets.dropzone',
+        './kidoju.widgets.floating',
         './kidoju.widgets.markdown',
         './kidoju.widgets.mathexpression',
         './kidoju.widgets.mediaplayer',
@@ -90,6 +92,7 @@ if (typeof(require) === 'function') {
         './kidoju.widgets.multicheckbox',
         // './kidoju.widgets.playbar',
         './kidoju.widgets.quiz',
+        './kidoju.widgets.selector',
         './kidoju.widgets.rating',
         // './kidoju.widgets.social',
         './kidoju.widgets.stage',
