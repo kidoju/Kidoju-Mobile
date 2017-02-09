@@ -26,57 +26,25 @@
 </head>
 <body>
 
-<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-<!-- Tablet application (simply for testing at this stage)                     -->
-<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-
-<div id="tablet" class="k-group" style="display: none;">
-
-    <!-- Tablet layout -->
-    <div data-role="layout" data-id="tablet-main-layout">
+    <div data-role="layout" data-id="main-layout">
         <header data-role="header">
             <div data-role="navbar" class="km-accent">
+                <a id="main-layout-back" data-role="backbutton" data-click-on="down" class="nav-button" data-align="left">Back</a>
+                <a id="main-layout-drawer" data-role="button" data-click-on="down" class="nav-button" data-align="left" data-icon="drawer-icon" href="#drawer" data-rel="drawer"></a>
+                <!--a id="main-layout-first-page" data-role="button" data-click-on="down" class="nav-button" data-align="left" data-icon="first" data-click="app.mobile.onNavBarFirstPageClick"></a-->
+                <a id="main-layout-previous-page" data-role="button" data-click-on="down" class="nav-button" data-align="left" data-icon="previous" data-click="app.mobile.onNavBarPreviousPageClick"></a>
+                <a id="main-layout-previous-user" data-role="button" data-click-on="down" class="nav-button" data-align="left" data-icon="previous" data-click="app.mobile.onNavBarPreviousUserClick"></a>
                 <span data-role="view-title"></span>
-            </div>
-        </header>
-    </div>
-
-    <!-- Sign-in view -->
-    <div id="tablet-signin" data-role="view" data-layout="tablet-main-layout" data-title="Signin">
-        <ul data-role="listview">
-            <li><a href="#">Hello</a></li>
-            <li><a href="#">World</a></li>
-        </ul>
-    </div>
-
-</div>
-
-<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-<!-- Phone application                                                         -->
-<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-
-<div id="phone" class="k-group">
-
-    <!-- Phone layout -->
-    <div data-role="layout" data-id="phone-main-layout">
-        <header data-role="header">
-            <div data-role="navbar" class="km-accent">
-                <a id="phone-main-layout-back" data-role="backbutton" data-click-on="down" class="nav-button" data-align="left">Back</a>
-                <a id="phone-main-layout-drawer" data-role="button" data-click-on="down" class="nav-button" data-align="left" data-icon="drawer-icon" href="#phone-drawer" data-rel="drawer"></a>
-                <!--a id="phone-main-layout-first-page" data-role="button" data-click-on="down" class="nav-button" data-align="left" data-icon="first" data-click="app.mobile.onNavBarFirstPageClick"></a-->
-                <a id="phone-main-layout-previous-page" data-role="button" data-click-on="down" class="nav-button" data-align="left" data-icon="previous" data-click="app.mobile.onNavBarPreviousPageClick"></a>
-                <a id="phone-main-layout-previous-user" data-role="button" data-click-on="down" class="nav-button" data-align="left" data-icon="previous" data-click="app.mobile.onNavBarPreviousUserClick"></a>
-                <span data-role="view-title"></span>
-                <a id="phone-main-layout-home" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="home" href="#phone-categories"></a>
-                <a id="phone-main-layout-next-user" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="next" data-click="app.mobile.onNavBarNextUserClick"></a>
-                <a id="phone-main-layout-next-page" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="next" data-click="app.mobile.onNavBarNextPageClick"></a>
-                <a id="phone-main-layout-last-page" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="last" data-click="app.mobile.onNavBarLastPageClick"></a>
-                <a id="phone-main-layout-submit" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="submit" data-click="app.mobile.onNavBarSubmitClick"></a>
-                <a id="phone-main-layout-score" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="score" data-click="app.mobile.onNavBarScoreClick"></a>
-                <a id="phone-main-layout-summary" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="summary" data-click="app.mobile.onNavBarSummaryClick"></a>
-                <a id="phone-main-layout-sync" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="sync" data-click="app.mobile.onNavBarSyncClick"></a>
-                <a id="phone-main-layout-search" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="search" data-click="app.mobile.onNavBarSearchClick"></a>
-                <ul id="phone-main-layout-sort" data-role="buttongroup" data-index="0">
+                <a id="main-layout-home" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="home" href="#categories"></a>
+                <a id="main-layout-next-user" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="next" data-click="app.mobile.onNavBarNextUserClick"></a>
+                <a id="main-layout-next-page" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="next" data-click="app.mobile.onNavBarNextPageClick"></a>
+                <a id="main-layout-last-page" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="last" data-click="app.mobile.onNavBarLastPageClick"></a>
+                <a id="main-layout-submit" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="submit" data-click="app.mobile.onNavBarSubmitClick"></a>
+                <a id="main-layout-score" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="score" data-click="app.mobile.onNavBarScoreClick"></a>
+                <a id="main-layout-summary" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="summary" data-click="app.mobile.onNavBarSummaryClick"></a>
+                <a id="main-layout-sync" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="sync" data-click="app.mobile.onNavBarSyncClick"></a>
+                <a id="main-layout-search" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="search" data-click="app.mobile.onNavBarSearchClick"></a>
+                <ul id="main-layout-sort" data-role="buttongroup" data-index="0">
                     <li>Recent</li>
                     <li>Popular</li>
                     <li>Best</li>
@@ -87,7 +55,7 @@
     </div>
 
     <!-- Drawer -->
-    <div id="phone-drawer" data-role="drawer" data-position="left" data-swipe-to-open="false" data-model="app.mobile.viewModel">
+    <div id="drawer" data-role="drawer" data-position="left" data-swipe-to-open="false" data-model="app.mobile.viewModel">
         <header data-role="header">
             <div data-role="navbar">
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" height="45" width="102" viewBox="0 0 120 50" enable-background="new 0 0 120 50" xml:space="preserve">
@@ -253,21 +221,21 @@
     </div>
 
     <!-- Activities view -->
-    <div id="phone-activities" data-role="view" data-layout="phone-main-layout" data-title="Activities" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
-        <div id="phone-activities-grid"></div>
+    <div id="activities" data-role="view" data-layout="main-layout" data-title="Activities" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
+        <div id="activities-grid"></div>
     </div>
 
     <!-- Categories view -->
-    <div id="phone-categories" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
+    <div id="categories" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
         <!-- dropdown of top categories -->
         <div style="padding: 7px;">
             <input data-role="dropdownlist" data-bind="value: user.categoryId, source: topCategories$()" data-value-field="id" data-text-field="name" style="width:100%">
         </div>
         <!-- listview of sub-categories -->
-        <ul data-role="listview" data-bind="source: categories" data-template="phone-categories-template">
+        <ul data-role="listview" data-bind="source: categories" data-template="categories-template">
         </ul>
-        <script type="text/x-kendo-template" id="phone-categories-template">
-            <a href="\#phone-finder?filter%5Bfield%5D=categories&filter%5Boperator%5D=eq&filter%5Bvalue%5D=#: id #" style="margin-left: #: depth$() - 1 #em;">
+        <script type="text/x-kendo-template" id="categories-template">
+            <a href="\#finder?filter%5Bfield%5D=categories&filter%5Boperator%5D=eq&filter%5Bvalue%5D=#: id #" style="margin-left: #: depth$() - 1 #em;">
                 <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
                 <span>#: name #</span>
                 <span class="km-badge">#: count #</span>
@@ -276,7 +244,7 @@
     </div>
 
     <!-- Correction view -->
-    <div id="phone-correction" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onCorrectionViewInit" data-show="app.mobile.onCorrectionViewShow">
+    <div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onCorrectionViewInit" data-show="app.mobile.onCorrectionViewShow">
         <div class="stretched-item">
             <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
         </div>
@@ -295,19 +263,19 @@
     </div>
 
     <!-- Favourites view -->
-    <!--div id="phone-favourites" data-role="view" data-layout="phone-main-layout" data-title="Favourites" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
-        <ul data-role="listview" data-bind="source: favourites" data-template="phone-favourites-template">
+    <!--div id="favourites" data-role="view" data-layout="main-layout" data-title="Favourites" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onFavouritesViewShow">
+        <ul data-role="listview" data-bind="source: favourites" data-template="favourites-template">
         </ul>
-        <script type="text/x-kendo-template" id="phone-favourites-template">
-            <a href="\#phone-player">#: title #</a>
+        <script type="text/x-kendo-template" id="favourites-template">
+            <a href="\#player">#: title #</a>
         </script>
     </div-->
 
     <!-- Finder view -->
-    <div id="phone-finder" data-role="view" data-layout="phone-main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
-        <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="phone-finder-template"></ul>
-        <script type="text/x-kendo-template" id="phone-finder-template">
-            <a href="\#phone-summary?language=#: language #&summaryId=#: id #">
+    <div id="finder" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
+        <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="finder-template"></ul>
+        <script type="text/x-kendo-template" id="finder-template">
+            <a href="\#summary?language=#: language #&summaryId=#: id #">
                 <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
                 <div class="summary">
                     <h4>#: title #</h4>
@@ -332,12 +300,12 @@
     </div>
 
     <!-- Player view -->
-    <div id="phone-player" data-role="view" data-layout="phone-main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow">
+    <div id="player" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow">
+        <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
         <div class="stretched-item">
             <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
         </div>
         <div class="stretched-item padding">
-            <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
             <div class="heading">
                 <h2>
                     <img src="./img/teacher.svg" alt="Instructions">
@@ -352,15 +320,15 @@
     </div>
 
     <!-- Score view -->
-    <div id="phone-score" data-role="view" data-layout="phone-main-layout" data-title="Score" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
+    <div id="score" data-role="view" data-layout="main-layout" data-title="Score" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
         <div class="stretched">
             <div class="summary km-content" data-bind="text:summary.title"></div>
-            <div id="phone-score-grid"></div>
+            <div id="score-grid"></div>
         </div>
     </div>
 
     <!-- Settings view -->
-    <div id="phone-settings" data-role="view" data-layout="phone-main-layout" data-title="Settings" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSettingsViewShow">
+    <div id="settings" data-role="view" data-layout="main-layout" data-title="Settings" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSettingsViewShow">
         <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
         <form>
             <ul data-role="listview" data-style="inset">
@@ -402,7 +370,7 @@
     </div>
 
     <!-- Sign-in view -->
-    <div id="phone-signin" data-role="view" data-layout="phone-main-layout" data-title="Sign in" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSigninViewShow">
+    <div id="signin" data-role="view" data-layout="main-layout" data-title="Sign in" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSigninViewShow">
         <div class="k-widget k-notification k-notification-info">
             <div class="k-notification-wrap">
                 <span class="k-icon k-i-info">Info</span>
@@ -421,7 +389,7 @@
     </div>
 
     <!-- Summary view -->
-    <div id="phone-summary" data-role="view" data-layout="phone-main-layout" data-title="Details" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
+    <div id="summary" data-role="view" data-layout="main-layout" data-title="Details" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
         <img data-bind="attr: { src: summary.icon$, alt: summary.title }" class="km-thumbnail picture">
         <form>
             <ul data-role="listview" data-style="inset">
@@ -453,9 +421,9 @@
             </ul>
         </form>
         <div class="buttons">
-            <a data-role="button" class="km-large km-justified km-primary" data-rel="actionsheet" href="#phone-summary-actionsheet">GO</a>
+            <a data-role="button" class="km-large km-justified km-primary" data-rel="actionsheet" href="#summary-actionsheet">GO</a>
         </div>
-        <ul id="phone-summary-actionsheet" data-role="actionsheet" >
+        <ul id="summary-actionsheet" data-role="actionsheet" >
             <li class="km-actionsheet-play"><a data-action="app.mobile.onSummaryActionPlay">Play</a></li>
             <li class="km-actionsheet-share" data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onSummaryActionShare">Share</a></li>
             <li class="km-actionsheet-feedback"><a data-action="app.mobile.onSummaryActionFeedback">Feedback</a></li>
@@ -463,12 +431,12 @@
     </div>
 
     <!-- Sync view -->
-    <div id="phone-sync" data-role="view" data-layout="phone-main-layout" data-title="Sync" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSyncViewShow">
+    <div id="sync" data-role="view" data-layout="main-layout" data-title="Sync" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSyncViewShow">
         <div></div>
     </div>
 
     <!-- User view -->
-    <div id="phone-user" data-role="view" data-layout="phone-main-layout" data-title="User" data-transition="fade" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
+    <div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
         <img data-bind="invisible: isSavedUser$, attr: { src: user.largerPicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <form>
@@ -511,8 +479,6 @@
             <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified"  data-click="app.mobile.onUserNewClick">New User</a>
         </div>
     </div>
-
-</div>
 
 </body>
 </html>

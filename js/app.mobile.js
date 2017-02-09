@@ -9,6 +9,7 @@
 if (typeof(require) === 'function') {
 
     // Load other CSS
+    require('../styles/vendor/katex/katex.less');
     require('../styles/kidoju.widgets.floating.less');
     require('../styles/kidoju.widgets.markdown.less');
     require('../styles/kidoju.widgets.mathexpression.less');
@@ -152,28 +153,23 @@ if (typeof(require) === 'function') {
         var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
         var RX_TOP_LEVEL_MATCH = new RegExp('^[a-z0-9]{' + TOP_LEVEL_CHARS + '}0{' + (24 - TOP_LEVEL_CHARS) + '}$')
         var HASH = '#';
-        var PHONE = 'phone';
-        var DEVICE_SELECTOR = HASH + PHONE;
-        // var TABLET = 'tablet';
-        // var DEVICE_SELECTOR = HASH + TABLET;
-        // var DEVICE_SELECTOR = HASH + (support.mobileOS && support.mobileOS.tablet ? TABLET : PHONE)
         var LAYOUT = {
-            MAIN: '-main-layout'
+            MAIN: 'main-layout'
         };
         var VIEW = {
-            ACTIVITIES: '-activities',
-            CATEGORIES: '-categories',
-            CORRECTION: '-correction',
-            DRAWER: '-drawer',
-            FAVOURITES: '-favourites',
-            FINDER: '-finder',
-            PLAYER: '-player',
-            SCORE: '-score',
-            SETTINGS: '-settings',
-            SUMMARY: '-summary',
-            SIGNIN: '-signin',
-            SYNC: '-sync',
-            USER: '-user'
+            ACTIVITIES: 'activities',
+            CATEGORIES: 'categories',
+            CORRECTION: 'correction',
+            DRAWER: 'drawer',
+            FAVOURITES: 'favourites',
+            FINDER: 'finder',
+            PLAYER: 'player',
+            SCORE: 'score',
+            SETTINGS: 'settings',
+            SUMMARY: 'summary',
+            SIGNIN: 'signin',
+            SYNC: 'sync',
+            USER: 'user'
         };
         var DISPLAY = {
             INLINE: 'inline-block',
@@ -306,7 +302,7 @@ if (typeof(require) === 'function') {
                     var language = matches[1];
                     var summaryId = matches[3];
                     if (language === i18n.locale()) {
-                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' + encodeURIComponent(summaryId));
+                        mobile.application.navigate(HASH + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' + encodeURIComponent(summaryId));
                     } else {
                         app.notification.warning(i18n.culture.notifications.openUrlLanguage);
                     }
@@ -1313,14 +1309,14 @@ if (typeof(require) === 'function') {
                 case VIEW_MODEL.SELECTED_PAGE:
                     // Reset NavBar buttons and title
                     var view = mobile.application.view();
-                    if (view.id === DEVICE_SELECTOR + VIEW.CORRECTION) {
+                    if (view.id === HASH + VIEW.CORRECTION) {
                         mobile._localizeCorrectionView();
                         if (viewModel.isLastPage$() && !view.element.attr(kendo.attr('showScoreInfo'))) {
                             // Let's remember that we have already displayed this notification for this test
                             view.element.attr(kendo.attr('showScoreInfo', 'true'));
                             app.notification.info(i18n.culture.notifications.showScoreInfo);
                         }
-                    } else if (view.id === DEVICE_SELECTOR + VIEW.PLAYER) {
+                    } else if (view.id === HASH + VIEW.PLAYER) {
                         mobile._localizePlayerView();
                         if (viewModel.isLastPage$() && !view.element.attr(kendo.attr('clickSubmitInfo'))) {
                             // Let's remember that we have already displayed this notification for this test
@@ -1391,75 +1387,75 @@ if (typeof(require) === 'function') {
             var showSortButtons = false;
             switch (view.id) {
                 case '/':
-                case DEVICE_SELECTOR + VIEW.ACTIVITIES:
+                case HASH + VIEW.ACTIVITIES:
                     showDrawerButton = true;
                     showSyncButton = true;
                     break;
-                case DEVICE_SELECTOR + VIEW.CATEGORIES:
+                case HASH + VIEW.CATEGORIES:
                     showDrawerButton = true;
                     showSearchButton = true;
                     break;
-                case DEVICE_SELECTOR + VIEW.CORRECTION:
+                case HASH + VIEW.CORRECTION:
                     showDrawerButton = true;
                     showPreviousPageButton = !viewModel.isFirstPage$();
                     showNextPageButton = !viewModel.isLastPage$();
                     showLastPageButton = !viewModel.isLastPage$();
                     showScoreButton = viewModel.isLastPage$();
                     break;
-                case DEVICE_SELECTOR + VIEW.FAVOURITES:
+                case HASH + VIEW.FAVOURITES:
                     showDrawerButton = true;
                     showSyncButton = true;
                     break;
-                case DEVICE_SELECTOR + VIEW.FINDER:
+                case HASH + VIEW.FINDER:
                     showDrawerButton = true;
                     showHomeButton = true;
                     // showSearchButton = true;
                     // showSortButtons = true;
                     break;
-                case DEVICE_SELECTOR + VIEW.PLAYER:
+                case HASH + VIEW.PLAYER:
                     showDrawerButton = true;
                     showPreviousPageButton = !viewModel.isFirstPage$();
                     showNextPageButton = !viewModel.isLastPage$();
                     showLastPageButton = !viewModel.isLastPage$();
                     showSubmitButton = viewModel.isLastPage$();
                     break;
-                case DEVICE_SELECTOR + VIEW.SCORE:
+                case HASH + VIEW.SCORE:
                     showDrawerButton = true;
                     showSummaryButton = true;
                     break;
-                case DEVICE_SELECTOR + VIEW.SETTINGS:
+                case HASH + VIEW.SETTINGS:
                     showDrawerButton = true;
                     break;
-                case DEVICE_SELECTOR + VIEW.SIGNIN:
+                case HASH + VIEW.SIGNIN:
                     showBackButton = viewModel.isSavedUser$();
                     break;
-                case DEVICE_SELECTOR + VIEW.SUMMARY:
+                case HASH + VIEW.SUMMARY:
                     showDrawerButton = true;
                     showHomeButton = true;
                     break;
-                case DEVICE_SELECTOR + VIEW.SYNC:
+                case HASH + VIEW.SYNC:
                     break;
-                case DEVICE_SELECTOR + VIEW.USER:
+                case HASH + VIEW.USER:
                     showPreviousUserButton = viewModel.isSavedUser$() && !viewModel.isFirstUser$();
                     showNextUserButton = viewModel.isSavedUser$() && !viewModel.isLastUser$();
                     break;
             }
             // Note: each view has no button by default, so let's fix that
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-back').css({ display: showBackButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            // view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-first-page').css({ display: showFirstPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous-page').css({ display: showPreviousPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-previous-user').css({ display: showPreviousUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next-user').css({ display: showNextUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-next-page').css({ display: showNextPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-last-page').css({ display: showLastPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-submit').css({ display: showSubmitButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-score').css({ display: showScoreButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-summary').css({ display: showSummaryButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            view.element.find(DEVICE_SELECTOR + LAYOUT.MAIN + '-sort').css({ display: showSortButtons ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-back').css({ display: showBackButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            // view.element.find(HASH + LAYOUT.MAIN + '-first-page').css({ display: showFirstPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-previous-page').css({ display: showPreviousPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-previous-user').css({ display: showPreviousUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-next-user').css({ display: showNextUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-next-page').css({ display: showNextPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-last-page').css({ display: showLastPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-submit').css({ display: showSubmitButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-score').css({ display: showScoreButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-summary').css({ display: showSummaryButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            view.element.find(HASH + LAYOUT.MAIN + '-sort').css({ display: showSortButtons ? DISPLAY.INLINE : DISPLAY.NONE });
         };
 
         /* jshint +W074 */
@@ -1559,7 +1555,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeMainLayout = function () {
             var culture = i18n.culture.layout;
-            $(DEVICE_SELECTOR + LAYOUT.MAIN + '-back').text(culture.back);
+            $(HASH + LAYOUT.MAIN + '-back').text(culture.back);
         };
 
         /**
@@ -1568,7 +1564,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeActivitiesView = function () {
             var culture = i18n.culture.activities;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.ACTIVITIES);
+            var viewElement = $(HASH + VIEW.ACTIVITIES);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1586,7 +1582,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeCategoriesView = function () {
             var culture = i18n.culture.categories;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.CATEGORIES);
+            var viewElement = $(HASH + VIEW.CATEGORIES);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1603,7 +1599,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeCorrectionView = function () {
             var culture = i18n.culture.correction;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.CORRECTION);
+            var viewElement = $(HASH + VIEW.CORRECTION);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1626,7 +1622,7 @@ if (typeof(require) === 'function') {
         mobile._localizeDrawerView = function () {
             var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
             var culture = i18n.culture.drawer;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.DRAWER);
+            var viewElement = $(HASH + VIEW.DRAWER);
             // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
             var categoriesElement = viewElement.find('ul>li>a.km-listview-link:eq(0)');
             categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + culture.categories));
@@ -1647,7 +1643,7 @@ if (typeof(require) === 'function') {
         /*
         mobile._localizeFavouritesView = function () {
             var culture = i18n.culture.favourites;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.FAVOURITES);
+            var viewElement = $(HASH + VIEW.FAVOURITES);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1665,7 +1661,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeFinderView = function () {
             var culture = i18n.culture.finder;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.FINDER);
+            var viewElement = $(HASH + VIEW.FINDER);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1683,7 +1679,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizePlayerView = function () {
             var culture = i18n.culture.player;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.PLAYER);
+            var viewElement = $(HASH + VIEW.PLAYER);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1705,7 +1701,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeScoreView = function () {
             var culture = i18n.culture.score;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.SCORE);
+            var viewElement = $(HASH + VIEW.SCORE);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1723,7 +1719,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeSettingsView = function () {
             var culture = i18n.culture.settings;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.SETTINGS);
+            var viewElement = $(HASH + VIEW.SETTINGS);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1748,7 +1744,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeSigninView = function () {
             var culture = i18n.culture.signin;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.SIGNIN);
+            var viewElement = $(HASH + VIEW.SIGNIN);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1767,7 +1763,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeSummaryView = function () {
             var culture = i18n.culture.summary;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.SUMMARY);
+            var viewElement = $(HASH + VIEW.SUMMARY);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1784,7 +1780,7 @@ if (typeof(require) === 'function') {
             // Localize buttons
             viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.go);
             // Localize actionsheet (it is not not within summariesViewElement)
-            var summaryActionSheetElement = $(DEVICE_SELECTOR + VIEW.SUMMARY + '-actionsheet');
+            var summaryActionSheetElement = $(HASH + VIEW.SUMMARY + '-actionsheet');
             summaryActionSheetElement.find('li.km-actionsheet-play > a').text(culture.actionSheet.play);
             summaryActionSheetElement.find('li.km-actionsheet-share > a').text(culture.actionSheet.share);
             summaryActionSheetElement.find('li.km-actionsheet-feedback > a').text(culture.actionSheet.feedback);
@@ -1797,7 +1793,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeSyncView = function () {
             var culture = i18n.culture.sync;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.SYNC);
+            var viewElement = $(HASH + VIEW.SYNC);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1814,7 +1810,7 @@ if (typeof(require) === 'function') {
          */
         mobile._localizeUserView = function () {
             var culture = i18n.culture.user;
-            var viewElement = $(DEVICE_SELECTOR + VIEW.USER);
+            var viewElement = $(HASH + VIEW.USER);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: the view might not have been initialized yet
             if (viewWidget instanceof kendo.mobile.ui.View) {
@@ -1988,8 +1984,8 @@ if (typeof(require) === 'function') {
                     kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.device === 'android' ? 0 : 20);
                     // Considering potential adverse effects with drag and drop, we are using http://docs.telerik.com/kendo-ui/api/javascript/mobile/ui/button#configuration-clickOn
                     // Initialize application
-                    mobile.application = new kendo.mobile.Application($(DEVICE_SELECTOR), {
-                        initial: DEVICE_SELECTOR + (viewModel.isSavedUser$() ? VIEW.USER : VIEW.SIGNIN),
+                    mobile.application = new kendo.mobile.Application(document.body, {
+                        initial: HASH + (viewModel.isSavedUser$() ? VIEW.USER : VIEW.SIGNIN),
                         skin: theme.skin,
                         // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
                         // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
@@ -2056,7 +2052,7 @@ if (typeof(require) === 'function') {
                                 var language = matches[1];
                                 var summaryId = matches[2];
                                 if (viewModel.get(VIEW_MODEL.USER.LANGUAGE) === language) {
-                                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY +
+                                    mobile.application.navigate(HASH + VIEW.SUMMARY +
                                         '?language=' + window.encodeURIComponent(language) +
                                         '&summaryId=' + window.encodeURIComponent(summaryId));
                                 } else {
@@ -2099,16 +2095,16 @@ if (typeof(require) === 'function') {
             var userId = viewModel.get(VIEW_MODEL.USER.SID);
             switch (command) {
                 case 'categories':
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
+                    mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
                     break;
                 case 'scan':
                     mobile._scanQRCode();
                     break;
                 case 'activities':
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language) + '&userId=' + encodeURIComponent(userId));
+                    mobile.application.navigate(HASH + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language) + '&userId=' + encodeURIComponent(userId));
                     break;
                 case 'settings':
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.SETTINGS + '?userId=' + encodeURIComponent(userId));
+                    mobile.application.navigate(HASH + VIEW.SETTINGS + '?userId=' + encodeURIComponent(userId));
                     break;
             }
         };
@@ -2123,7 +2119,7 @@ if (typeof(require) === 'function') {
             // Find and destroy the grid as it needs to be rebuilt if locale changes
             // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
             // var gridElement = view.element.find(kendo.roleSelector('grid'));
-            var gridElement = view.element.find(DEVICE_SELECTOR + VIEW.ACTIVITIES + '-grid');
+            var gridElement = view.element.find(HASH + VIEW.ACTIVITIES + '-grid');
             if (gridElement.length) {
                 var gridWidget = gridElement.data('kendoGrid');
                 if (gridWidget instanceof kendo.ui.Grid) {
@@ -2134,7 +2130,7 @@ if (typeof(require) === 'function') {
                     kendo.destroy(paneElement);
                     paneElement.remove();
                     // gridElement = $('<div data-role="grid"></div>');
-                    gridElement = $('<div id="' + DEVICE_SELECTOR.substr(1) + VIEW.ACTIVITIES + '-grid"></div>')
+                    gridElement = $('<div id="' + HASH.substr(1) + VIEW.ACTIVITIES + '-grid"></div>')
                         .appendTo(parentElement);
                 }
                 var culture = i18n.culture.activities;
@@ -2156,7 +2152,7 @@ if (typeof(require) === 'function') {
                         assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
                         var activityId = dataItem.get('id'); // Note: this is a local id, not a sid
                         assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
-                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
+                        mobile.application.navigate(HASH + VIEW.SCORE +
                             '?language=' + window.encodeURIComponent(language) +
                             '&summaryId=' + window.encodeURIComponent(summaryId) +
                             '&versionId=' + window.encodeURIComponent(versionId) +
@@ -2479,7 +2475,7 @@ if (typeof(require) === 'function') {
             // Find and destroy the grid as it needs to be rebuilt if locale changes
             // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
             // var gridElement = view.element.find(kendo.roleSelector('grid'));
-            var gridElement = contentElement.find(DEVICE_SELECTOR + VIEW.SCORE + '-grid');
+            var gridElement = contentElement.find(HASH + VIEW.SCORE + '-grid');
             if (gridElement.length) {
                 var summaryElement = contentElement.find('summary');
                 var gridWidget = gridElement.data('kendoGrid');
@@ -2491,7 +2487,7 @@ if (typeof(require) === 'function') {
                     kendo.destroy(paneElement);
                     paneElement.remove();
                     // gridElement = $('<div data-role="grid"></div>');
-                    gridElement = $('<div id="' + DEVICE_SELECTOR.substr(1) + VIEW.SCORE + '-grid"></div>')
+                    gridElement = $('<div id="' + HASH.substr(1) + VIEW.SCORE + '-grid"></div>')
                         .appendTo(parentElement);
                 }
                 var culture = i18n.culture.score;
@@ -2507,7 +2503,7 @@ if (typeof(require) === 'function') {
                         assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
                         var currentId = viewModel.get(VIEW_MODEL.CURRENT.ID);
                         var page = dataItem.page + 1;
-                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CORRECTION +
+                        mobile.application.navigate(HASH + VIEW.CORRECTION +
                             '?language=' + window.encodeURIComponent(view.params.language) +
                             '&summaryId=' + window.encodeURIComponent(view.params.summaryId) +
                             '&versionId=' + window.encodeURIComponent(view.params.versionId) +
@@ -2631,7 +2627,7 @@ if (typeof(require) === 'function') {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             // Navigate to the user view
-            mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+            mobile.application.navigate(HASH + VIEW.USER);
         };
 
         /**
@@ -2666,7 +2662,7 @@ if (typeof(require) === 'function') {
                         // Yield time for transition effects to complete, especially when testing in the browser
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
                         setTimeout(function () {
-                            mobile.application.navigate(DEVICE_SELECTOR + VIEW.USER);
+                            mobile.application.navigate(HASH + VIEW.USER);
                         }, 0);
                     })
                     .always(function () {
@@ -2859,7 +2855,7 @@ if (typeof(require) === 'function') {
             // The trick is to use a blank returnUrl at https://www.kidoju.com/api/blank with a CSP that does not allow the execution of any code
             // We can then access this returnUrl in the loadstart and loadstop events of the InAppBrowser.
             // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted access to their data.
-            var returnUrl = mobile.support.inAppBrowser ? app.uris.rapi.blank : window.location.protocol + '//' + window.location.host + '/' + DEVICE_SELECTOR + VIEW.SIGNIN;
+            var returnUrl = mobile.support.inAppBrowser ? app.uris.rapi.blank : window.location.protocol + '//' + window.location.host + '/' + HASH + VIEW.SIGNIN;
             // When running in a browser via phonegap serve, the InAppBrowser turns into an iframe but authentication providers prevent running in an iframe by setting 'X-Frame-Options' to 'SAMEORIGIN'
             // So if the device platform is a browser, we need to keep the sameflow as Kidoju-WebApp with a redirectUrl that targets the user view
             rapi.oauth.getSignInUrl(provider, returnUrl)
@@ -2902,7 +2898,7 @@ if (typeof(require) === 'function') {
          * @param enable
          */
         mobile.enableSigninButtons = function (enable) {
-            $(DEVICE_SELECTOR + VIEW.SIGNIN).children(kendo.roleSelector('content')).find(kendo.roleSelector('button')).each(function () {
+            $(HASH + VIEW.SIGNIN).children(kendo.roleSelector('content')).find(kendo.roleSelector('button')).each(function () {
                 var buttonWidget = $(this).data('kendoMobileButton');
                 if (buttonWidget instanceof kendo.mobile.ui.Button) {
                     buttonWidget.enable(enable);
@@ -2951,7 +2947,7 @@ if (typeof(require) === 'function') {
                     // version has no language - we therfore assume same langauge
                     // assert.equal(language, version.get('language'), kendo.format(assert.messages.equal.default, 'version.get(\'language")', language));
                     assert.equal(summaryId, version.get('summaryId'), kendo.format(assert.messages.equal.default, 'version.get(\'summaryId")', summaryId));
-                    mobile.application.navigate(DEVICE_SELECTOR + VIEW.PLAYER +
+                    mobile.application.navigate(HASH + VIEW.PLAYER +
                         '?language=' + window.encodeURIComponent(language) +
                         '&summaryId=' + window.encodeURIComponent(summaryId) +
                         '&versionId=' + window.encodeURIComponent(version.get('id'))
@@ -3145,7 +3141,7 @@ if (typeof(require) === 'function') {
                         viewModel.trigger(CHANGE, { field: VIEW_MODEL.USER.$ });
                         app.notification.success(kendo.format(i18n.culture.notifications.userSaveSuccess));
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
-                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES + '?language=' + language);
+                        mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + language);
                     })
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.userSaveFailure);
@@ -3193,7 +3189,7 @@ if (typeof(require) === 'function') {
                     })
                     .always(function () {
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
-                        mobile.application.navigate(DEVICE_SELECTOR + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
+                        mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
                     });
 
             } else {
@@ -3208,7 +3204,7 @@ if (typeof(require) === 'function') {
         mobile.onUserNewClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SIGNIN);
+            mobile.application.navigate(HASH + VIEW.SIGNIN);
         };
 
 
@@ -3217,7 +3213,7 @@ if (typeof(require) === 'function') {
          * @param enable
          */
         mobile.enableUserButtons = function (enable) {
-            $(DEVICE_SELECTOR + VIEW.USER).children(kendo.roleSelector('content')).find(kendo.roleSelector('button')).each(function () {
+            $(HASH + VIEW.USER).children(kendo.roleSelector('content')).find(kendo.roleSelector('button')).each(function () {
                 var buttonWidget = $(this).data('kendoMobileButton');
                 if (buttonWidget instanceof kendo.mobile.ui.Button) {
                     buttonWidget.enable(enable);
@@ -3302,7 +3298,7 @@ if (typeof(require) === 'function') {
             assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
             var activityId = viewModel.get(VIEW_MODEL.CURRENT.ID);
             assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
-            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SCORE +
+            mobile.application.navigate(HASH + VIEW.SCORE +
                 '?language=' + encodeURIComponent(language) +
                 '&summaryId=' + encodeURIComponent(summaryId) +
                 '&versionId=' + encodeURIComponent(versionId) +
@@ -3346,7 +3342,7 @@ if (typeof(require) === 'function') {
             assert.equal(language, viewModel.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
             assert.equal(summaryId, viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID), kendo.format(assert.messages.equal.default, 'viewModel.get("version.summaryId")', summaryId));
-            mobile.application.navigate(DEVICE_SELECTOR + VIEW.SUMMARY +
+            mobile.application.navigate(HASH + VIEW.SUMMARY +
                 '?language=' + encodeURIComponent(language) +
                 '&summaryId=' + encodeURIComponent(summaryId)
             );
@@ -3364,9 +3360,9 @@ if (typeof(require) === 'function') {
          * Event handler triggered when clicking the search button in the navbar
          */
         mobile.onNavBarSearchClick = function () {
-            mobile.application.navigate(DEVICE_SELECTOR + VIEW.FINDER);
+            mobile.application.navigate(HASH + VIEW.FINDER);
             // @see http://www.telerik.com/forums/hiding-filter-input-in-mobile-listview
-            // var summaryView = $(DEVICE_SELECTOR + VIEW.FINDER);
+            // var summaryView = $(HASH + VIEW.FINDER);
             // summaryView.find(kendo.roleSelector('listview')).getKendoMobileListView()._filter._clearFilter({ preventDefault: $.noop });
             // summaryView.find('.km-filter-form').show();
         };
