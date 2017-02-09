@@ -130,7 +130,7 @@ module.exports = {
                     // { loader: 'bundle-loader', options: { name: '[name]' } },
                     { loader: 'bundle-loader?name=[name]' },
                     // { loader: "style-loader", options: { useable: true } },
-                    { loader: "style-loader/useable" },
+                    { loader: 'style-loader/useable' },
                     // { loader: 'css-loader', options: { importLoaders: 2 } },
                     { loader: 'css-loader?importLoaders=2' },
                     { loader: 'postcss-loader' },

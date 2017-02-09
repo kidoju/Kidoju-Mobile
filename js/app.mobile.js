@@ -151,7 +151,7 @@ if (typeof(require) === 'function') {
         // Following 4 bytes define the selected top category
         var LEVEL_CHARS = 4;
         var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
-        var RX_TOP_LEVEL_MATCH = new RegExp('^[a-z0-9]{' + TOP_LEVEL_CHARS + '}0{' + (24 - TOP_LEVEL_CHARS) + '}$')
+        var RX_TOP_LEVEL_MATCH = new RegExp('^[a-z0-9]{' + TOP_LEVEL_CHARS + '}0{' + (24 - TOP_LEVEL_CHARS) + '}$');
         var HASH = '#';
         var LAYOUT = {
             MAIN: 'main-layout'
@@ -236,7 +236,7 @@ if (typeof(require) === 'function') {
                 en: '000100010000000000000000',
                 fr: '000200010000000000000000'
             }
-        }
+        };
 
         /*******************************************************************************************
          * Global handlers
