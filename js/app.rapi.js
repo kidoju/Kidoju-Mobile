@@ -1426,7 +1426,16 @@
                             },
                             processData : false,
                             type : 'PUT',
-                            url : signedUrl
+                            url : signedUrl,
+                            xhr: function () {
+                                // Add a progress event handler to XmlHttpRequest
+                                var xhr = $.ajaxSettings.xhr();
+                                xhr.upload.onprogress = function (e) {
+                                    e.file = file;
+                                    dfd.notify(e);
+                                };
+                                return xhr;
+                            }
                         })
                         .done(function () {
                             // Note, we use a deferred to return the url of the uploaded file
