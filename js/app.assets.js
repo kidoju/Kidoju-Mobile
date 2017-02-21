@@ -61,6 +61,8 @@
         function transport(tool) {
             return {
                 create: function (options) {
+                    debugger;
+                    // TODO prevent adding duplicates
                     var locale = i18n.locale();
                     var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
                     var data = options.data;
@@ -79,6 +81,13 @@
                                 data: { language: locale, summaryId: params.summaryId, tool: tool, uploadUrl: uploadUrl }
                             });
                             rapi.v1.content.uploadFile(uploadUrl, data.file)
+                                .progress(function (e) {
+                                    debugger;
+                                    if (e.lengthComputable) {
+                                        var p = e.loaded / e.total;
+                                        debugger;
+                                    }
+                                })
                                 .done(function (response) {
                                     assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
                                     assert.type(STRING, response.name, kendo.format(assert.messages.type.default, 'response.name', STRING));
