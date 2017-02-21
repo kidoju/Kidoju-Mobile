@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2016 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -15,7 +15,8 @@
         './vendor/kendo/kendo.dropdownlist',
         './vendor/kendo/kendo.pager',
         './vendor/kendo/kendo.listview',
-        './vendor/kendo/kendo.tabstrip'
+        './vendor/kendo/kendo.tabstrip',
+        './vendor/kendo/kendo.upload'
     ], f);
 })(function () {
 
@@ -43,15 +44,15 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
-        var DELETE = 'delete';
+        // var DELETE = 'delete';
         var ERROR = 'error';
-        var UPLOAD = 'upload';
+        // var UPLOAD = 'upload';
         var NS = '.kendoAssetManager';
         var WIDGET_CLASS = 'k-widget kj-assetmanager';
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
-                    '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-add"></span>#=messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" /></div></div>' +
-                    '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-delete" /></button>&nbsp;' +
+                    '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-i-plus"></span>#=messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" multiple /></div></div>' +
+                    '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close" /></button>&nbsp;' +
                     '<label style="display:none">#=messages.toolbar.filter#<select /></label>' +
                 '</div>' +
                 '<div class="k-tiles-arrange">' +
@@ -195,6 +196,40 @@
         /*********************************************************************************
          * Widget
          *********************************************************************************/
+
+        /*
+
+         TODO: remove if https://github.com/telerik/kendo-ui-core/pull/2802 is accepted
+         See also https://github.com/telerik/kendo-ui-core/issues/2799
+         Otherwise replace _onListViewDataBound with this
+
+         var AssetListView = ListView.extend({
+            options: $.extend(ListView.fn.options, { name: 'AssetListView'}),
+             refresh: function (e) {
+                 var that = this;
+                 ListView.fn.refresh.call(that, e);
+                 // the dataBinding event knows which data items have been added but occurs before the corresponding html list items are created
+                 // whereas the select method expects a jQuery element as parameter.
+                 // Unfortunately the dataBound event occurs after the html list itens are ccreated but does not know which data item have been added to the listview
+                 // so we need to to specialize the listview to override the refresh method and select the last item added
+                 // Monitor that.trigger(DATABINDING, ...) and that.trigger(DATABOUND) at
+                 // https://github.com/telerik/kendo-ui-core/blob/master/src/kendo.listview.js#L232, and
+                 // https://github.com/telerik/kendo-ui-core/blob/master/src/kendo.listview.js#L263
+                 // until they both match as in that.trigger(DATABOUND, { action: e.action || "rebind", items: e.items, index: e.index });
+                 if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+                    that._uid = e.items[e.items.length - 1].uid;
+                 } else if (e.action === 'sync' && $.type(that._uid) === STRING) {
+                    // 'add' is followed by 'sync'
+                    that.select(that.element.children('[' + kendo.attr('uid') + '="' + that._uid + '"]'));
+                    that._uid = undefined;
+                 } else {
+                    that.select(that.element.children().first());
+                 }
+             }
+         });
+
+         kendo.ui.plugin(AssetListView);
+         */
 
         /**
          * @class AssetManager Widget (kendoAssetManager)
@@ -400,7 +435,7 @@
                 // Events
                 that.toolbar
                     .on(CHANGE + NS, '.k-upload input[type=file]', $.proxy(that._onFileInputChange, that))
-                    .on(CLICK + NS, 'button:not(.k-state-disabled):has(.k-delete)', $.proxy(that._onDeleteButtonClick, that))
+                    .on(CLICK + NS, 'button:not(.k-state-disabled):has(.k-i-close)', $.proxy(that._onDeleteButtonClick, that))
                     .on(CHANGE + NS, 'input.k-input', $.proxy(that._onSearchInputChange, that))
                     .on(CLICK + NS, 'a.k-i-close', $.proxy(that._onSearchClearClick, that));
 
@@ -524,6 +559,7 @@
                         // autoBind: false,
                         change: $.proxy(this._onListViewChange, this),
                         dataBinding: $.proxy(this._onListViewDataBinding, this),
+                        dataBound: $.proxy(this._onListViewDataBound, this),
                         dataSource: this.dataSource,
                         selectable: true,
                         template: kendo.template(this.options.itemTemplate)
@@ -532,6 +568,7 @@
                 this.pager = $('<div class="k-pager-wrap"></div>')
                     .appendTo(this.fileBrowser)
                     .kendoPager({
+                        autoBind: false, // dataSource has already been bound/read by this.listView
                         dataSource: this.dataSource
                     })
                     .data('kendoPager');
@@ -548,7 +585,7 @@
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 if (this._selectedItem() instanceof ObservableObject) {
                     if (this.tabStrip.select().index() === 0) {
-                        this.toolbar.find('.k-delete').parent().removeClass('k-state-disabled').show();
+                        this.toolbar.find('.k-i-close').parent().removeClass('k-state-disabled').show();
                     }
                     this.trigger(CHANGE, { value: this.value() });
                 }
@@ -560,7 +597,27 @@
              */
             _onListViewDataBinding: function () {
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
-                this.toolbar.find('.k-delete').parent().addClass('k-state-disabled').hide();
+                this.toolbar.find('.k-i-close').parent().addClass('k-state-disabled').hide();
+            },
+
+            /**
+             * Event handler triggered after data binding a new collection
+             * @param e
+             * @private
+             */
+            _onListViewDataBound: function (e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(ListView, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.ListView'));
+                var listView = e.sender; // Do not use this.listView because it might not yet have been assigned.
+                if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+                    listView._dataBoundUid = e.items[e.items.length - 1].uid;
+                } else if (e.action === 'sync' && $.type(listView._dataBoundUid) === STRING) {
+                    // action 'add' is followed by action 'sync'
+                    listView.select(listView.element.children('[' + kendo.attr('uid') + '="' + listView._dataBoundUid + '"]'));
+                    listView._dataBoundUid = undefined;
+                } else {
+                    listView.select(listView.element.children().first());
+                }
             },
 
             /**
@@ -569,19 +626,20 @@
              * @private
              */
             _selectedItem: function () {
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
 
-                var listView = this.listView;
-                var selected = listView.select();
-
-                if (selected instanceof $ && selected.length) {
-                    return this.dataSource.getByUid(selected.attr(kendo.attr('uid')));
+                var listView = this.listView; // this.listView might not have yet been assigned
+                if (listView instanceof kendo.ui.ListView) {
+                    var selected = listView.select();
+                    if (selected instanceof $ && selected.length) {
+                        return this.dataSource.getByUid(selected.attr(kendo.attr('uid')));
+                    }
                 }
             },
 
             /**
              * Event handler triggered when selecting a tab
+             * @param e
              * @private
              */
             _onTabSelect: function (e) {
