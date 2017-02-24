@@ -61,8 +61,6 @@
         function transport(tool) {
             return {
                 create: function (options) {
-                    debugger;
-                    // TODO prevent adding duplicates
                     var locale = i18n.locale();
                     var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
                     var data = options.data;
@@ -82,10 +80,10 @@
                             });
                             rapi.v1.content.uploadFile(uploadUrl, data.file)
                                 .progress(function (e) {
-                                    debugger;
+                                    // debugger; // TODO
                                     if (e.lengthComputable) {
                                         var p = e.loaded / e.total;
-                                        debugger;
+                                        // debugger; // TODO
                                     }
                                 })
                                 .done(function (response) {
