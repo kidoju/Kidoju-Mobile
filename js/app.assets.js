@@ -80,10 +80,8 @@
                             });
                             rapi.v1.content.uploadFile(uploadUrl, data.file)
                                 .progress(function (e) {
-                                    // debugger; // TODO
                                     if (e.lengthComputable) {
-                                        var p = e.loaded / e.total;
-                                        // debugger; // TODO
+                                        $(document).trigger('progress.kendoAssetManager', [e.loaded / e.total, 'progress']);
                                     }
                                 })
                                 .done(function (response) {
@@ -99,6 +97,7 @@
                                         data: $.extend({ language: locale, summaryId: params.summaryId, tool: tool }, response)
                                     });
                                     options.success({ data: [response], total: 1 });
+                                    $(document).trigger('progress.kendoAssetManager', [1, 'complete']);
                                     assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
                                     app.notification.success(i18n.culture.editor.notifications.fileCreateSuccess);
                                 })
