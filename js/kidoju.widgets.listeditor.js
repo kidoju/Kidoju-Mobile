@@ -30,6 +30,7 @@
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.listeditor');
         var NS = '.kendoListEditor';
+        var STRING = 'string';
         var CLICK = 'click';
         var WIDGET_CLASS = 'k-widget kj-listeditor';
         var TEMPLATE = '<li class="k-list-item">' +
@@ -44,7 +45,7 @@
             '</div></li>';
         var EDIT_TMPL = '<li class="k-list-item">' +
             '<div class="kj-handle"><span class="k-icon k-i-handler-drag"></span></div>' +
-            '<div class="kj-text"><input class="k-textbox" data-value-update="keyup" data-bind="value:{0}" name="{0}" required="required" validationMessage="required" /><span data-for="{0}" class="k-invalid-msg"></span></div>' +
+            '<div class="kj-text"><input class="k-textbox" data-bind="value:{0}" name="{0}" required="required" validationMessage="required" /><span data-for="{0}" class="k-invalid-msg"></span></div>' +
             '<div class="kj-buttons">' +
                 '<a class="k-button k-image-button" href="\\#"><span class="k-icon k-i-image-insert"></span></a>' +
                 '<a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"></span></a>' +
@@ -77,9 +78,8 @@
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._layout();
-                // Set dataSource after layout to bind the listView
                 that._dataSource();
-                kendo.notify(that);
+                // kendo.notify(that);
             },
 
             /**
@@ -94,6 +94,7 @@
                 editTemplate: EDIT_TMPL,
                 toolbarTemplate: TOOLBAR_TMPL,
                 tooltipTemplate: TOOLTIP_TMPL,
+                schemes: {},
                 messages: {
                     toolbar: {
                         add: 'Add'
@@ -140,9 +141,14 @@
                 assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
 
                 // Add click event handler for the Add button
-                $('.k-button', that.toolbar).on(CLICK, function (e) {
+                $('.k-button', that.toolbar).on(CLICK + NS, function (e) {
                     assert.instanceof(ListView, that.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                    that.listView.add();
+                    // that.listView.add(); // Requires a model to know the fields to create a new data item with
+                    var item = {};
+                    item[options.textField] = '';
+                    item[options.imageField] = '';
+                    that.dataSource.add(item);
+                    that.listView.edit(that.listView.element.children().last());
                     e.preventDefault();
                 });
             },
@@ -165,15 +171,17 @@
                 // Create the listview
                 that.listView = list.kendoListView({
                     dataSource: that.dataSource,
-                    template: kendo.template(kendo.format(options.template, options.textField, options.imageField)),
-                    editTemplate: kendo.template(kendo.format(options.editTemplate, options.textField, options.imageField))
+                    template: kendo.template(kendo.format(options.template, options.textField, options.imageField + ($.isEmptyObject(options.schemes) ? '' : '$()'))),
+                    editTemplate: kendo.template(kendo.format(options.editTemplate, options.textField, options.imageField + ($.isEmptyObject(options.schemes) ? '' : '$()')))
                 }).data('kendoListView');
 
                 // Make the list sortable
                 that.sortable = list.kendoSortable({
+                    cursor: 'move',
                     filter: '>.k-list-item',
                     handler: '.kj-handle, .kj-handle *',
-                    cursor: 'move',
+                    holdToDrag: true, // for touch screens
+                    ignore: 'input',  // otherwise focus and selections won't work properly in inputs
                     placeholder: function(element) {
                         return element.clone().css('opacity', 0.4);
                     },
@@ -211,20 +219,40 @@
              */
             _dataSource: function () {
                 var that = this;
+                var options = that.options;
 
-                // returns the datasource OR creates one if using array or configuration
-                that.dataSource = DataSource.create(that.options.dataSource);
-
-                // ----------------------------------------------------------------------------
-                // Important note: we need a schema model otherwise the Add button won't work
-                // because the listview won't know the properties to build the new dataItem with
-                // ----------------------------------------------------------------------------
+                // returns the dataSource OR creates one if using array or configuration
+                var data = options.dataSource;
+                if ($.isArray(data) || data instanceof kendo.data.ObservableArray) {
+                    var model = { fields: {} };
+                    model.fields[options.textField] = { type: STRING };
+                    model.fields[options.imageField] = { type: STRING };
+                    // Without id, cancel works like remove
+                    model.id = options.textField;
+                    // IMPORTANT: This means the dataSource needs to have a calculated field named image$ or equivalent if schemes are implemented
+                    model[options.imageField + '$'] = function () {
+                        var image = this.get(options.imageField);
+                        for (var scheme in options.schemes) {
+                            if (options.schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
+                                image = image.replace(scheme + '://', options.schemes[scheme]);
+                                break;
+                            }
+                        }
+                        return image;
+                    };
+                    that.dataSource = DataSource.create({
+                        data: data,
+                        schema: {
+                            model: kendo.data.Model.define(model)
+                        }
+                    });
+                } else {
+                    that.dataSource = DataSource.create(that.options.dataSource);
+                }
 
                 // Set the dataSource on the listview
                 assert.instanceof(ListView, that.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                // if (that.listView instanceof ListView) {
-                    that.listView.setDataSource(that.dataSource);
-                // }
+                that.listView.setDataSource(that.dataSource);
             },
 
             /**
@@ -258,7 +286,13 @@
                 } else if (button.hasClass('k-cancel-button')) {
                     action = 'cancel';
                 }
-                var uid = button.closest('.k-list-item').attr(kendo.attr('uid'));
+                var listItem = button.closest('.k-list-item');
+                if (action !== 'cancel') {
+                    // We need to trigger a blur otherwise the change event might not be raised to induce data bindings
+                    var input = listItem.find('input.k-textbox:not(.k-state-disabled)');
+                    input.blur();
+                }
+                var uid = listItem.attr(kendo.attr('uid'));
                 var dataItem = this.dataSource.getByUid(uid);
                 this.trigger(CLICK, { action: action, item: dataItem });
             },
@@ -268,11 +302,22 @@
              */
             destroy: function () {
                 var that = this;
-                var list = that.listView.element;
+                // Unbind events
+                if (that.listView instanceof ListView) {
+                    var list = that.listView.element;
+                    list.off(NS);
+                }
+                if (that.toolbar instanceof $) {
+                    $('.k-button', that.toolbar).off(NS);
+                }
+                // Release references
+                that.toolbar = undefined;
+                that.listView = undefined;
+                that.sortable = undefined;
+                that.tooltip = undefined;
+                // Destroy kendo bindings
                 Widget.fn.destroy.call(that);
-                kendo.unbind(that.wrapper);
                 kendo.destroy(that.wrapper);
-                list.off(NS);
             }
 
         });

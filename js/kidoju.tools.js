@@ -184,7 +184,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Question' },
+                    question: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -200,25 +200,6 @@
                 }
             },
 
-            checkbox: {
-                description: 'CheckBox',
-                attributes: {
-                    data: { title: 'Values', defaultValue: 'Option 1\nOption 2' },
-                    groupStyle: { title: 'Group Style' },
-                    itemStyle: { title: 'Item Style' },
-                    selectedStyle: { title: 'Select. Style' }
-                },
-                properties: {
-                    name: { title: 'Name' },
-                    description: { title: 'Question' },
-                    solution: { title: 'Solution' },
-                    validation: { title: 'Validation' },
-                    success: { title: 'Success' },
-                    failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
-                }
-            },
-
             connector: {
                 description: 'Connector',
                 attributes: {
@@ -226,7 +207,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Question' },
+                    question: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -245,7 +226,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Question' },
+                    question: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -292,18 +273,40 @@
                 }
             },
 
-            quiz: {
-                description: 'Quiz',
+            multiquiz: {
+                description: 'MultiQuiz',
                 attributes: {
-                    data: { title: 'Values', defaultValue: 'True\nFalse' },
+                    data: { title: 'Values', defaultValue: [{ text: 'Option 1', image: 'cdn://images/o_collection/svg/office/hand_count_one.svg' }, { text: 'Option 2', image: 'cdn://images/o_collection/svg/office/hand_point_up.svg' }] },
                     groupStyle: { title: 'Group Style' },
                     itemStyle: { title: 'Item Style' },
                     mode: { title: 'Mode' },
-                    selectedStyle: { title: 'Select. Style' }
+                    selectedStyle: { title: 'Select. Style' },
+                    shuffle: { title: 'Shuffle' }
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Question' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
+                }
+            },
+
+            quiz: {
+                description: 'Quiz',
+                attributes: {
+                    data: { title: 'Values', defaultValue: [{ text: 'True', image: 'cdn://images/o_collection/svg/office/ok.svg' }, { text: 'False', image: 'cdn://images/o_collection/svg/office/error.svg' }] },
+                    groupStyle: { title: 'Group Style' },
+                    itemStyle: { title: 'Item Style' },
+                    mode: { title: 'Mode' },
+                    selectedStyle: { title: 'Select. Style' },
+                    shuffle: { title: 'Shuffle' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -320,7 +323,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Question' },
+                    question: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -346,7 +349,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Question' },
+                    question: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -363,7 +366,7 @@
                 },
                 properties: {
                     name: { title: 'Name' },
-                    description: { title: 'Question' },
+                    question: { title: 'Question' },
                     solution: { title: 'Solution' },
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
@@ -554,13 +557,15 @@
              */
             _getAttributeRows: function () {
                 var rows = [];
-
+                var data = {};
+                data[kendo.attr('decimals')] = 0;
+                data[kendo.attr('format')] = 'n0';
                 // Add top, left, height, width, rotation
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('top'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.left.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('left'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.height.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('height'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.width.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('width'));
-                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.rotate.title }, { 'data-decimals': 0, 'data-format': 'n0' }).getRow('rotate'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.top.title }, data).getRow('top'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.left.title }, data).getRow('left'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.height.title }, data).getRow('height'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.width.title }, data).getRow('width'));
+                rows.push(new adapters.NumberAdapter({ title: this.i18n.tool.rotate.title }, data).getRow('rotate'));
 
                 // Add other attributes
                 for (var attr in this.attributes) {
@@ -706,7 +711,7 @@
                         if (!RX_NAME.test(name)) {
                             ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidName, description, name, pageIdx + 1) });
                         }
-                        if (!properties.description || !RX_DESCRIPTION.test(properties.description)) {
+                        if (!properties.question || !RX_DESCRIPTION.test(properties.question)) {
                             ret.push({ type: ERROR, index: pageIdx, message: kendo.format(messages.invalidDescription, description, name, pageIdx + 1) });
                         }
                         if (!properties.solution || !RX_SOLUTION.test(properties.solution)) { // What if properties.solution is a number or a date?
@@ -905,11 +910,13 @@
                             paddingRight: '8px'
                         })
                         .appendTo(table);
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<input/>')
                         .addClass('k-textbox')
                         .css({ width: '100%' })
                         .prop({ readonly: true })
-                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field }))// TODO: namespace???
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(cell);
                     $('<button/>')
                         .text('...')
@@ -933,7 +940,7 @@
                 });
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-role="assetmanager" data-bind="value: url"></div>');
+                dialogWidget.content('<div data-' + kendo.ns + 'role="assetmanager" data-' + kendo.ns + 'bind="value: url"></div>');
                 assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
                 assert.instanceof(ToolAssets, assets[options.model.tool], kendo.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
                 var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets[options.model.tool]).data('kendoAssetManager');
@@ -1006,18 +1013,18 @@
                 dialogWidget.title(options.title);
                 dialogWidget.content('<div style="display:flex;flex-direction:row">' +
                     // character grid
-                    '<div data-role="chargrid" data-bind="value: chargrid" data-scaler=".k-content" data-container=".k-content" ' +
-                    'data-columns="' + model.get('attributes.columns') + '" data-rows="' + model.get('attributes.rows') + '" ' +
-                    'data-blank="' + model.get('attributes.blank') + '" ' +
-                    'data-whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
-                    (options.field === 'properties.solution' ? 'data-locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
-                    'data-grid-fill="' + model.get('attributes.gridFill') + '" ' +
-                    'data-grid-stroke="' + model.get('attributes.gridStroke') + '" ' +
-                    'data-blank-fill="' + model.get('attributes.gridStroke') + '" ' +
-                    'data-selected-fill="' + model.get('attributes.selectedFill') + '" ' +
-                    'data-locked-fill="' + model.get('attributes.lockedFill') + '" ' +
-                    'data-locked-color="' + model.get('attributes.fontColor') + '" ' +
-                    'data-value-color="' + model.get('attributes.fontColor') + '" ' +
+                    '<div data-' + kendo.ns + 'role="chargrid" data-' + kendo.ns + 'bind="value: chargrid" data-' + kendo.ns + 'scaler=".k-content" data-' + kendo.ns + 'container=".k-content" ' +
+                    'data-' + kendo.ns + 'columns="' + model.get('attributes.columns') + '" data-' + kendo.ns + 'rows="' + model.get('attributes.rows') + '" ' +
+                    'data-' + kendo.ns + 'blank="' + model.get('attributes.blank') + '" ' +
+                    'data-' + kendo.ns + 'whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
+                    (options.field === 'properties.solution' ? 'data-' + kendo.ns + 'locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
+                    'data-' + kendo.ns + 'grid-fill="' + model.get('attributes.gridFill') + '" ' +
+                    'data-' + kendo.ns + 'grid-stroke="' + model.get('attributes.gridStroke') + '" ' +
+                    'data-' + kendo.ns + 'blank-fill="' + model.get('attributes.gridStroke') + '" ' +
+                    'data-' + kendo.ns + 'selected-fill="' + model.get('attributes.selectedFill') + '" ' +
+                    'data-' + kendo.ns + 'locked-fill="' + model.get('attributes.lockedFill') + '" ' +
+                    'data-' + kendo.ns + 'locked-color="' + model.get('attributes.fontColor') + '" ' +
+                    'data-' + kendo.ns + 'value-color="' + model.get('attributes.fontColor') + '" ' +
                     'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;flex-shrink:0;padding:20px;"></div>' +
                     // Explanations
                     '<div style="padding:20px 0;">' +
@@ -1074,7 +1081,7 @@
                 var rows = model.get('attributes.values') + 1;
                 // Prepare UI
                 dialogWidget.title(options.title);
-                dialogWidget.content('<div data-role="spreadsheet"></div>');
+                dialogWidget.content('<div data-' + kendo.ns + 'role="spreadsheet"></div>');
                 var spreadsheet = dialogWidget.element.find(kendo.roleSelector('spreadsheet'));
                 assert.hasLength(spreadsheet, kendo.format(assert.messages.hasLength.default, 'spreadsheet'));
                 var spreadsheetWidget = spreadsheet.kendoSpreadsheet({
@@ -1139,12 +1146,15 @@
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 // this.editor = 'input';
                 // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-                this.editor = function (container, options) {
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<input/>')
                         .css({ width: '100%' })
-                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(container);
                     input.kendoComboBox({
+                        autoWidth: true,
                         // dataSource: { data: [''] }, // We need a non-empty dataSource otherwise open is not triggered
                         /**
                          * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
@@ -1158,12 +1168,12 @@
                             var handleBox = stage.parent().children('.kj-handle-box');
                             var uid = handleBox.attr(kendo.attr('uid'));
                             // find all unselected connectors
-                            assert.instanceof (PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageModel'));
-                            if (options.model.parent() instanceof kendo.Observable && options.model.parent().selectedPage instanceof Page) {
-                                var components = options.model.parent().selectedPage.components;
+                            assert.instanceof (PageComponent, settings.model, kendo.format(assert.messages.instanceof.default, 'settings.model', 'kidoju.data.PageModel'));
+                            if (settings.model.parent() instanceof kendo.Observable && settings.model.parent().selectedPage instanceof Page) {
+                                var components = settings.model.parent().selectedPage.components;
                                 $.each(components.data(), function (index, component) {
                                     if (component.tool === 'connector' && component.uid !== uid) {
-                                        var solution = component.get(options.field);
+                                        var solution = component.get(settings.field);
                                         if ($.type(solution) === STRING && solution.length && solutions.indexOf(solution) === -1) {
                                             solutions.push(solution);
                                         }
@@ -1209,47 +1219,6 @@
         });
 
         /**
-         * Description Adapter
-         */
-        adapters.DescriptionAdapter = BaseAdapter.extend({
-            init: function (options) {
-                BaseAdapter.fn.init.call(this, options);
-                this.type = STRING;
-                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-                // this.editor = 'input';
-                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-                this.editor = function (container, options) {
-                    var input = $('<input/>')
-                        .css({ width: '100%' })
-                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
-                        .appendTo(container);
-                    input.kendoComboBox({
-                        // dataSource: { data: [] }, // We need a non-empty dataSource otherwise open is not triggered
-                        /**
-                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
-                         * @param e
-                         */
-                        open: function (e) {
-                            var texts = [];
-                            // find the design (mode) stage, avoiding navigation
-                            var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
-                            // find all labels
-                            var labels = stage.find('.kj-element[' + kendo.attr('tool') + '="label"]>div');
-                            labels.each(function (index, label) {
-                                var text = $(label).html().replace(/<br\/?>/g, ' ');
-                                if ($.type(text) === STRING && text.length) {
-                                    texts.push(text);
-                                }
-                            });
-                            texts.sort();
-                            e.sender.setDataSource(texts);
-                        }
-                    });
-                };
-            }
-        });
-
-        /**
          * Disabled adapter
          */
         adapters.DisabledAdapter = BaseAdapter.extend({
@@ -1277,6 +1246,62 @@
                 this.attributes[kendo.attr('role')] = 'dropdownlist';
                 this.attributes[kendo.attr('source')] = JSON.stringify(options && options.enum ? options.enum : []); // kendo.htmlEncode??
             }
+        });
+
+        /**
+         * MultiQuiz Solution adapter
+         */
+        adapters.MultiQuizSolutionAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = undefined;
+                this.defaultValue = this.defaultValue || [];
+                // this.editor = 'input';
+                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
+                    var input = $('<div/>')
+                        .attr(binding)
+                        .appendTo(container);
+                    input.kendoMultiQuiz({
+                        mode: 'checkbox',
+                        // checkboxTemplate: '<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1} #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>',
+                        checkboxTemplate: '<div class="kj-multiquiz-item kj-multiquiz-checkbox" data-' + kendo.ns + 'uid="#: data.uid #"><input id="{2}_#: data.uid #" name="{2}" type="checkbox" class="k-checkbox" value="#: data.{0} #"><label class="k-checkbox-label" for="{2}_#: data.uid #"># if (data.{1}) { #<span class="k-image" style="background-image:url(#: data.{1}$() #);"></span># } #<span class="k-text">#: data.{0} #</span></label></div>',
+                        dataSource: new kendo.data.DataSource({
+                            data: settings.model.get('attributes.data'),
+                            schema: {
+                                model: kendo.data.Model.define({
+                                    id: 'text',
+                                    fields: {
+                                        text: { type: STRING },
+                                        image: { type: STRING }
+                                    },
+                                    image$: function () {
+                                        var image = this.get('image');
+                                        var schemes = assets.image.schemes;
+                                        for (var scheme in schemes) {
+                                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
+                                                image = image.replace(scheme + '://', schemes[scheme]);
+                                                break;
+                                            }
+                                        }
+                                        return image;
+                                    }
+                                })
+                            }
+                        })
+                    });
+                };
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(VALIDATION_CUSTOM, '// Note: both value and solution are arrays of strings\n\t' +
+                        'return String(value.sort()) === String(solution.sort());')
+                }
+            ],
+            libraryDefault: 'equal'
         });
 
         /**
@@ -1331,32 +1356,156 @@
         });
 
         /**
-         * Quiz adapter
+         * Question Adapter
          */
-        adapters.QuizAdapter = BaseAdapter.extend({
+        adapters.QuestionAdapter = BaseAdapter.extend({
+            init: function (options) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                // this.editor = 'input';
+                // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
+                    var input = $('<input/>')
+                        .css({ width: '100%' })
+                        .attr($.extend({}, settings.attributes, binding))
+                        .appendTo(container);
+                    input.kendoComboBox({
+                        autoWidth: true,
+                        // dataSource: { data: [] }, // We need a non-empty dataSource otherwise open is not triggered
+                        /**
+                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
+                         * @param e
+                         */
+                        open: function (e) {
+                            var texts = [];
+                            // find the design (mode) stage, avoiding navigation
+                            var stage = $('[' + kendo.attr('role') + '="stage"][' + kendo.attr('mode') + '="design"]');
+                            // find all labels
+                            var labels = stage.find('.kj-element[' + kendo.attr('tool') + '="label"]>div');
+                            labels.each(function (index, label) {
+                                var text = $(label).html().replace(/<br\/?>/g, ' ');
+                                if ($.type(text) === STRING && text.length) {
+                                    texts.push(text);
+                                }
+                            });
+                            texts.sort();
+                            e.sender.setDataSource(texts);
+                        }
+                    });
+                };
+            }
+        });
+
+        /**
+         * Quiz Data Adapter
+         */
+        adapters.QuizDataAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = undefined;
+                that.defaultValue = that.defaultValue || [];
+                // that.editor is the list editor where the insert image button triggers this.showDialog
+                that.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'source: ' + settings.field;
+                    var listEditor = $('<div/>').attr(binding).appendTo(container);
+                    var listEditorWidget = listEditor.kendoListEditor({
+                        schemes: assets.image.schemes,
+                        click: $.proxy(that.showDialog, that, settings)
+                    }).data('kendoListEditor');
+                    assert.instanceof(kendo.ui.ListEditor, listEditorWidget, kendo.format(assert.messages.instanceof.default, 'listEditorWidget', 'kendo.ui.ListEditor'));
+                    listEditorWidget.dataSource.bind('change', function (e) {
+                        // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
+                        // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
+                        if ($.type(e.action) === STRING) {
+                            settings.model.trigger('change', {field: settings.field});
+                        }
+                    });
+                };
+            },
+            showDialog: function (options, e) {
+                if (e.action === 'image') {
+                    var that = this;
+                    var item = e.item;
+                    var dialogWidget = that.getDialog(options);
+                    // Create viewModel (Cancel shall not save changes to main model)
+                    dialogWidget.viewModel = kendo.observable({
+                        image: item.get('image')
+                    });
+                    dialogWidget.viewModel._item = item;
+                    // Prepare UI
+                    dialogWidget.title(options.title);
+                    dialogWidget.content('<div data-role="assetmanager" data-bind="value: image"></div>');
+                    assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
+                    assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                    var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets.image).data('kendoAssetManager');
+                    kendo.bind(dialogWidget.element, dialogWidget.viewModel);
+                    dialogWidget.element.addClass(NO_PADDING_CLASS);
+                    // Show dialog
+                    assetManagerWidget.tabStrip.activateTab(0);
+                    dialogWidget.open();
+                }
+            },
+            onOkAction: function (options, e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                e.sender.viewModel._item.set('image', e.sender.viewModel.get('image'));
+            }
+        });
+
+        // Important: kj-quiz-item kj-quiz-dropdown defines background-position:vover;background-position:center,display:inline-block;height:1.1em;width:1.1em;
+        var QUIZSOLUTION_TMPL = '<span class="kj-quiz-item kj-quiz-dropdown"># if (data.image) { #<span class="k-image" style="background-image:url(#: data.image$() #);"></span># } #<span class="k-text">#: data.text #</span></span>';
+        /**
+         * Quiz Solution adapter
+         */
+        adapters.QuizSolutionAdapter = BaseAdapter.extend({
             init: function (options, attributes) {
                 BaseAdapter.fn.init.call(this, options);
                 this.type = STRING;
                 this.defaultValue = this.defaultValue || (this.nullable ? null : '');
                 // this.editor = 'input';
                 // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
-                this.editor = function (container, options) {
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<input/>')
                         .css({ width: '100%' })
-                        .attr({ 'data-bind': 'value: ' + options.field }) // TODO namespace???
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(container);
-                    input.kendoComboBox({
-                        // dataSource: { data: [''] }, // We need a non-empty dataSource otherwise open is not triggered
-                        /**
-                         * Fill the drop down list when opening the popup (always up-to-date when adding/removing connectors)
-                         * @param e
-                         */
-                        open: function (e) {
-                            var data = options.model.get('attributes.data');
-                            data = $.type(data) === STRING ? data.split('\n') : [];
-                            data.sort();
-                            e.sender.setDataSource(data);
-                        }
+                    input.kendoDropDownList({
+                        autoWidth: true,
+                        dataSource: new kendo.data.DataSource({
+                            data: settings.model.get('attributes.data'),
+                            schema: {
+                                model: kendo.data.Model.define({
+                                    id: 'text',
+                                    fields: {
+                                        text: { type: STRING },
+                                        image: { type: STRING }
+                                    },
+                                    image$: function () {
+                                        var image = this.get('image');
+                                        var schemes = assets.image.schemes;
+                                        for (var scheme in schemes) {
+                                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(image)) {
+                                                image = image.replace(scheme + '://', schemes[scheme]);
+                                                break;
+                                            }
+                                        }
+                                        return image;
+                                    }
+                                })
+                            }
+                        }),
+                        dataTextField: 'text',
+                        dataValueField: 'text',
+                        optionLabel: kendo.ui.Quiz.fn.options.messages.optionLabel,
+                        template: QUIZSOLUTION_TMPL,
+                        valueTemplate: QUIZSOLUTION_TMPL
                     });
                 };
             },
@@ -1425,7 +1574,8 @@
                 },
                 {
                     name: 'ignoreCaseMatch',
-                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\', \'i\')).test(String(value).trim());')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'{0}\', \'i\')).test(String(value).trim());'),
+                    param: 'Regular Expression'
                 },
                 {
                     name: 'ignoreDiacriticsEqual',
@@ -1433,7 +1583,8 @@
                 },
                 {
                     name: 'match',
-                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'^\' + String(solution).trim() + \'$\')).test(String(value).trim());')
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return (new RegExp(\'{0}\')).test(String(value).trim());'),
+                    param: 'Regular Expression'
                 },
                 {
                     name: 'metaphone',
@@ -1496,10 +1647,12 @@
                             paddingRight: '8px'
                         })
                         .appendTo(table);
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
                     var input = $('<input/>')
                         .addClass('k-textbox') // or k-input
                         .css({ width: '100%' })
-                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field })) // TODO namespace?
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(cell);
                     $('<button/>')
                         .text('...')
@@ -1665,9 +1818,11 @@
                             paddingRight: '8px'
                         })
                         .appendTo(table);
-                    var input = $('<div data-role="codeinput" />') // TODO namespace???
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field + ', source: _library';
+                    var input = $('<div data-' + kendo.ns + 'role="codeinput" />')
                     // Note: _library is added to the data bound PageComponent in its init method
-                        .attr($.extend({}, settings.attributes, { 'data-bind': 'value: ' + settings.field + ', source: _library' })) // TODO namespace???
+                        .attr($.extend({}, settings.attributes, binding))
                         .appendTo(cell);
                     // We need a temporary textbox to calculate the height and align the button
                     var temp = $('<input type="text" class="k-textbox">')
@@ -1798,7 +1953,8 @@
                     if (RX_HTTP_S.test(ogg)) {
                         files.push(ogg);
                     }
-                    return JSON.stringify(files);
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(files);
                 };
                 return template($.extend(component, { ns: kendo.ns }));
             },
@@ -2076,13 +2232,16 @@
                         }
                         series.push(serie);
                     }
+
                     /*
                      return [
                      { name: 'Series 1', data: [200, 450, 300, 125] },
                      { name: 'Series 2', data: [200, 450, 300, 125] }
                      ];
                      */
-                    return JSON.stringify(series);
+
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(series);
                 };
                 // The seriesDefaults$ function returns an object for chart's data-series-defaults attribute binding
                 component.seriesDefaults$ = function () {
@@ -2158,7 +2317,7 @@
         });
         tools.register(Chart);
 
-        var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-role=stage]" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" data-#= ns #grid-fill="#: attributes.gridFill #" data-#= ns #grid-stroke="#: attributes.gridStroke #" data-#= ns #blank-fill="#: attributes.gridStroke #" data-#= ns #selected-fill="#: attributes.selectedFill #" data-#= ns #locked-fill="#: attributes.lockedFill #" data-#= ns #locked-color="#: attributes.fontColor #" data-#= ns #value-color="#: attributes.fontColor #" {0}></div>';
+        var CHARGRID = '<div data-#= ns #role="chargrid" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" data-#= ns #grid-fill="#: attributes.gridFill #" data-#= ns #grid-stroke="#: attributes.gridStroke #" data-#= ns #blank-fill="#: attributes.gridStroke #" data-#= ns #selected-fill="#: attributes.selectedFill #" data-#= ns #locked-fill="#: attributes.lockedFill #" data-#= ns #locked-color="#: attributes.fontColor #" data-#= ns #value-color="#: attributes.fontColor #" {0}></div>';
         /**
          * @class CharGrid tool
          * @type {void|*}
@@ -2192,7 +2351,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.chargrid.properties.name.title }),
-                description: new adapters.DescriptionAdapter({ title: i18n.chargrid.properties.description.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.chargrid.properties.question.title }),
                 solution: new adapters.CharGridAdapter({ title: i18n.chargrid.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.chargrid.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.chargrid.properties.success.title, defaultValue: 1 }),
@@ -2286,132 +2445,7 @@
         });
         tools.register(CharGrid);
 
-        var CHECKBOX = '<div data-#= ns #role="multicheckbox" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
-        /**
-         * Checkbox tool
-         * @class CheckBox
-         * @type {void|*}
-         */
-        var CheckBox = Tool.extend({
-            id: 'checkbox',
-            icon: 'checkbox',
-            description: i18n.checkbox.description,
-            cursor: CURSOR_CROSSHAIR,
-            weight: 1,
-            templates: {
-                design: kendo.format(CHECKBOX, 'data-#= ns #enable="false"'),
-                play: kendo.format(CHECKBOX, 'data-#= ns #bind="value: #: properties.name #.value"'),
-                review: kendo.format(CHECKBOX, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
-            },
-            height: 200,
-            width: 350,
-            attributes: {
-                groupStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
-                itemStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.itemStyle.title }),
-                selectedStyle: new adapters.StyleAdapter({ title: i18n.checkbox.attributes.selectedStyle.title }),
-                data: new adapters.TextAdapter(
-                    { title: i18n.checkbox.attributes.data.title, defaultValue: i18n.checkbox.attributes.data.defaultValue },
-                    { rows: 4, style: 'resize:vertical; width: 100%;' }
-                )
-            },
-            properties: {
-                name: new adapters.NameAdapter({ title: i18n.checkbox.properties.name.title }),
-                description: new adapters.DescriptionAdapter({ title: i18n.checkbox.properties.description.title }),
-                solution: new adapters.StringArrayAdapter({ title: i18n.checkbox.properties.solution.title }),
-                validation: new adapters.ValidationAdapter({ title: i18n.checkbox.properties.validation.title }),
-                success: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.success.title, defaultValue: 1 }),
-                failure: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.checkbox.properties.omit.title, defaultValue: 0 })
-            },
-
-            /**
-             * Improved display of value in score grid
-             * @param testItem
-             */
-            value$: function (testItem) {
-                var ret = (testItem.value || []).slice();
-                for (var i = 0; i < ret.length; i++) {
-                    ret[i] = kendo.htmlEncode(ret[i]);
-                }
-                return ret.join('<br/>');
-            },
-
-            /**
-             * Improved display of solution in score grid
-             * @param testItem
-             */
-            solution$: function (testItem) {
-                return kendo.htmlEncode(testItem.solution || '').split('\n').join('<br/>');
-            },
-
-            /**
-             * onResize Event Handler
-             * @method onResize
-             * @param e
-             * @param component
-             */
-            onResize: function (e, component) {
-                var stageElement = $(e.currentTarget);
-                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
-                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
-                var content = stageElement.children('div').first();
-                if ($.type(component.width) === NUMBER) {
-                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
-                }
-                if ($.type(component.height) === NUMBER) {
-                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
-                    // if (component.attributes && !RX_FONT_SIZE.test(component.attributes.style)) {
-                    //     content.css('font-size', Math.floor(0.85 * content.height()));
-                    // }
-                }
-                // prevent any side effect
-                e.preventDefault();
-                // prevent event to bubble on stage
-                e.stopPropagation();
-            },
-
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
-            /**
-             * Component validation
-             * @param component
-             * @param pageIdx
-             */
-            validate: function (component, pageIdx) {
-                /* jshint maxcomplexity: 8 */
-                var ret = Tool.fn.validate.call(this, component, pageIdx);
-                var description = this.description; // tool description
-                var messages = this.i18n.messages;
-                if (!component.attributes ||
-                   // Styles are only checked if there is any (optional)
-                   (component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
-                   (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
-                   (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
-                    ret.push({
-                        type: ERROR,
-                        index: pageIdx,
-                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
-                    });
-                }
-                if (!component.attributes ||
-                    !component.attributes.data ||
-                    !RX_DATA.test(component.attributes.data)) {
-                    ret.push({
-                        type: ERROR,
-                        index: pageIdx,
-                        message: kendo.format(messages.invalidData, description, pageIdx + 1)
-                    });
-                }
-                return ret;
-            }
-
-            /* jshint +W074 */
-
-        });
-        tools.register(CheckBox);
-
-        var CONNECTOR = '<div data-#= ns #role="connector" data-#= ns #id="#: properties.name #" data-#= ns #target-value="#: properties.solution #" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-#= ns #role=stage]" data-#= ns #color="#: attributes.color #" {0}></div>';
+        var CONNECTOR = '<div data-#= ns #role="connector" data-#= ns #id="#: properties.name #" data-#= ns #target-value="#: properties.solution #" data-#= ns #color="#: attributes.color #" {0}></div>';
         /**
          * @class Connector tool
          * @type {void|*}
@@ -2434,7 +2468,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.connector.properties.name.title }),
-                description: new adapters.DescriptionAdapter({ title: i18n.connector.properties.description.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.connector.properties.question.title }),
                 solution: new adapters.ConnectorAdapter({ title: i18n.connector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.connector.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.connector.properties.success.title, defaultValue: 0.5 }),
@@ -2504,7 +2538,7 @@
         });
         tools.register(Connector);
 
-        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #scaler=".kj-stage" data-#= ns #container=".kj-stage>div[data-#= ns #role=stage]" data-#= ns #draggable=".kj-element:has([data-draggable=true])" data-#= ns #center="#: attributes.center #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
+        var DROPZONE = '<div id="#: properties.name #" data-#= ns #role="dropzone" data-#= ns #draggable=".kj-element:has([data-draggable=true])" data-#= ns #center="#: attributes.center #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>';
         // TODO: Check whether DROPZONE requires class="kj-interactive"
         /**
          * @class DropZone tool
@@ -2530,7 +2564,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.dropzone.properties.name.title }),
-                description: new adapters.DescriptionAdapter({ title: i18n.dropzone.properties.description.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.dropzone.properties.question.title }),
                 solution: new adapters.StringArrayAdapter({ title: i18n.dropzone.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
@@ -3025,50 +3059,108 @@
         });
         tools.register(MathExpression);
 
-        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" {0} data-#= ns #source="#: JSON.stringify(attributes.data.trim().split(\'\\n\')) #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #"></div>';
+        var MULTIQUIZ = '<div data-#= ns #role="multiquiz" data-#= ns #mode="#: attributes.mode #" data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #" {0}></div>';
         /**
-         * Quiz tool
-         * @class Quiz
+         * MultiQuiz tool
+         * @class MultiQuiz
          * @type {void|*}
          */
-        var Quiz = Tool.extend({
-            id: 'quiz',
-            icon: 'radio_button_group',
-            description: i18n.quiz.description,
+        var MultiQuiz = Tool.extend({
+            id: 'multiquiz',
+            icon: 'checkbox',
+            description: i18n.multiquiz.description,
             cursor: CURSOR_CROSSHAIR,
             weight: 1,
             templates: {
-                design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
-                play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value"'),
-                review: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+                design: kendo.format(MULTIQUIZ, 'data-#= ns #enable="false"'),
+                play: kendo.format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
+                review: kendo.format(MULTIQUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
             },
-            height: 200,
-            width: 350,
+            height: 150,
+            width: 420,
             attributes: {
                 mode: new adapters.EnumAdapter(
-                    { title: i18n.quiz.attributes.mode.title, defaultValue: 'button', enum: ['button', 'dropdown', 'radio'] },
+                    { title: i18n.multiquiz.attributes.mode.title, defaultValue: 'checkbox', enum: ['button', 'checkbox', 'image', 'link', 'multiselect'] },
                     { style: 'width: 100%;' }
                 ),
-                groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
-                itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
-                selectedStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.selectedStyle.title }),
-                data: new adapters.TextAdapter(
-                    { title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue },
-                    { rows: 4, style: 'resize:vertical; width: 100%;' }
-                )
+                shuffle: new adapters.BooleanAdapter({ title: i18n.multiquiz.attributes.shuffle.title }),
+                groupStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
+                itemStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.itemStyle.title }),
+                selectedStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.selectedStyle.title }),
+                data: new adapters.QuizDataAdapter({ title: i18n.multiquiz.attributes.data.title, defaultValue: i18n.multiquiz.attributes.data.defaultValue })
             },
             properties: {
-                name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
-                description: new adapters.DescriptionAdapter({ title: i18n.quiz.properties.description.title }),
-                solution: new adapters.QuizAdapter({ title: i18n.quiz.properties.solution.title }),
-                validation: new adapters.ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
-                success: new adapters.ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
-                failure: new adapters.ScoreAdapter({ title: i18n.quiz.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.quiz.properties.omit.title, defaultValue: 0 })
+                name: new adapters.NameAdapter({ title: i18n.multiquiz.properties.name.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.multiquiz.properties.question.title }),
+                solution: new adapters.MultiQuizSolutionAdapter({ title: i18n.multiquiz.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.multiquiz.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.omit.title, defaultValue: 0 })
             },
 
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(MultiQuiz, that, kendo.format(assert.messages.instanceof.default, 'this', 'MultiQuiz'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                var template = kendo.template(that.templates[mode]);
+                // The data$ function resolves urls with schemes like cdn://sample.jpg
+                component.data$ = function () {
+                    var data = component.attributes.get('data');
+                    var clone = [];
+                    var schemes = assets.image.schemes;
+                    for (var i = 0, length = data.length; i < length; i++) {
+                        var item = {
+                            text: data[i].text,
+                            uid: data[i].uid,
+                            image: ''
+                        };
+                        for (var scheme in schemes) {
+                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
+                                item.image = data[i].image.replace(scheme + '://', schemes[scheme]);
+                                break;
+                            }
+                        }
+                        clone.push(item);
+                    }
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(clone);
+                };
+                return template($.extend(component, { ns: kendo.ns }));
+            },
+
+            /**
+             * Improved display of value in score grid
+             * @param testItem
+             */
+            value$: function (testItem) {
+                var ret = (testItem.value || []).slice();
+                for (var i = 0; i < ret.length; i++) {
+                    ret[i] = kendo.htmlEncode(ret[i]);
+                }
+                return ret.join('<br/>');
+            },
+
+            /**
+             * Improved display of solution in score grid
+             * @param testItem
+             */
+            solution$: function (testItem) {
+                var ret = (testItem.solution || []).slice();
+                for (var i = 0; i < ret.length; i++) {
+                    ret[i] = kendo.htmlEncode(ret[i]);
+                }
+                return ret.join('<br/>');
+            },
 
             /**
              * onResize Event Handler
@@ -3114,8 +3206,6 @@
                 e.stopPropagation();
             },
 
-            /* jshint +W074 */
-
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
@@ -3155,6 +3245,171 @@
             /* jshint +W074 */
 
         });
+        tools.register(MultiQuiz);
+
+        var QUIZ = '<div data-#= ns #role="quiz" data-#= ns #mode="#: attributes.mode #" data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #" {0}></div>';
+        /**
+         * Quiz tool
+         * @class Quiz
+         * @type {void|*}
+         */
+        var Quiz = Tool.extend({
+            id: 'quiz',
+            icon: 'radio_button_group',
+            description: i18n.quiz.description,
+            cursor: CURSOR_CROSSHAIR,
+            weight: 1,
+            templates: {
+                design: kendo.format(QUIZ, 'data-#= ns #enable="false"'),
+                play: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'),
+                review: kendo.format(QUIZ, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 120,
+            width: 490,
+            attributes: {
+                mode: new adapters.EnumAdapter(
+                    { title: i18n.quiz.attributes.mode.title, defaultValue: 'button', enum: ['button', 'dropdown', 'image', 'link', 'radio'] },
+                    { style: 'width: 100%;' }
+                ),
+                shuffle: new adapters.BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
+                groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
+                itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
+                selectedStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.selectedStyle.title }),
+                data: new adapters.QuizDataAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.quiz.properties.question.title }),
+                solution: new adapters.QuizSolutionAdapter({ title: i18n.quiz.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.quiz.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.quiz.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.quiz.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.quiz.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(Quiz, that, kendo.format(assert.messages.instanceof.default, 'this', 'Quiz'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                var template = kendo.template(that.templates[mode]);
+                // The data$ function resolves urls with schemes like cdn://sample.jpg
+                component.data$ = function () {
+                    var data = component.attributes.get('data');
+                    var clone = [];
+                    var schemes = assets.image.schemes;
+                    for (var i = 0, length = data.length; i < length; i++) {
+                        var item = {
+                            text: data[i].text,
+                            uid: data[i].uid,
+                            image: ''
+                        };
+                        for (var scheme in schemes) {
+                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
+                                item.image = data[i].image.replace(scheme + '://', schemes[scheme]);
+                                break;
+                            }
+                        }
+                        clone.push(item);
+                    }
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(clone);
+                };
+                return template($.extend(component, { ns: kendo.ns }));
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                /* jshint maxcomplexity: 8 */
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div' + kendo.roleSelector('quiz'));
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                }
+                /*
+                 // Auto-resize algorithm is not great so let's wait until we find a better solution
+                 var data = component.attributes.data;
+                 var length = data.trim().split('\n').length || 1;
+                 switch (component.attributes.mode) {
+                 case 'button':
+                 content.css('font-size', Math.floor(0.57 * component.height));
+                 break;
+                 case 'dropdown':
+                 content.css('font-size', Math.floor(0.5 * component.height));
+                 break;
+                 case 'radio':
+                 var h = component.height / (length || 1);
+                 content.css('font-size', Math.floor(0.9 * h));
+                 content.find('input')
+                 .height(0.6 * h)
+                 .width(0.6 * h);
+                 break;
+                 }
+                 */
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.groupStyle && !RX_STYLE.test(component.attributes.groupStyle)) ||
+                    (component.attributes.itemStyle && !RX_STYLE.test(component.attributes.itemStyle)) ||
+                    (component.attributes.selectedStyle && !RX_STYLE.test(component.attributes.selectedStyle))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    !component.attributes.data ||
+                    !RX_DATA.test(component.attributes.data)) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                    });
+                }
+                // TODO: Check that solution matches one of the data
+                return ret;
+            }
+
+            /* jshint +W074 */
+
+        });
         tools.register(Quiz);
 
         var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #id="#: properties.name #" data-#= ns #shape="#: attributes.shape #" data-#= ns #shape-stroke="{ color: \'#: attributes.color #\', dashType: \'dot\', opacity: 0.6, width: 8 }" {0}></div>';
@@ -3164,7 +3419,7 @@
          */
         var Selector = Tool.extend({
             id: 'selector',
-            icon: 'arrow_circle',
+            icon: 'selector',
             description: i18n.selector.description,
             cursor: CURSOR_CROSSHAIR,
             weight: 1,
@@ -3184,7 +3439,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.selector.properties.name.title }),
-                description: new adapters.DescriptionAdapter({ title: i18n.selector.properties.description.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.selector.properties.question.title }),
                 solution: new adapters.SelectorAdapter({ title: i18n.selector.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.selector.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.selector.properties.success.title, defaultValue: 1 }),
@@ -3365,7 +3620,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.textarea.properties.name.title }),
-                description: new adapters.DescriptionAdapter({ title: i18n.textarea.properties.description.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.textarea.properties.question.title }),
                 solution: new adapters.TextAdapter({ title: i18n.textarea.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.textarea.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.textarea.properties.success.title, defaultValue: 1 }),
@@ -3464,7 +3719,7 @@
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.textbox.properties.name.title }),
-                description: new adapters.DescriptionAdapter({ title: i18n.textbox.properties.description.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.textbox.properties.question.title }),
                 solution: new adapters.StringAdapter({ title: i18n.textbox.properties.solution.title }),
                 validation: new adapters.ValidationAdapter({ title: i18n.textbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),
@@ -3620,7 +3875,9 @@
                     if (RX_HTTP_S.test(wbem)) {
                         files.push(wbem);
                     }
-                    return JSON.stringify(files);
+
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(files);
                 };
 
                 /* jshint +W074 */

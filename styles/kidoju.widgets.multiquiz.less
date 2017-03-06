@@ -1,9 +1,9 @@
 //*******************
-// Drop Down List
+// MultiSelect
 //*******************
-.k-dropdown,
+.k-multiselect,
 .k-animation-container .k-list {
-    .kj-quiz-item.kj-quiz-dropdown {
+    .kj-multiquiz-item.kj-multiquiz-multiselect {
         >.k-image {
             background-size: cover;
             background-position: center;
@@ -16,17 +16,17 @@
         // >.k-text {}
     }
 }
-.kj-quiz {
+.kj-multiquiz {
     &.k-state-disabled {
         opacity: 1;
         color: inherit;
     }
-    .kj-quiz-item {
+    .kj-multiquiz-item {
         box-sizing: border-box !important; // fixes button alignment on iPhone
         //*******************
         // Buttons
         //*******************
-        &.kj-quiz-button {
+        &.kj-multiquiz-button {
             margin-bottom: 0.2em;
             margin-right: 0.2em;
             // Fiori has a different padding
@@ -49,7 +49,7 @@
         //*******************
         // Images
         //*******************
-        &.kj-quiz-image {
+        &.kj-multiquiz-image {
             cursor: pointer;
             display: inline-block;
             position: relative;
@@ -85,7 +85,7 @@
         //*******************
         // Links
         //*******************
-        &.kj-quiz-link {
+        &.kj-multiquiz-link {
             cursor:pointer;
             &::after {
                 content: '\0020'; // space
@@ -95,12 +95,12 @@
         //*******************
         // Radios
         //*******************
-        &.kj-quiz-radio {
-            input.k-radio {
+        &.kj-multiquiz-checkbox {
+            input.k-checkbox {
                 display: none;
             }
             // Label
-            .k-radio-label {
+            .k-checkbox-label {
                 line-height: normal;
                 padding-left: 1.2em; // Room for check circle
                 vertical-align: initial;
@@ -117,7 +117,7 @@
             }
             // External circle displayed whether checked or unchecked
             // font-size and
-            .k-radio-label:before {
+            .k-checkbox-label:before {
                 border-width: 0.05em;
                 font-size: inherit;
                 line-height: 0.9em;
@@ -127,7 +127,7 @@
                 height: 0.8em;
             }
             // Internal disc added when checked
-            .k-radio:checked + .k-radio-label:after {
+            .k-checkbox:checked + .k-checkbox-label:after {
                 width: 0.7em;
                 height: 0.7em;
                 top: 0.2em;
@@ -139,8 +139,8 @@
 // Fixes a .km-nova defect in Kidoju-Mobile
 // See https://github.com/kidoju/Kidoju-Widgets/issues/117
 .km-nova {
-    .kj-quiz {
-        input.k-radio {
+    .kj-multiquiz {
+        input.k-checkbox {
             display: none;
         }
     }
@@ -149,8 +149,8 @@
 // See https://github.com/kidoju/Kidoju-Widgets/issues/116
 // See https://github.com/jlchereau/Kidoju-Webapp/issues/164
 .k-ff {
-    .kj-quiz {
-        .kj-quiz-item.kj-quiz-button {
+    .kj-multiquiz {
+        .kj-multiquiz-item.kj-multiquiz-button {
             padding-bottom: initial;
             padding-top: initial;
         }
