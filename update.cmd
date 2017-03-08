@@ -62,9 +62,9 @@ COPY ..\Kidoju.Webapp\UPDATE.md .\ /Y
 ATTRIB +R .\UPDATE.md
 
 REM watch.cmd
-ATTRIB -R .\watch.cmd
-COPY ..\Kidoju.Webapp\watch.cmd .\ /Y
-ATTRIB +R .\watch.cmd
+REM ATTRIB -R .\watch.cmd
+REM COPY ..\Kidoju.Webapp\watch.cmd .\ /Y
+REM ATTRIB +R .\watch.cmd
 
 REM webpack
 REM ATTRIB -R .\webpack.config.js
