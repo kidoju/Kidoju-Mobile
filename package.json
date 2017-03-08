@@ -38,10 +38,10 @@
     "autoprefixer": "^6.7.6",
     "bundle-loader": "^0.5.5",
     "chai": "^3.5.0",
-    "css-loader": "^0.26.2",
+    "css-loader": "^0.26.4",
     "deasync": "^0.1.9",
     "deep-extend": "^0.4.1",
-    "ejs": "^2.5.5",
+    "ejs": "^2.5.6",
     "file-loader": "^0.10.1",
     "grunt": "^1.0.1",
     "grunt-contrib-copy": "^1.0.0",
@@ -83,6 +83,5 @@
     "webpack-dev-server": "^2.4.1"
   },
   "dependencies": {
-    "ejs": "^2.5.6"
   }
 }
