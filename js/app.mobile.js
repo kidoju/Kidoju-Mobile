@@ -15,7 +15,7 @@ if (typeof(require) === 'function') {
     require('../styles/kidoju.widgets.mathexpression.less');
     require('../styles/kidoju.widgets.mediaplayer.less');
     require('../styles/kidoju.widgets.messagebox.less');
-    require('../styles/kidoju.widgets.multicheckbox.less');
+    require('../styles/kidoju.widgets.multiquiz.less');
     // require('../styles/kidoju.widgets.playbar.less');
     require('../styles/kidoju.widgets.quiz.less');
     require('../styles/kidoju.widgets.rating.less');
@@ -90,11 +90,11 @@ if (typeof(require) === 'function') {
         './kidoju.widgets.mathexpression',
         './kidoju.widgets.mediaplayer',
         './kidoju.widgets.messagebox',
-        './kidoju.widgets.multicheckbox',
+        './kidoju.widgets.multiquiz',
         // './kidoju.widgets.playbar',
         './kidoju.widgets.quiz',
+        // './kidoju.widgets.rating',
         './kidoju.widgets.selector',
-        './kidoju.widgets.rating',
         // './kidoju.widgets.social',
         './kidoju.widgets.stage',
         './kidoju.widgets.table',
