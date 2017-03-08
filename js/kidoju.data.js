@@ -39,12 +39,16 @@
         var ZERO_NUMBER = 0;
         var NEGATIVE_NUMBER = -1;
         var RX_VALID_NAME = /^val_[a-z0-9]{6}$/;
-        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
         // var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var location = window.location;
         var workerLibPath = location.protocol + '//' + location.host + '/Kidoju.Widgets/src/js/kidoju.data.workerlib.js';
         // var workerLibPath = location.protocol + '//' + location.host + '/src/js/kidoju.data.workerlib.js'; // for WEINRE
 
+        /**
+         * Define our worker timeout from CPU capacity
+         * @returns {number}
+         */
         function workerTimeout() {
             var start = Date.now();
             var rnd;
@@ -546,6 +550,7 @@
                 var clone = {};
                 // Copy page component fields (tool, top, left, height, width, rotate, ...), but not attributes and properties
                 for (var field in fields) {
+                    // copy any field where fields[field].type is a string including 'boolean', 'number' and 'string' (i.e. not undefined)
                     if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING && field !== component.idField) {
                         clone[field] = component.get(field);
                     }
@@ -554,14 +559,21 @@
                 fields = component.attributes.fields;
                 clone.attributes = {};
                 for (/*var */field in fields) {
-                    if (fields.hasOwnProperty(field) && $.type(fields[field].type) === STRING) {
-                        clone.attributes[field] = component.get('attributes.' + field);
+                    if (fields.hasOwnProperty(field)) {
+                        clone.attributes[field] = JSON.parse(JSON.stringify(component.get('attributes.' + field)));
                     }
                 }
-                // IMPORTANT: we do not copy test logic (properties)
-                clone = new PageComponent(clone);
+                // copy some property attributes
+                fields = component.properties.fields;
+                clone.properties = {};
+                for (/*var */field in fields) {
+                    // Copying validation can be fairly complex depending on the use of all, considering components need to change name
+                    if (fields.hasOwnProperty(field) && ['name', 'question', 'solution', 'validation', 'success', 'failure', 'omit'].indexOf(field) === -1) {
+                        clone.properties[field] = JSON.parse(JSON.stringify(component.get('properties.' + field)));
+                    }
+                }
                 // Return clone
-                return clone;
+                return new PageComponent(clone);
             },
 
             /**
@@ -970,7 +982,7 @@
                     workers[thread] = new Worker(task.script);
                     workers[thread].onmessage = function (e) {
                         deferreds[task.id].resolve({ name: task.name, value: e.data });
-                        workers[thread].terminate();
+                        // workers[thread].terminate();
                         window.URL.revokeObjectURL(task.script);
                         runNextTask(thread);
                     };
@@ -982,7 +994,7 @@
                         error.colno = e.colno;
                         error.lineno = e.lineno;
                         deferreds[task.id].reject(error);
-                        workers[thread].terminate();
+                        // workers[thread].terminate();
                         window.URL.revokeObjectURL(task.script);
                         logger.crit(error);
                         // No need to run next task because $.when fails on the first failing deferred
@@ -1265,7 +1277,7 @@
                                     var found;
                                     var param;
                                     var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
-                                     if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
+                                    if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
                                         // Find libraryMatches[1] in the code library
                                         found = properties._library.find(function (item) {
                                             return item.name === libraryMatches[1];

@@ -78,11 +78,11 @@
         var RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
         var RX_SOLUTION = /\S+/i;
         var RX_TEXT = /\S+/i;
-        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\(\n]+)( \([^\n]*\))?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
         var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp4$/i;
         var VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
-        var JS_COMMENT = '// ';
+        var LIB_COMMENT = '// ';
         var CUSTOM = {
             name: 'custom',
             formula: kendo.format(VALIDATION_CUSTOM, '// Your code should return true when value is validated against solution.')
@@ -524,7 +524,7 @@
                 // Pass solution adapter library to validation adapter, especially for the code editor
                 if (this.properties && this.properties.solution instanceof BaseAdapter && this.properties.validation instanceof adapters.ValidationAdapter) {
                     this.properties.validation.library = this.properties.solution.library;
-                    this.properties.validation.defaultValue = JS_COMMENT + this.properties.solution.libraryDefault;
+                    this.properties.validation.defaultValue = LIB_COMMENT + this.properties.solution.libraryDefault;
                 }
 
             },
@@ -1422,7 +1422,7 @@
                         // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
                         // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
                         if ($.type(e.action) === STRING) {
-                            settings.model.trigger('change', {field: settings.field});
+                            settings.model.trigger('change', { field: settings.field });
                         }
                     });
                 };
@@ -3092,7 +3092,7 @@
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.multiquiz.properties.name.title }),
                 question: new adapters.QuestionAdapter({ title: i18n.multiquiz.properties.question.title }),
-                solution: new adapters.MultiQuizSolutionAdapter({ title: i18n.multiquiz.properties.solution.title }),
+                solution: new adapters.MultiQuizSolutionAdapter({ title: i18n.multiquiz.properties.solution.title, defaultValue: [] }),
                 validation: new adapters.ValidationAdapter({ title: i18n.multiquiz.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.multiquiz.properties.failure.title, defaultValue: 0 }),
