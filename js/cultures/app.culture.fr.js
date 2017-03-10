@@ -152,7 +152,7 @@
                 // Grid
                 grid: {
                     columns: {
-                        description: 'Question',
+                        question: 'Question',
                         page: 'Page',
                         result: 'Résultat'
                     },

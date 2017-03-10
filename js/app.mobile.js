@@ -2521,8 +2521,8 @@ if (typeof(require) === 'function') {
                         },
                         // { field: 'name' },
                         {
-                            field: 'description',
-                            title: culture.grid.columns.description
+                            field: 'question',
+                            title: culture.grid.columns.question
                         },
                         // { field: 'value' },
                         // { field: 'solution' },
