@@ -93,7 +93,7 @@ if (typeof(require) === 'function') {
         './kidoju.widgets.multiquiz',
         // './kidoju.widgets.playbar',
         './kidoju.widgets.quiz',
-        // './kidoju.widgets.rating',
+        './kidoju.widgets.rating',
         './kidoju.widgets.selector',
         // './kidoju.widgets.social',
         './kidoju.widgets.stage',
