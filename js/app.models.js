@@ -123,6 +123,7 @@
         var NUMBER = 'number';
         var DATE = 'date';
         var BOOLEAN = 'boolean';
+        var ERROR = 'error';
         var CHANGE = 'change';
         var ITEMCHANGE = 'itemchange';
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
@@ -136,6 +137,22 @@
         /*******************************************************************************
          * Helpers
          *******************************************************************************/
+
+        /**
+         * Returns an xhr object consistent with the xhr returned by the .fail method of $.ajax requests
+         * @constructor
+         */
+        var ErrorXHR = function (status, message) {
+            var errors = {
+                400: 'Bad Request',
+                401: 'Unauthorized',
+                404: 'Bad Request'
+            };
+            this.readyState = 4;
+            this.responseText = kendo.format('{"error":{"name":"ApplicationError","code":0,"status":{0},"message":"{1}"}}', status, message);
+            this.status = status;
+            this.statusText = errors[status.toString()];
+        };
 
         /**
          * Filter an object to a list of fields
@@ -1461,8 +1478,9 @@
                         })
                         .fail(dfd.reject);
                 } else {
+                    var xhr = new ErrorXHR(400, 'Neither data nor data.id is a MongoDB ObjectId');
                     // dfd.reject(xhr, status, error);
-                    dfd.reject('TODO', 'TODO', 'TODO'); // TODO
+                    dfd.reject(xhr, ERROR, xhr.statusText);
                 }
                 return dfd.promise();
             },
@@ -2012,8 +2030,9 @@
                             .fail(dfd.reject);
                     }
                 } else {
+                    var xhr = new ErrorXHR(400, 'Neither data nor data.id is a MongoDB ObjectId');
                     // dfd.reject(xhr, status, error);
-                    dfd.reject('TODO', 'TODO', 'TODO'); // TODO
+                    dfd.reject(xhr, ERROR, xhr.statusText);
                 }
                 return dfd.promise();
             },
