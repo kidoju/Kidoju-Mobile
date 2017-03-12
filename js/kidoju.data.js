@@ -1274,23 +1274,33 @@
                                 // Note: some components like textboxes have properties, others likes labels and images don't
                                 // assert.type(STRING, properties.name, kendo.format(assert.messages.type.default, 'properties.name', STRING));
                                 if ($.type(properties.name) === STRING) {
+                                    var code;
                                     var found;
-                                    var param;
+                                    var paramValue;
                                     var libraryMatches = properties.validation.match(RX_VALIDATION_LIBRARY);
                                     if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
                                         // Find libraryMatches[1] in the code library
-                                        found = properties._library.find(function (item) {
+                                        // Array.find is not available in Internet Explorer, thus the use of Array.filter
+                                        found = properties._library.filter(function (item) {
                                             return item.name === libraryMatches[1];
                                         });
-                                        assert.isPlainObject(found, 'properties.validation cannot be found in code library');
-                                        // libraryMatches[2] is the param beginning with ` (` and ending with `)`
-                                        param = libraryMatches[2];
-                                        if ($.type(found.param) === STRING && $.type(param) === STRING && param.length > 2) {
-                                            // Remove the space and parenthesis
-                                            param = param.substr(2, param.length - 3);
+                                        assert.isArray(found, kendo.format(assert.messages.isArray.default, 'found'));
+                                        assert.hasLength(found, kendo.format(assert.messages.hasLength.default, 'found'));
+                                        found = found[0];
+                                        assert.isPlainObject(found, kendo.format(assert.messages.isPlainObject.default, 'found'));
+                                        assert.type(STRING, found.formula, kendo.format(assert.messages.type.default, 'found.formula', STRING));
+                                        // libraryMatches[2] is the param value beginning with ` ["` and ending with `"]`
+                                        paramValue = libraryMatches[2] || '';
+                                        if ($.type(found.param) === STRING && $.type(paramValue) === STRING && paramValue.length > 4) {
+                                            // Get the  paramValue in the JSON array
+                                            paramValue = JSON.parse(paramValue.trim())[0];
                                         }
+                                        // This is code from the library possibly with param
+                                        code = kendo.format(found.formula, paramValue);
+                                    } else {
+                                        // This is custom code not form the library
+                                        code = properties.validation;
                                     }
-                                    var code = $.isPlainObject(found) && $.type(found.formula) === STRING ? kendo.format(found.formula, param) : properties.validation;
 
                                     // Note: when e.data.value is undefined, we need to specifically call postMessage(undefined) instead of postMessage() otherwise we get the following error:
                                     // Uncaught TypeError: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': 1 argument required, but only 0 present.

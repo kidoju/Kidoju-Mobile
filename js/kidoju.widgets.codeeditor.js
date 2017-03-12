@@ -110,7 +110,7 @@
                     omit: 'Omit',
                     error: 'Error',
                     ajaxError: 'Error loading worker library.',
-                    jsonError: 'Error parsing value as json.',
+                    jsonError: 'Error parsing value as json. Wrap strings in double quotes.',
                     timeoutError: 'The execution of a web worker has timed out.'
                 }
             },
@@ -186,17 +186,19 @@
                 assert.equal(this.dropDownList.dataSource, this.dataSource, 'this.dropDownList.dataSource and this.dataSource are expected to be the same');
                 var options = this.options;
                 var ret = {};
-                var matches = value.match(RX_VALIDATION_LIBRARY);
-                if ($.isArray(matches) && matches.length === 3) {
-                    var temp = matches[2];
-                    var found = this.dataSource.data().find(function (item) {
-                        return item[options.nameField] === matches[1];
+                var libraryMatches = value.match(RX_VALIDATION_LIBRARY);
+                if ($.isArray(libraryMatches) && libraryMatches.length === 3) {
+                    // libraryMatches[2] is the param beginning with ` ["` and ending with `"]`
+                    var param = libraryMatches[2];
+                    // Array.find is not available in Internet Explorer, thus the use of Array.filter
+                    var found = this.dataSource.data().filter(function (item) {
+                        return item[options.nameField] === libraryMatches[1];
                     });
-                    if (found) {
-                        ret.item = found;
+                    if ($.isArray(found) && found.length) {
+                        ret.item = found[0];
                     }
-                    if ($.type(temp) === STRING && temp.length > 4) {
-                        ret.paramValue = JSON.parse(temp.trim())[0];
+                    if ($.type(ret.item.param) === STRING && $.type(param) === STRING && param.length > 4) {
+                        ret.paramValue = JSON.parse(param.trim())[0];
                     }
                 }
                 return ret;
@@ -242,7 +244,7 @@
                     var name = parsed.item[options.nameField];
                     var formula = parsed.item[options.formulaField];
                     var paramName = parsed.item[options.paramField];
-                    var paramValue = parsed.paramValue;
+                    var paramValue = parsed.paramValue || '';
 
                     // Reset value in case the original value could not be found and we had to fallback to default
                     that._value = LIB_COMMENT + name + (paramName ? ' ' + JSON.stringify([paramValue]) : '');
@@ -259,13 +261,10 @@
                             .addClass(STATE_DISABLED)
                             .val('');
                     }
-
                     var code = kendo.format(formula, paramValue);
                     if (that.codeMirror.getDoc().getValue() !== code) {
                         that.codeMirror.getDoc().setValue(code);
                     }
-
-                    that.codeMirror.getDoc().setValue(kendo.format(formula, paramValue));
                 }
 
                 logger.debug({ method: 'refresh', message: 'widget refreshed' });
@@ -377,9 +376,11 @@
                     if (dataItem) {
                         var formula = dataItem[options.formulaField];
                         var name = dataItem[options.nameField];
-                        var code = that.codeMirror.getDoc().getValue();
-                        if (name === options.custom || code !== kendo.format(formula, that.paramInput.val())) {
-                            that.value(code);
+                        var value = that.codeMirror.getDoc().getValue();
+                        var paramValue = that.paramInput.val();
+                        var code = kendo.format(formula, paramValue);
+                        if (name === options.custom || value !== code) {
+                            that.value(value);
                         }
                     }
                 });
