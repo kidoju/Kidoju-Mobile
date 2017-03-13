@@ -197,7 +197,7 @@
                     if ($.isArray(found) && found.length) {
                         ret.item = found[0];
                     }
-                    if ($.type(ret.item.param) === STRING && $.type(param) === STRING && param.length > 4) {
+                    if ($.isPlainObject(ret.item) && $.type(ret.item.param) === STRING && $.type(param) === STRING && param.length > 4) {
                         ret.paramValue = JSON.parse(param.trim())[0];
                     }
                 }
@@ -206,6 +206,9 @@
 
             /* This function has too many statements. */
             /* jshint -W071 */
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
 
             /**
              * refresh UI
@@ -270,6 +273,7 @@
                 logger.debug({ method: 'refresh', message: 'widget refreshed' });
             },
 
+            /* jshint +W074 */
             /* jshint +W071 */
 
             /**
@@ -641,7 +645,7 @@
                 Widget.fn.destroy.call(that);
                 kendo.destroy(element);
                 // Remove widget class
-                element.removeClass(WIDGET_CLASS)
+                element.removeClass(WIDGET_CLASS);
             }
 
         });
