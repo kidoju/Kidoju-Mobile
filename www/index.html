@@ -244,12 +244,14 @@
         </script>
     </div>
 
-    <!-- Correction view -->
+    <!-- Correction view (Review mode) -->
     <div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onCorrectionViewInit" data-show="app.mobile.onCorrectionViewShow">
         <div class="stretched-item">
-            <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
+            <div class="centered">
+                <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
+            </div>
         </div>
-        <div class="stretched-item padding">
+        <div class="stretched-item  k-widget km-content padding">
             <div class="heading">
                 <h2>
                     <img src="./img/teacher.svg" alt="Explanations">
@@ -304,9 +306,11 @@
     <div id="player" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow">
         <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
         <div class="stretched-item">
-            <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
+            <div class="centered">
+                <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
+            </div>
         </div>
-        <div class="stretched-item padding">
+        <div class="stretched-item k-widget km-content padding">
             <div class="heading">
                 <h2>
                     <img src="./img/teacher.svg" alt="Instructions">
