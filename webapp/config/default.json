@@ -98,9 +98,27 @@
                     "name": "Mathematics",
                     "collections": [
                         {
+                            "name": "Geometry",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/mathematics/geometry/index.json"
+                            }
+                        },
+                        {
+                            "name": "Measurement",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/mathematics/measurement/index.json"
+                            }
+                        },
+                        {
                             "name": "Miscellaneous",
                             "transport": {
                                 "read": "https://cdn.kidoju.com/images/mathematics/miscellaneous/index.json"
+                            }
+                        },
+                        {
+                            "name": "Number",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/mathematics/number/index.json"
                             }
                         }
                     ]
