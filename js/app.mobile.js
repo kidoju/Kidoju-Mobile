@@ -1910,6 +1910,8 @@ if (typeof(require) === 'function') {
                         marginLeft: -proportion * scale * WIDTH / 2,
                         marginTop: -proportion * scale * HEIGHT / 2
                     });
+                stageContainer.find('.kj-stage')
+                    .css({ borderWidth: proportion === 1 ? 0 : 1 });
                 // Resize the markdown container and scroller for instructions/explanations
                 var markdownElement = contentElement.find(kendo.roleSelector('markdown'));
                 var markdownScrollerElement = markdownElement.closest(kendo.roleSelector('scroller'));
