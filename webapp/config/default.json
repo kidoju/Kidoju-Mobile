@@ -17,7 +17,7 @@
         "icon": {
             "collections": [
                 {
-                    "name": "O-Collection",
+                    "name": "Icons",
                     "transport": {
                         "read": "https://cdn.kidoju.com/images/o_collection/svg/office/index.json"
                     }
@@ -31,76 +31,76 @@
         "image": {
             "collections": [
                 {
-                    "name": "G-Collection",
-                    "transport": {
-                        "read": "https://cdn.kidoju.com/images/g_collection/svg/all/index.json"
-                    }
-                },
-                {
-                    "name": "O-Collection",
+                    "name": "Icons",
                     "collections": [
                         {
-                            "name": "Dark Grey",
+                            "name": "G-Collection",
                             "transport": {
-                                "read": "https://cdn.kidoju.com/images/o_collection/svg/dark_grey/index.json"
+                                "read": "https://cdn.kidoju.com/images/g_collection/svg/all/index.json"
                             }
                         },
                         {
-                            "name": "Office",
+                            "name": "O-Collection",
                             "transport": {
                                 "read": "https://cdn.kidoju.com/images/o_collection/svg/office/index.json"
                             }
                         },
                         {
-                            "name": "White",
-                            "transport": {
-                                "read": "https://cdn.kidoju.com/images/o_collection/svg/white/index.json"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "V-Collection",
-                    "collections": [
-                        {
-                            "name": "Small",
-                            "transport": {
-                                "read": "https://cdn.kidoju.com/images/v_collection/png/32x32/index.json"
-                            }
-                        },
-                        {
-                            "name": "Medium",
-                            "transport": {
-                                "read": "https://cdn.kidoju.com/images/v_collection/png/64x64/index.json"
-                            }
-                        },
-                        {
-                            "name": "Large",
+                            "name": "V-Collection",
                             "transport": {
                                 "read": "https://cdn.kidoju.com/images/v_collection/png/128x128/index.json"
                             }
                         },
                         {
-                            "name": "Huge",
+                            "name": "X-Collection",
                             "transport": {
-                                "read": "https://cdn.kidoju.com/images/v_collection/png/256x256/index.json"
+                                "read": "https://cdn.kidoju.com/images/x_collection/png/128x128/index.json"
                             }
                         }
                     ]
                 },
                 {
-                    "name": "X-Collection",
+                    "name": "Cartoons",
                     "collections": [
                         {
-                            "name": "Small",
+                            "name": "Animals",
                             "transport": {
-                                "read": "https://cdn.kidoju.com/images/x_collection/png/32x32/index.json"
+                                "read": "https://cdn.kidoju.com/images/cartoons/animals/index.json"
                             }
                         },
                         {
-                            "name": "Large",
+                            "name": "Miscellaneous",
                             "transport": {
-                                "read": "https://cdn.kidoju.com/images/x_collection/png/128x128/index.json"
+                                "read": "https://cdn.kidoju.com/images/cartoons/miscellaneous/index.json"
+                            }
+                        },
+                        {
+                            "name": "People",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/cartoons/people/index.json"
+                            }
+                        },
+                        {
+                            "name": "Scenery",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/cartoons/scenery/index.json"
+                            }
+                        },
+                        {
+                            "name": "Things",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/cartoons/things/index.json"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Mathematics",
+                    "collections": [
+                        {
+                            "name": "Miscellaneous",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/mathematics/miscellaneous/index.json"
                             }
                         }
                     ]
