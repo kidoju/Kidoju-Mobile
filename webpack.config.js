@@ -52,19 +52,6 @@ console.log('webpack public path is ' + config.get('uris:webpack:root'));
 console.log('building version ' + pkg.version);
 
 /**
- * dedupePlugin for improved optimization
- * see grunt-webpack in gruntfile.js
- */
-// var dedupePlugin = new webpack.optimize.DedupePlugin();
-// var uglifyJsPlugin = new webpack.optimize.UglifyJsPlugin();
-
-/**
- * Add banner at the top of every bundle/chunk
- */
-var bannerPlugin =
-    new webpack.BannerPlugin({ banner: pkg.copyright + ' - Version ' + pkg.version + ' dated ' + new Date().toLocaleDateString(), raw: true, entryOnly: true });
-
-/**
  * SourceMapDevToolPlugin builds source maps
  * For debugging in WebStorm see https://github.com/webpack/webpack/issues/238
  *
@@ -185,7 +172,5 @@ module.exports = {
     },
     plugins: [
         definePlugin
-        // bannerPlugin breaks uglifyJS
-        // uglifyJsPlugin
     ]
 };
