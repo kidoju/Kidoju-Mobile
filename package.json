@@ -67,7 +67,7 @@
     "karma-sinon": "^1.0.5",
     "less": "^2.7.2",
     "less-loader": "^3.0.0",
-    "loader-utils": "^1.0.3",
+    "loader-utils": "^1.0.4",
     "mocha": "^3.2.0",
     "nconf": "^0.8.4",
     "phantomjs-prebuilt": "^2.1.14",
@@ -80,7 +80,7 @@
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.6.2",
     "webpack": "^2.2.1",
-    "webpack-dev-server": "^2.4.1"
+    "webpack-dev-server": "^2.4.2"
   },
   "dependencies": {}
 }
