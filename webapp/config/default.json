@@ -95,6 +95,23 @@
                     ]
                 },
                 {
+                    "name": "Common",
+                    "collections": [
+                        {
+                            "name": "Miscellaneous",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/common/miscellaneous/index.json"
+                            }
+                        },
+                        {
+                            "name": "Shapes",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/common/shapes/index.json"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "Mathematics",
                     "collections": [
                         {
