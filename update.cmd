@@ -116,6 +116,10 @@ REM Copy Markdown-It
 XCOPY ..\Kidoju.Widgets\src\js\vendor\markdown-it .\js\vendor\markdown-it /C /E /I /R /Y
 ATTRIB +R .\js\vendor\markdown-it\*.* /S
 
+REM copy MathQUill
+XCOPY ..\Kidoju.Widgets\src\js\vendor\mathquill .\js\vendor\mathquill /C /E /I /R /Y
+ATTRIB +R .\js\vendor\mathquill\*.* /S
+
 REM copy valve/fingerprintjs
 XCOPY ..\Kidoju.Server\client\js\vendor\valve .\js\vendor\valve /C /E /I /R /Y
 ATTRIB +R .\js\vendor\valve\*.* /S
@@ -177,6 +181,10 @@ ATTRIB +R .\styles\vendor\katex\*.* /S
 REM Copy HighlightJS
 XCOPY ..\Kidoju.Widgets\src\styles\vendor\highlight .\styles\vendor\highlight /C /E /I /R /Y
 ATTRIB +R .\styles\vendor\highlight\*.* /S
+
+REM Copy MathQuill
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\mathquill .\styles\vendor\mathquill /C /E /I /R /Y
+ATTRIB +R .\styles\vendor\mathquill\*.* /S
 
 REM Copy Kidoju Widgets
 ATTRIB -R .\styles\kidoju*.less
