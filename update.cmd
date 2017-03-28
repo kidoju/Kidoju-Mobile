@@ -104,6 +104,10 @@ REM Copy HighlightJS
 XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\js\vendor\highlight /C /E /I /R /Y
 ATTRIB +R .\js\vendor\highlight\*.* /S
 
+REM Copy jQuery
+XCOPY ..\Kidoju.Widgets\src\js\vendor\jquery .\js\vendor\jquery /C /E /I /R /Y
+ATTRIB +R .\js\vendor\jquery\*.* /S
+
 REM copy KateX
 XCOPY ..\Kidoju.Widgets\src\js\vendor\katex .\js\vendor\katex /C /E /I /R /Y
 ATTRIB +R .\js\vendor\katex\*.* /S
