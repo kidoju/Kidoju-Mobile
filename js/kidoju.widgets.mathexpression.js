@@ -20,13 +20,14 @@
 
     'use strict';
 
+    var katex = window.katex || katX;
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.mathexpression');
-        var katex = window.katex || katX;
         var FUNCTION = 'function';
         var STRING = 'string';
         var NULL = 'null';
@@ -127,33 +128,20 @@
             },
 
             /**
-             * Clears the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                var element = that.element;
-                // unbind kendo
-                // kendo.unbind(element);
-                // unbind all other events
-                element.find('*').off();
-                element.off();
-                // remove descendants
-                element.empty();
-                // remove element classes
-                element.removeClass(WIDGET_CLASS);
-            },
-
-            /**
              * Destroys the widget including all DOM modifications
              * @method destroy
              */
             destroy: function () {
                 var that = this;
+                var element = that.element;
+                // Unbind events
+                that.unbind(CHANGE);
+                // Release references
+                // Destroy kendo
                 Widget.fn.destroy.call(that);
-                that._clear();
-                kendo.destroy(that.element);
+                kendo.destroy(element);
+                // Remove widget class
+                element.removeClass(WIDGET_CLASS);
             }
 
         });

@@ -9,16 +9,25 @@
 (function (f, define) {
     'use strict';
     define([
+        './vendor/silentmatt/expr-eval',
+        // './vendor/mathjs/math',
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.color',
         './vendor/kendo/kendo.drawing'
-        // TODO: we also need spreadsheet for the toolbar
+        // TODO we also need spreadsheet toolbar for all the tools which have been registered and which we use
     ], f);
-})(function () {
+})(function (math) {
 
     'use strict';
+
+    // Eval is evil, besides x ^ 2 is better than Math.pow(x, 2)
+    // So we have identified two proper math parsers:
+    // https://github.com/silentmatt/expr-eval (small and simple)
+    // https://github.com/josdejong/mathjs (big and feature-rich)
+    // See also https://github.com/pegjs/pegjs
+    math = math || window.exprEval || window.math;
 
     /* This function has too many statements. */
     /* jshint -W071 */
@@ -30,11 +39,13 @@
         var drawing = kendo.drawing;
         var geometry = kendo.geometry;
         var DataSource = data.DataSource;
+        var Group = drawing.Group;
+        var Path = drawing.Path;
         var Surface = drawing.Surface;
         var Widget = kendo.ui.Widget;
         var ToolBar = kendo.ui.ToolBar;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.vectordrawing');
+        var logger = new window.Logger('kidoju.widgets.drawing');
         var NUMBER = 'number';
         var OBJECT = 'object';
         var STRING = 'string';
@@ -42,23 +53,23 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var DOT = '.';
-        var WIDGET = 'kendoVectorDrawing';
+        var WIDGET = 'kendoMathGraph';
         var NS = DOT + WIDGET;
         var MOUSEDOWN = 'mousedown' + NS + ' ' + 'touchstart' + NS;
         var MOUSEMOVE = 'mousemove' + NS + ' ' + 'touchmove' + NS;
         var MOUSEUP = 'mouseup' + NS + ' ' + 'touchend' + NS;
+        var WIDGET_CLASS = 'k-widget kj-mathgraph';
+        var WIDGET_SELECTOR = DOT + 'kj-mathgraph';
         var DIV = '<div/>';
-        var WIDGET_CLASS = 'kj-drawing';
-        var WIDGET_SELECTOR = DOT + 'kj-drawing';
         var ATTRIBUTE_SELECTOR = '[{0}="{1}"]';
         var RX_COLOR = /^#([0-9A-F]{3}|[0-9A-F]{6})$/i;
         var RX_DASHTYPE = /^(dash|dashDot|dot|longDash|longDashDot|longDashDotDot)$/; // Note: `solid` is not listed becuase it is the default
         var TOOLS = [
             'select',
-            'pen',
+            'point',
             'line',
-            'rect',
             'circle',
+            'function',
             'text'
         ];
         var TOOLBAR = [
@@ -205,14 +216,10 @@
         });
 
         /*********************************************************************************
-         * VectorDrawing Widget
+         * MathGraph Widget
          *********************************************************************************/
 
-        /**
-         * VectorDrawing
-         * @class VectorDrawing Widget (kendoVectorDrawing)
-         */
-        var VectorDrawing = Widget.extend({
+        var MathGraph = Widget.extend({
 
             /**
              * Initializes the widget
@@ -237,28 +244,49 @@
              * @property options
              */
             options: {
-                name: 'VectorDrawing',
-                id: null,
+                name: 'MathGraph',
                 autoBind: true,
                 dataSource: [],
                 scaler: 'div.kj-stage',
-                toolbar: '#toolbar',
-                tools: TOOLBAR,
-                enable: true,
-                bbox: {
-                    stroke: {
-                        color: '#808080',
-                        dashType: 'dot'
+                grid: {
+                    size: {
+                        x: 50, // Means a value of 1 is represented with 50 pixels on the X axis
+                        y: 50  // Means a value of 1 is represented with 50 pixels on the Y axis
+                    },
+                    path: {
+                        opacity: .25,
+                        stroke: {
+                            color: '#808080'
+                        }
                     }
                 },
-                handle: {
-                    stroke: {
-                        color: '#808080'
+                axis: {
+                    position: {
+                        x: 50, // In percents
+                        y: 50
                     },
-                    fill: {
-                        color: '#ffffff'
+                    path: {
+                        stroke: {
+                            color: '#000000'
+                        }
                     }
+                },
+                // TODO: zoom ?
+                enable: true,
+                toolbar: '#toolbar',
+                tools: TOOLBAR,
+                messages: {
+                    // TODO
                 }
+            },
+
+            /**
+             * Set options
+             * @param options
+             */
+            setOptions: function (options) {
+                var that = this;
+                // TODO
             },
 
             /**
@@ -295,7 +323,7 @@
                 that.element
                     .addClass(WIDGET_CLASS)
                     .css({ touchAction: 'none' });
-                that.surface = drawing.Surface.create(that.element);
+                that.surface = Surface.create(that.element);
                 // that.surface = drawing.Surface.create(that.element, { type: 'canvas' }); // TODO: remove the type, for testing only
                 // that.surface = drawing.Surface.create(that.element, { type: 'svg' }); // TODO: remove the type, for testing only
                 that._initToolBar();
@@ -310,12 +338,12 @@
                 var options = that.options;
                 that.toolBar = $(DIV)
                     .appendTo(options.toolbar)
-                    .kendoVectorDrawingToolBar({
+                    .kendoMathGraphToolBar({
                         tools: options.tools,
                         action: $.proxy(that._onToolBarAction, that),
                         dialog: $.proxy(that._onToolBarDialog, that)
                     })
-                    .data('kendoVectorDrawingToolBar');
+                    .data('kendoMathGraphToolBar');
                 that._setTool('select');
             },
 
@@ -325,7 +353,7 @@
              */
             _setTool: function (tool) {
                 assert.enum(TOOLS, tool, kendo.format(assert.messages.enum.default, 'tool', TOOLS));
-                window.assert(VectorDrawingToolBar, this.toolBar, kendo.format(assert.messages.instanceof.default, 'this.toolBar', 'kendo.ui.VectorDrawingToolBar'));
+                window.assert(MathGraphToolBar, this.toolBar, kendo.format(assert.messages.instanceof.default, 'this.toolBar', 'kendo.ui.MathGraphToolBar'));
                 var buttonElement = this.toolBar.element.find(kendo.format(ATTRIBUTE_SELECTOR, kendo.attr('tool'), tool));
                 this.toolBar.toggle(buttonElement, true);
                 if (tool === 'select') {
@@ -411,7 +439,7 @@
             _getMousePosition: function (e) {
                 var element = $(e.currentTarget);
                 var widget = element.data(WIDGET);
-                assert.instanceof(VectorDrawing, widget, kendo.format(assert.messages.instanceof.default, 'widget', 'kendo.ui.VectorDrawing'));
+                assert.instanceof(MathGraph, widget, kendo.format(assert.messages.instanceof.default, 'widget', 'kendo.ui.MathGraph'));
                 assert.equal(this, widget, kendo.format(assert.messages.equal.default, 'widget', 'this'));
                 assert.ok(this._enabled, kendo.format(assert.messages.ok.default, 'this._enabled'));
                 var scaler = element.closest(widget.options.scaler);
@@ -447,6 +475,7 @@
                 return ret;
             },
 
+
             /**
              * Select an element and display handles
              * @param element
@@ -454,6 +483,8 @@
              */
             _select: function (element) {
                 this._unselect();
+                // TODO Review: Displaying handles is certainly not our best option!!!!!!!!!!!!!!!
+                // Actually we can only select points
                 if (element instanceof drawing.Element) {
                     // Note: we might also want to test that the element is on the surface
                     var size = 10;
@@ -510,6 +541,7 @@
              * @private
              */
             _onMouseDown: function (e) {
+                console.log('_onMouseDown');
                 var position = this._getMousePosition(e);
                 switch (this._tool) {
                     case 'select':
@@ -517,40 +549,38 @@
                         var element = this._getElementAtPosition(position);
                         this._select(element);
                         break;
-                    case 'circle':
-                        this._startCircle(position, e.data);
+                    case 'point':
+                        this._startPoint(position, e.data);
                         break;
-                    // TODO case image
-                    // TODO case 'line':
-                    case 'pen':
-                        this._startPen(position, e.data);
-                        break;
-                    case 'rect':
-                        this._startRect(position, e.data);
-                        break;
+                    // case 'line':
+                    // case 'circle':
+                    // TODO case 'function':
                     // TODO case 'text'
                 }
             },
 
             /**
-             * MouseMove event handler
+             * MouseDown event handler
              * @param e
              * @private
              */
             _onMouseMove: function (e) {
                 // Discard mouse events unless there is e.data
                 if ($.type(e.data) === OBJECT && !$.isEmptyObject(e.data)) {
+                    console.log('_onMouseMove');
                     var position = this._getMousePosition(e);
                     switch (this._tool) {
-                        case 'circle':
-                            this._continueCircle(position, e.data);
+                        case 'point':
+                            this._continuePoint(position, e.data);
                             break;
+                        /*
                         case 'pen':
                             this._continuePen(position, e.data);
                             break;
                         case 'rect':
                             this._continueRect(position, e.data);
                             break;
+                        */
                     }
                 }
             },
@@ -564,17 +594,26 @@
             _onMouseUp: function (e) {
                 // Discard mouse events unless there is e.data
                 if ($.type(e.data) === OBJECT && !$.isEmptyObject(e.data)) {
+                    console.log('_onMouseUp');
                     var position = this._getMousePosition(e);
-                    switch (this._tool) {
-                        case 'circle':
-                            this._endCircle(position, e.data);
-                            break;
-                        case 'pen':
-                            this._endPen(position, e.data);
-                            break;
-                        case 'rect':
-                            this._endRect(position, e.data);
-                            break;
+                    // Discard mouse events unless there is e.data
+                    if ($.type(e.data) === OBJECT && !$.isEmptyObject(e.data)) {
+                        switch (this._tool) {
+                            case 'point':
+                                this._endPoint(position, e.data);
+                                break;
+                            /*
+                            case 'circle':
+                                this._endCircle(position, e.data);
+                                break;
+                            case 'pen':
+                                this._endPen(position, e.data);
+                                break;
+                            case 'rect':
+                                this._endRect(position, e.data);
+                                break;
+                            */
+                        }
                     }
                 }
             },
@@ -586,6 +625,7 @@
              * @private
              */
             _onMouseEnd: function (e) {
+                console.log('_onMouseEnd');
                 // Reset data for next shape
                 // We cannot assign a new object as in e.data = {}; we need to remove the properties on the object passed by reference
                 for (var prop in e.data) {
@@ -598,154 +638,41 @@
             },
 
             /**
-             * Start drawing a circle with a mouse (MouseDown)
+             * Start drawing a point with a mouse (MouseDown)
              * @param position
              * @param data
              * @private
              */
-            _startCircle: function (position, data) {
-                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.ok($.isEmptyObject(data), 'data is expected to be an empty object');
-                var circleGeometry = new geometry.Circle(position, 1);
-                var circle = new drawing.Circle(circleGeometry, this._configuration.toJSON());
-                this.surface.draw(circle);
-                // TODO bounding box like MSPaint
-                data.origin = position;
-                data.circle = circle;
+            _startPoint: function (position, data) {
+                // DRAW THE POINT
+                data.mousedown = true;
             },
 
             /**
-             * Continue drawing a circle with a mouse (MouseMove)
+             * Continue drawing a point with a mouse (MouseMove)
              * @param position
              * @param data
              * @private
              */
-            _continueCircle: function (position, data) {
-                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'date'));
-                assert.instanceof(geometry.Point, data.origin, kendo.format(assert.messages.instanceof.default, 'data.origin', 'kendo.geometry.Point'));
-                assert.instanceof(drawing.Circle, data.circle, kendo.format(assert.messages.instanceof.default, 'data.circle', 'kendo.drawing.Circle'));
-                var origin = data.origin;
-                var center = new geometry.Point((origin.x + position.x) /  2, (origin.y + position.y) /  2);
-                // var radius = position.distanceTo(origin) / 2;
-                var radius = Math.sqrt(Math.pow(position.x - origin.x, 2) + Math.pow(position.y - origin.y, 2)) / 2;
-                data.circle.geometry(new geometry.Circle(center, radius));
+            _continuePoint: function (position, data) {
+                // mOVE THE POINT
             },
 
             /**
-             * End drawing a circle with a mouse (MouseUp)
+             * End drawing a point with a mouse (MouseUp)
              * @param position
              * @param data
              * @private
              */
-            _endCircle: function (position, data) {
-                this._continueCircle(position, data);
-                var circleGeometry = data.circle.geometry();
+            _endPoint: function (position, data) {
+                // Add the point to the dataSource and refresh
+                var pt = this._getPointFromPixel({ x: position.x, y: position.y });
                 this.dataSource.add({
-                    type: 'circle',
-                    center: circleGeometry.getCenter().toArray(),
-                    radius: circleGeometry.getRadius(),
+                    type: 'point',
+                    name: 'G', // TODO
+                    x: pt.x,
+                    y: pt.y,
                     configuration: this._configuration.toJSON()
-                    // transformation:
-                });
-            },
-
-            /**
-             * Start drawing freely (pen) with a mouse (MouseDown)
-             * @param position
-             * @param data
-             * @private
-             */
-            _startPen: function (position, data) {
-                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.ok($.isEmptyObject(data), 'data is expected to be an empty object');
-                var path = new drawing.Path(this._configuration.toJSON());
-                path.moveTo(position);
-                this.surface.draw(path);
-                data.origin = position;
-                data.path = path;
-            },
-
-            /**
-             * Continue drawing freely (pen) with a mouse (MouseMove)
-             * @param position
-             * @param data
-             * @private
-             */
-            _continuePen: function (position, data) {
-                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'date'));
-                assert.instanceof(geometry.Point, data.origin, kendo.format(assert.messages.instanceof.default, 'data.origin', 'kendo.geometry.Point'));
-                assert.instanceof(drawing.Path, data.path, kendo.format(assert.messages.instanceof.default, 'data.path', 'kendo.drawing.Path'));
-                data.path.lineTo(position);
-            },
-
-            /**
-             * End drawing freely (pen) with a mouse (MouseUp)
-             * @param position
-             * @param data
-             * @private
-             */
-            _endPen: function (position, data) {
-                this._continuePen(position, data);
-                this.dataSource.add({
-                    type: 'path',
-                    segments: data.path.segments,
-                    closed: false,
-                    configuration: this._configuration.toJSON()
-                    // transformation:
-                });
-            },
-
-            /**
-             *
-             * @param position
-             * @param data
-             * @private
-             */
-            _startRect: function (position, data) {
-                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.ok($.isEmptyObject(data), 'data is expected to be an empty object');
-                var rectGeometry = new geometry.Rect(position, [1, 1]);
-                var rect = new drawing.Rect(rectGeometry, this._configuration.toJSON());
-                this.surface.draw(rect);
-                // TODO bounding box like MSPaint
-                data.origin = position;
-                data.rect = rect;
-            },
-
-            /**
-             *
-             * @param position
-             * @param data
-             * @private
-             */
-            _continueRect: function (position, data) {
-                assert.instanceof(geometry.Point, position, kendo.format(assert.messages.instanceof.default, 'position', 'kendo.geometry.Point'));
-                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'date'));
-                assert.instanceof(geometry.Point, data.origin, kendo.format(assert.messages.instanceof.default, 'data.origin', 'kendo.geometry.Point'));
-                assert.instanceof(drawing.Rect, data.rect, kendo.format(assert.messages.instanceof.default, 'data.rect', 'kendo.drawing.Rect'));
-                var origin = data.origin;
-                // Change position of origin depending where we move to
-                var size = [Math.abs(position.x - origin.x), Math.abs(position.y - origin.y)];
-                data.rect.geometry(new geometry.Rect(origin, size));
-            },
-
-            /**
-             *
-             * @param position
-             * @param data
-             * @private
-             */
-            _endRect: function (position, data) {
-                this._continueRect(position, data);
-                var rectGeometry = data.rect.geometry();
-                this.dataSource.add({
-                    type: 'rect',
-                    origin: rectGeometry.getOrigin().toArray(),
-                    size: [rectGeometry.getSize().width, rectGeometry.getSize().height],
-                    configuration: this._configuration.toJSON()
-                    // transformation:
                 });
             },
 
@@ -788,31 +715,40 @@
              * Refresh upon changing the dataSource
              * Redraw all connections
              */
-            refresh: function () {
+            refresh: function (e) {
                 var that = this;
                 assert.instanceof(DataSource, that.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 if (that.surface instanceof Surface) {
                     var items = this.dataSource.data();
                     // Clear surface
                     that.surface.clear();
-                    // Draw all items in dataSource
+                    // Draw grid
+                    that._drawGrid();
+                    // Draw axis
+                    that._drawAxis();
+                    // Draw dataSource items
                     for (var i = 0; i < items.length; i++) {
                         var item = items[i];
                         switch (item.type) {
+                            case 'arc':
+                                break;
                             case 'circle':
                                 that._drawCircle(item);
                                 break;
-                            case 'image':
-                                that._drawImage(item);
+                            case 'function':
+                                that._drawMathFunction(item);
                                 break;
-                            case 'path':
-                                that._drawPath(item);
+                            case 'line':
+                                that._drawLine(item);
                                 break;
-                            case 'rect':
-                                that._drawRect(item);
+                            case 'point':
+                                that._drawPoint(item);
                                 break;
-                            case 'text':
-                                that._drawText(item);
+                            case 'ray':
+                                that._drawRay(item);
+                                break;
+                            case 'segment':
+                                that._drawSegment(item);
                                 break;
                         }
                     }
@@ -820,86 +756,386 @@
             },
 
             /**
-             * Draw a circle
+             * Draw grid
+             * @private
+             */
+            _drawGrid: function () {
+                var that = this;
+                var element = that.element;
+                var options = that.options;
+                if (options.grid && options.grid.size) {
+                    var height = element.height();
+                    var width = element.width();
+                    var origin = that._getOrigin();
+                    var group = new Group();
+                    var xSize = parseFloat(options.grid.size.x);
+                    if (!isNaN(xSize) && xSize > 0) {
+                        var xShift = origin.x % xSize;
+                        var columns = width / xSize;
+                        // TODO: because of xShift, we might need to start at -1
+                        for (var c = 0; c < columns ; c++) {
+                            var colPath = new Path(options.grid.path).moveTo(c * xSize + xShift, 0).lineTo(c * xSize + xShift, height);
+                            group.append(colPath);
+                        }
+                    }
+                    var ySize = parseFloat(options.grid.size.y);
+                    if (!isNaN(ySize) && ySize > 0) {
+                        var yShift = origin.y % ySize;
+                        var rows = height / ySize;
+                        for (var r = 0; r < rows ; r++) {
+                            var rowPath = new Path(options.grid.path).moveTo(0, r * ySize + yShift).lineTo(width, r * ySize + yShift);
+                            group.append(rowPath);
+                        }
+                    }
+                    if ($.isArray(group.children) && group.children.length) {
+                        that.surface.draw(group);
+                    }
+                }
+            },
+
+            /**
+             * Get the graph origin
+             * @private
+             */
+            _getOrigin: function () {
+                var that = this;
+                if (!$.isPlainObject(that._origin)) {
+                    var element = that.element;
+                    var options = that.options;
+                    var height = element.height();
+                    var width = element.width();
+                    // Default value for origin (because we need one)
+                    that._origin = {
+                        x: width / 2,
+                        y: height / 2
+                    };
+                    if (options.axis && options.axis.position) {
+                        var x = parseFloat(options.axis.position.x);
+                        if (!isNaN(x) && x >= 0 && x <= 100) {
+                            that._origin.x = width * x / 100;
+                        }
+                        var y = parseFloat(options.axis.position.y);
+                        if (!isNaN(y) && y >= 0 && y <= 100) {
+                            that._origin.y = height * y / 100;
+                        }
+                    }
+                }
+                // Cache the value to avoid repeating the same calculation
+                return that._origin;
+            },
+
+            /**
+             * Get the pixel position from top left corner, given a point from origin
+             * The point has math cooordinates considering the grid size and position of axis/origin
+             * The position has pixel coordinates
+             * @param point
+             * @private
+             */
+            _getPixelFromPoint: function (point) {
+                var that = this;
+                var options = that.options;
+                var xSize = parseFloat(options.grid.size.x);
+                var ySize = parseFloat(options.grid.size.y);
+                var origin = that._getOrigin();
+                return {
+                    x: point.x * xSize + origin.x,
+                    y: - point.y * ySize + origin.y
+                };
+            },
+
+            /**
+             * Get the point from origin, gievn the pixel position from top left corner
+             * The point has math cooordinates considering the grid size and position of axis/origin
+             * The position has pixel coordinates
+             * @param pixel
+             * @private
+             */
+            _getPointFromPixel: function (pixel) {
+                var that = this;
+                var options = that.options;
+                var xSize = parseFloat(options.grid.size.x);
+                var ySize = parseFloat(options.grid.size.y);
+                var origin = that._getOrigin();
+                return {
+                    x: (pixel.x - origin.x) / xSize,
+                    y: (origin.y - pixel.y) / ySize
+                };
+            },
+
+            /**
+             * Draw axis
+             * @private
+             */
+            _drawAxis: function () {
+                var that = this;
+                var options = that.options;
+                if (options.axis && options.axis.position && options.axis.position.x && options.axis.position.y) {
+                    var element = that.element;
+                    var origin = that._getOrigin();
+                    var height = element.height();
+                    var width = element.width();
+                    var group = new Group();
+                    var xPath = new Path(options.axis.path).moveTo(0, origin.y).lineTo(width, origin.y);
+                    group.append(xPath);
+
+                    var yPath = new Path(options.axis.path).moveTo(origin.x, 0).lineTo(origin.x, height);
+                    group.append(yPath);
+                    that.surface.draw(group);
+                    // TODO add end arrows
+                    // TODO add graduations
+                }
+            },
+
+            /**
+             * Draw a point
+             * @param dataItem
+             * @private
+             */
+            _drawPoint: function (dataItem) {
+                var that = this;
+                var px = that._getPixelFromPoint({ x: dataItem.x, y: dataItem.y });
+                if (isFinite(px.x) && isFinite(px.y)) {
+                    var configuration = dataItem.configuration.toJSON();
+                    var group = new Group;
+                    // Outer circle
+                    var circleGeometry = new geometry.Circle([px.x, px.y], 10); // TODO configure radius of 10
+                    var circle = new drawing.Circle(circleGeometry, $.extend({}, configuration, { opacity: .25 }));
+                    group.append(circle);
+                    // Inner circle
+                    circleGeometry = new geometry.Circle([px.x, px.y], 3); // TODO configure radius
+                    circle = new drawing.Circle(circleGeometry, configuration);
+                    group.append(circle);
+                    // Add name
+                    var text = new drawing.Text(dataItem.name, new geometry.Point(px.x + 10, px.y - 22));  // TODO configure font size and calculate position
+                    group.append(text);
+                    that.surface.draw(group);
+                }
+            },
+
+            /**
+             * Draw a segment
+             * @param dataItem
+             * @private
+             */
+            _drawSegment: function (dataItem) {
+                var that = this;
+                var pt1 = that.dataSource.get(dataItem.pt1);
+                var pt2 = that.dataSource.get(dataItem.pt2);
+                var px1 = that._getPixelFromPoint(pt1);
+                var px2 = that._getPixelFromPoint(pt2);
+                if (isFinite(px1.x) && isFinite(px1.y) &&
+                    isFinite(px2.x) && isFinite(px2.y)
+                ) {
+                    var group = new Group;
+                    // Add path
+                    var path = new Path(dataItem.configuration.toJSON());
+                    path.moveTo(px1.x, px1.y);
+                    path.lineTo(px2.x, px2.y);
+                    group.append(path);
+                    // TODO Add dataItem.name
+                    that.surface.draw(group);
+                }
+            },
+
+            /**
+             * Draw a ray starting at pt1 and going through pt2
+             * @param dataItem
+             * @private
+             */
+            _drawRay: function (dataItem) {
+                var that = this;
+                var height = that.element.height();
+                var width = that.element.width();
+                var pt1 = that.dataSource.get(dataItem.pt1);
+                var pt2 = that.dataSource.get(dataItem.pt2);
+                var px1 = that._getPixelFromPoint(pt1);
+                var px2 = that._getPixelFromPoint(pt2);
+                // Our line has the equation y = a*x + b in the pixel referential
+                var a = (px2.y - px1.y)/(px2.x - px1.x);
+                var b = px1.y - a * px1.x;
+                var group = new Group();
+                var path = new Path(dataItem.configuration.toJSON());
+                if (px2.x > px1.x) {
+                    path
+                        .moveTo([px1.x, px1.y])
+                        .lineTo([width, a * width + b]);
+                } else if (px2.x < px1.x) {
+                    path
+                        .moveTo([0, b])
+                        .lineTo([px1.x, px1.y]);
+                } else if (px2.x === px1.x && px2.y < px2.x) {
+                    path
+                        .moveTo([px1.x, 0])
+                        .lineTo([px1.x, px1.y]);
+                } else if (px2.x === px1.x && px2.y > px2.x) {
+                    path
+                        .moveTo([px1.x, px1.y])
+                        .lineTo([px1.x, height]);
+                }
+                group.append(path);
+                // TODO Add dataItem.name
+                that.surface.draw(group);
+            },
+
+            /**
+             * Draw a line going through pt1 and pt2
+             * @param dataItem
+             * @private
+             */
+            _drawLine: function (dataItem) {
+                var that = this;
+                var width = that.element.width();
+                var pt1 = that.dataSource.get(dataItem.pt1);
+                var pt2 = that.dataSource.get(dataItem.pt2);
+                var px1 = that._getPixelFromPoint(pt1);
+                var px2 = that._getPixelFromPoint(pt2);
+                // Our line has the equation y = a*x + b in the pixel referential
+                var a = (px2.y - px1.y) / (px2.x - px1.x);
+                var b = px1.y - a * px1.x;
+                var group = new Group();
+                var path = new Path(dataItem.configuration.toJSON());
+                path
+                    .moveTo([0, b])
+                    .lineTo([width, a * width + b]);
+                group.append(path);
+                // TODO Add name
+                that.surface.draw(group);
+            },
+
+            /**
+             * Draw a circle centered at pt1 and going through pt2
              * @param dataItem
              * @private
              */
             _drawCircle: function (dataItem) {
-                var item = dataItem.toJSON();
-                var circleGeometry = new geometry.Circle(item.center, item.radius);
-                var circle = new drawing.Circle(circleGeometry, item.configuration);
-                // TODO Transformation
-                circle.options.set('uid', dataItem.get('uid'));
-                this.surface.draw(circle);
-            },
-
-            /**
-             * Draw an image
-             * @param dataItem
-             * @private
-             */
-            _drawImage: function (dataItem) {
-
-            },
-
-            /**
-             * Draw a path
-             * @param dataItem
-             * @private
-             */
-            _drawPath: function (dataItem) {
-                var item = dataItem.toJSON();
-                var segments = item.segments; // Might be an ObservableArray
-                if (segments && segments.length > 1) {
-                    var path = new drawing.Path(item.configuration);
-                    /*
-                     var path = new draw.Path()
-                        .moveTo(100, 200)
-                        .curveTo([100, 100], [250, 100], [250, 200]) // TODO
-                        .lineTo(100, 200);
-                     */
-                    for (var i = 0; i < segments.length; i++) {
-                        if (i === 0) {
-                            path.moveTo(segments[0][0], segments[0][1]);
-                        } else {
-                            path.lineTo(segments[i][0], segments[i][1]);
-                        }
-                    }
-                    // TODO Transformation
-                    // We need the uid to link the drawing element to the dataItem
-                    path.options.set('uid', dataItem.get('uid'));
-                    this.surface.draw(path);
+                var that = this;
+                var pt1 = that.dataSource.get(dataItem.pt1);
+                var pt2 = that.dataSource.get(dataItem.pt2);
+                var px1 = that._getPixelFromPoint(pt1);
+                var px2 = that._getPixelFromPoint(pt2);
+                if (isFinite(px1.x) && isFinite(px1.y) &&
+                    isFinite(px2.x) && isFinite(px2.y)
+                ) {
+                    var radius = Math.sqrt(Math.pow(px2.x - px1.x, 2) + Math.pow(px2.y - px1.y, 2));
+                    var group = new Group();
+                    var circleGeometry = new geometry.Circle([px1.x, px1.y], radius);
+                    var circle = new drawing.Circle(circleGeometry, dataItem.configuration.toJSON());
+                    group.append(circle);
+                    // TODO Add name
+                    that.surface.draw(group);
                 }
             },
 
             /**
-             * Draw a rectangle
+             * Draw arc
              * @param dataItem
              * @private
              */
-            _drawRect: function (dataItem) {
-                var item = dataItem.toJSON();
-                var rectGeometry = new geometry.Rect(item.origin, item.size);
-                var rect = new drawing.Rect(rectGeometry, item.configuration);
-                // TODO Transformation
-                // We need the uid to link the drawing element to the dataItem
-                rect.options.set('uid', dataItem.get('uid'));
-                this.surface.draw(rect);
+            _drawArc: function (dataItem) {
+
             },
 
             /**
-             * Draw text
+             * Draw angle
+             * assuming they are lines that intersect, path 1 and path 2 delimit 4 areas
+             * pt1 is a point (mouse click) that designates one of the four areas and therefore the angle to draw
+             * if path1 and path are segments or rays and their intersection define less than 4 areas, for example a V or a T
+             * pt still designates the area where the angle should be drawn
+             * if path1 and path 2 do not intersect within the boundaries of the visible surface, no angle is drawn
+             * Note that possibly several lines, rays or segments can intersect at the same point
+             * @param pt
+             * @param path1
+             * @param path2
+             * @param name
+             * @param configuration
+             * @private
+             */
+            _drawAngle: function (pt, path1, path2, name, configuration) {
+                // click 1: select path 1
+                // click 2: select pt
+                // click 3: select path 2
+            },
+
+            /**
+             * Draw a radius
              * @param dataItem
              * @private
              */
-            _drawText: function (dataItem) {
-                var item = dataItem.toJSON();
-                var point = geometry.Point.create(item.position);
-                var text = new drawing.Text(item.text, point);
-                // TODO Transformation
-                // We need the uid to link the drawing element to the dataItem
-                text.options.set('uid', dataItem.get('uid'));
-                this.surface.draw(text);
+            _drawRadius: function (dataItem) {
+                // TODO
+            },
+
+            /**
+             * Draw math function
+             * @param dataItem
+             * @private
+             */
+            _drawMathFunction: function (dataItem) {
+                assert.type(STRING, dataItem.code, kendo.format(assert.messages.type.default, 'code', STRING));
+                var that = this;
+                var element = that.element;
+                var options = that.options;
+                var xSize = parseFloat(options.grid.size.x);
+                var ySize = parseFloat(options.grid.size.y);
+                var origin = that._getOrigin();
+                var width = element.width();
+                var configuration = dataItem.configuration.toJSON();
+                var group = new Group();
+                var path = new Path(configuration);
+                var which = false;
+                var fn;
+                var error;
+                if ($.isFunction(math.Parser)) {
+                    // we are using https://github.com/silentmatt/expr-eval
+                    var parser = new math.Parser();
+                    fn = parser.parse(dataItem.code);
+                } else if ($.isFunction(math.parse)) {
+                    // we are using https://github.com/josdejong/mathjs
+                    which = true;
+                    fn = math.parse(dataItem.code).compile();
+                } else {
+                    // we need a math parser
+                    throw new Error('You need to reference a math parser');
+                }
+                for (var x = 0; x <= width; x++) {
+                    try {
+                        // x, y represent a pixel with 0,0 in the top left corner
+                        // a, b are our coordinates from origin
+                        var a = (x - origin.x) / xSize;
+                        // Our function uses x but this is actually a, considering x refers to the horizontal position of pixels
+                        var b = which ? fn.eval({x: a}) : fn.evaluate({x: a});
+                        var y = -b * ySize + origin.y;
+                        if (isFinite(y) && y >= 0 && y <= width) {
+                            if (path.segments && path.segments.length === 0) {
+                                path.moveTo(x, y);
+                            } else {
+                                path.lineTo(x, y);
+                            }
+                            if (x === width - 1) {
+                                group.append(path);
+                            }
+                        } else { // Especially for 1/x and similar functions
+                            // We only append to the group if we had one moveTo and at least one lineTo, that is 2 segments
+                            if (path.segments && path.segments.length > 1) {
+                                group.append(path);
+                            }
+                            // In all cases (whether the previous one has been added to the group or not), we start a new path
+                            // Note: we could have used kendo.drawing.MultiPath
+                            path = new Path(configuration);
+                        }
+                    } catch (ex) {
+                        // TODO: handle parser errors !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        var error = new kendo.drawing.Text(ex.message, new geometry.Point(10, 10), configuration);
+                        group.append(error);
+                        break;
+                    }
+                }
+                if ($.type(error) === UNDEFINED) {
+                    // TODO Add name
+                    var name = new kendo.drawing.Text(dataItem.name, new geometry.Point(10, 10), configuration);
+                    group.append(name);
+                    that.surface.draw(group);
+                }
             },
 
             /**
@@ -911,7 +1147,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroys the widget
              * @method destroy
              */
             destroy: function () {
@@ -932,10 +1168,10 @@
             }
         });
 
-        kendo.ui.plugin(VectorDrawing);
+        kendo.ui.plugin(MathGraph);
 
         /*********************************************************************************
-         * VectorDrawingToolBar Widget
+         * MathGraphToolBar Widget
          *********************************************************************************/
 
         var MESSAGES = {
@@ -1006,13 +1242,13 @@
                 iconClass: 'arrow-up',
                 togglable: true
             },
-            pen: {
+            point: {
                 type: 'button',
                 command: 'PropertyChangeCommand',
                 group: 'tool',
                 property: 'tool',
-                value: 'pen',
-                iconClass: 'pencil',
+                value: 'point',
+                iconClass: 'circle',
                 togglable: true
             },
             line: {
@@ -1024,15 +1260,6 @@
                 iconClass: 'shape-line',
                 togglable: true
             },
-            rect: {
-                type: 'button',
-                command: 'PropertyChangeCommand',
-                group: 'tool',
-                property: 'tool',
-                value: 'rect',
-                iconClass: 'shape-rect',
-                togglable: true
-            },
             circle: {
                 type: 'button',
                 command: 'PropertyChangeCommand',
@@ -1040,6 +1267,15 @@
                 property: 'tool',
                 value: 'circle',
                 iconClass: 'shape-circle',
+                togglable: true
+            },
+            function: {
+                type: 'button',
+                command: 'PropertyChangeCommand',
+                group: 'tool',
+                property: 'tool',
+                value: 'function',
+                iconClass: 'formula-fx',
                 togglable: true
             },
             text: {
@@ -1093,10 +1329,10 @@
             }
         };
 
-        var VectorDrawingToolBar = ToolBar.extend({
+        var MathGraphToolBar = ToolBar.extend({
             init: function (element, options) {
                 options = options || {};
-                options.items = this._expandTools(options.tools || VectorDrawingToolBar.prototype.options.tools);
+                options.items = this._expandTools(options.tools || MathGraphToolBar.prototype.options.tools);
                 ToolBar.fn.init.call(this, element, options);
                 var handleClick = this._click.bind(this);
                 this.element.addClass('k-spreadsheet-toolbar');
@@ -1184,7 +1420,7 @@
                 'dialog'
             ],
             options: {
-                name: 'VectorDrawingToolBar',
+                name: 'MathGraphToolBar',
                 resizable: false,
                 tools: TOOLBAR
             },
@@ -1260,10 +1496,10 @@
             }
         });
 
-        kendo.ui.plugin(VectorDrawingToolBar);
+        kendo.ui.plugin(MathGraphToolBar);
 
         /*********************************************************************************
-         * VectorDrawingToolBar Tools
+         * MathGraphToolBar Tools
          *********************************************************************************/
 
         var DropDownTool = kendo.toolbar.Item.extend({
@@ -1707,6 +1943,7 @@
          });
          kendo.toolbar.registerComponent('alignment', AlignmentTool, AlignmentButton);
          */
+
 
     }(window.jQuery));
 
