@@ -79,7 +79,7 @@
     "wdio-selenium-standalone-service": "0.0.8",
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.6.2",
-    "webpack": "^2.3.1",
+    "webpack": "^2.3.2",
     "webpack-dev-server": "^2.4.2"
   },
   "dependencies": {}
