@@ -23,6 +23,9 @@
 
     mq = window.MathQuill || mq;
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -143,7 +146,7 @@
                         {
                             handlers: {
                                 edit: $.proxy(that._onEdit, that)
-                                // enter: function() { submitLatex(latex); }
+                                // enter: function () { submitLatex(latex); }
                             }
                         }
                     );
@@ -168,7 +171,7 @@
              * @private
              */
             _onEdit: function (mathField) {
-               this.trigger(CHANGE, { value: mathField.latex() });
+                this.trigger(CHANGE, { value: mathField.latex() });
             },
 
             /**
@@ -236,6 +239,9 @@
                         this.mathField.cmd('^');
                         // this.mathField.write('_{}');
                         // this.mathField.cmd('_');
+                        // \times\div\pm\pi\degree\ne\ge\le><
+                        // \frac{ }{ }\sqrt{ }\sqrt[3]{}\sqrt[]{}\ ^{ }\ _{ }
+                        // \angle\parallel\perp\triangle\parallelogram
                         break;
                     case 'ToolbarPasteCommand':
                         // this.mathField.write('\\sum_{}^{}');
@@ -257,7 +263,7 @@
              * @private
              */
             _onToolBarDialog: function (e) {
-                debugger;
+                // debugger;
             },
 
             /**
@@ -822,6 +828,8 @@
 
 
     }(window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 
