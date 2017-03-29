@@ -90,7 +90,6 @@
                                     assert.type(NUMBER, response.size, kendo.format(assert.messages.type.default, 'response.size', NUMBER));
                                     assert.type(STRING, response.type, kendo.format(assert.messages.type.default, 'response.type', STRING));
                                     assert.type(STRING, response.url, kendo.format(assert.messages.type.default, 'response.url', STRING));
-                                    response.url = response.url.replace(kidoju.assets[tool].schemes.data, DATA_SCHEME);
                                     logger.debug({
                                         message: 'new file uploaded',
                                         method: tool + '.transport.create',
@@ -131,12 +130,6 @@
                             assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
                             assert.type(ARRAY, response.data, kendo.format(assert.messages.type.default, 'response.data', ARRAY));
                             assert.type(NUMBER, response.total, kendo.format(assert.messages.type.default, 'response.total', NUMBER));
-                            var path = kidoju.assets[tool].schemes.data;
-                            $.each(response.data, function (index, data) {
-                                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
-                                assert.type(STRING, data.url, kendo.format(assert.messages.type.default, 'data.url', STRING));
-                                data.url = data.url.replace(path, DATA_SCHEME);
-                            });
                             options.success(response);
                         })
                         .fail(function (xhr, status, error) {
