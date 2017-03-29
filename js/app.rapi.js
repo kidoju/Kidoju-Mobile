@@ -1443,7 +1443,15 @@
                                 name: file.name,
                                 size: file.size,
                                 type: file.type,
-                                url: signedUrl.substr(0, signedUrl.indexOf('?'))
+                                // url: signedUrl.substr(0, signedUrl.indexOf('?'))
+                                // A typical signedUrl would be like
+                                // https://s3.amazonaws.com/memba.test/s/en/57d26b007dd0be0019024c92/Trans_dichlorotetraamminecobalt_III.png?AWSAccessKeyId=AKIAJL2KUGGU4SX7MS4Q&Cache-Control=public%2C%20max-age%3D7776000%2C%20s-maxage%3D604800&Content-Type=image%2Fpng&Expires=1490803058&Signature=kboNQaN%2BbGG2VHKGs5QTGJeV6cA%3D&x-amz-acl=public-read
+                                // This first group which is discarded is the bucket: https://s3.amazonaws.com/memba.test
+                                // The second group which is kept is the path to the file: /s/en/57d26b007dd0be0019024c92/Trans_dichlorotetraamminecobalt_III.png
+                                // The third group which is also discarded is the query string
+                                // We would have liked to make front end code completely agnostic to the backend, that is Amazon S3
+                                // See https://github.com/jlchereau/Kidoju-Server/issues/154
+                                url: signedUrl.replace(/^(https:\/\/[\w\.]+\/[\w\.]+)(\/s\/[a-z]{2}\/[0-9a-f]{24}\/[^\?]+)([\s\S]+)$/, 'data:/$2')
                             });
                         })
                         .fail(dfd.reject);
