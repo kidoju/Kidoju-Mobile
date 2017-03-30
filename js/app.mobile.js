@@ -1497,9 +1497,10 @@ if (typeof(require) === 'function') {
                 // button: true, // only works with built-in templates
                 position: {
                     left: 0,
-                    top: navbar.length ? navbar.height() + 1 : 0 // navbar or splashscreen
+                    bottom: 2 // to allow for border
+                    // top: navbar.length ? navbar.height() + 1 : 0 // navbar or splashscreen
                 },
-                stacking: 'down',
+                stacking: 'up', // 'down',
                 width: $(window).width() - 2 // - 2 is for borders as box-sizing on .k-notification-wrap does not help
             }).data('kendoNotification');
             assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
