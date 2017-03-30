@@ -956,7 +956,7 @@ if (typeof(require) === 'function') {
                                     var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
                                     assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                                     $.each(pageCollectionDataSource.data(), function (idx, page) {
-                                        assert.instanceof(kidoju.data.Page, page, kendo.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
+                                        assert.instanceof(Page, page, kendo.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
                                         promises.push(page.load());
                                     });
                                     $.when(promises)
@@ -2495,6 +2495,19 @@ if (typeof(require) === 'function') {
                     }
                     app.notification.info(i18n.culture.notifications.pageNavigationInfo);
                 });
+        };
+
+        /**
+         * Event handler triggered when hiding the Player view
+         * @param e
+         */
+        mobile.onPlayerViewHide = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // Although it would have made more sense, undefined does not trigger a refresh
+            // viewModel.set(VIEW_MODEL.SELECTED_PAGE, undefined);
+            viewModel.set(VIEW_MODEL.SELECTED_PAGE, new Page());
+            // Note that this destroys stage widgets and triggers the mutation observer to hide the floating toolbars
         };
 
         /**
