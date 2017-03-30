@@ -1836,6 +1836,9 @@ if (typeof(require) === 'function') {
          * Resizing
          *******************************************************************************************/
 
+        /* This function's cyclomatic complexity is too high. */
+        /* jshint -W074 */
+
         /**
          * Resize player/correction stage and instructions/explanations markdown
          * @param view
@@ -1935,6 +1938,8 @@ if (typeof(require) === 'function') {
                 markdownScrollerWidget.reset();
             }
         };
+
+        /* jshint +W074 */
 
         /**
          * Event handler for resizing the UI (especially when changing device orientation)
@@ -2528,7 +2533,7 @@ if (typeof(require) === 'function') {
             // var gridElement = view.element.find(kendo.roleSelector('grid'));
             var gridElement = contentElement.find(HASH + VIEW.SCORE + '-grid');
             if (gridElement.length) {
-                var summaryElement = contentElement.find('summary');
+                var summaryElement = contentElement.find('.summary');
                 var gridWidget = gridElement.data('kendoGrid');
                 if (gridWidget instanceof kendo.ui.Grid) {
                     // Destroying the adaptive grid is explained at
