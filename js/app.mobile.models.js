@@ -443,7 +443,8 @@
                         message: 'User data creation',
                         method: 'app.models.MobileUserDataSource.transport.create'
                     });
-                    var user = options.data;
+                    // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
+                    var user = JSON.parse(JSON.stringify(options.data));
                     var errors = this._validate(user);
                     if (errors.length) {
                         return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
@@ -544,7 +545,8 @@
                         message: 'User data update',
                         method: 'app.models.MobileUserDataSource.transport.update'
                     });
-                    var user = options.data;
+                    // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
+                    var user = JSON.parse(JSON.stringify(options.data));
                     var errors = this._validate(user);
                     if (errors.length) {
                         return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
@@ -824,7 +826,8 @@
                         message: 'Activity data creation',
                         method: 'app.models.MobileActivityDataSource.transport.create'
                     });
-                    var activity = options.data;
+                    // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
+                    var activity = JSON.parse(JSON.stringify(options.data));
                     var errors = this._validate(activity);
                     if (errors.length) {
                         return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
@@ -915,7 +918,9 @@
                         message: 'Activity data update',
                         method: 'app.models.MobileActivityDataSource.transport.update'
                     });
-                    var activity = options.data;
+
+                    // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
+                    var activity = JSON.parse(JSON.stringify(options.data));
                     var errors = this._validate(activity);
                     if (errors.length) {
                         return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
