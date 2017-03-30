@@ -2039,6 +2039,8 @@ if (typeof(require) === 'function') {
                             mobile.localize(viewModel.get(VIEW_MODEL.USER.LANGUAGE));
                             // Reinitialize notifications now that we know the size of .km-header
                             mobile._initNotification();
+                            // Bind the router change event to the onRouterViewChange handler
+                            mobile.application.router.bind(CHANGE, mobile.onRouterViewChange);
                             // hide the splash screen
                             setTimeout(function () {
                                 if (mobile.support.splashscreen) {
@@ -2047,8 +2049,6 @@ if (typeof(require) === 'function') {
                             }, 500); // + 500 default fadeOut time
                         }
                     });
-                    // Bind the router change event to the onRouterViewChange handler
-                    mobile.application.router.bind(CHANGE, mobile.onRouterViewChange);
                 });
         };
 
