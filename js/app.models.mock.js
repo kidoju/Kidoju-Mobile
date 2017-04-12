@@ -42,9 +42,9 @@
         // var UNAUTHORIZED = 'Unauthorized';
         var uris = app.uris = app.uris || {}; // we expect to have app.uris.rapi = {...}
         uris.webapp = uris.webapp  || {}; // this is for testing too
-        uris.webapp = uris.webapp.finder || (window.location.protocol + '//' + window.location.host + '/{0}');
-        uris.webapp = uris.webapp.user || (window.location.protocol + '//' + window.location.host + '/{0}/u/{1}');
-        uris.webapp = uris.webapp.summary || (window.location.protocol + '//' + window.location.host + '/{0}/s/{1}');
+        uris.webapp.finder = uris.webapp.finder || (window.location.protocol + '//' + window.location.host + '/{0}');
+        uris.webapp.user = uris.webapp.user || (window.location.protocol + '//' + window.location.host + '/{0}/u/{1}');
+        uris.webapp.summary = uris.webapp.summary || (window.location.protocol + '//' + window.location.host + '/{0}/s/{1}');
 
         if (!models) {
             throw new Error('app.models.js is not loaded');

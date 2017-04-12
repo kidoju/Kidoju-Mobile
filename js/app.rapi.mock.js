@@ -243,7 +243,7 @@
         {
             url: uris.rapi.root + uris.rapi.reset,
             response: function (request) {
-                // TODO: Clear + load JSON files in indexedb
+                this.responseText = ''; // There is no cache to clear unless we consider reloading lokiDB
             }
         },
 

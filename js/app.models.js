@@ -216,6 +216,10 @@
                         return window.parseInt(value, 10) || 0;
                     }
                 },
+                description: {
+                    type: STRING,
+                    editable: false
+                },
                 icon: {
                     type: STRING,
                     editable: false
