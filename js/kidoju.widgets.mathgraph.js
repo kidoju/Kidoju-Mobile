@@ -238,9 +238,9 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
+                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._layout();
                 that._dataSource();
-                that._enabled = that.element.prop('disabled') ? false : that.options.enable;
                 that._tool = 'select';
                 that._configuration = new Configuration();
                 kendo.notify(that);
@@ -280,8 +280,11 @@
                 },
                 // TODO: zoom ?
                 enable: true,
-                toolbar: '#toolbar',
-                tools: TOOLBAR,
+                toolbar: {
+                    container: '#toolbar',
+                    resizable: true,
+                    tools: TOOLBAR
+                },
                 messages: {
                     // TODO
                 }
@@ -343,10 +346,12 @@
             _initToolBar: function () {
                 var that = this;
                 var options = that.options;
+                // TO CHECK container or wrap
                 that.toolBar = $(DIV)
-                    .appendTo(options.toolbar)
+                    .appendTo(options.toolbar.container)
                     .kendoMathGraphToolBar({
-                        tools: options.tools,
+                        tools: options.toolbar.tools,
+                        resizable: options.toolbar.resizable,
                         action: $.proxy(that._onToolBarAction, that),
                         dialog: $.proxy(that._onToolBarDialog, that)
                     })
