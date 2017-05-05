@@ -313,14 +313,14 @@
                     editable: false,
                     nullable: true
                 },
-                age: {
+                ageGroup: {
                     type: NUMBER,
                     nullable: true
                 },
                 author: {
                     type: STRING
                 },
-                category: {
+                categoryId: {
                     type: STRING
                 },
                 favourite: { // name of favourite when saveChecked
@@ -394,18 +394,17 @@
                     };
 
                     // Filter
-                    var age = this.get('age');
-                    if ($.type(age) === NUMBER) {
-                        options.filter.filters.push({ field: 'minAge', operator: 'lte', value: age });
-                        options.filter.filters.push({ field: 'maxAge', operator: 'gte', value: age });
+                    var ageGroup = this.get('ageGroup');
+                    if ($.type(ageGroup) === NUMBER) {
+                        options.filter.filters.push({ field: 'ageGroup', operator: 'flags', value: ageGroup });
                     }
                     var author = this.get('author');
                     if ($.type(author) === STRING && author.trim().length) {
                         options.filter.filters.push({ field: 'author.lastName', operator: 'startswith', value: author.trim() });
                     }
-                    var category = this.get('category');
-                    if (RX_MONGODB_ID.test(category)) {
-                        options.filter.filters.push({ field: 'categories', operator: 'eq', value: category });
+                    var categoryId = this.get('categoryId');
+                    if (RX_MONGODB_ID.test(categoryId)) {
+                        options.filter.filters.push({ field: 'categoryId', operator: 'eq', value: categoryId });
                     }
                     var text = this.get('text');
                     if ($.type(text) === STRING && text.trim().length) {
@@ -1615,7 +1614,7 @@
                         // Let the server feed the authenticated user firstName and lastName from author.userId
                     },
                     // Make an array of categories and the server will use this category to set the default icon
-                    categories: [that.get('category.id')],
+                    categoryId: that.get('category.id'),
                     language: that.get('language'),
                     title: that.get('title'),
                     type: that.get('type.value')
@@ -1887,6 +1886,10 @@
                     nullable: true,
                     serializable: false
                 },
+                ageGroup: {
+                    type: NUMBER,
+                    defaultValue: 255
+                },
                 author: {
                     // For complex types, the recommendation is to leave the type undefined and set a default value
                     // See: http://www.telerik.com/forums/model---complex-model-with-nested-objects-or-list-of-objects
@@ -1898,8 +1901,8 @@
                         return (value instanceof models.UserReference || value === null) ? value : new models.UserReference(value);
                     }
                 },
-                categories: {
-                    defaultValue: []
+                categoryId: {
+                    type: STRING
                 },
                 created: {
                     type: DATE,
@@ -1917,14 +1920,6 @@
                     type: STRING,
                     editable: false,
                     serializable: false
-                },
-                minAge: {
-                    type: NUMBER,
-                    defaultValue: 0
-                },
-                maxAge: {
-                    type: NUMBER,
-                    defaultValue: 99
                 },
                 metrics: {
                     defaultValue: {},
@@ -1957,28 +1952,33 @@
                     serializable: false
                 }
             },
+            // Array of categories to display as a breadcrumb
             categories$: function () {
                 var that = this;
                 var ret = [];
                 if ($.isFunction(that.parent)) {
                     var viewModel = that.parent();
                     if (viewModel instanceof kendo.Observable) {
-                        var ids = this.get('categories') || [];
                         var categories = viewModel.get('categories'); // This supposes the parent viewModel as categories
                         if (categories instanceof models.LazyCategoryDataSource) {
+                            var categoryId = this.get('categoryId');
+                            var ids = [];
+                            for (var i = 0; i < 5; i++) {
+                                ids.push((categoryId.substr(0, 8 + 4 * i) + '0000000000000000').substr(0, 24));
+                            }
                             categories = categories.data();
                             $.each(ids, function (index, id) {
                                 var found = $.grep(categories, function (category) {
                                     return category.id === id;
                                 });
-                                if (found.length) {
-                                    ret.push(found[0].name);
+                                if (found.length && ret.indexOf(found) === -1) {
+                                    ret.push(found);
                                 }
                             });
                         }
                     }
                 }
-                return ret.join(', '); // TODO: sort
+                return ret;
             },
             icon$: function () {
                 return kendo.format(uris.cdn.icons, this.get('icon'));
@@ -2261,6 +2261,11 @@
                     nullable: true,
                     serializable: false
                 },
+                categoryId: {
+                    type: STRING,
+                    editable: false,
+                    serializable: false
+                },
                 created: {
                     type: DATE,
                     editable: false,
@@ -2399,11 +2404,15 @@
                     nullable: true
                 },
                 /*
-                 created: {
-                 type: DATE,
-                 editable: false
-                 },
-                 */
+                categoryId: {
+                    type: STRING,
+                    editable: false
+                },
+                created: {
+                    type: DATE,
+                    editable: false
+                },
+                */
                 firstName: {
                     type: STRING,
                     editable: false
@@ -2606,6 +2615,11 @@
                     parse: function (value) {
                         return (value instanceof models.UserReference || value === null) ? value : new models.UserReference(value);
                     }
+                },
+                categoryId: {
+                    type: STRING,
+                    editable: false,
+                    serializable: false
                 },
                 created: {
                     type: DATE,

@@ -16,7 +16,6 @@
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.color',
         './vendor/kendo/kendo.drawing'
-        // TODO we also need spreadsheet toolbar for all the tools which have been registered and which we use
     ], f);
 })(function (math) {
 

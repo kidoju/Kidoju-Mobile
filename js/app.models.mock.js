@@ -521,17 +521,16 @@
                         } else {
                             var newSummary = {
                                 id: ObjectId(),
+                                ageGroup: 255,
                                 author: {
                                     userId: me.id,
                                     firstName: me.firstName,
                                     lastName: me.lastName
                                 },
-                                categories: [that.get('category.id')],
+                                categoryId: that.get('category.id'),
                                 created: now,
                                 icon: that.get('category.icon'),
                                 language: that.get('language'),
-                                maxAge: 99,
-                                minAge: 0,
                                 tags: [],
                                 title: that.get('title'),
                                 type: that.get('type'),
@@ -725,6 +724,7 @@
                         } else {
                             newDraft = {
                                 id: ObjectId(),
+                                categoryId: that.categoryId,
                                 created: now,
                                 language: that.language,
                                 state: 0,
@@ -1035,6 +1035,7 @@
                                     updated: now,
                                     version: {
                                         language: versions[0].language,
+                                        categoryId: versions[0].categoryId,
                                         summaryId: versions[0].summaryId,
                                         title: summaries[0].title,
                                         versionId: versions[0].id
