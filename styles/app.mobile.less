@@ -65,7 +65,7 @@ html, body {
             // Make sure drawer items are aligned to the top especially with nova theme */
             display: initial;
             // Make list items larger for all themes
-            .km-listview > li {
+            .km-list > li {
                 padding: .84em .7em;
             }
         }
@@ -73,12 +73,23 @@ html, body {
     /**********************************************************
     * Activities view
     **********************************************************/
-    // #activities {}
+    #activities {
+        .km-list > li {
+            .small {
+                font-size: small;
+            }
+            .km-badge {
+                top: auto;
+                bottom: 1em;
+                right: 5em;
+            }
+        }
+    }
     /**********************************************************
     * Categories view
     **********************************************************/
     #categories {
-        .km-listview > li {
+        .km-list > li {
             padding: .5em .84em;
             .km-thumbnail {
                 border: none;
@@ -137,40 +148,38 @@ html, body {
     * Finder view (search results)
     **********************************************************/
     #finder {
-        .km-listview {
-            li {
-                .km-listview-link {
-                    height: 7em; // a fixed height is required for endless scrolling
-                    line-height: 1.25;
-                    .km-thumbnail {
-                        border: none;
-                        border-radius: 0;
-                        height: 3.35rem;
-                        width: 3.35rem;
-                        margin-right: 0;
-                        float: left;
+        .km-list > li {
+            .km-listview-link {
+                height: 7em; // a fixed height is required for endless scrolling
+                line-height: 1.25;
+                .km-thumbnail {
+                    border: none;
+                    border-radius: 0;
+                    height: 3.35rem;
+                    width: 3.35rem;
+                    margin-right: 0;
+                    float: left;
+                }
+                .summary {
+                    margin-left: 4rem;
+                    h4, .tags {
+                        //http://dropshado.ws/post/1015351370/webkit-line-clamp
+                        overflow : hidden;
+                        text-overflow: ellipsis;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
                     }
-                    .summary {
-                        margin-left: 4rem;
-                        h4, .tags {
-                            //http://dropshado.ws/post/1015351370/webkit-line-clamp
-                            overflow : hidden;
-                            text-overflow: ellipsis;
-                            display: -webkit-box;
-                            -webkit-line-clamp: 2;
-                            -webkit-box-orient: vertical;
-                        }
-                        h4 {
-                            margin: 0;
-                            font-weight: bold;
-                        }
+                    h4 {
+                        margin: 0;
+                        font-weight: bold;
+                    }
 
-                        .tags, .metrics {
-                            font-size: 0.8em;
-                        }
-                        .tags {
-                            margin: 0.2em 0;
-                        }
+                    .tags, .metrics {
+                        font-size: 0.8em;
+                    }
+                    .tags {
+                        margin: 0.2em 0;
                     }
                 }
             }
@@ -199,54 +208,52 @@ html, body {
     * Sign-in view
     **********************************************************/
     #signin {
-        ul.km-list {
-            >li {
-                >span.km-icon {
-                    display: none; // Fix for a useless span that breaks our layout
+        .km-list > li {
+            >span.km-icon {
+                display: none; // Fix for a useless span that breaks our layout
+            }
+            .km-button {
+                width: 100%;
+                color: #ffffff;
+                .km-icon {
+                    margin-left: -0.7em;
+                    margin-right: 0.7em;
                 }
-                .km-button {
-                    width: 100%;
-                    color: #ffffff;
-                    .km-icon {
-                        margin-left: -0.7em;
-                        margin-right: 0.7em;
-                    }
-                }
-                .km-button[data-provider="google"] {
-                    background-color: #d9534f;
-                    border-color: #d43f3a;
-                }
-                .km-button[data-provider="google"].km-state-active {
-                    background-color: #c9302c;
-                    border-color: #ac2925;
-                }
-                .km-button[data-provider="facebook"] {
-                    background-color: #337ab7;
-                    border-color: #2e6da4;
-                }
-                .km-button[data-provider="facebook"].km-state-active {
-                    background-color: #204d74;
-                    border-color: #122b40;
-                }
-                .km-button[data-provider="twitter"] {
-                    background-color: #5bc0de;
-                    border-color: #46b8da;
-                }
-                .km-button[data-provider="twitter"].km-state-active {
-                    background-color: #31b0d5;
-                    border-color: #269abc;
-                }
-                .km-button[data-provider="live"] {
-                    background-color: #5cb85c;
-                    border-color: #4cae4c;
-                }
-                .km-button[data-provider="live"].km-state-active {
-                    background-color: #449d44;
-                    border-color: #398439;
-                }
-                .km-button[data-provider="dummy"] {
-                    color: initial;
-                }
+            }
+            .km-button[data-provider="google"] {
+                background-color: #d9534f;
+                border-color: #d43f3a;
+            }
+            .km-button[data-provider="google"].km-state-active {
+                background-color: #c9302c;
+                border-color: #ac2925;
+            }
+            .km-button[data-provider="facebook"] {
+                background-color: #337ab7;
+                border-color: #2e6da4;
+            }
+            .km-button[data-provider="facebook"].km-state-active {
+                background-color: #204d74;
+                border-color: #122b40;
+            }
+            .km-button[data-provider="twitter"] {
+                background-color: #5bc0de;
+                border-color: #46b8da;
+            }
+            .km-button[data-provider="twitter"].km-state-active {
+                background-color: #31b0d5;
+                border-color: #269abc;
+            }
+            .km-button[data-provider="live"] {
+                background-color: #5cb85c;
+                border-color: #4cae4c;
+            }
+            .km-button[data-provider="live"].km-state-active {
+                background-color: #449d44;
+                border-color: #398439;
+            }
+            .km-button[data-provider="dummy"] {
+                color: initial;
             }
         }
     }

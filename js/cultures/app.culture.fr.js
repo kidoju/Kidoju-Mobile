@@ -42,12 +42,12 @@
             // Activities view
             activities: {
                 viewTitle: 'Activités',
-                // Grid
-                grid: {
-                    columns: {
-                        date: 'Date',
-                        score: 'Score',
-                        title: 'Titre'
+                listView: {
+                    groups: {
+                        today: 'Aujourd\'hui',
+                        yesterday: 'Hier',
+                        startOfWeek: 'Cette semaine',
+                        startOfMonth: 'Ce mois'
                     }
                 }
             },

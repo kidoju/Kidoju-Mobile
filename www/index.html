@@ -222,8 +222,39 @@
     </div>
 
     <!-- Activities view -->
-    <div id="activities" data-role="view" data-layout="main-layout" data-title="Activities" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
-        <div id="activities-grid"></div>
+    <div id="activities" data-role="view" data-layout="main-layout" data-title="Activities" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
+        <!--div id="activities-grid"></div-->
+        <!-- dropdown of top/other categories -->
+        <ul data-role="listview" data-bind="source: activities" data-template="activities-template" data-header-template="activities-header-template"></ul>
+        <script type="text/x-kendo-template" id="activities-template">
+            <a href="\#score#: queryString$() #">
+                <div>#: title$() #</div>
+                <!-- div class="small">TODO Add category ></div-->
+                <div class="small">
+                    <span>#: kendo.toString(updated, 'dd MMM yyyy') #</span>
+                    <span class="km-badge">#: kendo.toString(score / 100, 'p0') #</span>
+                </div>
+            </a>
+        </script>
+        <!-- Note we are using value (instead of period$) to display the group field value -->
+        <script type="text/x-kendo-template" id="activities-header-template">
+            # var now = new Date();
+              var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+              var yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+              var startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+              var startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+              if (value.getTime() === today.getTime()) { #
+                #: app.i18n.culture.activities.listView.groups.today #
+            # } else if (value.getTime() === yesterday.getTime()) { #
+                #: app.i18n.culture.activities.listView.groups.yesterday #
+            # } else if (value.getTime() === startOfWeek.getTime()) { #
+                #: app.i18n.culture.activities.listView.groups.startOfWeek #
+            # } else if (value.getTime() === startOfMonth.getTime()) { #
+                #: app.i18n.culture.activities.listView.groups.startOfMonth #
+            # } else { #
+                #: kendo.toString(value, 'MMMM yyyy') #
+            # } #
+        </script>
     </div>
 
     <!-- Categories view -->
@@ -233,8 +264,7 @@
             <input data-role="dropdownlist" data-bind="value: user.categoryId, source: topCategories$()" data-value-field="id" data-text-field="name" style="width:100%">
         </div>
         <!-- listview of sub-categories -->
-        <ul data-role="listview" data-bind="source: categories" data-template="categories-template">
-        </ul>
+        <ul data-role="listview" data-bind="source: categories" data-template="categories-template"></ul>
         <script type="text/x-kendo-template" id="categories-template">
             <a href="\#finder?filter%5Bfield%5D=categories&filter%5Boperator%5D=eq&filter%5Bvalue%5D=#: id #" style="margin-left: #: depth$() - 1 #em;">
                 <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
@@ -328,7 +358,13 @@
     <div id="score" data-role="view" data-layout="main-layout" data-title="Score" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
         <div class="stretched">
             <div class="summary km-content" data-bind="text:summary.title"></div>
-            <div id="score-grid"></div>
+            <!--div id="score-grid"></div-->
+            <ul data-role="listview" data-bind="source: summaries" data-type="group" data-template="score-template" data-header-template="score-template"></ul>
+            <script type="text/x-kendo-template" id="score-template">
+                <a href="\#summary?language=#: language #&summaryId=#: id #">
+                    <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
+                </a>
+            </script>
         </div>
     </div>
 

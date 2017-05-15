@@ -42,14 +42,13 @@
             // Activities view
             activities: {
                 viewTitle: 'Activities',
-                // Grid
-                grid: {
-                    columns: {
-                        date: 'Date',
-                        score: 'Score',
-                        title: 'Title'
-                    },
-                    noRecords: 'No activities'
+                listView: {
+                    groups: {
+                        today: 'Today',
+                        yesterday: 'Yesterday',
+                        startOfWeek: 'This Week',
+                        startOfMonth: 'This Month'
+                    }
                 }
             },
             // Categories view

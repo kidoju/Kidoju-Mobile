@@ -630,14 +630,45 @@
                     // See: http://www.telerik.com/forums/model---complex-model-with-nested-objects-or-list-of-objects
                     // See: http://demos.telerik.com/kendo-ui/grid/editing-custom
                     defaultValue: null,
+                    // TODO Add category!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     parse: function (value) {
                         // Important: foreign keys use sids
                         return (value instanceof models.VersionReference || value === null) ? value : new models.VersionReference(value);
                     }
                 }
             },
+            category$: function () {
+                return ''; // TODO
+            },
+            period$: function () {
+                // Time zones ????
+                var now = new Date();
+                var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                var yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                var startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()); // Previous Sunday
+                var startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); // It won't show within a week of begining of the month
+                var updated = this.get('updated');
+                if (updated >= today) {
+                    return today;
+                } else if (updated >= yesterday) {
+                    return yesterday;
+                } else if (updated >= startOfWeek) {
+                    return startOfWeek;
+                } else if (updated >= startOfMonth) {
+                    return startOfMonth;
+                } else {
+                    return new Date(updated.getFullYear(), updated.getMonth(), 1);
+                }
+            },
             title$: function () {
                 return this.get('version.title'); // Flattens data depth
+            },
+            queryString$: function () {
+                debugger;
+                return '?language=' + window.encodeURIComponent(this.get('version.language')) +
+                    '&summaryId=' + window.encodeURIComponent(this.get('version.summaryId')) +
+                    '&versionId=' + window.encodeURIComponent(this.get('version.versionId')) +
+                    '&activityId=' + window.encodeURIComponent(this.get('id'));
             }
             // TODO: See validateTestFromProperties in kidoju.data
             /**
@@ -753,6 +784,14 @@
                     // serverSorting: true,
                     // pageSize: 5,
                     // serverPaging: true,
+                    group: {
+                        dir: 'desc',
+                        field: 'period$()'
+                    },
+                    sort: {
+                        dir: 'desc',
+                        field: 'updated'
+                    },
                     schema: {
                         data: 'data',
                         total: 'total',
