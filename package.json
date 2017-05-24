@@ -72,14 +72,14 @@
     "nconf": "^0.8.4",
     "phantomjs-prebuilt": "^2.1.14",
     "postcss-loader": "^2.0.5",
-    "sinon": "^2.2.0",
-    "style-loader": "^0.18.0",
+    "sinon": "^2.3.1",
+    "style-loader": "^0.18.1",
     "url-loader": "^0.5.8",
     "wdio-mocha-framework": "^0.5.10",
     "wdio-selenium-standalone-service": "0.0.8",
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.8.0",
-    "webpack": "^2.5.1",
+    "webpack": "^2.6.0",
     "webpack-dev-server": "^2.4.5"
   },
   "engines": {
