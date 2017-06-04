@@ -1,18 +1,19 @@
 sudo: false
 language: node_js
 node_js:
+  - "8"
   - "7"
   - "6"
   - "5"
   - "4"
 env:
-  - NODE_ENV=test CXX=g++-4.8
+  - NODE_ENV=test CC=gcc-6 CXX=g++-6
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-4.8
+      - g++-6
       - oracle-java8-set-default
 before_install:
   - "npm install -g npm"
