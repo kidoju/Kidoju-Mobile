@@ -205,6 +205,9 @@
     "head" : "<meta name=\"p:domain_verify\" content=\"00a8ab216c21a6cd727d5d50881ceb1e\"/>",
     "images": ["https://cdn.kidoju.com/kidoju/home1.jpg", "https://cdn.kidoju.com/kidoju/home2.jpg", "https://cdn.kidoju.com/kidoju/home3.jpg"],
     "locales" : [ "en", "fr" ],
+    "slack": {
+        "webhook": "https://hooks.slack.com/services/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"
+    },
     "uris" : {
         "rapi": {
             "blank": "/api/blank",
