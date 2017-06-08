@@ -14,7 +14,7 @@
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
     <plugin name="cordova-plugin-console" spec="~1.0.7" />
-    <plugin name="cordova-plugin-customurlscheme" spec="~4.2.0">
+    <plugin name="cordova-plugin-customurlscheme" spec="~4.3.0">
         <variable name="URL_SCHEME" value="com.kidoju.mobile" />
     </plugin>
     <plugin name="cordova-plugin-device" spec="~1.1.6" />
