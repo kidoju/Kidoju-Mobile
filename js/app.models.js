@@ -191,9 +191,9 @@
          * Taxonomy
          *******************************************************************************/
 
-        var LEVEL_CHARS = 4;
-        var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
-        var RX_TRIM_LEVEL = new RegExp('(0{' + LEVEL_CHARS + '})+$', 'g');
+        // var LEVEL_CHARS = 4;
+        // var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
+        // var RX_TRIM_LEVEL = new RegExp('(0{' + LEVEL_CHARS + '})+$', 'g');
 
         /**
          * LazyCategory
@@ -204,8 +204,16 @@
             fields: {
                 id: {
                     type: STRING,
+                    editable: false
+                },
+                ageGroup: {
+                    type: NUMBER,
                     editable: false,
-                    nullable: true
+                    parse: function (value) {
+                        // defaultValue: 0 does not work as we get null
+                        // default parse function is return kendo.parseFloat(value);
+                        return window.parseInt(value, 10) || 255;
+                    }
                 },
                 count: {
                     type: NUMBER,
@@ -216,10 +224,12 @@
                         return window.parseInt(value, 10) || 0;
                     }
                 },
+                /*
                 description: {
                     type: STRING,
                     editable: false
                 },
+                */
                 icon: {
                     type: STRING,
                     editable: false
@@ -231,21 +241,40 @@
                 name: {
                     type: STRING,
                     editable: false
+                },
+                path: {
+                    defaultValue: [],
+                    editable: false
                 }
             },
-            // TODO add breadcrumb$
-            depth$: function () { // `level` seems to be reserved in kendo.ui.TreeView
-                // Top categories get a depth$ of zero
-                return (this.get(this.idField).replace(RX_TRIM_LEVEL, '').length - TOP_LEVEL_CHARS) / LEVEL_CHARS;
+            /**
+             * The depth used to add a margin to simulate a tree in mobile app list views
+             * Top categories get a depth$ of zero
+             * `level` seems to be reserved in kendo.ui.TreeView
+             */
+            depth$: function () {
+                // return (this.get(this.idField).replace(RX_TRIM_LEVEL, '').length - TOP_LEVEL_CHARS) / LEVEL_CHARS;
+                return (this.get('path') || []).length;
             },
+            /**
+             * The icon representing the category
+             */
             icon$: function () {
                 return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
             },
+            /**
+             * The parentId used in dropdowntreeview
+             * @returns {string}
+             */
             parentId$: function () {
                 // Top categories have a parentId$ which is undefined
-                var trimmedId = this.get(this.idField).replace(RX_TRIM_LEVEL, '');
-                if (trimmedId.length >= TOP_LEVEL_CHARS + LEVEL_CHARS) {
-                    return (trimmedId.substr(0, trimmedId.length - LEVEL_CHARS) + '0000000000000000').substr(0, 24);
+                // var trimmedId = this.get(this.idField).replace(RX_TRIM_LEVEL, '');
+                // if (trimmedId.length >= TOP_LEVEL_CHARS + LEVEL_CHARS) {
+                //     return (trimmedId.substr(0, trimmedId.length - LEVEL_CHARS) + '0000000000000000').substr(0, 24);
+                // }
+                var path = this.get('path') || [];
+                if (path.length) {
+                    return path[path.length - 1].id;
                 }
             }
         });
@@ -315,7 +344,7 @@
                 },
                 ageGroup: {
                     type: NUMBER,
-                    nullable: true
+                    defaultValue: 255
                 },
                 author: {
                     type: STRING
@@ -395,7 +424,7 @@
 
                     // Filter
                     var ageGroup = this.get('ageGroup');
-                    if ($.type(ageGroup) === NUMBER) {
+                    if ($.type(ageGroup) === NUMBER && ageGroup > 0 && ageGroup < 255) {
                         options.filter.filters.push({ field: 'ageGroup', operator: 'flags', value: ageGroup });
                     }
                     var author = this.get('author');
@@ -473,9 +502,9 @@
              * Reset search
              */
             reset: function () {
-                this.set('age', this.defaults.age);
+                this.set('ageGroup', this.defaults.ageGroup);
                 this.set('author', this.defaults.author);
-                this.set('category', this.defaults.category);
+                this.set('categoryId', this.defaults.categoryId);
                 this.set('favourite', this.defaults.favourite);
                 this.set('navbar', this.defaults.navbar);
                 this.set('saveChecked', this.defaults.saveChecked);
@@ -556,7 +585,15 @@
                     case 1: // home
                         return finder + HASHBANG; // Note: without hashbang, the page is reloaded
                     case 2: // categories
-                        return finder + HASHBANG + $.param({ filter: { field: 'categories', operator: 'eq', value: this.get('id') } });
+                        return finder + HASHBANG + $.param({
+                            filter: {
+                                logic: 'and',
+                                filters: [
+                                    { field: 'categoryId', operator: 'gte', value: this.get('id') },
+                                    { field: 'categoryId', operator: 'lte', value: this.get('id').replace(/0000/g, 'ffff') }
+                                ]
+                            }
+                        });
                     case 3: // favourites
                         return this.get('path');
                     default: // including 0 (no hypertext link)
@@ -1613,8 +1650,7 @@
                         userId: that.get('author.userId')
                         // Let the server feed the authenticated user firstName and lastName from author.userId
                     },
-                    // Make an array of categories and the server will use this category to set the default icon
-                    categoryId: that.get('category.id'),
+                    categoryId: that.get('category.id'), // sets the icon and age group
                     language: that.get('language'),
                     title: that.get('title'),
                     type: that.get('type.value')
@@ -1951,34 +1987,6 @@
                     editable: false,
                     serializable: false
                 }
-            },
-            // Array of categories to display as a breadcrumb
-            categories$: function () {
-                var that = this;
-                var ret = [];
-                if ($.isFunction(that.parent)) {
-                    var viewModel = that.parent();
-                    if (viewModel instanceof kendo.Observable) {
-                        var categories = viewModel.get('categories'); // This supposes the parent viewModel as categories
-                        if (categories instanceof models.LazyCategoryDataSource) {
-                            var categoryId = this.get('categoryId');
-                            var ids = [];
-                            for (var i = 0; i < 5; i++) {
-                                ids.push((categoryId.substr(0, 8 + 4 * i) + '0000000000000000').substr(0, 24));
-                            }
-                            categories = categories.data();
-                            $.each(ids, function (index, id) {
-                                var found = $.grep(categories, function (category) {
-                                    return category.id === id;
-                                });
-                                if (found.length && ret.indexOf(found) === -1) {
-                                    ret.push(found);
-                                }
-                            });
-                        }
-                    }
-                }
-                return ret;
             },
             icon$: function () {
                 return kendo.format(uris.cdn.icons, this.get('icon'));

@@ -28,7 +28,7 @@
         var app = window.app;
         var localStorage = window.localStorage;
         var sessionStorage = window.sessionStorage;
-        // var assert = new window.assert;
+        var assert = window.assert;
         var logger = new window.Logger('app.cache');
         var rapi = app.rapi;
         var cache = app.cache = app.cache || {};
@@ -270,6 +270,36 @@
         };
 
         /**
+         * Process categories to add path of parents
+         * @param categories
+         * @private
+         */
+        cache._processCategories = function (categories) {
+            assert.isArray(categories, assert.format(assert.messages.isArray.default, 'categories'));
+            categories[0].path = categories[0].path || [];
+            for (var i = 0, length = categories.length; i < length; i++) {
+                var parent = categories[i];
+                var lastBeforeNextParentId = parent.id.replace(/0000/g, 'ffff');
+                for (var j = i + 1; j < length; j++) {
+                    var category = categories[j];
+                    category.path = category.path || [];
+                    if (parent.id < category.id && category.id <= lastBeforeNextParentId) {
+                        // Add parent to the path - Note: the path only contains parents
+                        category.path.push({
+                            id: parent.id,
+                            name: parent.name
+                        });
+                        parent.count += category.count;
+                    } else {
+                        // Note: this optimization only works if categories are returned ordered by id ascending
+                        break;
+                    }
+                }
+            }
+            return categories;
+        };
+
+        /**
          * Get a list of categories
          * @param locale (ISO code)
          */
@@ -286,7 +316,7 @@
             } else {
                 rapi.v1.taxonomy.getAllCategories(locale)
                     .done(function (response) {
-                        cache._setLocalItem(CATEGORIES + locale, response.data); // response = { total: ..., data: [...] }
+                        cache._setLocalItem(CATEGORIES + locale, cache._processCategories(response.data)); // response = { total: ..., data: [...] }
                         dfd.resolve(response);
                     })
                     .fail(function (xhr, status, error) {
