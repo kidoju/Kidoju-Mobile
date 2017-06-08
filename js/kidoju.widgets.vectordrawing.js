@@ -59,6 +59,7 @@
         var ToolService = diagram.ToolService;
         var ConnectorsAdorner = diagram.ConnectorsAdorner;
         var ResizingAdorner = diagram.ResizingAdorner;
+        var STRING = 'string';
         var CHANGE = 'change';
         var DRAG = 'drag';
         var DRAG_END = 'dragEnd';
@@ -179,25 +180,26 @@
                 Shape.fn.init.call(this, options, diagram);
             },
             _visualOptions: function (options) {
-                 return {
-                     // From Shape.fn._visualOptions
+                return {
+                    // From Shape.fn._visualOptions
                      data: options.path,
                      source: options.source,
                      hover: options.hover,
                      fill: options.fill,
                      stroke: options.stroke,
-                     // For text blocks
-                     text: options.text,
-                     color: options.content.color,
-                     fontFamily: options.content.fontFamily,
-                     fontSize: options.content.fontSize,
-                     fontStyle: options.content.fontStyle,
-                     fontWeight: options.content.fontWeight
-                     // For pen and polyline
-                     // points: options.points,
-                     // startCap: options.startCap,
-                     // endCap: options.endCap
+		                 // For text blocks
+		                 text: options.text,
+		                 // color: options.content.color,
+		                 // fontFamily: options.content.fontFamily,
+		                 // fontSize: options.content.fontSize,
+		                 // fontStyle: options.content.fontStyle,
+		                 // fontWeight: options.content.fontWeight,
+		                 // For pen and polyline
+		                 points: options.points,
+		                 startCap: options.startCap,
+		                 endCap: options.endCap
                  };
+                 // return options;
             },
             createShapeVisual: function () {
                 var options = this.options;
@@ -240,19 +242,24 @@
                 this.toolService = toolService;
                 this.type = 'PenTool';
             },
-            tryActivate: function () {
-                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'PenTool';
+            tryActivate: function (p, meta) {
+                if (meta.type === this.type) {
+                    this.options === meta.options;
+                    return true;
+                }
             },
             start: function (p, meta) {
                 var toolService = this.toolService;
                 var diagram = toolService.diagram;
                 var shape = toolService.activeShape = diagram._createShape({}, {
                     type: 'polyline',
-                    points: [{x: p.x, y: p.y}],
-                    x:0,
-                    y:0,
-                    height: 500,
-                    width: 500,
+                    points: [{x: 0, y: 0}],
+                    x: p.x,
+                    y: p.y,
+                    height: 0,
+                    width: 0,
+                    minHeight: 0,
+                    minWidth: 0,
                     // TODO configuration options
                     fill: {
                         color: '#0000ff'
@@ -269,8 +276,8 @@
                         connections: []
                     }) && diagram._addShape(shape)) {
                     toolService.activeShape = shape;
-                    // toolService._removeHover();
-                    // toolService.selectSingle(toolService.activeShape, meta);
+                    toolService._removeHover();
+                    toolService.selectSingle(toolService.activeShape, meta);
                     /*
                      if (meta.type == 'touchmove') {
                      diagram._cachedTouchTarget = connector.visual;
@@ -284,19 +291,51 @@
             move: function (p) {
                 var toolService = this.toolService;
                 var shape = toolService.activeShape;
-                var polyline = shape.shapeVisual;
-                var points = polyline.points();
-                points.push({x: p.x, y: p.y});
-                shape.redraw({ points: points }); // TODO
+                var bounds = shape.bounds();
+                var left = Math.min(bounds.x, p.x);
+                var right = Math.max(bounds.x + bounds.width, p.x);
+                var top = Math.min(bounds.y, p.y);
+                var bottom = Math.max(bounds.y + bounds.height, p.y);
+                var newBounds = new diagram.Rect(left, top, right - left, bottom - top);
+                var offset = new diagram.Point(
+                    bounds.x - newBounds.x,
+                    bounds.y - newBounds.y
+                );
+                var points = shape.shapeVisual.points().slice();
+                for (var i = 0, length = points.length; i < length; i++) {
+                    points[i].x += offset.x;
+                    points[i].y += offset.y;
+                }
+                points.push(p.minus(newBounds.topLeft()));
+                shape.redraw({
+                    type: 'polyline',
+                    points: points,
+                    x: newBounds.x,
+                    y: newBounds.y,
+                    minHeight: 0,
+                    height: newBounds.height,
+                    minWidth: 0,
+                    width: newBounds.width,
+                    // TODO configuration options
+                    fill: {
+                        color: '#0000ff'
+                    },
+                    stroke: {
+                        color: '#000000',
+                        width: 5
+                    }
+                    // startCap
+                    // endCap); // TODO
+                });
                 // TODO: should we update model?
                 // shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
-
                 return true;
             },
             end: function (p) {
                 var toolService = this.toolService;
                 var shape = toolService.activeShape;
                 var d = toolService.diagram;
+                // TODO close the shape when applicable!
                 /*
                  var connection = toolService.activeConnection;
                  var hoveredItem = toolService.hoveredItem;
@@ -326,11 +365,12 @@
                     })) {
                     shape.updateModel();
                     d._syncShapeChanges();
+                    toolService.selectSingle(shape, {});
                 } else {
                     d.remove(shape, false);
                     d.undoRedoService.pop();
                 }
-                toolService._selectedTool = undefined;
+                toolService._resetTool(); // Sets the pointer tool
             },
             getCursor: function () {
                 return Cursors.crosshair;
@@ -345,21 +385,25 @@
                 this.toolService = toolService;
                 this.type = 'PolylineTool';
             },
-            tryActivate: function () {
-                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'PolylineTool';
+            tryActivate: function (p, meta) {
+                if (meta.type === this.type) {
+                    this.options === meta.options;
+                    return true;
+                }
             },
             start: function (p, meta) {
                 var toolService = this.toolService;
                 var diagram = toolService.diagram;
-                var shape = diagram._createShape({}, {
-                    type: 'path',
+                var shape = toolService.activeShape = diagram._createShape({}, {
+                    type: 'polyline',
+                    points: [{x: 0, y: 0}],
                     x: p.x,
                     y: p.y,
-                    radius: 0,
-                    // height: 0,
-                    // width: 0,
+                    height: 0,
+                    width: 0,
                     minHeight: 0,
-                    maxHeight: 0,
+                    minWidth: 0,
+                    // TODO configuration options
                     fill: {
                         color: '#0000ff'
                     },
@@ -367,12 +411,13 @@
                         color: '#000000',
                         width: 5
                     }
+                    // startCap
+                    // endCap
                 });
                 if (canDrag(shape) && !diagram.trigger(DRAG_START, {
                         shapes: [shape],
                         connections: []
                     }) && diagram._addShape(shape)) {
-                    // toolService._connectionManipulation(connection, connector._c.shape, true);
                     toolService.activeShape = shape;
                     toolService._removeHover();
                     toolService.selectSingle(toolService.activeShape, meta);
@@ -389,20 +434,49 @@
             move: function (p) {
                 var toolService = this.toolService;
                 var shape = toolService.activeShape;
-                var x = p.x > shape._bounds.x ? shape._bounds.x : p.x;
-                var y = p.y > shape._bounds.y ? shape._bounds.y : p.y;
-                var width = p.x > shape._bounds.x ? p.x - shape._bounds.x : shape._bounds.x + shape._bounds.width - p.x;
-                var height = p.y > shape._bounds.y ? p.y - shape._bounds.y : shape._bounds.y + shape._bounds.height - p.y;
-                shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
-                // connection.target(p);
-                toolService.diagram.trigger(DRAG, {
-                    shapes: [shape],
-                    connections: []
+                var bounds = shape.bounds();
+                var left = Math.min(bounds.x, p.x);
+                var right = Math.max(bounds.x + bounds.width, p.x);
+                var top = Math.min(bounds.y, p.y);
+                var bottom = Math.max(bounds.y + bounds.height, p.y);
+                var newBounds = new diagram.Rect(left, top, right - left, bottom - top);
+                var offset = new diagram.Point(
+                    bounds.x - newBounds.x,
+                    bounds.y - newBounds.y
+                );
+                var points = shape.shapeVisual.points().slice();
+                for (var i = 0, length = points.length; i < length; i++) {
+                    points[i].x += offset.x;
+                    points[i].y += offset.y;
+                }
+                points.push(p.minus(newBounds.topLeft()));
+                shape.redraw({
+                    type: 'polyline',
+                    points: points,
+                    x: newBounds.x,
+                    y: newBounds.y,
+                    minHeight: 0,
+                    height: newBounds.height,
+                    minWidth: 0,
+                    width: newBounds.width,
+                    // TODO configuration options
+                    fill: {
+                        color: '#0000ff'
+                    },
+                    stroke: {
+                        color: '#000000',
+                        width: 5
+                    }
+                    // startCap
+                    // endCap); // TODO
                 });
+                // TODO: should we update model?
+                // shape._setOptionsFromModel({ x: x, y: y, width: width, height: height });
                 return true;
             },
             end: function (p) {
                 var toolService = this.toolService;
+                var shape = toolService.activeShape;
                 var d = toolService.diagram;
                 /*
                  var connection = toolService.activeConnection;
@@ -433,18 +507,12 @@
                     })) {
                     shape.updateModel();
                     d._syncShapeChanges();
+                    toolService.selectSingle(shape, {});
                 } else {
                     d.remove(shape, false);
                     d.undoRedoService.pop();
                 }
-                /*
-                 toolService._connectionManipulation();
-                 if (cachedTouchTarget) {
-                 d._connectorsAdorner.visual.remove(cachedTouchTarget);
-                 d._cachedTouchTarget = null;
-                 }
-                 */
-                toolService._selectedTool = undefined;
+                toolService._resetTool(); // Sets the pointer tool
             },
             getCursor: function () {
                 return Cursors.crosshair;
@@ -459,8 +527,11 @@
                 this.toolService = toolService;
                 this.type = 'ShapeTool';
             },
-            tryActivate: function () {
-                return this.toolService._selectedTool && this.toolService._selectedTool.type === 'ShapeTool';
+            tryActivate: function (p, meta) {
+                if (meta.type === this.type) {
+                    this.options === meta.options;
+                    return true;
+                }
             },
             start: function (p, meta) {
                 var toolService = this.toolService;
@@ -469,7 +540,7 @@
                 // var connector = toolService._hoveredConnector;
                 // var connection = diagram._createConnection({}, connector._c, p);
                 var shape = diagram._createShape({}, deepExtend(
-                    this.toolService._selectedTool.options,
+                    this.toolService.options,
                     {
                         x: pos.x,
                         y: pos.y,
@@ -490,7 +561,7 @@
                     toolService.selectSingle(toolService.activeShape, meta);
                     /*
                      if (meta.type == 'touchmove') {
-                     diagram._cachedTouchTarget = connector.visual;
+                        diagram._cachedTouchTarget = connector.visual;
                      }
                      */
                 } else {
@@ -557,7 +628,7 @@
                  d._cachedTouchTarget = null;
                  }
                  */
-                toolService._selectedTool = undefined;
+                toolService._resetTool(); // Sets the pointer tool
             },
             _truncateDistance: function (d) {
                 if (d instanceof diagram.Point) {
@@ -588,12 +659,38 @@
          * VectorToolService
          */
         var VectorToolService = ToolService.extend({
+
+            /**
+             * Constructor
+             * @param diagram
+             */
             init: function (diagram) {
                 ToolService.fn.init.call(this, diagram);
                 // Add new tools here
                 this.tools.unshift(new PenTool(this));
                 this.tools.unshift(new PolylineTool(this));
                 this.tools.unshift(new ShapeTool(this));
+            },
+
+            /**
+             * The base class _activeTool functoin only determines the tool to be used form mous e event corrdinates and keyboard options (meta ctrlKey, shiftKey, altKey)
+             * We need to enrich meta with the the selected tool and configuration from the toolbar
+             * @param p
+             * @param meta
+             * @private
+             */
+            _activateTool: function (p, meta) {
+                meta = meta || {};
+
+                ToolService.fn._activateTool.call(this, p, meta);
+            },
+
+            /**
+             * Reset tool
+             * @private
+             */
+            _resetTool: function () {
+                // TODO
             }
         });
 
@@ -683,6 +780,7 @@
                 that._interactionDefaults();
                 that._initCanvas();
                 // BEGIN: Add background layer
+                this._artboard = $.extend(true, {}, this.options.artboard);
                 that.backgroundLayer = new Group({ id: 'background-layer' });
                 that.canvas.append(that.backgroundLayer);
                 // END: Add background layer
@@ -719,19 +817,41 @@
                 // END Update background layer
                 that.zoom(that.options.zoom);
                 that.canvas.draw();
+                // Resize after drawing especially to center
+                that._resize();
             },
             options: {
                 name: 'VectorDrawing',
                 toolbar: {},
+                // TODO: fileName
                 artboard: {
                     height: 480,
                     width: 640,
-                    stroke: { // stroke is not exported to SVG or PNG
+                    stroke: { // stroke is not exported to SVG or PNG, just shown for screen guides
                         width: 1,
                         color: '#808080'
                     },
                     fill: { // fill is exported to SVG and PNG
                         color: 'transparent'
+                    }
+                },
+                connectionDefaults: {
+                    stroke: {
+                        color: '#808080',
+                        width: 1
+                    }
+                },
+                shapeDefaults: {
+                    content: {
+                        color: '#808080'
+                    },
+                    fill: {
+                        color: 'transparent',
+                        opacity: 1
+                    },
+                    stroke: {
+                        color: '#808080',
+                        width: 1
                     }
                 }
             },
@@ -740,9 +860,9 @@
              * @private
              */
             _updateBackgroundLayer: function () {
-                var height = this.options.artboard.height;
-                var width = this.options.artboard.width;
-                var fill = this.options.artboard.fill;
+                var height = this._artboard.height;
+                var width = this._artboard.width;
+                var fill = this._artboard.fill;
                 var noStroke = { width: 0 };
                 var backgroundOptions = {
                     x: 0,
@@ -759,9 +879,9 @@
                 }
             },
             _updateGuideLayer: function () {
-                var height = this.options.artboard.height;
-                var width = this.options.artboard.width;
-                var stroke = this.options.artboard.stroke;
+                var height = this._artboard.height;
+                var width = this._artboard.width;
+                var stroke = this._artboard.stroke;
                 var topGuideOptions = {
                     data: kendo.format(LINE_PATH, -ARTBOARD_GUIDE, 0, width + ARTBOARD_GUIDE, 0),
                     stroke: stroke
@@ -800,10 +920,20 @@
                     this.guideLayer.children[4].redraw(sizeOptions);
                 }
             },
+            _panToCenter: function () {
+                if (this.backgroundLayer && $.isArray(this.backgroundLayer.children) && this.backgroundLayer.children.length) {
+                    var viewportBox = this.viewport();
+                    var backgroundBox = this.backgroundLayer.drawingElement.bbox();
+                    this.pan(
+                        new diagram.Point(-(viewportBox.width - backgroundBox.width()) / 2, -(viewportBox.height - backgroundBox.height()) / 2)
+                    );
+                }
+            },
             _zoomMainLayer: function () {
                 var zoom = this._zoom;
                 var transform = new CompositeTransform(0, 0, zoom, zoom);
                 transform.render(this.backgroundLayer);
+                transform.render(this.guideLayer);
                 Diagram.fn._zoomMainLayer.call(this);
             },
             _transformMainLayer: function () {
@@ -811,7 +941,14 @@
                 var zoom = this._zoom;
                 var transform = new CompositeTransform(pan.x, pan.y, zoom, zoom);
                 transform.render(this.backgroundLayer);
+                transform.render(this.guideLayer);
                 Diagram.fn._transformMainLayer.call(this);
+            },
+            clear: function () {
+                Diagram.fn.clear.call(this);
+                // Keep the current artboard height/width
+                this._artboard.fill.color = this.options.artboard.fill.color;
+                this._updateBackgroundLayer();
             },
             /**
              * Replace ToolService with VectorToolService
@@ -906,13 +1043,13 @@
                     .kendoVectorDrawingToolBar({
                         tools: this.options.toolbar.tools,
                         resizable: this.options.toolbar.resizable,
+                        // click: $.proxy(this._toolBarClick, this),
                         action: $.proxy(this._onToolBarAction, this),
                         dialog: $.proxy(this._onToolBarDialog, this),
                         connectionDefaults: this.options.connectionDefaults,
                         shapeDefaults: this.options.shapeDefaults
                     })
                     .data('kendoVectorDrawingToolBar');
-                this._resize();
                 // TODO implement toolBarClick for hooks!!!!!!!!!!!!!!!!
             },
             _selectionChanged: function (selected, deselected) {
@@ -941,13 +1078,17 @@
                 // Note: as long as it is not too complex, we can use a dispatcher as below
                 // In the future, maybe consider Command classes with execute methods that apply to a selection like in kendo.ui.spreadsheet
                 switch (e.command) {
+                    case 'ToolbarNewCommand':
+                        this._onToolbarNew(e.params);
+                        break;
+                    case 'ToolbarOpenCommand':
+                        this._onToolbarOpen(e.params);
+                        break;
                     case 'ToolbarSaveCommand':
                         this._onToolbarSave(e.params);
                         break;
                     case 'DrawingToolChangeCommand':
-                        // TODO: Extend e.params.options with formatting configuration from toolbar here
-                        deepExtend(e.params.options, { fill: { color: 'red'} })
-                        this._onDrawingToolChage(e.params);
+                        this._onDrawingToolChange(e.params);
                         break;
                     case 'PropertyChangeCommand':
                         this._onPropertyChange(e.params);
@@ -955,43 +1096,54 @@
                     case 'ToolbarArrangeCommand':
                         this._onToolbarArrange(e.params);
                         break;
-                    case 'ToolbarGridCommand':
-                        this._onToolbarGrid(e.params);
-                        break;
                     case 'ToolbarRemoveCommand':
                         this._onToolbarRemove(e.params);
+                        break;
+                    case 'GuidesChangeCommand':
+                        this._onGuidesChange(e.params);
                         break;
                     default:
                         $.noop();
                 }
             },
+            _onToolbarNew: function () {
+                this.clear();
+            },
+            _onToolbarOpen: function (params) {
+                this.clear();
+                this.open(params.file);
+            },
             _onToolbarSave: function () {
-                this.exportSVG({ json: true })
+                var that = this;
+                that.exportSVG({ json: true })
                     .done(function (data) {
                         kendo.saveAs({
                             dataURI: data,
-                            fileName: "vectordrawing.svg" // TODO: fileName????
+                            fileName: that._file && that._file.name || 'untitle.svg'
                         });
                     });
             },
-            _onDrawingToolChage: function (params) {
-                this.toolService._selectedTool = {
-                    type: params.value,
-                    options: params.options
-                };
+            _onDrawingToolChange: function (params) {
+                // the tool to be used is set by this.toolService._activateTool which is triggered by mouse events
             },
-            _onPropertyChange: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                var toolBar = this.toolBar;
-                toolBar._configuration[options.property] = options.value;
-                var selected = this.select();
-                for (var i = 0, length = selected.length; i < length; i++) {
-                    selected[i].redraw(toolBar.getConfiguration(selected[i]));
+            _onPropertyChange: function (params) {
+                assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+                if (params.property === 'background') {
+                    this._artboard.fill.color = $.type(params.value) === STRING ? params.value : this.options.artboard.fill.color;
+                    this._updateBackgroundLayer();
+                } else {
+                    var toolBar = this.toolBar;
+                    toolBar._configuration[params.property] = params.value;
+                    var selected = this.select();
+                    for (var i = 0, length = selected.length; i < length; i++) {
+                        selected[i].redraw(
+                            toolBar.getConfiguration(selected[i]));
+                    }
                 }
             },
-            _onToolbarArrange: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                switch (options.value) {
+            _onToolbarArrange: function (params) {
+                assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+                switch (params.value) {
                     case 'forward':
                         alert('Not yet implemented!');
                         break;
@@ -1006,19 +1158,20 @@
                         break;
                 }
             },
-            _onToolbarGrid: function (options) {
-                // TODO Remember snap options.
-                this.options.editable.drag.snap = false;
-            },
-            _onToolbarRemove: function (options) {
+            _onToolbarRemove: function (params) {
                 this.remove(this.select());
+            },
+            _onGuidesChange: function (params) {
+                // TODO Remember snap params.
+                this.options.editable.drag.snap = false;
             },
             /**
              * Resizing
              */
             _resize: function () {
-                Diagram.fn._resize.call(this);
                 this.toolBar.resize();
+                Diagram.fn._resize.call(this);
+                this._panToCenter();
             },
             /**
              * Export functions
@@ -1035,11 +1188,11 @@
                 var scale = geometry.transform().scale(1 / this._zoom);
                 var wrap = new drawing.Group({ transform: scale });
                 var root = this.mainLayer.drawingElement;
-                var height = this.options.artboard.height;
-                var width = this.options.artboard.width;
+                var height = this._artboard.height;
+                var width = this._artboard.width;
                 var background = new drawing.Rect(
                     new geometry.Rect([0, 0], [width, height]),
-                    { fill: this.options.artboard.fill, stroke: { width: 0 } }
+                    { fill: this._artboard.fill, stroke: { width: 0 } }
                 );
                 var clipPath = new drawing.Path().moveTo(0, 0).lineTo(width, 0).lineTo(width, height).lineTo(0, height).close();
                 wrap.children.push(background);
@@ -1049,8 +1202,14 @@
             },
             exportSVG: function (options) {
                 // return drawing.exportSVG(this.exportVisual(), options);
-                if (options.json) {
+                if (options.json) { // options.json === true
                     options.json = this.save();
+                    options.json.artboard = {
+                        fill: this._artboard.fill,
+                        height: this._artboard.height,
+                        // stroke: this._artboard.stroke,
+                        width: this._artboard.width
+                    };
                 }
                 return exportSVG(this.exportVisual(), options);
             },
@@ -1072,11 +1231,15 @@
              * @private
              */
             open: function (source) {
+                var that = this;
                 // this.clear();
                 if (source instanceof window.File) {
-                    return this._openFile(source);
+                    return that._openFile(source)
+                        .always(function () {
+                            that.toolBar._resetFileInput();
+                        });
                 } else if (RX_URL.test(source)) {
-                    return this._openUrl(source);
+                    return that._openUrl(source);
                 }
             },
             _openFile: function (file) {
@@ -1092,8 +1255,8 @@
                         var pos0 = source.indexOf(prefix);
                         if (file.type === 'image/svg+xml' && pos0 === 0) {
                             var svg = window.atob(source.substr(prefix.length));
-                            var tag1 = '<defs><script type="application/json">';
-                            var tag2 = '</script></defs>';
+                            var tag1 = '<script type="application/json">';
+                            var tag2 = '</script>';
                             var pos1 = svg.indexOf(tag1);
                             var pos2 = svg.indexOf(tag2);
                             if (pos1 > -1 && pos2 > pos1 + tag1.length) {
@@ -1103,6 +1266,9 @@
                         if (json) {
                             try {
                                 that.load(JSON.parse(json));
+                                that._updateBackgroundLayer();
+                                that._updateGuideLayer();
+                                that._resize();
                                 dfd.resolve();
                             } catch (e) {
                                 dfd.reject(e);
@@ -1113,6 +1279,9 @@
                                 .done(dfd.resolve)
                                 .fail(dfd.reject);
                         }
+                    };
+                    reader.onerror = function (e) {
+                        dfd.reject(new Error('Unable to load file'));
                     };
                     // Read in the image file as a data URL.
                     reader.readAsDataURL(file);
@@ -1140,6 +1309,8 @@
             _loadImage: function (source) {
                 var that = this;
                 var dfd = $.Deferred();
+                // Note: we could have added the shape directly
+                // but we would not have detected a load error
                 var img = $('<img/>')
                     .appendTo('body')
                     .css({
@@ -1148,16 +1319,9 @@
                         left: -10000
                     })
                     .on('load', function (e) {
-                        /*
-                         viewModel.set('type', f.type);
-                         viewModel.set('name', f.name);
-                         viewModel.set('height', img.height());
-                         viewModel.set('width', img.width());
-                         */
-                        that.element.css({
-                            height: img.height() + that.toolBar.element.height(),
-                            width: img.width()
-                        });
+                        that._artboard.height = img.height();
+                        that._artboard.width = img.width();
+                        that._artboard.fill.color = that.options.artboard.fill.color;
                         that.addShape({
                             type: 'image',
                             x: 0,
@@ -1166,12 +1330,14 @@
                             width: img.width(),
                             source: source
                         });
-                        that.resize();
+                        that._updateBackgroundLayer();
+                        that._updateGuideLayer();
+                        that.resize(true);
                         img.off().remove();
                         dfd.resolve();
                     })
                     .on('error', function () {
-                        dfd.reject(new Error('Unable to load image content'));
+                        dfd.reject(new Error('Unable to load image data'));
                     })
                     .attr('src', source);
                 return dfd.promise();
