@@ -37,10 +37,11 @@
         /**
          * Test HTML5 Speech API
          */
-        tts.useSpeechSynthesis = !!(window.speechSynthesis && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance));
+        tts.useSpeechSynthesis = !!('speechSynthesis' in window && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance));
 
         /**
          * Clear markdown from markings that are irrelevant to speech
+         * (Note it is also possible to convert to html and request the text())
          * @param markdown
          * @private
          */
@@ -63,14 +64,23 @@
             // Chromium is chrome or opera and window.StyleMedia excludes MS Edge
             // @see http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
             if ('chrome' in window && $.type(window.StyleMedia) === UNDEFINED) {
-                // Note: This regular expression could be improved:
-                // 1. to exclude native voices which do not fail at ~200-300 characters
-                // 2. not to break up numbers like 10,000.00 - see https://github.com/unk1911/speech/blob/master/js/speech.js
-                var rx = new RegExp('^[\\s\\S]{' + Math.floor(size / 2) + ',' + size + '}[.!?,]{1}|^[\\s\\S]{1,' + size + '}$|^[\\s\\S]{1,' + size + '} ');
-                while (text.length > 0) {
-                    var chunk = text.match(rx)[0];
-                    ret.push(chunk.trim());
-                    text = text.substring(chunk.length);
+                var matches = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+                var version = $.isArray(matches) && matches.length === 3 && parseInt(matches[2], 10);
+                if (version < 56) {
+                    // Note: This regular expression could be improved:
+                    // 1. to exclude native voices which do not fail at ~200-300 characters
+                    // 2. not to break up numbers like 10,000.00 - see https://github.com/unk1911/speech/blob/master/js/speech.js
+                    var rx = new RegExp(
+                        '^[\\s\\S]{' + Math.floor(size / 2) + ',' + size +
+                        '}[.!?,]{1}|^[\\s\\S]{1,' + size + '}$|^[\\s\\S]{1,' +
+                        size + '} ');
+                    while (text.length > 0) {
+                        var chunk = text.match(rx)[0];
+                        ret.push(chunk.trim());
+                        text = text.substring(chunk.length);
+                    }
+                } else {
+                    ret.push(text);
                 }
             } else {
                 ret.push(text);
@@ -93,6 +103,8 @@
                     // and we could not yet find how to list available languages
                     utterance.lang = language;
                 }
+                // http://www.hongkiat.com/blog/text-to-speech/
+                utterance.voice = window.speechSynthesis.getVoices()[0];
                 utterance.rate = 1;
                 utterance.onend = function (evt) { // Returns a SpeechSynthesisEvent
                     if (evt.type === 'error') {
@@ -151,6 +163,7 @@
             var dfd =  $.Deferred();
             if (tts.useCordovaPlugIn) {
                 // For iOS and Android via TTS plugin
+                // @see http://ourcodeworld.com/articles/read/370/how-to-convert-text-to-speech-speech-synthesis-in-cordova
                 window.TTS.speak('', dfd.resolve, dfd.reject);
             }  else if (tts.useSpeechSynthesis) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
