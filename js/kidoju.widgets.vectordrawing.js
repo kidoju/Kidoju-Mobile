@@ -35,6 +35,7 @@
         var drawing = kendo.drawing;
         var createPromise = drawing.util.createPromise;
         var encodeBase64 = drawing.util.encodeBase64;
+        var defined = drawing.util.defined;
         var geometry = kendo.geometry;
         var Transformation = geometry.Transformation;
         var RootNode = drawing.svg.RootNode;
@@ -48,7 +49,7 @@
         var Group = diagram.Group;
         var Image = diagram.Image;
         var Path = diagram.Path;
-        var Polyline = diagram.Polyline
+        var Polyline = diagram.Polyline;
         var Point = diagram.Point;
         var Rectangle = diagram.Rectangle;
         var Selector = diagram.Selector;
@@ -161,6 +162,14 @@
             var editable = element.options.editable;
             return editable && editable.drag !== false;
         }
+        function cloneDataItem(dataItem) {
+            var result = dataItem;
+            if (dataItem instanceof kendo.data.Model) {
+                result = dataItem.toJSON();
+                result[dataItem.idField] = dataItem._defaultId;
+            }
+            return result;
+        }
         function translateToOrigin(visual) {
             var bbox = visual.drawingContainer().clippedBBox(null);
             if (bbox.origin.x !== 0 || bbox.origin.y !== 0) {
@@ -182,26 +191,31 @@
             _visualOptions: function (options) {
                 return {
                     // From Shape.fn._visualOptions
-                     data: options.path,
-                     source: options.source,
-                     hover: options.hover,
-                     fill: options.fill,
-                     stroke: options.stroke,
-		                 // For text blocks
-		                 text: options.text,
-		                 // color: options.content.color,
-		                 // fontFamily: options.content.fontFamily,
-		                 // fontSize: options.content.fontSize,
-		                 // fontStyle: options.content.fontStyle,
-		                 // fontWeight: options.content.fontWeight,
-		                 // For pen and polyline
-		                 points: options.points,
-		                 startCap: options.startCap,
-		                 endCap: options.endCap
-                 };
-                 // return options;
+                    data: options.path,
+                    source: options.source,
+                    hover: options.hover,
+                    fill: options.fill,
+                    stroke: options.stroke,
+                    // For text blocks
+                    text: options.text,
+                    // color: options.content.color,
+                    // fontFamily: options.content.fontFamily,
+                    // fontSize: options.content.fontSize,
+                    // fontStyle: options.content.fontStyle,
+                    // fontWeight: options.content.fontWeight,
+                    // For pen and polyline
+                    points: options.points,
+                    startCap: options.startCap,
+                    endCap: options.endCap
+                };
+                // return options;
             },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             createShapeVisual: function () {
+                /* jshint maxcomplexity: 8 */
                 var options = this.options;
                 var visualOptions = this._visualOptions(options);
                 var visualTemplate = options.visual;
@@ -214,16 +228,16 @@
                 } else if (visualOptions.data) {
                     shapeVisual = new Path(visualOptions);
                     translateToOrigin(shapeVisual);
-                } else if (type == 'rectangle') {
+                } else if (type === 'rectangle') {
                     shapeVisual = new Rectangle(visualOptions);
-                } else if (type == 'circle') {
+                } else if (type === 'circle') {
                     shapeVisual = new Circle(visualOptions);
-                } else if (type == 'text') {
+                } else if (type === 'text') {
                     shapeVisual = new TextBlock(visualOptions);
-                } else if (type == 'image') {
+                } else if (type === 'image') {
                     shapeVisual = new Image(visualOptions);
                 // BEGIN Added polyline
-                } else if (type == 'polyline') {
+                } else if (type === 'polyline') {
                     shapeVisual = new Polyline(visualOptions);
                     // END Added polyline
                 } else {
@@ -232,6 +246,8 @@
                 this.shapeVisual = shapeVisual;
                 this.visual.append(this.shapeVisual);
             }
+
+            /* jshint +W074 */
         });
 
         /**
@@ -243,7 +259,7 @@
                 this.type = 'PenTool';
             },
             tryActivate: function (p, meta) {
-                if (meta.type === this.type) {
+                if (this.type === this.toolService.selectedTool) {
                     this.options === meta.options;
                     return true;
                 }
@@ -253,7 +269,7 @@
                 var diagram = toolService.diagram;
                 var shape = toolService.activeShape = diagram._createShape({}, {
                     type: 'polyline',
-                    points: [{x: 0, y: 0}],
+                    points: [{ x: 0, y: 0 }],
                     x: p.x,
                     y: p.y,
                     height: 0,
@@ -354,7 +370,6 @@
                  }
                  connection.target(target);
                  */
-                var shape = toolService.activeShape;
                 // Modify position
                 if (!shape) {
                     return;
@@ -386,7 +401,7 @@
                 this.type = 'PolylineTool';
             },
             tryActivate: function (p, meta) {
-                if (meta.type === this.type) {
+                if (this.type === this.toolService.selectedTool) {
                     this.options === meta.options;
                     return true;
                 }
@@ -396,7 +411,7 @@
                 var diagram = toolService.diagram;
                 var shape = toolService.activeShape = diagram._createShape({}, {
                     type: 'polyline',
-                    points: [{x: 0, y: 0}],
+                    points: [{ x: 0, y: 0 }],
                     x: p.x,
                     y: p.y,
                     height: 0,
@@ -496,7 +511,7 @@
                  }
                  connection.target(target);
                  */
-                var shape = toolService.activeShape;
+                // var shape = toolService.activeShape;
                 // Modify position
                 if (!shape) {
                     return;
@@ -528,7 +543,7 @@
                 this.type = 'ShapeTool';
             },
             tryActivate: function (p, meta) {
-                if (meta.type === this.type) {
+                if (this.type === this.toolService.selectedTool) {
                     this.options === meta.options;
                     return true;
                 }
@@ -540,7 +555,7 @@
                 // var connector = toolService._hoveredConnector;
                 // var connection = diagram._createConnection({}, connector._c, p);
                 var shape = diagram._createShape({}, deepExtend(
-                    this.toolService.options,
+                    this.toolService.options || {},
                     {
                         x: pos.x,
                         y: pos.y,
@@ -705,7 +720,7 @@
                 editable: {
                     rotate: {
                         thumb: {
-                            data: "M7.115,16C3.186,16,0,12.814,0,8.885C0,5.3,2.65,2.336,6.099,1.843V0l4.85,2.801l-4.85,2.8V3.758 c-2.399,0.473-4.21,2.588-4.21,5.126c0,2.886,2.34,5.226,5.226,5.226s5.226-2.34,5.226-5.226c0-1.351-0.513-2.582-1.354-3.51 l1.664-0.961c0.988,1.222,1.581,2.777,1.581,4.472C14.23,12.814,11.045,16,7.115,16L7.115,16z",
+                            data: 'M7.115,16C3.186,16,0,12.814,0,8.885C0,5.3,2.65,2.336,6.099,1.843V0l4.85,2.801l-4.85,2.8V3.758 c-2.399,0.473-4.21,2.588-4.21,5.126c0,2.886,2.34,5.226,5.226,5.226s5.226-2.34,5.226-5.226c0-1.351-0.513-2.582-1.354-3.51 l1.664-0.961c0.988,1.222,1.581,2.777,1.581,4.472C14.23,12.814,11.045,16,7.115,16L7.115,16z',
                             y: -30,
                             width: 16
                         }
@@ -720,14 +735,24 @@
                 ResizingAdorner.fn._createHandles.call(this);
                 this._createThumb();
             },
-            _createThumb: function() {
+            _createThumb: function () {
                 if (this._rotatable()) {
                     this.rotationThumb = new Path(this.options.editable.rotate.thumb);
                     this.visual.append(this.rotationThumb);
                 }
             },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint +W074 */
+
             _hitTest: function (p) {
-                var tp = this.diagram.modelToLayer(p), i, hit, handleBounds, handlesCount = this.map.length, handle;
+                /* jshint maxcomplexity: 8 */
+                var tp = this.diagram.modelToLayer(p);
+                var i;
+                var hit;
+                var handleBounds;
+                var handlesCount = this.map.length;
+                var handle;
                 if (this._angle) {
                     tp = tp.clone().rotate(this._bounds.center(), this._angle);
                 }
@@ -753,6 +778,9 @@
                     return new Point(0, 0);
                 }
             },
+
+            /* jshint -W074 */
+
             redraw: function () {
                 ResizingAdorner.fn.redraw.call(this);
                 if (this.rotationThumb) {
@@ -885,19 +913,19 @@
                 var topGuideOptions = {
                     data: kendo.format(LINE_PATH, -ARTBOARD_GUIDE, 0, width + ARTBOARD_GUIDE, 0),
                     stroke: stroke
-                }
+                };
                 var rightGuideOptions = {
                     data: kendo.format(LINE_PATH, width, -ARTBOARD_GUIDE, width, height + ARTBOARD_GUIDE),
                     stroke: stroke
-                }
+                };
                 var bottomGuideOptions = {
                     data: kendo.format(LINE_PATH, -ARTBOARD_GUIDE, height, width + ARTBOARD_GUIDE, height),
                     stroke: stroke
-                }
+                };
                 var leftGuideOptions = {
                     data: kendo.format(LINE_PATH, 0, -ARTBOARD_GUIDE, 0, height + ARTBOARD_GUIDE),
                     stroke: stroke
-                }
+                };
                 var size = kendo.format('{0}x{1}', width, height);
                 var sizeBox = new TextBlock({ text: size }).drawingElement.bbox();
                 var sizeOptions = {
@@ -971,7 +999,8 @@
                 return shape;
             },
             addShape: function (item, undoable) {
-                var shape, shapeDefaults = this.options.shapeDefaults;
+                var shape;
+                var shapeDefaults = this.options.shapeDefaults;
                 if (item instanceof Shape) {
                     shape = item;
                 } else if (!(item instanceof kendo.Class)) {
@@ -1073,6 +1102,10 @@
                     return dialog;
                 }
             },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             _onToolBarAction: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                 // Note: as long as it is not too complex, we can use a dispatcher as below
@@ -1106,6 +1139,9 @@
                         $.noop();
                 }
             },
+
+            /* jshint +W074 */
+
             _onToolbarNew: function () {
                 this.clear();
             },
@@ -1125,6 +1161,7 @@
             },
             _onDrawingToolChange: function (params) {
                 // the tool to be used is set by this.toolService._activateTool which is triggered by mouse events
+                this.toolService.selectedTool = params.value;
             },
             _onPropertyChange: function (params) {
                 assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
@@ -1145,7 +1182,7 @@
                 assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
                 switch (params.value) {
                     case 'forward':
-                        alert('Not yet implemented!');
+                        window.alert('Not yet implemented!'); // TODO
                         break;
                     case 'front':
                         this.toFront(this.select());
@@ -1154,7 +1191,7 @@
                         this.toBack(this.select());
                         break;
                     case 'backward':
-                        alert('Not yet implemented!');
+                        window.alert('Not yet implemented!'); // TODO
                         break;
                 }
             },
@@ -1270,8 +1307,8 @@
                                 that._updateGuideLayer();
                                 that._resize();
                                 dfd.resolve();
-                            } catch (e) {
-                                dfd.reject(e);
+                            } catch (exception) {
+                                dfd.reject(exception);
                             }
                         }
                         else {
@@ -1299,10 +1336,12 @@
                     // TODO cache and cors
                 })
                     .done(function (data) {
-                        debugger;
+                        $.noop(); // TODO
+                        // debugger;
                     })
-                    fail(function (xhr, status, error) {
-                        debugger;
+                    .fail(function (xhr, status, error) {
+                        $.noop(); // TODO
+                        // debugger;
                     });
                 return dfd.promise();
             },

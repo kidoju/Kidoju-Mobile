@@ -12,32 +12,10 @@
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder',
-        // './vendor/kendo/kendo.draganddrop',
         './vendor/kendo/kendo.sortable',
         './vendor/kendo/kendo.listview',
         './vendor/kendo/kendo.toolbar',
         './vendor/kendo/kendo.tooltip'
-        /*
-         <script src="./js/vendor/kendo/kendo.core.js"></script>
-         <script src="./js/vendor/kendo/kendo.data.js"></script>
-         <script src="./js/vendor/kendo/kendo.binder.js"></script>
-         <script src="./js/vendor/kendo/kendo.userevents.js"></script>
-         <script src="./js/vendor/kendo/kendo.draganddrop.js"></script>
-         <script src="./js/vendor/kendo/kendo.sortable.js"></script>
-         <script src="./js/vendor/kendo/kendo.popup.js"></script>
-         <script src="./js/vendor/kendo/kendo.dialog.js"></script>
-         <!--script src="./js/vendor/kendo/kendo.columnsorter.js"></script-->
-         <script src="./js/vendor/kendo/kendo.grid.js"></script>
-         <script src="./js/vendor/kendo/kendo.calendar.js"></script>
-         <script src="./js/vendor/kendo/kendo.datepicker.js"></script>
-         <script src="./js/vendor/kendo/kendo.numerictextbox.js"></script>
-         <script src="./js/vendor/kendo/kendo.validator.js"></script>
-         <script src="./js/vendor/kendo/kendo.editable.js"></script>
-         <script src="./js/vendor/kendo/kendo.listview.js"></script>
-         <script src="./js/vendor/kendo/kendo.tooltip.js"></script>
-         */
-
-
     ], f);
 })(function () {
 
@@ -51,44 +29,55 @@
         var Tooltip = kendo.ui.Tooltip;
         var Widget = kendo.ui.Widget;
         var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.listeditor');
-        var NS = '.kendoListEditor';
+        var logger = new window.Logger('kidoju.widgets.imagelist');
+        var NS = '.kendoImageList';
         var STRING = 'string';
         var CLICK = 'click';
-        var WIDGET_CLASS = 'k-widget kj-listeditor';
-        var TEMPLATE = '<li class="k-list-item">' +
-            '<div class="kj-handle"><span class="k-icon k-i-handler-drag"></span></div>' +
-            '<div class="kj-text"><input class="k-textbox k-state-disabled" name="{0}" value="#:{0}#" /></div>' +
-            '<div class="kj-buttons">' +
+        var WIDGET_CLASS = 'k-widget kj-imagelist';
+        var TOOLTIP = '<div style="background:url({1});background-size:cover;background-position:center;height:150px;width:150px"><div style="position:absolute;bottom:0;padding:1em;text-overflow:ellipsis;">{0}</div></div>';
+        var TOOLBAR = '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><div class="k-button k-button-icontext"><span class="k-icon k-i-plus"></span>{0}</div></div></div>';
+
+        /*********************************************************************************
+         * Helpers
+         *********************************************************************************/
+
+        function getTemplate (textField, imageField, schemes) {
+            var template = '<li class="k-list-item">' +
+                '<div class="kj-handle"><span class="k-icon k-i-handler-drag"></span></div>' +
+                '<div class="kj-text"><input class="k-textbox k-state-disabled" name="{0}" value="#:{0}#" disabled /></div>' +
+                '<div class="kj-buttons">' +
                 '# if (!!{1}) { #' +
                 '<img class="k-image" alt="#:{0}#" src="#:{1}#">' +
                 '# } #' +
                 '<a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"></span></a>' +
                 '<a class="k-button k-delete-button" href="\\#"><span class="k-icon k-i-close"></span></a>' +
-            '</div></li>';
-        var EDIT_TMPL = '<li class="k-list-item">' +
-            '<div class="kj-handle"><span class="k-icon k-i-handler-drag"></span></div>' +
-            '<div class="kj-text"><input class="k-textbox" data-bind="value:{0}" name="{0}" required="required" validationMessage="required" /><span data-for="{0}" class="k-invalid-msg"></span></div>' +
-            '<div class="kj-buttons">' +
+                '</div></li>';
+            return kendo.format(template, textField, imageField + ($.isEmptyObject(schemes) ? '' : '$()'));
+        }
+
+        function getEditTemplate (textField, imageField, messages) {
+            var template = '<li class="k-list-item">' +
+                '<div class="kj-handle"><span class="k-icon k-i-handler-drag"></span></div>' +
+                '<div class="kj-text">' +
+                '<input class="k-textbox" data-bind="value:{0}" name="{0}" required="required" validationMessage="{2}"/><span data-for="{0}" class="k-invalid-msg"></span>' +
+                // '<input type="hidden" data-bind="value:{1}" name="{1}" required="required" validationMessage="{3}"/><span data-for="{1}" class="k-invalid-msg"></span>' +
+                '</div><div class="kj-buttons">' +
                 '<a class="k-button k-image-button" href="\\#"><span class="k-icon k-i-image-insert"></span></a>' +
                 '<a class="k-button k-update-button" href="\\#"><span class="k-icon k-i-check"></span></a>' +
                 '<a class="k-button k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"></span></a>' +
-            '</div></li>';
-        var TOOLTIP_TMPL = '<div style="background: url({1});background-size: cover;background-position:center;height:150px;width:150px"><div style="position-absolute;height:1em;bottom:1em;text-overflow: ellipsis;">{0}</div></div>';
-        var TOOLBAR_TMPL = '<div class="k-widget k-toolbar k-header k-floatwrap">' +
-            '<div class="k-toolbar-wrap">' +
-                '<div class="k-button k-button-icontext"><span class="k-icon k-i-plus"></span>#=messages.toolbar.add#</div>' +
-            '</div></div>';
+                '</div></li>';
+            return kendo.format(template, textField, imageField, messages.validation.text); // , messages.validation.image);
+        }
 
         /*********************************************************************************
          * Widget
          *********************************************************************************/
 
         /**
-         * ListEditor
-         * @class ListEditor Widget (kendoListEditor)
+         * ImageList
+         * @class ImageList Widget (kendoImageList)
          */
-        var ListEditor = Widget.extend({
+        var ImageList = Widget.extend({
 
             /**
              * Initializes the widget
@@ -109,18 +98,18 @@
              * Options
              */
             options: {
-                name: 'ListEditor',
+                name: 'ImageList',
                 textField: 'text',
                 imageField: 'image',
                 dataSource: [],
-                template: TEMPLATE,
-                editTemplate: EDIT_TMPL,
-                toolbarTemplate: TOOLBAR_TMPL,
-                tooltipTemplate: TOOLTIP_TMPL,
                 schemes: {},
                 messages: {
                     toolbar: {
                         add: 'Add'
+                    },
+                    validation: {
+                        // image: 'An image url is required.',
+                        text: 'Some text is required.'
                     }
                 }
             },
@@ -155,23 +144,19 @@
             _toolbar: function  () {
                 var that = this;
                 var options = that.options;
-                var template = kendo.template(options.toolbarTemplate);
 
                 // Add toolbar from template
-                that.toolbar = $(template({
-                    messages: options.messages
-                })).appendTo(that.element);
+                that.toolbar = $(kendo.format(TOOLBAR, options.messages.toolbar.add)).appendTo(that.element);
                 assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
 
                 // Add click event handler for the Add button
                 $('.k-button', that.toolbar).on(CLICK + NS, function (e) {
                     assert.instanceof(ListView, that.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                    // that.listView.add(); // Requires a model to know the fields to create a new data item with
-                    var item = {};
-                    item[options.textField] = '';
-                    item[options.imageField] = '';
-                    that.dataSource.add(item);
-                    that.listView.edit(that.listView.element.children().last());
+                    // that.listView.add(); // insert at index = 0
+                    that.listView.cancel();
+                    // var item = {}; item[options.textField] = ''; item[options.imageField] = '';
+                    var dataItem = that.dataSource.add({}); // Requires a model to know the fields to create a new data item with
+                    that.listView.edit(that.element.find('[data-uid=\'' + dataItem.uid + '\']'));
                     e.preventDefault();
                 });
             },
@@ -191,11 +176,15 @@
                 // Add the delegated click event handler for item buttons
                 list.on(CLICK + NS, '.k-button', $.proxy(that._onItemButtonClick, that));
 
+                // Templates
+                var template = getTemplate(options.textField, options.imageField, options.schemes);
+                var editTemplate = getEditTemplate(options.textField, options.imageField, options.messages);
+
                 // Create the listview
                 that.listView = list.kendoListView({
                     dataSource: that.dataSource,
-                    template: kendo.template(kendo.format(options.template, options.textField, options.imageField + ($.isEmptyObject(options.schemes) ? '' : '$()'))),
-                    editTemplate: kendo.template(kendo.format(options.editTemplate, options.textField, options.imageField + ($.isEmptyObject(options.schemes) ? '' : '$()')))
+                    template: kendo.template(template),
+                    editTemplate: kendo.template(editTemplate)
                 }).data('kendoListView');
 
                 // Make the list sortable
@@ -231,13 +220,16 @@
                     // autoHide: true,
                     content: function (e) {
                         var target = e.target;
-                        return kendo.format(TOOLTIP_TMPL, target.attr('alt'), target.attr('src'));
+                        // The following is required to fix https://github.com/kidoju/Kidoju-Widgets/issues/175
+                        // Noting that popup is not available until the tooltip has been fully initialized, but there is no init event to hook
+                        e.sender.popup.element.children('.k-tooltip-content').css({ padding: 0 });
+                        return kendo.format(TOOLTIP, kendo.htmlEncode(target.attr('alt')), window.encodeURI(target.attr('src')));
                     }
                 }).data('kendoTooltip');
             },
 
             /**
-             * _dataSource function to bind refresh to the change event
+             * _dataSource function
              * @private
              */
             _dataSource: function () {
@@ -325,6 +317,7 @@
              */
             destroy: function () {
                 var that = this;
+                var wrapper = that.wrapper;
                 // Unbind events
                 if (that.listView instanceof ListView) {
                     var list = that.listView.element;
@@ -333,6 +326,7 @@
                 if (that.toolbar instanceof $) {
                     $('.k-button', that.toolbar).off(NS);
                 }
+                kendo.unbind(wrapper);
                 // Release references
                 that.toolbar = undefined;
                 that.listView = undefined;
@@ -340,12 +334,14 @@
                 that.tooltip = undefined;
                 // Destroy kendo bindings
                 Widget.fn.destroy.call(that);
-                kendo.destroy(that.wrapper);
+                kendo.destroy(wrapper);
+                // Remove widget class
+                // wrapper.removeClass(WIDGET_CLASS);
             }
 
         });
 
-        kendo.ui.plugin(ListEditor);
+        kendo.ui.plugin(ImageList);
 
     }(window.jQuery));
 

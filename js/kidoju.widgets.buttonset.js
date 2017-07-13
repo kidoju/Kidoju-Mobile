@@ -31,7 +31,7 @@
         var NS = '.kendoButtonSet';
         var CLICK = 'click' + NS;
         var ID = 'id';
-        var WRAP_TEMPLATE = '<div class="kj-buttonset"></div>'
+        var WRAP_TEMPLATE = '<div class="kj-buttonset"></div>';
         var UL_TEMPLATE = '<ul class="km-widget km-buttongroup k-widget k-button-group" role="group"></ul>';
         // TODO: Add keyboard events to check buttons with Tab + Space or Tab + Enter
         var BUTTON_TEMPLATE = '<li class="k-button km-button" tabindex="0" role="button"><span class="k-text km-text">{0}</span></li>';
@@ -58,7 +58,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'widget initialized' });
+                logger.debug({ method: 'init', message: 'Widget initialized' });
                 that._layout();
                 that.enable(!!options.enabled || !that.element.prop('disabled'));
                 that.value(options.value || 0);
@@ -121,7 +121,7 @@
                 var element = that.element;
                 var buttons = that.options.buttons;
                 if (!element.is('input')) {
-                    throw new Error('A button set should wrap an input for kendo validators to work.')
+                    throw new Error('A button set should wrap an input for kendo validators to work.');
                 }
                 var id = element.attr(ID);
                 that.element
@@ -222,6 +222,7 @@
             refresh: function () {
                 assert.instanceof($, this.ul, kendo.format(assert.messages.instanceof.default, 'this.ul', 'jQuery'));
                 this._setStateAsBits(this.value());
+                logger.debug({ method: 'refresh', message: 'Widget refreshed' });
             },
 
             /**
@@ -230,11 +231,17 @@
              */
             destroy: function () {
                 var that = this;
-                var element = this.element;
+                var wrapper = that.wrapper;
+                // Unbind events
                 that.ul.off(NS);
+                kendo.unbind(wrapper);
+                // Clear references
                 that.ul = undefined;
+                // Destroy widget
                 Widget.fn.destroy.call(that);
-                kendo.destroy(that.element);
+                kendo.destroy(wrapper);
+                // Remove widget class
+                // wrapper.removeClass(WIDGET_CLASS);
             }
         });
 

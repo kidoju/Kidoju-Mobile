@@ -80,7 +80,7 @@
         var RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
         var RX_SOLUTION = /\S+/i;
         var RX_TEXT = /\S+/i;
-        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\[\n]+)( \["[^\n]*"\])?$/;
+        var RX_VALIDATION_LIBRARY = /^\/\/ ([^\s\[\n]+)( (\[[^\n]+\]))?$/;
         var RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
         var RX_VIDEO = /^(cdn|data):\/\/[\s\S]+.mp4$/i;
         var VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
@@ -233,7 +233,8 @@
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
+                    omit: { title: 'Omit' },
+                    disabled: { title: 'Disabled' }
                 }
             },
 
@@ -247,6 +248,23 @@
                 properties: {
                     draggable: { title: 'Draggable' },
                     dropValue: { title: 'Value' }
+                }
+            },
+
+            imageset: {
+                description: 'Image Set',
+                attributes: {
+                    style: { title: 'Style' },
+                    data: { title: 'Images', defaultValue: [{ text: 'Image set', image: 'cdn://images/o_collection/svg/office/photos.svg' }] }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
                 }
             },
 
@@ -272,6 +290,23 @@
                 properties: {
                     draggable: { title: 'Draggable' },
                     dropValue: { title: 'Value' }
+                }
+            },
+
+            mathinput: {
+                description: 'Mathematic Input',
+                attributes: {
+                    formula: { title: 'Formula', defaultValue: '' },
+                    style: { title: 'Style' }
+                },
+                properties: {
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    validation: { title: 'Validation' },
+                    success: { title: 'Success' },
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' }
                 }
             },
 
@@ -373,7 +408,8 @@
                     validation: { title: 'Validation' },
                     success: { title: 'Success' },
                     failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
+                    omit: { title: 'Omit' },
+                    disabled: { title: 'Disabled' }
                 }
             },
 
@@ -926,9 +962,9 @@
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: input.css('height'), // to match input,
                             margin: 0
                         })
+                        .height(input.height()) // to match input,
                         .appendTo(table)
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
@@ -1312,6 +1348,119 @@
         });
 
         /**
+         * Image List Adapter (combines image and text)
+         */
+        adapters.ImageListBuilderAdapter = BaseAdapter.extend({
+            init: function (options) {
+                var that = this;
+                BaseAdapter.fn.init.call(that, options);
+                that.type = undefined;
+                that.defaultValue = that.defaultValue || [];
+                // that.editor is the list editor where the insert image button triggers this.showDialog
+                that.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'source: ' + settings.field;
+                    var imageList = $('<div/>').attr(binding).appendTo(container);
+                    var imageListWidget = imageList.kendoImageList({
+                        schemes: assets.image.schemes,
+                        click: $.proxy(that.showDialog, that, settings)
+                    }).data('kendoImageList');
+                    assert.instanceof(kendo.ui.ImageList, imageListWidget, kendo.format(assert.messages.instanceof.default, 'imageListWidget', 'kendo.ui.ImageList'));
+                    imageListWidget.dataSource.bind('change', function (e) {
+                        // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
+                        // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
+                        if ($.type(e.action) === STRING) {
+                            settings.model.trigger('change', { field: settings.field });
+                        }
+                    });
+                };
+            },
+            showDialog: function (options, e) {
+                if (e.action === 'image') {
+                    var that = this;
+                    var item = e.item;
+                    var dialogWidget = that.getDialog(options);
+                    // Create viewModel (Cancel shall not save changes to main model)
+                    dialogWidget.viewModel = kendo.observable({
+                        image: item.get('image')
+                    });
+                    dialogWidget.viewModel._item = item;
+                    // Prepare UI
+                    dialogWidget.title(options.title);
+                    dialogWidget.content('<div ' +
+                        'data-' + kendo.ns + 'role="assetmanager" ' +
+                        'data-' + kendo.ns + 'bind="value: image"/>');
+                    assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
+                    assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                    var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets.image).data('kendoAssetManager');
+                    kendo.bind(dialogWidget.element, dialogWidget.viewModel);
+                    dialogWidget.element.addClass(NO_PADDING_CLASS);
+                    // Show dialog
+                    assetManagerWidget.tabStrip.activateTab(0);
+                    dialogWidget.open();
+                }
+            },
+            onOkAction: function (options, e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
+                e.sender.viewModel._item.set('image', e.sender.viewModel.get('image'));
+            }
+        });
+
+        /**
+         * Math input adapter
+         */
+        adapters.MathAdapter = BaseAdapter.extend({
+            init: function (options, attributes) {
+                BaseAdapter.fn.init.call(this, options);
+                this.type = STRING;
+                this.defaultValue = this.defaultValue || (this.nullable ? null : '');
+                this.editor = function (container, settings) {
+                    var binding = {};
+                    binding[kendo.attr('bind')] = 'value: ' + settings.field;
+                    var input = $('<div/>')
+                        .css({
+                            width: '100%',
+                            fontSize: '1.25em',
+                            minHeight: '4.6em'
+                        })
+                        .attr($.extend(binding, attributes))
+                        .appendTo(container);
+                    var mathInputWidget = input.kendoMathInput({
+                        toolbar: {
+                            // container: '',
+                            resizable: true,
+                            tools: [
+                                // 'backspace',
+                                // 'field',
+                                'keypad',
+                                'basic',
+                                'lowergreek',
+                                'uppergreek',
+                                'operators',
+                                'expressions',
+                                'sets',
+                                'matrices',
+                                'statistics'
+                                // 'units',
+                                // 'chemistry'
+                            ]
+                        }
+                    });
+                };
+            },
+            library: [
+                {
+                    name: 'equal',
+                    formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).trim() === String(solution).trim();')
+                    // TODO MathQuillMathField
+                    // TODO permutations
+                }
+            ],
+            libraryDefault: 'equal'
+        });
+
+        /**
          * MultiQuiz Solution adapter
          */
         adapters.MultiQuizSolutionAdapter = BaseAdapter.extend({
@@ -1459,66 +1608,6 @@
                         }
                     });
                 };
-            }
-        });
-
-        /**
-         * Quiz Data Adapter
-         */
-        adapters.QuizDataAdapter = BaseAdapter.extend({
-            init: function (options) {
-                var that = this;
-                BaseAdapter.fn.init.call(that, options);
-                that.type = undefined;
-                that.defaultValue = that.defaultValue || [];
-                // that.editor is the list editor where the insert image button triggers this.showDialog
-                that.editor = function (container, settings) {
-                    var binding = {};
-                    binding[kendo.attr('bind')] = 'source: ' + settings.field;
-                    var listEditor = $('<div/>').attr(binding).appendTo(container);
-                    var listEditorWidget = listEditor.kendoListEditor({
-                        schemes: assets.image.schemes,
-                        click: $.proxy(that.showDialog, that, settings)
-                    }).data('kendoListEditor');
-                    assert.instanceof(kendo.ui.ListEditor, listEditorWidget, kendo.format(assert.messages.instanceof.default, 'listEditorWidget', 'kendo.ui.ListEditor'));
-                    listEditorWidget.dataSource.bind('change', function (e) {
-                        // When the dataSource raises a change event on any of the quiz data items that is added, changed or removed
-                        // We need to trigger a change event on the model field to ensure the stage element (which is not databound) is redrawn
-                        if ($.type(e.action) === STRING) {
-                            settings.model.trigger('change', { field: settings.field });
-                        }
-                    });
-                };
-            },
-            showDialog: function (options, e) {
-                if (e.action === 'image') {
-                    var that = this;
-                    var item = e.item;
-                    var dialogWidget = that.getDialog(options);
-                    // Create viewModel (Cancel shall not save changes to main model)
-                    dialogWidget.viewModel = kendo.observable({
-                        image: item.get('image')
-                    });
-                    dialogWidget.viewModel._item = item;
-                    // Prepare UI
-                    dialogWidget.title(options.title);
-                    dialogWidget.content('<div ' +
-                        'data-' + kendo.ns + 'role="assetmanager" ' +
-                        'data-' + kendo.ns + 'bind="value: image"/>');
-                    assert.instanceof(PageComponent, options.model, kendo.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
-                    assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
-                    var assetManagerWidget = dialogWidget.element.find(kendo.roleSelector('assetmanager')).kendoAssetManager(assets.image).data('kendoAssetManager');
-                    kendo.bind(dialogWidget.element, dialogWidget.viewModel);
-                    dialogWidget.element.addClass(NO_PADDING_CLASS);
-                    // Show dialog
-                    assetManagerWidget.tabStrip.activateTab(0);
-                    dialogWidget.open();
-                }
-            },
-            onOkAction: function (options, e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Dialog, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                e.sender.viewModel._item.set('image', e.sender.viewModel.get('image'));
             }
         });
 
@@ -1727,9 +1816,9 @@
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: input.css('height'), // to match input,
                             margin: 0
                         })
+                        .height(input.height()) // to match input,
                         .appendTo(table)
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
                 };
@@ -1861,7 +1950,7 @@
                     formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).replace(/\\s+/g, " ").trim() === String(solution).replace(/\\s+/g, " ").trim();')
                 },
                 {
-                    name: 'ignorePunctiationEqual',
+                    name: 'ignorePunctuationEqual',
                     formula: kendo.format(VALIDATION_CUSTOM, 'return String(value).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim() === String(solution).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim();')
                 }
             ],
@@ -1890,10 +1979,10 @@
                         .appendTo(table);
                     var binding = {};
                     binding[kendo.attr('bind')] = 'value: ' + settings.field + ', source: _library';
-                    var input = $('<div ' +
+                    var codeInput = $('<div ' +
                         'data-' + kendo.ns + 'role="codeinput" ' +
                         'data-' + kendo.ns + 'default="' + settings.model.properties.defaults.validation + '" />')
-                    // Note: _library is added to the data bound PageComponent in its init method
+                        // Note: _library is added to the data bound PageComponent in its init method
                         .attr($.extend({}, settings.attributes, binding))
                         .appendTo(cell);
                     // We need a temporary textbox to calculate the height and align the button
@@ -1906,9 +1995,9 @@
                         .css({
                             display: 'table-cell',
                             minWidth: '40px',
-                            height: temp.css('height'), // $('input.k-textbox').last().css('height'),
                             margin: 0
                         })
+                        .height(temp.height())
                         .appendTo(table)
                         .on(CLICK, $.proxy(that.showDialog, that, settings));
                     temp.remove();
@@ -2645,7 +2734,8 @@
                 validation: new adapters.ValidationAdapter({ title: i18n.dropzone.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.omit.title, defaultValue: 0 })
+                omit: new adapters.ScoreAdapter({ title: i18n.dropzone.properties.omit.title, defaultValue: 0 }),
+                disabled: new adapters.DisabledAdapter({ title: i18n.dropzone.properties.disabled.title, defaultValue: false })
             },
 
             /**
@@ -2758,7 +2848,7 @@
                 var template = kendo.template(that.templates.default);
                 // The class$ function adds the kj-interactive class to draggables
                 component.class$ = function () {
-                    return component.properties.draggable ? INTERACTIVE_CLASS : '';
+                    return 'kj-image' + (component.properties.draggable ? ' ' + INTERACTIVE_CLASS : '');
                 };
                 // The id$ function returns the component id for draggable components
                 component.id$ = function () {
@@ -2889,6 +2979,141 @@
         tools.register(Image);
 
         /**
+         * @class ImageSet tool
+         * @type {void|*}
+         */
+        var IMAGESET = '<div data-#= ns #role="imageset" data-#= ns #images="#: data$() #" style="#: attributes.style #" {0}></div>';
+        var ImageSet = Tool.extend({
+            id: 'imageset',
+            icon: 'photos',
+            description: i18n.imageset.description,
+            cursor: CURSOR_CROSSHAIR,
+            weight: 1,
+            templates: {
+                design: kendo.format(IMAGESET, 'data-#= ns #enabled="false"'),
+                play: kendo.format(IMAGESET, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(IMAGESET, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enabled="false"') + Tool.fn.showResult()
+            },
+            height: 250,
+            width: 250,
+            attributes: {
+                // shuffle: new adapters.BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
+                style: new adapters.StyleAdapter({ title: i18n.imageset.attributes.style.title }),
+                data: new adapters.ImageListBuilderAdapter({ title: i18n.imageset.attributes.data.title, defaultValue: i18n.imageset.attributes.data.defaultValue })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.imageset.properties.name.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.imageset.properties.question.title }),
+                solution: new adapters.QuizSolutionAdapter({ title: i18n.imageset.properties.solution.title }),
+                validation: new adapters.ValidationAdapter({ title: i18n.imageset.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.imageset.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.imageset.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.imageset.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(ImageSet, that, kendo.format(assert.messages.instanceof.default, 'this', 'ImageSet'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                assert.instanceof(ToolAssets, assets.image, kendo.format(assert.messages.instanceof.default, 'assets.image', 'kidoju.ToolAssets'));
+                var template = kendo.template(that.templates[mode]);
+                // The data$ function resolves urls with schemes like cdn://sample.jpg
+                component.data$ = function () {
+                    var data = component.attributes.get('data');
+                    var clone = [];
+                    var schemes = assets.image.schemes;
+                    for (var i = 0, length = data.length; i < length; i++) {
+                        var item = {
+                            text: data[i].text,
+                            image: ''
+                        };
+                        for (var scheme in schemes) {
+                            if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(data[i].image)) {
+                                item.image = data[i].image.replace(scheme + '://', schemes[scheme]);
+                                break;
+                            }
+                        }
+                        clone.push(item);
+                    }
+                    // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
+                    return ' ' + JSON.stringify(clone);
+                };
+                return template($.extend(component, { ns: kendo.ns }));
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                /* jshint maxcomplexity: 8 */
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div' + kendo.roleSelector('imageset'));
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                /* jshint maxcomplexity: 8 */
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    !component.attributes.data ||
+                    !RX_DATA.test(component.attributes.data)) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidData, description, pageIdx + 1)
+                    });
+                }
+                // TODO: Check that solution matches one of the data
+                return ret;
+            }
+
+            /* jshint +W074 */
+
+        });
+        tools.register(ImageSet);
+
+        /**
          * @class Label tool
          * @type {void|*}
          */
@@ -2930,7 +3155,7 @@
                 var template = kendo.template(that.templates.default);
                 // The class$ function adds the kj-interactive class to draggables
                 component.class$ = function () {
-                    return component.properties.draggable ? INTERACTIVE_CLASS : '';
+                    return 'kj-label' + (component.properties.draggable ? ' ' + INTERACTIVE_CLASS : '');
                 };
                 // The id$ function returns the component id for draggable components
                 component.id$ = function () {
@@ -3038,9 +3263,8 @@
             height: 180,
             width: 370,
             attributes: {
-                formula: new adapters.TextAdapter(
-                    { title: i18n.mathexpression.attributes.formula.title, defaultValue: i18n.mathexpression.attributes.formula.defaultValue },
-                    { rows: 4, style: 'resize:vertical; width: 100%;' }
+                formula: new adapters.MathAdapter(
+                    { title: i18n.mathexpression.attributes.formula.title, defaultValue: i18n.mathexpression.attributes.formula.defaultValue }
                 ),
                 inline: new adapters.BooleanAdapter (
                     { title: i18n.mathexpression.attributes.inline.title, defaultValue: i18n.mathexpression.attributes.inline.defaultValue }
@@ -3135,6 +3359,113 @@
         });
         tools.register(MathExpression);
 
+        var MATHINPUT = '<div data-#= ns #role="mathinput" data-#= ns #toolbar="{&quot;container&quot;:&quot;\\#floating .kj-floating-content&quot;,&quot;resizable&quot;:true}" style="#: attributes.style #" {0}>#: attributes.formula #</div>';
+        /**
+         * @class MathInput tool
+         * @type {void|*}
+         */
+        var MathInput = Tool.extend({
+            id: 'mathinput',
+            icon: 'formula',
+            description: i18n.mathinput.description,
+            cursor: CURSOR_CROSSHAIR,
+            templates: {
+                design: kendo.format(MATHINPUT, 'data-#= ns #enable="false"'),
+                play: kendo.format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value"'),
+                review: kendo.format(MATHINPUT, 'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"') + Tool.fn.showResult()
+            },
+            height: 120,
+            width: 370,
+            attributes: {
+                // The formula is intended to set several MathQuillMathFields, which requires to make the solution an array of mathinputs
+                // formula: new adapters.MathAdapter({ title: i18n.mathinput.attributes.formula.title }),
+                style: new adapters.StyleAdapter({ title: i18n.mathinput.attributes.style.title, defaultValue: 'font-size: 50px;' })
+            },
+            properties: {
+                name: new adapters.NameAdapter({ title: i18n.mathinput.properties.name.title }),
+                question: new adapters.QuestionAdapter({ title: i18n.mathinput.properties.question.title }),
+                solution: new adapters.MathAdapter({ title: i18n.mathinput.properties.solution.title, defaultValue: '' }),
+                validation: new adapters.ValidationAdapter({ title: i18n.mathinput.properties.validation.title }),
+                success: new adapters.ScoreAdapter({ title: i18n.mathinput.properties.success.title, defaultValue: 1 }),
+                failure: new adapters.ScoreAdapter({ title: i18n.mathinput.properties.failure.title, defaultValue: 0 }),
+                omit: new adapters.ScoreAdapter({ title: i18n.mathinput.properties.omit.title, defaultValue: 0 })
+            },
+
+            /**
+             * Get Html or jQuery content
+             * @method getHtmlContent
+             * @param component
+             * @param mode
+             * @returns {*}
+             */
+            getHtmlContent: function (component, mode) {
+                var that = this;
+                assert.instanceof(MathInput, that, kendo.format(assert.messages.instanceof.default, 'this', 'MathInput'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                assert.enum(Object.keys(kendo.ui.Stage.fn.modes), mode, kendo.format(assert.messages.enum.default, 'mode', Object.keys(kendo.ui.Stage.fn.modes)));
+                var template = kendo.template(that.templates[mode]);
+                return template($.extend(component, { ns: kendo.ns }));
+            },
+
+            /**
+             * onResize Event Handler
+             * @method onResize
+             * @param e
+             * @param component
+             */
+            onResize: function (e, component) {
+                var stageElement = $(e.currentTarget);
+                assert.ok(stageElement.is(ELEMENT_SELECTOR), kendo.format('e.currentTarget is expected to be a stage element'));
+                assert.instanceof(PageComponent, component, kendo.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+                var content = stageElement.children('div');
+                if ($.type(component.width) === NUMBER) {
+                    content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
+                }
+                if ($.type(component.height) === NUMBER) {
+                    content.outerHeight(component.get('height') - content.outerHeight(true) + content.outerHeight());
+                }
+                // prevent any side effect
+                e.preventDefault();
+                // prevent event to bubble on stage
+                e.stopPropagation();
+            },
+
+            /**
+             * Component validation
+             * @param component
+             * @param pageIdx
+             */
+            validate: function (component, pageIdx) {
+                var ret = Tool.fn.validate.call(this, component, pageIdx);
+                var description = this.description; // tool description
+                var messages = this.i18n.messages;
+                if (!component.attributes ||
+                    !component.attributes.formula ||
+                    (component.attributes.formula === i18n.mathinput.attributes.formula.defaultValue) ||
+                    !RX_FORMULA.test(component.attributes.formula)) {
+                    // TODO: replace RX_FORMULA with a LaTeX synthax checker
+                    ret.push({
+                        type: WARNING,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidFormula, description, pageIdx + 1)
+                    });
+                }
+                if (!component.attributes ||
+                    // Styles are only checked if there is any (optional)
+                    (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+                    ret.push({
+                        type: ERROR,
+                        index: pageIdx,
+                        message: kendo.format(messages.invalidStyle, description, pageIdx + 1)
+                    });
+                }
+                // TODO: We should also check that there is a dropZone on the page if draggable
+                return ret;
+            }
+
+        });
+        tools.register(MathInput);
+
         var MULTIQUIZ = '<div data-#= ns #role="multiquiz" data-#= ns #mode="#: attributes.mode #" data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #" {0}></div>';
         /**
          * MultiQuiz tool
@@ -3163,7 +3494,7 @@
                 groupStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
                 itemStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.itemStyle.title }),
                 selectedStyle: new adapters.StyleAdapter({ title: i18n.multiquiz.attributes.selectedStyle.title }),
-                data: new adapters.QuizDataAdapter({ title: i18n.multiquiz.attributes.data.title, defaultValue: i18n.multiquiz.attributes.data.defaultValue })
+                data: new adapters.ImageListBuilderAdapter({ title: i18n.multiquiz.attributes.data.title, defaultValue: i18n.multiquiz.attributes.data.defaultValue })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.multiquiz.properties.name.title }),
@@ -3350,7 +3681,7 @@
                 groupStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.groupStyle.title, defaultValue: 'font-size: 60px;' }),
                 itemStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.itemStyle.title }),
                 selectedStyle: new adapters.StyleAdapter({ title: i18n.quiz.attributes.selectedStyle.title }),
-                data: new adapters.QuizDataAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue })
+                data: new adapters.ImageListBuilderAdapter({ title: i18n.quiz.attributes.data.title, defaultValue: i18n.quiz.attributes.data.defaultValue })
             },
             properties: {
                 name: new adapters.NameAdapter({ title: i18n.quiz.properties.name.title }),
@@ -3798,7 +4129,8 @@
                 validation: new adapters.ValidationAdapter({ title: i18n.textbox.properties.validation.title }),
                 success: new adapters.ScoreAdapter({ title: i18n.textbox.properties.success.title, defaultValue: 1 }),
                 failure: new adapters.ScoreAdapter({ title: i18n.textbox.properties.failure.title, defaultValue: 0 }),
-                omit: new adapters.ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 })
+                omit: new adapters.ScoreAdapter({ title: i18n.textbox.properties.omit.title, defaultValue: 0 }),
+                disabled: new adapters.DisabledAdapter({ title: i18n.textbox.properties.disabled.title, defaultValue: false })
             },
 
             /**

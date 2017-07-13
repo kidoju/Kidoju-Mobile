@@ -22,6 +22,8 @@
         var ui = kendo.ui;
         var Widget = ui.Widget;
         var DataSource = kendo.data.DataSource;
+        var assert = window.assert;
+        var logger = new window.Logger('kidoju.widgets.template');
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
@@ -49,6 +51,7 @@
             init: function (element, options) {
                 var that = this;
                 Widget.fn.init.call(that, element, options);
+                logger.debug({ method: 'init', message: 'Widget initialized' });
                 that._initTemplate();
                 that._layout();
                 that._dataSource();
@@ -92,7 +95,7 @@
                 if ($.type(value) === UNDEFINED) {
                     return that._value;
                 } else {
-                    if(that._value !== value) {
+                    if (that._value !== value) {
                         that._value = value;
                         that.refresh();
                     }
@@ -103,7 +106,7 @@
              * Return items
              * mvvm expects an array of dom elements that represent each item of the datasource - should be the outermost element's children
              */
-            items: function() {
+            items: function () {
                 return []; // this.element.children();
             },
 
@@ -142,7 +145,7 @@
              * Sets teh dataSOurce
              * @private
              */
-            _dataSource: function() {
+            _dataSource: function () {
                 var that = this;
 
                 // if the DataSource is defined and the _refreshHandler is wired up, unbind because
@@ -167,7 +170,7 @@
              * For supporting changing the datasource via MVVM
              * @param dataSource
              */
-            setDataSource: function(dataSource) {
+            setDataSource: function (dataSource) {
                 // set the internal datasource equal to the one passed in by MVVM
                 this.options.dataSource = dataSource;
                 // rebuild the datasource if necessary, or just reassign
@@ -178,7 +181,7 @@
              * Refreshes the widget
              * @method refresh
              */
-            refresh: function() {
+            refresh: function () {
                 var that = this;
                 var options = that.options;
                 // that.element.children().each(function () { kendo.destroy(this) });
@@ -203,6 +206,7 @@
                         }
                     }
                 }
+                logger.debug({ method: 'refresh', message: 'Widget refreshed' });
             },
 
             /**
@@ -211,16 +215,20 @@
              */
             destroy: function () {
                 var that = this;
+                var wrapper = that.wrapper;
                 // Unbind events
                 if (that.dataSource instanceof DataSource && $.isFunction(that._refreshHandler)) {
                     that.dataSource.unbind(CHANGE, that._refreshHandler);
                 }
+                kendo.unbind(wrapper);
                 // Clear references
                 that.dataSource = undefined;
                 that._template = undefined;
                 // Destroy widget
                 Widget.fn.destroy.call(that);
-                kendo.destroy(that.element);
+                kendo.destroy(wrapper);
+                // remove widget class
+                // wrapper.removeClass(WIDGET_CLASS);
             }
 
         });
