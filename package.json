@@ -35,9 +35,9 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "autoprefixer": "^7.1.1",
+    "autoprefixer": "^7.1.2",
     "bundle-loader": "^0.5.5",
-    "chai": "^4.0.2",
+    "chai": "^4.1.0",
     "css-loader": "^0.28.4",
     "deasync": "^0.1.10",
     "deep-extend": "^0.5.0",
@@ -53,7 +53,7 @@
     "grunt-mocha-test": "^0.13.2",
     "grunt-nsp": "^2.3.1",
     "grunt-webdriver": "^2.0.3",
-    "grunt-webpack": "^3.0.0",
+    "grunt-webpack": "^3.0.2",
     "karma": "^1.7.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
@@ -66,26 +66,30 @@
     "karma-safari-launcher": "^1.0.0",
     "karma-sinon": "^1.0.5",
     "less": "^2.7.2",
-    "less-loader": "^4.0.4",
+    "less-loader": "^4.0.5",
     "loader-utils": "^1.1.0",
     "mocha": "^3.4.2",
     "nconf": "^0.8.4",
     "phantomjs-prebuilt": "^2.1.14",
     "postcss-loader": "^2.0.6",
-    "sinon": "^2.3.5",
+    "sinon": "^2.3.8",
     "style-loader": "^0.18.2",
     "url-loader": "^0.5.9",
     "wdio-mocha-framework": "^0.5.10",
     "wdio-selenium-standalone-service": "0.0.9",
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.8.0",
-    "webpack": "^3.0.0",
-    "webpack-dev-server": "^2.5.0"
+    "webpack": "^3.2.0",
+    "webpack-dev-server": "^2.5.1",
+    "webpack-sources": "^1.0.1"
   },
   "engines": {
     "node": ">=4"
   },
   "config": {
     "msvs_version": "2015"
+  },
+  "dependencies": {
+    "enhanced-resolve": "^3.3.0"
   }
 }
