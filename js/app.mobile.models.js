@@ -664,7 +664,6 @@
                 return this.get('version.title'); // Flattens data depth
             },
             queryString$: function () {
-                debugger;
                 return '?language=' + window.encodeURIComponent(this.get('version.language')) +
                     '&summaryId=' + window.encodeURIComponent(this.get('version.summaryId')) +
                     '&versionId=' + window.encodeURIComponent(this.get('version.versionId')) +
