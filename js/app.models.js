@@ -276,6 +276,21 @@
                 if (path.length) {
                     return path[path.length - 1].id;
                 }
+            },
+            /**
+             * The corresponding search filter
+             * @returns {XML|void|string|*|{REPLACE, REPLACE_NEGATIVE}}
+             */
+            filter$: function () {
+                return $.param({
+                    filter: {
+                        logic: 'and',
+                        filters: [
+                            { field: 'categoryId', operator: 'gte', value: this.get('id') },
+                            { field: 'categoryId', operator: 'lte', value: this.get('id').replace(/0000/g, 'ffff') }
+                        ]
+                    }
+                });
             }
         });
 

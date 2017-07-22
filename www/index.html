@@ -260,7 +260,7 @@
         <!-- listview of sub-categories -->
         <ul data-role="listview" data-bind="source: categories" data-template="categories-template"></ul>
         <script type="text/x-kendo-template" id="categories-template">
-            <a href="\#finder?filter%5Bfield%5D=categories&filter%5Boperator%5D=eq&filter%5Bvalue%5D=#: id #" style="margin-left: #: depth$() - 1 #em;">
+            <a href="\#finder?#: filter$() #" style="margin-left: #: depth$() - 1 #em;">
                 <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
                 <span>#: name #</span>
                 <span class="km-badge">#: count #</span>
