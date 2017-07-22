@@ -29,6 +29,10 @@ if (typeof(require) === 'function') {
     // require('./app.support.js');
 }
 
+// Hold the execution of jQuery's ready event until theme and i18n are loaded
+// @see https://api.jquery.com/jquery.holdready/
+window.jQuery.holdReady(true);
+
 (function (f, define) {
     'use strict';
     define([
