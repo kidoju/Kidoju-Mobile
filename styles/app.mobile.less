@@ -75,13 +75,20 @@ html, body {
     **********************************************************/
     #activities {
         .km-list > li {
-            .small {
-                font-size: small;
-            }
-            .km-badge {
-                top: auto;
-                bottom: 1em;
-                right: 5em;
+            .km-listview-link {
+                .title {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin-right: 3.5em;
+                }
+                .date {
+                    font-size: small;
+                }
+                .km-badge {
+                    font-size: 0.75em;
+                    right: 2.75em;
+                }
             }
         }
     }
@@ -89,14 +96,23 @@ html, body {
     * Categories view
     **********************************************************/
     #categories {
+        .km-filter-form {
+            padding: 0.75em 1.1em;
+        }
         .km-list > li {
             padding: .5em .84em;
-            .km-thumbnail {
-                border: none;
-                border-radius: 0;
-                height: 1.8rem;
-                width: 1.8rem;
-                vertical-align: middle;
+            .km-listview-link {
+                .km-thumbnail {
+                    border: none;
+                    border-radius: 0;
+                    height: 1.8rem;
+                    width: 1.8rem;
+                    vertical-align: middle;
+                }
+                .km-badge {
+                    font-size: 0.75em;
+                    right: 2.75em;
+                }
             }
         }
     }
@@ -189,6 +205,21 @@ html, body {
      * Score view
      **********************************************************/
     #score {
+        .km-list > li {
+            .km-listview-link {
+                height: 5.5em; // a fixed height is required for endless scrolling
+                line-height: 1.25;
+                .km-thumbnail {
+                    border: none;
+                    border-radius: 0;
+                    height: 3.35rem;
+                    width: 3.35rem;
+                    margin-right: 0;
+                    float: left;
+                }
+            }
+        }
+
         .stretched {
             height: auto;
             .summary {

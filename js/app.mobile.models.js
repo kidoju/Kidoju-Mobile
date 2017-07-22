@@ -403,7 +403,7 @@
                         /**
                         // This is for debugging only
                         parse: function(response) {
-                            debugger;
+                            // debugger;
                             return response;
                         }
                         */
@@ -800,7 +800,7 @@
                         /**
                          // This is for debugging only
                          parse: function(response) {
-                            debugger;
+                            // debugger;
                             return response;
                         }
                          */
@@ -825,7 +825,9 @@
                     that._language = language;
                     that._userId = userId;
                     that.read() // Calls _transport._read
-                        .done(dfd.resolve)
+                        .done(function (a) {
+                            dfd.resolve(a)
+                        })
                         .fail(dfd.reject);
                 }
                 return dfd.promise();

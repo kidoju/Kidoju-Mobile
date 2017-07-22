@@ -761,6 +761,7 @@ window.jQuery.holdReady(true);
 
                 // Search (per category or full text)
                 this.set(VIEW_MODEL.SUMMARIES, new models.LazySummaryDataSource());
+                this.get(VIEW_MODEL.SUMMARIES).pageSize(VIRTUAL_PAGE_SIZE);
 
                 // Summary being played
                 this.set(VIEW_MODEL.SUMMARY.$, new models.Summary());
@@ -1298,6 +1299,7 @@ window.jQuery.holdReady(true);
             }
 
         });
+        viewModel.get(VIEW_MODEL.SUMMARIES).pageSize(VIRTUAL_PAGE_SIZE);
 
         /* This function's cyclomatic complexity is too high. */
         /* jshint -W074 */
@@ -2008,8 +2010,6 @@ window.jQuery.holdReady(true);
             var theme = viewModel.getTheme();
             // Initialize notifications
             mobile._initNotification();
-            // Initialize pageSize for virtual scrolling
-            viewModel.summaries.pageSize(VIRTUAL_PAGE_SIZE);
             // Wire the resize event handler for changes of device orientation
             $(window).resize(mobile.onResize);
             // Load viewModel with languages and themes

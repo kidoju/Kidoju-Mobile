@@ -11,7 +11,7 @@
     <!-- The following is a permissive CSP that works -->
     <!--meta http-equiv="Content-Security-Policy" content="default-src * blob: data: file: filesystem: gap: ws:; img-src * 'self' data: file: filesystem:; script-src * 'unsafe-inline' 'unsafe-eval' file: filesystem: gap:; style-src 'self' 'unsafe-inline';"-->
     <!-- The following is a restrictive CSP that works - https://github.com/kidoju/Kidoju-Mobile/issues/36 -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data: gap: https://ssl.gstatic.com; connect-src file: filesystem: https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' data: file: filesystem: https:; media-src file: filesystem: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' gap: https://www.google-analytics.com; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data: gap: https://ssl.gstatic.com; connect-src file: filesystem: https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:*; img-src 'self' data: file: filesystem: https:; media-src file: filesystem: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: gap: https://www.google-analytics.com; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
     <!-- use the permissive CSP with weinre -->
     <!--script defer src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
@@ -219,15 +219,15 @@
     <div id="activities" data-role="view" data-layout="main-layout" data-title="Activities" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
         <!--div id="activities-grid"></div-->
         <!-- dropdown of top/other categories -->
-        <ul data-role="listview" data-bind="source: activities" data-template="activities-template" data-header-template="activities-header-template"></ul>
+        <ul data-role="listview" data-bind="source: activities" data-template="activities-template" data-header-template="activities-header-template" data-type="group"></ul>
         <script type="text/x-kendo-template" id="activities-template">
             <a href="\#score#: queryString$() #">
-                <div>#: title$() #</div>
-                <!-- div class="small">TODO Add category ></div-->
-                <div class="small">
-                    <span>#: kendo.toString(updated, 'dd MMM yyyy') #</span>
-                    <span class="km-badge">#: kendo.toString(score / 100, 'p0') #</span>
+                <div class="title">#: title$() #</div>
+                <div>
+                    <span class="date">#: kendo.toString(updated, 'dd MMM yyyy') #</span>
+                    <!-- TODO Add category -->
                 </div>
+                <span class="km-badge">#: kendo.toString(score / 100, 'p0') #</span>
             </a>
         </script>
         <!-- Note we are using value (instead of period$) to display the group field value -->
@@ -254,7 +254,7 @@
     <!-- Categories view -->
     <div id="categories" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
         <!-- dropdown of top categories -->
-        <div style="padding: 7px;">
+        <div class="km-content km-filter-form">
             <input data-role="dropdownlist" data-bind="value: user.categoryId, source: topCategories$()" data-value-field="id" data-text-field="name" style="width:100%">
         </div>
         <!-- listview of sub-categories -->
@@ -262,7 +262,7 @@
         <script type="text/x-kendo-template" id="categories-template">
             <a href="\#finder?#: filter$() #" style="margin-left: #: depth$() - 1 #em;">
                 <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
-                <span>#: name #</span>
+                <span class="name">#: name #</span>
                 <span class="km-badge">#: count #</span>
             </a>
         </script>
