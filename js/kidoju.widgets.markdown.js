@@ -10,14 +10,16 @@
     'use strict';
     define([
         './vendor/markdown-it/markdown-it',
-        // './vendor/markdown-it/katex',
-        './vendor/markdown-it/markdown-it-katex',
-        './vendor/highlight/highlight.pack', // Keep at the top considering function parameters below
+        './vendor/markdown-it/markdown-it-katex', // This loads katex
+        './vendor/markdown-it/markdown-it-emoji',
+        './vendor/highlight/highlight.pack',
+        './vendor/markdown-it/twemoji.amd',
+        // Keep the above at the top considering function parameters below
         './window.assert',
         './window.logger',
         './vendor/kendo/kendo.binder'
     ], f);
-})(function (markdownit, katexRendered, highlight) {
+})(function (markdown, katex, emoji, highlight, twemo) {
 
     'use strict';
 
@@ -25,9 +27,11 @@
 
         var kendo = window.kendo;
         var Widget = kendo.ui.Widget;
-        var MarkdownIt = window.markdownit || markdownit;
-        var markdownItKatex = window.markdownItKatex || katexRendered;
+        var MarkdownIt = window.markdownit || markdown;
+        var markdownItKatex = window.markdownItKatex || katex;
+        var markdownitEmoji = window.markdownitEmoji || emoji;
         var hljs = window.hljs || highlight;
+        var twemoji = window.twemoji || twemo;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.markdown');
         var STRING = 'string';
@@ -109,7 +113,8 @@
             options: {
                 name: 'Markdown',
                 url: null,
-                value: null
+                value: null,
+                schemes: {}
             },
 
             /**
@@ -162,6 +167,7 @@
                 that._initLinkOpener();
                 that._initImageRule();
                 that._initKatex();
+                that._initEmojis();
             },
 
             /**
@@ -237,12 +243,25 @@
                         return self.renderToken(tokens, idx, options);
                     };
                 that.md.renderer.rules.image = function (tokens, idx, options, env, slf) {
-                    var relIndex = tokens[idx].attrIndex('class');
+                    // Replace schemes
+                    var srcIndex = tokens[idx].attrIndex('src');
+                    var src = tokens[idx].attrs[srcIndex][1];
+                    var schemes = that.options.schemes;
+                    for (var scheme in (schemes || {})) {
+                        if (schemes.hasOwnProperty(scheme) && (new RegExp('^' + scheme + '://')).test(src)) {
+                            src = src.replace(scheme + '://', schemes[scheme]);
+                            break;
+                        }
+                    }
+                    tokens[idx].attrs[srcIndex][1] = src;
+
+                    // Add img-responsive class
+                    var classIndex = tokens[idx].attrIndex('class');
                     // If you are sure other plugins can't add `class` - drop check below
-                    if (relIndex < 0) {
+                    if (classIndex < 0) {
                         tokens[idx].attrPush(['class', 'img-responsive']); // add new attribute
                     } else {
-                        tokens[idx].attrs[relIndex][1] = 'img-responsive'; // replace value of existing attr
+                        tokens[idx].attrs[classIndex][1] = 'img-responsive'; // replace value of existing attr
                     }
                     // pass token to default renderer.
                     return defaultRender(tokens, idx, options, env, slf);
@@ -256,6 +275,22 @@
             _initKatex: function () {
                 if (markdownItKatex) {
                     this.md.use(markdownItKatex);
+                }
+            },
+
+            /**
+             * Init Emojis
+             * @private
+             */
+            _initEmojis: function () {
+                if (markdownitEmoji) {
+                    this.md.use(markdownitEmoji);
+                }
+                // use much nicer twemojis
+                if (twemoji) {
+                    this.md.renderer.rules.emoji = function(token, idx) {
+                        return twemoji.parse(token[idx].content);
+                    };
                 }
             },
 

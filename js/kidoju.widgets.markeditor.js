@@ -15,9 +15,7 @@
         './window.logger',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.window',
-        './kidoju.widgets.markeditor.toolbar',
-        './kidoju.widgets.markdown'
-
+        './kidoju.widgets.markeditor.toolbar'
     ], f);
 })(function (CodeMirror) {
 
@@ -37,6 +35,7 @@
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var NULL = 'null';
+        var BEFORE_OPEN = 'beforeOpen';
         var CHANGE = 'change';
         var WIDGET_CLASS = 'k-widget kj-markeditor';
         var LINK = '[{0}]({1})';
@@ -56,7 +55,7 @@
             'image',
             'code',
             'latex',
-            'window'
+            'preview'
         ];
 
         /*******************************************************************************************
@@ -78,10 +77,14 @@
              */
             init: function (element, options) {
                 var that = this;
+                options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'Widget initialized' });
+                // We need to set tools otherwise the options.toolbar.tools array is simply pasted over the TOOLBAR array, which creates duplicates in the overflow
+                that.options.toolbar.tools = (options.toolbar || {}).tools || TOOLS;
                 that._layout();
                 that.value(that.options.value);
+                that.enable(that.element.prop('disabled') ? false : that.options.enable);
                 kendo.notify(that);
             },
 
@@ -91,24 +94,29 @@
              */
             options: {
                 name: 'MarkEditor',
-                value: '',
                 autoResize: false,
+                enable: true,
                 gfm: false,
                 lineNumbers: true,
-                toolbar: {
-                    resizable: true,
-                    tools: TOOLS
-                },
                 messages: {
                     image: 'An undescribed image',
                     link: 'Click here'
-                }
+                },
+                schemes: {},
+                // theme: 'monokai', // We have themed CodeMirror in Kidoju-WebApp - see codemirror.custom.less using Kendo UI less variables
+                toolbar: {
+                    container: '',
+                    resizable: true,
+                    tools: TOOLS
+                },
+                value: ''
             },
 
             /**
              * Events
              */
             events: [
+                BEFORE_OPEN,
                 CHANGE
             ],
 
@@ -162,13 +170,15 @@
              * Set the toolbar
              */
             _setToolbar: function () {
+                var container = $(this.options.toolbar.container);
                 this.toolBar = $('<div class="kj-markeditor-toolbar"></div>')
-                    .prependTo(this.element)
+                    .prependTo(container.length === 1 ? container : this.element)
                     .kendoMarkEditorToolBar({
-                        tools: this.options.toolbar.tools,
-                        resizable: this.options.toolbar.resizable,
                         action: this._onToolBarAction.bind(this),
-                        dialog: this._onToolBarDialog.bind(this)
+                        dialog: this._onToolBarDialog.bind(this),
+                        resizable: this.options.toolbar.resizable,
+                        schemes: this.options.schemes, // Pass teh schemes to the toolbar
+                        tools: this.options.toolbar.tools
                     })
                     .data('kendoMarkEditorToolBar');
             },
@@ -186,7 +196,7 @@
                     // extraKeys?
                     lineNumbers: options.lineNumbers,
                     mode: options.gfm ? 'gfm' : 'markdown',
-                    // theme: 'monokai', // TODO: Change theme
+                    // theme: options.theme,
                     value: options.value,
                     viewportMargin: options.autoResize ? Number.POSITIVE_INFINITY : 10
                 });
@@ -227,7 +237,9 @@
              */
             _onToolBarDialog: function (e) {
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                this._openDialog(e.name, e.options);
+                if (!this.trigger(BEFORE_OPEN, { name: e.name, options: e.options })) {
+                    this._openDialog(e.name, e.options);
+                }
             },
 
             /**
@@ -248,7 +260,8 @@
                     dialog.bind('action', this._onToolBarAction.bind(this));
                     dialog.bind('deactivate', this._destroyDialog.bind(this));
                     this._dialogs.push(dialog);
-                    dialog.open();
+                    // SpreadsheetDialog gets a renge here, but we might as well pass this which gives this.codeMirror to the dialog
+                    dialog.open(this);
                     return dialog;
                 }
             },
@@ -321,10 +334,14 @@
                         this._wrapSelectionsWith('```', false);
                         break;
                     case 'ToolbarLatexCommand':
-                        // @see https://github.com/codemirror/CodeMirror/issues/4857
+                        // CodeMirror markdown/gfm mode does not highlight LaTeX
+                        // but there are options to implement this - @see https://github.com/codemirror/CodeMirror/issues/4857
+                        this._replaceInSelectionsWith(e.params.value.latex);
+                        this._wrapSelectionsWith(e.params.value.inline ? '$' : '$$', true);
                         break;
-                    case 'ToolbarWindowCommand':
-                        // TODO http://www.telerik.com/forums/get-the-view-model-from-a-given-dom-element
+                    case 'ToolbarPreviewCommand':
+                        this.value(e.params.value);
+                        this.trigger(CHANGE);
                         break;
                     // Note: Emojis could use auto completion as in GitHub
                     // see https://github.com/codemirror/CodeMirror/issues/4859
@@ -431,9 +448,13 @@
              * @param enabled
              */
             enable: function (enabled) {
-                enabled = $.type(enabled === UNDEFINED) ? true : !!enabled;
-                this.toolBar.enable(enabled);
-                this.codeMirror.setOption('readOnly', !enabled);
+                var that = this;
+                enabled = $.type(enabled) === UNDEFINED ? true : !!enabled;
+                that.toolBar.element.children('a.k-button').each(function (index, element) {
+                    that.toolBar.enable(element, enabled);
+                });
+                that.codeMirror.setOption('readOnly', !enabled);
+                // Consider also doing https://github.com/codemirror/CodeMirror/issues/1099
             },
 
             /**

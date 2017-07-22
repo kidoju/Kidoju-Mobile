@@ -61,8 +61,7 @@
             'field',
             'keypad',
             'basic',
-            'lowergreek',
-            'uppergreek',
+            'greek',
             'operators',
             'expressions',
             'sets',
@@ -404,8 +403,7 @@
                         .children(kendo.roleSelector('mathinputtoolbar'))
                         .hide();
                     // Show widget's toolbar
-                    if (that._activeField instanceof MQ.MathField &&
-                        that.toolBar instanceof MathInputToolBar) {
+                    if (that._activeField instanceof MQ.MathField && that.toolBar instanceof MathInputToolBar) {
                         setTimeout(function () { // Without setTimeout, iOS does not show the toolbar
                             that.toolBar.wrapper.show();
                         });
@@ -466,6 +464,7 @@
                 } else if (!options.toolbar.container) {
                     that.element.wrap(DIV);
                     that.wrapper = container = that.element.parent();
+                    that.wrapper.addClass('kj-mathinput-wrap');
                     that.toolBar = $(DIV)
                         .prependTo(container)
                         .kendoMathInputToolBar({
@@ -488,18 +487,17 @@
              */
             _onToolBarAction: function (e) {
                 switch (e.command) {
+                    case 'ToolbarBackspaceCommand':
+                        this._activeField.keystroke(KEYSTROKES.BACKSPACE);
+                        break;
                     case 'ToolbarFieldCommand':
                         // Note: MathQuillFields can be named as in \\MathQuillMathField[name]{}
                         // see https://github.com/mathquill/mathquill/issues/741
                         this._activeField.write('\\MathQuillMathField{}');
                         break;
-                    case 'ToolbarBackspaceCommand':
-                        this._activeField.keystroke(KEYSTROKES.BACKSPACE);
-                        break;
                     case 'ToolbarKeyPadCommand':
                     case 'ToolbarBasicCommand':
-                    case 'ToolbarLowerGreekCommand':
-                    case 'ToolbarUpperGreekCommand':
+                    case 'ToolbarGreekCommand':
                     case 'ToolbarOperatorsCommand':
                     case 'ToolbarExpressionsCommand':
                     case 'ToolbarSetsCommand':
@@ -516,23 +514,23 @@
                         // this._activeField.cmd('\\sum');
                         //    is equivalent to
                         // this._activeField.write('\\sum_{}^{}');
-                        if (RX_CHARACTER.test(e.options.value)) {
+                        if (RX_CHARACTER.test(e.params.value)) {
                             // Especially to type spaces
-                            this._activeField.typedText(e.options.value);
-                        } else if (RX_SIMPLE_COMMAND.test(e.options.value) || RX_COMPLEX_COMMAND.test(e.options.value)) {
-                            this._activeField.cmd(e.options.value);
+                            this._activeField.typedText(e.params.value);
+                        } else if (RX_SIMPLE_COMMAND.test(e.params.value) || RX_COMPLEX_COMMAND.test(e.params.value)) {
+                            this._activeField.cmd(e.params.value);
                             // With `cmd`, the cursor is positioned as expected
 
 
-                            // } else if (/^\\text/.test(e.options.value)) {
+                            // } else if (/^\\text/.test(e.params.value)) {
                             //     // Currently commented out because this requires a double backspace to delete
-                            //     this._activeField.write(e.options.value);
+                            //     this._activeField.write(e.params.value);
                             //     this._activeField.keystroke(KEYSTROKES.RIGHT);
-                        } else if ($.type(e.options.value) === STRING) {
-                            this._activeField.write(e.options.value);
+                        } else if ($.type(e.params.value) === STRING) {
+                            this._activeField.write(e.params.value);
                             // With `write`, the cursor is positioned at the end
                             /*
-                            var matches = e.options.value.match(RX_PARAMS);
+                            var matches = e.params.value.match(RX_PARAMS);
                             // TODO: Note _ and ^ might need to be counted too - see log_{}() which requires 3 keystrokes instead of 2
                             if ($.isArray(matches)) {
                                 for (var i = 0, length = matches.length; i < length; i++) {
@@ -596,10 +594,16 @@
              * @param enabled
              */
             enable: function (enabled) {
-                this._enabled = !!enabled;
-                this._initHandlers();
-                // TODO hide cursor
-                // TODO hide toolbar
+                var that = this;
+                that._enabled = $.type(enabled) === UNDEFINED ? true : !!enabled;
+                that._initHandlers();
+                if (that.toolBar instanceof MathInputToolBar) {
+                    that.toolBar.element.children('a.k-button').each(function (index, button) {
+                            that.toolBar.enable(button, enabled);
+                        });
+                }
+                // TODO: Consider hiding the toolbar when floating
+                // Also Consider removing the cursor
             },
 
             /**
