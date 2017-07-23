@@ -181,6 +181,9 @@ ATTRIB +R .\styles\vendor\katex\*.* /S
 REM Copy HighlightJS
 XCOPY ..\Kidoju.Widgets\src\styles\vendor\highlight .\styles\vendor\highlight /C /E /I /R /Y
 ATTRIB +R .\styles\vendor\highlight\*.* /S
+ATTRIB -R .\styles\highlightjs.custom.less
+COPY ..\Kidoju.WebApp\styles\highlightjs.custom.less .\styles /Y
+ATTRIB +R .\styles\highlightjs.custom.less
 
 REM Copy MathQuill
 XCOPY ..\Kidoju.Widgets\src\styles\vendor\mathquill .\styles\vendor\mathquill /C /E /I /R /Y
@@ -190,6 +193,7 @@ REM Copy Kidoju Widgets
 ATTRIB -R .\styles\kidoju*.less
 COPY ..\Kidoju.Widgets\src\styles\kidoju*.less .\styles /Y
 ATTRIB +R .\styles\kidoju*.less
+
 
 REM ------------------------------------------------------------
 REM Images

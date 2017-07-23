@@ -218,6 +218,7 @@
     <!-- Activities view -->
     <div id="activities" data-role="view" data-layout="main-layout" data-title="Activities" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
         <!--div id="activities-grid"></div-->
+        <!-- TODO Filter by category -->
         <!-- dropdown of top/other categories -->
         <ul data-role="listview" data-bind="source: activities" data-template="activities-template" data-header-template="activities-header-template" data-type="group"></ul>
         <script type="text/x-kendo-template" id="activities-template">
@@ -225,9 +226,14 @@
                 <div class="title">#: title$() #</div>
                 <div>
                     <span class="date">#: kendo.toString(updated, 'dd MMM yyyy') #</span>
-                    <!-- TODO Add category -->
                 </div>
-                <span class="km-badge">#: kendo.toString(score / 100, 'p0') #</span>
+                # if (score >= 75) { #
+                <span class="km-badge km-badge-success">#: kendo.toString(score / 100, 'p0') #</span>
+                # } else if (score >= 50) { #
+                <span class="km-badge km-badge-warning">#: kendo.toString(score / 100, 'p0') #</span>
+                # } else { #
+                <span class="km-badge km-badge-error">#: kendo.toString(score / 100, 'p0') #</span>
+                # } #
             </a>
         </script>
         <!-- Note we are using value (instead of period$) to display the group field value -->
@@ -263,7 +269,7 @@
             <a href="\#finder?#: filter$() #" style="margin-left: #: depth$() - 1 #em;">
                 <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
                 <span class="name">#: name #</span>
-                <span class="km-badge">#: count #</span>
+                <span class="km-badge km-badge-info">#: count #</span>
             </a>
         </script>
     </div>
