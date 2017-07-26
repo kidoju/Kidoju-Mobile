@@ -72,15 +72,15 @@
     "nconf": "^0.8.4",
     "phantomjs-prebuilt": "^2.1.14",
     "postcss-loader": "^2.0.6",
-    "sinon": "^2.3.8",
+    "sinon": "^2.4.0",
     "style-loader": "^0.18.2",
     "url-loader": "^0.5.9",
     "wdio-mocha-framework": "^0.5.10",
     "wdio-selenium-standalone-service": "0.0.9",
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.8.0",
-    "webpack": "^3.3.0",
-    "webpack-dev-server": "^2.6.0",
+    "webpack": "^3.4.1",
+    "webpack-dev-server": "^2.6.1",
     "webpack-sources": "^1.0.1"
   },
   "engines": {
@@ -89,7 +89,5 @@
   "config": {
     "msvs_version": "2015"
   },
-  "dependencies": {
-    "enhanced-resolve": "^3.3.0"
-  }
+  "dependencies": {}
 }
