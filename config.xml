@@ -13,6 +13,7 @@
     <preference name="LoadUrlTimeoutValue" value="60000" />
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="AndroidLaunchMode" value="singleTask" />
     <plugin name="cordova-plugin-console" spec="~1.0.7" />
     <plugin name="cordova-plugin-customurlscheme" spec="~4.3.0">
         <variable name="URL_SCHEME" value="com.kidoju.mobile" />
@@ -143,6 +144,9 @@
     <engine name="ios" spec="~4.4.0" />
     <config-file parent="/manifest" platform="android">
         <application hardwareAccelerated="false" />
+    </config-file>
+    <config-file parent="/manifest/application" platform="android">
+        <activity android:launchMode="singleTask" />
     </config-file>
     <config-file mode="add" parent="ITSAppUsesNonExemptEncryption" platform="ios">
         <false />
