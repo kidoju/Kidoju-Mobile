@@ -45,7 +45,10 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
+        var DELETE = 'delete';
+        var EDIT = 'edit';
         var ERROR = 'error';
+        var NEW = 'new';
         var NS = '.kendoAssetManager';
         var DRAGENTER = 'dragenter';
         var DRAGOVER = 'dragover';
@@ -54,9 +57,13 @@
         var WIDGET_CLASS = 'k-widget kj-assetmanager';
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
-                    '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button"><span class="k-icon k-i-plus"></span>#=messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" multiple /></div></div>' +
-                    '<button type="button" class="k-button k-button-icon k-state-disabled"><span class="k-icon k-i-close" /></button>' +
-                    '<label style="display:none">#=messages.toolbar.filter#<select /></label>' +
+                    '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' +
+                        '<span class="k-icon k-i-plus"></span>#:messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" multiple />' +
+                    '</div></div>' +
+                    '<button type="button" class="k-button k-button-icon" title="#:messages.toolbar.new#"><span class="k-icon k-i-image-insert"></span></button>' +
+                    '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.edit#"><span class="k-icon k-i-image-edit"></span></button>' +
+                    '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.delete#"><span class="k-icon k-i-delete"></span></button>' +
+                    '<label class="k-label" style="display:none">#=messages.toolbar.collections#<select /></label>' +
                 '</div>' +
                 '<div class="k-tiles-arrange">' +
                     '<div class="k-progressbar"></div>' +
@@ -240,40 +247,6 @@
          * Widget
          *********************************************************************************/
 
-        /*
-
-         TODO: remove if https://github.com/telerik/kendo-ui-core/pull/2802 is accepted
-         See also https://github.com/telerik/kendo-ui-core/issues/2799
-         Otherwise replace _onListViewDataBound with this
-
-         var AssetListView = ListView.extend({
-            options: $.extend(ListView.fn.options, { name: 'AssetListView'}),
-             refresh: function (e) {
-                 var that = this;
-                 ListView.fn.refresh.call(that, e);
-                 // the dataBinding event knows which data items have been added but occurs before the corresponding html list items are created
-                 // whereas the select method expects a jQuery element as parameter.
-                 // Unfortunately the dataBound event occurs after the html list itens are ccreated but does not know which data item have been added to the listview
-                 // so we need to to specialize the listview to override the refresh method and select the last item added
-                 // Monitor that.trigger(DATABINDING, ...) and that.trigger(DATABOUND) at
-                 // https://github.com/telerik/kendo-ui-core/blob/master/src/kendo.listview.js#L232, and
-                 // https://github.com/telerik/kendo-ui-core/blob/master/src/kendo.listview.js#L263
-                 // until they both match as in that.trigger(DATABOUND, { action: e.action || "rebind", items: e.items, index: e.index });
-                 if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
-                    that._uid = e.items[e.items.length - 1].uid;
-                 } else if (e.action === 'sync' && $.type(that._uid) === STRING) {
-                    // 'add' is followed by 'sync'
-                    that.select(that.element.children('[' + kendo.attr('uid') + '="' + that._uid + '"]'));
-                    that._uid = undefined;
-                 } else {
-                    that.select(that.element.children().first());
-                 }
-             }
-         });
-
-         kendo.ui.plugin(AssetListView);
-         */
-
         /**
          * @class AssetManager Widget (kendoAssetManager)
          */
@@ -289,7 +262,7 @@
                 options = options || {};
                 Widget.fn.init.call(that, element, options);
                 logger.debug({ method: 'init', message: 'widget initialized' });
-                that._dataSource();
+                that._initDataSources();
                 that._layout();
             },
 
@@ -306,31 +279,25 @@
                 schemes: {},
                 extensions: [],
                 messages: {
-                    toolbar: {
-                        upload: 'Upload',
-                        delete: 'Delete',
-                        filter: 'Collection: ',
-                        search: 'Search'
-                    },
                     tabs: {
                         default: 'Project'
+                    },
+                    toolbar: {
+                        delete: 'Delete', // TODO
+                        edit: 'Edit', // TODO
+                        collections: 'Collections:&nbsp;',
+                        import: 'Import',
+                        new: 'New', // TODO
+                        search: 'Search',
+                        upload: 'Upload'
                     },
                     data: {
                         defaultName: 'Uploading...',
                         defaultImage: '' // TODO
                     }
                 }
+                // TODO enable/disable tabs (think organization)
             },
-
-            /**
-             * Set options
-             * @param options
-             */
-            /*
-            setOptions: function (options) {
-                $.noop(); // TODO especially to change filters when extensions change
-            },
-            */
 
             /**
              * Widget events
@@ -338,7 +305,10 @@
              */
             events: [
                 CHANGE,
-                ERROR
+                DELETE,
+                EDIT,
+                ERROR,
+                NEW
             ],
 
             /**
@@ -361,15 +331,6 @@
                 if (this.progressBar instanceof kendo.ui.ProgressBar) {
                     return this.progressBar.value(progress);
                 }
-            },
-
-            /**
-             * Check that we have defined a transport for the Project tab
-             * @returns {*|boolean}
-             * @private
-             */
-            _hasProjectTransport: function () {
-                return $.isPlainObject(this.options.transport) && $.type(this.options.transport.read) !== UNDEFINED && $.type(this.options.transport.create) !== UNDEFINED;
             },
 
             /**
@@ -403,40 +364,123 @@
             },
 
             /**
-             * Add a tabStrip with as many tabs as collections
+             * Initialize data sources from collections
+             * @private
+             */
+            _initDataSources: function () {
+                function makeDataSources(collections, depth) {
+                    var ret = [];
+                    for (var i = 0, length = collections.length, dataSource, editable; i < length; i++) {
+                        if ($.isArray (collections[i].collections)) {
+                            // Make it recursive for sub-collections displayed in drop down list
+                            ret.push({
+                                name: collections[i].name,
+                                collections: makeDataSources(collections[i].collections, depth + 1)
+                            });
+                        } else {
+                            // Without sub-collection, make it a dataSource
+                            dataSource = DataSource.create(that._extendDataSourceOptions(collections[i]));
+                            if ($.isFunction(that._errorHandler)) {
+                                dataSource.bind(ERROR, that._errorHandler);
+                            }
+                            ret.push({
+                                dataSource: dataSource,
+                                depth: depth,
+                                editable: dataSource.transport.hasOwnProperty('create') && $.isFunction(dataSource.transport.create), // TODO Do we need to check for update?
+                                name: collections[i].name
+                            });
+                        }
+                    }
+                    return ret;
+                }
+                var that = this;
+                that._errorHandler = that._dataError.bind(that); // TODO
+                that._collections = makeDataSources(that.options.collections, 0);
+            },
+
+            /**
+             * Extend data source parameters
+             * @param params
+             * @returns {*}
+             * @private
+             */
+            _extendDataSourceOptions: function (params) {
+                var options = this.options;
+                if ($.isPlainObject(params)) { // Especially, params is not an instanceof DataSource
+                    params = $.extend(true, {}, {
+                        filter: getDataSourceFilter(options.extensions),
+                        page: 1,
+                        pageSize: 12,
+                        schema: {
+                            data: 'data',
+                            error: 'error',
+                            model: {
+                                id: 'url',
+                                fields: {
+                                    size: { type: NUMBER, editable: false },
+                                    url:  { type: STRING, editable: false, nullable: true },
+                                    file: { defaultValue: null } // Note: we need this for uploading files
+                                },
+                                name$: function () {
+                                    var url = this.get('url');
+                                    if ($.type(url) !== STRING) {
+                                        return options.messages.data.defaultName;
+                                    }
+                                    return nameFormatter(url);
+                                },
+                                size$: function () {
+                                    return sizeFormatter(this.get('size'));
+                                },
+                                type$: function () {
+                                    var url = this.get('url');
+                                    if ($.type(url) === UNDEFINED) {
+                                        return 'application/octet-stream';
+                                    }
+                                    return typeFormatter(url);
+                                },
+                                url$: function () {
+                                    var url = this.get('url');
+                                    if ($.type(url) !== STRING) {
+                                        return options.messages.data.defaultImage; // TODO loading image
+                                    }
+                                    return urlFormatter(this.get('url'), options.schemes);
+                                }
+                            },
+                            total: 'total'
+                        },
+                        serverPaging: false
+                    }, params)
+                }
+                return params;
+            },
+
+            /**
+             * Add a tabStrip with an Edit tab + as many tabs as collections
              * @private
              */
             _tabStrip: function () {
-                assert.type(ARRAY, this.options.collections, kendo.format(assert.messages.type.default, 'this.options.collections', ARRAY));
-                var collections = this.options.collections;
-                var div = $('<div></div>');
-                var ul = $('<ul></ul>').appendTo(div);
-
-                // Add default tab
-                if ($.isPlainObject(this.options.transport) && this.options.transport.read) {
-                    ul.append('<li>' + this.options.messages.tabs.default + '</li>');
-                    div.append('<div></div>');
-                }
+                assert.isArray(this._collections, kendo.format(assert.messages.isArray.default, 'this._collections'));
+                var tabStrip = $('<div></div>');
+                var ul = $('<ul></ul>').appendTo(tabStrip);
 
                 // Add a tab per collection
-                for (var i = 0; i < collections.length; i++) {
-                    ul.append('<li>' + collections[i].name + '</li>');
-                    div.append('<div></div>');
+                for (var i = 0, length = this._collections.length; i < length; i++) {
+                    ul.append('<li>' + this._collections[i].name + '</li>');
+                    tabStrip.append('<div></div>');
                 }
-                div.appendTo(this.element);
+                tabStrip.appendTo(this.element);
 
                 // Set the tabStrip item of the component
-                this.tabStrip = div.kendoTabStrip({
+                this.tabStrip = tabStrip.kendoTabStrip({
                     tabPosition: 'left',
                     animation: { open: { effects: 'fadeIn' } },
-                    select: $.proxy(this._onTabSelect, this)
+                    select: this._onTabSelect.bind(this)
                 }).data('kendoTabStrip');
-
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
             },
 
             /**
-             * Add default content tab
+             * Add content tab
              * Note: content shall be moved/shared accross tabs; Only the dataSource and toolbar are updated when changing tabs
              * @private
              */
@@ -448,7 +492,7 @@
                     .appendTo(this.tabStrip.contentHolder(0));
 
                 // Add the toolbar
-                this._toolbar();
+                this._tabToolbar();
 
                 // Add the list view
                 this._listView();
@@ -459,7 +503,7 @@
              * Note: all collections are read-only so upload/delete is hidden except on the default tab
              * @private
              */
-            _toolbar: function () {
+            _tabToolbar: function () {
                 var that = this;
                 var options = that.options;
                 var template = kendo.template(options.toolbarTemplate);
@@ -475,7 +519,10 @@
                 that.dropDownList = that.toolbar.find('div.k-toolbar-wrap select')
                     .kendoDropDownList({
                         dataSource: [],
-                        change: $.proxy(that._onDropDownListChange, that)
+                        dataTextField: 'name',
+                        dataValueField: 'name',
+                        change: that._onDropDownListChange.bind(that)
+                        // dataBound: that._onDropDownListDataBound.bind(that)
                     })
                     .data('kendoDropDownList');
                 assert.instanceof(DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
@@ -492,6 +539,7 @@
                     })
                     .data('kendoProgressBar');
                 assert.instanceof(kendo.ui.ProgressBar, that.progressBar, kendo.format(assert.messages.instanceof.default, 'this.progressBar', 'kendo.ui.ProgressBar'));
+
                 // Event handler used to report upload transport progress in app.assets.js
                 $(document).on(PROGRESS + NS, function (e, value, status) {
                     that.progressBar.value(value);
@@ -504,16 +552,76 @@
                 });
 
                 // Search
-                that.searchInput = that.toolbar
-                    .find('input.k-input');
+                that.searchInput = that.toolbar.find('input.k-input');
                 assert.instanceof($, that.searchInput, kendo.format(assert.messages.instanceof.default, 'this.searchInput', 'window.jQuery'));
 
                 // Other events
                 that.toolbar
-                    .on(CHANGE + NS, '.k-upload input[type=file]', $.proxy(that._onFileInputChange, that))
-                    .on(CLICK + NS, 'button:not(.k-state-disabled):has(.k-i-close)', $.proxy(that._onDeleteButtonClick, that))
-                    .on(CHANGE + NS, 'input.k-input', $.proxy(that._onSearchInputChange, that))
-                    .on(CLICK + NS, 'a.k-i-close', $.proxy(that._onSearchClearClick, that));
+                    .on(CHANGE + NS, '.k-upload input[type=file]', that._onFileInputChange.bind(that))
+                    .on(CLICK + NS, 'button:not(.k-state-disabled)', that._onButtonClick.bind(that))
+                    .on(CHANGE + NS, 'input.k-input', that._onSearchInputChange.bind(that))
+                    .on(CLICK + NS, 'a.k-i-close', that._onSearchClearClick.bind(that)); // TODO is this ever occuring?
+            },
+
+            /**
+             * Event handler triggered when selecting a tab
+             * @param e
+             * @private
+             */
+            _onTabSelect: function (e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(window.HTMLLIElement, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'HTMLLIElement'));
+                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
+                assert.isArray(this._collections, kendo.format(assert.messages.isArray.default, 'this._collections'));
+
+                // var oldIndex = this.tabStrip.select().index();
+                var tabIndex = $(e.item).index();
+
+                // Set the current collection
+                var collection = this.collection = this._collections[tabIndex];
+                if ($.isArray(collection.collections) && collection.collections.length) {
+                    this.collection = collection.collections[0];
+                    this.dropDownList.setDataSource(collection.collections);
+                    this.dropDownList.select(0);
+                } else {
+                    this.dropDownList.setDataSource([]);
+                }
+
+                // Ensure all content holders have the same height
+                this.tabStrip.contentHolder(tabIndex).height('auto');
+
+                // Move file browser to the selected tab
+                this.fileBrowser.appendTo(this.tabStrip.contentHolder(tabIndex));
+
+                // Update the selected tab
+                this._updateTab();
+            },
+
+            /**
+             * Update the tab after changing dataSource
+             * @private
+             */
+            _updateTab: function () {
+                assert.isArray(this._collections, kendo.format(assert.messages.isArray.default, 'this._collections'));
+                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
+
+                var collection = this.collection;
+
+                // Show/hide upload and delete buttons which are only available on tabs corresponding to editable collections
+                this.toolbar.find('.k-upload').toggle(collection.editable);
+                this.toolbar.find('.k-button').toggle(collection.editable);
+                this.toolbar.find('label').toggle(!!collection.depth);
+
+                // Change data source
+                this.listView.setDataSource(collection.dataSource);
+                this.pager.setDataSource(collection.dataSource);
+                this.pager.refresh();
+
+                // add/remove k-state-nodrop to dropZone
+                if (this.dropZone instanceof $) {
+                    this.dropZone.toggleClass('k-state-nodrop', collection.editable);
+                }
             },
 
             /**
@@ -535,7 +643,7 @@
              */
             _uploadFiles: function (files) {
                 assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                assert.ok(this.tabStrip.select().index() === 0 && this._hasProjectTransport(), 'The asset manager is expected to be configured with a transport for the project tab');
+                // TODO assert.ok(this.tabStrip.select().index() === 0 && this._hasProjectTransport(), 'The asset manager is expected to be configured with a transport for the project tab');
                 var that = this;
                 if (files instanceof window.FileList && files.length) {
                     that.listView.element.addClass('k-loading');
@@ -571,16 +679,26 @@
             },
 
             /**
-             * Event handler triggered when clicking the delete button
+             * Event handler triggered when clicking any button
+             * @param e
              * @private
              */
-            _onDeleteButtonClick: function () {
+            _onButtonClick: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                 var that = this;
-                var file = that.dataSource.get(that.value());
-                if (file instanceof kendo.data.Model) {
-                    that.dataSource.remove(file);
-                    // dataSource.sync calls transport.destroy if available
-                    that.dataSource.sync();
+                if ($(e.currentTarget).has('.k-i-image-insert').length) {
+                    that.trigger(NEW);
+                } else if ($(e.currentTarget).has('.k-i-image-edit').length) {
+                    that.trigger(EDIT);
+                } else if ($(e.currentTarget).has('.k-i-delete').length) {
+                    if (!that.trigger(DELETE)) {
+                        var file = that.dataSource.get(that.value());
+                        if (file instanceof kendo.data.Model) {
+                            that.dataSource.remove(file);
+                            // dataSource.sync calls transport.destroy if available
+                            that.dataSource.sync();
+                        }
+                    }
                 }
             },
 
@@ -592,10 +710,33 @@
                 assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
                 assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+
                 var tabIndex = this.tabStrip.select().index();
-                // If we have a project transport, we have a project tab otherwise we don't and we substract 1
-                this._resetTransport(this._hasProjectTransport() ? tabIndex - 1 : tabIndex, e.sender.selectedIndex /*, false*/);
+
+                // Set the current collection
+                var parent = this._collections[tabIndex];
+                assert.isArray(parent.collections, kendo.format(assert.messages.isArray.default, 'parent.collections'));
+                var found = parent.collections.filter(function (item) {
+                    return item.name === e.sender.value();
+                });
+                this.collection = found[0];
+
+                this._updateTab();
             },
+
+            /**
+             * Event handler when triggered drop down list is bound to dataSource
+             * @param e
+             * @private
+             */
+            /*
+            _onDropDownListDataBound: function (e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
+                // A;ways select the first item in the list
+                e.sender.select(0);
+            },
+            */
 
             /**
              * Event handler triggered when changing search input
@@ -605,6 +746,7 @@
             _onSearchInputChange: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
+                assert.instanceof(kendo.ui.ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 var filter = getDataSourceFilter(this.options.extensions);
                 var value =  $(e.target).val();
                 var search = { field: 'url', operator: 'contains', value: value };
@@ -623,7 +765,7 @@
                     }
                 }
                 // Note: no need to sort the default alphabetical order
-                this.dataSource.query({ filter: filter, page: 1, pageSize: this.dataSource.pageSize() });
+                this.listView.dataSource.query({ filter: filter, page: 1, pageSize: this.listView.dataSource.pageSize() });
             },
 
             /**
@@ -645,27 +787,33 @@
              */
             _listView: function () {
                 assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
-                assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
+
+                // Initialize the listView and pager with an empty dataSource
+                var dataSource = new DataSource();
+
+                // Build the listView
                 this.listView = $('<ul class="k-reset k-floats k-tiles"/>')
                     .appendTo(this.fileBrowser)
                     .kendoListView({
                         // autoBind: false,
-                        change: $.proxy(this._onListViewChange, this),
-                        dataBinding: $.proxy(this._onListViewDataBinding, this),
-                        dataBound: $.proxy(this._onListViewDataBound, this),
-                        dataSource: this.dataSource,
+                        change: this._onListViewChange.bind(this),
+                        dataBinding: this._onListViewDataBinding.bind(this),
+                        dataBound: this._onListViewDataBound.bind(this),
+                        dataSource: dataSource,
                         selectable: true,
                         template: kendo.template(this.options.itemTemplate)
                     })
                     .data('kendoListView');
+                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+
+                // Build teh page
                 this.pager = $('<div class="k-pager-wrap"></div>')
                     .appendTo(this.fileBrowser)
                     .kendoPager({
                         autoBind: false, // dataSource has already been bound/read by this.listView
-                        dataSource: this.dataSource
+                        dataSource: dataSource
                     })
                     .data('kendoPager');
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
                 assert.instanceof(Pager, this.pager, kendo.format(assert.messages.instanceof.default, 'this.pager', 'kendo.ui.Pager'));
             },
 
@@ -677,11 +825,13 @@
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 if (this._selectedItem() instanceof ObservableObject) {
+                    /* TODO
                     if (this.tabStrip.select().index() === 0 && this._hasProjectTransport()) {
                         this.toolbar.find('.k-i-close').parent().removeClass('k-state-disabled').show();
                         this.toolbar.find('div.k-tiles-arrange .k-progressbar').show();
                     }
                     this.trigger(CHANGE, { value: this.value() });
+                    */
                 }
             },
 
@@ -721,179 +871,13 @@
              * @private
              */
             _selectedItem: function () {
-                assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
                 var listView = this.listView; // this.listView might not have yet been assigned
                 if (listView instanceof kendo.ui.ListView) {
                     var selected = listView.select();
                     if (selected instanceof $ && selected.length) {
-                        return this.dataSource.getByUid(selected.attr(kendo.attr('uid')));
+                        return this.listView.dataSource.getByUid(selected.attr(kendo.attr('uid')));
                     }
                 }
-            },
-
-            /**
-             * Event handler triggered when selecting a tab
-             * @param e
-             * @private
-             */
-            _onTabSelect: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(window.HTMLLIElement, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'HTMLLIElement'));
-                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
-                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
-                assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
-
-                var oldIndex = this.tabStrip.select().index();
-                var tabIndex = $(e.item).index();
-
-                // Ensure all content holders have the same height
-                this.tabStrip.contentHolder(tabIndex).height('auto');
-
-                // Move file browser to the selected tab
-                this.fileBrowser.appendTo(this.tabStrip.contentHolder(tabIndex));
-
-                // Show/hide upload and delete buttons which are only available on the default Tab
-                this.fileBrowser.find('div.k-toolbar-wrap>.k-upload').toggle(tabIndex === 0 && this._hasProjectTransport());
-                this.fileBrowser.find('div.k-toolbar-wrap>.k-button').toggle(tabIndex === 0 && this._hasProjectTransport());
-                this.fileBrowser.find('div.k-toolbar-wrap>label').toggle(tabIndex > 0 || !this._hasProjectTransport());
-
-                // Change data source transport
-                // If we have a project transport, we have a project tab otherwise we don't and we substract 1
-                this._resetTransport(this._hasProjectTransport() ? tabIndex - 1 : tabIndex, 0, true);
-
-                // add/remove k-state-nodrop to dropZone
-                if (this.dropZone instanceof $) {
-                    this.dropZone.toggleClass('k-state-nodrop', tabIndex !== 0 || !this._hasProjectTransport());
-                }
-                // refresh pager
-                this.pager.refresh();
-            },
-
-            /**
-             * Change data source transport based on selected collection
-             * @param colIndex
-             * @param subIndex
-             * @param all to also reset the toolbar drop down list data source
-             * @private
-             */
-            _resetTransport: function (colIndex, subIndex, all) {
-
-                // ATTENTION: If an index.json is downloaded but no image is displayed
-                // possibly index.json is downloaded with Content-Type = binary/octet-stream instead of application/json
-                // and data is therefore not parsed properly as a json stream
-
-                function getTransport(options) {
-                    var transport;
-                    if (options) {
-                        options.read = $.type(options.read) === STRING ? { url: options.read } : options.read;
-                        transport = $.isFunction(options.read) ? options : new kendo.data.RemoteTransport(options);
-                    } else {
-                        transport = new kendo.data.LocalTransport({ data: [] });
-                    }
-                    return transport;
-                }
-
-                assert.type(NUMBER, colIndex, kendo.format(assert.messages.type.default, 'colIndex', NUMBER));
-                assert.type(NUMBER, subIndex, kendo.format(assert.messages.type.default, 'subIndex', NUMBER));
-                assert.type(ARRAY, this.options.collections, kendo.format(assert.messages.type.default, 'this.options.collections', ARRAY));
-                assert.instanceof($, this.fileBrowser, kendo.format(assert.messages.instanceof.default, 'this.fileBrowser', 'jQuery'));
-                assert.instanceof(DataSource, this.dataSource, kendo.format(assert.messages.instanceof.default, 'this.dataSource', 'kendo.data.DataSource'));
-                assert.instanceof(DropDownList, this.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
-
-                // Clear search
-                this.searchInput.val('');
-                // this.dataSource.filter(getDataSourceFilter(this.options.extensions));
-
-                if (colIndex >= 0 && colIndex < this.options.collections.length) {
-                    var collection = this.options.collections[colIndex];
-                    if ($.isPlainObject(collection.transport)) {
-                        this.dataSource.transport = getTransport(collection.transport);
-                        this.dropDownList.setDataSource([]);
-                        this.dropDownList.wrapper.parent().hide();
-                    } else if ($.isArray(collection.collections) && collection.collections.length &&
-                        $.isPlainObject(collection.collections[subIndex].transport)) {
-                        this.dataSource.transport = getTransport(collection.collections[subIndex].transport);
-                        if (all) {
-                            this.dropDownList.setDataSource(collection.collections.map(function (item) {
-                                return item.name;
-                            }));
-                            this.dropDownList.select(subIndex);
-                            this.dropDownList.wrapper.parent().show();
-                        }
-                    }
-                } else {
-                    this.dataSource.transport = getTransport(this.options.transport);
-                    this.dropDownList.setDataSource(null); // []
-                    this.dropDownList.wrapper.parent().hide();
-                }
-
-                // this.dataSource.filter(getDataSourceFilter(this.options.extensions)); requires a read which raises dataBound twice on bound widgets
-                // return this.dataSource.query({ filter: getDataSourceFilter(this.options.extensions) }); also requires read which raises dataBound twice on bound widgets
-                this.dataSource._filter = getDataSourceFilter(this.options.extensions); // this does not raise a dataBound event
-                return this.dataSource.read(); // this raises a dataBound event
-            },
-
-            /**
-             * Sets/updates the data source
-             * @private
-             */
-            _dataSource: function (transport) {
-
-                var that = this;
-                var options = that.options;
-
-                if (that.dataSource instanceof DataSource && $.isFunction(that._errorHandler)) {
-                    that.dataSource.unbind(ERROR, that._errorHandler);
-                }
-                that._errorHandler = $.proxy(that._dataError, that);
-                that.dataSource = DataSource
-                    .create({
-                        filter: getDataSourceFilter(options.extensions),
-                        schema: {
-                            data: 'data',
-                            model: {
-                                id: 'url',
-                                fields: {
-                                    size: { type: NUMBER, editable: false },
-                                    url:  { type: STRING, editable: false, nullable: true },
-                                    file: { defaultValue: null } // Note: we need this for uploading files
-                                },
-                                name$: function () {
-                                    var url = this.get('url');
-                                    if ($.type(url) !== STRING) {
-                                        return options.messages.data.defaultName;
-                                    }
-                                    return nameFormatter(url);
-                                },
-                                size$: function () {
-                                    return sizeFormatter(this.get('size'));
-                                },
-                                type$: function () {
-                                    var url = this.get('url');
-                                    if ($.type(url) === UNDEFINED) {
-                                        return 'application/octet-stream';
-                                    }
-                                    return typeFormatter(url);
-                                },
-                                url$: function () {
-                                    var url = this.get('url');
-                                    if ($.type(url) !== STRING) {
-                                        return options.messages.data.defaultImage;
-                                    }
-                                    return urlFormatter(this.get('url'), options.schemes);
-                                }
-                            },
-                            total: 'total',
-                            type: 'json'
-                        },
-                        // keep default sort order
-                        transport: $.isPlainObject(transport) ? transport : options.transport,
-                        pageSize: 12
-                    })
-                    .bind(ERROR, that._errorHandler);
-
-                // that.dataSource.filter(getDataSourceFilter(options.extensions));
-
             },
 
             /**
@@ -936,7 +920,7 @@
                         .on(DRAGOVER + NS, function (e) {
                             e.preventDefault();
                         })
-                        .on(DROP + NS, $.proxy(that._onDrop, that));
+                        .on(DROP + NS, that._onDrop.bind(that));
                     // The following add/remove classes used by kendo.upload.js that we match for a consistent UI
                     bindDragEventWrappers(
                         that.dropZone,

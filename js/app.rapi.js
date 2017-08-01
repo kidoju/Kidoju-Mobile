@@ -104,7 +104,7 @@
             version: '/api/v1/{0}/summaries/{1}/versions/{2}',
             activities: '/api/v1/{0}/summaries/{1}/activities',
             activity: '/api/v1/{0}/summaries/{1}/activities/{2}',
-            upload: '/api/v1/{0}/summaries/{1}/files/upload',
+            upload: '/api/v1/{0}/summaries/{1}/upload',
             files: '/api/v1/{0}/summaries/{1}/files',
             file: '/api/v1/{0}/summaries/{1}/file/{2}'
         };
@@ -1375,20 +1375,19 @@
                     // Convert name for compatibility with dbutils.checkNoSQLInjection
                     var fileName = file.name; // .toLowerCase();
                     var pos = fileName.lastIndexOf('.');
-                    // In fileName.substr(0, pos), dots among other characters shall be replaced by underscores
-                    // We shall keep path delimiters (\, /) though and they shall fail server side
-                    // Then we trim underscores at both ends
-                    var s3Name = fileName.substr(0, pos).replace(/[^a-z0-9\\\/]+/gi, '_').replace(/(^_|_$)/, '') + '.' + fileName.substr(pos + 1);
+                    // In fileName.substr(0, pos), any non-alphanumeric character shall be replaced by underscores
+                    // Then we shall simplify duplicated underscores and trim underscores at both ends
+                    var fileId = fileName.substr(0, pos).replace(/[^\w\\\/]+/gi, '_').replace(/_{2,}/g, '_').replace(/(^_|_$)/, '') + '.' + fileName.substr(pos + 1);
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.upload, language, summaryId);
                     // Log
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.getUploadUrl',
-                        data: { url: url, fileName: file.name, s3Name: s3Name, type: file.type, size: file.size }
+                        data: { url: url, fileName: file.name, s3Name: fileId, type: file.type, size: file.size }
                     });
                     // $.ajax
                     return $.ajax({
-                        data: { file: s3Name, type: file.type, size: file.size },
+                        data: { fileId: fileId, type: file.type, size: file.size },
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: GET,
                         url: url
