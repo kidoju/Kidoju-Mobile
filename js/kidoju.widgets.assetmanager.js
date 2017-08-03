@@ -16,8 +16,10 @@
         './vendor/kendo/kendo.pager',
         './vendor/kendo/kendo.progressbar',
         './vendor/kendo/kendo.listview',
-        './vendor/kendo/kendo.tabstrip'
-        // './vendor/kendo/kendo.upload'
+        './vendor/kendo/kendo.tabstrip',
+        './vendor/kendo/kendo.window',
+        // './vendor/kendo/kendo.upload' // <--- does not work with AWS S3
+        './kidoju.widgets.splitbutton'
     ], f);
 })(function () {
 
@@ -35,7 +37,10 @@
         var DropDownList = kendo.ui.DropDownList;
         var ListView = kendo.ui.ListView;
         var Pager = kendo.ui.Pager;
+        var SplitButton = kendo.ui.SplitButton;
         var TabStrip = kendo.ui.TabStrip;
+        var Window = kendo.ui.Window;
+        var deepExtend = kendo.deepExtend;
         var assert = window.assert;
         var logger = new window.Logger('kidoju.widgets.assetmanager');
         var NUMBER = 'number';
@@ -45,21 +50,20 @@
         var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
-        var DELETE = 'delete';
-        var EDIT = 'edit';
         var ERROR = 'error';
-        var NEW = 'new';
         var NS = '.kendoAssetManager';
         var DRAGENTER = 'dragenter';
         var DRAGOVER = 'dragover';
         var DROP = 'drop';
         var PROGRESS = 'progress';
         var WIDGET_CLASS = 'k-widget kj-assetmanager';
+        var WINDOW_SELECTOR = '.kj-assetmanager-window';
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
                     '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' +
                         '<span class="k-icon k-i-plus"></span>#:messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" multiple />' +
                     '</div></div>' +
+                    // TODO: export <----------------------------------------------------
                     '<button type="button" class="k-button k-button-icon" title="#:messages.toolbar.new#"><span class="k-icon k-i-image-insert"></span></button>' +
                     '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.edit#"><span class="k-icon k-i-image-edit"></span></button>' +
                     '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.delete#"><span class="k-icon k-i-delete"></span></button>' +
@@ -79,6 +83,13 @@
                 '<strong>#=name$()#</strong>' +
                 '<span class="k-filesize">#=size$()#</span>' +
             '</li>';
+        var ACTION = {
+            CREATE: 'create',
+            EDIT: 'edit',
+            EXPORT: 'export',
+            DESTROY: 'destroy',
+            UPLOAD: 'upload'
+        };
 
         /*********************************************************************************
          * Helpers
@@ -264,6 +275,8 @@
                 logger.debug({ method: 'init', message: 'widget initialized' });
                 that._initDataSources();
                 that._layout();
+                // TODO that.enable(that.element.prop('disabled') ? false : !!that.options.enable);
+                kendo.notify(that);
             },
 
             /**
@@ -272,21 +285,18 @@
              */
             options: {
                 name: 'AssetManager',
+                enable: true,
                 toolbarTemplate: TOOLBAR_TMPL,
                 itemTemplate: ITEM_TMPL,
-                transport: { read: function (options) { options.success({ total: 0, data: [] }); } },
                 collections: [],
                 schemes: {},
                 extensions: [],
                 messages: {
-                    tabs: {
-                        default: 'Project'
-                    },
                     toolbar: {
                         delete: 'Delete', // TODO
                         edit: 'Edit', // TODO
                         collections: 'Collections:&nbsp;',
-                        import: 'Import',
+                        import: 'Import', // TODO export
                         new: 'New', // TODO
                         search: 'Search',
                         upload: 'Upload'
@@ -305,10 +315,8 @@
              */
             events: [
                 CHANGE,
-                DELETE,
-                EDIT,
-                ERROR,
-                NEW
+                CLICK, // TODO beforeOpen
+                ERROR
             ],
 
             /**
@@ -386,7 +394,9 @@
                             ret.push({
                                 dataSource: dataSource,
                                 depth: depth,
-                                editable: dataSource.transport.hasOwnProperty('create') && $.isFunction(dataSource.transport.create), // TODO Do we need to check for update?
+                                editor: collections[i].editor,
+                                // TODO Do we need to check for update?
+                                editable: dataSource.transport.hasOwnProperty('create') && $.isFunction(dataSource.transport.create),
                                 name: collections[i].name
                             });
                         }
@@ -449,7 +459,7 @@
                             total: 'total'
                         },
                         serverPaging: false
-                    }, params)
+                    }, params);
                 }
                 return params;
             },
@@ -599,6 +609,28 @@
             },
 
             /**
+             * Event handler triggered when selecting another collection in the toolbar drop down list
+             * @private
+             */
+            _onDropDownListChange: function (e) {
+                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
+                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+
+                var tabIndex = this.tabStrip.select().index();
+
+                // Set the current collection
+                var parent = this._collections[tabIndex];
+                assert.isArray(parent.collections, kendo.format(assert.messages.isArray.default, 'parent.collections'));
+                var found = parent.collections.filter(function (item) {
+                    return item.name === e.sender.value();
+                });
+                this.collection = found[0];
+
+                this._updateTab();
+            },
+
+            /**
              * Update the tab after changing dataSource
              * @private
              */
@@ -621,6 +653,31 @@
                 // add/remove k-state-nodrop to dropZone
                 if (this.dropZone instanceof $) {
                     this.dropZone.toggleClass('k-state-nodrop', collection.editable);
+                }
+            },
+
+            /**
+             * Event handler triggered when clicking any button
+             * @param e
+             * @private
+             */
+            _onButtonClick: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+
+                // TODO upload and import!!!!!
+
+                if ($(e.currentTarget).has('.k-i-image-insert').length) {
+                    if (!this.trigger(CLICK, { action: ACTION.CREATE })) {
+                        this._editNew();
+                    }
+                } else if ($(e.currentTarget).has('.k-i-image-edit').length) {
+                    if (!this.trigger(CLICK, { action: ACTION.EDIT })) {
+                        this._editSelected();
+                    }
+                } else if ($(e.currentTarget).has('.k-i-delete').length) {
+                    if (!this.trigger(CLICK, { action: ACTION.DESTROY })) {
+                        this._deleteSelected();
+                    }
                 }
             },
 
@@ -679,49 +736,44 @@
             },
 
             /**
-             * Event handler triggered when clicking any button
-             * @param e
+             * Edit new file in editor
              * @private
              */
-            _onButtonClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+            _editNew: function () {
                 var that = this;
-                if ($(e.currentTarget).has('.k-i-image-insert').length) {
-                    that.trigger(NEW);
-                } else if ($(e.currentTarget).has('.k-i-image-edit').length) {
-                    that.trigger(EDIT);
-                } else if ($(e.currentTarget).has('.k-i-delete').length) {
-                    if (!that.trigger(DELETE)) {
-                        var file = that.dataSource.get(that.value());
-                        if (file instanceof kendo.data.Model) {
-                            that.dataSource.remove(file);
-                            // dataSource.sync calls transport.destroy if available
-                            that.dataSource.sync();
-                        }
-                    }
-                }
+                var options = this.options;
+                var windowWidget = that.getWindow();
+                windowWidget.viewModel = kendo.observable({
+                    // See kendo.saveAs and proxyURL
+                    // TODO http://docs.telerik.com/kendo-ui/framework/save-files/introduction
+                    url: '',
+                    fileName: '',
+                    dataURI: undefined
+                });
+                windowWidget.content(that.collection.editor);
+                kendo.bind(windowWidget.element, windowWidget.viewModel);
+                windowWidget.center().open();
             },
 
             /**
-             * Event handler triggered when selecting another collection in the toolbar drop down list
+             * Edit selected file in editor
              * @private
              */
-            _onDropDownListChange: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(DropDownList, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.DropDownList'));
-                assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
+            _editSelected: function () {
+                debugger;
+            },
 
-                var tabIndex = this.tabStrip.select().index();
-
-                // Set the current collection
-                var parent = this._collections[tabIndex];
-                assert.isArray(parent.collections, kendo.format(assert.messages.isArray.default, 'parent.collections'));
-                var found = parent.collections.filter(function (item) {
-                    return item.name === e.sender.value();
-                });
-                this.collection = found[0];
-
-                this._updateTab();
+            /**
+             * Delete selected file
+             * @private
+             */
+            _deleteSelected: function () {
+                var file = this.dataSource.get(this.value());
+                if (file instanceof kendo.data.Model) {
+                    this.dataSource.remove(file);
+                    // dataSource.sync calls transport.destroy if available
+                    this.dataSource.sync();
+                }
             },
 
             /**
@@ -825,6 +877,7 @@
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 if (this._selectedItem() instanceof ObservableObject) {
+                    $.noop(); // Otherwise empty block
                     /* TODO
                     if (this.tabStrip.select().index() === 0 && this._hasProjectTransport()) {
                         this.toolbar.find('.k-i-close').parent().removeClass('k-state-disabled').show();
@@ -878,6 +931,40 @@
                         return this.listView.dataSource.getByUid(selected.attr(kendo.attr('uid')));
                     }
                 }
+            },
+
+            /**
+             * Get an editor window
+             */
+            getWindow: function (options) {
+                var that = this;
+                var windowWidget = $(WINDOW_SELECTOR).data('kendoWindow');
+                // Find or create dialog frame
+                if (!(windowWidget instanceof Window)) {
+                    // Create dialog
+                    windowWidget = $(kendo.format('<div class="{0}"></div>', WINDOW_SELECTOR.substr(1)))
+                        .appendTo(document.body)
+                        .kendoWindow({
+                            // Note: we are using a window to get maximize and close in the title bar
+                            actions: [ "Close", "Maximize" ],
+                            content: '',
+                            modal: true,
+                            visible: false,
+                            height: 600,
+                            width: 800,
+                            close: function (e) {
+                                // This is a reusable dialog, so we need to make sure it is ready for the next content
+                                // windowWidget.element.removeClass(NO_PADDING_CLASS);
+                                // The content method destroys widgets and unbinds data
+                                windowWidget.content('');
+                                windowWidget.viewModel = undefined;
+                            }
+                        })
+                        .data('kendoWindow');
+                    // Hides the display of "Fermer" after the "X" icon in the window title bar
+                    windowWidget.wrapper.find('.k-window-titlebar > .k-dialog-close > .k-font-icon.k-i-x').text('');
+                }
+                return windowWidget;
             },
 
             /**

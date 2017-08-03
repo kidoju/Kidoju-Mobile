@@ -63,7 +63,7 @@
         var POINTER = 'pointer';
         var ELEMENT_SELECTOR = '.kj-element';
         var DIALOG_DIV = '<div {0}"></div>';
-        var DIALOG_SELECTOR = '.kj-dialog';
+        var DIALOG_SELECTOR = '.kj-tools-dialog';
         var INTERACTIVE_CLASS = 'kj-interactive';
         var NO_PADDING_CLASS = 'kj-no-padding';
         var STATE_DISABLED = 'k-state-disabled';

@@ -60,7 +60,8 @@
 
         /**
          * navigator.mediaDevices.getUserMedia converted to jQuery promises
-         * @ see https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+         * @see https://github.com/mozdevs/mediaDevices-getUserMedia-polyfill/blob/master/mediaDevices-getUserMedia-polyfill.js
          */
         function getUserMedia (constraints) {
             var dfd = $.Deferred();
@@ -191,9 +192,9 @@
              * Check browser support
              */
             hasBrowserSupport: function () {
-               // This has to be Firefox 47+ or Chrome 53+
-               // Detect browser support (see Modernizr)
-               // Or may we should add that to kendo.support so as to be able to check browser support before opening a window with the component
+                // This has to be Firefox 47+ or Chrome 53+
+                // Detect browser support (see Modernizr)
+                // Or may we should add that to kendo.support so as to be able to check browser support before opening a window with the component
             },
 
             /**
@@ -244,16 +245,16 @@
                         mediaStream.addTrack(audioTrack);
 
                         // Create a media recorder - https://developers.google.com/web/updates/2016/01/mediarecorder
-                        that._mediaRecorder = new MediaRecorder(mediaStream, { mimeType: options.mimeType + options.codec });
+                        that._mediaRecorder = new window.MediaRecorder(mediaStream, { mimeType: options.mimeType + options.codec });
 
                         // Add chunks
-                        that._mediaRecorder.ondataavailable = function(e) {
+                        that._mediaRecorder.ondataavailable = function (e) {
                             if (e && e.data && e.data.size > 0) {
                                 that._chunks.push(e.data);
                             }
                         };
 
-                        that._mediaRecorder.onstop = function(e) {
+                        that._mediaRecorder.onstop = function (e) {
                             var video = document.createElement('video');
                             video.controls = true;
                             var blob = new Blob(that._chunks, { type : options.mimeType });
@@ -264,10 +265,10 @@
                         };
 
                         that._mediaRecorder.start();
-                        that.interval = setInterval(draw, 1000/options.fps, that.context, that.video.get(0));
+                        that.interval = setInterval(draw, 1000 / options.fps, that.context, that.video.get(0));
                     })
                     .catch(function (error) {
-                        console.error(error);
+                        window.console.error(error);
                     });
             },
 
