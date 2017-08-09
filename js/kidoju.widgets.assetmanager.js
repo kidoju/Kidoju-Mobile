@@ -19,6 +19,7 @@
         './vendor/kendo/kendo.tabstrip',
         './vendor/kendo/kendo.window',
         // './vendor/kendo/kendo.upload' // <--- does not work with AWS S3
+        './kidoju.widgets.messagebox',
         './kidoju.widgets.splitbutton'
     ], f);
 })(function () {
@@ -60,17 +61,17 @@
         var WINDOW_SELECTOR = '.kj-assetmanager-window';
         var TOOLBAR_TMPL = '<div class="k-widget k-filebrowser-toolbar k-header k-floatwrap">' +
                 '<div class="k-toolbar-wrap">' +
+                    '<label class="k-label" style="display:none">#=messages.toolbar.collections#<select data-role="dropdownlist"></select></label>' +
                     '<div class="k-widget k-upload"><div class="k-button k-button-icontext k-upload-button">' +
                         '<span class="k-icon k-i-plus"></span>#:messages.toolbar.upload#<input type="file" name="file" accept="#=accept#" multiple />' +
                     '</div></div>' +
-                    // TODO: export <----------------------------------------------------
-                    '<button type="button" class="k-button k-button-icon" title="#:messages.toolbar.new#"><span class="k-icon k-i-image-insert"></span></button>' +
-                    '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.edit#"><span class="k-icon k-i-image-edit"></span></button>' +
+                    '<div data-role="splitbutton"></div>' +
+                    '<button type="button" class="k-button k-button-icon" title="#:messages.toolbar.create#"><span class="k-icon k-i-file-add"></span></button>' +
+                    '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.edit#"><span class="k-icon k-i-track-changes-enable"></span></button>' +
                     '<button type="button" class="k-button k-button-icon k-state-disabled" title="#:messages.toolbar.delete#"><span class="k-icon k-i-delete"></span></button>' +
-                    '<label class="k-label" style="display:none">#=messages.toolbar.collections#<select /></label>' +
                 '</div>' +
                 '<div class="k-tiles-arrange">' +
-                    '<div class="k-progressbar"></div>' +
+                    '<div class="k-progressbar"></div>' + // TODO Review progressbar
                     '<div class="k-widget k-search-wrap k-textbox"><input placeholder="#=messages.toolbar.search#" class="k-input"><a href="\\#" class="k-icon k-i-zoom k-search"></a></div>' +
                 '</div>' +
             '</div>';
@@ -78,7 +79,7 @@
                 '#if (/^image\\//.test(type$())) {#' +
                     '<div class="k-thumb"><img alt="#=name$()#" src="#=url$()#" class="k-image"></span></div>' +
                 '#}else{#' +
-                    '<div class="k-thumb"><span class="k-icon k-file"></span></div>' +
+                    '<div class="k-thumb"><span class="k-icon k-i-file"></span></div>' +
                 '#}#' +
                 '<strong>#=name$()#</strong>' +
                 '<span class="k-filesize">#=size$()#</span>' +
@@ -254,6 +255,22 @@
             });
         }
 
+        /**
+         * Returns the total size of a file list of type FileList or Array or ObservableArray which are all iterable
+         * @param fileList
+         * @returns {number}
+         */
+        function totalSize (fileList) {
+            var ret = 0;
+            if (fileList && $.isFunction(fileList[window.Symbol.iterator])) {
+                for (var i = 0, length = fileList.length; i < length; i++) {
+                    ret += fileList[i].size || 0;
+                }
+            }
+            return ret;
+        }
+
+
         /*********************************************************************************
          * Widget
          *********************************************************************************/
@@ -286,27 +303,36 @@
             options: {
                 name: 'AssetManager',
                 enable: true,
-                toolbarTemplate: TOOLBAR_TMPL,
-                itemTemplate: ITEM_TMPL,
+                toolbarTemplate: TOOLBAR_TMPL, // TODO Remove - see kendo.filebrowser
+                itemTemplate: ITEM_TMPL, // TODO Remove - see kendo.filebrowser
                 collections: [],
                 schemes: {},
                 extensions: [],
                 messages: {
+                    dialogs: {
+                        cancel: {
+                            // TODO: Not great to have here as this is part of our application configuration
+                            imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                            text: 'Cancel'
+                        },
+                        confirm: 'Confirm',
+                        ok: {
+                            imageUrl: 'https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg',
+                            text: 'OK'
+                        },
+                        warningOverwrite: 'Do you really want to overwite these files: `{0}`? Note that file updates take time to propagate across our Content Delivery Network while new files propagate instantly.'
+                    },
                     toolbar: {
-                        delete: 'Delete', // TODO
-                        edit: 'Edit', // TODO
                         collections: 'Collections:&nbsp;',
-                        import: 'Import', // TODO export
-                        new: 'New', // TODO
+                        create: 'Create New',
+                        delete: 'Delete',
+                        edit: 'Edit',
+                        import: 'Import',
                         search: 'Search',
                         upload: 'Upload'
-                    },
-                    data: {
-                        defaultName: 'Uploading...',
-                        defaultImage: '' // TODO
                     }
                 }
-                // TODO enable/disable tabs (think organization)
+                // TODO we need to be able to enable/disable tabs to show disabled organization tab for users who do not have an organization
             },
 
             /**
@@ -324,6 +350,7 @@
              * @returns {*}
              */
             value: function () {
+                // TODO: value cannot change when seleting on Google tab, because they need to be imported first
                 var that = this;
                 var selected = that._selectedItem();
                 if (selected instanceof ObservableObject) {
@@ -395,9 +422,8 @@
                                 dataSource: dataSource,
                                 depth: depth,
                                 editor: collections[i].editor,
-                                // TODO Do we need to check for update?
-                                editable: dataSource.transport.hasOwnProperty('create') && $.isFunction(dataSource.transport.create),
-                                name: collections[i].name
+                                name: collections[i].name,
+                                tools: collections[i].tools
                             });
                         }
                     }
@@ -415,6 +441,9 @@
              * @private
              */
             _extendDataSourceOptions: function (params) {
+
+                // TODO total size + upload progress
+
                 var options = this.options;
                 if ($.isPlainObject(params)) { // Especially, params is not an instanceof DataSource
                     params = $.extend(true, {}, {
@@ -428,36 +457,33 @@
                                 id: 'url',
                                 fields: {
                                     size: { type: NUMBER, editable: false },
-                                    url:  { type: STRING, editable: false, nullable: true },
-                                    file: { defaultValue: null } // Note: we need this for uploading files
+                                    type: { type: STRING, nullable: true }, // Note: we need this otherwise Google images without extensions cannot be viewed
+                                    url:  { type: STRING, editable: false, nullable: true }
                                 },
                                 name$: function () {
-                                    var url = this.get('url');
-                                    if ($.type(url) !== STRING) {
-                                        return options.messages.data.defaultName;
-                                    }
-                                    return nameFormatter(url);
+                                    return nameFormatter(this.get('url'));
                                 },
                                 size$: function () {
                                     return sizeFormatter(this.get('size'));
                                 },
                                 type$: function () {
-                                    var url = this.get('url');
-                                    if ($.type(url) === UNDEFINED) {
-                                        return 'application/octet-stream';
+                                    var type = this.get('type');
+                                    if (type) {
+                                        return type;
                                     }
-                                    return typeFormatter(url);
+                                    var url = this.get('url');
+                                    if (url) {
+                                        return typeFormatter(url);
+                                    }
+                                    return 'application/octet-stream';
                                 },
                                 url$: function () {
-                                    var url = this.get('url');
-                                    if ($.type(url) !== STRING) {
-                                        return options.messages.data.defaultImage; // TODO loading image
-                                    }
                                     return urlFormatter(this.get('url'), options.schemes);
                                 }
                             },
                             total: 'total'
                         },
+                        serverFiltering: false,
                         serverPaging: false
                     }, params);
                 }
@@ -526,7 +552,8 @@
                 assert.instanceof($, that.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'window.jQuery'));
 
                 // Collection drop down list
-                that.dropDownList = that.toolbar.find('div.k-toolbar-wrap select')
+                // that.dropDownList = that.toolbar.find('div.k-toolbar-wrap select')
+                that.dropDownList = that.toolbar.find(kendo.roleSelector('dropdownlist'))
                     .kendoDropDownList({
                         dataSource: [],
                         dataTextField: 'name',
@@ -536,6 +563,18 @@
                     })
                     .data('kendoDropDownList');
                 assert.instanceof(DropDownList, that.dropDownList, kendo.format(assert.messages.instanceof.default, 'this.dropDownList', 'kendo.ui.DropDownList'));
+
+                // Split button
+                that.splitButton = that.toolbar.find(kendo.roleSelector('splitbutton'))
+                    .kendoSplitButton({
+                        icon: 'hyperlink-open',
+                        text: options.messages.toolbar.import,
+                        menuButton: []
+                        // change: that._onDropDownListChange.bind(that)
+                        // dataBound: that._onDropDownListDataBound.bind(that)
+                    })
+                    .data('kendoSplitButton');
+                assert.instanceof(SplitButton, that.splitButton, kendo.format(assert.messages.instanceof.default, 'this.splitButton', 'kendo.ui.SplitButton'));
 
                 // Progress bar
                 that.progressBar = that.toolbar.find('div.k-tiles-arrange .k-progressbar')
@@ -609,6 +648,37 @@
             },
 
             /**
+             * Update the tab after changing dataSource
+             * @private
+             */
+            _updateTab: function () {
+                assert.isArray(this._collections, kendo.format(assert.messages.isArray.default, 'this._collections'));
+                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
+
+                var collection = this.collection;
+                var tools = collection.tools || [];
+
+                // Show/hide upload and delete buttons which are only available on tabs corresponding to editable collections
+                this.toolbar.find('.k-toolbar-wrap > .k-label').toggle(collection.depth > 0);
+                this.toolbar.find('.k-toolbar-wrap >.k-upload').toggle(tools.indexOf('upload') > -1);
+                this.toolbar.find('.k-toolbar-wrap >.kj-splitbutton').toggle(tools.indexOf('import') > -1); // TODO import targets
+                this.toolbar.find('.k-toolbar-wrap >.k-button').has('.k-i-file-add').toggle(tools.indexOf('create') > -1);
+                this.toolbar.find('.k-toolbar-wrap >.k-button').has('.k-i-track-changes-enable').toggle(tools.indexOf('edit') > -1);
+                this.toolbar.find('.k-toolbar-wrap >.k-button').has('.k-i-delete').toggle(tools.indexOf('destroy') > -1);
+                // this.toolbar.find('div.k-tiles-arrange .k-progressbar').hide();
+
+                // Change data source
+                this.listView.setDataSource(collection.dataSource);
+                this.pager.setDataSource(collection.dataSource);
+                this.pager.refresh();
+
+                // add/remove k-state-nodrop to dropZone
+                if (this.dropZone instanceof $) {
+                    this.dropZone.toggleClass('k-state-nodrop', collection.editable);
+                }
+            },
+
+            /**
              * Event handler triggered when selecting another collection in the toolbar drop down list
              * @private
              */
@@ -631,29 +701,233 @@
             },
 
             /**
-             * Update the tab after changing dataSource
+             * Event handler triggered when clicking the upload button and selecting a file (which changes the file input)
+             * @param e
              * @private
              */
-            _updateTab: function () {
-                assert.isArray(this._collections, kendo.format(assert.messages.isArray.default, 'this._collections'));
-                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
-
-                var collection = this.collection;
-
-                // Show/hide upload and delete buttons which are only available on tabs corresponding to editable collections
-                this.toolbar.find('.k-upload').toggle(collection.editable);
-                this.toolbar.find('.k-button').toggle(collection.editable);
-                this.toolbar.find('label').toggle(!!collection.depth);
-
-                // Change data source
-                this.listView.setDataSource(collection.dataSource);
-                this.pager.setDataSource(collection.dataSource);
-                this.pager.refresh();
-
-                // add/remove k-state-nodrop to dropZone
-                if (this.dropZone instanceof $) {
-                    this.dropZone.toggleClass('k-state-nodrop', collection.editable);
+            _onFileInputChange: function (e) {
+                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
+                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
+                // Note: Set multiple attribute onto html file input tag for multiple uploads
+                var fileList = e.target.files;
+                if (fileList instanceof window.FileList && fileList.length) {
+                    this._uploadFileList(fileList);
                 }
+            },
+
+            /**
+             * Upload a file list
+             * @param fileList
+             * @private
+             */
+            _uploadFileList: function (fileList) {
+                assert.instanceof(window.FileList, fileList, kendo.format(assert.messages.instanceof.default, 'fileList', 'window.FileList'));
+
+                function execUpload() {
+                    var promises = [];
+                    for (var i = 0, length = fileList.length; i < length; i++) {
+                        promises.push(that._uploadFile(fileList[i]));
+                    }
+                    that._showUploadProgress();
+                    $.when(promises).always(that._hideUploadProgress.bind(that));
+                }
+
+                var that = this;
+                var options = that.options;
+                var found = [];
+                for (var i = 0, length = fileList.length; i < length; i++) {
+                    var dataItem = that._findDataItem(fileList[i].name);
+                    if (dataItem) {
+                        found.push(dataItem.name$());
+                    }
+                }
+                if (found.length) {
+                    kendo.alertEx({
+                        type: kendo.ui.MessageBox.fn.type.warning,
+                        title: options.messages.dialogs.confirm,
+                        message: kendo.format(options.messages.dialogs.warningOverwrite, found.join('`, `')),
+                        actions: [
+                            { action: 'ok', text: options.messages.dialogs.ok.text, primary: true, imageUrl: options.messages.dialogs.ok.imageUrl },
+                            { action: 'cancel', text: options.messages.dialogs.cancel.text, primary: true, imageUrl: options.messages.dialogs.cancel.imageUrl }
+                        ]
+                    })
+                        .done(function (e) {
+                            if (e.action === 'ok') {
+                                execUpload();
+                            }
+                        });
+                } else {
+                    execUpload();
+                }
+            },
+
+            /**
+             * Show upload progress
+             * @private
+             */
+            _showUploadProgress: function () {
+                // Disable buttons
+                // Hide uplaod
+                // Show progress bar
+                this.listView.element.addClass('k-loading');
+            },
+
+            /**
+             * Hide upload progress / Restore upload button
+             * @private
+             */
+            _hideUploadProgress: function () {
+                this.toolbar.find('.k-upload input[type=file]').val('');
+                this.listView.element.removeClass('k-loading');
+            },
+
+            /**
+             * Find a file by fileName
+             * @param fileName
+             * @returns {*}
+             * @private
+             */
+            _findDataItem: function (fileName) {
+                assert.type(STRING, fileName, kendo.format(assert.messages.type.default, 'fileName', STRING));
+                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                var data = this.listView.dataSource.data();
+                // Note the following matches compliant file renaming in app.rapi.js (but this is not very generic for a widget)
+                var pos = fileName.lastIndexOf('.');
+                // In fileName.substr(0, pos), any non-alphanumeric character shall be replaced by underscores
+                // Then we shall simplify duplicated underscores and trim underscores at both ends
+                var end = fileName.substr(0, pos).replace(/[^\w\\\/]+/gi, '_').replace(/_{2,}/g, '_').replace(/(^_|_$)/, '') + '.' + fileName.substr(pos + 1);
+                for (var i = 0, length = data.length; i < length; i++) {
+                    if (data[i].url.endsWith(end)) {
+                        return data[i];
+                    }
+                }
+            },
+
+            /**
+             * Create Data Item
+             * @param file
+             * @returns {*}
+             * @private
+             */
+            _createDataItem: function (file) {
+                assert.type(OBJECT, file, kendo.format(assert.messages.type.default, 'file', OBJECT));
+                assert.type(NUMBER, file.size, kendo.format(assert.messages.type.default, 'file.size', NUMBER));
+                assert.type(STRING, file.type, kendo.format(assert.messages.type.default, 'file.type', STRING));
+                assert.type(STRING, file.url, kendo.format(assert.messages.type.default, 'file.url', STRING));
+                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                var that = this;
+                var ret = that._findDataItem(file.name);
+                if (ret) {
+                    ret.accept({
+                        size: file.size,
+                        type: file.type,
+                        url: file.url
+                    });
+                    ret._override = true;
+                } else {
+                    ret = new that.listView.dataSource.reader.model({
+                        size: file.size,
+                        type: file.type,
+                        url: file.url
+                    });
+                }
+                return ret;
+            },
+
+            /**
+             * Insert Data Item
+             * @param model
+             * @returns {*}
+             * @private
+             */
+            _insertDataItem: function (model) {
+                assert.instanceof(kendo.data.Model, model, kendo.format(assert.messages.instanceof.default, 'model', 'kendo.data.Model'));
+                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                var index;
+                debugger;
+                if (model._override) {
+                    return model;
+                }
+                var dataSource = this.listView.dataSource;
+                var view = dataSource.view();
+                for (var i = 0, length = view.length; i < length; i++) {
+                    if (view[i].get('type') === 'f') {
+                        index = i;
+                        break;
+                    }
+                }
+                return dataSource.insert(++index, model);
+            },
+
+            /**
+             * Upload one file or blob
+             * @param file
+             * @private
+             */
+            _uploadFile: function (file) {
+                // Note a window.File is a sort of window.Blob with a name
+                // assert.instanceof(window.File, file, kendo.format(assert.messages.instanceof.default, 'file', 'window.File'));
+                assert.instanceof(window.Blob, file, kendo.format(assert.messages.instanceof.default, 'file', 'window.Blob'));
+                assert.type(STRING, file.name, kendo.format(assert.messages.type.default, 'file.name', STRING));
+                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                var that = this;
+                var dfd = $.Deferred();
+                var upload = that.listView.dataSource.transport && that.listView.dataSource.transport.upload;
+                if ($.isFunction(upload)) {
+                    // Let us replicate the way kendo.data.DataSource transports work
+                    upload({
+                        data: {
+                            file: file
+                        },
+                        success: function (response) {
+                            assert.type(OBJECT, response, kendo.format(assert.messages.type.default, 'response', OBJECT));
+                            assert.isArray(response.data, kendo.format(assert.messages.isArray.default, 'reponse.data'));
+                            assert.equal(1, response.data.length, kendo.format(assert.messages.equal.default, 'response.data.length', 1));
+                            // Upon successful upload, add a new dataItem to the listview dataSource
+                            var model = that._createDataItem(response.data[0]);
+                            assert.equal(model.name$(), response.data[0].name, kendo.format(assert.messages.equal.default, 'response.data[0].name', 'model.name$()'));
+                            that._insertDataItem(model);
+                            dfd.resolve(model);
+                        },
+                        error: function (xhr, status, error) {
+                            dfd.reject(xhr, status, error);
+                            that._xhrErrorHandler(xhr, status, error);
+                        }
+                    });
+                }
+                return dfd.promise();
+            },
+
+            /**
+             * Import an external url
+             * @param file
+             * @private
+             */
+            _importUrl: function (url) {
+                assert.type(STRING, url, kendo.format(assert.messages.type.default, 'url', STRING));
+                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView.dataSource', 'kendo.data.DataSource'));
+                var that = this;
+                var dfd = $.Deferred();
+                var upload = that.listView.dataSource.transport && that.listView.dataSource.transport.upload;
+                if ($.isFunction(upload)) {
+                    // Let us replicate the way kendo.data.DataSource transports work
+                    upload({
+                        data: {
+                            url: url // TODO
+                        },
+                        success: dfd.resolve,
+                        error: dfd.reject
+                    });
+                }
+                return dfd.promise();
             },
 
             /**
@@ -663,14 +937,11 @@
              */
             _onButtonClick: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-
-                // TODO upload and import!!!!!
-
-                if ($(e.currentTarget).has('.k-i-image-insert').length) {
+                if ($(e.currentTarget).has('.k-i-file-add').length) {
                     if (!this.trigger(CLICK, { action: ACTION.CREATE })) {
                         this._editNew();
                     }
-                } else if ($(e.currentTarget).has('.k-i-image-edit').length) {
+                } else if ($(e.currentTarget).has('.k-i-track-changes-enable').length) {
                     if (!this.trigger(CLICK, { action: ACTION.EDIT })) {
                         this._editSelected();
                     }
@@ -682,73 +953,24 @@
             },
 
             /**
-             * Event handler triggered when clicking the upload button and selecting a file (which changes the file input)
-             * @param e
-             * @private
-             */
-            _onFileInputChange: function (e) {
-                var that = this;
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
-                assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
-                this._uploadFiles(e.target.files);
-            },
-
-            /**
-             * Upload files
-             * @param files
-             * @private
-             */
-            _uploadFiles: function (files) {
-                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
-                // TODO assert.ok(this.tabStrip.select().index() === 0 && this._hasProjectTransport(), 'The asset manager is expected to be configured with a transport for the project tab');
-                var that = this;
-                if (files instanceof window.FileList && files.length) {
-                    that.listView.element.addClass('k-loading');
-                    // finder is used to satisfy jshint which would otherwise complain about making functions within loops
-                    var finder = function (file) {
-                        return that.dataSource.data().find(function (dataItem) {
-                            return new RegExp('/' + file.name + '$').test(dataItem.url);
-                        });
-                    };
-                    // Note: Add multiple attribute to html file input for multiple uploads
-                    for (var i = 0, length = files.length; i < length; i++) {
-                        // Find possible duplicate
-                        var duplicate = finder(files[i]);
-                        // Remove duplicate
-                        if (duplicate instanceof kendo.data.ObservableObject) {
-                            that.dataSource.remove(duplicate);
-                        }
-                        // Add new asset
-                        that.dataSource.add({
-                            size: files[i].size,
-                            file: files[i]
-                        });
-                    }
-                    // Note: syncing to the dataSource calls the create transport where you should actually upload your file,
-                    // update the url and push to the dataSource using the options.success callback
-                    // if there is an error, call options.error and cancel changes in the error event raised by the widget
-                    that.dataSource.sync()
-                        .always(function () {
-                            that.toolbar.find('.k-upload input[type=file]').val('');
-                            that.listView.element.removeClass('k-loading');
-                        });
-                }
-            },
-
-            /**
-             * Edit new file in editor
+             * Edit a new file in editor
              * @private
              */
             _editNew: function () {
                 var that = this;
-                var options = this.options;
                 var windowWidget = that.getWindow();
                 windowWidget.viewModel = kendo.observable({
                     // See kendo.saveAs and proxyURL
                     // TODO http://docs.telerik.com/kendo-ui/framework/save-files/introduction
                     url: '',
                     fileName: '',
-                    dataURI: undefined
+                    dataURI: undefined,
+                    click: function (e) {
+                        debugger;
+                        if (e.action === 'save') {
+                            $.noop();
+                        }
+                    }
                 });
                 windowWidget.content(that.collection.editor);
                 kendo.bind(windowWidget.element, windowWidget.viewModel);
@@ -760,7 +982,30 @@
              * @private
              */
             _editSelected: function () {
-                debugger;
+                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
+                assert.instanceof(kendo.ui.ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                var dataItem = this.listView.dataItem(this.listView.select());
+                if (dataItem instanceof kendo.data.Model) {
+                    logger.debug({ method: '_editSelected', message: 'Asset editing', data: dataItem.toJSON() });
+                    var windowWidget = this.getWindow();
+                    windowWidget.viewModel = kendo.observable({
+                        // See kendo.saveAs and proxyURL
+                        // TODO http://docs.telerik.com/kendo-ui/framework/save-files/introduction
+                        url: dataItem.url$(),
+                        fileName: '',
+                        dataURI: undefined,
+                        click: function (e) {
+                            debugger;
+                            if (e.action === 'save') {
+                                $.noop();
+                            }
+                        }
+                    });
+                    windowWidget.content(this.collection.editor.template);
+                    kendo.bind(windowWidget.element, windowWidget.viewModel);
+                    windowWidget.center().open();
+                }
             },
 
             /**
@@ -768,11 +1013,15 @@
              * @private
              */
             _deleteSelected: function () {
-                var file = this.dataSource.get(this.value());
-                if (file instanceof kendo.data.Model) {
-                    this.dataSource.remove(file);
+                assert.isPlainObject(this.collection, kendo.format(assert.messages.isPlainObject.default, 'this.collection'));
+                assert.instanceof(kendo.ui.ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.equal(this.collection.dataSource, this.listView.dataSource, kendo.format(assert.messages.equal.default, 'this.listView.dataSource', 'this.collection.dataSource'));
+                var dataItem = this.listView.dataItem(this.listView.select());
+                if (dataItem instanceof kendo.data.Model) {
+                    logger.debug({ method: '_deleteSelected', message: 'Asset deletion', data: dataItem.toJSON() });
+                    this.listView.dataSource.remove(dataItem);
                     // dataSource.sync calls transport.destroy if available
-                    this.dataSource.sync();
+                    this.listView.dataSource.sync();
                 }
             },
 
@@ -798,7 +1047,8 @@
             _onSearchInputChange: function (e) {
                 assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'window.jQuery.Event'));
                 assert.instanceof(window.HTMLInputElement, e.target, kendo.format(assert.messages.instanceof.default, 'e.target', 'window.HTMLInputElement'));
-                assert.instanceof(kendo.ui.ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(ListView, this.listView, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.ui.ListView'));
+                assert.instanceof(DataSource, this.listView.dataSource, kendo.format(assert.messages.instanceof.default, 'this.listView', 'kendo.data.DataSource'));
                 var filter = getDataSourceFilter(this.options.extensions);
                 var value =  $(e.target).val();
                 var search = { field: 'url', operator: 'contains', value: value };
@@ -849,7 +1099,7 @@
                     .kendoListView({
                         // autoBind: false,
                         change: this._onListViewChange.bind(this),
-                        dataBinding: this._onListViewDataBinding.bind(this),
+                        // dataBinding: this._onListViewDataBinding.bind(this),
                         dataBound: this._onListViewDataBound.bind(this),
                         dataSource: dataSource,
                         selectable: true,
@@ -877,14 +1127,9 @@
                 assert.instanceof(TabStrip, this.tabStrip, kendo.format(assert.messages.instanceof.default, 'this.tabStrip', 'kendo.ui.TabStrip'));
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 if (this._selectedItem() instanceof ObservableObject) {
-                    $.noop(); // Otherwise empty block
-                    /* TODO
-                    if (this.tabStrip.select().index() === 0 && this._hasProjectTransport()) {
-                        this.toolbar.find('.k-i-close').parent().removeClass('k-state-disabled').show();
-                        this.toolbar.find('div.k-tiles-arrange .k-progressbar').show();
-                    }
-                    this.trigger(CHANGE, { value: this.value() });
-                    */
+                    this.toolbar.find('.k-i-track-changes-enable').parent().removeClass('k-state-disabled');
+                    this.toolbar.find('.k-i-delete').parent().removeClass('k-state-disabled');
+                    this.trigger(CHANGE);
                 }
             },
 
@@ -892,11 +1137,13 @@
              * Event handler triggered when data binding a new collection
              * @private
              */
+            /*
             _onListViewDataBinding: function () {
                 assert.instanceof($, this.toolbar, kendo.format(assert.messages.instanceof.default, 'this.toolbar', 'jQuery'));
                 this.toolbar.find('.k-i-close').parent().addClass('k-state-disabled').hide();
                 this.toolbar.find('div.k-tiles-arrange .k-progressbar').hide();
             },
+            */
 
             /**
              * Event handler triggered after data binding a new collection
@@ -946,7 +1193,7 @@
                         .appendTo(document.body)
                         .kendoWindow({
                             // Note: we are using a window to get maximize and close in the title bar
-                            actions: [ "Close", "Maximize" ],
+                            actions: ['Close', 'Maximize'],
                             content: '',
                             modal: true,
                             visible: false,
@@ -968,8 +1215,19 @@
             },
 
             /**
+             * $.ajax error handler
+             * @param xhr
+             * @param status
+             * @param error
+             * @private
+             */
+            _xhrErrorHandler: function (xhr, status, error) {
+                // TODO
+            },
+
+            /**
              * Data error handler
-             * @param e
+             * @param e error event
              * @private
              */
             _dataError: function (e) {
@@ -988,7 +1246,8 @@
                         that._showMessage('Error! Server timeout.');
                     }
                     */
-                    that.dataSource.cancelChanges();
+
+                    that.collection.dataSource.cancelChanges();
                 }
             },
 
@@ -1044,8 +1303,8 @@
                 e.preventDefault();
                 if (this.dropZone instanceof $ && !this.dropZone.hasClass('.k-state-nodrop')) {
                     var dt = e.originalEvent.dataTransfer;
-                    var files = dt.files;
-                    this._uploadFiles(files);
+                    var fileList = dt.files;
+                    this._uploadFileList(fileList);
                 }
             },
 

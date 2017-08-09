@@ -19,6 +19,9 @@
 
     'use strict';
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
+
     (function ($, undefined) {
 
         var kendo = window.kendo;
@@ -34,7 +37,7 @@
         var AudioContext = window.AudioContext || window.webkitAudioContext;
         var MediaStream = window.MediaStream || window.webkitMediaStream;
         var WindowRecorder = window.MediaRecorder; // Our widget is MediaRecorder
-        // var UNDEFINED = 'undefined';
+        var UNDEFINED = 'undefined';
         var CHANGE = 'change';
         var CLICK = 'click';
         var ERROR = 'error';
@@ -53,6 +56,24 @@
         /*********************************************************************************
          * Helpers
          *********************************************************************************/
+
+        /**
+         * navigator.mediaDevices.enumerateDevices converted to jQuery promises
+         * @see https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
+         * @see https://developers.google.com/web/updates/2015/10/media-devices
+         * @see https://webrtc.github.io/samples/src/content/devices/input-output/
+         */
+        function enumerateDevices () {
+            var dfd = $.Deferred();
+            if (navigator.mediaDevices && $.isFunction(navigator.mediaDevices.enumerateDevices)) {
+                navigator.mediaDevices.enumerateDevices()
+                .then(dfd.resolve)
+                .catch(dfd.reject);
+            } else {
+                dfd.resolve([]); // No device found
+            }
+            return dfd.promise();
+        }
 
         /**
          * navigator.mediaDevices.getUserMedia converted to jQuery promises
@@ -110,20 +131,20 @@
             // but works around a current Chrome bug.
             processor.connect(audioContext.destination);
 
-            processor.checkClipping =
-                function(){
-                    if (!this.clipping)
-                        return false;
-                    if ((this.lastClip + this.clipLag) < window.performance.now())
-                        this.clipping = false;
-                    return this.clipping;
-                };
+            processor.checkClipping = function () {
+                if (!this.clipping) {
+                    return false;
+                }
+                if ((this.lastClip + this.clipLag) < window.performance.now()) {
+                    this.clipping = false;
+                }
+                return this.clipping;
+            };
 
-            processor.shutdown =
-                function(){
-                    this.disconnect();
-                    this.onaudioprocess = null;
-                };
+            processor.shutdown = function () {
+                this.disconnect();
+                this.onaudioprocess = null;
+            };
 
             return processor;
         }
@@ -133,16 +154,20 @@
          * @see http://ourcodeworld.com/articles/read/413/how-to-create-a-volume-meter-measure-the-sound-level-in-the-browser-with-javascript
          * @param event
          */
-        function volumeAudioProcess( event ) {
+        function volumeAudioProcess(event) {
+
+            /* If a strict mode function is executed using function invocation, its 'this' value will be undefined. */
+            /* jshint -W040 */
+
             var buf = event.inputBuffer.getChannelData(0);
             var bufLength = buf.length;
             var sum = 0;
             var x;
 
             // Do a root-mean-square on the samples: sum up the squares...
-            for (var i=0; i<bufLength; i++) {
+            for (var i = 0; i < bufLength; i++) {
                 x = buf[i];
-                if (Math.abs(x)>=this.clipLevel) {
+                if (Math.abs(x) >= this.clipLevel) {
                     this.clipping = true;
                     this.lastClip = window.performance.now();
                 }
@@ -155,7 +180,10 @@
             // Now smooth this out with the averaging factor applied
             // to the previous sample - take the max here because we
             // want "fast attack, slow release."
-            this.volume = Math.max(rms, this.volume*this.averaging);
+            this.volume = Math.max(rms, this.volume * this.averaging);
+
+            /* jshint +W040 */
+
         }
 
         /*********************************************************************************
@@ -206,10 +234,14 @@
                 // audioBitsPerSecond : 128000,
                 // videoBitsPerSecond : 2500000,
                 codecs: '',
-                proxyURL: '',
+                devices: false,
+                proxyURL: '', // for kendo.saveAs
                 messages: {
+                    camera: 'Camera',
+                    microphone: 'Microphone',
                     pauseResume: 'Pause/Resume',
                     record: 'Record',
+                    speaker: 'Speaker',
                     stop: 'Stop',
                     unsupported: 'Media recording is only available on Chrome and Firefox'
                 }
@@ -343,16 +375,55 @@
              */
             _initToolbar: function () {
                 var messages = this.options.messages;
-                // TODO audio and video source selection
-                // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
 
+                // Build the toolbar
                 this.toolbar = $('<div class="k-toolbar k-widget kj-mediarecorder-toolbar"></div>')
                     .append(kendo.format(BUTTON_TMPL, 'save', messages.save, 'save'))
                     .append(kendo.format(BUTTON_TMPL, 'record', messages.record, 'circle'))
                     .append(kendo.format(TOOGLE_TMPL, 'pauseResume', messages.pauseResume, 'pause'))
-                    .append(kendo.format(BUTTON_TMPL, 'stop', messages.stop, 'stop'))
+                    .append(kendo.format(BUTTON_TMPL, 'stop', messages.stop, 'stop')) // TODO Add mute/unmute toggle button
                     .appendTo(this.element)
                     .on(CLICK + NS, 'a.k-button', this._onButtonClick.bind(this));
+
+                if (this.options.devices) {
+
+                    /* This function's cyclomatic complexity is too high. */
+                    /* jshint -W074 */
+
+                    // Display recording devices - see https://webrtc.github.io/samples/src/content/devices/input-output/
+                    enumerateDevices().done(function (devices) {
+                        var cameras = [];
+                        var microphones = [];
+                        var speakers = [];
+                        for (var i = 0, length = devices.length; i < length; i++) {
+                            var device = devices[i];
+                            switch (device.kind) {
+                                case 'audioinput':
+                                    microphones.push({
+                                        id: device.deviceId,
+                                        name: device.label || messages.microphone + ' ' + (microphones.length + 1)
+                                    });
+                                    break;
+                                case 'audiooutput':
+                                    speakers.push({
+                                        id: device.deviceId,
+                                        name: device.label || messages.speaker + ' ' + (speakers.length + 1)
+                                    });
+                                    break;
+                                case 'videoinput':
+                                    cameras.push({
+                                        id: device.deviceId,
+                                        name: device.label || messages.camera + ' ' + (cameras.length + 1)
+                                    });
+                                    break;
+                            }
+                        }
+                        // TODO feed toolbar Dropdownlists
+                        // Implement change event to setSinkId as in https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js#L58
+                    }).fail(this._onError);
+
+                    /* jshint +W074 */
+                }
             },
 
             /**
@@ -387,6 +458,9 @@
                     .toggleClass(DISABLED_CLASS, isInactive);
             },
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Gets the mime type
              * @see https://cs.chromium.org/chromium/src/third_party/WebKit/LayoutTests/fast/mediarecorder/MediaRecorder-isTypeSupported.html
@@ -418,6 +492,8 @@
                 }
                 return !!withCodecs ? kendo.format(MIME_TYPE, options.mimeType, options.codecs) : options.mimeType;
             },
+
+            /* jshint +W074 */
 
             /**
              * Save function
@@ -489,16 +565,33 @@
             },
 
             /**
+             * Mute/unmute
+             * @param muted
+             */
+            mute: function (muted) {
+                var recorder = this._recorder;
+                if (recorder instanceof WindowRecorder) {
+                    muted = $.type(muted) === UNDEFINED ? true : !!muted;
+                    recorder.stream.getAudioTracks().
+                        forEach(function (track) { track.enabled = !muted; });
+                } else {
+                    // TODO: Not yet implemented in the toolbar because we need to be able to set it both before (recorder is not yet available) and during recording
+                    $.noop();
+                }
+            },
+
+            /**
              * Error event handler
              * @param err
              * @private
              */
             _onError: function (err) {
+                logger.error({ method: '_onError', error: err });
                 if (!this.trigger(ERROR, { originalError: err })) {
                     if (err.name === 'TrackStartError') { // instanceof window.NavigatorUserMediaError) {
-
+                        // TODO: Warn user that most probably another program has got hold of the webcam + microphone recording devices
+                        $.noop();
                     }
-                    window.alert('Oops, there was an error: ' + err.message); // TODO
                 }
             },
 
@@ -564,7 +657,7 @@
                 if (preview.src) {
                     // setTimeout() here is needed for Firefox.
                     // https://developers.google.com/web/updates/2016/01/mediarecorder
-                    // setTimeout(function() { URL.revokeObjectURL(preview.src)); }, 100);
+                    // setTimeout(function () { URL.revokeObjectURL(preview.src)); }, 100);
                     URL.revokeObjectURL(preview.src);
                 }
                 preview.srcObject = null;
@@ -589,12 +682,12 @@
             },
 
             /**
-             * This is called by widget.resize
+             * Function called by widget.resize and kendo.resize
              * @param e
              * @private
              */
             _resize: function (e) {
-                // TODO to make video as big as possible and centered in widget
+                // TODO to make video as big as possible and centered in widget, but is this the best option?
             },
 
             /**
@@ -629,6 +722,8 @@
         ui.plugin(MediaRecorder);
 
     } (window.jQuery));
+
+    /* jshint +W071 */
 
     return window.kendo;
 
