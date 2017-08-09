@@ -133,7 +133,10 @@
             rapi: {
                 root: '<%- uris.rapi.root %>',
                 blank: url.join('<%- uris.rapi.root %>', convertFormat('<%- uris.rapi.blank %>')),
-                logger: '<%- uris.rapi.root %>' + convertFormat('<%- uris.rapi.logger %>')
+                logger: url.join('<%- uris.rapi.root %>', convertFormat('<%- uris.rapi.logger %>')),
+                web: {
+                    search: url.join('<%- uris.rapi.root %>', convertFormat('<%- uris.rapi.web.search %>'))
+                }
             },
             cdn: {
                 icons: url.join('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))

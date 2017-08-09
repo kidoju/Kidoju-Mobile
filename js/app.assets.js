@@ -29,6 +29,9 @@
      * but the transport is dependant upon the tool (set by a component selection) and the summaryId (set by the page url)
      * when app.models is a wrapper for rapi calls which neither know the tool or the summaryId
      * Maybe this could be parameterized but then it would have to be feeded into the AssetManager.
+     *
+     * Note that app.assets is built by config.jsx and is a set of config options for asset collections
+     * kidoju.assets are the actual assets to be used in kidoju.widgets.assetmanager
      */
 
     /* This function has too many statements. */
@@ -45,164 +48,272 @@
         var logger = new window.Logger('app.assets');
         var STRING = 'string';
         var NUMBER = 'number';
-        var ARRAY = 'array';
         var VERSION_HIDDEN_FIELD = 'input[type="hidden"][name="version"]';
         var DATA_SCHEME = 'data://';
         var RX_DATA_URL = /^data:\/\/s\/([^\/]+)\/([^\/]+)\/([^\/]+)$/;
 
         // Ensure app.assets have been loaded from app.config.jsx
         assert.isPlainObject(app.assets, kendo.format(assert.messages.isPlainObject.default, 'app.assets'));
+        assert.isPlainObject(app.assets.audio, kendo.format(assert.messages.isPlainObject.default, 'app.assets.audio'));
+        assert.isPlainObject(app.assets.icon, kendo.format(assert.messages.isPlainObject.default, 'app.assets.icon'));
+        assert.isPlainObject(app.assets.image, kendo.format(assert.messages.isPlainObject.default, 'app.assets.image'));
+        assert.isPlainObject(app.assets.video, kendo.format(assert.messages.isPlainObject.default, 'app.assets.video'));
 
         /**
-         * Set the dataSource transport
-         * @type {{create: transport.create, read: transport.read, update: transport.update, destroy: transport.destroy}}
-         * Note: When we will organizations, we might consider a summaryTransport and an organizationTransport to fill two separate tabs from an AssetManager
+         * DataSource options for custom collection types defined in config files, especially default.json
+         * @type {{websearch: websearch, summary: summary, organisation: organisation}}
          */
-        function transport(tool) {
-            return {
-                create: function (options) {
-                    var locale = i18n.locale();
-                    var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
-                    var data = options.data;
-                    assert.instanceof(window.File, data.file, kendo.format(assert.messages.instanceof.default, 'data.file', 'File'));
-                    assert.type(NUMBER, data.size, kendo.format(assert.messages.type.default, 'data.size', NUMBER));
-                    logger.debug({
-                        message: 'getting a secure upload url',
-                        method: tool + '.transport.create',
-                        data: { language: locale, summaryId: params.summaryId, tool: tool }
-                    });
-                    rapi.v1.content.getUploadUrl(locale, params.summaryId, data.file)
-                        .done(function (uploadUrl) {
-                            logger.debug({
-                                message: 'uploading to secure url',
-                                method: tool + '.transport.create',
-                                data: { language: locale, summaryId: params.summaryId, tool: tool, uploadUrl: uploadUrl }
-                            });
-                            rapi.v1.content.uploadFile(uploadUrl, data.file)
-                                .progress(function (e) {
-                                    if (e.lengthComputable) {
-                                        $(document).trigger('progress.kendoAssetManager', [e.loaded / e.total, 'progress']);
-                                    }
-                                })
+        var collectionTypes = {
+
+            /**
+             * Creates a web search collection for a search provider
+             * @param params including provider (google, bing, ...) and type (image, video, ... but not a complete mime type)
+             * @returns {{}}
+             */
+            websearch: function (params) {
+                return {
+                    name: 'Google', // TODO i18n.culture.assets.collections[params.provider],
+                    tools: ['import'],
+                    // targets: ['Project'], // TODO ????????????????????????????????????????????????????????????????
+                    pageSize: params.pageSize, // this is for Google
+                    serverPaging: true,
+                    serverFiltering: true,
+                    transport: {
+                        read: function (options) {
+                            var qs = options.data;
+                            // options.data.filter is built by the assetmanager search box
+                            qs.q = (qs.filter && qs.filter.logic === 'and' && qs.filter.filters && qs.filter.filters[1] && qs.filter.filters[1].field === 'url' && qs.filter.filters[1].value) || '';
+                            qs.type = params.type;
+                            qs.language = i18n.locale();
+                            qs.filter = undefined; // filter is replaced by q
+                            app.rapi.web.search(params.provider, qs)
+                                .done(options.success)
+                                .fail(options.error);
+                        }
+                    }
+                }
+            },
+
+            /**
+             * Creates an editable collection for a summary
+             */
+            summary: function () {
+                return {
+                    name: 'Project', // TODO i18n.culture.assets.collections.summary,
+                    tools: ['upload', 'create', 'edit', 'destroy'],
+                    // pageSize: 12,
+                    // serverPaging: false,
+                    // serverFiltering: false,
+                    transport: {
+
+                        /**
+                         * Create transport
+                         * @param options
+                         */
+                        create: function(options) {
+                            debugger;
+                        },
+
+                        /**
+                         * Destroy transport
+                         * @param options
+                         */
+                        destroy: function(options) {
+                            var locale = i18n.locale();
+                            var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
+                            var data = options.data;
+                            assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
+                            assert.type(STRING, data.url, kendo.format(assert.messages.type.default, 'data.url', STRING));
+                            var matches = data.url.match(RX_DATA_URL);
+                            assert.equal(4, matches.length, kendo.format(assert.messages.equal.default, 'matches.length', 4));
+                            assert.equal(locale, matches[1], kendo.format(assert.messages.equal.default, 'matches[1]', locale));
+                            assert.equal(params.summaryId, matches[2], kendo.format(assert.messages.equal.default, 'matches[2]', params.summaryId));
+                            // Delete file
+                            rapi.v1.content.deleteFile(matches[1], matches[2], matches[3])
                                 .done(function (response) {
-                                    assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
-                                    assert.type(STRING, response.name, kendo.format(assert.messages.type.default, 'response.name', STRING));
-                                    assert.type(NUMBER, response.size, kendo.format(assert.messages.type.default, 'response.size', NUMBER));
-                                    assert.type(STRING, response.type, kendo.format(assert.messages.type.default, 'response.type', STRING));
-                                    assert.type(STRING, response.url, kendo.format(assert.messages.type.default, 'response.url', STRING));
                                     logger.debug({
-                                        message: 'new file uploaded',
-                                        method: tool + '.transport.create',
-                                        data: $.extend({ language: locale, summaryId: params.summaryId, tool: tool }, response)
+                                        message: 'file deleted',
+                                        method: 'summary.transport.destroy',
+                                        data: $.extend({ language: locale, summaryId: params.summaryId, url: data.url }, response)
                                     });
-                                    options.success({ data: [response], total: 1 });
-                                    $(document).trigger('progress.kendoAssetManager', [1, 'complete']);
+                                    options.success({ data: [data], total: 1 });
                                     assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                    app.notification.success(i18n.culture.editor.notifications.fileCreateSuccess);
+                                    app.notification.success(i18n.culture.editor.notifications.fileDeleteSuccess);
                                 })
                                 .fail(function (xhr, status, error) {
                                     logger.error({
-                                        message: 'file storage upload error',
-                                        method: tool + '.transport.create',
-                                        data: { status: status, error: error, response: xhr.responseText }
+                                        message: 'file deletion error',
+                                        method: 'summary.transport.destroy',
+                                        data: { status: status, error: error, reponse: xhr.responseText }
                                     });
                                     options.error(xhr, status, error);
                                     assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                    app.notification.error(i18n.culture.editor.notifications.fileCreateFailure);
+                                    app.notification.error(i18n.culture.editor.notifications.fileDeleteFailure);
                                 });
-                        })
-                        .fail(function (xhr, status, error) {
-                            logger.error({
-                                message: 'secure upload url error',
-                                method: tool + '.transport.create',
-                                data: { status: status, error: error, reponse: xhr.responseText }
+                        },
+
+                        /**
+                         * Read transport
+                         * @param options
+                         */
+                        read: function(options) {
+                            var locale = i18n.locale();
+                            var params = JSON.parse(
+                                $(VERSION_HIDDEN_FIELD).val());
+                            rapi.v1.content.getAllSummaryFiles(locale,
+                                params.summaryId).done(function(response) {
+                                assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
+                                assert.isArray(response.data, kendo.format(assert.messages.isArray.default, 'response.data'));
+                                assert.type(NUMBER, response.total, kendo.format(assert.messages.type.default, 'response.total', NUMBER));
+                                options.success(response);
+
+                                // TODO Compute total storage size to display in a progress bar
+
+                            }).fail(function(xhr, status, error) {
+                                logger.error({
+                                    message: 'file list read error',
+                                    method: 'summary.transport.read',
+                                    data: { status: status, error: error, reponse: xhr.responseText }
+                                });
+                                options.error(xhr, status, error);
+                                assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                app.notification.error(i18n.culture.editor.notifications.filesLoadFailure);
                             });
-                            options.error(xhr, status, error);
-                            assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                            app.notification.error(i18n.culture.editor.notifications.uploadUrlFailure);
-                        });
-                },
-                read: function (options) {
-                    var locale = i18n.locale();
-                    var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
-                    rapi.v1.content.getAllSummaryFiles(locale, params.summaryId)
-                        .done(function (response) {
-                            assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
-                            assert.type(ARRAY, response.data, kendo.format(assert.messages.type.default, 'response.data', ARRAY));
-                            assert.type(NUMBER, response.total, kendo.format(assert.messages.type.default, 'response.total', NUMBER));
-                            options.success(response);
-                        })
-                        .fail(function (xhr, status, error) {
-                            logger.error({
-                                message: 'file storage read error',
-                                method: tool + '.transport.read',
-                                data: { status: status, error: error, reponse: xhr.responseText }
-                            });
-                            options.error(xhr, status, error);
-                            assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                            app.notification.error(i18n.culture.editor.notifications.filesLoadFailure);
-                        });
-                },
-                update: function (options) {
-                    // Should not be used...
-                    options.success(options.data);
-                },
-                destroy: function (options) {
-                    var locale = i18n.locale();
-                    var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
-                    var data = options.data;
-                    assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
-                    assert.type(STRING, data.url, kendo.format(assert.messages.type.default, 'data.url', STRING));
-                    var matches = data.url.match(RX_DATA_URL);
-                    assert.equal(4, matches.length, kendo.format(assert.messages.equal.default, 'matches.length', 4));
-                    assert.equal(locale, matches[1], kendo.format(assert.messages.equal.default, 'matches[1]', locale));
-                    assert.equal(params.summaryId, matches[2], kendo.format(assert.messages.equal.default, 'matches[2]', params.summaryId));
-                    rapi.v1.content.deleteFile(matches[1], matches[2], matches[3])
-                        .done(function (response) {
+                        },
+
+                        /**
+                         * Update transport
+                         * @param options
+                         */
+                        update: function(options) {
+                            throw new Error('Should not be used');
+                        },
+
+                        /**
+                         * Import transport
+                         * Note: Import is not really a kendo.data.DataSource transport but we make it available in the DataSource as transport.import
+                         * to import web search images designated by urls into this summary collection
+                         * @param options
+                         */
+                        //
+                        import: function (options) {
+                            debugger;
+                        },
+
+                        /**
+                         * Upload transport
+                         * Note: Upload is not really a kendo.data.DataSource transport but we make it available in the DataSource as transport.upload
+                         * @param options
+                         */
+                        upload: function (options) {
+                            var locale = i18n.locale();
+                            var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
+                            var data = options.data;
+                            // Note a window.File is a sort of window.Blob with a name
+                            // assert.instanceof(window.File, data.file, kendo.format(assert.messages.instanceof.default, 'data.file', 'window.File'));
+                            assert.instanceof(window.Blob, data.file, kendo.format(assert.messages.instanceof.default, 'data.file', 'window.Blob'));
+                            assert.type(STRING, data.file.name, kendo.format(assert.messages.type.default, 'data.file.name', STRING));
                             logger.debug({
-                                message: 'file deleted',
-                                method: tool + '.transport.create',
-                                data: $.extend({ language: locale, summaryId: params.summaryId, tool: tool }, response)
+                                message: 'getting a signed url from aws',
+                                method: 'summary.transport.upload',
+                                data: { language: locale, summaryId: params.summaryId }
                             });
-                            options.success({ data: [data], total: 1 });
-                            assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                            app.notification.success(i18n.culture.editor.notifications.fileDeleteSuccess);
-                        })
-                        .fail(function (xhr, status, error) {
-                            logger.error({
-                                message: 'file storage deletion error',
-                                method: tool + '.transport.destroy',
-                                data: { status: status, error: error, reponse: xhr.responseText }
-                            });
-                            options.error(xhr, status, error);
-                            assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                            app.notification.error(i18n.culture.editor.notifications.fileDeleteFailure);
-                        });
+                            // Get a signed upload url from Amazon S3
+                            rapi.v1.content.getUploadUrl(locale, params.summaryId, data.file)
+                                .done(function (uploadUrl) {
+                                    logger.debug({
+                                        message: 'uploading file/blob to signed url',
+                                        method: 'summary.transport.upload',
+                                        data: { language: locale, summaryId: params.summaryId, uploadUrl: uploadUrl }
+                                    });
+                                    // Upload to that signed url
+                                    rapi.v1.content.uploadFile(uploadUrl, data.file)
+                                        .progress(function (e) {
+                                            if (e.lengthComputable) { // TODO trigger progress on dataSource
+                                                $(document).trigger('progress.kendoAssetManager', [e.loaded / e.total, 'progress']);
+                                            }
+                                        })
+                                        .done(function (response) {
+                                            assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
+                                            assert.type(STRING, response.name, kendo.format(assert.messages.type.default, 'response.name', STRING));
+                                            assert.type(NUMBER, response.size, kendo.format(assert.messages.type.default, 'response.size', NUMBER));
+                                            assert.type(STRING, response.type, kendo.format(assert.messages.type.default, 'response.type', STRING));
+                                            assert.type(STRING, response.url, kendo.format(assert.messages.type.default, 'response.url', STRING));
+                                            logger.debug({
+                                                message: 'new file/blob uploaded',
+                                                method: 'summary.transport.upload',
+                                                data: $.extend({ language: locale, summaryId: params.summaryId }, response)
+                                            });
+                                            options.success({ data: [response], total: 1 });
+                                            $(document).trigger('progress.kendoAssetManager', [1, 'complete']); // TODO trigger progress on dataSource
+                                            assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                            app.notification.success(i18n.culture.editor.notifications.fileCreateSuccess);
+                                        })
+                                        .fail(function (xhr, status, error) {
+                                            logger.error({
+                                                message: 'file/blob upload error',
+                                                method: 'summary.transport.upload',
+                                                data: { status: status, error: error, response: xhr.responseText }
+                                            });
+                                            options.error(xhr, status, error);
+                                            assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                            app.notification.error(i18n.culture.editor.notifications.fileCreateFailure);
+                                        });
+                                })
+                                .fail(function (xhr, status, error) {
+                                    logger.error({
+                                        message: 'erro getting a signed upload url',
+                                        method: 'summary.transport.create',
+                                        data: { status: status, error: error, reponse: xhr.responseText }
+                                    });
+                                    options.error(xhr, status, error);
+                                    assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                    app.notification.error(i18n.culture.editor.notifications.uploadUrlFailure);
+                                });
+                        }
+                    }
+                };
+            }
+
+            /**
+             * Creates an editable collection for an organisation
+             * Note: should be disabled or hidden when user/summary does not belong to an organization
+             */
+            // organisation: function () { }
+
+        };
+
+        /**
+         * Parses an asset group (audio, image, video)
+         * @param group
+         */
+        function parse(group) {
+            var clone = JSON.parse(JSON.stringify(group));
+            for (var i = 0, length = clone.collections.length; i < length; i++) {
+                var collection = clone.collections[i];
+                if (collection.type && $.isFunction(collectionTypes[collection.type])) {
+                    // collection = collectionTypes[collection.type](collection.params);
+                    clone.collections[i] = collectionTypes[collection.type](collection.params);
                 }
-            };
+            }
+            return clone;
         }
 
-        // Note: ./webapp/config.default.json is read by ./web_modules/app.config.jsx to produce app.assets
-
+        /**
+         * ./webapp/config/default.json is read by ./web_modules/app.config.jsx to produce app.assets, a configuration of read-only collections
+         * We need extend app.assets into kidoju.assets used by kidoju.widgets, with project/organization editable collections and Google search
+         */
         // Build audio tool assets
-        var audio = app.assets.audio;
-        assert.isPlainObject(audio, kendo.format(assert.messages.isPlainObject.default, 'app.assets.audio'));
-        kidoju.assets.audio = new kidoju.ToolAssets($.extend(audio, { transport: transport('audio') }));
-
+        kidoju.assets.audio = new kidoju.ToolAssets(
+            parse(app.assets.audio));
         // Build icon assets
-        var icon = app.assets.icon;
-        assert.isPlainObject(icon, kendo.format(assert.messages.isPlainObject.default, 'app.assets.icon'));
-        kidoju.assets.icon = new kidoju.ToolAssets($.extend(icon, { transport: null }));
-
+        kidoju.assets.icon = new kidoju.ToolAssets(parse(app.assets.icon));
         // Build image tool assets
-        var image = app.assets.image;
-        assert.isPlainObject(image, kendo.format(assert.messages.isPlainObject.default, 'app.assets.image'));
-        kidoju.assets.image = new kidoju.ToolAssets($.extend(image, { transport: transport('image') }));
-
+        kidoju.assets.image = new kidoju.ToolAssets(
+            parse(app.assets.image));
         // Build video tool assets
-        var video = app.assets.video;
-        assert.isPlainObject(video, kendo.format(assert.messages.isPlainObject.default, 'app.assets.video'));
-        kidoju.assets.video = new kidoju.ToolAssets($.extend(video, { transport: transport('video') }));
+        kidoju.assets.video = new kidoju.ToolAssets(
+            parse(app.assets.video));
 
         // Log readiness
         logger.debug({

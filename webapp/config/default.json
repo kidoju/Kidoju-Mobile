@@ -8,7 +8,11 @@
     },
     "assets": {
         "audio": {
-            "collections": [],
+            "collections": [
+                {
+                    "type": "summary"
+                }
+            ],
             "extensions": [".mp3", ".ogg"],
             "schemes": {
                 "cdn": "https://cdn.kidoju.com/"
@@ -30,6 +34,9 @@
         },
         "image": {
             "collections": [
+                {
+                    "type": "summary"
+                },
                 {
                     "name": "Icons",
                     "collections": [
@@ -180,6 +187,14 @@
                             }
                         }
                     ]
+                },
+                {
+                    "type": "websearch",
+                    "params": {
+                        "provider": "google",
+                        "type": "image",
+                        "pageSize": 10
+                    }
                 }
             ],
             "extensions": [".gif", ".jpg", ".png", ".svg"],
@@ -188,7 +203,11 @@
             }
         },
         "video": {
-            "collections": [],
+            "collections": [
+                {
+                    "type": "summary"
+                }
+            ],
             "extensions": [".mp4", ".ogv", ".wbem"],
             "schemes": {
                 "cdn": "https://cdn.kidoju.com/"
@@ -218,6 +237,9 @@
                 "summary": "/api/v1/%s/summaries/%s",
                 "summaries": "/api/v1/%s/summaries",
                 "user": "/api/v1/users/%s"
+            },
+            "web": {
+                "search": "/api/web/search/%s"
             }
         },
         "cdn": {
