@@ -108,6 +108,9 @@
             files: '/api/v1/{0}/summaries/{1}/files',
             file: '/api/v1/{0}/summaries/{1}/file/{2}'
         };
+        uris.rapi.web = {
+            search: '/api/web/search/{0}'
+        };
 
         /**
          * Utility functions
@@ -509,7 +512,19 @@
                     }
                 }
                 return headers;
+            },
+
+            /**
+             * Get a safe file name to upload to aws s3
+             * @param fileName
+             */
+            safeFileName: function (fileName) {
+                var pos = fileName.lastIndexOf('.');
+                // In fileName.substr(0, pos), any non-alphanumeric character shall be replaced by underscores
+                // Then we shall simplify duplicated underscores and trim underscores at both ends
+                return fileName.substr(0, pos).replace(/[^\w\\\/]+/gi, '_').replace(/_{2,}/g, '_').replace(/(^_|_$)/, '') + '.' + fileName.substr(pos + 1);
             }
+
         };
 
         /**
@@ -1373,11 +1388,7 @@
                         assert.instanceof(window.File, file, rapi.util.format(assert.messages.instanceof.default, 'file', 'File'));
                     }
                     // Convert name for compatibility with dbutils.checkNoSQLInjection
-                    var fileName = file.name; // .toLowerCase();
-                    var pos = fileName.lastIndexOf('.');
-                    // In fileName.substr(0, pos), any non-alphanumeric character shall be replaced by underscores
-                    // Then we shall simplify duplicated underscores and trim underscores at both ends
-                    var fileId = fileName.substr(0, pos).replace(/[^\w\\\/]+/gi, '_').replace(/_{2,}/g, '_').replace(/(^_|_$)/, '') + '.' + fileName.substr(pos + 1);
+                    var fileId = rapi.util.safeFileName(file.name);
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.upload, language, summaryId);
                     // Log
                     logger.info({
@@ -1395,13 +1406,16 @@
                 },
 
                 /**
-                 * Upload a file to a signed url
+                 * Upload a file or a blob (with a name) to a signed url
                  * @param signedUrl
                  * @param file
                  */
                 uploadFile: function (signedUrl, file) {
                     assert.match(RX_URL, signedUrl, rapi.util.format(assert.messages.match.default, 'signedUrl', RX_URL));
-                    assert.instanceof(window.File, file, rapi.util.format(assert.messages.instanceof.default, 'file', 'File'));
+                    // Note a window.File is a sort of window.Blob with a name
+                    // assert.instanceof(window.File, file, rapi.util.format(assert.messages.instanceof.default, 'file', 'window.File'));
+                    assert.instanceof(window.Blob, file, rapi.util.format(assert.messages.instanceof.default, 'file', 'window.Blob'));
+                    assert.type(STRING, file.name, rapi.util.format(assert.messages.type.default, 'file.name', STRING));
                     var dfd = $.Deferred();
                     // See http://stackoverflow.com/questions/11448578/how-to-send-binary-data-via-jquery-ajax-put-method
                     // See http://stackoverflow.com/questions/5392344/sending-multipart-formdata-with-jquery-ajax
@@ -1439,7 +1453,7 @@
                         .done(function () {
                             // Note, we use a deferred to return the url of the uploaded file
                             dfd.resolve({
-                                name: file.name,
+                                name: rapi.util.safeFileName(file.name),
                                 size: file.size,
                                 type: file.type,
                                 // url: signedUrl.substr(0, signedUrl.indexOf('?'))
@@ -1502,6 +1516,38 @@
                     });
                 }
             }
+        };
+
+        /**
+         * proxy to third party web apis
+         * @type {{search: Window.app.rapi.web.search}}
+         */
+        rapi.web = {
+
+            /**
+             * Web search
+             * @param provider
+             * @param querystring (q, language, type, page, pageSize)
+             * @returns {*}
+             */
+            search: function (provider, querystring) {
+                assert.type(STRING, provider, rapi.util.format(assert.messages.type.default, 'provider'));
+                assert.isOptionalObject(querystring, rapi.util.format(assert.messages.isOptionalObject.default, 'querystring'));
+                var url = rapi.util.format(uris.rapi.root + uris.rapi.web.search, provider);
+                logger.info({
+                    message: '$.ajax',
+                    method: 'web.search.',
+                    data: { provider: provider, qs: querystring }
+                });
+                return $.ajax({
+                    cache: true,
+                    data: querystring,
+                    headers: rapi.util.getHeaders({ security: true, trace: true }),
+                    type: GET,
+                    url: url
+                });
+            }
+
         };
 
         /**
