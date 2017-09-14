@@ -124,8 +124,7 @@ module.exports = {
                     { loader: 'css-loader?importLoaders=2' },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
-                    // { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
-                    { loader: 'less-loader' }
+                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
                 ]
             },
             {
@@ -137,8 +136,7 @@ module.exports = {
                     { loader: 'css-loader?importLoaders=1' },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
-                    // { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
-                    { loader: 'less-loader' }
+                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
                 ]
             },
             {
