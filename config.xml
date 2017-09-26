@@ -136,7 +136,6 @@
     </config-file>
     <engine name="android" spec="^6.2.3" />
     <engine name="browser" spec="^5.0.0" />
-    <engine name="ios" spec="^4.5.0" />
     <plugin name="cordova-plugin-battery-status" spec="^1.2.4" />
     <plugin name="cordova-plugin-camera" spec="^2.4.1">
         <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
@@ -183,4 +182,5 @@
     <plugin name="phonegap-plugin-barcodescanner" spec="^6.0.8">
         <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
     </plugin>
+    <engine name="ios" spec="latest" />
 </widget>
