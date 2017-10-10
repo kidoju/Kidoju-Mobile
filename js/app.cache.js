@@ -276,7 +276,9 @@
          */
         cache._processCategories = function (categories) {
             assert.isArray(categories, assert.format(assert.messages.isArray.default, 'categories'));
-            categories[0].path = categories[0].path || [];
+            if (categories.length) {
+                categories[0].path = categories[0].path || [];
+            }
             for (var i = 0, length = categories.length; i < length; i++) {
                 var parent = categories[i];
                 var lastBeforeNextParentId = parent.id.replace(/0000/g, 'ffff');

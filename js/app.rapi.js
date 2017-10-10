@@ -63,6 +63,17 @@
         var AUTHENTICATION_FAILURE = 'auth.failure';
 
         /**
+         * This is a prerequisite for downloadFile
+         * @see http://api.jquery.com/jquery.ajaxprefilter/
+         * @see https://github.com/jquery/jquery/blob/master/test/unit/ajax.js#L1767
+         */
+        $.ajaxPrefilter('arraybuffer', function (s) {
+            s.xhrFields = { responseType: 'arraybuffer' };
+            s.responseFields.arraybuffer = 'response';
+            s.converters['binary arraybuffer'] = true;
+        });
+
+        /**
          * Location of our RESTful server
          */
         uris.rapi = uris.rapi || {};
@@ -1472,6 +1483,38 @@
                 },
 
                 /**
+                 * Download a file from a url, returns a Blob
+                 * @param url
+                 */
+                downloadFile: function (url) {
+                    assert.match(RX_URL, url, assert.format(assert.messages.match.default, 'url', RX_URL));
+                    var dfd = $.Deferred();
+                    logger.info({
+                        message: '$.ajax',
+                        method: 'v1.content.downloadFile',
+                        data: { url: url }
+                    });
+                    $.ajax({
+                        cache: true,
+                        // crossDomain: true,
+                        dataType: 'arraybuffer',
+                        type: GET,
+                        url: url
+                    })
+                        .done(function (response, status, xhr) {
+                            if (xhr.status === 200) {
+                                var blob = new window.Blob([response], { type: xhr.getResponseHeader('content-type') });
+                                blob.name = rapi.util.safeFileName(url.split('/').pop());
+                                dfd.resolve(blob);
+                            } else {
+                                dfd.reject(xhr, status, 'error');
+                            }
+                        })
+                        .fail(dfd.reject); // Note: cross domain $.get from localhost is not allowed in Google Chrome and will end up here
+                    return dfd.promise();
+                },
+
+                /**
                  * List all files for a summary designated by its id
                  * @param language
                  * @param summaryId
@@ -1528,7 +1571,7 @@
              * Web search
              * @param provider
              * @param querystring (q, language, type, page, pageSize)
-             * @returns {*}
+             * @returns {*} items have mime, size and url
              */
             search: function (provider, querystring) {
                 assert.type(STRING, provider, rapi.util.format(assert.messages.type.default, 'provider'));
@@ -1536,7 +1579,7 @@
                 var url = rapi.util.format(uris.rapi.root + uris.rapi.web.search, provider);
                 logger.info({
                     message: '$.ajax',
-                    method: 'web.search.',
+                    method: 'web.search',
                     data: { provider: provider, qs: querystring }
                 });
                 return $.ajax({
