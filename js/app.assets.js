@@ -12,6 +12,7 @@
         './window.assert',
         './window.logger',
         './kidoju.tools',
+        './kidoju.widgets.vectordrawing.toolbar', // For the image editor template
         './app.logger',
         './app.i18n',
         './app.rapi'
@@ -46,10 +47,12 @@
         var rapi = app.rapi;
         var assert = window.assert;
         var logger = new window.Logger('app.assets');
+        var deepExtend = kendo.deepExtend;
         var STRING = 'string';
         var NUMBER = 'number';
+        var OBJECT = 'object';
         var VERSION_HIDDEN_FIELD = 'input[type="hidden"][name="version"]';
-        var DATA_SCHEME = 'data://';
+        // var DATA_SCHEME = 'data://';
         var RX_DATA_URL = /^data:\/\/s\/([^\/]+)\/([^\/]+)\/([^\/]+)$/;
 
         // Ensure app.assets have been loaded from app.config.jsx
@@ -60,22 +63,111 @@
         assert.isPlainObject(app.assets.video, kendo.format(assert.messages.isPlainObject.default, 'app.assets.video'));
 
         /**
+         * Editor configurations
+         * @type {{}}
+         */
+        var editors = {
+
+            // audio: { /* TODO */ },
+
+            image: {
+                // Open kendo.dataviz.ui.VectorDrawing without New and Open tools
+                template: '<div data-role="vectordrawing" data-bind="events: { command: onCommand, dialog: onDialog }" data-toolbar="' + kendo.htmlEncode(JSON.stringify({ resizable: true, tools: kendo.ui.VectorDrawingToolBar.fn.options.tools.slice(2) })) + '"></div>',
+                maximize: true, // Maximize window when opening
+                openImageDialog: function () {
+                    assert.instanceof(kendo.dataviz.ui.VectorDrawing, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.dataviz.ui.VectorDrawing'));
+                    var vectorDrawingWidget = this;
+                    // We discard some tools to avoid nesting editors and asset managers indefinitely
+                    var tools = kidoju.assets.image.collections[0].tools;
+                    kidoju.assets.image.collections[0].tools = tools.filter(function (tool) {
+                        return tool !== 'create' && tool !== 'edit';
+                    });
+                    // Show a nested asset manager dialog without creating and editing
+                    app.dialogs.showAssetManager(
+                        kidoju.assets.image,
+                        '', // We are not replacing an existing image but adding a new image, so the url is blank
+                        { title: 'Insert image' }, // TODO i18n
+                        // Event handler when clicking the OK button
+                        function (e) {
+                            // Restore assets tools
+                            kidoju.assets.image.collections[0].tools = tools;
+                            var url = e.sender.viewModel.get('url');
+                            // Replace scheme
+                            var schemes = kidoju.assets.image.schemes;
+                            for (var scheme in kidoju.assets.image.schemes) {
+                                url = url.replace(scheme + '://', schemes[scheme]);
+                            }
+                            // Import image into drawing
+                            vectorDrawingWidget.import(url)
+                                .fail(function () {
+                                    if (app.notification && $.isFunction(app.notification.error)) {
+                                        app.notification.error('Could not load image ' + url);  // TODO i18n
+                                    }
+                                });
+                        }
+                    );
+                },
+                // Note: onCommand is defined in the viewModel set in _editSelected of kidoju.widgets.assetmanager and onCommand calls openUrl and saveAs
+                openUrl: function (url) {
+                    assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                    var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
+                    url = $('<a/>').attr('href', url).get(0).href; // Note: a simple way to resolve a relative url
+                    return vectorDrawingWidget.open(url); // TODO promise????? app.notification of errors ????
+                },
+                resize: function (e) {
+                    assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                    var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
+                    var container = e.sender.element;
+                    vectorDrawingWidget.element
+                        .outerWidth(container.width())
+                        .outerHeight(container.height());
+                    vectorDrawingWidget.resize();
+                },
+                saveAs: function (name, assetManager) {
+                    assert.instanceof(kendo.dataviz.ui.VectorDrawing, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.dataviz.ui.VectorDrawing'));
+                    assert.type(STRING, name, kendo.format(assert.messages.type.default, 'name', STRING));
+                    assert.instanceof(kendo.ui.AssetManager, assetManager, kendo.format(assert.messages.instanceof.default, 'assetManager', 'kendo.ui.AssetManager'));
+                    var exportFile = name.toLowerCase().endsWith('.svg') ? this.exportSVG : this.exportImage;
+                    exportFile.bind(this)({ json: true })
+                        .done(function (dataUri) {
+                            var blob = assetManager._dataUri2Blob(dataUri);
+                            blob.name = name;
+                            assetManager._uploadFile(blob)
+                                .done(function (a) {
+                                    debugger; // TODO
+                                })
+                                .fail(function (err) {
+                                    debugger; // TODO
+                                });
+                        })
+                        .fail(function (error) {
+                            debugger; // TODO
+                        });
+                }
+            }
+
+            // video: { /* TODO */ }
+
+        };
+
+        /**
          * DataSource options for custom collection types defined in config files, especially default.json
          * @type {{websearch: websearch, summary: summary, organisation: organisation}}
          */
-        var collectionTypes = {
+        var collectionSources = {
 
             /**
              * Creates a web search collection for a search provider
+             * @type audio, image, video
              * @param params including provider (google, bing, ...) and type (image, video, ... but not a complete mime type)
              * @returns {{}}
              */
-            websearch: function (params) {
-                return {
-                    name: 'Google', // TODO i18n.culture.assets.collections[params.provider],
-                    tools: ['import'],
-                    // targets: ['Project'], // TODO ????????????????????????????????????????????????????????????????
-                    pageSize: params.pageSize, // this is for Google
+            websearch: function (type, params) {
+                assert.type(STRING, 'type', kendo.format(assert.messages.type.default, 'type', STRING));
+                assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+                return deepExtend({
+                    name: 'Google', // unfortunately i18n.culture is not yet available
+                    pageSize: params.pageSize, // Google returns a maximum of 10 items
                     serverPaging: true,
                     serverFiltering: true,
                     transport: {
@@ -83,24 +175,29 @@
                             var qs = options.data;
                             // options.data.filter is built by the assetmanager search box
                             qs.q = (qs.filter && qs.filter.logic === 'and' && qs.filter.filters && qs.filter.filters[1] && qs.filter.filters[1].field === 'url' && qs.filter.filters[1].value) || '';
-                            qs.type = params.type;
+                            qs.type = params.searchType;
                             qs.language = i18n.locale();
                             qs.filter = undefined; // filter is replaced by q
                             app.rapi.web.search(params.provider, qs)
-                                .done(options.success)
+                                .done(options.success) // response items have mime, size and url
                                 .fail(options.error);
                         }
                     }
-                }
+                }, params);
             },
 
             /**
-             * Creates an editable collection for a summary
+             * Creates an editable collection for a summary/project
+             * @param type
+             * @param params
              */
-            summary: function () {
-                return {
+            summary: function (type, params) {
+                assert.type(STRING, 'type', kendo.format(assert.messages.type.default, 'type', STRING));
+                assert.type(OBJECT, params, kendo.format(assert.messages.type.default, 'params', OBJECT));
+                return deepExtend({
                     name: 'Project', // TODO i18n.culture.assets.collections.summary,
                     tools: ['upload', 'create', 'edit', 'destroy'],
+                    editor: editors[type],
                     // pageSize: 12,
                     // serverPaging: false,
                     // serverFiltering: false,
@@ -134,11 +231,11 @@
                                     logger.debug({
                                         message: 'file deleted',
                                         method: 'summary.transport.destroy',
-                                        data: $.extend({ language: locale, summaryId: params.summaryId, url: data.url }, response)
+                                        data: deepExtend({ language: locale, summaryId: params.summaryId, url: data.url }, response)
                                     });
                                     options.success({ data: [data], total: 1 });
                                     assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                    app.notification.success(i18n.culture.editor.notifications.fileDeleteSuccess);
+                                    app.notification.success(i18n.culture.editor.notifications.fileDeleteSuccess); // TODO
                                 })
                                 .fail(function (xhr, status, error) {
                                     logger.error({
@@ -148,7 +245,7 @@
                                     });
                                     options.error(xhr, status, error);
                                     assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                    app.notification.error(i18n.culture.editor.notifications.fileDeleteFailure);
+                                    app.notification.error(i18n.culture.editor.notifications.fileDeleteFailure); // TODO
                                 });
                         },
 
@@ -177,7 +274,7 @@
                                 });
                                 options.error(xhr, status, error);
                                 assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                app.notification.error(i18n.culture.editor.notifications.filesLoadFailure);
+                                app.notification.error(i18n.culture.editor.notifications.filesLoadFailure); // TODO
                             });
                         },
 
@@ -242,12 +339,12 @@
                                             logger.debug({
                                                 message: 'new file/blob uploaded',
                                                 method: 'summary.transport.upload',
-                                                data: $.extend({ language: locale, summaryId: params.summaryId }, response)
+                                                data: deepExtend({ language: locale, summaryId: params.summaryId }, response)
                                             });
                                             options.success({ data: [response], total: 1 });
                                             $(document).trigger('progress.kendoAssetManager', [1, 'complete']); // TODO trigger progress on dataSource
                                             assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                            app.notification.success(i18n.culture.editor.notifications.fileCreateSuccess);
+                                            app.notification.success(i18n.culture.editor.notifications.fileCreateSuccess); // TODO
                                         })
                                         .fail(function (xhr, status, error) {
                                             logger.error({
@@ -257,7 +354,7 @@
                                             });
                                             options.error(xhr, status, error);
                                             assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                            app.notification.error(i18n.culture.editor.notifications.fileCreateFailure);
+                                            app.notification.error(i18n.culture.editor.notifications.fileCreateFailure); // TODO
                                         });
                                 })
                                 .fail(function (xhr, status, error) {
@@ -268,32 +365,34 @@
                                     });
                                     options.error(xhr, status, error);
                                     assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                    app.notification.error(i18n.culture.editor.notifications.uploadUrlFailure);
+                                    app.notification.error(i18n.culture.editor.notifications.uploadUrlFailure); // TODO
                                 });
                         }
                     }
-                };
+                }, params);
             }
 
             /**
              * Creates an editable collection for an organisation
              * Note: should be disabled or hidden when user/summary does not belong to an organization
              */
-            // organisation: function () { }
+            // organisation: function (type, params) { }
 
         };
 
         /**
-         * Parses an asset group (audio, image, video)
-         * @param group
+         * Parses an asset configuration (audio, image, video)
+         * @param config
          */
-        function parse(group) {
-            var clone = JSON.parse(JSON.stringify(group));
+        function parseConfiguration(type) {
+            assert.type(STRING, type, assert.format(assert.messages.type.default, 'type', STRING));
+            assert.isPlainObject(app.assets[type], assert.format(assert.messages.isPlainObject.default, 'app.assets.' + type));
+            var clone = JSON.parse(JSON.stringify(app.assets[type]));
             for (var i = 0, length = clone.collections.length; i < length; i++) {
                 var collection = clone.collections[i];
-                if (collection.type && $.isFunction(collectionTypes[collection.type])) {
-                    // collection = collectionTypes[collection.type](collection.params);
-                    clone.collections[i] = collectionTypes[collection.type](collection.params);
+                if (collection.source && $.isFunction(collectionSources[collection.source])) {
+                    // collection = collectionSources[collection.type](collection.params);
+                    clone.collections[i] = collectionSources[collection.source](type, collection.params || {});
                 }
             }
             return clone;
@@ -304,16 +403,13 @@
          * We need extend app.assets into kidoju.assets used by kidoju.widgets, with project/organization editable collections and Google search
          */
         // Build audio tool assets
-        kidoju.assets.audio = new kidoju.ToolAssets(
-            parse(app.assets.audio));
+        kidoju.assets.audio = new kidoju.ToolAssets(parseConfiguration('audio'));
         // Build icon assets
-        kidoju.assets.icon = new kidoju.ToolAssets(parse(app.assets.icon));
+        kidoju.assets.icon = new kidoju.ToolAssets(parseConfiguration('icon'));
         // Build image tool assets
-        kidoju.assets.image = new kidoju.ToolAssets(
-            parse(app.assets.image));
+        kidoju.assets.image = new kidoju.ToolAssets(parseConfiguration('image'));
         // Build video tool assets
-        kidoju.assets.video = new kidoju.ToolAssets(
-            parse(app.assets.video));
+        kidoju.assets.video = new kidoju.ToolAssets(parseConfiguration('video'));
 
         // Log readiness
         logger.debug({

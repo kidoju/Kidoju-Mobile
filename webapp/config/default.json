@@ -10,7 +10,7 @@
         "audio": {
             "collections": [
                 {
-                    "type": "summary"
+                    "source": "summary"
                 }
             ],
             "extensions": [".mp3", ".ogg"],
@@ -35,7 +35,7 @@
         "image": {
             "collections": [
                 {
-                    "type": "summary"
+                    "source": "summary"
                 },
                 {
                     "name": "Icons",
@@ -189,10 +189,10 @@
                     ]
                 },
                 {
-                    "type": "websearch",
+                    "source": "websearch",
                     "params": {
                         "provider": "google",
-                        "type": "image",
+                        "searchType": "image",
                         "pageSize": 10
                     }
                 }
@@ -205,7 +205,7 @@
         "video": {
             "collections": [
                 {
-                    "type": "summary"
+                    "source": "summary"
                 }
             ],
             "extensions": [".mp4", ".ogv", ".wbem"],
