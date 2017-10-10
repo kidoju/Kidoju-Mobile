@@ -815,7 +815,7 @@ window.jQuery.holdReady(true);
              * @param query
              */
             loadLazySummaries: function (query) {
-                // TODO: assert query
+                assert.isPlainObject(query, kendo.format(assert.messages.isPlainObject.default, 'query'));
                 var dfd = $.Deferred();
                 if (window.navigator.connection.type === window.Connection.NONE) {
                     app.notification.warning(i18n.culture.notifications.networkOffline);
@@ -824,6 +824,7 @@ window.jQuery.holdReady(true);
                     viewModel.summaries.query(query)
                         .done(dfd.resolve)
                         .fail(function (xhr, status, error) {
+                            dfd.reject(xhr, status, error);
                             app.notification.error(i18n.culture.notifications.summariesQueryFailure);
                             logger.error({
                                 message: 'error loading summaries',
@@ -2312,6 +2313,7 @@ window.jQuery.holdReady(true);
         mobile.onFinderViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+
             mobile._localizeFinderView();
             // Launch the query
             // Kendo UI is not good at building the e.view.params object from query string params
