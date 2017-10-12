@@ -1958,7 +1958,7 @@ window.jQuery.holdReady(true);
                 mobile._initNotification();
                 var view = mobile.application.view();
                 mobile._resizeStage(view);
-                mobile._initScoreGrid(view);
+                mobile._initScoreListView(view);
             }
         };
 
@@ -2530,6 +2530,19 @@ window.jQuery.holdReady(true);
             }
         };
 
+        mobile._initScoreListView = function (view) {
+            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            var language = view.params.language;
+            var summaryId = view.params.summaryId;
+            var versionId = view.params.versionId;
+
+            var contentElement = view.content;
+            // Find and destroy the grid as it needs to be rebuilt if locale changes
+            // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
+            // var gridElement = view.element.find(kendo.roleSelector('grid'));
+            var listViewElement = contentElement.find(HASH + VIEW.SCORE + '-grid');
+        };
+
         /**
          * Event handler triggered when showing the score view after submitting a score
          * @param e
@@ -2556,7 +2569,7 @@ window.jQuery.holdReady(true);
                         viewModel.calculate()
                             .done(function () {
                                 mobile._setNavBarTitle(e.view, kendo.format(i18n.culture.score.viewTitle, viewModel.get(VIEW_MODEL.CURRENT.SCORE) / 100));
-                                mobile._initScoreGrid(e.view);
+                                mobile._initScoreListView(e.view);
                             });
                     })
                     .always(function () {
@@ -2568,7 +2581,7 @@ window.jQuery.holdReady(true);
             } else {
                 // Otherwise, use the current test
                 // TODO assert current state (percent function?)
-                mobile._initScoreGrid(e.view);
+                mobile._initScoreListView(e.view);
                 if (mobile.application instanceof kendo.mobile.Application) {
                     // mobile.application is not available on first view shown
                     mobile.application.hideLoading();
