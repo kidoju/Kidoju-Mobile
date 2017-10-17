@@ -137,12 +137,14 @@
                 text = tts._clearMarkdown(text);
             }
             if (tts.useCordovaPlugIn) {
+                window.alert('Plugin');
                 // For iOS and Android via TTS plugin
                 // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
                 window.TTS.speak({ text: text, locale: language === 'fr' ? 'fr-FR' : 'en-US', rate: 1.5 }, dfd.resolve, dfd.reject);
             } else if (tts.useSpeechSynthesis) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var chunks = tts._chunk(text, CHUNK_SIZE);
+                window.alert('Chunks ' + chunks.length);
                 var promises = [];
                 $.each(chunks, function (index, chunk) {
                     promises.push(tts._speachSynthesisPromise(chunk, language));
