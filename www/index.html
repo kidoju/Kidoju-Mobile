@@ -357,13 +357,15 @@
     <!-- Score view -->
     <div id="score" data-role="view" data-layout="main-layout" data-title="Score" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
         <div class="stretched">
+            <!-- TODO add summary icon -->
             <div class="summary km-content" data-bind="text:summary.title"></div>
             <!--div id="score-grid"></div-->
-            <ul data-role="listview" data-bind="source: summaries" data-type="group" data-template="score-template" data-header-template="score-template"></ul>
+            <ul data-role="listview" data-bind="source: score" data-template="score-template" data-header-template="score-header-template" data-type="group"></ul>
+            <script type="text/x-kendo-template" id="score-header-template">
+                Page X
+            </script>
             <script type="text/x-kendo-template" id="score-template">
-                <a href="\#summary?language=#: language #&summaryId=#: id #">
-                    <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
-                </a>
+                Question ? Score
             </script>
         </div>
     </div>
