@@ -1,180 +1,180 @@
 {
-    "name": "Kidoju.Mobile",
-    "filename": "kidoju.mobile",
-    "version": "0.3.4",
-    "description": "Mobile app for teh Kidoju platform.",
-    "author": "Memba Sarl",
-    "copyright": "Copyright ©2013-2017 Memba® Sarl. All rights reserved.",
-    "license": "AGPL-3.0",
-    "homepage": "https://www.kidoju.com",
-    "keywords": [
-        "Memba",
-        "Kidoju",
-        "Activity",
-        "Assessment",
-        "Brain",
-        "Educate",
-        "eEducation",
-        "eLearning",
-        "Exercise",
-        "Game",
-        "Learn",
-        "Knowledge",
-        "Quiz",
-        "Teach",
-        "Test"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Kidoju/Kidoju-Mobile.git"
+  "name": "Kidoju.Mobile",
+  "filename": "kidoju.mobile",
+  "version": "0.3.4",
+  "description": "Mobile app for teh Kidoju platform.",
+  "author": "Memba Sarl",
+  "copyright": "Copyright ©2013-2017 Memba® Sarl. All rights reserved.",
+  "license": "AGPL-3.0",
+  "homepage": "https://www.kidoju.com",
+  "keywords": [
+    "Memba",
+    "Kidoju",
+    "Activity",
+    "Assessment",
+    "Brain",
+    "Educate",
+    "eEducation",
+    "eLearning",
+    "Exercise",
+    "Game",
+    "Learn",
+    "Knowledge",
+    "Quiz",
+    "Teach",
+    "Test"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kidoju/Kidoju-Mobile.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kidoju/Kidoju-Mobile/issues"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "autoprefixer": "^7.1.5",
+    "bundle-loader": "^0.5.5",
+    "chai": "^4.1.2",
+    "css-loader": "^0.28.7",
+    "deasync": "^0.1.10",
+    "deep-extend": "^0.5.0",
+    "ejs": "^2.5.7",
+    "file-loader": "^1.1.5",
+    "grunt": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^3.1.0",
+    "grunt-jscs": "^3.0.1",
+    "grunt-karma": "^2.0.0",
+    "grunt-mocha": "^1.0.4",
+    "grunt-mocha-test": "^0.13.3",
+    "grunt-nsp": "^2.3.1",
+    "grunt-webdriver": "^2.0.3",
+    "grunt-webpack": "^3.0.2",
+    "karma": "^1.7.1",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.1",
+    "karma-firefox-launcher": "^1.0.1",
+    "karma-ie-launcher": "^1.0.0",
+    "karma-mocha": "^1.3.0",
+    "karma-opera-launcher": "^1.0.0",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "karma-safari-launcher": "^1.0.0",
+    "karma-sinon": "^1.0.5",
+    "less": "^2.7.2",
+    "less-loader": "^4.0.5",
+    "loader-utils": "^1.1.0",
+    "mocha": "^4.0.1",
+    "nconf": "^0.8.5",
+    "phantomjs-prebuilt": "^2.1.15",
+    "postcss-loader": "^2.0.8",
+    "sinon": "^4.0.1",
+    "style-loader": "^0.19.0",
+    "url-loader": "^0.6.2",
+    "wdio-mocha-framework": "^0.5.11",
+    "wdio-selenium-standalone-service": "0.0.9",
+    "wdio-static-server-service": "^1.0.1",
+    "webdriverio": "^4.8.0",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.2"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "config": {
+    "msvs_version": "2015"
+  },
+  "dependencies": {
+    "cordova-android": "^6.3.0",
+    "cordova-browser": "^5.0.0",
+    "cordova-ios": "^4.5.2",
+    "cordova-plugin-battery-status": "^1.2.4",
+    "cordova-plugin-camera": "^2.4.1",
+    "cordova-plugin-console": "^1.1.0",
+    "cordova-plugin-contacts": "^2.3.1",
+    "cordova-plugin-customurlscheme": "^4.3.0",
+    "cordova-plugin-device": "^1.1.6",
+    "cordova-plugin-device-motion": "^2.0.0",
+    "cordova-plugin-device-orientation": "^2.0.0",
+    "cordova-plugin-dialogs": "^1.3.3",
+    "cordova-plugin-file": "^4.3.3",
+    "cordova-plugin-file-transfer": "^1.6.3",
+    "cordova-plugin-geolocation": "^2.4.3",
+    "cordova-plugin-globalization": "^1.0.7",
+    "cordova-plugin-google-analytics": "^1.8.3",
+    "cordova-plugin-inappbrowser": "^1.7.1",
+    "cordova-plugin-media": "^3.0.1",
+    "cordova-plugin-media-capture": "^1.4.3",
+    "cordova-plugin-network-information": "^1.3.3",
+    "cordova-plugin-safariviewcontroller": "^1.4.7",
+    "cordova-plugin-splashscreen": "^4.0.3",
+    "cordova-plugin-statusbar": "^2.2.3",
+    "cordova-plugin-tts": "^0.2.3",
+    "cordova-plugin-vibration": "^2.1.5",
+    "cordova-plugin-whitelist": "^1.3.2",
+    "cordova-plugin-x-socialsharing": "^5.2.0",
+    "cordova-windows": "^5.0.0",
+    "es6-promise-plugin": "^4.1.1",
+    "phonegap-plugin-barcodescanner": "^6.0.8"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-file": {},
+      "cordova-plugin-battery-status": {},
+      "cordova-plugin-camera": {
+        "CAMERA_USAGE_DESCRIPTION": " ",
+        "PHOTOLIBRARY_USAGE_DESCRIPTION": " "
+      },
+      "cordova-plugin-contacts": {
+        "CONTACTS_USAGE_DESCRIPTION": " "
+      },
+      "cordova-plugin-device": {},
+      "cordova-plugin-dialogs": {},
+      "cordova-plugin-file-transfer": {},
+      "cordova-plugin-geolocation": {
+        "GEOLOCATION_USAGE_DESCRIPTION": " "
+      },
+      "cordova-plugin-globalization": {},
+      "cordova-plugin-google-analytics": {},
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-media": {
+        "MICROPHONE_USAGE_DESCRIPTION": " "
+      },
+      "cordova-plugin-media-capture": {
+        "CAMERA_USAGE_DESCRIPTION": " ",
+        "MICROPHONE_USAGE_DESCRIPTION": " ",
+        "PHOTOLIBRARY_USAGE_DESCRIPTION": " "
+      },
+      "cordova-plugin-network-information": {},
+      "cordova-plugin-safariviewcontroller": {},
+      "cordova-plugin-splashscreen": {},
+      "cordova-plugin-statusbar": {},
+      "cordova-plugin-tts": {},
+      "cordova-plugin-vibration": {},
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-x-socialsharing": {},
+      "phonegap-plugin-barcodescanner": {
+        "CAMERA_USAGE_DESCRIPTION": " "
+      },
+      "cordova-plugin-customurlscheme": {
+        "URL_SCHEME": "com.kidoju.mobile",
+        "ANDROID_SCHEME": " ",
+        "ANDROID_HOST": " ",
+        "ANDROID_PATHPREFIX": "/"
+      },
+      "cordova-plugin-device-orientation": {},
+      "cordova-plugin-device-motion": {},
+      "cordova-plugin-console": {}
     },
-    "bugs": {
-        "url": "https://github.com/Kidoju/Kidoju-Mobile/issues"
-    },
-    "scripts": {
-        "test": "grunt test"
-    },
-    "devDependencies": {
-        "autoprefixer": "^7.1.5",
-        "bundle-loader": "^0.5.5",
-        "chai": "^4.1.2",
-        "css-loader": "^0.28.7",
-        "deasync": "^0.1.10",
-        "deep-extend": "^0.5.0",
-        "ejs": "^2.5.7",
-        "file-loader": "^1.1.5",
-        "grunt": "^1.0.1",
-        "grunt-contrib-copy": "^1.0.0",
-        "grunt-contrib-jshint": "^1.1.0",
-        "grunt-contrib-uglify": "^3.1.0",
-        "grunt-jscs": "^3.0.1",
-        "grunt-karma": "^2.0.0",
-        "grunt-mocha": "^1.0.4",
-        "grunt-mocha-test": "^0.13.3",
-        "grunt-nsp": "^2.3.1",
-        "grunt-webdriver": "^2.0.3",
-        "grunt-webpack": "^3.0.2",
-        "karma": "^1.7.1",
-        "karma-chai": "^0.1.0",
-        "karma-chrome-launcher": "^2.2.0",
-        "karma-coverage": "^1.1.1",
-        "karma-firefox-launcher": "^1.0.1",
-        "karma-ie-launcher": "^1.0.0",
-        "karma-mocha": "^1.3.0",
-        "karma-opera-launcher": "^1.0.0",
-        "karma-phantomjs-launcher": "^1.0.4",
-        "karma-safari-launcher": "^1.0.0",
-        "karma-sinon": "^1.0.5",
-        "less": "^2.7.2",
-        "less-loader": "^4.0.5",
-        "loader-utils": "^1.1.0",
-        "mocha": "^4.0.1",
-        "nconf": "^0.8.5",
-        "phantomjs-prebuilt": "^2.1.15",
-        "postcss-loader": "^2.0.6",
-        "sinon": "^4.0.1",
-        "style-loader": "^0.19.0",
-        "url-loader": "^0.6.2",
-        "wdio-mocha-framework": "^0.5.11",
-        "wdio-selenium-standalone-service": "0.0.9",
-        "wdio-static-server-service": "^1.0.1",
-        "webdriverio": "^4.8.0",
-        "webpack": "^3.6.0",
-        "webpack-dev-server": "^2.9.1"
-    },
-    "engines": {
-        "node": ">=4"
-    },
-    "config": {
-        "msvs_version": "2015"
-    },
-    "dependencies": {
-        "cordova-android": "^6.3.0",
-        "cordova-browser": "^5.0.0",
-        "cordova-ios": "^4.5.1",
-        "cordova-plugin-battery-status": "^1.2.4",
-        "cordova-plugin-camera": "^2.4.1",
-        "cordova-plugin-console": "^1.1.0",
-        "cordova-plugin-contacts": "^2.3.1",
-        "cordova-plugin-customurlscheme": "^4.3.0",
-        "cordova-plugin-device": "^1.1.6",
-        "cordova-plugin-device-motion": "^2.0.0",
-        "cordova-plugin-device-orientation": "^2.0.0",
-        "cordova-plugin-dialogs": "^1.3.3",
-        "cordova-plugin-file": "^4.3.3",
-        "cordova-plugin-file-transfer": "^1.6.3",
-        "cordova-plugin-geolocation": "^2.4.3",
-        "cordova-plugin-globalization": "^1.0.7",
-        "cordova-plugin-google-analytics": "^1.8.3",
-        "cordova-plugin-inappbrowser": "^1.7.1",
-        "cordova-plugin-media": "^3.0.1",
-        "cordova-plugin-media-capture": "^1.4.3",
-        "cordova-plugin-network-information": "^1.3.3",
-        "cordova-plugin-safariviewcontroller": "^1.4.7",
-        "cordova-plugin-splashscreen": "^4.0.3",
-        "cordova-plugin-statusbar": "^2.2.3",
-        "cordova-plugin-tts": "^0.2.3",
-        "cordova-plugin-vibration": "^2.1.5",
-        "cordova-plugin-whitelist": "^1.3.2",
-        "cordova-plugin-x-socialsharing": "^5.2.0",
-        "cordova-windows": "^5.0.0",
-        "es6-promise-plugin": "^4.1.1",
-        "phonegap-plugin-barcodescanner": "^6.0.8"
-    },
-    "cordova": {
-        "plugins": {
-            "cordova-plugin-file": {},
-            "cordova-plugin-battery-status": {},
-            "cordova-plugin-camera": {
-                "CAMERA_USAGE_DESCRIPTION": " ",
-                "PHOTOLIBRARY_USAGE_DESCRIPTION": " "
-            },
-            "cordova-plugin-contacts": {
-                "CONTACTS_USAGE_DESCRIPTION": " "
-            },
-            "cordova-plugin-device": {},
-            "cordova-plugin-dialogs": {},
-            "cordova-plugin-file-transfer": {},
-            "cordova-plugin-geolocation": {
-                "GEOLOCATION_USAGE_DESCRIPTION": " "
-            },
-            "cordova-plugin-globalization": {},
-            "cordova-plugin-google-analytics": {},
-            "cordova-plugin-inappbrowser": {},
-            "cordova-plugin-media": {
-                "MICROPHONE_USAGE_DESCRIPTION": " "
-            },
-            "cordova-plugin-media-capture": {
-                "CAMERA_USAGE_DESCRIPTION": " ",
-                "MICROPHONE_USAGE_DESCRIPTION": " ",
-                "PHOTOLIBRARY_USAGE_DESCRIPTION": " "
-            },
-            "cordova-plugin-network-information": {},
-            "cordova-plugin-safariviewcontroller": {},
-            "cordova-plugin-splashscreen": {},
-            "cordova-plugin-statusbar": {},
-            "cordova-plugin-tts": {},
-            "cordova-plugin-vibration": {},
-            "cordova-plugin-whitelist": {},
-            "cordova-plugin-x-socialsharing": {},
-            "phonegap-plugin-barcodescanner": {
-                "CAMERA_USAGE_DESCRIPTION": " "
-            },
-            "cordova-plugin-customurlscheme": {
-                "URL_SCHEME": "com.kidoju.mobile",
-                "ANDROID_SCHEME": " ",
-                "ANDROID_HOST": " ",
-                "ANDROID_PATHPREFIX": "/"
-            },
-            "cordova-plugin-device-orientation": {},
-            "cordova-plugin-device-motion": {},
-            "cordova-plugin-console": {}
-        },
-        "platforms": [
-            "android",
-            "browser",
-            "ios",
-            "windows"
-        ]
-    }
+    "platforms": [
+      "android",
+      "browser",
+      "ios",
+      "windows"
+    ]
+  }
 }

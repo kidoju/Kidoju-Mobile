@@ -136,7 +136,7 @@
     </config-file>
     <engine name="android" spec="^6.3.0" />
     <engine name="browser" spec="^5.0.0" />
-    <engine name="ios" spec="^4.5.1" />
+    <engine name="ios" spec="^4.5.2" />
     <engine name="windows" spec="^5.0.0" />
     <plugin name="cordova-plugin-battery-status" spec="^1.2.4" />
     <plugin name="cordova-plugin-camera" spec="^2.4.1">
