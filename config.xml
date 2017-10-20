@@ -119,7 +119,6 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
         <preference name="iosPersistentFileLocation" value="Library" />
-        <preference name="KeychainAccessibility" value="WhenUnlocked" />
         <preference name="StatusBarOverlaysWebView" value="true" />
     </platform>
     <config-file parent="/manifest" platform="android">
