@@ -130,10 +130,10 @@
     <config-file mode="add" parent="ITSAppUsesNonExemptEncryption" platform="ios">
         <false />
     </config-file>
-    <config-file parent="UIStatusBarHidden" platform="ios" target="*-Info.plist">
+    <config-file parent="UIStatusBarHidden" platform="ios">
         <true />
     </config-file>
-    <config-file parent="UIViewControllerBasedStatusBarAppearance" platform="ios" target="*-Info.plist">
+    <config-file parent="UIViewControllerBasedStatusBarAppearance" platform="ios">
         <false />
     </config-file>
     <engine name="android" spec="^6.3.0" />
