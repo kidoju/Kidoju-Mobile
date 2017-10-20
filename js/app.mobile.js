@@ -1092,7 +1092,7 @@ window.jQuery.holdReady(true);
              * Select the previous page from viewModel.version.stream.pages
              */
             firstPage: function () {
-                var page = this.get(VIEW_MODEL.SELECTED_PAGE);
+                logger.debug({ method: 'viewModel.firstPage', message: 'Show first page' });
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(0));
@@ -1102,6 +1102,7 @@ window.jQuery.holdReady(true);
              * Select the previous page from viewModel.version.stream.pages
              */
             previousPage: function () {
+                logger.debug({ method: 'viewModel.previousPage', message: 'Show previous page' });
                 var page = this.get(VIEW_MODEL.SELECTED_PAGE);
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
@@ -1115,6 +1116,7 @@ window.jQuery.holdReady(true);
              * Select the next page from viewModel.version.stream.pages
              */
             nextPage: function () {
+                logger.debug({ method: 'viewModel.nextPage', message: 'Show next page' });
                 var page = this.get(VIEW_MODEL.SELECTED_PAGE);
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
@@ -1128,6 +1130,7 @@ window.jQuery.holdReady(true);
              * Select the last page from viewModel.version.stream.pages
              */
             lastPage: function () {
+                logger.debug({ method: 'viewModel.lastPage', message: 'Show last page' });
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var lastPage = pageCollectionDataSource.total() - 1;
@@ -2530,17 +2533,51 @@ window.jQuery.holdReady(true);
             }
         };
 
+        /**
+         * Initialize score listview
+         * @param view
+         * @private
+         */
         mobile._initScoreListView = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var language = view.params.language;
             var summaryId = view.params.summaryId;
             var versionId = view.params.versionId;
-
+            var activityId = view.params.activityId;
+            debugger;
             var contentElement = view.content;
-            // Find and destroy the grid as it needs to be rebuilt if locale changes
-            // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
-            // var gridElement = view.element.find(kendo.roleSelector('grid'));
-            var listViewElement = contentElement.find(HASH + VIEW.SCORE + '-grid');
+            // Find and destroy the listview as it needs to be rebuilt if locale changes
+            // Note: if the grid is set as <div data-role="listview"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
+            // var listViewElement = view.element.find(kendo.roleSelector('listview'));
+            var listViewElement = contentElement.find(HASH + VIEW.SCORE + '-listview');
+            if (listViewElement.length) {
+                var listViewWidget = listViewElement.data('kendoMobileListView');
+                if (listViewWidget instanceof kendo.mobile.ui.ListView) {
+                    kendo.destroy(listViewElement);
+                }
+                // TODO We should be able to view scores without reloading the summary and recalculating everything
+                // TODO check we do not get disabled values
+                // TODO check we are using value$() and solution$()
+                listViewWidget = listViewElement.kendoMobileListView({
+                    click: function (e) {
+                        mobile.application.navigate(HASH + VIEW.CORRECTION +
+                            '?language=' + window.encodeURIComponent(language) +
+                            '&summaryId=' + window.encodeURIComponent(summaryId) +
+                            '&versionId=' + window.encodeURIComponent(versionId) +
+                            '&activityId=' + window.encodeURIComponent(activityId) + // Note: this is a local id, not a sid
+                            '&page=' + window.encodeURIComponent(e.dataItem.page)
+                        );
+                    },
+                    dataSource: {
+                        data: viewModel.get(VIEW_MODEL.CURRENT.TEST).getScoreArray(),
+                        group: { field: 'page' }
+                    },
+                    fixedHeaders: true,
+                    headerTemplate: contentElement.find('#score-header-template').html().trim(),
+                    template: contentElement.find('#score-template').html().trim(),
+                    type: 'group'
+                });
+            }
         };
 
         /**
@@ -3238,33 +3275,29 @@ window.jQuery.holdReady(true);
 
         /**
          * Event handler triggered when clicking the first page button in the navbar
-         * @param e
          */
-        mobile.onNavBarFirstPageClick = function (e) {
+        mobile.onNavBarFirstPageClick = function () {
             viewModel.firstPage();
         };
 
         /**
          * Event handler triggered when clicking the previous page button in the navbar
-         * @param e
          */
-        mobile.onNavBarPreviousPageClick = function (e) {
+        mobile.onNavBarPreviousPageClick = function () {
             viewModel.previousPage();
         };
 
         /**
          * Event handler triggered when clicking the next page button in the navbar
-         * @param e
          */
-        mobile.onNavBarNextPageClick = function (e) {
+        mobile.onNavBarNextPageClick = function () {
             viewModel.nextPage();
         };
 
         /**
          * Event handler triggered when clicking the last page button in the navbar
-         * @param e
          */
-        mobile.onNavBarLastPageClick = function (e) {
+        mobile.onNavBarLastPageClick = function () {
             viewModel.lastPage();
         };
 
@@ -3338,7 +3371,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarSyncClick = function (e) {
-            $.noop(e); // TODO
+            // TODO
+            $.noop(e);
         };
 
         /**

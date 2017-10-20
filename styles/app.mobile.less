@@ -82,7 +82,7 @@ html, body {
                     text-overflow: ellipsis;
                     margin-right: 3.5em;
                 }
-                .date {
+                .small {
                     font-size: small;
                 }
                 .km-badge {
@@ -184,7 +184,6 @@ html, body {
                         margin: 0;
                         font-weight: bold;
                     }
-
                     .tags, .metrics {
                         font-size: 0.8em;
                     }
@@ -199,29 +198,45 @@ html, body {
      * Score view
      **********************************************************/
     #score {
-        .km-list > li {
-            .km-listview-link {
-                height: 5.5em; // a fixed height is required for endless scrolling
-                line-height: 1.25;
-                .km-thumbnail {
-                    border: none;
-                    border-radius: 0;
-                    height: 3.35rem;
-                    width: 3.35rem;
-                    margin-right: 0;
-                    float: left;
-                }
-            }
-        }
-
-        .stretched {
-            height: auto;
-            .summary {
-                padding: .4em .6em;
-            }
+        .summary {
+            padding: .5em;
+            display: flex;
+            align-items: flex-start;
             .icon {
                 height: 28px;
                 width: 28px;
+            }
+            .title {
+                margin: 0.2em .5em 0 .5em;
+            }
+        }
+        .km-list > li {
+            .km-listview-link {
+                display: flex;
+                align-items: flex-start;
+                .icon {
+                    flex: 0 0 auto;
+                    height: 28px;
+                    width: 28px;
+                }
+                .score {
+                    display: grid; // otherwise margin-right won't work
+                    margin: 0 3.5em 0 .5em;
+                    h4 { // question
+                        font-weight: bold;
+                        margin: 0;
+                        overflow : hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    .small {
+                        font-size: small;
+                    }
+                    .km-badge {
+                        font-size: 0.75em;
+                        right: 2.75em;
+                    }
+                }
             }
         }
     }

@@ -220,13 +220,11 @@
         <!--div id="activities-grid"></div-->
         <!-- TODO Filter by category -->
         <!-- dropdown of top/other categories -->
-        <ul data-role="listview" data-bind="source: activities" data-template="activities-template" data-header-template="activities-header-template" data-type="group"></ul>
+        <ul data-role="listview" data-bind="source: activities" data-template="activities-template" data-header-template="activities-header-template" data-fixed-headers="true" data-type="group"></ul>
         <script type="text/x-kendo-template" id="activities-template">
             <a href="\#score#: queryString$() #">
                 <div class="title">#: title$() #</div>
-                <div>
-                    <span class="date">#: kendo.toString(updated, 'dd MMM yyyy') #</span>
-                </div>
+                <div class="small">#: kendo.toString(updated, 'dd MMM yyyy') #</div>
                 # if (score >= 75) { #
                 <span class="km-badge km-badge-success">#: kendo.toString(score / 100, 'p0') #</span>
                 # } else if (score >= 50) { #
@@ -355,19 +353,39 @@
     </div>
 
     <!-- Score view -->
-    <div id="score" data-role="view" data-layout="main-layout" data-title="Score" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
-        <div class="stretched">
-            <!-- TODO add summary icon -->
-            <div class="summary km-content" data-bind="text:summary.title"></div>
-            <!--div id="score-grid"></div-->
-            <ul data-role="listview" data-bind="source: score" data-template="score-template" data-header-template="score-header-template" data-type="group"></ul>
-            <script type="text/x-kendo-template" id="score-header-template">
-                Page X
-            </script>
-            <script type="text/x-kendo-template" id="score-template">
-                Question ? Score
-            </script>
+    <div id="score" data-role="view" data-layout="main-layout" data-title="Score" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
+        <div class="km-content summary">
+            <img class="icon" data-bind="{ attr: { src: summary.icon$, alt: summary.title } }">
+            <div class="title" data-bind="text:summary.title"></div>
         </div>
+        <ul id="score-listview"></ul>
+        <script type="text/x-kendo-template" id="score-header-template">
+            #: 'Page ' + (value + 1) #
+        </script>
+        <!-- TODO Consider adding score calculations in the form a/b and percentage -->
+        <script type="text/x-kendo-template" id="score-template">
+            <a href="">
+                # if (typeof result !== 'boolean') { #
+                <img src="./img/sign_warning.svg" alt="#: result #" class="icon">
+                # } else if (!result) { #
+                <img src="./img/error.svg" alt="#: result #" class="icon">
+                # } else { #
+                <img src="./img/ok.svg" alt="#: result #" class="icon">
+                # } #
+                <div class="score">
+                    <h4>#: question #</h4>
+                    <div class="small">#: 'Answer: ' + value #</div>
+                    <div class="small">#: 'Solution: ' + solution #</div>
+                </div>
+                # if (typeof result !== 'boolean') { #
+                <span class="km-badge km-badge-warning">#: kendo.toString(score, 'n') #</span>
+                # } else if (!result) { #
+                <span class="km-badge km-badge-error">#: kendo.toString(score, 'n') #</span>
+                # } else { #
+                <span class="km-badge km-badge-success">#: kendo.toString(score, 'n') #</span>
+                # } #
+            </a>
+        </script>
     </div>
 
     <!-- Settings view -->
