@@ -14,8 +14,10 @@
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
     <preference name="AndroidLaunchMode" value="singleTask" />
+    <preference name="windows-target-version" value="10.0" />
+    <preference name="windows-arch" value="x64" />
     <preference name="phonegap-version" value="cli-6.5.0" />
-    <preference name="pgb-builder-version" value="1" />
+    <preference name="pgb-builder-version" value="2" />
     <platform name="android">
         <icon density="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
         <icon density="mdpi" src="www/res/icon/android/drawable-mdpi-icon.png" />
