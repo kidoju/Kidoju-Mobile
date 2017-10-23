@@ -273,7 +273,7 @@
     </div>
 
     <!-- Correction view (Review mode) -->
-    <div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onCorrectionViewInit" data-show="app.mobile.onCorrectionViewShow">
+    <div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onCorrectionViewInit" data-show="app.mobile.onCorrectionViewShow" data-hide="app.mobile.onCorrectionViewHide">
         <div class="stretched-item">
             <div class="centered">
                 <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>

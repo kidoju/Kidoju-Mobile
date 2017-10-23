@@ -46,7 +46,7 @@
          * @private
          */
         tts._clearMarkdown = function (markdown) {
-            return markdown
+            return (markdown || '')
                 .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
                 .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
         };
@@ -104,7 +104,7 @@
                     utterance.lang = language;
                 }
                 // http://www.hongkiat.com/blog/text-to-speech/
-                utterance.voice = window.speechSynthesis.getVoices()[0];
+                // utterance.voice = window.speechSynthesis.getVoices()[0];
                 utterance.rate = 1;
                 utterance.onend = function (evt) { // Returns a SpeechSynthesisEvent
                     if (evt.type === 'error') {

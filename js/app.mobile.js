@@ -2131,7 +2131,6 @@ window.jQuery.holdReady(true);
                 );
             }
         };
-
         /**
          * Event handler trigger when clicking an item in the drawer menu
          * @param e
@@ -2165,6 +2164,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onActivitiesViewShow = function (e) {
+            debugger;
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
@@ -2272,6 +2272,18 @@ window.jQuery.holdReady(true);
                 mobile.application.hideLoading();
             }
             app.notification.info(i18n.culture.notifications.pageNavigationInfo);
+        };
+
+        /**
+         * Event handler triggered when hiding the Correction view
+         * Note: the view event is triggered each time the view is discarded
+         * @param e
+         */
+        mobile.onCorrectionViewHide = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            debugger;
         };
 
         /**
@@ -2432,7 +2444,9 @@ window.jQuery.holdReady(true);
             // Although it would have made more sense, undefined does not trigger a refresh
             // viewModel.set(VIEW_MODEL.SELECTED_PAGE, undefined);
             viewModel.set(VIEW_MODEL.SELECTED_PAGE, new Page());
+            // TODO Review floating toolbar
             // Note that this destroys stage widgets and triggers the mutation observer to hide the floating toolbars
+
         };
 
         /**
@@ -2560,6 +2574,7 @@ window.jQuery.holdReady(true);
                 // TODO check we are using value$() and solution$()
                 listViewWidget = listViewElement.kendoMobileListView({
                     click: function (e) {
+                        e.preventDefault();
                         mobile.application.navigate(HASH + VIEW.CORRECTION +
                             '?language=' + window.encodeURIComponent(language) +
                             '&summaryId=' + window.encodeURIComponent(summaryId) +
