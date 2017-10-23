@@ -354,10 +354,10 @@
 
     <!-- Score view -->
     <div id="score" data-role="view" data-layout="main-layout" data-title="Score" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onScoreViewShow">
-        <div class="km-content summary">
+        <h2 class="km-content summary">
             <img class="icon" data-bind="{ attr: { src: summary.icon$, alt: summary.title } }">
             <div class="title" data-bind="text:summary.title"></div>
-        </div>
+        </h2>
         <ul id="score-listview"></ul>
         <script type="text/x-kendo-template" id="score-header-template">
             #: 'Page ' + (value + 1) #

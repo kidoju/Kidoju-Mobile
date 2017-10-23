@@ -102,7 +102,7 @@ html, body {
         .km-list > li {
             padding: .5em .84em;
             .km-listview-link {
-                .km-thumbnail {
+                .km-thumbnail { // TODO should be icon to match others
                     border: none;
                     border-radius: 0;
                     height: 1.8rem;
@@ -203,11 +203,12 @@ html, body {
             display: flex;
             align-items: flex-start;
             .icon {
-                height: 28px;
-                width: 28px;
+                height: 2em;
+                width: 2em;
             }
             .title {
                 font-weight: bold;
+                font-size: 1rem;
                 margin: 0.2em .5em 0 .5em;
             }
         }
@@ -217,13 +218,14 @@ html, body {
                 align-items: flex-start;
                 .icon {
                     flex: 0 0 auto;
-                    height: 28px;
-                    width: 28px;
+                    height: 2em;
+                    width: 2em;
                 }
                 .score {
                     display: grid; // otherwise margin-right won't work
                     margin: 0 3.5em 0 .5em;
                     h4 { // question
+                        font-weight: normal;
                         margin: 0;
                         overflow : hidden;
                         text-overflow: ellipsis;
@@ -231,6 +233,7 @@ html, body {
                     }
                     .small {
                         font-size: small;
+                        line-height: normal;
                     }
                 }
                 .km-badge {

@@ -2571,7 +2571,7 @@ window.jQuery.holdReady(true);
                 }
                 // TODO We should be able to view scores without reloading the summary and recalculating everything
                 // TODO check we do not get disabled values
-                // TODO check we are using value$() and solution$()
+                // TODO check we are using value$() and solution$() which display correctly with all tools
                 listViewWidget = listViewElement.kendoMobileListView({
                     click: function (e) {
                         e.preventDefault();
@@ -2580,7 +2580,7 @@ window.jQuery.holdReady(true);
                             '&summaryId=' + window.encodeURIComponent(summaryId) +
                             '&versionId=' + window.encodeURIComponent(versionId) +
                             '&activityId=' + window.encodeURIComponent(activityId) + // Note: this is a local id, not a sid
-                            '&page=' + window.encodeURIComponent(e.dataItem.page)
+                            '&page=' + window.encodeURIComponent(e.dataItem.page + 1)
                         );
                     },
                     dataSource: {

@@ -32,12 +32,16 @@
          * @see https://github.com/vilic/cordova-plugin-tts
          * @type {*}
          */
-        tts.useCordovaPlugIn = !!(window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak));
+        tts._useCordovaPlugIn = function () {
+            return !!(window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak));
+        };
 
         /**
          * Test HTML5 Speech API
          */
-        tts.useSpeechSynthesis = !!('speechSynthesis' in window && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance));
+        tts._useSpeechSynthesis = function () {
+            return !!('speechSynthesis' in window && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance));
+        };
 
         /**
          * Clear markdown from markings that are irrelevant to speech
@@ -96,7 +100,7 @@
          */
         tts._speachSynthesisPromise = function (text, language) {
             var dfd = $.Deferred();
-            if (tts.useSpeechSynthesis) {
+            if (tts._useSpeechSynthesis()) {
                 var utterance = new window.SpeechSynthesisUtterance(text);
                 if ($.type(window.StyleMedia) === UNDEFINED) {
                     // Setting an unavailable language in Microsoft Edge breaks the speech
@@ -136,12 +140,12 @@
             if (clear) {
                 text = tts._clearMarkdown(text);
             }
-            if (tts.useCordovaPlugIn) {
+            if (tts._useCordovaPlugIn()) {
                 window.alert('Plugin');
                 // For iOS and Android via TTS plugin
                 // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
                 window.TTS.speak({ text: text, locale: language === 'fr' ? 'fr-FR' : 'en-US', rate: 1.5 }, dfd.resolve, dfd.reject);
-            } else if (tts.useSpeechSynthesis) {
+            } else if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var chunks = tts._chunk(text, CHUNK_SIZE);
                 window.alert('Chunks ' + chunks.length);
@@ -163,11 +167,11 @@
          */
         tts.cancelSpeak = function () {
             var dfd =  $.Deferred();
-            if (tts.useCordovaPlugIn) {
+            if (tts._useCordovaPlugIn()) {
                 // For iOS and Android via TTS plugin
                 // @see http://ourcodeworld.com/articles/read/370/how-to-convert-text-to-speech-speech-synthesis-in-cordova
                 window.TTS.speak('', dfd.resolve, dfd.reject);
-            }  else if (tts.useSpeechSynthesis) {
+            }  else if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
                 window.speechSynthesis.cancel();
                 dfd.resolve();
