@@ -98,6 +98,12 @@
             finder: {
                 viewTitle: 'Recherche'
             },
+            // Network connection view
+            network: {
+                viewTitle: 'Connexion',
+                // h2
+                message: 'Pas de rèseau'
+            },
             // Notification messages
             notifications: {
                 activitiesQueryFailure: 'Il y a eu une erreur lors du chargement des activités.',
@@ -105,6 +111,8 @@
                 confirmSubmit: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
                 networkOffline: 'Vous n\'êtes pas connecté à Internet.',
                 oAuthTokenFailure: 'Le service d\'authentification a retourné une erreur.',
+                offLine: 'L\'application est hors ligne.',
+                onLine: 'L\'application est de retour en ligne.',
                 openUrlUnknown: 'Il y a eu une erreur d\'ouverture d\'une url inconnue.',
                 openUrlLanguage: 'Veuillez changer de langue pour ouvrir cette url.',
                 pageNavigationInfo: 'Pressez <i class="kf kf-previous"></i> et <i class="kf kf-next"></i> pour changer de page.',

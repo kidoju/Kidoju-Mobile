@@ -95,6 +95,12 @@
             finder: {
                 viewTitle: 'Search'
             },
+            // Network connection view
+            network: {
+                viewTitle: 'Connection',
+                // h2
+                message: 'No Network'
+            },
             // Notification messages
             notifications: {
                 activitiesQueryFailure: 'There was an error loading activities.',
@@ -102,6 +108,8 @@
                 confirmSubmit: 'Do you really want to submit to calculate your score?',
                 networkOffline: 'You are disconnected from the Internet',
                 oAuthTokenFailure: 'The authentication service has returned an error.',
+                offLine: 'Application is offline.',
+                onLine: 'Application is back online.',
                 openUrlUnknown: 'There was an error opening an unknown url.',
                 openUrlLanguage: 'Please switch language to open this url.',
                 pageNavigationInfo: 'Press <i class="kf kf-previous"></i> and <i class="kf kf-next"></i> to navigate pages.',

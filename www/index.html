@@ -330,6 +330,12 @@
         </script>
     </div>
 
+    <!-- N0 network view -->
+    <div id="network" data-role="view" data-layout="main-layout" data-title="No Network" data-transition="fade" data-show="app.mobile.onNetworkViewShow">
+        <img src="./img/antenna.svg" alt="No Network" class="km-thumbnail picture">
+        <h2 class="message">No Network</h2>
+    </div>
+
     <!-- Player view -->
     <div id="player" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow" data-hide="app.mobile.onPlayerViewHide">
         <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>

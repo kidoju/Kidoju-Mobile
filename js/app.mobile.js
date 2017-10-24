@@ -167,6 +167,7 @@ window.jQuery.holdReady(true);
             DRAWER: 'drawer',
             FAVOURITES: 'favourites',
             FINDER: 'finder',
+            NETWORK: 'network',
             PLAYER: 'player',
             SCORE: 'score',
             SETTINGS: 'settings',
@@ -175,6 +176,8 @@ window.jQuery.holdReady(true);
             SYNC: 'sync',
             USER: 'user'
         };
+        // var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.ACTIVITIES, VIEW.CATEGORIES, VIEW.NETWORK, VIEW.SETTINGS, VIEW.SIGNIN, VIEW.USER].join('|') + ')', 'i');
+        var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.NETWORK, VIEW.USER].join('|') + ')', 'i');
         var DISPLAY = {
             INLINE: 'inline-block',
             NONE: 'none',
@@ -278,7 +281,7 @@ window.jQuery.holdReady(true);
          * By default jQuery has no timeout (0), but let's time out at 30sec on mobile devices
          */
         $.ajaxSetup({
-            timeout: 30000 // Time in milliseconds
+            timeout: 30000 // Timeout in milliseconds
         });
 
         /**
@@ -1422,6 +1425,9 @@ window.jQuery.holdReady(true);
                     // showSearchButton = true;
                     // showSortButtons = true;
                     break;
+                case HASH + VIEW.NETWORK:
+                    showDrawerButton = true;
+                    break;
                 case HASH + VIEW.PLAYER:
                     showDrawerButton = true;
                     showPreviousPageButton = !viewModel.isFirstPage$();
@@ -1550,6 +1556,7 @@ window.jQuery.holdReady(true);
                 mobile._localizeDrawerView();
                 // mobile._localizeFavouritesView();
                 mobile._localizeFinderView();
+                mobile._localizeNetworkView();
                 mobile._localizePlayerView();
                 mobile._localizeScoreView();
                 mobile._localizeSettingsView();
@@ -1665,6 +1672,23 @@ window.jQuery.holdReady(true);
             }
         };
         */
+
+        /**
+         * Localize the no network view
+         * @private
+         */
+        mobile._localizeNetworkView = function () {
+            var culture = i18n.culture.network;
+            var viewElement = $(HASH + VIEW.NETWORK);
+            var viewWidget = viewElement.data('kendoMobileView');
+            // Note: the view might not have been initialized yet
+            if (viewWidget instanceof kendo.mobile.ui.View) {
+                mobile._setNavBar(viewWidget);
+                mobile._setNavBarTitle(viewWidget, culture.viewTitle);
+            }
+            // Note: we could also localize image alt attribute
+            viewElement.find('h2.message').html(culture.message);
+        };
 
         /**
          * Localize the summaries view
@@ -2014,6 +2038,8 @@ window.jQuery.holdReady(true);
             var theme = viewModel.getTheme();
             // Initialize notifications
             mobile._initNotification();
+            // Initialize network events
+            mobile._initNetworkEvents();
             // Wire the resize event handler for changes of device orientation
             $(window).resize(mobile.onResize);
             // Load viewModel with languages and themes
@@ -2072,15 +2098,62 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onRouterViewChange = function (e) {
-            // TODO consider for onLayoutViewShow
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.type(STRING, e.url, kendo.format(assert.messages.type.default, 'e.url', STRING));
-            // Show loader
-            mobile.application.showLoading();
-            // Track in analytics
-            if (mobile.support.ga) {
-                mobile.ga.trackView(e.url);
+            // Check that we are online
+            if (mobile.checkNetwork(e)) {
+                // Show loader
+                mobile.application.showLoading();
+                // Track in analytics
+                if (mobile.support.ga) {
+                    mobile.ga.trackView(e.url);
+                }
             }
+        };
+
+        /**
+         * Check that the application is still online
+         * and possibly redirect to the No-Network view
+         * @param e
+         */
+        mobile.checkNetwork = function (e) {
+            // Note: there is a window.navigator.network.isReachable function but we could not make it work
+            // See https://www.neotericdesign.com/articles/2011/3/checking-the-online-status-with-phonegap-jquery
+            if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                if (!RX_OFFLINE_PAGES.test(e.url)) {
+                    e.preventDefault();
+                    var view = mobile.application.view();
+                    mobile.application.navigate(HASH + VIEW.NETWORK + '?url=' + window.encodeURIComponent(view.id.substr(1) + '?' + window.decodeURIComponent($.param(view.params))));
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        /**
+         * Init network events
+         */
+        mobile._initNetworkEvents = function () {
+            document.addEventListener(
+                'online',
+                function () {
+                    app.notification.warning(i18n.culture.notifications.onLine);
+                    var view = mobile.application.view();
+                    if (view.id === HASH + VIEW.NETWORK) {
+                        mobile.application.navigate(window.decodeURIComponent(view.params.url));
+                    }
+                },
+                false
+            );
+            document.addEventListener(
+                'offline',
+                function () {
+                    app.notification.warning(i18n.culture.notifications.offLine);
+                    var view = mobile.application.view();
+                    mobile.checkNetwork({ preventDefault: $.noop, url: view.id.substr(1) });
+                },
+                false
+            );
         };
 
         /**
@@ -2164,7 +2237,6 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onActivitiesViewShow = function (e) {
-            debugger;
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
@@ -2283,7 +2355,7 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
-            debugger;
+            // TODO destroy stage
         };
 
         /**
@@ -2328,7 +2400,6 @@ window.jQuery.holdReady(true);
         mobile.onFinderViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-
             mobile._localizeFinderView();
             // Launch the query
             // Kendo UI is not good at building the e.view.params object from query string params
@@ -2346,6 +2417,7 @@ window.jQuery.holdReady(true);
             //    value: '000100010002000000000000'
             //   }
             // }
+            // So we really need $.deparam($.param(...))
             var query = $.extend(true, { page: 1, pageSize: viewModel.summaries.pageSize() }, $.deparam($.param(e.view.params)));
             viewModel.loadLazySummaries(query)
                 // See comment for mobile.onSummariesBeforeViewShow
@@ -2355,6 +2427,21 @@ window.jQuery.holdReady(true);
                         mobile.application.hideLoading();
                     }
                 });
+        };
+
+        /**
+         * Event handler triggered when showing the Network view
+         * Note: the view event is triggered each time the view is requested
+         * @param e
+         */
+        mobile.onNetworkViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            mobile._localizeNetworkView();
+            if (mobile.application instanceof kendo.mobile.Application) {
+                // mobile.application is not available on first view shown
+                mobile.application.hideLoading();
+            }
         };
 
         /**
@@ -2443,10 +2530,9 @@ window.jQuery.holdReady(true);
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // Although it would have made more sense, undefined does not trigger a refresh
             // viewModel.set(VIEW_MODEL.SELECTED_PAGE, undefined);
-            viewModel.set(VIEW_MODEL.SELECTED_PAGE, new Page());
+            // viewModel.set(VIEW_MODEL.SELECTED_PAGE, new Page());
             // TODO Review floating toolbar
-            // Note that this destroys stage widgets and triggers the mutation observer to hide the floating toolbars
-
+            // TODO Destroy the stage
         };
 
         /**
