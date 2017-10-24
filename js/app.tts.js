@@ -33,14 +33,17 @@
          * @type {*}
          */
         tts._useCordovaPlugIn = function () {
-            return !!(window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak));
+            // This has to be a function because it needs to be evaluated once the TTS plugin is loaded
+            // return !!(window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak));
+            return false;
         };
 
         /**
          * Test HTML5 Speech API
          */
         tts._useSpeechSynthesis = function () {
-            return !!('speechSynthesis' in window && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance));
+            // return !!('speechSynthesis' in window && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance));
+            return true;
         };
 
         /**
@@ -108,7 +111,7 @@
                     utterance.lang = language;
                 }
                 // http://www.hongkiat.com/blog/text-to-speech/
-                // utterance.voice = window.speechSynthesis.getVoices()[0];
+                utterance.voice = window.speechSynthesis.getVoices()[0];
                 utterance.rate = 1;
                 utterance.onend = function (evt) { // Returns a SpeechSynthesisEvent
                     if (evt.type === 'error') {
@@ -141,14 +144,12 @@
                 text = tts._clearMarkdown(text);
             }
             if (tts._useCordovaPlugIn()) {
-                window.alert('Plugin');
                 // For iOS and Android via TTS plugin
                 // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
                 window.TTS.speak({ text: text, locale: language === 'fr' ? 'fr-FR' : 'en-US', rate: 1.5 }, dfd.resolve, dfd.reject);
             } else if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var chunks = tts._chunk(text, CHUNK_SIZE);
-                window.alert('Chunks ' + chunks.length);
                 var promises = [];
                 $.each(chunks, function (index, chunk) {
                     promises.push(tts._speachSynthesisPromise(chunk, language));

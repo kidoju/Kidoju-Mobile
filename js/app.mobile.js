@@ -1353,6 +1353,7 @@ window.jQuery.holdReady(true);
                     viewModel.reset();
                     break;
                 case VIEW_MODEL.USER.THEME:
+                    debugger;
                     app.theme.name(e.sender.get(VIEW_MODEL.USER.THEME));
                     if (mobile.application instanceof kendo.mobile.Application) {
                         var theme = viewModel.getTheme();
@@ -2035,7 +2036,6 @@ window.jQuery.holdReady(true);
                 message: 'i18n culture is loaded',
                 method: 'mobile.oni18nLoaded'
             });
-            var theme = viewModel.getTheme();
             // Initialize notifications
             mobile._initNotification();
             // Initialize network events
@@ -2056,6 +2056,7 @@ window.jQuery.holdReady(true);
                     if (viewModel.users.total() > 0) {
                         viewModel.set(VIEW_MODEL.USER.$, viewModel.users.at(0));
                     }
+                    var theme = viewModel.getTheme();
                     // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
                     kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.device === 'android' ? 0 : 20);
                     // Considering potential adverse effects with drag and drop, we are using http://docs.telerik.com/kendo-ui/api/javascript/mobile/ui/button#configuration-clickOn
@@ -2284,6 +2285,7 @@ window.jQuery.holdReady(true);
 
             // The play TTS button is a bit small, so let's use the entire heading
             contentElement.find('div.heading h2')
+                .off()
                 .click(function (e) {
                     var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
@@ -2456,6 +2458,7 @@ window.jQuery.holdReady(true);
 
             // The play TTS button is a bit small, so let's use the entire heading
             contentElement.find('div.heading h2')
+                .off()
                 .click(function (e) {
                     var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
