@@ -101,7 +101,7 @@
          * @param language
          * @private
          */
-        tts._speachSynthesisPromise = function (text, language) {
+        tts._speechSynthesisPromise = function (text, language) {
             var dfd = $.Deferred();
             if (tts._useSpeechSynthesis()) {
                 var utterance = new window.SpeechSynthesisUtterance(text);
@@ -111,7 +111,8 @@
                     utterance.lang = language;
                 }
                 // http://www.hongkiat.com/blog/text-to-speech/
-                utterance.voice = window.speechSynthesis.getVoices()[0];
+                // The first voice plays gibberish on iOS 10 and iOS 11, so let iOS use the default voice
+                // utterance.voice = window.speechSynthesis.getVoices()[0];
                 utterance.rate = 1;
                 utterance.onend = function (evt) { // Returns a SpeechSynthesisEvent
                     if (evt.type === 'error') {
@@ -152,7 +153,7 @@
                 var chunks = tts._chunk(text, CHUNK_SIZE);
                 var promises = [];
                 $.each(chunks, function (index, chunk) {
-                    promises.push(tts._speachSynthesisPromise(chunk, language));
+                    promises.push(tts._speechSynthesisPromise(chunk, language));
                 });
                 $.when.apply(null, promises)
                     .done(dfd.resolve)
