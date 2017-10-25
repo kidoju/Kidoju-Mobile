@@ -107,10 +107,10 @@
         <preference name="SplashMaintainAspectRatio" value="true" />
         <preference name="SplashShowOnlyFirstTime" value="false" />
         <preference name="SplashScreen" value="splash" />
-        <config-file parent="/manifest">
+        <config-file parent="/manifest" platform="android" >
             <application hardwareAccelerated="false" />
         </config-file>
-        <config-file parent="/manifest/application">
+        <config-file parent="/manifest/application" platform="android">
             <activity android:launchMode="singleTask" />
         </config-file>
     </platform>
@@ -126,16 +126,16 @@
         <allow-intent href="itms-apps:*" />
         <preference name="iosPersistentFileLocation" value="Library" />
         <preference name="StatusBarOverlaysWebView" value="true" />
-        <config-file parent="ITSAppUsesNonExemptEncryption" overwrite="true">
+        <config-file parent="ITSAppUsesNonExemptEncryption" platform="ios" overwrite="true">
             <false />
         </config-file>
-        <config-file parent="NSCameraUsageDescription" overwrite="true">
+        <config-file parent="NSCameraUsageDescription" platform="ios" overwrite="true">
             <string>Scan QR Codes</string>
         </config-file>
-        <config-file parent="UIStatusBarHidden" overwrite="true">
+        <config-file parent="UIStatusBarHidden" platform="ios" overwrite="true">
             <true />
         </config-file>
-        <config-file parent="UIViewControllerBasedStatusBarAppearance" overwrite="true">
+        <config-file parent="UIViewControllerBasedStatusBarAppearance" platform="ios" overwrite="true">
             <false />
         </config-file>
     </platform>
