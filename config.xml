@@ -17,7 +17,7 @@
     <preference name="windows-target-version" value="10.0" />
     <preference name="windows-arch" value="x64" />
     <preference name="phonegap-version" value="cli-7.0.1" />
-    <preference name="pgb-builder-version" value="1" />
+    <preference name="pgb-builder-version" value="2" />
     <platform name="android">
         <icon density="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
         <icon density="mdpi" src="www/res/icon/android/drawable-mdpi-icon.png" />
@@ -107,6 +107,12 @@
         <preference name="SplashMaintainAspectRatio" value="true" />
         <preference name="SplashShowOnlyFirstTime" value="false" />
         <preference name="SplashScreen" value="splash" />
+        <config-file parent="/manifest" platform="android">
+            <application hardwareAccelerated="false" />
+        </config-file>
+        <config-file parent="/manifest/application" platform="android">
+            <activity android:launchMode="singleTask" />
+        </config-file>
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/images/browser/splashscreen.jpg" />
@@ -120,22 +126,16 @@
         <allow-intent href="itms-apps:*" />
         <preference name="iosPersistentFileLocation" value="Library" />
         <preference name="StatusBarOverlaysWebView" value="true" />
+        <edit-config target="ITSAppUsesNonExemptEncryption" file="*-Info.plist" mode="add">
+            <false/>
+        </edit-config>
+        <edit-config target="UIStatusBarHidden" file="*-Info.plist" mode="merge">
+            <true/>
+        </edit-config>
+        <edit-config target="UIViewControllerBasedStatusBarAppearance" file="*-Info.plist" mode="merge">
+            <false/>
+        </edit-config>
     </platform>
-    <config-file parent="/manifest" platform="android">
-        <application hardwareAccelerated="false" />
-    </config-file>
-    <config-file parent="/manifest/application" platform="android">
-        <activity android:launchMode="singleTask" />
-    </config-file>
-    <config-file mode="add" parent="ITSAppUsesNonExemptEncryption" platform="ios">
-        <false />
-    </config-file>
-    <config-file parent="UIStatusBarHidden" platform="ios">
-        <true />
-    </config-file>
-    <config-file parent="UIViewControllerBasedStatusBarAppearance" platform="ios">
-        <false />
-    </config-file>
     <engine name="android" spec="^6.3.0" />
     <engine name="browser" spec="^5.0.1" />
     <engine name="ios" spec="^4.5.2" />
