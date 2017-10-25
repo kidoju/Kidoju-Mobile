@@ -126,15 +126,15 @@
         <allow-intent href="itms-apps:*" />
         <preference name="iosPersistentFileLocation" value="Library" />
         <preference name="StatusBarOverlaysWebView" value="true" />
-        <config-file parent="ITSAppUsesNonExemptEncryption" mode="add">
-            <false />
-        </config-file>
-        <config-file parent="UIStatusBarHidden">
-            <true />
-        </config-file>
-        <config-file parent="UIViewControllerBasedStatusBarAppearance">
-            <false />
-        </config-file>
+        <edit-config target="ITSAppUsesNonExemptEncryption" file="*-Info.plist" mode="add">
+            <false/>
+        </edit-config>
+        <edit-config target="UIStatusBarHidden" file="*-Info.plist" mode="merge">
+            <true/>
+        </edit-config>
+        <edit-config target="UIViewControllerBasedStatusBarAppearance" file="*-Info.plist" mode="merge">
+            <false/>
+        </edit-config>
     </platform>
     <engine name="android" spec="^6.3.0" />
     <engine name="browser" spec="^5.0.1" />
