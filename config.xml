@@ -126,15 +126,24 @@
         <allow-intent href="itms-apps:*" />
         <preference name="iosPersistentFileLocation" value="Library" />
         <preference name="StatusBarOverlaysWebView" value="true" />
-        <edit-config file="*-Info.plist" mode="add" target="ITSAppUsesNonExemptEncryption">
+        <config-file platform="ios" parent="ITSAppUsesNonExemptEncryption">
+            <false/>
+        </config-file>
+        <config-file platform="ios" parent="UIStatusBarHidden">
+            <true/>
+        </config-file>
+        <config-file platform="ios" parent="UIViewControllerBasedStatusBarAppearance">
+            <false/>
+        </config-file>
+        <!--edit-config file="*-Info.plist" target="ITSAppUsesNonExemptEncryption" mode="merge">
             <false />
         </edit-config>
-        <edit-config file="*-Info.plist" mode="merge" target="UIStatusBarHidden">
+        <edit-config file="*-Info.plist" target="UIStatusBarHidden" mode="merge">
             <true />
         </edit-config>
-        <edit-config file="*-Info.plist" mode="merge" target="UIViewControllerBasedStatusBarAppearance">
+        <edit-config file="*-Info.plist" target="UIViewControllerBasedStatusBarAppearance" mode="merge">
             <false />
-        </edit-config>
+        </edit-config-->
     </platform>
     <engine name="android" spec="^6.3.0" />
     <engine name="browser" spec="^5.0.1" />
@@ -167,7 +176,7 @@
     <plugin name="cordova-plugin-vibration" spec="^2.1.5" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.2" />
     <plugin name="phonegap-plugin-barcodescanner" spec="^6.0.8">
-        <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
+        <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
     </plugin>
     <plugin name="cordova-plugin-customurlscheme" spec="^4.3.0">
         <variable name="URL_SCHEME" value="com.kidoju.mobile" />
