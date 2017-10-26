@@ -72,7 +72,7 @@
     "nconf": "^0.8.5",
     "phantomjs-prebuilt": "^2.1.15",
     "postcss-loader": "^2.0.8",
-    "sinon": "^4.0.1",
+    "sinon": "^4.0.2",
     "style-loader": "^0.19.0",
     "url-loader": "^0.6.2",
     "wdio-mocha-framework": "^0.5.11",
@@ -93,6 +93,7 @@
     "cordova-browser": "^5.0.1",
     "cordova-ios": "^4.5.2",
     "cordova-plugin-battery-status": "^1.2.4",
+    "cordova-plugin-compat": "^1.2.0",
     "cordova-plugin-console": "^1.1.0",
     "cordova-plugin-customurlscheme": "^4.3.0",
     "cordova-plugin-device": "^1.1.6",
@@ -110,7 +111,7 @@
     "cordova-plugin-x-socialsharing": "^5.2.1",
     "cordova-windows": "^5.0.0",
     "es6-promise-plugin": "^4.1.1",
-    "phonegap-plugin-barcodescanner": "^6.0.8"
+    "phonegap-plugin-barcodescanner": "^7.0.0"
   },
   "cordova": {
     "plugins": {
@@ -127,9 +128,6 @@
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-tts": {},
       "cordova-plugin-whitelist": {},
-      "phonegap-plugin-barcodescanner": {
-        "CAMERA_USAGE_DESCRIPTION": " "
-      },
       "cordova-plugin-customurlscheme": {
         "URL_SCHEME": "com.kidoju.mobile",
         "ANDROID_SCHEME": " ",
@@ -137,13 +135,17 @@
         "ANDROID_PATHPREFIX": "/"
       },
       "cordova-plugin-console": {},
-      "cordova-plugin-x-socialsharing": {}
+      "cordova-plugin-x-socialsharing": {},
+      "phonegap-plugin-barcodescanner": {
+        "CAMERA_USAGE_DESCRIPTION": " "
+      },
+      "cordova-plugin-compat": {}
     },
     "platforms": [
-      "android",
       "browser",
       "ios",
-      "windows"
+      "windows",
+      "android"
     ]
   }
 }
