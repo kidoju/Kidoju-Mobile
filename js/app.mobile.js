@@ -2298,10 +2298,11 @@ window.jQuery.holdReady(true);
                     }
                 });
 
+            debugger;
             // Add the ability to navigate pages by swiping the explanations/instructions panel
             contentElement.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
-                minXDelta: 100,
+                minXDelta: 50,
                 maxDuration: 1000,
                 swipe: function (e) {
                     // Is there a way to test this has not been initiated by one of our draggables?
@@ -2471,10 +2472,11 @@ window.jQuery.holdReady(true);
                     }
                 });
 
+            debugger;
             // Add the ability to navigate pages by swiping the explanations/instructions panel
             contentElement.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
-                minXDelta: 100,
+                minXDelta: 50,
                 maxDuration: 1000,
                 swipe: function (e) {
                     // Is there a way to test this has not been initiated by one of our draggables?
