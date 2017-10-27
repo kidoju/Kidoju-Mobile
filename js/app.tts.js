@@ -199,6 +199,7 @@
                 text = tts._clearMarkdown(text);
             }
             if (tts._useCordovaPlugIn()) {
+                window.alert('plugin');
                 // For iOS and Android via TTS plugin
                 // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
                 window.TTS.speak(
