@@ -2059,7 +2059,7 @@ window.jQuery.holdReady(true);
                     }
                     var theme = viewModel.getTheme();
                     // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
-                    kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.device === 'android' ? 0 : 20);
+                    kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.name === 'android' ? 0 : 20);
                     // Considering potential adverse effects with drag and drop, we are using http://docs.telerik.com/kendo-ui/api/javascript/mobile/ui/button#configuration-clickOn
                     // Initialize application
                     mobile.application = new kendo.mobile.Application(document.body, {
