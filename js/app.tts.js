@@ -198,16 +198,8 @@
             if (clear) {
                 text = tts._clearMarkdown(text);
             }
-            if (tts._useCordovaPlugIn()) {
-                // For iOS and Android via TTS plugin
-                // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
-                window.alert('plugin');
-                window.TTS.speak({ text: text, locale: language === 'fr' ? 'fr-FR' : 'en-US', rate: 1.5 }, dfd.resolve, dfd.reject);
-                logger.debug({
-                    method: 'tts.doSpeak',
-                    message: 'Text spoken with Cordova Plug-in'
-                });
-            } else if (tts._useSpeechSynthesis()) {
+            if (tts._useSpeechSynthesis()) {
+
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var chunks = tts._chunk(text, CHUNK_SIZE);
                 var promises = [];
@@ -221,6 +213,23 @@
                     method: 'tts.doSpeak',
                     message: 'Text spoken with W3C Speech API'
                 });
+            } else if (tts._useCordovaPlugIn()) {
+                // For iOS and Android via TTS plugin
+                // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
+                window.TTS.speak(
+                    {
+                        text: text,
+                        locale: language === 'fr' ? 'fr-FR' : 'en-US',
+                        // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
+                        rate: kendo.support.mobileOS.name === 'ios' ? 1.5 : 1
+                    },
+                    dfd.resolve,
+                    dfd.reject
+                );
+                logger.debug({
+                    method: 'tts.doSpeak',
+                    message: 'Text spoken with Cordova Plug-in'
+                });
             } else {
                 dfd.resolve();
             }
@@ -232,15 +241,7 @@
          */
         tts.cancelSpeak = function () {
             var dfd =  $.Deferred();
-            if (tts._useCordovaPlugIn()) {
-                // For iOS and Android via TTS plugin
-                // @see http://ourcodeworld.com/articles/read/370/how-to-convert-text-to-speech-speech-synthesis-in-cordova
-                window.TTS.speak('', dfd.resolve, dfd.reject);
-                logger.debug({
-                    method: 'tts.cancelSpeak',
-                    message: 'Text canceled with Cordova Plug-in'
-                });
-            }  else if (tts._useSpeechSynthesis()) {
+            if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
                 window.speechSynthesis.cancel();
                 dfd.resolve();
@@ -248,6 +249,16 @@
                     method: 'tts.cancelSpeak',
                     message: 'Text canceled with W3C Speech API'
                 });
+            } else if (tts._useCordovaPlugIn()) {
+                // For iOS and Android via TTS plugin
+                // @see http://ourcodeworld.com/articles/read/370/how-to-convert-text-to-speech-speech-synthesis-in-cordova
+                window.TTS.speak('', dfd.resolve, dfd.reject);
+                logger.debug({
+                    method: 'tts.cancelSpeak',
+                    message: 'Text canceled with Cordova Plug-in'
+                });
+            } else {
+                dfd.resolve();
             }
             return dfd.promise();
         };
