@@ -390,23 +390,22 @@ window.jQuery.holdReady(true);
         function setShortcuts () {
             /* jshint maxcomplexity: 9 */
             mobile.support = {
-                barcodeScanner: window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan),
+                barcodeScanner: window.cordova && window.cordova.plugins && !!window.cordova.plugins.barcodeScanner && $.isFunction(window.cordova.plugins.barcodeScanner.scan),
                 cordova: $.type(window.cordova) !== UNDEFINED,
-                dialogs: window.navigator && window.navigator.notification && $.isFunction(window.navigator.notification.alert) && $.isFunction(window.navigator.notification.confirm),
-                ga: window.ga && $.isFunction(window.ga.startTrackerWithId),
+                dialogs: window.navigator && !!window.navigator.notification && $.isFunction(window.navigator.notification.alert) && $.isFunction(window.navigator.notification.confirm),
+                ga: !!window.ga && $.isFunction(window.ga.startTrackerWithId),
                 // Note: InAppBrowser uses iFrame on browser platform which is incompatible with oAuth flow
-                inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
+                inAppBrowser: window.cordova && window.device && window.device.platform !== 'browser' && !!window.cordova.InAppBrowser && $.isFunction(window.cordova.InAppBrowser.open),
                 // Note: it will have to be changed once the following is fixed - https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/51
-                safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
+                safariViewController: window.cordova && window.device && window.device.platform !== 'browser' && !!window.SafariViewController && $.isFunction(window.SafariViewController.show),
                 // safariViewController: window.cordova && window.device && window.device.platform === 'iOS' && window.SafariViewController && $.isFunction(window.SafariViewController.show),
-                socialsharing: window.plugins && window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
-                splashscreen: window.navigator && window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
+                socialsharing: window.plugins && !!window.plugins.socialsharing && $.isFunction(window.plugins.socialsharing.shareWithOptions),
+                splashscreen: window.navigator && !!window.navigator.splashscreen && $.isFunction(window.navigator.splashscreen.hide)
             };
             // barcodeScanner requires phonegap-plugin-barcodescanner
             if (mobile.support.barcodeScanner) {
                 mobile.barcodeScanner = window.cordova.plugins.barcodeScanner;
             }
-            window.alert(mobile.support.barcodeScanner);
             // device requires cordova-plugin-device
             if ($.type(window.device) !== UNDEFINED) {
                 mobile.device = window.device;
