@@ -199,7 +199,7 @@
                 text = tts._clearMarkdown(text);
             }
             if (tts._useSpeechSynthesis()) {
-
+                window.alert('web speech');
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 var chunks = tts._chunk(text, CHUNK_SIZE);
                 var promises = [];
