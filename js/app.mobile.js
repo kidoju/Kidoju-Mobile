@@ -406,6 +406,7 @@ window.jQuery.holdReady(true);
             if (mobile.support.barcodeScanner) {
                 mobile.barcodeScanner = window.cordova.plugins.barcodeScanner;
             }
+            window.alert(mobile.support.barcodeScanner);
             // device requires cordova-plugin-device
             if ($.type(window.device) !== UNDEFINED) {
                 mobile.device = window.device;
