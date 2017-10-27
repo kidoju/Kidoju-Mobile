@@ -206,7 +206,7 @@
                         text: text,
                         locale: language === 'fr' ? 'fr-FR' : 'en-US',
                         // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
-                        rate: kendo.support.mobileOS.name === 'ios' ? 1 : 0.75
+                        rate: kendo.support.mobileOS.name === 'ios' ? 1.5 : 1
                     },
                     dfd.resolve,
                     dfd.reject
