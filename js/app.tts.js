@@ -199,9 +199,9 @@
                 text = tts._clearMarkdown(text);
             }
             if (tts._useCordovaPlugIn()) {
-                window.alert('plugin');
                 // For iOS and Android via TTS plugin
-                // Note: iOS WKWebView engine for cordova supports speechSynthesis (see other branch of if) but does not output any sound
+                // Note: iOS UIWebView supports speechSynthesis but not Chrome 61 on Android 5.1.1 (Nexus 7)
+                // window.alert('Cordova TTS Plugin');
                 window.TTS.speak(
                     {
                         text: text,
@@ -214,10 +214,11 @@
                 );
                 logger.debug({
                     method: 'tts.doSpeak',
-                    message: 'Text spoken with Cordova Plug-in'
+                    message: 'Text spoken with Cordova TTS Plugin'
                 });
             } else if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
+                // window.alert('W3C Speech API');
                 var chunks = tts._chunk(text, CHUNK_SIZE);
                 var promises = [];
                 $.each(chunks, function (index, chunk) {
@@ -247,7 +248,7 @@
                 window.TTS.speak('', dfd.resolve, dfd.reject);
                 logger.debug({
                     method: 'tts.cancelSpeak',
-                    message: 'Text canceled with Cordova Plug-in'
+                    message: 'Text canceled with Cordova TTS Plugin'
                 });
             } else if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/cancel
