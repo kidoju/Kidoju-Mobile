@@ -132,7 +132,7 @@ html, body {
             // http://docs.telerik.com/kendo-ui/controls/hybrid/how-to/relative-content-size-using-flexboxes
             display: flex;
             flex-wrap: wrap;
-            .padding {
+            .stretched-item.padding {
                 padding: 1em;
                 .heading {
                     h2 {
@@ -144,17 +144,22 @@ html, body {
                             margin-right: 0.5em;
                             vertical-align: middle;
                         }
+                        .tts {
+                            font-size: 0.9em;
+                            height: 1.8em;
+                            width: 1.8em;
+                            padding: 0;
+                            margin: 0;
+                            border-radius: 50%;
+                            float: right;
+                        }
                     }
                 }
-            }
-            .tts {
-                font-size: 0.9em;
-                height: 1.8em;
-                width: 1.8em;
-                padding: 0;
-                margin: 0;
-                border-radius: 50%;
-                float: right;
+                /*
+                .markdown {
+                    min-height: 2em; // So as to have a surface for swiping between pages
+                }
+                */
             }
         }
     }

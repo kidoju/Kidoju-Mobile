@@ -143,6 +143,7 @@ window.jQuery.holdReady(true);
         var CHANGE = 'change';
         var CLICK = 'click';
         var FOCUS = 'focus';
+        var TAP = 'tap';
         var INPUT = 'input';
         var KEYDOWN = 'keydown';
         var KEYPRESS = 'keypress';
@@ -2286,7 +2287,7 @@ window.jQuery.holdReady(true);
             // The play TTS button is a bit small, so let's use the entire heading
             contentElement.find('div.heading h2')
                 .off()
-                .click(function (e) {
+                .on(CLICK + ' ' + TAP, function (e) {
                     var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
@@ -2298,8 +2299,8 @@ window.jQuery.holdReady(true);
                     }
                 });
 
-            debugger;
             // Add the ability to navigate pages by swiping the explanations/instructions panel
+            /*
             contentElement.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
                 minXDelta: 50,
@@ -2313,6 +2314,7 @@ window.jQuery.holdReady(true);
                     }
                 }
             });
+            */
         };
 
         /**
@@ -2460,7 +2462,7 @@ window.jQuery.holdReady(true);
             // The play TTS button is a bit small, so let's use the entire heading
             contentElement.find('div.heading h2')
                 .off()
-                .click(function (e) {
+                .on(CLICK + ' ' + TAP, function (e) {
                     var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
@@ -2472,7 +2474,7 @@ window.jQuery.holdReady(true);
                     }
                 });
 
-            debugger;
+            /*
             // Add the ability to navigate pages by swiping the explanations/instructions panel
             contentElement.children('div.stretched-item:has(.heading)').kendoTouch({
                 enableSwipe: true,
@@ -2487,6 +2489,7 @@ window.jQuery.holdReady(true);
                     }
                 }
             });
+            */
         };
 
         /**
@@ -3492,7 +3495,18 @@ window.jQuery.holdReady(true);
             // summaryView.find('.km-filter-form').show();
         };
 
-
+        /**
+         * Event handler for swiping over #player instructions and #correction explanations
+         * @param e
+         */
+        mobile.onPageSwipe =  function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            if (e.direction === 'left') {
+                viewModel.nextPage();
+            } else if (e.direction === 'right') {
+                viewModel.previousPage();
+            }
+        };
 
         /**
          * Play text-to-speach synthesis
