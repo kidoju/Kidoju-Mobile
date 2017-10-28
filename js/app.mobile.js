@@ -165,6 +165,7 @@ window.jQuery.holdReady(true);
             ACTIVITIES: 'activities',
             CATEGORIES: 'categories',
             CORRECTION: 'correction',
+            DEFAULT: 'activities', // <---------- url is '/'
             DRAWER: 'drawer',
             FAVOURITES: 'favourites',
             FINDER: 'finder',
@@ -1487,7 +1488,7 @@ window.jQuery.holdReady(true);
          */
         mobile._setNavBarTitle = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var id = view.id === '/' ? VIEW.ACTIVITIES : view.id.substr(1); // Remove #
+            var id = view.id === '/' ? VIEW.DEFAULT : view.id.substr(1); // Remove #
             var culture = i18n.culture[id]; // Note: this supposes culture names match view id names
             var navbarElement = view.header.find('.km-navbar');
             var navbarWidget = navbarElement.data('kendoMobileNavBar');
@@ -1919,11 +1920,20 @@ window.jQuery.holdReady(true);
             // Note: there is a window.navigator.network.isReachable function but we could not make it work
             // See https://www.neotericdesign.com/articles/2011/3/checking-the-online-status-with-phonegap-jquery
             if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
-                if (!RX_OFFLINE_PAGES.test(e.url)) {
+                if (!RX_OFFLINE_PAGES.test(e.url)) { // Note: e.url might be ''
                     e.preventDefault();
                     var view = mobile.application.view();
-                    var url = window.encodeURIComponent(view.id.substr(1) + '?' + window.decodeURIComponent($.param(view.params)));
-                    mobile.application.navigate(HASH + VIEW.NETWORK + '?url=' + url);
+                    if (view.id !== HASH + VIEW.NETWORK) {
+                        var url = window.encodeURIComponent((view.id.substr(1) || VIEW.DEFAULT) + '?' + window.decodeURIComponent($.param(view.params)));
+                        mobile.application.navigate(HASH + VIEW.NETWORK + '?url=' + url);
+                    } else {
+                        // No redirection if we are already on the #network view
+                        var drawerWidget = $(kendo.roleSelector('drawer')).data('kendoMobileDrawer');
+                        if (drawerWidget instanceof kendo.mobile.ui.Drawer) {
+                            drawerWidget.hide();
+                        }
+                        mobile.application.hideLoading();
+                    }
                     return false;
                 }
             }
@@ -1955,7 +1965,8 @@ window.jQuery.holdReady(true);
                 function () {
                     app.notification.warning(i18n.culture.notifications.networkOffline);
                     var view = mobile.application.view();
-                    mobile.checkNetwork({ preventDefault: $.noop, url: view.id.substr(1) });
+                    var url = (view.id.substr(1) || VIEW.DEFAULT) + '?' + window.decodeURIComponent($.param(view.params));
+                    mobile.checkNetwork({ preventDefault: $.noop, url: url });
                 },
                 false
             );
