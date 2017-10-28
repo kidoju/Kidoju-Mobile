@@ -2134,12 +2134,13 @@ window.jQuery.holdReady(true);
 
         /**
          * Init network events
+         * @see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/
          */
         mobile._initNetworkEvents = function () {
             document.addEventListener(
                 'online',
                 function () {
-                    app.notification.warning(i18n.culture.notifications.onLine);
+                    app.notification.warning(i18n.culture.notifications.networkOnline);
                     var view = mobile.application.view();
                     if (view.id === HASH + VIEW.NETWORK) {
                         mobile.application.navigate(window.decodeURIComponent(view.params.url));
@@ -2150,7 +2151,7 @@ window.jQuery.holdReady(true);
             document.addEventListener(
                 'offline',
                 function () {
-                    app.notification.warning(i18n.culture.notifications.offLine);
+                    app.notification.warning(i18n.culture.notifications.networkOffline);
                     var view = mobile.application.view();
                     mobile.checkNetwork({ preventDefault: $.noop, url: view.id.substr(1) });
                 },
