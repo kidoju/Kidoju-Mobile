@@ -2039,6 +2039,8 @@ window.jQuery.holdReady(true);
             });
             // Initialize notifications
             mobile._initNotification();
+            // Initialize battery events
+            mobile._initBatteryEvents();
             // Initialize network events
             mobile._initNetworkEvents();
             // Wire the resize event handler for changes of device orientation
@@ -2137,6 +2139,8 @@ window.jQuery.holdReady(true);
          * @see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-network-information/
          */
         mobile._initNetworkEvents = function () {
+
+            // online
             document.addEventListener(
                 'online',
                 function () {
@@ -2148,12 +2152,40 @@ window.jQuery.holdReady(true);
                 },
                 false
             );
+
+            // offline
             document.addEventListener(
                 'offline',
                 function () {
                     app.notification.warning(i18n.culture.notifications.networkOffline);
                     var view = mobile.application.view();
                     mobile.checkNetwork({ preventDefault: $.noop, url: view.id.substr(1) });
+                },
+                false
+            );
+        };
+
+        /**
+         * Init battery events
+         * @see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-battery-status/
+         * @private
+         */
+        mobile._initBatteryEvents = function () {
+
+            // batterylow
+            window.addEventListener(
+                'batterylow',
+                function (status) {
+                    app.notification.warning(i18n.culture.notifications.batteryLow);
+                },
+                false
+            );
+
+            // batterycritical
+            window.addEventListener(
+                'batterycritical',
+                function (status) {
+                    app.notification.warning(i18n.culture.notifications.batteryCritical);
                 },
                 false
             );

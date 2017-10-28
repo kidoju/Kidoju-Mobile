@@ -104,6 +104,8 @@
             // Notification messages
             notifications: {
                 activitiesQueryFailure: 'There was an error loading activities.',
+                batteryCritical: 'Battery level is critical. Recharge now!',
+                batteryLow: 'Battery level is low. Recharge soon!',
                 clickSubmitInfo: 'Press <i class="kf kf-submit"></i> to calculate your score.',
                 confirmSubmit: 'Do you really want to submit to calculate your score?',
                 networkOffline: 'You are disconnected from the Internet',
