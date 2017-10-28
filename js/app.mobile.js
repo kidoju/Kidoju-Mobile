@@ -1965,6 +1965,22 @@ window.jQuery.holdReady(true);
                 function () {
                     app.notification.warning(i18n.culture.notifications.networkOffline);
                     var view = mobile.application.view();
+                    // Close opened action sheets
+                    // view.element.find(kendo.roleSelector('actionsheet')).each(function (index, actionSheet) {
+                    $(document).find(kendo.roleSelector('actionsheet')).each(function (index, actionSheet) {
+                        var actionSheetWidget = $(actionSheet).data('kendoMobileActionSheet');
+                        if (actionSheetWidget instanceof kendo.mobile.ui.ActionSheet) {
+                            actionSheetWidget.close();
+                        }
+                    });
+                    // Close opened drop down lists
+                    view.element.find(kendo.roleSelector('dropdownlist')).each(function (index, dropDownList) {
+                        var dropDownListWidget = $(dropDownList).data('kendoDropDownList');
+                        if (dropDownListWidget instanceof kendo.ui.DropDownList) {
+                            dropDownListWidget.close();
+                        }
+                    });
+                    // Check network to redirect to #network view
                     var url = (view.id.substr(1) || VIEW.DEFAULT) + '?' + window.decodeURIComponent($.param(view.params));
                     mobile.checkNetwork({ preventDefault: $.noop, url: url });
                 },
