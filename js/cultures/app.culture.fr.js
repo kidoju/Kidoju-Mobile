@@ -102,7 +102,7 @@
             network: {
                 viewTitle: 'Connexion',
                 // h2
-                message: 'Pas de rèseau'
+                message: 'Pas de réseau'
             },
             // Notification messages
             notifications: {
