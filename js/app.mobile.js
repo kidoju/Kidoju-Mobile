@@ -423,7 +423,7 @@ window.jQuery.holdReady(true);
                 mobile.SafariViewController = window.SafariViewController;
             }
             // notification requires cordova-plugin-dialogs
-            mobile.notification = {
+            mobile.dialogs = {
                 confirm: function (message, callback) {
                     if (mobile.support.dialogs) {
                         window.navigator.notification.confirm(message, callback, i18n.culture.dialogs.confirm, [i18n.culture.dialogs.buttons.ok.text, i18n.culture.dialogs.buttons.cancel.text]);
@@ -2039,17 +2039,17 @@ window.jQuery.holdReady(true);
                                         '?language=' + window.encodeURIComponent(language) +
                                         '&summaryId=' + window.encodeURIComponent(summaryId));
                                 } else {
-                                    mobile.notification.warn(i18n.culture.notifications.scanLanguageWarning);
+                                    app.notification.warning(i18n.culture.notifications.scanLanguageWarning);
                                 }
                             } else {
-                                mobile.notification.warn(i18n.culture.notifications.scanMatchWarning);
+                                app.notification.warning(i18n.culture.notifications.scanMatchWarning);
                             }
                         }
                     },
                     function (error) {
                         window.alert(error.message);
                         debugger;
-                        mobile.notification.error(i18n.culture.notifications.scanFailure);
+                        mobile.dialogs.error(i18n.culture.notifications.scanFailure);
                         logger.error({
                             message: 'Scan failure',
                             method: 'mobile._scanQRCode',
@@ -2927,13 +2927,13 @@ window.jQuery.holdReady(true);
                     },
                     function (result) {
                         app.notification.success(i18n.culture.notifications.sharingSuccess);
-                        // mobile.notification.info('Share completed? ' + result.completed + '/' + result.app);
+                        // mobile.dialogs.info('Share completed? ' + result.completed + '/' + result.app);
                         // On Android apps mostly return result.completed=false even while it's true
                         // On Android result.app (the app shared to) is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
                         // TODO: track sharing on Google
                     },
                     function (msg) {
-                        // mobile.notification.error('Sharing failed: ' + msg);
+                        // mobile.dialogs.error('Sharing failed: ' + msg);
                         app.notification.error(i18n.culture.notifications.sharingFailure);
                         logger.error({
                             message: 'Error sharing',
@@ -3248,7 +3248,7 @@ window.jQuery.holdReady(true);
         mobile.onNavBarSubmitClick = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-            mobile.notification.confirm(
+            mobile.dialogs.confirm(
                 i18n.culture.notifications.confirmSubmit,
                 function (buttonIndex) {
                     if (buttonIndex === 1) {
