@@ -220,7 +220,7 @@
         <!--div id="activities-grid"></div-->
         <!-- TODO Filter by category -->
         <!-- dropdown of top/other categories -->
-        <ul data-role="listview" data-bind="source: activities" data-template="activities-template" data-header-template="activities-header-template" data-fixed-headers="true" data-type="group"></ul>
+        <ul data-role="listview" data-bind="source: activities" data-filterable="false" data-template="activities-template" data-header-template="activities-header-template" data-fixed-headers="true" data-type="group"></ul>
         <script type="text/x-kendo-template" id="activities-template">
             <a href="\#score#: queryString$() #">
                 <div class="title">#: title$() #</div>
@@ -262,7 +262,7 @@
             <input data-role="dropdownlist" data-bind="value: user.categoryId, source: topCategories$()" data-value-field="id" data-text-field="name" style="width:100%">
         </div>
         <!-- listview of sub-categories -->
-        <ul data-role="listview" data-bind="source: categories" data-template="categories-template"></ul>
+        <ul data-role="listview" data-bind="source: categories" data-template="categories-template" data-filterable="false"></ul>
         <script type="text/x-kendo-template" id="categories-template">
             <a href="\#finder?#: filter$() #" style="margin-left: #: depth$() - 1 #em;">
                 <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
@@ -403,7 +403,7 @@
     <div id="settings" data-role="view" data-layout="main-layout" data-title="Settings" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSettingsViewShow">
         <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
         <form>
-            <ul data-role="listview" data-style="inset">
+            <ul data-role="listview" data-style="inset" data-filterable="false">
                 <li>
                     <label>
                         <span>User</span>
@@ -464,7 +464,7 @@
     <div id="summary" data-role="view" data-layout="main-layout" data-title="Details" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSummaryViewShow">
         <img data-bind="attr: { src: summary.icon$, alt: summary.title }" class="km-thumbnail picture">
         <form>
-            <ul data-role="listview" data-style="inset">
+            <ul data-role="listview" data-style="inset" data-filterable="false">
                 <li>
                     <label>
                         <span>Title</span>
@@ -512,7 +512,7 @@
         <img data-bind="invisible: isSavedUser$, attr: { src: user.largerPicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <form>
-            <ul data-role="listview" data-style="inset">
+            <ul data-role="listview" data-style="inset" data-filterable="false">
                 <li>
                     <label>
                         <span>First Name</span>

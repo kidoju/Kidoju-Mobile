@@ -9,9 +9,10 @@
 (function (f, define) {
     'use strict';
     define([
-        '../vendor/kendo/cultures/kendo.culture.en-GB.js'
-        // '../vendor/kendo/messages/kendo.messages.en-US.js',
-        // '../messages/kidoju.messages.en.js'
+        '../vendor/kendo/cultures/kendo.culture.en-GB.js',
+        '../vendor/kendo/messages/kendo.messages.en-GB.js',
+        '../messages/kendo.mobile.en.js',
+        '../messages/kidoju.messages.en.js'
     ], f);
 })(function () {
 

@@ -2519,6 +2519,7 @@ window.jQuery.holdReady(true);
                         data: viewModel.get(VIEW_MODEL.CURRENT.TEST).getScoreArray(),
                         group: { field: 'page' }
                     },
+                    filterable: false,
                     fixedHeaders: true,
                     headerTemplate: contentElement.find('#score-header-template').html().trim(),
                     template: contentElement.find('#score-template').html().trim(),
