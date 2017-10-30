@@ -37,6 +37,9 @@
         /* NOTES
         On Android 5 (Nexus 7), I could not get the sound from W3C Speech APIs to work before changing some Android settings I could not reproduce
         in Settings > System > Accessibility > Text-to-speech output as explained at https://www.greenbot.com/article/2105862/android/how-to-get-started-with-google-text-to-speech.html
+        Considering W3C Speech APIs do not work well on Android, we use the Cordova TTS plugin
+        iOS UIWebView support the W3C Speech APIs, but the sound seems less metallic with  the Cordova TTS Plugin
+        On the long term, we should be able to remove the Cordova TTS Plugin and only rely on the W3C Speech APIs
         */
 
         /**
@@ -63,7 +66,8 @@
          * @see https://codepen.io/matt-west/pen/wGzuJ
          */
         tts._useSpeechSynthesis = function () {
-            return !!('speechSynthesis' in window && $.isFunction(window.speechSynthesis.speak) && $.isFunction(window.SpeechSynthesisUtterance));
+            // This does not have to be a function, but it is consistent with tts._useCordovaPlugIn
+            return !!('speechSynthesis' in window && $.isFunction(window.SpeechSynthesisUtterance) && $.isFunction(window.speechSynthesis.speak));
         };
 
         /**
@@ -152,7 +156,7 @@
                 if (voice && voice.lang) {
                     var utterance = new window.SpeechSynthesisUtterance(text);
                     // utterance.lang = language; // Setting an unavailable language in Microsoft Edge breaks the speech
-                    utterance.voice = voice;
+                    utterance.voice = voice; // This sets the language
                     utterance.rate = 1;
                     utterance.onend = function(evt) { // Returns a SpeechSynthesisEvent
                         if (evt.type === 'error') {
@@ -266,6 +270,6 @@
 
     }(window.jQuery));
 
-    return app.tts;
+    return tts;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
