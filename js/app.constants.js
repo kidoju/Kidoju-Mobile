@@ -26,6 +26,8 @@
             categoryId: '',
             // The app language
             language: 'fr',
+            // The organizationId to search summaries from
+            // organizationId: '', // For future use
             // The app theme
             theme: ''
         }
