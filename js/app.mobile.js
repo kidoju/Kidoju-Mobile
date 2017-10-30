@@ -2025,8 +2025,8 @@ window.jQuery.holdReady(true);
                 var RX_QR_CODE_MATCH = /^https?:\/\/[^\/]+\/([a-z]{2})\/s\/([a-f0-9]{24})$/i;
                 mobile.barcodeScanner.scan(
                     function (result) {
-                        window.alert(JSON.stringify(result));
-                        debugger;
+                        // result.canceled is 0 or 1 - 1 is when pressing the cancel button
+                        // result also has properties text which contains our url and format which should be `QR_CODE`
                         if (!result.cancelled) {
                             assert.type(STRING, result.text, kendo.format(assert.messages.type.default, 'result.text', STRING));
                             assert.equal(QR_CODE, result.format, kendo.format(assert.messages.equal.default, 'result.format', QR_CODE));
@@ -2047,8 +2047,6 @@ window.jQuery.holdReady(true);
                         }
                     },
                     function (error) {
-                        window.alert(error.message);
-                        debugger;
                         mobile.dialogs.error(i18n.culture.notifications.scanFailure);
                         logger.error({
                             message: 'Scan failure',
