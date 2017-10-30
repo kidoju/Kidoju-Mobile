@@ -18,14 +18,14 @@
 
     'use strict';
 
+    var app = window.app = window.app || {};
+
     /* This function has too many statements. */
     /* jshint -W071 */
 
     (function ($, undefined) {
 
         /* jshint maxstatements: 48 */
-
-        var app = window.app;
         var assert = window.assert;
         var logger = new window.Logger('app.rapi');
         var chrome = window.chrome;
@@ -1612,6 +1612,6 @@
 
     /* jshint +W071 */
 
-    return window.app;
+    return app;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });

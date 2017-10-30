@@ -25,6 +25,8 @@
 
     'use strict';
 
+    var app = window.app = window.app || {};
+
     // Depending how md5.js is loaded
     // We need `md5` for webpack and `window.md5` for grunt mocha
     md5 = md5 || window.md5;
@@ -50,7 +52,6 @@
          * whereas they should be used as properties without trailing () in data-bind attributes
          */
 
-        var app = window.app = window.app || {};
         var kendo = window.kendo;
         var kidoju = window.kidoju;
         var Model = kidoju.data.Model;
@@ -2995,6 +2996,6 @@
     /* jshint +W074 */
     /* jshint +W071 */
 
-    return window.app;
+    return app;
 
 }, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
