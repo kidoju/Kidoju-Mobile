@@ -1402,7 +1402,6 @@ window.jQuery.holdReady(true);
             var showSummaryButton = false;
             var showSyncButton = false;
             var showSearchButton = false;
-            var showSortButtons = false;
             switch (view.id) {
                 case '/':
                 case HASH + VIEW.ACTIVITIES:
@@ -1428,7 +1427,6 @@ window.jQuery.holdReady(true);
                     showDrawerButton = true;
                     showHomeButton = true;
                     // showSearchButton = true;
-                    // showSortButtons = true;
                     break;
                 case HASH + VIEW.NETWORK:
                     showDrawerButton = true;
@@ -1476,7 +1474,6 @@ window.jQuery.holdReady(true);
             viewElement.find(HASH + LAYOUT.MAIN + '-summary').css({ display: showSummaryButton ? DISPLAY.INLINE : DISPLAY.NONE });
             viewElement.find(HASH + LAYOUT.MAIN + '-sync').css({ display: showSyncButton ? DISPLAY.INLINE : DISPLAY.NONE });
             viewElement.find(HASH + LAYOUT.MAIN + '-search').css({ display: showSearchButton ? DISPLAY.INLINE : DISPLAY.NONE });
-            viewElement.find(HASH + LAYOUT.MAIN + '-sort').css({ display: showSortButtons ? DISPLAY.INLINE : DISPLAY.NONE });
         };
 
         /* jshint +W074 */
