@@ -545,7 +545,7 @@
         rapi.test = {
 
             /**
-             * Checks a ping (return true or false)
+             * Checks a ping
              * @returns {*}
              */
             ping: function () {
@@ -553,18 +553,12 @@
                     message: '$.ajax',
                     method: 'test.ping'
                 });
-                var dfd = new $.Deferred();
-                $.ajax({
+                return $.ajax({
                     cache: false,
                     headers: rapi.util.getHeaders({ trace: true }),
                     type: GET,
                     url: uris.rapi.root + uris.rapi.ping
-                }).done(function () {
-                    dfd.resolve(arguments[0].hasOwnProperty('ping') && arguments[0].ping === 'OK');
-                }).fail(function () {
-                    dfd.resolve(false);
                 });
-                return dfd.promise();
             },
 
             /**
