@@ -208,7 +208,7 @@
                          * Create transport
                          * @param options
                          */
-                        create: function(options) {
+                        create: function (options) {
                             debugger;
                         },
 
@@ -216,7 +216,7 @@
                          * Destroy transport
                          * @param options
                          */
-                        destroy: function(options) {
+                        destroy: function (options) {
                             var locale = i18n.locale();
                             var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
                             var data = options.data;
@@ -254,12 +254,12 @@
                          * Read transport
                          * @param options
                          */
-                        read: function(options) {
+                        read: function (options) {
                             var locale = i18n.locale();
                             var params = JSON.parse(
                                 $(VERSION_HIDDEN_FIELD).val());
                             rapi.v1.content.getAllSummaryFiles(locale,
-                                params.summaryId).done(function(response) {
+                                params.summaryId).done(function (response) {
                                 assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
                                 assert.isArray(response.data, kendo.format(assert.messages.isArray.default, 'response.data'));
                                 assert.type(NUMBER, response.total, kendo.format(assert.messages.type.default, 'response.total', NUMBER));
@@ -267,7 +267,7 @@
 
                                 // TODO Compute total storage size to display in a progress bar
 
-                            }).fail(function(xhr, status, error) {
+                            }).fail(function (xhr, status, error) {
                                 logger.error({
                                     message: 'file list read error',
                                     method: 'summary.transport.read',
@@ -283,7 +283,7 @@
                          * Update transport
                          * @param options
                          */
-                        update: function(options) {
+                        update: function (options) {
                             throw new Error('Should not be used');
                         },
 
