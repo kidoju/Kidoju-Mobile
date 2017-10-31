@@ -168,5 +168,5 @@
         <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
     </plugin>
     <plugin name="cordova-plugin-compat" spec="^1.2.0" />
-    <plugin name="cordova-plugin-local-notifications" spec="https://github.com/katzer/cordova-plugin-local-notifications.git@0.9.0-beta.0" />
+    <plugin name="cordova-plugin-local-notifications" spec="https://github.com/katzer/cordova-plugin-local-notifications.git#0.9.0-beta.0" />
 </widget>
