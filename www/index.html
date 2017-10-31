@@ -511,42 +511,44 @@
 
     <!-- User view -->
     <div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
-        <img data-bind="invisible: isSavedUser$, attr: { src: user.largerPicture$, alt: user.fullName$ }" class="km-thumbnail picture">
-        <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
-        <form>
-            <ul data-role="listview" data-style="inset" data-filterable="false">
-                <li>
-                    <label>
-                        <span>First Name</span>
-                        <div data-bind="text: user.firstName" class="form-readonly" />
-                    </label>
-                </li>
-                <li>
-                    <label>
-                        <span>Last Name</span>
-                        <div data-bind="text: user.lastName" class="form-readonly" />
-                    </label>
-                </li>
-                <li data-bind="visible: isSavedUser$">
-                    <label>
-                        <span>Last Use</span>
-                        <div data-bind="text: user.lastUse" data-format="g" class="form-readonly" />
-                    </label>
-                </li>
-                <li>
-                    <label>
-                        <span>PIN</span>
-                        <input type="password" class="pin" autocomplete="off" />
-                    </label>
-                </li>
-                <li data-bind="invisible: isSavedUser$">
-                    <label>
-                        <span>Confirm</span>
-                        <input type="password" class="pin" autocomplete="off" />
-                    </label>
-                </li>
-            </ul>
-        </form>
+        <div data-role="touch" data-enable-swipe="true" data-swipe="app.mobile.onUserSwipe">
+            <img data-bind="invisible: isSavedUser$, attr: { src: user.largerPicture$, alt: user.fullName$ }" class="km-thumbnail picture">
+            <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
+            <form>
+                <ul data-role="listview" data-style="inset" data-filterable="false">
+                    <li>
+                        <label>
+                            <span>First Name</span>
+                            <div data-bind="text: user.firstName" class="form-readonly" />
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <span>Last Name</span>
+                            <div data-bind="text: user.lastName" class="form-readonly" />
+                        </label>
+                    </li>
+                    <li data-bind="visible: isSavedUser$">
+                        <label>
+                            <span>Last Use</span>
+                            <div data-bind="text: user.lastUse" data-format="g" class="form-readonly" />
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <span>PIN</span>
+                            <input type="password" class="pin" autocomplete="off" />
+                        </label>
+                    </li>
+                    <li data-bind="invisible: isSavedUser$">
+                        <label>
+                            <span>Confirm</span>
+                            <input type="password" class="pin" autocomplete="off" />
+                        </label>
+                    </li>
+                </ul>
+            </form>
+        </div>
         <div class="buttons">
             <a data-role="button" data-bind="invisible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSaveClick">Save</a>
             <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSignInClick">Signin</a>

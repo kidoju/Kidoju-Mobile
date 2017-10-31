@@ -3352,6 +3352,19 @@ window.jQuery.holdReady(true);
         };
 
         /**
+         * Event handler for swiping over #user
+         * @param e
+         */
+        mobile.onUserSwipe =  function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            if (e.direction === 'left') {
+                viewModel.nextUser();
+            } else if (e.direction === 'right') {
+                viewModel.previousUser();
+            }
+        };
+
+        /**
          * Play text-to-speach synthesis
          * @see https://github.com/vilic/cordova-plugin-tts
          * @param e
