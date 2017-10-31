@@ -150,6 +150,10 @@
                 versionLoadFailure: 'Il y a eu une erreur lors du chargement de la version.',
                 versionsLoadFailure: 'Il y a eu une erreur lors du chargement des versions.'
             },
+            osNotifications: {
+                title: 'Ça fait longtemps...',
+                text: 'Pourquoi ne pas lancer {0} pour mesurer vos progrès?'
+            },
             // Player view
             player: {
                 viewTitle: 'Page {0} de {1}',

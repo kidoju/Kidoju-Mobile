@@ -102,6 +102,7 @@ window.jQuery.holdReady(true);
         // './kidoju.widgets.social',
         './kidoju.widgets.stage',
         './kidoju.widgets.table',
+        './app.constants',
         './app.logger',
         './app.i18n',
         './app.theme',
@@ -3406,13 +3407,9 @@ window.jQuery.holdReady(true);
             cordova.plugins.notification.local.cancelAll(function  () {
                 // Setup a reminder to use the application every week
                 cordova.plugins.notification.local.schedule({
-                    title: 'It\'s been a while...',
-                    text: 'What about running Kidoju to assess your knowledge?',
+                    title: i18n.culture.osNotifications.title,
+                    text: kendo.format(i18n.culture.osNotifications.title, app.constants.appName),
                     trigger: { every: 5, unit: 'minute' },
-                    actions: [
-                        { id: 'yes', title: 'Yes' },
-                        { id: 'no',  title: 'No' }
-                    ],
                     foreground: true
                 });
             });

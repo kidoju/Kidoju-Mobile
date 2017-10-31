@@ -20,6 +20,7 @@
         // These constants lock the app to certain values
 
         app.constants = {
+            appName: 'Kidoju',
             // The authorId to search summaries from
             authorId: '',
             // The root categoryId

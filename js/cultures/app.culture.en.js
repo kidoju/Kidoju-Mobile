@@ -147,6 +147,10 @@
                 versionLoadFailure: 'There was an error loading version data.',
                 versionsLoadFailure: 'There was an error loading versions.'
             },
+            osNotifications: {
+                title: 'It\'s been a while...',
+                text: 'What about running {0} to assess your progresses?'
+            },
             // Player view
             player: {
                 viewTitle: 'Page {0} of {1}',
