@@ -1850,6 +1850,8 @@ window.jQuery.holdReady(true);
                 message: 'Analytics set',
                 method: 'mobile.onDeviceReady'
             });
+            // Start notifications
+            mobile._scheduleNotifications();
             // initialize the user interface after loading i18n resources
             $(document).one(LOADED, mobile.oni18nLoaded);
             // Release the execution of jQuery's ready event (hold in index.html)
@@ -2093,7 +2095,7 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.type(STRING, e.url, kendo.format(assert.messages.type.default, 'e.url', STRING));
             // if (mobile.application instanceof kendo.mobile.Application) {
-                mobile.application.showLoading();
+            mobile.application.showLoading();
             // }
             // Check that we are online
             if (mobile.checkNetwork(e)) {
@@ -3180,7 +3182,6 @@ window.jQuery.holdReady(true);
             mobile.application.navigate(HASH + VIEW.SIGNIN);
         };
 
-
         /**
          * Enable/disable user buttons (to prevent double-clicks)
          * @param enable
@@ -3381,6 +3382,18 @@ window.jQuery.holdReady(true);
                         e.button.removeAttr(kendo.attr(SPEAKING));
                     });
             }
+        };
+
+        /**
+         * Schedule system notifications
+         * @private
+         */
+        mobile._scheduleNotifications = function () {
+            cordova.plugins.notification.local.schedule({
+                title: 'My first notification',
+                text: 'Thats pretty easy...',
+                foreground: true
+            });
         };
 
         /*******************************************************************************************
