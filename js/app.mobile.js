@@ -3389,10 +3389,19 @@ window.jQuery.holdReady(true);
          * @private
          */
         mobile._scheduleNotifications = function () {
-            cordova.plugins.notification.local.schedule({
-                title: 'My first notification',
-                text: 'Thats pretty easy...',
-                foreground: true
+            // Cancel all notifications before creating new ones
+            cordova.plugins.notification.local.cancelAll(function  () {
+                // Setup a reminder to use the application every week
+                cordova.plugins.notification.local.schedule({
+                    title: 'It\'s been a while...',
+                    text: 'What about running Kidoju to assess your knowledge?',
+                    trigger: { every: 5, unit: 'minute' },
+                    actions: [
+                        { id: 'yes', title: 'Yes' },
+                        { id: 'no',  title: 'No' }
+                    ],
+                    foreground: true
+                });
             });
         };
 
