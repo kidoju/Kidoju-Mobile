@@ -30,7 +30,7 @@
             // organizationId: '', // For future use
             // The app theme
             theme: ''
-        }
+        };
 
     }());
 

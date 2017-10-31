@@ -29,7 +29,8 @@
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHUNK_SIZE = 175;
-        var voices= [];
+        var RX_IOS = /^i(phone|pad|pod)$/i;
+        var voices = [];
         var loadVoices = function () {
             voices = window.speechSynthesis.getVoices();
         };
@@ -158,7 +159,7 @@
                     // utterance.lang = language; // Setting an unavailable language in Microsoft Edge breaks the speech
                     utterance.voice = voice; // This sets the language
                     utterance.rate = 1;
-                    utterance.onend = function(evt) { // Returns a SpeechSynthesisEvent
+                    utterance.onend = function (evt) { // Returns a SpeechSynthesisEvent
                         if (evt.type === 'error') {
                             // This occurs on Edge when the language pack has not been installed
                             dfd.reject(new Error('Speech synthesis error.'));
@@ -211,7 +212,8 @@
                         text: text,
                         locale: language === 'fr' ? 'fr-FR' : 'en-US',
                         // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
-                        rate: kendo.support.mobileOS.name === 'ios' ? 1.5 : 1
+                        // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
+                        rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1
                     },
                     dfd.resolve,
                     dfd.reject
@@ -235,7 +237,7 @@
                     method: 'tts.doSpeak',
                     message: 'Text spoken with W3C Speech API'
                 });
-            } else  {
+            } else {
                 dfd.resolve();
             }
             return dfd.promise();
@@ -262,7 +264,7 @@
                     method: 'tts.cancelSpeak',
                     message: 'Text canceled with W3C Speech API'
                 });
-            } else  {
+            } else {
                 dfd.resolve();
             }
             return dfd.promise();
