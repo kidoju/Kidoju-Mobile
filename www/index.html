@@ -212,9 +212,16 @@
 
     <!-- Activities view -->
     <div id="activities" data-role="view" data-layout="main-layout" data-title="Activities" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onActivitiesViewShow">
-        <!--div id="activities-grid"></div-->
-        <!-- TODO Filter by category -->
-        <!-- dropdown of top/other categories -->
+        <!-- button group -->
+        <ul data-role="buttongroup" data-index="0" data-select="app.mobile.onActivitiesButtonGroupSelect">
+            <li>List</li>
+            <li>Chart</li>
+        </ul>
+        <!-- graph -->
+        <div data-role="chart" data-bind="source: activities" data-series-defaults="{ type: 'scatter' }" data-series="[{ xField: 'updated', yField: 'score', visibleInLegend: false }]"
+             data-x-axis="{ baseUnit: 'months', labels: { format: '{0:MMM\'yy}' }, type: 'date' }"
+             data-y-axis="{ max: 100, labels: { format: '{0}%' } }" style="display:none;"></div>
+        <!-- list -->
         <ul data-role="listview" data-bind="source: activities" data-filterable="false" data-template="activities-template" data-header-template="activities-header-template" data-fixed-headers="true" data-type="group"></ul>
         <script type="text/x-kendo-template" id="activities-template">
             <a href="\#score#: queryString$() #">

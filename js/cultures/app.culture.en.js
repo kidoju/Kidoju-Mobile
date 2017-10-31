@@ -43,6 +43,10 @@
             // Activities view
             activities: {
                 viewTitle: 'Activities',
+                buttonGroup: {
+                    chart: 'Chart',
+                    list: 'List'
+                },
                 listView: {
                     groups: {
                         today: 'Today',

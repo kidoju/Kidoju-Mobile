@@ -1586,8 +1586,10 @@ window.jQuery.holdReady(true);
                 settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + culture.settings));
 
                 // Localize activities
-                // culture = i18n.culture.activities;
-                // viewElement = $(HASH + VIEW.ACTIVITIES);
+                culture = i18n.culture.activities;
+                viewElement = $(HASH + VIEW.ACTIVITIES);
+                viewElement.find('ul[data-role="buttongroup"]>li:eq(0)').html(culture.buttonGroup.list);
+                viewElement.find('ul[data-role="buttongroup"]>li:eq(1)').html(culture.buttonGroup.chart);
 
                 // Localize categories
                 // culture = i18n.culture.categories;
@@ -1605,14 +1607,12 @@ window.jQuery.holdReady(true);
                 // Localize finder
                 // culture = i18n.culture.finder;
                 // viewElement = $(HASH + VIEW.FINDER);
-                // TODO localize searchbox placeholdr
-                // TODO: localize press to load more
 
                 // Localize network
                 culture = i18n.culture.network;
                 viewElement = $(HASH + VIEW.NETWORK);
                 var viewWidget = viewElement.data('kendoMobileView');
-                // TODO  Note: we could also localize image alt attribute
+                // Note: we could also localize image alt attribute
                 viewElement.find('h2.message').html(culture.message);
 
                 // Localize player
@@ -1791,16 +1791,37 @@ window.jQuery.holdReady(true);
         /* jshint +W074 */
 
         /**
+         * Resize activities chart
+         * @param view
+         * @private
+         */
+        mobile._resizeChart = function (view) {
+            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            var content = view.content;
+            var chart = content.find(kendo.roleSelector('chart'));
+            if (chart.length) {
+                var buttonGroup = content.find(kendo.roleSelector('buttongroup'));
+                chart.outerHeight(content.height() - buttonGroup.outerHeight(true));
+                chart.outerWidth(content.width());
+                // Resize widget
+                var chartWidget = chart.data('kendoChart');
+                if (chartWidget instanceof kendo.dataviz.ui.Chart) {
+                    chartWidget.resize();
+                }
+            }
+        };
+
+        /**
          * Event handler for resizing the UI (especially when changing device orientation)
          * @private
          */
         mobile.onResize = function () {
             // In Android, onResize might be triggered before kendo.mobile.Application is instantiated
             if (mobile.application instanceof kendo.mobile.Application) {
-                mobile._initNotification();
                 var view = mobile.application.view();
+                mobile._initNotification();
                 mobile._resizeStage(view);
-                mobile._initScoreListView(view);
+                mobile._resizeChart(view);
             }
         };
 
@@ -2167,6 +2188,24 @@ window.jQuery.holdReady(true);
                 .always(function () {
                     mobile.onGenericViewShow(e);
                 });
+        };
+
+        /**
+         * Event handler triggered when selecting a button for the button group on the activities view
+         * @param e
+         */
+        mobile.onActivitiesButtonGroupSelect = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.type(NUMBER, e.index, kendo.format(assert.messages.type.default, 'e.index', NUMBER));
+            var view = app.mobile.application.view();
+            if (!e.index) { // ListView
+                view.content.find(kendo.roleSelector('listview')).show();
+                view.content.find(kendo.roleSelector('chart')).hide();
+            } else { // Chart
+                view.content.find(kendo.roleSelector('listview')).hide();
+                view.content.find(kendo.roleSelector('chart')).show();
+                mobile._resizeChart(view);
+            }
         };
 
         /**
