@@ -38,7 +38,7 @@ module.exports = function (grunt) {
                 processContentExclude: ['**/*.js']
             },
             bluebird: {
-                src: './js/vendor/bluebird/bluebird-3.5.0.min.js',
+                src: './js/vendor/bluebird/bluebird.core.min.js',
                 dest: './www/build/bluebird.core.min.js'
             },
             jquery: {
