@@ -60,10 +60,9 @@
         var md5 = md5H || window.md5;
         var pongodb = window.pongodb;
         var db = app.db = new pongodb.Database({
-            // TODO: we should probably get these values from config files
             name: 'KidojuDB',
             size: 5 * 1024 * 1024,
-            collections: ['users', 'activities']
+            collections: ['_meta', 'activities', 'users']
         });
         // var i18n = app.i18n = app.i18n || { };
         // This is for testing only because we should get values from config files (see ./js/app.config.jsx)
@@ -826,7 +825,8 @@
                     that._userId = userId;
                     that.read() // Calls _transport._read
                         .done(function (a) {
-                            dfd.resolve(a)
+                            debugger;
+                            dfd.resolve(a);
                         })
                         .fail(dfd.reject);
                 }
@@ -1085,6 +1085,73 @@
          * @type {kidoju.data.Model}
          */
         // models.MobileDownload = DataSource.define({});
+
+        /**
+         * Database migration
+         */
+        models.Upgrades = kendo.Class.extend({
+
+            init: function (version) {
+                // The application version as in app.version;
+                this._version = version;
+            },
+
+            /**
+             * Check application version against server version
+             */
+            checkApplication: function () {
+                var dfd = $.Deferred();
+                app.rapi.test.ping()
+                    .done(function (result) {
+                        dfd.resolve()
+                    })
+                    .fail(dfd.reject);
+                return dfd.promise();
+            },
+
+            /**
+             * Check database version against application version
+             */
+            checkDatabase: function () {
+                var dfd = $.Deferred();
+                db._meta.findOne({ _id: 'version '})
+                    .done(function (result) {
+                        debugger;
+                    })
+                    .fail(dfd.reject);
+                return dfd.promise();
+            },
+
+            /**
+             * Dummy migration for testing only
+             */
+            _dummy: function () {
+                var dfd = $.Deferred();
+                var count = 0;
+                var interval = setInterval(function () {
+                    count++;
+                    dfd.progress(count / 10);
+                    if (count === 10) {
+                        clearInterval(interval);
+                        dfd.resolve();
+                    }
+                }, 500);
+                return dfd.promise();
+            },
+
+            /**
+             * Execute database migrations
+             */
+            migrate: function () {
+                // progress through versions
+                return this._dummy();
+            }
+
+            // _migration1
+            // _migration2
+            // _migtation3
+
+        });
 
     }(window.jQuery));
 
