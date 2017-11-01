@@ -571,11 +571,11 @@
                     message: 'dummy request',
                     method: 'test.dummyResolvedDeferred'
                 });
-                var deferred = $.Deferred();
+                var dfd = $.Deferred();
                 setTimeout(function () {
-                    deferred.resolve({ total: 0, data: [] });
+                    dfd.resolve({ total: 0, data: [] });
                 }, 50);
-                return deferred.promise();
+                return dfd.promise();
             },
 
             /**
@@ -588,11 +588,11 @@
                     message: 'dummy request',
                     method: 'test.dummyRejectedDeferred'
                 });
-                var deferred = $.Deferred();
+                var dfd = $.Deferred();
                 setTimeout(function () {
-                    deferred.reject(null, 0, 'Failed');
+                    dfd.reject(null, 0, 'Failed');
                 }, 50);
-                return deferred.promise();
+                return dfd.promise();
             }
 
         };
