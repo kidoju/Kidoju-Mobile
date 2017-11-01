@@ -149,7 +149,7 @@
             },
             osNotifications: {
                 title: 'It\'s been a while...',
-                text: 'What about running {0} to assess your progresses?'
+                text: 'What about running {0} to assess your progress?'
             },
             // Player view
             player: {
