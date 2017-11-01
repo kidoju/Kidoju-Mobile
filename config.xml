@@ -8,7 +8,7 @@
     <icon src="www/icon.png" />
     <preference name="android-minSdkVersion" value="17" />
     <preference name="android-targetSdkVersion" value="23" />
-    <preference name="android-compileSdkVersion" value="25" />
+    <preference name="android-compileSdkVersion" value="26" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="LoadUrlTimeoutValue" value="60000" />
     <preference name="AutoHideSplashScreen" value="false" />
@@ -168,5 +168,4 @@
         <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
     </plugin>
     <plugin name="cordova-plugin-compat" spec="^1.2.0" />
-    <plugin name="cordova-plugin-local-notifications" spec="https://github.com/jlchereau/cordova-plugin-local-notifications.git" />
 </widget>
