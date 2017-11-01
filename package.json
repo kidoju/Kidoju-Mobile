@@ -92,6 +92,7 @@
     "cordova-android": "^6.3.0",
     "cordova-browser": "^5.0.1",
     "cordova-ios": "^4.5.3",
+    "cordova-plugin-badge": "^0.8.5",
     "cordova-plugin-battery-status": "^1.2.4",
     "cordova-plugin-compat": "^1.2.0",
     "cordova-plugin-console": "^1.1.0",
@@ -103,6 +104,7 @@
     "cordova-plugin-globalization": "^1.0.7",
     "cordova-plugin-google-analytics": "^1.8.3",
     "cordova-plugin-inappbrowser": "^1.7.1",
+    "cordova-plugin-local-notifications": "git+https://github.com/katzer/cordova-plugin-local-notifications.git",
     "cordova-plugin-network-information": "^1.3.3",
     "cordova-plugin-safariviewcontroller": "^1.4.7",
     "cordova-plugin-splashscreen": "^4.0.3",
@@ -139,7 +141,8 @@
       "phonegap-plugin-barcodescanner": {
         "CAMERA_USAGE_DESCRIPTION": " "
       },
-      "cordova-plugin-compat": {}
+      "cordova-plugin-compat": {},
+      "cordova-plugin-local-notifications": {}
     },
     "platforms": [
       "browser",
