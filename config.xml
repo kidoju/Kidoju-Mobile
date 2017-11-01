@@ -6,8 +6,8 @@
     <author email="support@memba.com" href="http://www.memba.com">Memba Sarl</author>
     <content src="index.html" />
     <icon src="www/icon.png" />
-    <preference name="android-minSdkVersion" value="23" />
-    <preference name="android-targetSdkVersion" value="26" />
+    <preference name="android-minSdkVersion" value="17" />
+    <preference name="android-targetSdkVersion" value="23" />
     <preference name="android-compileSdkVersion" value="26" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="LoadUrlTimeoutValue" value="60000" />
@@ -139,9 +139,9 @@
             <false />
         </config-file>
     </platform>
+    <engine name="android" spec="^6.3.0" />
     <engine name="browser" spec="^5.0.1" />
     <engine name="windows" spec="^5.0.0" />
-    <engine name="android" spec="^6.3.0" />
     <engine name="ios" spec="^4.5.3" />
     <plugin name="cordova-plugin-file" spec="^4.3.3" />
     <plugin name="cordova-plugin-battery-status" spec="^1.2.4" />
@@ -168,5 +168,4 @@
         <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
     </plugin>
     <plugin name="cordova-plugin-compat" spec="^1.2.0" />
-    <plugin name="cordova-plugin-local-notifications" spec="https://github.com/katzer/cordova-plugin-local-notifications.git" />
 </widget>
