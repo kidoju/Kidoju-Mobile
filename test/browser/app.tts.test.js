@@ -37,14 +37,26 @@
 
     describe('app.tts', function () {
 
-        it('useCordovaPlugIn should be false', function () {
-            expect(tts.useCordovaPlugIn).to.be.false;
+        it('_useCordovaPlugIn should be false', function () {
+            expect(tts._useCordovaPlugIn()).to.be.false;
         });
 
-        it('useSpeechSynthesis should be true in Chrome and Safari', function () {
+        it('_useSpeechSynthesis should be true in Chrome and Safari', function () {
             // Only Internet Explorer and PhantomJS do not support SpeechSynthesis at this stage
             // @see http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
-            expect(tts.useSpeechSynthesis).to.equal(!document.documentMode && !window.PHANTOMJS);
+            expect(tts._useSpeechSynthesis()).to.equal(!document.documentMode && !window.PHANTOMJS);
+        });
+
+        it('_getVoice should return an english voice', function () {
+            if (tts._useSpeechSynthesis()) {
+                expect(tts._getVoice('en-GB')).to.have.property('lang');
+            }
+        });
+
+        it('_getVoice should return a french voice', function () {
+            if (tts._useSpeechSynthesis()) {
+                expect(tts._getVoice('fr-FR')).to.have.property('lang');
+            }
         });
 
         it('_clearMarkdown should clear markings', function () {
@@ -54,13 +66,13 @@
         });
 
         it('_speachSynthesisPromise should return a promise', function () {
-            var promise = tts._speachSynthesisPromise('', 'en-US');
+            var promise = tts._speechSynthesisPromise('', 'en-US');
             expect(promise.then).to.be.a('function');
         });
 
         it('Simple speach symnthesis test', function () {
             function test () {
-                if (tts.useSpeechSynthesis) {
+                if (tts._useSpeechSynthesis()) {
                     // throw new Error('Oops');
                     window.speechSynthesis.speak(new window.SpeechSynthesisUtterance('hello world!'));
                 }
