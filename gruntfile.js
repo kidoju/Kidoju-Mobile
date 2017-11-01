@@ -111,8 +111,11 @@ module.exports = function (grunt) {
             }
         },
         webdriver: { // Selenium functional tests
-            local: {
-                configFile: './wdio.conf.js'
+            appium: {
+                configFile: './wdio.appium.conf.js'
+            },
+            selenium: {
+                configFile: './wdio.selenium.conf.js'
             }
         },
         webpack: {
@@ -156,7 +159,8 @@ module.exports = function (grunt) {
     // Commands
     grunt.registerTask('lint', ['jscs', 'jshint', 'nsp']); // 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'copy']);
-    grunt.registerTask('test', ['mocha', 'mochaTest', 'webdriver']);
+    // grunt.registerTask('test', ['mocha', 'mochaTest', 'webdriver']);
+    grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
 
 };
