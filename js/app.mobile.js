@@ -3400,19 +3400,23 @@ window.jQuery.holdReady(true);
 
         /**
          * Schedule system notifications
+         * Uses https://github.com/katzer/cordova-plugin-local-notifications
          * @private
          */
         mobile._scheduleNotifications = function () {
-            // Cancel all notifications before creating new ones
-            cordova.plugins.notification.local.cancelAll(function  () {
-                // Setup a reminder to use the application every week
-                cordova.plugins.notification.local.schedule({
-                    title: i18n.culture.osNotifications.title,
-                    text: kendo.format(i18n.culture.osNotifications.title, app.constants.appName),
-                    trigger: { every: 5, unit: 'minute' },
-                    foreground: true
+            var local = window.cordova && window.cordova.plugins && cordova.plugins.notification && cordova.plugins.notification.local;
+            if (local && $.isFunction(local.cancelAll) && $.isFunction(local.schedule)) {
+                // Cancel all notifications before creating new ones
+                local.cancelAll(function() {
+                    // Setup a reminder to use the application every week
+                    local.schedule({
+                        title: i18n.culture.osNotifications.title,
+                        text: kendo.format(i18n.culture.osNotifications.title, app.constants.appName),
+                        trigger: {every: 7, unit: 'day'},
+                        foreground: true
+                    });
                 });
-            });
+            }
         };
 
         /*******************************************************************************************
