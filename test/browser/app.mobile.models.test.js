@@ -313,11 +313,11 @@
                 expect(activity).to.have.property('id', activity0.id);
                 expect(activity).to.have.property('sid', activity0.sid);
                 expect(activity).to.have.property('type', activity0.type);
-                expect(activity).to.have.deep.property('actor.userId', activity0.actor.userId);
-                expect(activity).to.have.deep.property('version.language', activity0.version.language);
-                expect(activity).to.have.deep.property('version.summaryId', activity0.version.summaryId);
-                expect(activity).to.have.deep.property('version.title', activity0.version.title);
-                expect(activity).to.have.deep.property('version.versionId', activity0.version.versionId);
+                expect(activity).to.have.nested.property('actor.userId', activity0.actor.userId);
+                expect(activity).to.have.nested.property('version.language', activity0.version.language);
+                expect(activity).to.have.nested.property('version.summaryId', activity0.version.summaryId);
+                expect(activity).to.have.nested.property('version.title', activity0.version.title);
+                expect(activity).to.have.nested.property('version.versionId', activity0.version.versionId);
                 // TODO: test field$ functions here
             });
 
