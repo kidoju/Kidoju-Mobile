@@ -1114,7 +1114,7 @@
              */
             checkDatabase: function () {
                 var dfd = $.Deferred();
-                db._meta.findOne({ _id: 'version '})
+                db._meta.findOne({ _id: 'version'})
                     .done(function (result) {
                         debugger;
                     })
