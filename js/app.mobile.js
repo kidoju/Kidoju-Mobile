@@ -1851,8 +1851,6 @@ window.jQuery.holdReady(true);
                 message: 'Analytics set',
                 method: 'mobile.onDeviceReady'
             });
-            // Start notifications
-            mobile._scheduleNotifications();
             // initialize the user interface after loading i18n resources
             $(document).one(LOADED, mobile.oni18nLoaded);
             // Release the execution of jQuery's ready event (hold in index.html)
@@ -1874,7 +1872,9 @@ window.jQuery.holdReady(true);
                 message: 'i18n culture is loaded',
                 method: 'mobile.oni18nLoaded'
             });
-            // Initialize notifications
+            // Schedule OS notifications
+            mobile._scheduleNotifications();
+            // Initialize toast notifications
             mobile._initNotification();
             // Initialize battery events
             mobile._initBatteryEvents();
