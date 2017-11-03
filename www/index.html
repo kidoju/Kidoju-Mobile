@@ -407,33 +407,33 @@
         <form>
             <ul data-role="listview" data-style="inset" data-filterable="false">
                 <li>
-                    <label class="km-label-above">
+                    <label>
                         <span>User</span>
-                        <div data-bind="text: user.fullName$" class="form-readonly" />
+                        <div data-bind="text: user.fullName$" class="form-readonly"></div>
                     </label>
                 </li>
                 <li>
-                    <label class="km-label-above">
+                    <label>
                         <span>Version</span>
-                        <div data-bind="text: version$()" class="form-readonly" />
+                        <div data-bind="text: version$()" class="form-readonly"></div>
                     </label>
                 </li>
                 <li>
-                    <label class="km-required km-label-above">
+                    <label>
                         <span>Theme</span>
-                        <input data-role="dropdownlist" data-bind="value: theme, source: themes" data-value-field="value" data-text-field="text" />
+                        <input data-role="dropdownlist" data-bind="value: theme, source: themes" data-value-field="value" data-text-field="text">
                     </label>
                 </li>
                 <li>
-                    <label class="km-required km-label-above">
+                    <label>
                         <span>Language</span>
-                        <input data-role="dropdownlist" data-bind="value: language, source: languages" data-value-field="value" data-text-field="text"  />
+                        <input data-role="dropdownlist" data-bind="value: language, source: languages" data-value-field="value" data-text-field="text">
                     </label>
                 </li>
                 <li>
-                    <label class="km-required km-label-above">
+                    <label>
                         <span>Category</span>
-                        <input data-role="dropdownlist" data-bind="value: user.categoryId, source: topCategories$()" data-value-field="id" data-text-field="name"  />
+                        <input data-role="dropdownlist" data-bind="value: user.categoryId, source: topCategories$()" data-value-field="id" data-text-field="name">
                     </label>
                 </li>
             </ul>
@@ -470,25 +470,25 @@
                 <li>
                     <label>
                         <span>Title</span>
-                        <div data-bind="text: summary.title" class="form-readonly" />
+                        <div data-bind="text: summary.title" class="form-readonly"></div>
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Categories</span>
-                        <div data-bind="text: summary.categories$" class="form-readonly" />
+                        <div data-bind="text: summary.categories$" class="form-readonly"></div>
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Tags</span>
-                        <div data-bind="text: summary.tags$" class="form-readonly" />
+                        <div data-bind="text: summary.tags$" class="form-readonly"></div>
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Description</span>
-                        <div data-role="markdown" data-bind="value: summary.description" class="form-readonly" />
+                        <div data-role="markdown" data-bind="value: summary.description" class="form-readonly"></div>
                     </label>
                 </li>
                 <!-- author, creation date, metrics, etc. -->
@@ -517,33 +517,33 @@
             <form>
                 <ul data-role="listview" data-style="inset" data-filterable="false">
                     <li>
-                        <label class="km-label-above">
+                        <label>
                             <span>First Name</span>
-                            <div data-bind="text: user.firstName" class="form-readonly" />
+                            <div data-bind="text: user.firstName" class="form-readonly"></div>
                         </label>
                     </li>
                     <li>
-                        <label class="km-label-above">
+                        <label>
                             <span>Last Name</span>
-                            <div data-bind="text: user.lastName" class="form-readonly" />
+                            <div data-bind="text: user.lastName" class="form-readonly"></div>
                         </label>
                     </li>
                     <li data-bind="visible: isSavedUser$">
-                        <label class="km-label-above">
+                        <label>
                             <span>Last Use</span>
-                            <div data-bind="text: user.lastUse" data-format="g" class="form-readonly" />
+                            <div data-bind="text: user.lastUse" data-format="g" class="form-readonly"></div>
                         </label>
                     </li>
                     <li>
-                        <label class="km-label-above">
+                        <label>
                             <span>PIN</span>
-                            <input type="password" class="pin" autocomplete="off" />
+                            <input type="password" class="pin" autocomplete="off">
                         </label>
                     </li>
                     <li data-bind="invisible: isSavedUser$">
-                        <label class="km-label-above">
+                        <label>
                             <span>Confirm</span>
-                            <input type="password" class="pin" autocomplete="off" />
+                            <input type="password" class="pin" autocomplete="off">
                         </label>
                     </li>
                 </ul>

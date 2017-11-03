@@ -11,6 +11,9 @@
 @notification-success-text-color: darken(@success, 27%);
 @notification-warning-background-color: @warning;
 @notification-warning-text-color: darken(@warning, 27%);
+@selected-background: @accent;
+@selected-border-color: @accent;
+@selected-text-color: @base;
 
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
@@ -86,25 +89,21 @@
     /**********************************************************
      * Listview
      **********************************************************/
-    .km-listview {
-        /*
-        label {
-            // Readonly values
-            .form-readonly {
-                margin-top: -1.75em;
-            }
-            // Align dropdowns with span.k-input
-            span.k-dropdown {
-                margin-top: -1.4em;
-                span.k-dropdown-wrap {
-                    padding-left: 0;
-                    span.k-input {
-                        text-indent: 0;
-                    }
+    .km-listview.km-list {
+        // Readonly values
+        .form-readonly {
+            margin-top: -1.75em;
+        }
+        // Align dropdowns with span.k-input
+        span.k-dropdown {
+            margin-top: -1.4em;
+            span.k-dropdown-wrap {
+                padding-left: 0;
+                span.k-input {
+                    text-indent: 0;
                 }
             }
         }
-        */
     }
     // Fix search box
     .km-filter-wrap > input {

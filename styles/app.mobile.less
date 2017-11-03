@@ -14,6 +14,18 @@ html, body {
     /**********************************************************
     * Kendo UI
     **********************************************************/
+    .km-navbar {
+        height: 3rem; // We need this because we want the navbar in the drawer to be the same size as the navbar in the main layout
+        // Navbar buttons
+        /*
+        .km-button {
+            padding: .3em .5em !important;
+            .km-notext {
+                margin: 0 .1em 0 0 !important;
+            }
+        }
+        */
+    }
     .km-view {
         .k-notification {
             // This is for static notifications in a .km-view
@@ -43,7 +55,8 @@ html, body {
         .buttons {
             margin: 1em;
             .km-button {
-                width: 100%;
+                display: block;
+                width: auto !important; // We also need this otherwise padding adds to the 100% width
             }
             .km-button:not(:last-child) {
                 margin-bottom: 1em;
@@ -76,7 +89,7 @@ html, body {
             display: initial;
             // Make list items larger for all themes
             .km-list > li {
-                padding: .84em .7em;
+            //    padding: .84em .7em;
             }
         }
     }

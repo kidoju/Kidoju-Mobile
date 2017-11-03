@@ -249,7 +249,7 @@
                     { value: 'ios7', text: 'iOS 7+' },
                     { value: 'material-dark', text: 'Material Dark' },
                     { value: 'material-light', text: 'Material Light' },
-                    // { value: 'meego', text: 'Meego' },
+                    { value: 'meego', text: 'Meego' },
                     { value: 'nova', text: 'Nova' },
                     { value: 'office365', text: 'Office 365' },
                     { value: 'wp', text: 'Windows Phone' }

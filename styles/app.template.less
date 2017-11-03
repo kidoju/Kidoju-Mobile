@@ -1,17 +1,7 @@
-//---------------------------------------------
-// Common theming styles
-.km-navbar {
-    height: 3rem; // We need this because we want the navbar in the drawer to be the same size as the navbar in the main layout
-    // Navbar buttons
-    /*
-    .km-button {
-        padding: .3em .5em !important;
-        .km-notext {
-            margin: 0 .1em 0 0 !important;
-        }
-    }
-    */
-}
+/**********************************************************************
+ * app.template.less is for all common kendo UI styles (not app specific)
+ **********************************************************************/
+
 //---------------------------------------------
 // ListView filters and search boxes
 .km-filter-form {
@@ -36,7 +26,15 @@
     color: @notification-warning-text-color !important;
 }
 //---------------------------------------------
-// Android fixes
+// Primary button
+.km-button.km-primary {
+    // This is for primary buttons which are missing
+    background-color: @selected-background !important;
+    border-color: @selected-border-color !important;
+    color: @selected-text-color !important;
+}
+//---------------------------------------------
+// For Android only
 .km-android {
     // Switches header and footer in android to make it look like iOS
     // http://docs.telerik.com/kendo-ui/controls/hybrid/application#place-the-tabstrip-at-the-bottom-in-android

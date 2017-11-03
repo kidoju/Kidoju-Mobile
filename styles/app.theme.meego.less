@@ -1,12 +1,17 @@
 @import "./vendor/kendo/web/kendo.common-bootstrap.less";
 @import "./vendor/kendo/web/kendo.bootstrap.less";
-@import "./vendor/kendo/mobile/kendo.mobile.ios.less";
+@import "./vendor/kendo/mobile/kendo.mobile.meego.less";
+
+/* missing from meego theme */
+@selected-background: @accent;
+@selected-border-color: @accent;
+@selected-text-color: @base;
 
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
 
 // Style fixes
-.km-ios, .km-ios7 {
+.km-meego {
 
     /**********************************************************
     * Fonts
