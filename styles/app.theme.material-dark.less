@@ -1,5 +1,5 @@
 @import "./vendor/kendo/web/kendo.common-material.less";
-@import "./vendor/kendo/web/kendo.material.less";
+@import "./vendor/kendo/web/kendo.materialblack.less";
 @import "./vendor/kendo/mobile/kendo.mobile.material.less";
 
 @import "./app.template.less";
@@ -7,10 +7,6 @@
 
 // Style fixes
 .k-material, .km-material {
-    // font-family is defined on .km-material, not on .k-material which we need especially for notifications
-    font: normal 1em "Roboto", Helvetica, Arial, sans-serif;
-    // Without a font-weight, default is way too bold - see https://bugs.chromium.org/p/chromium/issues/detail?id=450326
-    // font-weight: 400;
     /**********************************************************
     * Kendo UI
     **********************************************************/
@@ -18,25 +14,13 @@
         background-color: @selected-background;
         color: @base;
     }
-    .k-notification .k-i-note,
-    .k-notification .k-i-info,
-    .k-notification .k-i-success,
-    .k-notification .k-i-warning,
-    .k-notification .k-i-error {
-        background-position: -178px -240px;
-    }
     .km-button > .km-icon,
     .km-listview-link > .km-icon {
         // Allow some space between icons and text
-        margin: -1em .7em 0 .3em;
-        // Reduce icon size
-        font-size: 1em;
-    }
-    .km-list {
-        font-size: inherit;
-        input, select, textarea, .k-dropdown-wrap {
-            font-size: inherit;
-        }
+        margin: 0 .7em 0 .3em;
+        // Reduce and align icon size
+        font-size: 1.25em;
+        vertical-align: top;
     }
     /**********************************************************
      * Navbar
@@ -76,18 +60,14 @@
      * Listview
      **********************************************************/
     .km-listview {
-        // Separate form inputs with bottom lines
-        li, li:first-child, li:last-child {
-            border-width: 0 0 1px;
-        }
         label {
             .form-readonly {
-                margin-top: -1.6em;
+                margin-top: -1.75em;
             }
             // Remove underline of input fields to match dropdowns
-            input[type=text]:not(.k-input) {
-                border-width: 0;
-            }
+            // input[type=text]:not(.k-input) {
+            //    border-width: 0;
+            // }
             // Align settings dropdowns with span.k-input
             span.k-dropdown {
                 margin-top: -1.6em;

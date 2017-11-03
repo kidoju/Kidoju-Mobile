@@ -1,34 +1,26 @@
-@import "./vendor/kendo/web/kendo.common-bootstrap.less";
-@import "./vendor/kendo/web/kendo.bootstrap.less";
-@import "./vendor/kendo/mobile/kendo.mobile.ios.less";
+@import "./vendor/kendo/web/kendo.common-material.less";
+@import "./vendor/kendo/web/kendo.material.less";
+@import "./vendor/kendo/mobile/kendo.mobile.material.less";
 
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
 
 // Style fixes
-.km-ios, .km-ios7 {
-
+.k-material, .km-material {
     /**********************************************************
-    * Fonts
+    * Kendo UI
     **********************************************************/
-    // Fix otherwise you'll get plain squares or funny icons in the drawer or navbar
-    li, li.km-state-active,
-    .km-button, .km-button.km-state-active {
-        .km-home {
-            &:after, &:before {
-                content: "\e0dd";
-            }
-        }
-        .km-search {
-            &:after, &:before {
-                content: "\e0e9";
-            }
-        }
-        .km-settings {
-            &:after, &:before {
-                content: "\e0da";
-            }
-        }
+    .km-button.km-primary {
+        background-color: @selected-background;
+        color: @base;
+    }
+    .km-button > .km-icon,
+    .km-listview-link > .km-icon {
+        // Allow some space between icons and text
+        margin: 0 .7em 0 .3em;
+        // Reduce and align icon size
+        font-size: 1.25em;
+        vertical-align: top;
     }
     /**********************************************************
      * Navbar
@@ -51,7 +43,8 @@
     .km-drawer {
         // Drawer navbar colors
         .km-navbar {
-            // background-color: @fiori-inverse-background;
+            background-color: @accent;
+            // Logo
             #logo > g:first-child > path {
                 fill: #fff;
                 stroke: #fff;
@@ -59,29 +52,32 @@
         }
         // Drawer menu colors
         .km-content, .km-list > li {
-            // background-color: @fiori-inverse-background;
-            // background-color: darken(@selected-background, 8%);
-            // color: @fiori-inverse-text;
-            // Allow some space between icons and text
-            // .km-listview-link > .km-icon {
-            //    margin: 0 .7em 0 .3em;
-            // }
+            background-color: @selected-background;
+            color: @base;
         }
     }
     /**********************************************************
      * Listview
      **********************************************************/
     .km-listview {
-        // Align settings dropdowns with span.k-input
-        span.k-dropdown {
-            margin-top: -.1em;
-            span.k-dropdown-wrap {
-                padding: .4em;
-                span.k-input {
-                    text-indent: 0;
+        label {
+            .form-readonly {
+                margin-top: -1.75em;
+            }
+            // Remove underline of input fields to match dropdowns
+            // input[type=text]:not(.k-input) {
+            //    border-width: 0;
+            // }
+            // Align settings dropdowns with span.k-input
+            span.k-dropdown {
+                margin-top: -1.6em;
+                span.k-dropdown-wrap {
+                    padding: .4em;
+                    span.k-input {
+                        text-indent: 0;
+                    }
                 }
             }
         }
     }
-
 }

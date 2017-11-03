@@ -114,7 +114,7 @@ module.exports = {
             },
             */
             {
-                test: /app\.theme\.[a-z0-9]+\.less$/,
+                test: /app\.theme\.[a-z0-9\-]+\.less$/,
                 use: [
                     // { loader: 'bundle-loader', options: { name: '[name]' } },
                     { loader: 'bundle-loader?name=[name]' },
@@ -129,7 +129,7 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                exclude: /app\.theme\.[a-z0-9]+\.less$/,
+                exclude: /app\.theme\.[a-z0-9\-]+\.less$/,
                 use: [
                     { loader: 'style-loader' },
                     // { loader: 'css-loader', options: { importLoaders: 1 } },
