@@ -186,10 +186,6 @@ window.jQuery.holdReady(true);
             NONE: 'none',
             TABLE: 'table'
         };
-        var STORAGE = {
-            LANGUAGE: 'language',
-            THEME: 'theme'
-        };
         var VIEW_MODEL = {
             ACTIVITIES: 'activities',
             CATEGORIES: 'categories',
@@ -205,6 +201,7 @@ window.jQuery.holdReady(true);
                     VERSION_ID: 'current.version.versionId'
                 }
             },
+            LANGUAGE: 'language',
             LANGUAGES: 'languages',
             PAGES_COLLECTION: 'version.stream.pages',
             SELECTED_PAGE: 'selectedPage',
@@ -216,16 +213,17 @@ window.jQuery.holdReady(true);
                 TITLE: 'summary.title'
             },
             SUMMARIES: 'summaries',
+            THEME: 'theme',
             THEMES: 'themes',
             USER: {
                 $: 'user',
                 CATEGORY_ID: 'user.categoryId',
                 FIRST_NAME: 'user.firstName',
-                LANGUAGE: 'user.language',
+                // LANGUAGE: 'user.language',
                 LAST_NAME: 'user.lastName',
                 LAST_USE: 'user.lastUse',
-                SID: 'user.sid',
-                THEME: 'user.theme'
+                SID: 'user.sid'
+                // THEME: 'user.theme'
             },
             USERS: 'users',
             VERSION: {
@@ -625,7 +623,7 @@ window.jQuery.holdReady(true);
             /**
              * Activities (scores to start with)
              */
-            activities: new models.MobileActivityDataSource(),
+            activities: [],
 
             /**
              * Categories
@@ -643,10 +641,16 @@ window.jQuery.holdReady(true);
             // favourites: [],
 
             /**
+             * Language
+             * Note: we do not define a user language because we need to load cultures before any user is actually signed in
+             * and changing language afterwards is a bit awkward
+             */
+            language: i18n.locale(),
+
+            /**
              * Languages
              */
             languages: [],
-
 
             /**
              * The selected page displayed in the player
@@ -662,6 +666,13 @@ window.jQuery.holdReady(true);
              * Selected summary
              */
             summary: new models.Summary(),
+
+            /**
+             * Theme
+             * Note: we do not define a user theme because we need a theme before any user is actually signed in
+             * and changing theme afterwards is a bit awkward
+             */
+            theme: DEFAULT.THEME,
 
             /**
              * Themes
@@ -697,11 +708,24 @@ window.jQuery.holdReady(true);
             },
 
             /**
-             * Current user set (and saved)
+             * Whether the app has a constant category id
              */
-            isSavedUser$: function () {
-                var user = viewModel.get(VIEW_MODEL.USER.$);
-                return user instanceof models.MobileUser && !user.isNew() && viewModel.users.indexOf(user) > -1;
+            hasConstantCategoryId$: function () {
+                return !! app.constants.categoryId;
+            },
+
+            /**
+             * Whether the app has a constant language
+             */
+            hasConstantLanguage$: function () {
+                return !! app.constants.language;
+            },
+
+            /**
+             * Whether the app has a constant theme
+             */
+            hasConstantTheme: function () {
+                return !! app.constants.theme;
             },
 
             /**
@@ -710,6 +734,61 @@ window.jQuery.holdReady(true);
              */
             hasSocialSharing$: function () {
                 return mobile.support.socialsharing;
+            },
+
+            /**
+             * Check first user
+             */
+            isFirstUser$: function () {
+                var user = this.get(VIEW_MODEL.USER.$);
+                var userDataSource = this.get(VIEW_MODEL.USERS);
+                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                var index = userDataSource.indexOf(user);
+                return !user.isNew() && index === 0;
+            },
+
+            /**
+             * Check last user
+             * @returns {boolean}
+             */
+            isLastUser$: function () {
+                var user = this.get(VIEW_MODEL.USER.$);
+                var userDataSource = this.get(VIEW_MODEL.USERS);
+                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                var index = userDataSource.indexOf(user);
+                return !user.isNew() && index === userDataSource.total() - 1;
+            },
+
+            /**
+             * Current user set (and saved)
+             */
+            isSavedUser$: function () {
+                var user = viewModel.get(VIEW_MODEL.USER.$);
+                return user instanceof models.MobileUser && !user.isNew() && viewModel.users.indexOf(user) > -1;
+            },
+
+            /**
+             * Check first page
+             * @returns {boolean}
+             */
+            isFirstPage$: function () {
+                var page = this.get(VIEW_MODEL.SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                var index = pageCollectionDataSource.indexOf(page);
+                return index === 0;
+            },
+
+            /**
+             * Check last page
+             * @returns {boolean}
+             */
+            isLastPage$: function () {
+                var page = this.get(VIEW_MODEL.SELECTED_PAGE);
+                var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                var index = pageCollectionDataSource.indexOf(page);
+                return index === -1 || index === pageCollectionDataSource.total() - 1;
             },
 
             /**
@@ -733,12 +812,39 @@ window.jQuery.holdReady(true);
             },
 
             /**
+             * Return an array of top-level categories (ordered by id)
+             */
+            topCategories$: function () {
+                var categories = this.get(VIEW_MODEL.CATEGORIES);
+                return categories.data()
+                .filter(function (category) {
+                    return (RX_TOP_LEVEL_MATCH).test(category.id);
+                })
+                .sort(function (category1, category2) {
+                    if (category1.id < category2.id) {
+                        return -1;
+                    } else if (category1.id > category2.id) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
+            },
+
+            /**
+             * Application version
+             */
+            version$: function () {
+                return app.version;
+            },
+
+            /**
              * Resets all data when switching language or users
              * Important: this cannot be a promise so loading has to occur elsewhere
              */
             reset: function () {
 
-                var language = this.get(VIEW_MODEL.USER.LANGUAGE);
+                var language = i18n.locale();
                 var categoryId = this.get(VIEW_MODEL.USER.CATEGORY_ID) || DEFAULT.CATEGORY_ID[language];
                 var userId = this.get(VIEW_MODEL.USER.SID);
 
@@ -758,21 +864,24 @@ window.jQuery.holdReady(true);
                 // Favorites are not yet implemented
                 // this.set('favourites', []);
 
-                // Supported languages are not supposed to change
-                // this.set('languages', []);
+                // Languages
+                this.set(VIEW_MODEL.LANGUAGE, i18n.locale());
+                this.set(VIEW_MODEL.LANGUAGES, i18n.culture.viewModel.languages);
 
                 // Selected player page
                 this.set(VIEW_MODEL.SELECTED_PAGE, undefined);
 
                 // Search (per category or full text)
-                this.set(VIEW_MODEL.SUMMARIES, new models.LazySummaryDataSource());
-                this.get(VIEW_MODEL.SUMMARIES).pageSize(VIRTUAL_PAGE_SIZE);
+                this.set(VIEW_MODEL.SUMMARIES, new models.LazySummaryDataSource({ pageSize: VIRTUAL_PAGE_SIZE}));
+                // The following actually performs a query
+                // this.get(VIEW_MODEL.SUMMARIES).pageSize(VIRTUAL_PAGE_SIZE);
 
                 // Summary being played
                 this.set(VIEW_MODEL.SUMMARY.$, new models.Summary());
 
-                // Themes are not supposed to change
-                // this.set(VIEW_MODEL.THEMES, []);
+                // Themes
+                // TODO this.set(VIEW_MODEL.THEME, ????);
+                this.set(VIEW_MODEL.THEMES, i18n.culture.viewModel.themes);
 
                 // Do not change the user as a change of language or user has brought us here
                 // this.set(VIEW_MODEL.USER.$, new models.MobileUser());
@@ -784,6 +893,22 @@ window.jQuery.holdReady(true);
                 // Other versions in the same summary (only used to play the latest)
                 this.set(VIEW_MODEL.VERSIONS, new models.LazyVersionDataSource());
 
+            },
+
+            /**
+             * Load viewModel when starting the app or changing language
+             */
+            load: function () {
+                viewModel.set('languages', i18n.culture.viewModel.languages);
+                viewModel.set('themes', i18n.culture.viewModel.themes);
+                // Load mobile users from localForage
+                return viewModel.loadUsers()
+                    .done(function () {
+                        // Set user to most recent user
+                        if (viewModel.users.total() > 0) {
+                            viewModel.set(VIEW_MODEL.USER.$, viewModel.users.at(0));
+                        }
+                    });
             },
 
             /**
@@ -1021,29 +1146,6 @@ window.jQuery.holdReady(true);
             },
 
             /**
-             * Check first user
-             */
-            isFirstUser$: function () {
-                var user = this.get(VIEW_MODEL.USER.$);
-                var userDataSource = this.get(VIEW_MODEL.USERS);
-                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
-                var index = userDataSource.indexOf(user);
-                return !user.isNew() && index === 0;
-            },
-
-            /**
-             * Check last user
-             * @returns {boolean}
-             */
-            isLastUser$: function () {
-                var user = this.get(VIEW_MODEL.USER.$);
-                var userDataSource = this.get(VIEW_MODEL.USERS);
-                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
-                var index = userDataSource.indexOf(user);
-                return !user.isNew() && index === userDataSource.total() - 1;
-            },
-
-            /**
              * Select the previous page from viewModel.version.stream.pages
              */
             previousUser: function () {
@@ -1067,30 +1169,6 @@ window.jQuery.holdReady(true);
                 if ($.type(index) === NUMBER && index < userDataSource.total() - 1) {
                     this.set(VIEW_MODEL.USER.$, userDataSource.at(index + 1));
                 }
-            },
-
-            /**
-             * Check first page
-             * @returns {boolean}
-             */
-            isFirstPage$: function () {
-                var page = this.get(VIEW_MODEL.SELECTED_PAGE);
-                var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
-                var index = pageCollectionDataSource.indexOf(page);
-                return index === 0;
-            },
-
-            /**
-             * Check last page
-             * @returns {boolean}
-             */
-            isLastPage$: function () {
-                var page = this.get(VIEW_MODEL.SELECTED_PAGE);
-                var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
-                var index = pageCollectionDataSource.indexOf(page);
-                return index === -1 || index === pageCollectionDataSource.total() - 1;
             },
 
             /**
@@ -1143,40 +1221,6 @@ window.jQuery.holdReady(true);
             },
 
             /**
-             * Get the current theme
-             * @param name
-             */
-            getTheme: function () {
-                var name = this.get(VIEW_MODEL.USER.THEME);
-                if (!this.get(VIEW_MODEL.THEMES).length) {
-                    this.set(VIEW_MODEL.THEMES, i18n.culture.viewModel.themes);
-                }
-                // Get from localStorage (loaded in settings)
-                var found = this.get(VIEW_MODEL.THEMES).find(function (theme) {
-                    return theme.name === name;
-                });
-                // Otherwise use OS default
-                if (!found) {
-                    found = this.get(VIEW_MODEL.THEMES).find(function (theme) {
-                        if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion < 7) {
-                            return theme.platform === 'ios' && theme.majorVersion === 6;
-                        } else if (kendo.support.mobileOS.name === 'ios' && kendo.support.mobileOS.majorVersion >= 7) {
-                            return theme.platform === 'ios' && theme.majorVersion === 7;
-                        } else {
-                            return theme.platform === kendo.support.mobileOS.name;
-                        }
-                    });
-                }
-                // Otherwise use material (until we have a Kidoju style)
-                if (!found) {
-                    found = this.get(VIEW_MODEL.THEMES).find(function (theme) {
-                        return theme.name === 'material';
-                    });
-                }
-                return found;
-            },
-
-            /**
              * Reset current test
              */
             resetCurrent: function () {
@@ -1185,7 +1229,7 @@ window.jQuery.holdReady(true);
                 var userId = that.get(VIEW_MODEL.USER.SID); // Foreign keys use sids (server ids)
                 assert.match(RX_MONGODB_ID, userId, kendo.format(assert.messages.match.default, 'userId', RX_MONGODB_ID));
                 var language = i18n.locale();
-                assert.equal(language, that.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
+                assert.equal(language, that.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
                 assert.equal(language, that.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
                 assert.equal(language, that.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
                 var summaryId = that.get(VIEW_MODEL.SUMMARY.ID);
@@ -1278,37 +1322,9 @@ window.jQuery.holdReady(true);
                             data: { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
-            },
-
-            /**
-             * Return an array of top-level categories (ordered by id)
-             */
-            topCategories$: function () {
-                var categories = this.get(VIEW_MODEL.CATEGORIES);
-                return categories.data()
-                    .filter(function (category) {
-                        return (RX_TOP_LEVEL_MATCH).test(category.id);
-                    })
-                    .sort(function (category1, category2) {
-                        if (category1.id < category2.id) {
-                            return -1;
-                        } else if (category1.id > category2.id) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    });
-            },
-
-            /**
-             * Application version
-             */
-            version$: function () {
-                return app.version;
             }
 
         });
-        viewModel.get(VIEW_MODEL.SUMMARIES).pageSize(VIRTUAL_PAGE_SIZE);
 
         /* This function's cyclomatic complexity is too high. */
         /* jshint -W074 */
@@ -1349,23 +1365,26 @@ window.jQuery.holdReady(true);
                 case VIEW_MODEL.USER.CATEGORY_ID:
                     viewModel.categories.filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.CATEGORY_ID).substr(0, TOP_LEVEL_CHARS) });
                     break;
-                case VIEW_MODEL.USER.LANGUAGE:
-                    var language = e.sender.get(VIEW_MODEL.USER.LANGUAGE);
+                case VIEW_MODEL.LANGUAGE:
+                    debugger;
+                    var language = e.sender.get(VIEW_MODEL.LANGUAGE);
                     if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {
                         mobile.localize(language);
                     }
                     viewModel.set(VIEW_MODEL.USER.CATEGORY_ID, DEFAULT.CATEGORY_ID[language]);
                     viewModel.reset();
                     break;
-                case VIEW_MODEL.USER.THEME:
-                    app.theme.name(e.sender.get(VIEW_MODEL.USER.THEME));
+                case VIEW_MODEL.THEME:
+                    // Do not trigger before the kendo mobile application is loaded
                     if (mobile.application instanceof kendo.mobile.Application) {
-                        var theme = viewModel.getTheme();
-                        // mobile.application.options.platform = theme.platform;
-                        // mobile.application.options.majorVersion = theme.majorVersion;
-                        mobile.application.skin(theme.skin || '');
+                        var theme = e.sender.get(VIEW_MODEL.THEME).value;
+                        // app.theme.load stores the theme in localStorage
+                        app.theme.load(theme).done(function() {
+                            mobile.application.skin(theme);
+                            mobile._fixThemeVariant(theme);
+                            logger.debug({ method: 'viewModel.bind', message: 'Theme changed to ' + theme });
+                        });
                     }
-                    // else onDeviceReady has not yet been called and mobile.application has not yet een initialized with theme
                     break;
             }
         });
@@ -1555,125 +1574,108 @@ window.jQuery.holdReady(true);
         mobile.localize = function (language) {
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'locale', app.locales));
-            localStorage.setItem(STORAGE.LANGUAGE, language);
 
             i18n.load(language).then(function () {
 
                 var viewElement;
-                var culture;
+                var culture = i18n.culture;
 
-                // Localize view model
-                viewModel.set(VIEW_MODEL.LANGUAGES, i18n.culture.viewModel.languages);
-                viewModel.set(VIEW_MODEL.THEMES, i18n.culture.viewModel.themes);
+                // Reset view model
+                viewModel.reset();
 
                 // Localize Main Layout
-                culture = i18n.culture.layout;
-                $(HASH + LAYOUT.MAIN + '-back').text(culture.back);
+                $(HASH + LAYOUT.MAIN + '-back').text(culture.layout.back);
 
                 // Localize drawer
                 var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
-                culture = i18n.culture.drawer;
                 viewElement = $(HASH + VIEW.DRAWER);
                 // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
                 var categoriesElement = viewElement.find('ul>li>a.km-listview-link:eq(0)');
-                categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + culture.categories));
+                categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.categories));
                 var scanElement = viewElement.find('ul>li>a.km-listview-link:eq(1)');
-                scanElement.html(scanElement.html().replace(RX_REPLACE, '$1$2' + culture.scan));
+                scanElement.html(scanElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.scan));
                 // var favouritesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
                 // favouritesElement.html(favouritesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.favourites));
                 var activitiesElement = viewElement.find('ul>li>a.km-listview-link:eq(2)');
-                activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + culture.activities));
+                activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.activities));
                 var settingsElement = viewElement.find('ul>li>a.km-listview-link:eq(3)');
-                settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + culture.settings));
+                settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.settings));
 
                 // Localize activities
-                culture = i18n.culture.activities;
                 viewElement = $(HASH + VIEW.ACTIVITIES);
-                viewElement.find('ul[data-role="buttongroup"]>li:eq(0)').html(culture.buttonGroup.list);
-                viewElement.find('ul[data-role="buttongroup"]>li:eq(1)').html(culture.buttonGroup.chart);
+                viewElement.find('ul[data-role="buttongroup"]>li:eq(0)').html(culture.activities.buttonGroup.list);
+                viewElement.find('ul[data-role="buttongroup"]>li:eq(1)').html(culture.activities.buttonGroup.chart);
 
                 // Localize categories
-                // culture = i18n.culture.categories;
                 // viewElement = $(HASH + VIEW.CATEGORIES);
 
                 // Localize correction
-                culture = i18n.culture.correction;
                 viewElement = $(HASH + VIEW.CORRECTION);
-                viewElement.find('span.explanations').html(culture.explanations);
+                viewElement.find('span.explanations').html(culture.correction.explanations);
 
                 // Localize favourites
-                // culture = i18n.culture.favourites;
                 // viewElement = $(HASH + VIEW.FAVOURITES);
 
                 // Localize finder
-                // culture = i18n.culture.finder;
                 // viewElement = $(HASH + VIEW.FINDER);
 
                 // Localize network
-                culture = i18n.culture.network;
                 viewElement = $(HASH + VIEW.NETWORK);
                 var viewWidget = viewElement.data('kendoMobileView');
                 // Note: we could also localize image alt attribute
-                viewElement.find('h2.message').html(culture.message);
+                viewElement.find('h2.message').html(culture.network.message);
 
                 // Localize player
-                culture = i18n.culture.player;
                 viewElement = $(HASH + VIEW.PLAYER);
-                viewElement.find('span.instructions').html(culture.instructions);
+                viewElement.find('span.instructions').html(culture.player.instructions);
 
                 // Localize score
-                // culture = i18n.culture.score;
                 // viewElement = $(HASH + VIEW.SCORE);
 
                 // Localize settings
-                culture = i18n.culture.settings;
                 viewElement = $(HASH + VIEW.SETTINGS);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.user);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.version);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.theme);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.language);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.category);
-                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.switch); // button before view is initialized
-                viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.switch);              // button after view is initializef
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.settings.user);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.settings.version);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.settings.theme);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.settings.language);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.settings.category);
+                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.settings.switch); // button before view is initialized
+                viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.settings.switch);              // button after view is initialized
 
                 // Localize signin
-                culture = i18n.culture.signin;
                 viewElement = $(HASH + VIEW.SIGNIN);
-                viewElement.find('.k-notification-wrap>span.k-text').text(culture.welcome);
+                viewElement.find('.k-notification-wrap>span.k-text').text(culture.signin.welcome);
 
                 // Localize summary
-                culture = i18n.culture.summary;
                 viewElement = $(HASH + VIEW.SUMMARY);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.title);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.categories);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.tags);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.description);
-                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.go);   // button before view is initialized
-                viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.go);                // button after view is initializef
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.summary.title);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.summary.categories);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.summary.tags);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.summary.description);
+                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.summary.go);       // button before view is initialized
+                viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.summary.go);                    // button after view is initialized
                 var summaryActionSheetElement = $(HASH + VIEW.SUMMARY + '-actionsheet');
-                summaryActionSheetElement.find('li.km-actionsheet-play > a').text(culture.actionSheet.play);
-                summaryActionSheetElement.find('li.km-actionsheet-share > a').text(culture.actionSheet.share);
-                summaryActionSheetElement.find('li.km-actionsheet-feedback > a').text(culture.actionSheet.feedback);
-                summaryActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.actionSheet.cancel);
+                summaryActionSheetElement.find('li.km-actionsheet-play > a').text(culture.summary.actionSheet.play);
+                summaryActionSheetElement.find('li.km-actionsheet-share > a').text(culture.summary.actionSheet.share);
+                summaryActionSheetElement.find('li.km-actionsheet-feedback > a').text(culture.summary.actionSheet.feedback);
+                summaryActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.summary.actionSheet.cancel);
 
                 // Localize sync
-                // culture = i18n.culture.sync;
                 // viewElement = $(HASH + VIEW.SYNC);
 
                 // Localize user
-                culture = i18n.culture.user;
                 viewElement = $(HASH + VIEW.USER);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.firstName);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.lastName);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.lastUse);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.pin);
-                viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.confirm);
-                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.save);     // button before view is initialized
-                viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.save);                  // button after view is initializef
-                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(1)').text(culture.signIn);   // button before view is initialized
-                viewElement.find('.buttons>.km-button>span.km-text:eq(1)').text(culture.signIn);                // button after view is initializef
-                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(2)').text(culture.newUser);  // button before view is initialized
-                viewElement.find('.buttons>.km-button>span.km-text:eq(2)').text(culture.newUser);               // button after view is initializef
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.user.firstName);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.user.lastName);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.user.lastUse);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.user.pin);
+                viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.user.confirm);
+                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.user.save);        // button before view is initialized
+                viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.user.save);                     // button after view is initializef
+                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(1)').text(culture.user.signIn);      // button before view is initialized
+                viewElement.find('.buttons>.km-button>span.km-text:eq(1)').text(culture.user.signIn);                   // button after view is initializef
+                viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(2)').text(culture.user.newUser);     // button before view is initialized
+                viewElement.find('.buttons>.km-button>span.km-text:eq(2)').text(culture.user.newUser);                  // button after view is initializef
 
                 // Reset navbar title
                 if (mobile.application instanceof kendo.mobile.Application) {
@@ -1839,7 +1841,7 @@ window.jQuery.holdReady(true);
                 message: 'Device is ready',
                 method: 'mobile.onDeviceReady'
             });
-            // Set feature shortcuts
+            // Set feature shortcuts (like Modernizr)
             setShortcuts();
             logger.debug({
                 message: 'Shortcuts set',
@@ -1882,54 +1884,64 @@ window.jQuery.holdReady(true);
             mobile._initNetworkEvents();
             // Wire the resize event handler for changes of device orientation
             $(window).resize(mobile.onResize);
-            // Load viewModel with languages and themes
-            viewModel.set('languages', i18n.culture.viewModel.languages);
-            viewModel.set('themes', i18n.culture.viewModel.themes);
-            // Load mobile users from localForage
-            viewModel.loadUsers()
-                .done(function () {
+            // Load viewModel, then initialize kendo application
+            viewModel.load().done(mobile._initKendoApplication);
+        };
+
+        /**
+         * Initialize Kendo Application
+         */
+        mobile._initKendoApplication = function () {
+            logger.debug({
+                message: 'Initialize kendo application',
+                method: 'mobile.initKendoApplicaton'
+            });
+            // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
+            kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.name === 'android' ? 0 : 20);
+            // Considering potential adverse effects with drag and drop, we are using http://docs.telerik.com/kendo-ui/api/javascript/mobile/ui/button#configuration-clickOn
+            // Initialize application
+            mobile.application = new kendo.mobile.Application(document.body, {
+                initial: HASH + (viewModel.isSavedUser$() ? VIEW.USER : VIEW.SIGNIN),
+                skin: app.theme.name(),
+                // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
+                // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
+                // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
+                // http://devgirl.org/2014/07/31/phonegap-developers-guid/
+                // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
+                statusBarStyle: 'hidden',
+                init: function (e) {
                     logger.debug({
-                        message: 'User are loaded',
+                        message: 'Kendo mobile app is initialized',
                         method: 'mobile.oni18nLoaded'
                     });
-                    // Set user to most recent user
-                    if (viewModel.users.total() > 0) {
-                        viewModel.set(VIEW_MODEL.USER.$, viewModel.users.at(0));
-                    }
-                    var theme = viewModel.getTheme();
-                    // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
-                    kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.name === 'android' ? 0 : 20);
-                    // Considering potential adverse effects with drag and drop, we are using http://docs.telerik.com/kendo-ui/api/javascript/mobile/ui/button#configuration-clickOn
-                    // Initialize application
-                    mobile.application = new kendo.mobile.Application(document.body, {
-                        initial: HASH + (viewModel.isSavedUser$() ? VIEW.USER : VIEW.SIGNIN),
-                        skin: theme.skin,
-                        // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
-                        // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
-                        // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
-                        // http://devgirl.org/2014/07/31/phonegap-developers-guid/
-                        // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
-                        statusBarStyle: 'hidden',
-                        init: function (e) {
-                            logger.debug({
-                                message: 'Kendo mobile app is initialized',
-                                method: 'mobile.oni18nLoaded'
-                            });
-                            // Localize the application
-                            mobile.localize(viewModel.get(VIEW_MODEL.USER.LANGUAGE));
-                            // Reinitialize notifications now that we know the size of .km-header
-                            mobile._initNotification();
-                            // Bind the router change event to the onRouterViewChange handler
-                            mobile.application.router.bind(CHANGE, mobile.onRouterViewChange);
-                            // hide the splash screen
-                            setTimeout(function () {
-                                if (mobile.support.splashscreen) {
-                                    mobile.splashscreen.hide();
-                                }
-                            }, 500); // + 500 default fadeOut time
+                    // Fix skin variant
+                    mobile._fixThemeVariant(e.sender.options.skin);
+                    // Localize the application
+                    mobile.localize(viewModel.get(VIEW_MODEL.LANGUAGE));
+                    // Reinitialize notifications now that we know the size of .km-header
+                    mobile._initNotification();
+                    // Bind the router change event to the onRouterViewChange handler
+                    mobile.application.router.bind(CHANGE, mobile.onRouterViewChange);
+                    // hide the splash screen
+                    setTimeout(function () {
+                        if (mobile.support.splashscreen) {
+                            mobile.splashscreen.hide();
                         }
-                    });
-                });
+                    }, 500); // + 500 default fadeOut time
+                }
+            });
+        };
+
+        /**
+         * Fix skin variant
+         * @param theme
+         */
+        mobile._fixThemeVariant = function (theme) {
+            assert.type(STRING, theme, kendo.format(assert.messages.type.default, 'theme', STRING));
+            var skin = theme.split('-');
+            if (Array.isArray(skin) && skin.length > 1) {
+                $(document.body).addClass('km-' + theme);
+            }
         };
 
         /**
@@ -2055,7 +2067,7 @@ window.jQuery.holdReady(true);
                             if ($.isArray(matches) && matches.length > 2) {
                                 var language = matches[1];
                                 var summaryId = matches[2];
-                                if (viewModel.get(VIEW_MODEL.USER.LANGUAGE) === language) {
+                                if (viewModel.get(VIEW_MODEL.LANGUAGE) === language) {
                                     mobile.application.navigate(HASH + VIEW.SUMMARY +
                                         '?language=' + window.encodeURIComponent(language) +
                                         '&summaryId=' + window.encodeURIComponent(summaryId));
@@ -2138,7 +2150,7 @@ window.jQuery.holdReady(true);
             assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             e.preventDefault();
             var command = e.item.attr(kendo.attr('command'));
-            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.USER.LANGUAGE);
+            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE);
             var userId = viewModel.get(VIEW_MODEL.USER.SID);
             switch (command) {
                 case 'categories':
@@ -2182,7 +2194,7 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
             var language = e.view.params.language;
             assert.equal(language, i18n.locale(), kendo.format(assert.messages.equal.default, 'i18n.locale()', language));
-            assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
             var userId = e.view.params.userId;
             assert.equal(userId, viewModel.get(VIEW_MODEL.USER.SID), kendo.format(assert.messages.equal.default, 'viewModel.get("user.sid")', userId));
 
@@ -2257,7 +2269,7 @@ window.jQuery.holdReady(true);
             // Let's remove the showScoreInfo attr (see viewModel.bind(CHANGE))
             e.view.element.removeAttr(kendo.attr('showScoreInfo'));
 
-            // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.USER.LANGUAGE)
+            // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
             // var summaryId = e.view.params.summaryId;
             // var versionId = e.view.params.versionId;
             var activityId = e.view.params.activityId;
@@ -2387,7 +2399,7 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
             // Let's remove the clickSubmitInfo attr (see viewModel.bind(CHANGE))
             e.view.element.removeAttr(kendo.attr('clickSubmitInfo'));
-            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.USER.LANGUAGE)
+            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
             var summaryId = e.view.params.summaryId;
             var versionId = e.view.params.versionId;
             assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
@@ -2907,7 +2919,7 @@ window.jQuery.holdReady(true);
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // load the summary
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
             var summaryId = e.view.params.summaryId;
             viewModel.loadSummary({ language: language, id: summaryId })
                 .always(function () {
@@ -2922,7 +2934,7 @@ window.jQuery.holdReady(true);
         mobile.onSummaryActionPlay = function () {
             // assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
             assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
 
@@ -3091,7 +3103,7 @@ window.jQuery.holdReady(true);
 
             if (RX_PIN.test(pinValue) && confirmValue === pinValue) {
                 var language = i18n.locale();
-                assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
+                assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
 
                 // Does the user already exist in database?
                 var sid = viewModel.get(VIEW_MODEL.USER.SID);
@@ -3308,7 +3320,7 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.USER.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("user.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
             assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
             assert.equal(language, viewModel.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);

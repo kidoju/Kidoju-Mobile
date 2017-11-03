@@ -407,31 +407,31 @@
         <form>
             <ul data-role="listview" data-style="inset" data-filterable="false">
                 <li>
-                    <label>
+                    <label class="km-label-above">
                         <span>User</span>
                         <div data-bind="text: user.fullName$" class="form-readonly" />
                     </label>
                 </li>
                 <li>
-                    <label>
+                    <label class="km-label-above">
                         <span>Version</span>
                         <div data-bind="text: version$()" class="form-readonly" />
                     </label>
                 </li>
                 <li>
-                    <label>
+                    <label class="km-required km-label-above">
                         <span>Theme</span>
-                        <input data-role="dropdownlist" data-bind="value: user.theme, source: themes" data-value-field="name" data-text-field="text" />
+                        <input data-role="dropdownlist" data-bind="value: theme, source: themes" data-value-field="value" data-text-field="text" />
                     </label>
                 </li>
                 <li>
-                    <label>
+                    <label class="km-required km-label-above">
                         <span>Language</span>
-                        <input data-role="dropdownlist" data-bind="value: user.language, source: languages" data-value-field="value" data-text-field="text"  />
+                        <input data-role="dropdownlist" data-bind="value: language, source: languages" data-value-field="value" data-text-field="text"  />
                     </label>
                 </li>
                 <li>
-                    <label>
+                    <label class="km-required km-label-above">
                         <span>Category</span>
                         <input data-role="dropdownlist" data-bind="value: user.categoryId, source: topCategories$()" data-value-field="id" data-text-field="name"  />
                     </label>
@@ -517,31 +517,31 @@
             <form>
                 <ul data-role="listview" data-style="inset" data-filterable="false">
                     <li>
-                        <label>
+                        <label class="km-label-above">
                             <span>First Name</span>
                             <div data-bind="text: user.firstName" class="form-readonly" />
                         </label>
                     </li>
                     <li>
-                        <label>
+                        <label class="km-label-above">
                             <span>Last Name</span>
                             <div data-bind="text: user.lastName" class="form-readonly" />
                         </label>
                     </li>
                     <li data-bind="visible: isSavedUser$">
-                        <label>
+                        <label class="km-label-above">
                             <span>Last Use</span>
                             <div data-bind="text: user.lastUse" data-format="g" class="form-readonly" />
                         </label>
                     </li>
                     <li>
-                        <label>
+                        <label class="km-label-above">
                             <span>PIN</span>
                             <input type="password" class="pin" autocomplete="off" />
                         </label>
                     </li>
                     <li data-bind="invisible: isSavedUser$">
-                        <label>
+                        <label class="km-label-above">
                             <span>Confirm</span>
                             <input type="password" class="pin" autocomplete="off" />
                         </label>

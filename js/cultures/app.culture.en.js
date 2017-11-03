@@ -236,19 +236,19 @@
                     { value: 'fr', text: 'French' }
                 ],
                 themes: [
-                    // We need andark and anlight because webpack does not cope with dash or dot
-                    // TODO: check regular expressions in webpack.config.js
-                    { text: 'Android Dark', name: 'andark', skin: 'android-dark' },
-                    { text: 'Android Light', name: 'anlight', skin: 'android-light' },
-                    { text: 'Blackberry', name: 'blackberry', skin: 'blackberry' },
-                    { text: 'Fiori', name: 'fiori', skin: 'fiori' },
-                    { text: 'Flat', name: 'flat', skin: 'flat' },
-                    { text: 'iOS 6', name: 'ios', skin: 'ios' },
-                    { text: 'iOS 7+', name: 'ios7', skin: 'ios7' },
-                    { text: 'Material', name: 'material', skin: 'material' },
-                    { text: 'Nova', name: 'nova', skin: 'nova' },
-                    { text: 'Office 365', name: 'office365', skin: 'office365' },
-                    { text: 'Windows Phone', name: 'wp', skin: 'wp' }
+                    { value: 'android-dark', text: 'Android Dark'  },
+                    { value: 'android-light', text: 'Android Light' },
+                    { value: 'blackberry', text: 'Blackberry' },
+                    { value: 'fiori', text: 'Fiori' },
+                    { value: 'flat', text: 'Flat' },
+                    { value: 'ios', text: 'iOS 6' },
+                    { value: 'ios7', text: 'iOS 7+' },
+                    { value: 'material-dark', text: 'Material Dark' },
+                    { value: 'material-light', text: 'Material Light' },
+                    // { value: 'meego', text: 'Meego' },
+                    { value: 'nova', text: 'Nova' },
+                    { value: 'office365', text: 'Office 365' },
+                    { value: 'wp', text: 'Windows Phone' }
                 ]
             }
         };

@@ -137,10 +137,12 @@
                     type: STRING,
                     editable: false
                 },
+                /*
                 language: {
                     type: STRING,
                     defaultValue: DEFAULT.LANGUAGE
                 },
+                */
                 lastName: {
                     type: STRING,
                     editable: false
@@ -162,11 +164,13 @@
                 picture: {
                     type: STRING,
                     editable: false
-                },
+                }
+                /*
                 theme: {
                     type: STRING,
                     defaultValue: DEFAULT.THEME
                 }
+                */
                 // consider locale (for display of numbers, dates and currencies)
                 // consider timezone (for display of dates), born (for searches)
             },
