@@ -1,16 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 21.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1"
-	 id="Layer_1" image-rendering="optimizeQuality" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"
-	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1024 1024"
-	 style="enable-background:new 0 0 1024 1024;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#808080;}
-</style>
-<title>keyboard_key_plus icon</title>
-<desc>keyboard_key_plus icon from the IconExperience.com O-Collection. Copyright by INCORS GmbH (www.incors.com).</desc>
-<path id="curve0" class="st0" d="M256,128h512c70.5,0,128,57.5,128,128v512c0,70.5-57.5,128-128,128H256c-70.5,0-128-57.5-128-128
-	V256C128,185.5,185.5,128,256,128z M322,544L322,544l170-256h84l0,0L406,544h10l0,0l0,0l0,0l0,0H322L322,544z M320,192
-	c-52.9,0-96,43.1-96,96v384c0,52.9,43.1,96,96,96h384c52.9,0,96-43.1,96-96V288c0-52.9-43.1-96-96-96H320z M320,224
-	c-35.3,0-64,28.7-64,64v384c0,35.2,28.8,64,64,64h384c35.2,0,64-28.8,64-64V288c0-35.2-28.7-64-64-64H320z"/>
-</svg>
+<svg id="Layer_1" image-rendering="optimizeQuality" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><style>.st0{fill:gray}</style><title>keyboard_key_plus icon</title><desc>keyboard_key_plus icon from the IconExperience.com O-Collection. Copyright by INCORS GmbH (www.incors.com).</desc><path id="curve0" class="st0" d="M256 128h512c70.5 0 128 57.5 128 128v512c0 70.5-57.5 128-128 128H256c-70.5 0-128-57.5-128-128V256c0-70.5 57.5-128 128-128zm66 416l170-256h84L406 544h10-94zm-2-352c-52.9 0-96 43.1-96 96v384c0 52.9 43.1 96 96 96h384c52.9 0 96-43.1 96-96V288c0-52.9-43.1-96-96-96H320zm0 32c-35.3 0-64 28.7-64 64v384c0 35.2 28.8 64 64 64h384c35.2 0 64-28.8 64-64V288c0-35.2-28.7-64-64-64H320z"/></svg>
