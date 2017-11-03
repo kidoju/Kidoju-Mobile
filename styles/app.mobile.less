@@ -14,18 +14,6 @@ html, body {
     /**********************************************************
     * Kendo UI
     **********************************************************/
-    .km-navbar {
-        height: 3rem; // We need this because we want the navbar in the drawer to be the same size as the navbar in the main layout
-        // Navbar buttons
-        /*
-        .km-button {
-            padding: .3em .5em !important;
-            .km-notext {
-                margin: 0 .1em 0 0 !important;
-            }
-        }
-        */
-    }
     .km-view {
         .k-notification {
             // This is for static notifications in a .km-view
@@ -42,11 +30,12 @@ html, body {
                         }
                         .form-readonly {
                             // This is to display readonly values in forms
+                            appearance: none;
+                            font-size: 1em;
                             margin-left: 50%;
-                            width: 45%;
                             min-width: 6em;
                             padding: .4em;
-                            font-size: 1em;
+                            width: 45%;
                         }
                     }
                 }
@@ -87,10 +76,6 @@ html, body {
         .km-scroll-container {
             // Make sure drawer items are aligned to the top especially with nova theme */
             display: initial;
-            // Make list items larger for all themes
-            .km-list > li {
-            //    padding: .84em .7em;
-            }
         }
     }
     /**********************************************************

@@ -6,58 +6,61 @@
 @import (optional) "highlightjs.custom.less";
 
 // Style fixes
+.km-root {
+    .km-android {
+        .km-navbar {
+            font-size: 1em;
+        }
+        .k-dropdown {
+            margin-top: 0;
+        }
+    }
+}
 .km-android {
-
-    /**********************************************************
-     * Navbar
-     **********************************************************/
-    .km-navbar {
-        // background-color: @selected-background;
-        // color: @selected-text-color;
-        // Navbar view title
-        // .km-view-title {
-        //    background-color: transparent;
-        // }
-        // Navbar buttons
-        // .km-button {
-        //    background-color: darken(@selected-background, 8%);
-        // }
+    // Switches header and footer in android to make it look like iOS
+    // http://docs.telerik.com/kendo-ui/controls/hybrid/application#place-the-tabstrip-at-the-bottom-in-android
+    .km-view:not(.km-splitview) {
+        -webkit-box-direction: normal;
+        -moz-box-direction: normal;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+    }
+    .km-view-title {
+        visibility: visible;
+        display: block;
     }
     /**********************************************************
      * Drawer
      **********************************************************/
     .km-drawer {
-        // Drawer navbar colors
-        .km-navbar {
-            // background-color: @fiori-inverse-background;
-        }
         // Drawer menu colors
         .km-content, .km-list > li {
-            // background-color: @fiori-inverse-background;
-            // background-color: darken(@selected-background, 8%);
-            // color: @fiori-inverse-text;
+            background-color: @selected-background;
+            color: @selected-text-color;
             // Allow some space between icons and text
-            // .km-listview-link > .km-icon {
-            //    margin: 0 .7em 0 .3em;
-            // }
+            .km-listview-link > .km-icon {
+                margin-right: .3em;
+            }
         }
     }
     /**********************************************************
      * Listview
      **********************************************************/
     .km-listview.km-list {
+        // Readonly values
+        .form-readonly {
+            margin-top: -2em;
+        }
         // Align settings dropdowns with span.k-input
-        /*
         span.k-dropdown {
-            margin-top: -.1em;
+            margin-top: -1.2em;
             span.k-dropdown-wrap {
-                padding: .4em;
-                span.k-input {
-                    text-indent: 0;
-                }
+                padding-left: 0.2em;
             }
         }
-        */
     }
+
+    // TODO ellipsis on finder list
+    // TODO: List badged
 
 }
