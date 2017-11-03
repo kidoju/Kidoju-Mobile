@@ -211,8 +211,6 @@
                 expect(diff).to.be.lte(1000); // 1000 ms = 1 sec
             });
 
-
-
         });
 
         describe('Database', function () {
