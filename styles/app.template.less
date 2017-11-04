@@ -27,6 +27,9 @@
     // ListView filters and search boxes
     .km-filter-form {
         width: auto; // We need this otherwise padding adds to the 100% width
+        .k-dropdown {
+            margin-top: 0; // Set category dropdown within padding
+        }
     }
     /**********************************************************
      * Drawer
@@ -34,8 +37,7 @@
     .km-drawer {
         // Logo color
         .km-navbar {
-            // background-color: @base;
-            background: @app-drawer-navbar-background;
+            background-color: @app-drawer-navbar-background;
             color: @app-drawer-navbar-color;
             .km-view-title {
                 text-align: left;
@@ -49,10 +51,7 @@
         // Drawer menu colors
         .km-content,
         .km-list > li {
-            // color: @fiori-inverse-text;
-            // background-color: @accent;
-            // color: @base;
-            background: @app-drawer-content-background;
+            background-color: @app-drawer-content-background;
             color: @app-drawer-content-color;
             .km-listview-link {
                 // Allow some space between icons and text
@@ -69,20 +68,12 @@
             // Make sure drawer items are aligned to the top especially with nova theme */
             display: initial;
         }
-        /*
-        // Separate drawer menu items with coloured lines
-        li, li:first-child, li:last-child {
-            border-color: @base;
-            border-image: linear-gradient(to right, transparent 1em, @base 1em, @base 100%) 1 stretch;
-            box-shadow: none;
-        }
-        */
     }
     /**********************************************************
      * Navbar
      **********************************************************/
     .km-navbar {
-        background: @app-layout-navbar-background;
+        background-color: @app-layout-navbar-background;
         color: @app-layout-navbar-color;
         // Navbar view title
         .km-view-title {
@@ -90,7 +81,7 @@
         }
         // Navbar buttons
         .km-button {
-            background: @app-layout-navbar-button-background;
+            background-color: @app-layout-navbar-button-background;
             color: @app-layout-navbar-button-color;
             border: @app-layout-navbar-button-border;
             margin: @app-layout-navbar-button-margin;
@@ -106,7 +97,24 @@
      **********************************************************/
     .km-listview.km-list {
         // TODO ellipsis on finder list
-        // TODO: List badged
+        .km-badge-error {
+            background-color: @notification-error-background-color !important;
+            color: @notification-error-text-color !important;
+        }
+        .km-badge-info {
+            background-color: @notification-info-background-color !important;
+            color: @notification-info-text-color !important;
+        }
+        .km-badge-success {
+            background-color: @notification-success-background-color !important;
+            color: @notification-success-text-color !important;
+        }
+        .km-badge-warning {
+            background-color: @notification-warning-background-color !important;
+            color: @notification-warning-text-color !important;
+            // background-color: #fff0c0 !important;
+            // color: #ff8c00 !important;
+        }
     }
     // Fix search box
     .km-filter-wrap {
@@ -198,6 +206,7 @@
 .km-view {
     .k-notification {
         // This is for static notifications in a .km-view
+        // like on the signin screen with a list of providers
         margin: 1em;
         display: block;
         opacity: 1;
@@ -216,27 +225,6 @@
         margin-right: 1em;
     }
 }
-//---------------------------------------------
-// Badges
-.km-badge-error {
-    background-color: @notification-error-background-color !important;
-    color: @notification-error-text-color !important;
-}
-.km-badge-info {
-    background-color: @notification-info-background-color !important;
-    color: @notification-info-text-color !important;
-}
-.km-badge-success {
-    background-color: @notification-success-background-color !important;
-    color: @notification-success-text-color !important;
-}
-.km-badge-warning {
-    background-color: @notification-warning-background-color !important;
-    color: @notification-warning-text-color !important;
-    // background-color: #fff0c0 !important;
-    // color: #ff8c00 !important;
-}
-
 
 /*********************************************************************************************
 * InAppBrowser (TODO)

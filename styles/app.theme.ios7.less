@@ -3,18 +3,18 @@
 @import "./vendor/kendo/mobile/kendo.mobile.ios.less";
 
 // Drawer
-@app-drawer-content-background: #fff;
-@app-drawer-content-color: #fff;
-@app-drawer-logo-color: #fff;
-@app-drawer-navbar-background: #000;
-@app-drawer-navbar-color: #fff;
+@app-drawer-content-background: @ios7-list-title-background;
+@app-drawer-content-color: @ios7-active-background;
+@app-drawer-logo-color: @ios7-main-color;
+@app-drawer-navbar-background: @ios7-light-background;
+@app-drawer-navbar-color: @ios7-active-background;
 
 // Navbar
-@app-layout-navbar-background: #000;
-@app-layout-navbar-color: #fff;
-@app-layout-navbar-button-background: #000;
-@app-layout-navbar-button-color: #fff;
-@app-layout-navbar-button-border: solid 1px #000;
+@app-layout-navbar-background: @ios7-light-background;
+@app-layout-navbar-color: @ios7-active-background;
+@app-layout-navbar-button-background: @ios7-light-background;
+@app-layout-navbar-button-color: @ios7-active-background;
+@app-layout-navbar-button-border: @ios7-light-background;
 @app-layout-navbar-button-margin: .4rem .1rem;
 @app-layout-navbar-button-padding: .4em .7em;
 
@@ -23,23 +23,55 @@
 @app-form-dropdown-padding-left: .2em;
 @app-form-dropdown-text-indent: .2em;
 @app-form-input-padding-left: .4em;
-@app-form-right-margin-left: 50%;
+@app-form-right-margin-left: 45%;
 @app-form-right-margin-top: -2em;
-@app-form-right-width: 45%;
+@app-form-right-width: 50%;
 
-@app-primary-background: @selected-background;
-@app-primary-border-color: @selected-border-color;
-@app-primary-text-color: @selected-text-color;
+// Primary buttons
+@app-primary-background: @ios7-button-background;
+@app-primary-border-color: @ios7-active-background;
+@app-primary-text-color: @ios7-active-background;
 
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
 
-// Style fixes
-.km-ios, .km-ios7 {
 
-    /**********************************************************
-    * Fonts
-    **********************************************************/
+// TODO: On http://10.0.0.105:3000/#signin - Misaligned < Back button
+
+// Style fixes
+.km-ios7 {
+    /*
+    font-size: 1em;
+    .km-navbar {
+        font-size: 1em;
+    }
+    .km-list {
+        li {
+            font-size: 1em;
+        }
+    }
+    */
+    .km-button {
+        font-size: 1em;
+        line-height: normal;
+    }
+    // This is for the activities button group to switch between list and chart
+    .k-button-group.km-buttongroup {
+        .km-button {
+            background: @ios7-active-color;
+            border: solid 1px @ios7-border-color;
+            color: @ios7-active-background;
+        }
+        .km-button.km-state-active {
+            background: @ios7-active-background;
+            border: solid 1px @ios7-border-color;
+            color: @ios7-active-color;
+        }
+    }
+    // This is for the active state of primary buttons
+    .km-button.km-primary.km-state-active {
+        background: @ios7-active-background !important;
+    }
     // Fix otherwise you'll get plain squares or funny icons in the drawer or navbar
     li, li.km-state-active,
     .km-button, .km-button.km-state-active {
@@ -58,5 +90,8 @@
                 content: "\e0da";
             }
         }
+    }
+    .kj-markdown {
+        color: @ios7-dark-background
     }
 }

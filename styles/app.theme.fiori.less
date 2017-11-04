@@ -28,8 +28,8 @@
 @app-form-right-width: 45%;
 
 // Primary buttons
-@app-primary-background: @fiori-button-primary-background;
-@app-primary-border-color: @fiori-button-selected-border;
+@app-primary-background: @accent;
+@app-primary-border-color: @accent;
 @app-primary-text-color: @fiori-inverse-text;
 
 @import "./app.template.less";
@@ -39,5 +39,11 @@
 .k-fiori, .km-fiori {
     .k-notification.k-notification-info {
         border-color: @fiori-button-border;
+    }
+    .km-buttongroup {
+        .km-button.km-state-active {
+            background-color: @accent;
+            border-color: @accent;
+        }
     }
 }
