@@ -15,6 +15,35 @@
 @selected-border-color: @accent;
 @selected-text-color: @base;
 
+// Drawer
+@app-drawer-content-background: #fff;
+@app-drawer-content-color: #fff;
+@app-drawer-logo-color: #fff;
+@app-drawer-navbar-background: #000;
+@app-drawer-navbar-color: #fff;
+
+// Navbar
+@app-layout-navbar-background: #000;
+@app-layout-navbar-color: #fff;
+@app-layout-navbar-button-background: #000;
+@app-layout-navbar-button-color: #fff;
+@app-layout-navbar-button-border: solid 1px #000;
+@app-layout-navbar-button-margin: .4rem .1rem;
+@app-layout-navbar-button-padding: .4em .7em;
+
+// Forms
+@app-form-dropdown-margin-top: -1.2em;
+@app-form-dropdown-padding-left: .2em;
+@app-form-dropdown-text-indent: .2em;
+@app-form-input-padding-left: .4em;
+@app-form-right-margin-left: 50%;
+@app-form-right-margin-top: -1.75em;
+@app-form-right-width: 45%;
+
+@app-primary-background: @selected-background;
+@app-primary-border-color: @selected-border-color;
+@app-primary-text-color: @selected-text-color;
+
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
 
@@ -41,72 +70,5 @@
                 content: "\e0da";
             }
         }
-    }
-    /**********************************************************
-     * Kendo UI
-     **********************************************************/
-    /*
-    .km-thumbnail {
-        border-radius: 0;
-        border-width: 0;
-    }
-    */
-    /**********************************************************
-     * Navbar
-     **********************************************************/
-    .km-navbar {
-        // background-color: @selected-background;
-        // color: @selected-text-color;
-        // Navbar view title
-        // .km-view-title {
-        //    background-color: transparent;
-        // }
-        // Navbar buttons
-        // .km-button {
-        //    background-color: darken(@selected-background, 8%);
-        // }
-    }
-    /**********************************************************
-     * Drawer
-     **********************************************************/
-    .km-drawer {
-        .km-navbar {
-            // Logo
-            #logo > g:first-child > path {
-                fill: #fff;
-                stroke: #fff;
-            }
-        }
-        /*
-        .km-content, .km-list > li {
-            // Allow some space between icons and text
-            .km-listview-link > .km-icon {
-                margin: 0 .7em 0 .3em;
-            }
-        }
-        */
-    }
-    /**********************************************************
-     * Listview
-     **********************************************************/
-    .km-listview.km-list {
-        // Readonly values
-        .form-readonly {
-            margin-top: -1.75em;
-        }
-        // Align dropdowns with span.k-input
-        span.k-dropdown {
-            margin-top: -1.4em;
-            span.k-dropdown-wrap {
-                padding-left: 0;
-                span.k-input {
-                    text-indent: 0;
-                }
-            }
-        }
-    }
-    // Fix search box
-    .km-filter-wrap > input {
-        /* font-size: 1.1em; */
     }
 }
