@@ -247,8 +247,9 @@
                     { value: 'material-light', text: 'Material Light' },
                     { value: 'meego', text: 'Meego' },
                     { value: 'nova', text: 'Nova' },
-                    { value: 'office365', text: 'Office 365' },
-                    { value: 'wp', text: 'Windows Phone' }
+                    { value: 'office365', text: 'Office 365' }
+                    // { value: 'wp-dark', text: 'Windows Dark' },
+                    // { value: 'wp-light', text: 'Windows light' }
                 ]
             }
         };

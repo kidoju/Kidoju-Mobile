@@ -16,23 +16,23 @@
 @selected-text-color: @base;
 
 // Drawer
-@app-drawer-content-background: #fff;
-@app-drawer-content-color: #fff;
-@app-drawer-logo-color: #fff;
-@app-drawer-navbar-background: #000;
-@app-drawer-navbar-color: #fff;
+@app-drawer-content-background: @normal-text-color;
+@app-drawer-content-color: @background;
+@app-drawer-logo-color: @background;
+@app-drawer-navbar-background: darken(@normal-text-color, 7%);
+@app-drawer-navbar-color: @background;
 
 // Navbar
-@app-layout-navbar-background: #000;
-@app-layout-navbar-color: #fff;
-@app-layout-navbar-button-background: #000;
-@app-layout-navbar-button-color: #fff;
-@app-layout-navbar-button-border: solid 1px #000;
-@app-layout-navbar-button-margin: .4rem .1rem;
-@app-layout-navbar-button-padding: .4em .7em;
+@app-layout-navbar-background: @accent;
+@app-layout-navbar-color: @background;
+@app-layout-navbar-button-background: @accent;
+@app-layout-navbar-button-color: @background;
+@app-layout-navbar-button-border: solid 1px @accent;
+@app-layout-navbar-button-margin: 0;
+@app-layout-navbar-button-padding: 0 1.135em;
 
 // Forms
-@app-form-dropdown-margin-top: -1.2em;
+@app-form-dropdown-margin-top: -1.6em;
 @app-form-dropdown-padding-left: .2em;
 @app-form-dropdown-text-indent: .2em;
 @app-form-input-padding-left: .4em;
@@ -40,34 +40,77 @@
 @app-form-right-margin-top: -1.75em;
 @app-form-right-width: 45%;
 
+// ListViews
+@app-form-filter-font-size: 1em;
+
+// Primary buttons
 @app-primary-background: @selected-background;
 @app-primary-border-color: @selected-border-color;
 @app-primary-text-color: @selected-text-color;
+
+// Animation containers
+@app-list-container-font-size: 1em;
 
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
 
 // Style fixes
-.k-nova, .km-nova {
-    /**********************************************************
-    * Fonts
-    **********************************************************/
-    // Fix otherwise you'll get plain squares or funny icons in the drawer or navbar
-    li, li.km-state-active,
-    .km-button, .km-button.km-state-active {
-        .km-home {
-            &:after, &:before {
-                content: "\e0dd";
+.km-root {
+    .km-nova {
+        .km-filter-form {
+            // makes the search box on the #finder view the same as the drop drown on the #categories view
+            .km-filter-wrap {
+                background: transparent;
+                border: solid 1px hsv(hsvHue(@base), hsvSaturation(@base), (hsvValue(@base) - 10));
+                margin: 0;
+                padding: 0 .2em;
+                &:before, .km-clear {
+                    color: #888e90;
+                }
+                input {
+                    padding: .75em 1.8em;
+                }
             }
         }
-        .km-search {
-            &:after, &:before {
-                content: "\e0e9";
+        .km-list > li label,
+        .km-list fieldset textarea,
+        .km-list fieldset input,
+        .km-checkbox-label,
+        .km-radio-label {
+            // Otherwise labels are white in lists
+            color: @normal-text-color;
+        }
+        .km-listview-link:after,
+        .km-listview-label:after {
+            // Otherwise > are not visible at the end of list items
+            border-color: #777;
+        }
+        li, li.km-state-active,
+        .km-button, .km-button.km-state-active {
+            // Fix otherwise you'll get plain squares or funny icons in the drawer or navbar
+            .km-home {
+                &:after, &:before {
+                    content: "\e0dd";
+                }
+            }
+            .km-search {
+                &:after, &:before {
+                    content: "\e0e9";
+                }
+            }
+            .km-settings {
+                &:after, &:before {
+                    content: "\e0da";
+                }
             }
         }
-        .km-settings {
-            &:after, &:before {
-                content: "\e0da";
+        .km-buttongroup {
+            // Otherwise button group buttons are dark red
+            .km-button {
+                border-color: @accent;
+                &.km-state-active {
+                    background-color: @accent;
+                }
             }
         }
     }

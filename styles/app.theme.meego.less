@@ -8,34 +8,51 @@
 @selected-text-color: @base;
 
 // Drawer
-@app-drawer-content-background: #fff;
-@app-drawer-content-color: #fff;
+@app-drawer-content-background: #d7d8d8;
+@app-drawer-content-color: #000;
 @app-drawer-logo-color: #fff;
-@app-drawer-navbar-background: #000;
+@app-drawer-navbar-background: #207bc4;
 @app-drawer-navbar-color: #fff;
 
 // Navbar
-@app-layout-navbar-background: #000;
+@app-layout-navbar-background: #207bc4;
 @app-layout-navbar-color: #fff;
-@app-layout-navbar-button-background: #000;
-@app-layout-navbar-button-color: #fff;
-@app-layout-navbar-button-border: solid 1px #000;
-@app-layout-navbar-button-margin: .4rem .1rem;
-@app-layout-navbar-button-padding: .4em .7em;
+@app-layout-navbar-button-background: #f5f5f5;
+@app-layout-navbar-button-color: inherit;
+@app-layout-navbar-button-border: solid 1px #e7e7e7;
+@app-layout-navbar-button-margin: .3rem .1rem;
+@app-layout-navbar-button-padding: .3em .6em;
 
 // Forms
 @app-form-dropdown-margin-top: -1.2em;
 @app-form-dropdown-padding-left: .2em;
 @app-form-dropdown-text-indent: .2em;
 @app-form-input-padding-left: .4em;
-@app-form-right-margin-left: 50%;
-@app-form-right-margin-top: -2em;
-@app-form-right-width: 45%;
+@app-form-right-margin-left: 45%;
+@app-form-right-margin-top: -1.6em;
+@app-form-right-width: 50%;
 
+// ListViews
+@app-form-filter-font-size: 1em;
+
+// Primary buttons
 @app-primary-background: @selected-background;
 @app-primary-border-color: @selected-border-color;
 @app-primary-text-color: @selected-text-color;
 
+// Animation containers
+@app-list-container-font-size: 1em;
+
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
+
+.km-root {
+    .km-meego {
+        .km-drawer {
+            .km-list>li.km-state-active {
+                background: #1080dd;
+            }
+        }
+    }
+}
 

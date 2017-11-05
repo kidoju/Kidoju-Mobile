@@ -23,14 +23,6 @@
     .km-bold-font {
         font-weight: bold;
     }
-    //---------------------------------------------
-    // ListView filters and search boxes
-    .km-filter-form {
-        width: auto; // We need this otherwise padding adds to the 100% width
-        .k-dropdown {
-            margin-top: 0; // Set category dropdown within padding
-        }
-    }
     /**********************************************************
      * Drawer
      **********************************************************/
@@ -95,6 +87,17 @@
     /**********************************************************
      * Listview
      **********************************************************/
+    // ListView filters and search boxes
+    .km-filter-form {
+        width: auto; // We need this otherwise padding adds to the 100% width
+        padding: 0.75em 1.1em;
+        .k-dropdown {
+            margin-top: 0; // Set category dropdown within padding
+        }
+        input, .k-input {
+            font-size: @app-form-filter-font-size;
+        }
+    }
     .km-listview.km-list {
         // TODO ellipsis on finder list
         .km-badge-error {
@@ -114,12 +117,6 @@
             color: @notification-warning-text-color !important;
             // background-color: #fff0c0 !important;
             // color: #ff8c00 !important;
-        }
-    }
-    // Fix search box
-    .km-filter-wrap {
-        input {
-            font-size: 1.2em;
         }
     }
     /**********************************************************
@@ -196,7 +193,7 @@
     .k-list-container {
         .k-list-scroller {
             .k-list {
-                font-size: 1.4em;
+                font-size: @app-list-container-font-size;
             }
         }
     }

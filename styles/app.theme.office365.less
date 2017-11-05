@@ -3,33 +3,66 @@
 @import "./vendor/kendo/mobile/kendo.mobile.office365.less";
 
 // Drawer
-@app-drawer-content-background: #fff;
-@app-drawer-content-color: #fff;
-@app-drawer-logo-color: #fff;
-@app-drawer-navbar-background: #000;
-@app-drawer-navbar-color: #fff;
+@app-drawer-content-background: @office365-list-selected-background;
+@app-drawer-content-color: @office365-text;
+@app-drawer-logo-color: @office365-secondary-text;
+@app-drawer-navbar-background: @office365-inverse-background;
+@app-drawer-navbar-color: @office365-secondary-text;
 
 // Navbar
-@app-layout-navbar-background: #000;
-@app-layout-navbar-color: #fff;
-@app-layout-navbar-button-background: #000;
-@app-layout-navbar-button-color: #fff;
-@app-layout-navbar-button-border: solid 1px #000;
-@app-layout-navbar-button-margin: .4rem .1rem;
-@app-layout-navbar-button-padding: .4em .7em;
-
-@app-form-right-margin-left: 50%;
-@app-form-right-margin-top: -2em;
-@app-form-right-width: 45%;
+@app-layout-navbar-background: @office365-inverse-background;
+@app-layout-navbar-color: @office365-secondary-text;
+@app-layout-navbar-button-background: @office365-inverse-background;
+@app-layout-navbar-button-color: @office365-secondary-text;
+@app-layout-navbar-button-border: solid 1px @office365-inverse-background;
+@app-layout-navbar-button-margin: .125rem .1rem 0 .1rem;
+@app-layout-navbar-button-padding: .5em 0;
 
 // Forms
 @app-form-dropdown-margin-top: -1.2em;
 @app-form-dropdown-padding-left: .2em;
 @app-form-dropdown-text-indent: .2em;
 @app-form-input-padding-left: .4em;
+@app-form-right-margin-left: 45%;
+@app-form-right-margin-top: -2em;
+@app-form-right-width: 50%;
+
+// ListViews
+@app-form-filter-font-size: 1em;
+
+// Primary buttons
 @app-primary-background: @selected-background;
 @app-primary-border-color: @selected-border-color;
 @app-primary-text-color: @selected-text-color;
 
+// Animation containers
+@app-list-container-font-size: 1em;
+
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
+
+.km-root {
+    .km-office365 {
+        .km-navbar {
+            .km-leftitem {
+                // Remove any specificities for navbar leftitem button
+                .km-button {
+                    border-color: @office365-inverse-background;
+                    border-radius: initial;
+                    border-width: 1px;
+                    height: auto;
+                    width: auto;
+                }
+            }
+        }
+        .km-filter-form {
+            .km-filter-wrap {
+                // Make #finder searchbox match #categories dropdown
+                background: transparent;
+                border: solid 1px @widget-border-color;
+                margin: 0;
+                padding: .28em .4em;
+            }
+        }
+    }
+}

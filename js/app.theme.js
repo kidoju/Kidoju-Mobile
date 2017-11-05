@@ -47,6 +47,7 @@
             'material-dark': 'materialblack',   // <------- mobile only
             'material-light': 'material',       // <------- mobile only
             materialblack: 'materialblack',
+            meego: 'bootstrap',                 // <------- mobile only
             metro: 'metro',
             metroblack: 'metroblack',
             moonlight: 'moonlight',

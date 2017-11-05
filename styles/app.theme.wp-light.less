@@ -3,18 +3,18 @@
 @import "./vendor/kendo/mobile/kendo.mobile.wp8.less";
 
 // Drawer
-@app-drawer-content-background: #fff;
-@app-drawer-content-color: #fff;
-@app-drawer-logo-color: #fff;
-@app-drawer-navbar-background: #000;
-@app-drawer-navbar-color: #fff;
+@app-drawer-content-background: @wp-main-background;
+@app-drawer-content-color: @wp-main-text-light;
+@app-drawer-logo-color: @wp-main-text-light;
+@app-drawer-navbar-background: @wp-main-background;
+@app-drawer-navbar-color: @wp-main-text-light;
 
 // Navbar
-@app-layout-navbar-background: #000;
-@app-layout-navbar-color: #fff;
-@app-layout-navbar-button-background: #000;
-@app-layout-navbar-button-color: #fff;
-@app-layout-navbar-button-border: solid 1px #000;
+@app-layout-navbar-background: @wp-main-background;
+@app-layout-navbar-color: @wp-main-text-light;
+@app-layout-navbar-button-background: @wp-main-background;
+@app-layout-navbar-button-color: @wp-main-text-light;
+@app-layout-navbar-button-border: solid 1px @wp-main-background;
 @app-layout-navbar-button-margin: .4rem .1rem;
 @app-layout-navbar-button-padding: .4em .7em;
 
@@ -27,10 +27,16 @@
 @app-form-right-margin-top: -2em;
 @app-form-right-width: 45%;
 
-// Buttons
+// ListViews
+@app-form-filter-font-size: 1em;
+
+// Primary buttons
 @app-primary-background: @selected-background;
 @app-primary-border-color: @selected-border-color;
 @app-primary-text-color: @selected-text-color;
+
+// Animation containers
+@app-list-container-font-size: 1em;
 
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
