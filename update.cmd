@@ -86,11 +86,11 @@ REM ------------------------------------------------------------
 
 REM Copy Kendo UI
 XCOPY ..\Kidoju.WebApp\js\vendor\kendo\*.* .\js\vendor\kendo\ /C /E /I /R /Y
-ATTRIB +R .\js\vendor\kendo\*
+ATTRIB +R .\js\vendor\kendo\*.* /S
 
 REM Copy localForage
 XCOPY ..\Kidoju.Widgets\test\vendor\localforage*.* .\js\vendor\localForage\ /C /E /I /R /Y
-ATTRIB +R .\js\vendor\localForage\*
+ATTRIB +R .\js\vendor\localForage\*.* /S
 
 REM copy blueimp/md5
 XCOPY ..\Kidoju.Server\client\js\vendor\blueimp .\js\vendor\blueimp /C /E /I /R /Y
@@ -164,11 +164,11 @@ REM Styles
 REM ------------------------------------------------------------
 
 XCOPY ..\Kidoju.WebApp\styles\vendor\kendo\*.* .\styles\vendor\kendo\ /C /E /I /R /Y
-ATTRIB +R .\styles\vendor\kendo\*
+ATTRIB +R .\styles\vendor\kendo\*.* /S
 
 REM Copy Kidoju webfonts
 XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\styles\fonts\ /C /E /I /R /Y
-ATTRIB +R .\styles\fonts\*
+ATTRIB +R .\styles\fonts\*.* /S
 
 REM Copy CodeMirror - Not used in mobile app
 REM XCOPY ..\Kidoju.Widgets\src\styles\vendor\codemirror .\styles\vendor\codemirror /C /E /I /R /Y
