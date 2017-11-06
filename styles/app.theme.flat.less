@@ -40,3 +40,20 @@
 
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
+
+// Style fixes
+.km-root {
+    .km-flat {
+        .km-filter-form {
+            // So that the #finder search box matches the #categories dropdown
+            .km-filter-wrap {
+                margin: 0;
+                padding: 0;
+                input {
+                    font-size: 1em;
+                    padding: .4em 2.5em;
+                }
+            }
+        }
+    }
+}
