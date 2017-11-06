@@ -42,14 +42,52 @@
 @import (optional) "highlightjs.custom.less";
 
 // Style fixes
-.k-fiori, .km-fiori {
+.k-fiori {
     .k-notification.k-notification-info {
         border-color: @fiori-button-border;
     }
-    .km-buttongroup {
+}
+.km-root {
+    .km-fiori {
+        .km-filter-form {
+            // So that the #finder search box matches the #categories dropdown
+            .km-filter-wrap {
+                margin: 0;
+                padding: 0;
+                input {
+                    background: @fiori-list-background;
+                    font-size: 1em;
+                    padding: .7em 2.5em;
+                }
+            }
+        }
+        .km-listview {
+            li.km-state-active {
+                .km-listview-link {
+                    // Otherwise linked list items are black on dark blue background
+                    color: @fiori-inverse-text;
+                    .k-state-disabled {
+                        // Otherwise star ratings are invisible when list items are activated
+                        color: @fiori-inverse-text;
+                    }
+                }
+            }
+        }
+        .km-buttongroup {
+            // Button group on #activities view
+            .km-button.km-state-active {
+                background-color: @accent;
+                border-color: @accent;
+            }
+        }
+        .km-button.km-primary.km-state-active {
+            // Darken active state of primary buttons
+            background-color: darken(@accent, 10%) !important;
+            border-color: darken(@accent, 10%) !important;
+        }
         .km-button.km-state-active {
-            background-color: @accent;
-            border-color: @accent;
+            // Otherwise pressed buttons are black on dark blue background
+            color: @fiori-inverse-text;
         }
     }
 }
