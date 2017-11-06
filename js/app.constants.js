@@ -31,9 +31,9 @@
             // The authorId to search summaries from (until we support organizationId)
             authorId: '',
             // The app language
-            language: 'fr',
+            language: '',
             // The app theme
-            theme: 'flat',
+            theme: '',
             // The top categoryId
             topCategoryId: ''
 
