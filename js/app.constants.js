@@ -36,6 +36,9 @@
             theme: 'flat',
             // The top categoryId
             topCategoryId: ''
+
+            // TODO: We might also want the possibility to hide categories for museum apps
+
         };
 
         // Set locale
