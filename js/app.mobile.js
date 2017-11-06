@@ -217,7 +217,7 @@ window.jQuery.holdReady(true);
             THEMES: 'themes',
             USER: {
                 $: 'user',
-                CATEGORY_ID: 'user.categoryId',
+                TOP_CATEGORY_ID: 'user.topCategoryId',
                 FIRST_NAME: 'user.firstName',
                 // LANGUAGE: 'user.language',
                 LAST_NAME: 'user.lastName',
@@ -240,7 +240,7 @@ window.jQuery.holdReady(true);
         var URL_SCHEME = 'com.kidoju.mobile://';
         var RX_URL_SCHEME = new RegExp('^' + URL_SCHEME + '([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
         var DEFAULT = {
-            CATEGORY_ID: {
+            ROOT_CATEGORY_ID: {
                 en: '000100010000000000000000',
                 fr: '000200010000000000000000'
             }
@@ -642,8 +642,7 @@ window.jQuery.holdReady(true);
 
             /**
              * Language
-             * Note: we do not define a user language because we need to load cultures before any user is actually signed in
-             * and changing language afterwards is a bit awkward
+             * Note: we do not define a user language because we need to load cultures before any user is actually signed in and changing language afterwards is a bit awkward
              */
             language: i18n.locale(),
 
@@ -669,10 +668,9 @@ window.jQuery.holdReady(true);
 
             /**
              * Theme
-             * Note: we do not define a user theme because we need a theme before any user is actually signed in
-             * and changing theme afterwards is a bit awkward
+             * Note: we do not define a user theme because we need a theme before any user is actually signed in and changing theme afterwards is a bit awkward
              */
-            theme: DEFAULT.THEME,
+            theme: app.theme.name(),
 
             /**
              * Themes
@@ -708,24 +706,24 @@ window.jQuery.holdReady(true);
             },
 
             /**
-             * Whether the app has a constant category id
-             */
-            hasConstantCategoryId$: function () {
-                return !! app.constants.categoryId;
-            },
-
-            /**
              * Whether the app has a constant language
              */
             hasConstantLanguage$: function () {
-                return !! app.constants.language;
+                return !!app.constants.language;
             },
 
             /**
              * Whether the app has a constant theme
              */
-            hasConstantTheme: function () {
-                return !! app.constants.theme;
+            hasConstantTheme$: function () {
+                return !!app.constants.theme;
+            },
+
+            /**
+             * Whether the app has a constant top category id
+             */
+            hasConstantTopCategoryId$: function () {
+                return !!app.constants.topCategoryId;
             },
 
             /**
@@ -733,7 +731,7 @@ window.jQuery.holdReady(true);
              * @returns {protocol|*|SocialSharing}
              */
             hasSocialSharing$: function () {
-                return mobile.support.socialsharing;
+                return !!mobile.support.socialsharing;
             },
 
             /**
@@ -792,6 +790,17 @@ window.jQuery.holdReady(true);
             },
 
             /**
+             * Language name form selected value
+             */
+            language$: function () {
+                var value = this.get('language');
+                var found = this.get('languages').filter(function (language) {
+                    return language.value === value;
+                });
+                return found[0] && found[0].text;
+            },
+
+            /**
              * Return current page
              * @returns {*}
              */
@@ -800,6 +809,17 @@ window.jQuery.holdReady(true);
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 return pageCollectionDataSource.indexOf(page) + 1;
+            },
+
+            /**
+             * Theme name form selected value
+             */
+            theme$: function () {
+                var value = this.get('theme');
+                var found = this.get('themes').filter(function (theme) {
+                    return theme.value === value;
+                });
+                return found[0] && found[0].text;
             },
 
             /**
@@ -845,7 +865,7 @@ window.jQuery.holdReady(true);
             reset: function () {
 
                 var language = i18n.locale();
-                var categoryId = this.get(VIEW_MODEL.USER.CATEGORY_ID) || DEFAULT.CATEGORY_ID[language];
+                var categoryId = this.get(VIEW_MODEL.USER.TOP_CATEGORY_ID) || DEFAULT.ROOT_CATEGORY_ID[language];
                 var userId = this.get(VIEW_MODEL.USER.SID);
 
                 // List of activities
@@ -1362,8 +1382,8 @@ window.jQuery.holdReady(true);
                 case VIEW_MODEL.USER.$:
                     viewModel.reset();
                     break;
-                case VIEW_MODEL.USER.CATEGORY_ID:
-                    viewModel.categories.filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.CATEGORY_ID).substr(0, TOP_LEVEL_CHARS) });
+                case VIEW_MODEL.USER.TOP_CATEGORY_ID:
+                    viewModel.categories.filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.TOP_CATEGORY_ID).substr(0, TOP_LEVEL_CHARS) });
                     break;
                 case VIEW_MODEL.LANGUAGE:
                     debugger;
@@ -1371,7 +1391,7 @@ window.jQuery.holdReady(true);
                     if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {
                         mobile.localize(language);
                     }
-                    viewModel.set(VIEW_MODEL.USER.CATEGORY_ID, DEFAULT.CATEGORY_ID[language]);
+                    viewModel.set(VIEW_MODEL.USER.TOP_CATEGORY_ID, DEFAULT.ROOT_CATEGORY_ID[language]);
                     viewModel.reset();
                     break;
                 case VIEW_MODEL.THEME:

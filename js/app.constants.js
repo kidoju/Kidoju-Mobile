@@ -24,32 +24,31 @@
         // An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
         try { localStorage = window.localStorage; } catch (ex) {}
 
-        if (typeof (app && app.i18n) !== UNDEFINED) {
-            throw new Error('Load app.constants before app.i18n');
-        }
 
         // These constants lock the app to certain values
         app.constants = {
             appName: 'Kidoju',
-            // The authorId to search summaries from
+            // The authorId to search summaries from (until we support organizationId)
             authorId: '',
-            // The top categoryId
-            categoryId: '',
             // The app language
             language: 'fr',
-            // The organizationId to search summaries from
-            // organizationId: '', // For future use
             // The app theme
-            theme: ''
+            theme: 'flat',
+            // The top categoryId
+            topCategoryId: ''
         };
 
         // Set locale
-        if (localStorage && app.constants.language) {
+        if (typeof (app && app.i18n) !== UNDEFINED) {
+            throw new Error('Load app.constants before app.i18n.');
+        } else if (localStorage && app.constants.language) {
             localStorage.setItem(LANGUAGE, app.constants.language);
         }
 
         // Set theme
-        if (localStorage && app.constants.theme) {
+        if (typeof (app && app.theme) !== UNDEFINED) {
+            throw new Error('Load app.constants before app.theme.');
+        } else if (localStorage && app.constants.theme) {
             localStorage.setItem(THEME, app.constants.theme);
         }
 

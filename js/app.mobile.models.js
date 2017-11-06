@@ -81,7 +81,7 @@
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var DOT_JPEG = '.jpg';
         var DEFAULT = {
-            CATEGORY_ID: {
+            ROOT_CATEGORY_ID: {
                 en: '000100010000000000000000',
                 fr: '000100020000000000000000'
             },
@@ -129,10 +129,6 @@
                     type: STRING,
                     editable: false
                 },
-                categoryId: {
-                    type: STRING,
-                    defaultValue: DEFAULT.CATEGORY_ID[DEFAULT.LANGUAGE]
-                },
                 firstName: {
                     type: STRING,
                     editable: false
@@ -164,13 +160,17 @@
                 picture: {
                     type: STRING,
                     editable: false
-                }
+                },
                 /*
                 theme: {
                     type: STRING,
                     defaultValue: DEFAULT.THEME
                 }
                 */
+                topCategoryId: {
+                    type: STRING,
+                    defaultValue: DEFAULT.ROOT_CATEGORY_ID[DEFAULT.LANGUAGE]
+                }
                 // consider locale (for display of numbers, dates and currencies)
                 // consider timezone (for display of dates), born (for searches)
             },
