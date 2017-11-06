@@ -3423,8 +3423,10 @@ window.jQuery.holdReady(true);
                     // Setup a reminder to use the application every week
                     local.schedule({
                         title: i18n.culture.osNotifications.title,
-                        text: kendo.format(i18n.culture.osNotifications.title, app.constants.appName),
-                        trigger: {every: 7, unit: 'day'},
+                        text: kendo.format(i18n.culture.osNotifications.text, app.constants.appName),
+                        // @see https://github.com/katzer/cordova-plugin-local-notifications/issues/1412
+                        // trigger: { in: 7, every: 7, unit: 'day' },
+                        trigger: { in: 1, every: 1, unit: 'hour' },
                         foreground: true
                     });
                 });
