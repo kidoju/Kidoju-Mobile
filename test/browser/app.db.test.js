@@ -175,6 +175,34 @@
                     done();
                 });
             });
+
+            xit('it should drop store1', function (done) {
+                localforage.dropInstance({ name: LF_DB, storeName: STORE1 }, function(err) {
+                    expect(err).to.be.null;
+                    done();
+                });
+            });
+
+            xit('it should drop store2', function (done) {
+                localforage.dropInstance({ name: LF_DB, storeName: STORE2 }, function(err) {
+                    expect(err).to.be.null;
+                    done();
+                });
+            });
+
+            xit('it should drop local-forage-detect-blob-support', function (done) {
+                localforage.dropInstance({ name: LF_DB, storeName: 'local-forage-detect-blob-support' }, function(err) {
+                    expect(err).to.be.null;
+                    done();
+                });
+            });
+
+            xit('it should drop a database', function (done) {
+                localforage.dropInstance({ name: LF_DB }, function(err) {
+                    expect(err).to.be.null;
+                    done();
+                });
+            });
         });
 
     });
