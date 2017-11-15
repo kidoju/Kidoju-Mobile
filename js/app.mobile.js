@@ -623,7 +623,7 @@ window.jQuery.holdReady(true);
             /**
              * Activities (scores to start with)
              */
-            activities: [],
+            activities: new models.MobileActivityDataSource(),
 
             /**
              * Categories
@@ -878,17 +878,12 @@ window.jQuery.holdReady(true);
 
                 // List of activities
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
-                if (activities.transport) {
-                    this.get(VIEW_MODEL.ACTIVITIES).transport.setOptions({
-                        language: language,
-                        userId: userId
-                    });
-                }
+                assert.instanceof(models.MobileActivityDataSource, activities, kendo.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
+                activities.transport.setOptions({
+                    language: language,
+                    userId: userId
+                });
                 // TODO read
-
-
-                // Changing the language resets the root category
-                viewModel.set(VIEW_MODEL.USER.ROOT_CATEGORY_ID, DEFAULT.ROOT_CATEGORY_ID[language]);
 
                 // List of categories
                 this.set(VIEW_MODEL.CATEGORIES, new models.LazyCategoryDataSource());
@@ -964,7 +959,7 @@ window.jQuery.holdReady(true);
                 } else {
                     activities.transport.setOptions(options);
                     activities._filter = undefined;
-                    this.activities.read()
+                    activities.read()
                         .done(dfd.resolve)
                         .fail(function (xhr, status, error) {
                             dfd.reject(xhr, status, error);
@@ -1361,7 +1356,7 @@ window.jQuery.holdReady(true);
                 viewModel.set(VIEW_MODEL.CURRENT.SCORE, current.test.percent());
                 viewModel.set(VIEW_MODEL.CURRENT.UPDATED, new Date());
                 // Add to datasource and sync
-                var activities = this.activities;
+                var activities = this.get(VIEW_MODEL.ACTIVITIES);
                 assert.instanceof(models.MobileActivityDataSource, activities, kendo.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
                 var activity = new models.MobileActivity(current);
                 activities.add(activity);
@@ -1434,6 +1429,8 @@ window.jQuery.holdReady(true);
                     // Do not trigger before the kendo mobile application is loaded
                     if (mobile.application instanceof kendo.mobile.Application && $.isPlainObject(i18n.culture)) {
                         var language = e.sender.get(VIEW_MODEL.LANGUAGE);
+                        // Changing the language resets the root category
+                        viewModel.set(VIEW_MODEL.USER.ROOT_CATEGORY_ID, DEFAULT.ROOT_CATEGORY_ID[language]);
                         viewModel.reset();
                         mobile.localize(language);
                     }

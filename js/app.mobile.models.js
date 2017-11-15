@@ -77,6 +77,7 @@
         uris.mobile.pictures = uris.mobile.pictures || '{0}users/{1}';
         var DATE = 'date';
         var FUNCTION = 'function';
+        var NULL = 'null';
         var NUMBER = 'number';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
@@ -698,7 +699,6 @@
              * @private
              */
             read: function (options) {
-                debugger;
                 logger.debug({
                     message: 'Activity data read',
                     method: 'app.models.MobileActivityDataSource.transport.read'
@@ -767,7 +767,6 @@
              * @param options
              */
             sync: function (options) {
-                debugger;
                 var that = this;
                 /*
                 return $.when(
@@ -1019,7 +1018,7 @@
              */
             init: function (options) {
                 DataSource.fn.init.call(this, $.extend(true, {}, options, {
-                    transport: new MobileActivityTransport({
+                    transport: new models.MobileActivityTransport({
                         language: options && options.language,
                         userId: options && options.userId
                     }),
