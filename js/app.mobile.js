@@ -217,7 +217,7 @@ window.jQuery.holdReady(true);
             THEMES: 'themes',
             USER: {
                 $: 'user',
-                TOP_CATEGORY_ID: 'user.topCategoryId',
+                ROOT_CATEGORY_ID: 'user.rootCategoryId',
                 FIRST_NAME: 'user.firstName',
                 // LANGUAGE: 'user.language',
                 LAST_NAME: 'user.lastName',
@@ -722,8 +722,8 @@ window.jQuery.holdReady(true);
             /**
              * Whether the app has a constant top category id
              */
-            hasConstantTopCategoryId$: function () {
-                return !!app.constants.topCategoryId;
+            hasConstantRootCategoryId$: function () {
+                return !!app.constants.rootCategoryId[i18n.locale()];
             },
 
             /**
@@ -793,8 +793,8 @@ window.jQuery.holdReady(true);
              * Language name form selected value
              */
             language$: function () {
-                var value = this.get('language');
-                var found = this.get('languages').filter(function (language) {
+                var value = this.get(VIEW_MODEL.LANGUAGE);
+                var found = this.get(VIEW_MODEL.LANGUAGES).filter(function (language) {
                     return language.value === value;
                 });
                 return found[0] && found[0].text;
@@ -812,11 +812,20 @@ window.jQuery.holdReady(true);
             },
 
             /**
+             * The users's root category id
+             */
+            rootCategoryId$: function () {
+                var id = this.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID);
+                var found = this.get(VIEW_MODEL.CATEGORIES).get(id);
+                return found && found.name;
+            },
+
+            /**
              * Theme name form selected value
              */
             theme$: function () {
-                var value = this.get('theme');
-                var found = this.get('themes').filter(function (theme) {
+                var value = this.get(VIEW_MODEL.THEME);
+                var found = this.get(VIEW_MODEL.THEMES).filter(function (theme) {
                     return theme.value === value;
                 });
                 return found[0] && found[0].text;
@@ -837,18 +846,18 @@ window.jQuery.holdReady(true);
             topCategories$: function () {
                 var categories = this.get(VIEW_MODEL.CATEGORIES);
                 return categories.data()
-                .filter(function (category) {
-                    return (RX_TOP_LEVEL_MATCH).test(category.id);
-                })
-                .sort(function (category1, category2) {
-                    if (category1.id < category2.id) {
-                        return -1;
-                    } else if (category1.id > category2.id) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
+                    .filter(function (category) {
+                        return (RX_TOP_LEVEL_MATCH).test(category.id);
+                    })
+                    .sort(function (category1, category2) {
+                        if (category1.id < category2.id) {
+                            return -1;
+                        } else if (category1.id > category2.id) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    });
             },
 
             /**
@@ -863,20 +872,28 @@ window.jQuery.holdReady(true);
              * Important: this cannot be a promise so loading has to occur elsewhere
              */
             reset: function () {
-
                 var language = i18n.locale();
-                var categoryId = this.get(VIEW_MODEL.USER.TOP_CATEGORY_ID) || DEFAULT.ROOT_CATEGORY_ID[language];
                 var userId = this.get(VIEW_MODEL.USER.SID);
+                var categoryId = this.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID) || DEFAULT.ROOT_CATEGORY_ID[language];
 
                 // List of activities
-                this.set(VIEW_MODEL.ACTIVITIES, new models.MobileActivityDataSource({
-                    language: language,
-                    userId: userId
-                }));
+                var activities = this.get(VIEW_MODEL.ACTIVITIES);
+                if (activities.transport) {
+                    this.get(VIEW_MODEL.ACTIVITIES).transport.setOptions({
+                        language: language,
+                        userId: userId
+                    });
+                }
+                // TODO read
+
+
+                // Changing the language resets the root category
+                viewModel.set(VIEW_MODEL.USER.ROOT_CATEGORY_ID, DEFAULT.ROOT_CATEGORY_ID[language]);
 
                 // List of categories
                 this.set(VIEW_MODEL.CATEGORIES, new models.LazyCategoryDataSource());
                 this.get(VIEW_MODEL.CATEGORIES).filter({ field: 'id', operator: 'startsWith', value: categoryId.substr(0, TOP_LEVEL_CHARS) });
+                // this.get(VIEW_MODEL.CATEGORIES).filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID).substr(0, TOP_LEVEL_CHARS) });
 
                 // Current score/test
                 this.set(VIEW_MODEL.CURRENT.$, { test: undefined });
@@ -919,13 +936,12 @@ window.jQuery.holdReady(true);
              * Load viewModel when starting the app or changing language
              */
             load: function () {
-                viewModel.set('languages', i18n.culture.viewModel.languages);
-                viewModel.set('themes', i18n.culture.viewModel.themes);
                 // Load mobile users from localForage
                 return viewModel.loadUsers()
                     .done(function () {
                         // Set user to most recent user
                         if (viewModel.users.total() > 0) {
+                            // because of the change event is bound, the following will call the reset function above
                             viewModel.set(VIEW_MODEL.USER.$, viewModel.users.at(0));
                         }
                     });
@@ -939,13 +955,16 @@ window.jQuery.holdReady(true);
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.match(RX_LANGUAGE, options.language, kendo.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
                 assert.match(RX_MONGODB_ID, options.userId, kendo.format(assert.messages.match.default, 'options.userId', RX_MONGODB_ID));
-
+                var activities = this.get(VIEW_MODEL.ACTIVITIES);
                 var dfd = $.Deferred();
-                if (this.activities.total() > 0 &&
-                    this.activities._language === options.language && this.activities._userId === options.userId) {
+                if (activities.total() > 0 &&
+                    activities.transport._language === options.language &&
+                    activities.transport._userId === options.userId) {
                     dfd.resolve();
                 } else {
-                    this.activities.load(options)
+                    activities.transport.setOptions(options);
+                    activities._filter = undefined;
+                    this.activities.read()
                         .done(dfd.resolve)
                         .fail(function (xhr, status, error) {
                             dfd.reject(xhr, status, error);
@@ -1067,6 +1086,29 @@ window.jQuery.holdReady(true);
                         });
                 }
                 return dfd.promise();
+            },
+
+            /**
+             * Synchronize users
+             * @param showSuccessMessage (true by default)
+             * @returns {*}
+             */
+            syncUsers: function (showSuccessMessage) {
+                // Synchronize
+                return viewModel.users.sync()
+                    .done(function () {
+                        if (showSuccessMessage !== false) {
+                            app.notification.success(kendo.format(i18n.culture.notifications.userSaveSuccess));
+                        }
+                    })
+                    .fail(function (xhr, status, error) {
+                        app.notification.error(i18n.culture.notifications.userSaveFailure);
+                        logger.error({
+                            message: 'error syncing users',
+                            method: 'mobile.onUserSaveClick',
+                            data:  { status: status, error: error, response: parseResponse(xhr) }
+                        });
+                    });
             },
 
             /**
@@ -1382,17 +1424,19 @@ window.jQuery.holdReady(true);
                 case VIEW_MODEL.USER.$:
                     viewModel.reset();
                     break;
-                case VIEW_MODEL.USER.TOP_CATEGORY_ID:
-                    viewModel.categories.filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.TOP_CATEGORY_ID).substr(0, TOP_LEVEL_CHARS) });
+                case VIEW_MODEL.USER.ROOT_CATEGORY_ID:
+                    viewModel.syncUsers()
+                        .done(function () {
+                            viewModel.reset();
+                        });
                     break;
                 case VIEW_MODEL.LANGUAGE:
-                    debugger;
-                    var language = e.sender.get(VIEW_MODEL.LANGUAGE);
-                    if ($.isPlainObject(i18n.culture) && mobile.application instanceof kendo.mobile.Application) {
+                    // Do not trigger before the kendo mobile application is loaded
+                    if (mobile.application instanceof kendo.mobile.Application && $.isPlainObject(i18n.culture)) {
+                        var language = e.sender.get(VIEW_MODEL.LANGUAGE);
+                        viewModel.reset();
                         mobile.localize(language);
                     }
-                    viewModel.set(VIEW_MODEL.USER.TOP_CATEGORY_ID, DEFAULT.ROOT_CATEGORY_ID[language]);
-                    viewModel.reset();
                     break;
                 case VIEW_MODEL.THEME:
                     // Do not trigger before the kendo mobile application is loaded
@@ -1402,7 +1446,7 @@ window.jQuery.holdReady(true);
                         app.theme.load(theme).done(function() {
                             mobile.application.skin(theme);
                             mobile._fixThemeVariant(theme);
-                            logger.debug({ method: 'viewModel.bind', message: 'Theme changed to ' + theme });
+                            logger.debug({method: 'viewModel.bind', message: 'Theme changed to ' + theme});
                         });
                     }
                     break;
@@ -1599,9 +1643,6 @@ window.jQuery.holdReady(true);
 
                 var viewElement;
                 var culture = i18n.culture;
-
-                // Reset view model
-                viewModel.reset();
 
                 // Localize Main Layout
                 $(HASH + LAYOUT.MAIN + '-back').text(culture.layout.back);
@@ -2456,104 +2497,6 @@ window.jQuery.holdReady(true);
         };
 
         /**
-         * Initialize score grid
-         * @param view
-         * @private
-         */
-        mobile._initScoreGrid = function (view) {
-            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var language = view.params.language;
-            var summaryId = view.params.summaryId;
-            var versionId = view.params.versionId;
-
-            var contentElement = view.content;
-            // Find and destroy the grid as it needs to be rebuilt if locale changes
-            // Note: if the grid is set as <div data-role="grid"></div> in index.html then .km-pane-wrapper does not exist, so we need an id
-            // var gridElement = view.element.find(kendo.roleSelector('grid'));
-            var gridElement = contentElement.find(HASH + VIEW.SCORE + '-grid');
-            if (gridElement.length) {
-                var summaryElement = contentElement.find('.summary');
-                var gridWidget = gridElement.data('kendoGrid');
-                if (gridWidget instanceof kendo.ui.Grid) {
-                    // Destroying the adaptive grid is explained at
-                    // http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive#destroy-the-adaptive-grid
-                    var paneElement = gridElement.closest('.km-pane-wrapper');
-                    var parentElement = paneElement.parent();
-                    kendo.destroy(paneElement);
-                    paneElement.remove();
-                    // gridElement = $('<div data-role="grid"></div>');
-                    gridElement = $('<div id="' + HASH.substr(1) + VIEW.SCORE + '-grid"></div>')
-                        .appendTo(parentElement);
-                }
-                var culture = i18n.culture.score;
-                // Set the grid - @see http://docs.telerik.com/kendo-ui/controls/data-management/grid/adaptive
-                gridWidget = gridElement.kendoGrid({
-                    change: function (e) {
-                        assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-                        assert.instanceof(kendo.ui.Grid, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Grid'));
-                        var selectedRows = e.sender.select();
-                        assert.instanceof($, selectedRows, kendo.format(assert.messages.instanceof.default, 'selectedRows', 'jQuery'));
-                        assert.hasLength(selectedRows, kendo.format(assert.messages.hasLength.default, 'selectedRows'));
-                        var dataItem = this.dataItem(selectedRows[0]);
-                        assert.instanceof(kendo.data.ObservableObject, dataItem, kendo.format(assert.messages.instanceof.default, 'dataItem', 'kendo.data.ObservableObject'));
-                        var currentId = viewModel.get(VIEW_MODEL.CURRENT.ID);
-                        var page = dataItem.page + 1;
-                        mobile.application.navigate(HASH + VIEW.CORRECTION +
-                            '?language=' + window.encodeURIComponent(view.params.language) +
-                            '&summaryId=' + window.encodeURIComponent(view.params.summaryId) +
-                            '&versionId=' + window.encodeURIComponent(view.params.versionId) +
-                            '&activityId=' + window.encodeURIComponent(view.params.activityId) + // Note: this is a local id, not a sid
-                            '&page=' + window.encodeURIComponent(page)
-                        );
-                    },
-                    columnMenu: true,
-                    columns: [
-                        {
-                            field: 'page',
-                            template: '#: page + 1 #',
-                            title: culture.grid.columns.page,
-                            width: '50px'
-                        },
-                        // { field: 'name' },
-                        {
-                            field: 'question',
-                            title: culture.grid.columns.question
-                        },
-                        // { field: 'value' },
-                        // { field: 'solution' },
-                        // { field: 'omit' },
-                        // { field: 'failure' },
-                        // { field: 'success' },
-                        // { field: 'score' },
-                        {
-                            field: 'result',
-                            title: culture.grid.columns.result,
-                            template: '# var src = result ? "ok" : "error"; # <img alt="#= src #" src="#= kendo.format(app.uris.cdn.icons, src) #" class="icon">',
-                            width: '50px'
-                        }
-                    ],
-                    dataSource: {
-                        // aggregate: [
-                        //     { field: 'score', aggregate: 'sum' }
-                        // ],
-                        data: viewModel.get(VIEW_MODEL.CURRENT.TEST).getScoreArray()
-                    },
-                    filterable: true,
-                    // This is not properly documented but without height, the adaptive grid is not scrollable
-                    height: contentElement.height() - summaryElement.outerHeight(),
-                    mobile: 'phone', // http://docs.telerik.com/kendo-ui/api/javascript/ui/grid#configuration-mobile
-                    resizable: true,
-                    scrollable: true,
-                    selectable: 'row',
-                    sortable: true
-                    // The following displays the summary title at the top of the grid
-                    // toolbar: [{ template: '<div>' + viewModel.get(VIEW_MODEL.SUMMARY.TITLE) + '</div>' }]
-                    // TODO: save state (column resizing and filters)
-                });
-            }
-        };
-
-        /**
          * Initialize score listview
          * @param view
          * @private
@@ -3142,22 +3085,13 @@ window.jQuery.holdReady(true);
                 user.addPin(pinValue);
 
                 // Synchronize
-                viewModel.users.sync()
+                viewModel.syncUsers()
                     .done(function () {
                         viewModel.set(VIEW_MODEL.USER.$, user);
                         // Trigger a change event to update user + settings view data bindings
                         viewModel.trigger(CHANGE, { field: VIEW_MODEL.USER.$ });
-                        app.notification.success(kendo.format(i18n.culture.notifications.userSaveSuccess));
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
                         mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + language);
-                    })
-                    .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.userSaveFailure);
-                        logger.error({
-                            message: 'error syncing users',
-                            method: 'mobile.onUserSaveClick',
-                            data:  { status: status, error: error, response: parseResponse(xhr) }
-                        });
                     })
                     .always(function () {
                         mobile.enableUserButtons(true);
@@ -3186,16 +3120,8 @@ window.jQuery.holdReady(true);
             if (viewModel.user.verifyPin(pinValue)) {
 
                 viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
-                viewModel.users.sync()
-                    .fail(function (xhr, status, error) {
-                        app.notification.error(i18n.culture.notifications.userSaveFailure);
-                        logger.error({
-                            message: 'error syncing users',
-                            method: 'mobile.onUserSignInClick',
-                            data:  { status: status, error: error, response: parseResponse(xhr) }
-                        });
-                    })
-                    .always(function () {
+                viewModel.syncUsers(false)
+                    .done(function () {
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
                         mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
                     });
@@ -3445,9 +3371,9 @@ window.jQuery.holdReady(true);
                         title: i18n.culture.osNotifications.title,
                         text: kendo.format(i18n.culture.osNotifications.text, app.constants.appName),
                         // @see https://github.com/katzer/cordova-plugin-local-notifications/issues/1412
-                        // trigger: { in: 7, every: 7, unit: 'day' },
-                        trigger: { in: 1, every: 1, unit: 'hour' },
-                        foreground: true
+                        // trigger: { every: 7, unit: 'day' },
+                        trigger: { every: 1, unit: 'hour' },
+                        foreground: false
                     });
                 });
             }

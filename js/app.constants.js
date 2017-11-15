@@ -24,7 +24,6 @@
         // An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
         try { localStorage = window.localStorage; } catch (ex) {}
 
-
         // These constants lock the app to certain values
         app.constants = {
             appName: 'Kidoju',
@@ -34,8 +33,15 @@
             language: '',
             // The app theme
             theme: '',
-            // The top categoryId
-            topCategoryId: ''
+            // The root categoryId
+            rootCategoryId: {
+                en: '',
+                // en: '000100010000000000000000', // General Knowledge
+                // en: '000100020000000000000000', // Reception
+                fr: ''
+                // fr: '000200010000000000000000' // Culture Générale
+                // fr: '000200030000000000000000' // Maternelle
+            }
 
             // TODO: We might also want the possibility to hide categories for museum apps
 

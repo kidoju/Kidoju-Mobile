@@ -16,7 +16,9 @@
         './window.logger',
         './kidoju.data',
         './kidoju.tools',
+        './app.constants',
         './app.logger',
+        './app.i18n',
         './app.rapi',
         './app.cache',
         './app.db',
@@ -56,6 +58,7 @@
         var DataSource = kidoju.data.DataSource;
         var assert = window.assert;
         var logger = new window.Logger('app.mobile.models');
+        var i18n = app.i18n;
         var fileSystem = new app.FileSystem();
         var md5 = md5H || window.md5;
         var pongodb = window.pongodb;
@@ -161,16 +164,16 @@
                     type: STRING,
                     editable: false
                 },
+                rootCategoryId: {
+                    type: STRING,
+                    defaultValue: DEFAULT.ROOT_CATEGORY_ID[DEFAULT.LANGUAGE]
+                }
                 /*
                 theme: {
                     type: STRING,
                     defaultValue: DEFAULT.THEME
                 }
                 */
-                topCategoryId: {
-                    type: STRING,
-                    defaultValue: DEFAULT.ROOT_CATEGORY_ID[DEFAULT.LANGUAGE]
-                }
                 // consider locale (for display of numbers, dates and currencies)
                 // consider timezone (for display of dates), born (for searches)
             },
@@ -349,7 +352,8 @@
                                 lastSync: that.defaults.lastSync,
                                 lastUse: new Date(),
                                 md5pin: that.defaults.md5pin,
-                                picture: data.picture
+                                picture: data.picture,
+                                rootCategoryId: that.defaults.rootCategoryId
                             });
                         } else {
                             that.reset();
@@ -370,7 +374,8 @@
                     lastSync: this.defaults.lastSync,
                     lastUse: this.defaults.lastUse,
                     md5pin: this.defaults.md5pin,
-                    picture: this.defaults.picture
+                    picture: this.defaults.picture,
+                    rootCategoryId: this.defaults.rootCategoryId
                 });
             }
         });
@@ -585,6 +590,260 @@
         });
 
         /**
+         * MobileActivityTransport transport
+         */
+        models.MobileActivityTransport = kendo.Class.extend({
+
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                this.setOptions(options || {});
+            },
+
+            /**
+             * Set options
+             * Note: calling setOptions on the transport requires calling read on the DataSource and possibly resetting filters, page size and sort order
+             * @param options
+             */
+            setOptions: function (options) {
+                this._language = options.language || i18n.locale();
+                this._userId = options.userId || null;
+            },
+
+            /**
+             * Validate that activity creation/update belongs here
+             * @param activity
+             * @private
+             */
+            _validate: function (activity) {
+                var errors = [];
+                var language = activity.version.language;
+                if (!RX_LANGUAGE.test(language) || language !== this._language) {
+                    errors.push('Language does not match.');
+                }
+                var userId = activity.actor.userId;
+                if (!RX_MONGODB_ID.test(userId) || userId !== this._userId) {
+                    errors.push('Cannot delegate the creation of activities.');
+                }
+                return errors;
+            },
+
+            /**
+             * Create transport
+             * @param options
+             * @returns {*}
+             * @private
+             */
+            create: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                logger.debug({
+                    message: 'Activity data creation',
+                    method: 'app.models.MobileActivityDataSource.transport.create'
+                });
+                // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
+                var activity = JSON.parse(JSON.stringify(options.data));
+                var errors = this._validate(activity); // TODO
+                if (errors.length) {
+                    return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
+                }
+                // The database will give us an id (but not a date)
+                db.activities.insert(activity)
+                    .done(function () {
+                        options.success({ total: 1, data: [activity] });
+                    })
+                    .fail(function (error) {
+                        options.error.apply(this, ErrorXHR(error));
+                    });
+            },
+
+            /**
+             * Destroy transport
+             * @param options
+             * @private
+             */
+            destroy: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                logger.debug({
+                    message: 'Activity data deletion',
+                    method: 'app.models.MobileActivityDataSource.transport.destroy'
+                });
+                var activity = options.data;
+                var id = activity.id;
+                if (RX_MONGODB_ID.test(id)) {
+                    db.activities.remove({ id: id })
+                        .done(function (result) {
+                            if (result && result.nRemoved === 1) {
+                                options.success({ total: 1, data: [activity] });
+                            } else {
+                                options.error.apply(this, ErrorXHR(new Error('Activity not found')));
+                            }
+                        })
+                        .fail(function (error) {
+                            options.error.apply(this, ErrorXHR(error));
+                        });
+                } else {
+                    // No need to hit the database, it won't be found
+                    options.error.apply(this, ErrorXHR(new Error('Activity not found')));
+                }
+            },
+
+            /**
+             * Read transport
+             * @param options
+             * @private
+             */
+            read: function (options) {
+                debugger;
+                logger.debug({
+                    message: 'Activity data read',
+                    method: 'app.models.MobileActivityDataSource.transport.read'
+                });
+                if ($.type(this._userId) === NULL) {
+                    // This lets us create a dataSource without knowing the userId, which can be set later with setOptions
+                    options.success({ total: 0, data: [] });
+                } else {
+                    db.activities.find({'version.language': this._language, 'actor.userId': this._userId}).done(function(result) {
+                        if ($.isArray(result)) {
+                            options.success({total: result.length, data: result});
+                        } else {
+                            options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
+                        }
+                    }).fail(function(error) {
+                        options.error.apply(this, ErrorXHR(error));
+                    });
+                }
+            },
+
+            /**
+             * Update transpoort
+             * @param options
+             * @returns {*}
+             * @private
+             */
+            update: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                logger.debug({
+                    message: 'Activity data update',
+                    method: 'app.models.MobileActivityDataSource.transport.update'
+                });
+
+                // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
+                var activity = JSON.parse(JSON.stringify(options.data));
+                var errors = this._validate(activity);
+                if (errors.length) {
+                    return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
+                }
+                var id = activity.id;
+                if (RX_MONGODB_ID.test(id)) {
+                    activity.id = undefined;
+                    // TODO: check userId?
+                    db.activities.update({ id: id }, activity)
+                        .done(function (result) {
+                            if (result && result.nMatched === 1 && result.nModified === 1) {
+                                activity.id = id;
+                                options.success({ total: 1, data: [activity] });
+                                // TODO serverSync if connected
+                            } else {
+                                options.error.apply(this, ErrorXHR(new Error('Activity not found')));
+                            }
+                        })
+                        .fail(function (error) {
+                            options.error.apply(this, ErrorXHR(error));
+                        });
+                } else {
+                    // No need to hit the database, it won't be found
+                    options.error.apply(this, ErrorXHR(new Error('Activity not found')));
+                }
+            },
+
+            /**
+             * Sync
+             * @param options
+             */
+            sync: function (options) {
+                debugger;
+                var that = this;
+                /*
+                return $.when(
+                    that._uploadPendingActivities(),
+                    that._purgeOldActivities(),
+                    that._downloadRecentActivities()
+                );
+                */
+                var dfd = $.Deferred();
+                // First, upload all new activities
+                that._uploadPendingActivities()
+                .progress(function (progress) {
+                    dfd.notify($.extend({ step: 1 }, progress));
+                })
+                .done(function () {
+                    // Second, purge old activities (including possibly some just uploaded new activities if last serverSync is very old)
+                    that._purgeOldActivities()
+                    .progress(function (progress) {
+                        dfd.notify($.extend({ step: 2 }, progress));
+                    })
+                    .done(function () {
+                        // Third, download recently added and updated activities (considering activities are always created, never updated, on the mobile device.
+                        that._downloadRecentActivities()
+                        .progress(function (progress) {
+                            dfd.notify($.extend({ step: 3 }, progress));
+                        })
+                        .done(function () {
+                            dfd.resolve(); // Add statistics { nUploaded, nPurged, nDownloaded }
+                        })
+                        .fail(dfd.reject);
+                    })
+                    .fail(dfd.reject);
+                })
+                .fail(dfd.reject);
+                return dfd.promise();
+            },
+
+            /**
+             * Upload new activities and update sid
+             * @returns {*}
+             * @private
+             */
+            _uploadPendingActivities: function () {
+                var dfd = $.Deferred();
+                // TODO $.when.apply($, my_array);
+                dfd.notify({ percent: 1 });
+                // IMPORTANT update sid once done
+                dfd.resolve();
+                return dfd.promise();
+            },
+
+            /**
+             * Purge old activities
+             * @returns {*}
+             * @private
+             */
+            _purgeOldActivities: function () {
+                var dfd = $.Deferred();
+                return dfd.resolve().promise();
+            },
+
+            /**
+             * Download recently updated activities
+             * @returns {*}
+             * @private
+             */
+            _downloadRecentActivities: function () {
+                var dfd = $.Deferred();
+                // IMPORTANT doanload from oldest to most recent and update lastSync accordingly
+                // Nevertheless check whether activity does not already exist using sid
+                return dfd.resolve().promise();
+            }
+
+        });
+
+        /**
          * MobileVersion model
          * @type {kidoju.data.Model}
          */
@@ -749,7 +1008,7 @@
         });
 
         /**
-         * MobileActivityDataSource datasource (stored localy and sycnhronized)
+         * MobileActivityDataSource datasource (stored locally and synchronized)
          * @type {kidoju.data.DataSource}
          */
         models.MobileActivityDataSource = DataSource.extend({
@@ -759,33 +1018,16 @@
              * @param options
              */
             init: function (options) {
-
-                var that = this;
-
-                // Get the language and userId from options (if available at this stage)
-                var language = options && options.language;
-                var userId = options && options.userId;
-
-                // Let's make them optional as we might want to load
-                if (RX_LANGUAGE.test(language)) {
-                    that._language = language;
-                }
-                if (RX_MONGODB_ID.test(userId)) {
-                    assert.ok(!new pongodb.ObjectId(userId).isMobileId(), '`options.userId` is expected to be a sid');
-                    that._userId = userId;
-                }
-
-                DataSource.fn.init.call(that, $.extend(true, {}, {
-                    transport: {
-                        create: $.proxy(that._transport._create, that),
-                        destroy: $.proxy(that._transport._destroy, that),
-                        read: $.proxy(that._transport._read, that),
-                        update: $.proxy(that._transport._update, that)
-                    },
-                    // serverFiltering: true,
-                    // serverSorting: true,
-                    // pageSize: 5,
-                    // serverPaging: true,
+                DataSource.fn.init.call(this, $.extend(true, {}, options, {
+                    transport: new MobileActivityTransport({
+                        language: options && options.language,
+                        userId: options && options.userId
+                    }),
+                    serverAggregates: false,
+                    serverFiltering: false,
+                    serverGrouping: false,
+                    serverSorting: false,
+                    serverPaging: false,
                     group: {
                         dir: 'desc',
                         field: 'period$()'
@@ -806,274 +1048,17 @@
                             // debugger;
                             return response;
                         }
-                         */
+                        */
                     }
                 }, options));
 
             },
 
             /**
-             * Load possibly with a new userId
-             * @param userId
-             */
-            load: function (options) {
-                var that = this;
-                var dfd = $.Deferred();
-                if (that.hasChanges()) {
-                    dfd.reject(undefined, 'error', 'Cannot load with pending changes.');
-                } else {
-                    var language = options && options.language;
-                    var userId = options && options.userId;
-                    assert.ok(!new pongodb.ObjectId(userId).isMobileId(), '`options.userId` is expected to be a sid'); // A sid is a server id
-                    that._language = language;
-                    that._userId = userId;
-                    that.read() // Calls _transport._read
-                        .done(function (a) {
-                            debugger;
-                            dfd.resolve(a);
-                        })
-                        .fail(dfd.reject);
-                }
-                return dfd.promise();
-            },
-
-            /**
-             * Validate activity
-             * @param activity
-             * @private
-             */
-            _validate: function (activity) {
-                var errors = [];
-                var actorId = activity.actor.userId;
-                if (!RX_MONGODB_ID.test(actorId) || actorId !== this._userId) {
-                    errors.push('Cannot delegate the creation of activities.');
-                }
-                return errors;
-            },
-
-            /**
-             * Setting _transport here with a reference above is a trick
-             * so as to be able to replace these CRUD function in mockup scenarios
-             */
-            _transport: {
-
-                /**
-                 * Create transport
-                 * @param options
-                 * @returns {*}
-                 * @private
-                 */
-                _create: function (options) {
-                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                    logger.debug({
-                        message: 'Activity data creation',
-                        method: 'app.models.MobileActivityDataSource.transport.create'
-                    });
-                    // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
-                    var activity = JSON.parse(JSON.stringify(options.data));
-                    var errors = this._validate(activity);
-                    if (errors.length) {
-                        return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
-                    }
-                    // The database will give us an id (but not a date)
-                    db.activities.insert(activity)
-                        .done(function () {
-                            options.success({ total: 1, data: [activity] });
-                        })
-                        .fail(function (error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
-                },
-
-                /**
-                 * Destroy transport
-                 * @param options
-                 * @private
-                 */
-                _destroy: function (options) {
-                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                    logger.debug({
-                        message: 'Activity data deletion',
-                        method: 'app.models.MobileActivityDataSource.transport.destroy'
-                    });
-                    var activity = options.data;
-                    var id = activity.id;
-                    if (RX_MONGODB_ID.test(id)) {
-                        db.activities.remove({ id: id })
-                            .done(function (result) {
-                                if (result && result.nRemoved === 1) {
-                                    options.success({ total: 1, data: [activity] });
-                                } else {
-                                    options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                                }
-                            })
-                            .fail(function (error) {
-                                options.error.apply(this, ErrorXHR(error));
-                            });
-                    } else {
-                        // No need to hit the database, it won't be found
-                        options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                    }
-                },
-
-                /**
-                 * Read transport
-                 * @param options
-                 * @private
-                 */
-                _read: function (options) {
-                    logger.debug({
-                        message: 'Activity data read',
-                        method: 'app.models.MobileActivityDataSource.transport.read'
-                    });
-                    // TODO: use options to build query
-                    var query = {};
-                    if ($.type(this._language) !== UNDEFINED) {
-                        query['version.language'] = this._language;
-                    }
-                    if ($.type(this._userId) !== UNDEFINED) {
-                        query['actor.userId'] = this._userId;
-                    }
-                    db.activities.find(query)
-                        .done(function (result) {
-                            if ($.isArray(result)) {
-                                options.success({ total: result.length, data: result });
-                            } else {
-                                options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
-                            }
-                        })
-                        .fail(function (error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
-                },
-
-                /**
-                 * Update transpoort
-                 * @param options
-                 * @returns {*}
-                 * @private
-                 */
-                _update: function (options) {
-                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                    logger.debug({
-                        message: 'Activity data update',
-                        method: 'app.models.MobileActivityDataSource.transport.update'
-                    });
-
-                    // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
-                    var activity = JSON.parse(JSON.stringify(options.data));
-                    var errors = this._validate(activity);
-                    if (errors.length) {
-                        return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
-                    }
-                    var id = activity.id;
-                    if (RX_MONGODB_ID.test(id)) {
-                        activity.id = undefined;
-                        // TODO: check userId?
-                        db.activities.update({ id: id }, activity)
-                            .done(function (result) {
-                                if (result && result.nMatched === 1 && result.nModified === 1) {
-                                    activity.id = id;
-                                    options.success({ total: 1, data: [activity] });
-                                    // TODO serverSync if connected
-                                } else {
-                                    options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                                }
-                            })
-                            .fail(function (error) {
-                                options.error.apply(this, ErrorXHR(error));
-                            });
-                    } else {
-                        // No need to hit the database, it won't be found
-                        options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                    }
-                }
-            },
-
-            /**
              * Synchronizes user activities with the server
              */
-            serverSync: function () {
-                var that = this;
-                /*
-                return $.when(
-                    that._uploadPendingActivities(),
-                    that._purgeOldActivities(),
-                    that._downloadRecentActivities()
-                );
-                */
-                var dfd = $.Deferred();
-                // First, upload all new activities
-                that._uploadPendingActivities()
-                    .progress(function (progress) {
-                        dfd.notify($.extend({ step: 1 }, progress));
-                    })
-                    .done(function () {
-                        // Second, purge old activities (including possibly some just uploaded new activities if last serverSync is very old)
-                        that._purgeOldActivities()
-                            .progress(function (progress) {
-                                dfd.notify($.extend({ step: 2 }, progress));
-                            })
-                            .done(function () {
-                                // Third, download recently added and updated activities (considering activities are always created, never updated, on the mobile device.
-                                that._downloadRecentActivities()
-                                    .progress(function (progress) {
-                                        dfd.notify($.extend({ step: 3 }, progress));
-                                    })
-                                    .done(function () {
-                                        dfd.resolve(); // Add statistics { nUploaded, nPurged, nDownloaded }
-                                    })
-                                    .fail(dfd.reject);
-                            })
-                            .fail(dfd.reject);
-                    })
-                    .fail(dfd.reject);
-                return dfd.promise();
-            },
-
-            /**
-             * Upload new activities and update sid
-             * @returns {*}
-             * @private
-             */
-            _uploadPendingActivities: function () {
-                var dfd = $.Deferred();
-                // TODO $.when.apply($, my_array);
-                dfd.notify({ percent: 1 });
-                // IMPORTANT update sid once done
-                dfd.resolve();
-                return dfd.promise();
-            },
-
-            /**
-             * Purge old activities
-             * @returns {*}
-             * @private
-             */
-            _purgeOldActivities: function () {
-                var dfd = $.Deferred();
-                // TODO $.when.apply($, my_array);
-                dfd.notify({ percent: 1 });
-                dfd.resolve();
-                return dfd.promise();
-            },
-
-            /**
-             * Download recently updated activities
-             * @returns {*}
-             * @private
-             */
-            _downloadRecentActivities: function () {
-                var dfd = $.Deferred();
-                // TODO $.when.apply($, my_array);
-                // IMPORTANT doanload from oldest to most recent and update lastSync accordingly
-                // Nevertheless check whether activity does not already exist using sid
-                dfd.notify({ percent: 1 });
-                dfd.resolve();
-                return dfd.promise();
+            remoteSync: function () {
+                return this.transport.sync();
             }
 
         });

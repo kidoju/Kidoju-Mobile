@@ -260,8 +260,8 @@
     <!-- Categories view -->
     <div id="categories" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onCategoriesViewShow">
         <!-- dropdown of top categories -->
-        <div class="km-content km-filter-form">
-            <input data-role="dropdownlist" data-bind="value: user.topCategoryId, source: topCategories$()" data-value-field="id" data-text-field="name" style="width:100%">
+        <div class="km-content km-filter-form" data-bind="invisible: hasConstantRootCategoryId$">
+            <input data-role="dropdownlist" data-bind="value: user.rootCategoryId, source: topCategories$()" data-value-field="id" data-text-field="name" style="width:100%">
         </div>
         <!-- listview of sub-categories -->
         <ul data-role="listview" data-bind="source: categories" data-template="categories-template" data-filterable="false"></ul>
@@ -309,7 +309,7 @@
 
     <!-- Finder view -->
     <div id="finder" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
-        <ul data-role="listview" data-bind="source: summaries" data-load-more="true" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-template="finder-template"></ul>
+        <ul data-role="listview" data-bind="source: summaries" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-load-more="true" data-template="finder-template"></ul>
         <script type="text/x-kendo-template" id="finder-template">
             <a href="\#summary?language=#: language #&summaryId=#: id #">
                 <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
@@ -435,8 +435,8 @@
                 <li>
                     <label>
                         <span class="km-bold-font">Category</span>
-                        <div data-bind="text: user.topCategoryId, visible: hasConstantTopCategoryId$" class="right"></div>
-                        <input data-role="dropdownlist" data-bind="value: user.topCategoryId, source: topCategories$(), disabled: hasConstantTopCategoryId$, invisible: hasConstantTopCategoryId$" data-value-field="id" data-text-field="name">
+                        <div data-bind="text: rootCategoryId$, visible: hasConstantRootCategoryId$" class="right"></div>
+                        <input data-role="dropdownlist" data-bind="value: user.rootCategoryId, source: topCategories$(), disabled: hasConstantRootCategoryId$, invisible: hasConstantRootCategoryId$" data-value-field="id" data-text-field="name">
                     </label>
                 </li>
             </ul>
