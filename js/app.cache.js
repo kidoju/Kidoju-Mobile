@@ -269,6 +269,9 @@
             cache._removeSessionItem('^' + FAVOURITES);
         };
 
+        /* This function's cyclomatic complexity is too high. */
+        /* jshint -W074 */
+
         /**
          * Process categories to add path of parents
          * @param categories
@@ -300,6 +303,8 @@
             }
             return categories;
         };
+
+        /* jshint +W074 */
 
         /**
          * Get a list of categories
