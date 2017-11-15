@@ -44,7 +44,7 @@
     (function ($, undefined) {
 
         var assert = window.assert;
-        var logger = new window.Logger('app.db'); // TODO : use ir
+        var logger = new window.Logger('app.db');
         var OBJECT = 'object';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
