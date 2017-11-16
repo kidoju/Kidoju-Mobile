@@ -1438,7 +1438,7 @@ window.jQuery.holdReady(true);
                 case VIEW_MODEL.THEME:
                     // Do not trigger before the kendo mobile application is loaded
                     if (mobile.application instanceof kendo.mobile.Application) {
-                        var theme = e.sender.get(VIEW_MODEL.THEME).value;
+                        var theme = e.sender.get(VIEW_MODEL.THEME);
                         // app.theme.load stores the theme in localStorage
                         app.theme.load(theme).done(function() {
                             mobile.application.skin(theme);
@@ -1933,7 +1933,7 @@ window.jQuery.holdReady(true);
                 method: 'mobile.oni18nLoaded'
             });
             // Schedule OS notifications
-            mobile._scheduleNotifications();
+            mobile._scheduleSystemNotifications();
             // Initialize toast notifications
             mobile._initNotification();
             // Initialize battery events
@@ -3358,7 +3358,7 @@ window.jQuery.holdReady(true);
          * Uses https://github.com/katzer/cordova-plugin-local-notifications
          * @private
          */
-        mobile._scheduleNotifications = function () {
+        mobile._scheduleSystemNotifications = function () {
             var local = window.cordova && window.cordova.plugins && cordova.plugins.notification && cordova.plugins.notification.local;
             if (local && $.isFunction(local.cancelAll) && $.isFunction(local.schedule)) {
                 // Cancel all notifications before creating new ones
@@ -3369,8 +3369,8 @@ window.jQuery.holdReady(true);
                         text: kendo.format(i18n.culture.osNotifications.text, app.constants.appName),
                         // @see https://github.com/katzer/cordova-plugin-local-notifications/issues/1412
                         // trigger: { every: 7, unit: 'day' },
-                        trigger: { every: 1, unit: 'hour' },
-                        foreground: false
+                        trigger: { every: 1, unit: 'hour' }
+                        // foreground: true
                     });
                 });
             }
