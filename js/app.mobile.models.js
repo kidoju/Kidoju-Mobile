@@ -86,12 +86,12 @@
         var DOT_JPEG = '.jpg';
         var DEFAULT = {
             ROOT_CATEGORY_ID: {
-                en: '000100010000000000000000',
-                fr: '000100020000000000000000'
+                en: app.constants.rootCategoryId.en || '000100010000000000000000',
+                fr: app.constants.rootCategoryId.fr || '000100020000000000000000'
             },
-            DATE: new Date(2000, 0, 1), // 1/1/2000
-            LANGUAGE: 'en',
-            THEME: 'flat' // The default theme is actually defined in app.theme.js - make sure they match!
+            DATE: new Date(2000, 0, 1) // 1/1/2000
+            // LANGUAGE: 'en',
+            // THEME: 'flat' // The default theme is actually defined in app.theme.js - make sure they match!
         };
 
         /**
@@ -167,7 +167,9 @@
                 },
                 rootCategoryId: {
                     type: STRING,
-                    defaultValue: DEFAULT.ROOT_CATEGORY_ID[DEFAULT.LANGUAGE]
+                    defaultValue: function () {
+                        return DEFAULT.ROOT_CATEGORY_ID[i18n.locale()];
+                    }
                 }
                 /*
                 theme: {
@@ -354,7 +356,7 @@
                                 lastUse: new Date(),
                                 md5pin: that.defaults.md5pin,
                                 picture: data.picture,
-                                rootCategoryId: that.defaults.rootCategoryId
+                                rootCategoryId: that.defaults.rootCategoryId()
                             });
                         } else {
                             that.reset();
@@ -376,7 +378,7 @@
                     lastUse: this.defaults.lastUse,
                     md5pin: this.defaults.md5pin,
                     picture: this.defaults.picture,
-                    rootCategoryId: this.defaults.rootCategoryId
+                    rootCategoryId: this.defaults.rootCategoryId()
                 });
             }
         });

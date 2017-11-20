@@ -241,8 +241,8 @@ window.jQuery.holdReady(true);
         var RX_URL_SCHEME = new RegExp('^' + URL_SCHEME + '([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
         var DEFAULT = {
             ROOT_CATEGORY_ID: {
-                en: '000100010000000000000000',
-                fr: '000200010000000000000000'
+                en: app.constants.rootCategoryId.en || '000100010000000000000000',
+                fr: app.constants.rootCategoryId.fr || '000100020000000000000000'
             }
         };
 
@@ -874,7 +874,7 @@ window.jQuery.holdReady(true);
             reset: function () {
                 var language = i18n.locale();
                 var userId = this.get(VIEW_MODEL.USER.SID);
-                var categoryId = this.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID) || DEFAULT.ROOT_CATEGORY_ID[language];
+                var rootCategoryId = this.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID) || DEFAULT.ROOT_CATEGORY_ID[language];
 
                 // List of activities
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
@@ -887,7 +887,7 @@ window.jQuery.holdReady(true);
 
                 // List of categories
                 this.set(VIEW_MODEL.CATEGORIES, new models.LazyCategoryDataSource());
-                this.get(VIEW_MODEL.CATEGORIES).filter({ field: 'id', operator: 'startsWith', value: categoryId.substr(0, TOP_LEVEL_CHARS) });
+                this.get(VIEW_MODEL.CATEGORIES).filter({ field: 'id', operator: 'startsWith', value: rootCategoryId.substr(0, TOP_LEVEL_CHARS) });
                 // this.get(VIEW_MODEL.CATEGORIES).filter({ field: 'id', operator: 'startsWith', value: viewModel.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID).substr(0, TOP_LEVEL_CHARS) });
 
                 // Current score/test
@@ -3361,6 +3361,8 @@ window.jQuery.holdReady(true);
         mobile._scheduleSystemNotifications = function () {
             var local = window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.local;
             if (local && $.isFunction(local.cancelAll) && $.isFunction(local.schedule)) {
+                var firstAt = new Date();
+                firstAt.setHours(firstAt.getHours() + 1);
                 // Cancel all notifications before creating new ones
                 local.cancelAll(function() {
                     // Setup a reminder to use the application every week
@@ -3369,7 +3371,7 @@ window.jQuery.holdReady(true);
                         text: kendo.format(i18n.culture.osNotifications.text, app.constants.appName),
                         // @see https://github.com/katzer/cordova-plugin-local-notifications/issues/1412
                         // trigger: { every: 7, unit: 'day' },
-                        trigger: { every: 1, unit: 'hour' }
+                        trigger: { every: 1, unit: 'hour', firstAt: firstAt }
                         // foreground: true
                     });
                 });

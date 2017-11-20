@@ -30,21 +30,19 @@
             // The authorId to search summaries from (until we support organizationId)
             authorId: '',
             // The app language
-            language: '',
-            // The app theme
-            theme: '',
+            language: 'fr',
             // The root categoryId
             rootCategoryId: {
-                en: '',
+                // en: '',
                 // en: '000100010000000000000000', // General Knowledge
-                // en: '000100020000000000000000', // Reception
-                fr: ''
+                en: '000100020000000000000000', // Reception
+                // fr: ''
                 // fr: '000200010000000000000000' // Culture Générale
-                // fr: '000200030000000000000000' // Maternelle
-            }
-
+                fr: '000200030000000000000000' // Maternelle
+            },
+            // The app theme
+            theme: 'flat'
             // TODO: We might also want the possibility to hide categories for museum apps
-
         };
 
         // Set locale
