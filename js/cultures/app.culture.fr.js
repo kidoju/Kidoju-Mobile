@@ -81,11 +81,7 @@
                 confirm: 'Confirmation',
                 error: 'Erreur',
                 info: 'Information',
-                success: 'Succès',
-                warning: 'Attention',
-                submitQuestion: {
-                    message: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?'
-                }
+                success: 'Succès'
             },
             // Drawer
             drawer: {
@@ -117,7 +113,7 @@
                 clickSubmitInfo: 'Pressez <i class="kf kf-submit"></i> pour calculer votre score.',
                 confirmSubmit: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
                 networkOffline: 'Vous n\'êtes pas connecté à Internet.',
-                networkOnline: 'Vous connexion Internet est restaurée.',
+                networkOnline: 'Votre connexion Internet est restaurée.',
                 oAuthTokenFailure: 'Le service d\'authentification a retourné une erreur.',
                 openUrlUnknown: 'Il y a eu une erreur d\'ouverture d\'une url inconnue.',
                 openUrlLanguage: 'Veuillez changer de langue pour ouvrir cette url.',
@@ -236,8 +232,8 @@
             // viewModel
             viewModel: {
                 languages: [
-                    { value: 'en', text: 'English' },
-                    { value: 'fr', text: 'French' }
+                    { value: 'en', text: 'Anglais' },
+                    { value: 'fr', text: 'Français' }
                 ],
                 themes: [
                     { value: 'android-dark', text: 'Android Dark'  },
