@@ -71,7 +71,7 @@ console.log('building version ' + pkg.version);
 module.exports = {
     // All paths below are relative to the context
     context: path.join(__dirname, '/'),
-    devtool: 'source-map',
+    devtool: 'sourcemap',
     entry: {
         app: './js/app.mobile.js' // ,
         // Worker library
@@ -116,12 +116,9 @@ module.exports = {
             {
                 test: /app\.theme\.[a-z0-9\-]+\.less$/,
                 use: [
-                    // { loader: 'bundle-loader', options: { name: '[name]' } },
-                    { loader: 'bundle-loader?name=[name]' },
-                    // { loader: "style-loader", options: { useable: true } },
+                    { loader: 'bundle-loader', options: { name: '[name]', lazy: true } },
                     { loader: 'style-loader/useable' },
-                    // { loader: 'css-loader', options: { importLoaders: 2 } },
-                    { loader: 'css-loader?importLoaders=2' },
+                    { loader: 'css-loader', options: { importLoaders: 2 } },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
                     { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
@@ -132,8 +129,7 @@ module.exports = {
                 exclude: /app\.theme\.[a-z0-9\-]+\.less$/,
                 use: [
                     { loader: 'style-loader' },
-                    // { loader: 'css-loader', options: { importLoaders: 1 } },
-                    { loader: 'css-loader?importLoaders=1' },
+                    { loader: 'css-loader', options: { importLoaders: 1 } },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
                     { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
@@ -143,22 +139,19 @@ module.exports = {
                 test: /\.css$/,
                 use: [
                     { loader: 'style-loader' },
-                    // { loader: 'css-loader', options: { importLoaders: 1 } },
-                    { loader: 'css-loader?importLoaders=1' },
+                    { loader: 'css-loader', options: { importLoaders: 1 } },
                     { loader: 'postcss-loader' }
                 ]
             },
             {
                 test: /\.(gif|png|jpe?g)$/,
                 use: [
-                    // { loader: 'url-loader?limit=8192' }
                     { loader: 'url-loader', options: { limit: 8192 } }
                 ]
             },
             {
                 test: /\.woff(2)?/,
                 use: [
-                    // { loader: 'url-loader?limit=10000&mimetype=application/font-woff' }
                     { loader: 'url-loader', options: { limit: 10000, mimetype: 'application/font-woff' } }
                 ]
             },
