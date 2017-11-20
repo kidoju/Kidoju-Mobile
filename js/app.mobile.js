@@ -3359,7 +3359,7 @@ window.jQuery.holdReady(true);
          * @private
          */
         mobile._scheduleSystemNotifications = function () {
-            var local = window.cordova && window.cordova.plugins && cordova.plugins.notification && cordova.plugins.notification.local;
+            var local = window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.local;
             if (local && $.isFunction(local.cancelAll) && $.isFunction(local.schedule)) {
                 // Cancel all notifications before creating new ones
                 local.cancelAll(function() {

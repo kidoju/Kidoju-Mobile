@@ -1091,7 +1091,7 @@
                 var dfd = $.Deferred();
                 app.rapi.test.ping()
                     .done(function (result) {
-                        dfd.resolve()
+                        dfd.resolve();
                     })
                     .fail(dfd.reject);
                 return dfd.promise();
