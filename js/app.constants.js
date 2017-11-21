@@ -34,17 +34,17 @@
             // TODO: logo to display in drawer...
             // The root categoryId
             rootCategoryId: {
-                // en: '',
+                en: '',
                 // en: '000100010000000000000000', // General Knowledge
                 // en: '000100020000000000000000', // Reception
-                en: '000100030000000000000000', // Year 1
-                // fr: ''
+                // en: '000100030000000000000000', // Year 1
+                fr: ''
                 // fr: '000200010000000000000000' // Culture Générale
                 // fr: '000200030000000000000000' // Maternelle
-                fr: '000200040000000000000000' // CP
+                // fr: '000200040000000000000000' // CP
             },
             // The app theme
-            theme: 'flat'
+            theme: '' // 'flat'
             // TODO: We might also want the possibility to hide categories for museum apps
         };
 
