@@ -206,15 +206,14 @@
             if (tts._useCordovaPlugIn()) {
                 // For iOS and Android via TTS plugin
                 // Note: iOS UIWebView supports speechSynthesis but not Chrome 61 on Android 5.1.1 (Nexus 7)
-                // window.alert('Cordova TTS Plugin');
+                window.alert('Cordova TTS Plugin');
                 window.TTS.speak(
                     {
                         text: text,
                         locale: language === 'fr' ? 'fr-FR' : 'en-US',
                         // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
                         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
-                        // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1
-                        rate: 1
+                        rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1
                     },
                     dfd.resolve,
                     dfd.reject
@@ -225,7 +224,7 @@
                 });
             } else if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
-                // window.alert('W3C Speech API');
+                window.alert('W3C Speech API');
                 var chunks = tts._chunk(text, CHUNK_SIZE);
                 var promises = [];
                 $.each(chunks, function (index, chunk) {
