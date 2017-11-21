@@ -242,7 +242,7 @@ window.jQuery.holdReady(true);
         var DEFAULT = {
             ROOT_CATEGORY_ID: {
                 en: app.constants.rootCategoryId.en || '000100010000000000000000',
-                fr: app.constants.rootCategoryId.fr || '000100020000000000000000'
+                fr: app.constants.rootCategoryId.fr || '000200010000000000000000'
             }
         };
 
@@ -1420,18 +1420,18 @@ window.jQuery.holdReady(true);
                     viewModel.reset();
                     break;
                 case VIEW_MODEL.USER.ROOT_CATEGORY_ID:
-                    viewModel.syncUsers()
-                        .done(function () {
-                            viewModel.reset();
-                        });
+                    viewModel.syncUsers(); // This triggers `case VIEW_MODEL.USER.$:`
+                        // .done(function () {
+                        //     viewModel.reset();
+                        // });
                     break;
                 case VIEW_MODEL.LANGUAGE:
                     // Do not trigger before the kendo mobile application is loaded
                     if (mobile.application instanceof kendo.mobile.Application && $.isPlainObject(i18n.culture)) {
                         var language = e.sender.get(VIEW_MODEL.LANGUAGE);
-                        // Changing the language resets the root category
-                        viewModel.set(VIEW_MODEL.USER.ROOT_CATEGORY_ID, DEFAULT.ROOT_CATEGORY_ID[language]);
-                        viewModel.reset();
+                        // Reset the root category
+                        viewModel.set(VIEW_MODEL.USER.ROOT_CATEGORY_ID, DEFAULT.ROOT_CATEGORY_ID[language]); // This triggers `case VIEW_MODEL.USER.ROOT_CATEGORY_ID`
+                        // viewModel.reset();
                         mobile.localize(language);
                     }
                     break;

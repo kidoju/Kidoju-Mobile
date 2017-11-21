@@ -87,7 +87,7 @@
         var DEFAULT = {
             ROOT_CATEGORY_ID: {
                 en: app.constants.rootCategoryId.en || '000100010000000000000000',
-                fr: app.constants.rootCategoryId.fr || '000100020000000000000000'
+                fr: app.constants.rootCategoryId.fr || '000200010000000000000000'
             },
             DATE: new Date(2000, 0, 1) // 1/1/2000
             // LANGUAGE: 'en',
