@@ -31,6 +31,7 @@
             authorId: '56d6ee31bc039c1a00062950',
             // The app language
             language: '', // 'fr',
+            // TODO: logo to display in drawer...
             // The root categoryId
             rootCategoryId: {
                 // en: '',

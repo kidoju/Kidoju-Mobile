@@ -965,8 +965,8 @@ window.jQuery.holdReady(true);
                             dfd.reject(xhr, status, error);
                             app.notification.error(i18n.culture.notifications.activitiesQueryFailure);
                             logger.error({
-                                message: 'error loading summaries',
-                                method: 'viewModel.loadLazySummaries',
+                                message: 'error loading activities',
+                                method: 'viewModel.loadActivities',
                                 data: { status: status, error: error, response: parseResponse(xhr) }
                             });
                         });
