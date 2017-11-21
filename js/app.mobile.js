@@ -3373,8 +3373,12 @@ window.jQuery.holdReady(true);
                         title: i18n.culture.osNotifications.title,
                         text: kendo.format(i18n.culture.osNotifications.text, app.constants.appName),
                         // @see https://github.com/katzer/cordova-plugin-local-notifications/issues/1412
+                        // With version 0.8.5 - https://github.com/katzer/cordova-plugin-local-notifications/blob/64a6e557fd10dcd66a13b22b6aa0ed50163bcd91/README.md
+                        every: 'hour', // 'week'
+                        firstAt: firstAt
+                        // With version 0.9 - https://github.com/katzer/cordova-plugin-local-notifications
                         // trigger: { every: 7, unit: 'day' },
-                        trigger: { every: 1, unit: 'hour', firstAt: firstAt }
+                        // trigger: { every: 1, unit: 'hour', firstAt: firstAt }
                         // foreground: true
                     });
                 });
