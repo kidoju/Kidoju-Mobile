@@ -15,6 +15,8 @@
 
         /* ListView messages */
         if (ui.ListView) {
+            // Beware: this makes all mobile list views filterable by default
+            // So non-filterable list views need to have filterable explicitly set to false
             ui.ListView.prototype.options.filterable =
                 $.extend(true, ui.ListView.prototype.options.filterable,{
                     placeholder: 'Search...'
