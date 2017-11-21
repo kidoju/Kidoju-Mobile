@@ -624,7 +624,7 @@
              * @returns {*}
              */
             icon$: function () {
-                return kendo.format(uris.cdn.icons, this.get('icon'));
+                return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
             }
         });
 
@@ -1762,7 +1762,7 @@
                 return kendo.format(uris.webapp.user, this.get('language'), this.get('userId'));
             },
             icon$: function () {
-                return kendo.format(uris.cdn.icons, this.get('icon'));
+                return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
             },
             summaryUri$: function () {
                 return kendo.format(uris.webapp.summary, this.get('language'), this.get('id'));
@@ -2005,7 +2005,7 @@
                 }
             },
             icon$: function () {
-                return kendo.format(uris.cdn.icons, this.get('icon'));
+                return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
             },
             summaryUri$: function () {
                 return kendo.format(uris.webapp.summary, this.get('language'), this.get('id'));
