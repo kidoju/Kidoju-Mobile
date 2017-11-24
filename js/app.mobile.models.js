@@ -54,6 +54,7 @@
         var models = app.models = app.models || {};
         var kendo = window.kendo;
         var kidoju = window.kidoju;
+        var Class = kendo.Class;
         var Model = kidoju.data.Model;
         var DataSource = kidoju.data.DataSource;
         var assert = window.assert;
@@ -65,7 +66,8 @@
         var db = app.db = new pongodb.Database({
             name: 'KidojuDB',
             size: 5 * 1024 * 1024,
-            collections: ['_meta', 'activities', 'users']
+            collections: ['activities', 'users'],
+            version: '0.3.4' // TODO
         });
         // var i18n = app.i18n = app.i18n || { };
         // This is for testing only because we should get values from config files (see ./js/app.config.jsx)
@@ -384,6 +386,174 @@
         });
 
         /**
+         * MobileUserTransport transport
+         */
+        models.MobileUserTransport = Class.extend({
+
+            /**
+             * Validate user before saving
+             * @param user
+             */
+            _validate: function (user) {
+                var errors = [];
+                if ($.type(user.md5pin) !== STRING) {
+                    errors.push('Missing user pin');
+                }
+                return errors;
+            },
+
+            /**
+             * Create transport
+             * @param options
+             * @returns {*}
+             * @private
+             */
+            create: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                logger.debug({
+                    message: 'User data creation',
+                    method: 'app.models.MobileUserDataSource.transport.create'
+                });
+                // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
+                var user = JSON.parse(JSON.stringify(options.data));
+                var errors = this._validate(user);
+                if (errors.length) {
+                    return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
+                }
+                // This replaces the machine id in the mongoDB server id by MACHINE_ID
+                // This ensures uniqueness of user in mobile app when sid is unique without further checks
+                // i.e. same user with the same sid recorded twice under different ids in mobile device
+                user.id = new pongodb.ObjectId(user.sid).toMobileId();
+                // Start with saving the picture to avoid a broken image in UI if user is saved without
+                models.MobileUser.fn._saveMobilePicture.call(user)
+                .done(function () {
+                    db.users.insert(user)
+                    .done(function () {
+                        options.success({ total: 1, data: [user] });
+                    })
+                    .fail(function (error) {
+                        options.error.apply(this, ErrorXHR(error));
+                    });
+                })
+                .fail(function (error) {
+                    options.error.apply(this, ErrorXHR(error));
+                });
+            },
+
+            /**
+             * Destroy transport
+             * @param options
+             * @private
+             */
+            destroy: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                logger.debug({
+                    message: 'User data deletion',
+                    method: 'app.models.MobileUserDataSource.transport.destroy'
+                });
+                var user = options.data;
+                var id = user.id;
+                if (RX_MONGODB_ID.test(id)) {
+                    db.users.remove({ id: id })
+                    .done(function (result) {
+                        if (result && result.nRemoved === 1) {
+                            options.success({ total: 1, data: [user] });
+                        } else {
+                            options.error.apply(this, ErrorXHR(new Error('User not found')));
+                        }
+                    })
+                    .fail(function (error) {
+                        options.error.apply(this, ErrorXHR(error));
+                    });
+                } else {
+                    // No need to hit the database, it won't be found
+                    options.error.apply(this, ErrorXHR(new Error('User not found')));
+                }
+            },
+
+            /**
+             * Read transport
+             * @param options
+             * @private
+             */
+            read: function (options) {
+                logger.debug({
+                    message: 'User data read',
+                    method: 'app.models.MobileUserDataSource.transport.read'
+                });
+                // Initialize the file system for mobilePicture$
+                fileSystem.init()
+                .done(function () {
+                    // Query the database of all users
+                    db.users.find()
+                    .done(function (result) {
+                        if ($.isArray(result)) {
+                            options.success({ total: result.length, data: result });
+                        } else {
+                            options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
+                        }
+                    })
+                    .fail(function (error) {
+                        options.error.apply(this, ErrorXHR(error));
+                    });
+                })
+                .fail(function (error) {
+                    options.error.apply(this, ErrorXHR(error));
+                });
+            },
+
+            /**
+             * Update transport
+             * @param options
+             * @returns {*}
+             * @private
+             */
+            update: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                logger.debug({
+                    message: 'User data update',
+                    method: 'app.models.MobileUserDataSource.transport.update'
+                });
+                // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
+                var user = JSON.parse(JSON.stringify(options.data));
+                var errors = this._validate(user);
+                if (errors.length) {
+                    return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
+                }
+                var id = user.id;
+                if (RX_MONGODB_ID.test(id)) {
+                    // pongodb does not allow the id to be part of the update
+                    user.id = undefined;
+                    db.users.update({ id: id }, user)
+                    .done(function (result) {
+                        if (result && result.nMatched === 1 && result.nModified === 1) {
+                            // Update the image from time to time
+                            if (Math.floor(4 * Math.random()) === 0) {
+                                // We discard success/failure because the user is saved
+                                models.MobileUser.fn._saveMobilePicture.call(user);
+                            }
+                            // Restore id and return updated user to datasource
+                            user.id = id;
+                            options.success({ total: 1, data: [user] });
+                        } else {
+                            options.error.apply(this, ErrorXHR(new Error('User not found')));
+                        }
+                    })
+                    .fail(function (error) {
+                        options.error.apply(this, ErrorXHR(error));
+                    });
+                } else {
+                    // No need to hit the database, it won't be found
+                    options.error.apply(this, ErrorXHR(new Error('User not found')));
+                }
+            }
+
+        });
+
+        /**
          * MobileUserDataSource model (stored localy)
          * @type {kidoju.data.Model}
          */
@@ -398,12 +568,7 @@
                 var that = this;
 
                 DataSource.fn.init.call(that, $.extend(true, {}, {
-                    transport: {
-                        create: $.proxy(that._transport._create, that),
-                        destroy: $.proxy(that._transport._destroy, that),
-                        read: $.proxy(that._transport._read, that),
-                        update: $.proxy(that._transport._update, that)
-                    },
+                    transport: new models.MobileUserTransport(),
                     // no serverFiltering, serverSorting or serverPaging considering the limited number of users
                     schema: {
                         data: 'data',
@@ -420,189 +585,21 @@
                         */
                     }
                 }, options));
-
-            },
-
-            /**
-             * Validate user before saving
-             * @param user
-             */
-            _validate: function (user) {
-                var errors = [];
-                if ($.type(user.md5pin) !== STRING) {
-                    errors.push('Missing user pin');
-                }
-                return errors;
-            },
-
-            /**
-             * Setting _transport here with a reference above is a trick
-             * so as to be able to replace these CRUD function in mockup scenarios
-             */
-            _transport: {
-
-                /**
-                 * Create transport
-                 * @param options
-                 * @returns {*}
-                 * @private
-                 */
-                _create: function (options) {
-                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                    logger.debug({
-                        message: 'User data creation',
-                        method: 'app.models.MobileUserDataSource.transport.create'
-                    });
-                    // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
-                    var user = JSON.parse(JSON.stringify(options.data));
-                    var errors = this._validate(user);
-                    if (errors.length) {
-                        return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
-                    }
-                    // This replaces the machine id in the mongoDB server id by MACHINE_ID
-                    // This ensures uniqueness of user in mobile app when sid is unique without further checks
-                    // i.e. same user with the same sid recorded twice under different ids in mobile device
-                    user.id = new pongodb.ObjectId(user.sid).toMobileId();
-                    // Start with saving the picture to avoid a broken image in UI if user is saved without
-                    models.MobileUser.fn._saveMobilePicture.call(user)
-                        .done(function () {
-                            db.users.insert(user)
-                                .done(function () {
-                                    options.success({ total: 1, data: [user] });
-                                })
-                                .fail(function (error) {
-                                    options.error.apply(this, ErrorXHR(error));
-                                });
-                        })
-                        .fail(function (error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
-                },
-
-                /**
-                 * Destroy transport
-                 * @param options
-                 * @private
-                 */
-                _destroy: function (options) {
-                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                    logger.debug({
-                        message: 'User data deletion',
-                        method: 'app.models.MobileUserDataSource.transport.destroy'
-                    });
-                    var user = options.data;
-                    var id = user.id;
-                    if (RX_MONGODB_ID.test(id)) {
-                        db.users.remove({ id: id })
-                            .done(function (result) {
-                                if (result && result.nRemoved === 1) {
-                                    options.success({ total: 1, data: [user] });
-                                } else {
-                                    options.error.apply(this, ErrorXHR(new Error('User not found')));
-                                }
-                            })
-                            .fail(function (error) {
-                                options.error.apply(this, ErrorXHR(error));
-                            });
-                    } else {
-                        // No need to hit the database, it won't be found
-                        options.error.apply(this, ErrorXHR(new Error('User not found')));
-                    }
-                },
-
-                /**
-                 * Read transport
-                 * @param options
-                 * @private
-                 */
-                _read: function (options) {
-                    logger.debug({
-                        message: 'User data read',
-                        method: 'app.models.MobileUserDataSource.transport.read'
-                    });
-                    // Initialize the file system for mobilePicture$
-                    fileSystem.init()
-                        .done(function () {
-                            // Query the database of all users
-                            db.users.find()
-                                .done(function (result) {
-                                    if ($.isArray(result)) {
-                                        options.success({ total: result.length, data: result });
-                                    } else {
-                                        options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
-                                    }
-                                })
-                                .fail(function (error) {
-                                    options.error.apply(this, ErrorXHR(error));
-                                });
-                        })
-                        .fail(function (error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
-                },
-
-                /**
-                 * Update transport
-                 * @param options
-                 * @returns {*}
-                 * @private
-                 */
-                _update: function (options) {
-                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                    logger.debug({
-                        message: 'User data update',
-                        method: 'app.models.MobileUserDataSource.transport.update'
-                    });
-                    // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
-                    var user = JSON.parse(JSON.stringify(options.data));
-                    var errors = this._validate(user);
-                    if (errors.length) {
-                        return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
-                    }
-                    var id = user.id;
-                    if (RX_MONGODB_ID.test(id)) {
-                        // pongodb does not allow the id to be part of the update
-                        user.id = undefined;
-                        db.users.update({ id: id }, user)
-                            .done(function (result) {
-                                if (result && result.nMatched === 1 && result.nModified === 1) {
-                                    // Update the image from time to time
-                                    if (Math.floor(4 * Math.random()) === 0) {
-                                        // We discard success/failure because the user is saved
-                                        models.MobileUser.fn._saveMobilePicture.call(user);
-                                    }
-                                    // Restore id and return updated user to datasource
-                                    user.id = id;
-                                    options.success({ total: 1, data: [user] });
-                                } else {
-                                    options.error.apply(this, ErrorXHR(new Error('User not found')));
-                                }
-                            })
-                            .fail(function (error) {
-                                options.error.apply(this, ErrorXHR(error));
-                            });
-                    } else {
-                        // No need to hit the database, it won't be found
-                        options.error.apply(this, ErrorXHR(new Error('User not found')));
-                    }
-                }
             }
+
         });
 
         /**
          * MobileActivityTransport transport
          */
-        models.MobileActivityTransport = kendo.Class.extend({
+        models.MobileActivityTransport = Class.extend({
 
             /**
              * Init
              * @constructor
              * @param options
              */
-            init: function (options) {
+            init: function(options) {
                 this.setOptions(options || {});
             },
 
@@ -611,7 +608,7 @@
              * Note: calling setOptions on the transport requires calling read on the DataSource and possibly resetting filters, page size and sort order
              * @param options
              */
-            setOptions: function (options) {
+            setOptions: function(options) {
                 this._language = options.language || i18n.locale();
                 this._userId = options.userId || null;
             },
@@ -621,7 +618,7 @@
              * @param activity
              * @private
              */
-            _validate: function (activity) {
+            _validate: function(activity) {
                 var errors = [];
                 var language = activity.version.language;
                 if (!RX_LANGUAGE.test(language) || language !== this._language) {
@@ -640,7 +637,7 @@
              * @returns {*}
              * @private
              */
-            create: function (options) {
+            create: function(options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 logger.debug({
@@ -654,13 +651,11 @@
                     return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
                 }
                 // The database will give us an id (but not a date)
-                db.activities.insert(activity)
-                    .done(function () {
-                        options.success({ total: 1, data: [activity] });
-                    })
-                    .fail(function (error) {
-                        options.error.apply(this, ErrorXHR(error));
-                    });
+                db.activities.insert(activity).done(function() {
+                    options.success({total: 1, data: [activity]});
+                }).fail(function(error) {
+                    options.error.apply(this, ErrorXHR(error));
+                });
             },
 
             /**
@@ -668,7 +663,7 @@
              * @param options
              * @private
              */
-            destroy: function (options) {
+            destroy: function(options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 logger.debug({
@@ -678,17 +673,15 @@
                 var activity = options.data;
                 var id = activity.id;
                 if (RX_MONGODB_ID.test(id)) {
-                    db.activities.remove({ id: id })
-                        .done(function (result) {
-                            if (result && result.nRemoved === 1) {
-                                options.success({ total: 1, data: [activity] });
-                            } else {
-                                options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                            }
-                        })
-                        .fail(function (error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
+                    db.activities.remove({id: id}).done(function(result) {
+                        if (result && result.nRemoved === 1) {
+                            options.success({total: 1, data: [activity]});
+                        } else {
+                            options.error.apply(this, ErrorXHR(new Error('Activity not found')));
+                        }
+                    }).fail(function(error) {
+                        options.error.apply(this, ErrorXHR(error));
+                    });
                 } else {
                     // No need to hit the database, it won't be found
                     options.error.apply(this, ErrorXHR(new Error('Activity not found')));
@@ -700,14 +693,14 @@
              * @param options
              * @private
              */
-            read: function (options) {
+            read: function(options) {
                 logger.debug({
                     message: 'Activity data read',
                     method: 'app.models.MobileActivityDataSource.transport.read'
                 });
                 if ($.type(this._userId) === NULL) {
                     // This lets us create a dataSource without knowing the userId, which can be set later with setOptions
-                    options.success({ total: 0, data: [] });
+                    options.success({total: 0, data: []});
                 } else {
                     db.activities.find({'version.language': this._language, 'actor.userId': this._userId}).done(function(result) {
                         if ($.isArray(result)) {
@@ -727,7 +720,7 @@
              * @returns {*}
              * @private
              */
-            update: function (options) {
+            update: function(options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 logger.debug({
@@ -745,19 +738,17 @@
                 if (RX_MONGODB_ID.test(id)) {
                     activity.id = undefined;
                     // TODO: check userId?
-                    db.activities.update({ id: id }, activity)
-                        .done(function (result) {
-                            if (result && result.nMatched === 1 && result.nModified === 1) {
-                                activity.id = id;
-                                options.success({ total: 1, data: [activity] });
-                                // TODO serverSync if connected
-                            } else {
-                                options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                            }
-                        })
-                        .fail(function (error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
+                    db.activities.update({id: id}, activity).done(function(result) {
+                        if (result && result.nMatched === 1 && result.nModified === 1) {
+                            activity.id = id;
+                            options.success({total: 1, data: [activity]});
+                            // TODO serverSync if connected
+                        } else {
+                            options.error.apply(this, ErrorXHR(new Error('Activity not found')));
+                        }
+                    }).fail(function(error) {
+                        options.error.apply(this, ErrorXHR(error));
+                    });
                 } else {
                     // No need to hit the database, it won't be found
                     options.error.apply(this, ErrorXHR(new Error('Activity not found')));
@@ -768,7 +759,7 @@
              * Sync
              * @param options
              */
-            sync: function (options) {
+            sync: function(options) {
                 var that = this;
                 /*
                 return $.when(
@@ -779,30 +770,21 @@
                 */
                 var dfd = $.Deferred();
                 // First, upload all new activities
-                that._uploadPendingActivities()
-                .progress(function (progress) {
-                    dfd.notify($.extend({ step: 1 }, progress));
-                })
-                .done(function () {
+                that._uploadPendingActivities().progress(function(progress) {
+                    dfd.notify($.extend({step: 1}, progress));
+                }).done(function() {
                     // Second, purge old activities (including possibly some just uploaded new activities if last serverSync is very old)
-                    that._purgeOldActivities()
-                    .progress(function (progress) {
-                        dfd.notify($.extend({ step: 2 }, progress));
-                    })
-                    .done(function () {
+                    that._purgeOldActivities().progress(function(progress) {
+                        dfd.notify($.extend({step: 2}, progress));
+                    }).done(function() {
                         // Third, download recently added and updated activities (considering activities are always created, never updated, on the mobile device.
-                        that._downloadRecentActivities()
-                        .progress(function (progress) {
-                            dfd.notify($.extend({ step: 3 }, progress));
-                        })
-                        .done(function () {
+                        that._downloadRecentActivities().progress(function(progress) {
+                            dfd.notify($.extend({step: 3}, progress));
+                        }).done(function() {
                             dfd.resolve(); // Add statistics { nUploaded, nPurged, nDownloaded }
-                        })
-                        .fail(dfd.reject);
-                    })
-                    .fail(dfd.reject);
-                })
-                .fail(dfd.reject);
+                        }).fail(dfd.reject);
+                    }).fail(dfd.reject);
+                }).fail(dfd.reject);
                 return dfd.promise();
             },
 
@@ -811,10 +793,10 @@
              * @returns {*}
              * @private
              */
-            _uploadPendingActivities: function () {
+            _uploadPendingActivities: function() {
                 var dfd = $.Deferred();
                 // TODO $.when.apply($, my_array);
-                dfd.notify({ percent: 1 });
+                dfd.notify({percent: 1});
                 // IMPORTANT update sid once done
                 dfd.resolve();
                 return dfd.promise();
@@ -825,7 +807,7 @@
              * @returns {*}
              * @private
              */
-            _purgeOldActivities: function () {
+            _purgeOldActivities: function() {
                 var dfd = $.Deferred();
                 return dfd.resolve().promise();
             },
@@ -835,7 +817,7 @@
              * @returns {*}
              * @private
              */
-            _downloadRecentActivities: function () {
+            _downloadRecentActivities: function() {
                 var dfd = $.Deferred();
                 // IMPORTANT doanload from oldest to most recent and update lastSync accordingly
                 // Nevertheless check whether activity does not already exist using sid
@@ -845,7 +827,7 @@
         });
 
         /**
-         * MobileVersion model
+         * MobileActivity model
          * @type {kidoju.data.Model}
          */
         models.MobileActivity = Model.define({
@@ -1039,10 +1021,10 @@
                     },
                     schema: {
                         data: 'data',
-                        total: 'total',
                         errors: 'error', // <--------------------- TODO: look at this properly for error reporting
                         modelBase: models.MobileActivity,
-                        model: models.MobileActivity
+                        model: models.MobileActivity,
+                        total: 'total'
                         /**
                          // This is for debugging only
                          parse: function(response) {
@@ -1065,83 +1047,16 @@
         });
 
         /**
-         * MobileDownload model
+         * MobileVersion model
          * @type {kidoju.data.Model}
          */
-        // models.MobileDownload = Model.define({});
+        // models.MobileVersion = Model.define({});
 
         /**
-         * MobileDownload datasource (stored localy)
+         * MobileVersionDataSource datasource (stored localy)
          * @type {kidoju.data.Model}
          */
-        // models.MobileDownload = DataSource.define({});
-
-        /**
-         * Database migration
-         */
-        models.Upgrades = kendo.Class.extend({
-
-            init: function (version) {
-                // The application version as in app.version;
-                this._version = version;
-            },
-
-            /**
-             * Check application version against server version
-             */
-            checkApplication: function () {
-                var dfd = $.Deferred();
-                app.rapi.test.ping()
-                    .done(function (result) {
-                        dfd.resolve();
-                    })
-                    .fail(dfd.reject);
-                return dfd.promise();
-            },
-
-            /**
-             * Check database version against application version
-             */
-            checkDatabase: function () {
-                var dfd = $.Deferred();
-                db._meta.findOne({ _id: 'version'})
-                    .done(function (result) {
-                        debugger;
-                    })
-                    .fail(dfd.reject);
-                return dfd.promise();
-            },
-
-            /**
-             * Dummy migration for testing only
-             */
-            _dummy: function () {
-                var dfd = $.Deferred();
-                var count = 0;
-                var interval = setInterval(function () {
-                    count++;
-                    dfd.progress(count / 10);
-                    if (count === 10) {
-                        clearInterval(interval);
-                        dfd.resolve();
-                    }
-                }, 500);
-                return dfd.promise();
-            },
-
-            /**
-             * Execute database migrations
-             */
-            migrate: function () {
-                // progress through versions
-                return this._dummy();
-            }
-
-            // _migration1
-            // _migration2
-            // _migtation3
-
-        });
+        // models.MobileVersionDataSource = DataSource.define({});
 
     }(window.jQuery));
 
