@@ -659,7 +659,11 @@ window.jQuery.holdReady(true);
             /**
              * Summaries
              */
-            summaries: new models.LazySummaryDataSource(),
+            summaries: new models.LazySummaryDataSource({
+                language: i18n.locale(),
+                pageSize: VIRTUAL_PAGE_SIZE,
+                userId: app.constants.authorId
+            }),
 
             /**
              * Selected summary
@@ -902,9 +906,12 @@ window.jQuery.holdReady(true);
                 this.set(VIEW_MODEL.SELECTED_PAGE, undefined);
 
                 // Search (per category or full text)
-                this.set(VIEW_MODEL.SUMMARIES, new models.LazySummaryDataSource({ pageSize: VIRTUAL_PAGE_SIZE}));
-                // The following actually performs a query
-                // this.get(VIEW_MODEL.SUMMARIES).pageSize(VIRTUAL_PAGE_SIZE);
+                var summaries = this.get(VIEW_MODEL.SUMMARIES);
+                assert.instanceof(models.LazySummaryDataSource, summaries, kendo.format(assert.messages.instanceof.default, 'summaries', 'app.models.LazySummaryDataSource'));
+                summaries.transport.setOptions({
+                    language: language,
+                    userId: app.constants.authorId
+                });
 
                 // Summary being played
                 this.set(VIEW_MODEL.SUMMARY.$, new models.Summary());
@@ -1090,7 +1097,10 @@ window.jQuery.holdReady(true);
                 return viewModel.users.sync()
                     .done(function () {
                         if (showSuccessMessage !== false) {
-                            app.notification.success(kendo.format(i18n.culture.notifications.userSaveSuccess));
+                            // Yield some time for #settings dropdown boxes to close
+                            setTimeout(function () {
+                                app.notification.success(kendo.format(i18n.culture.notifications.userSaveSuccess));
+                            }, 10);
                         }
                     })
                     .fail(function (xhr, status, error) {
