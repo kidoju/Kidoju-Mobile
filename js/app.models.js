@@ -54,6 +54,7 @@
 
         var kendo = window.kendo;
         var kidoju = window.kidoju;
+        var Class = kendo.Class;
         var Model = kidoju.data.Model;
         var DataSource = kidoju.data.DataSource;
         var Stream = kidoju.data.Stream;
@@ -124,6 +125,7 @@
         var NUMBER = 'number';
         var DATE = 'date';
         var BOOLEAN = 'boolean';
+        var UNDEFINED = 'undefined';
         var ERROR = 'error';
         var CHANGE = 'change';
         var ITEMCHANGE = 'itemchange';
@@ -1790,22 +1792,133 @@
         });
 
         /**
+         * LazySummaryTransport transport
+         */
+        models.LazySummaryTransport = Class.extend({
+
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                this.setOptions(options || {});
+            },
+
+            /**
+             * Set options
+             * Note: calling setOptions on the transport requires calling read on the DataSource and possibly resetting filters, page size and sort order
+             * @param options
+             */
+            setOptions: function (options) {
+                this._language = options.language || i18n.locale();
+                this._userId = options.userId || null;
+            },
+
+            /**
+             * Read transport
+             * @param options
+             */
+            read: function (options) {
+                var that = this;
+
+                logger.debug({
+                    message: 'dataSource.read',
+                    method: 'app.models.LazySummaryDataSource.transport.read',
+                    data: { userId: that._userId }
+                });
+
+                // add options.filter.filters.push({ field: 'language', operator: 'eq', value: i18n.locale() });
+                // ATTENTION logic and or or
+
+                options.data.fields = 'author,icon,metrics.comments.count,language,metrics.ratings.average,metrics.scores.average,metrics.views.count,published,tags,title,type,updated';
+                options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
+
+                if (!RX_MONGODB_ID.test(that._userId)) {
+
+                    // Without user id, we just query public summaries
+                    rapi.v1.content.findSummaries(that._language, options.data)
+                        .done(function (response) {
+                            options.success(response);
+                        })
+                        .fail(function (xhr, status, error) {
+                            options.error(xhr, status, error);
+                        });
+
+                } else {
+
+                    // With a userId, we request all summaries the author of which has such userId
+                    app.cache.getMe()
+                        .done(function (me) {
+
+                            if ($.isPlainObject(me) && that._userId === me.id) {
+
+                                // If we request the summaries of the authenticated user, include drafts
+                                rapi.v1.user.findMySummaries(that._language, options.data)
+                                    .done(function (response) {
+                                        options.success(response);
+                                    })
+                                    .fail(function (xhr, status, error) {
+                                        options.error(xhr, status, error);
+                                    });
+
+                            } else {
+
+                                // If we request the summaries of an author who is not the (authenticated/anonymous) user, only fetch public/published summaries
+                                var filter = {
+                                    logic: 'and',
+                                    filters: [
+                                        { field: 'author.userId', operator: 'eq', value: that._userId }
+                                    ]
+                                };
+                                if ($.isPlainObject(options.data.filter)) {
+                                    if (options.data.filter.logic === 'and' && Array.isArray(options.data.filter.filters)) {
+                                        Array.prototype.push.apply(filter.filters, options.data.filter.filters);
+                                    } else if (options.data.filter.logic === 'or' && Array.isArray(options.data.filter.filters)) {
+                                        filter.filters.push(options.data.filter);
+                                    } else if ($.type(options.data.filter.field) === STRING && $.type(options.data.filter.operator) === STRING) {
+                                        Array.prototype.push.apply(filter.filters, options.data.filter);
+                                    }
+                                }
+                                options.data.filter = filter;
+
+                                rapi.v1.content.findSummaries(that._language, options.data)
+                                    .done(function (response) {
+                                        options.success(response);
+                                    })
+                                    .fail(function (xhr, status, error) {
+                                        options.error(xhr, status, error);
+                                    });
+                            }
+
+                        })
+                        .fail(function (xhr, status, error) {
+                            options.error(xhr, status, error);
+                        });
+                }
+            }
+
+        });
+
+        /**
          * DataSource of Lazy summaries
          * @type {kendo.Observable}
          */
         models.LazySummaryDataSource = DataSource.extend({
 
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
             init: function (options) {
 
                 var that = this;
-
-                // Cache the userId from options
-                that.userId = options && options.userId;
-
-                DataSource.fn.init.call(that, $.extend(true, {}, {
-                    transport: {
-                        read: $.proxy(that._transport._read, that)
-                    },
+                DataSource.fn.init.call(that, $.extend(true, {}, options, {
+                    transport: new models.LazySummaryTransport({
+                        language: options && options.language,
+                        userId: options && options.userId
+                    }),
                     serverFiltering: true,
                     serverSorting: true,
                     pageSize: 5,
@@ -1843,85 +1956,17 @@
                 }, options));
 
             },
-            load: function (options) {
-                var that = this;
-                that.userId = options && options.userId;
-                return that.query(options);
-            },
-            /*
-             * Setting _transport._read here with a reference above is a trick
-             * so as to be able to replace this function in mockup scenarios
+
+            /**
+             * Load
+             * @param options
              */
-            _transport: {
-                _read: function (options) {
-
-                    var that = this;
-
-                    logger.debug({
-                        message: 'dataSource.read',
-                        method: 'app.models.LazySummaryDataSource.transport.read',
-                        data: { userId: that.userId }
-                    });
-
-                    // add options.filter.filters.push({ field: 'language', operator: 'eq', value: i18n.locale() });
-                    // ATTENTION logic and or or
-
-                    options.data.fields = 'author,icon,metrics.comments.count,language,metrics.ratings.average,metrics.scores.average,metrics.views.count,published,tags,title,type,updated';
-                    options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
-
-                    if (!RX_MONGODB_ID.test(that.userId)) {
-
-                        // Without user id, we just query public summaries
-                        rapi.v1.content.findSummaries(i18n.locale(), options.data)
-                            .done(function (response) {
-                                options.success(response);
-                            })
-                            .fail(function (xhr, status, error) {
-                                options.error(xhr, status, error);
-                            });
-
-                    } else {
-
-                        // With a userId, we request all summaries the author of which has such userId
-                        app.cache.getMe()
-                            .done(function (me) {
-
-                                if ($.isPlainObject(me) && that.userId === me.id) {
-
-                                    // If we request the summaries of the authenticated user, include drafts
-                                    rapi.v1.user.findMySummaries(i18n.locale(), options.data)
-                                        .done(function (response) {
-                                            options.success(response);
-                                        })
-                                        .fail(function (xhr, status, error) {
-                                            options.error(xhr, status, error);
-                                        });
-
-                                } else {
-
-                                    // If we request the summaries of an author who is not the (authenticated/anonymous) user, only fetch public/published summaries
-                                    options.data.filter = {
-                                        logic: 'and',
-                                        filters: [
-                                            { field: 'author.userId', operator: 'eq', value: that.userId }
-                                        ]
-                                    };
-
-                                    rapi.v1.content.findSummaries(i18n.locale(), options.data)
-                                        .done(function (response) {
-                                            options.success(response);
-                                        })
-                                        .fail(function (xhr, status, error) {
-                                            options.error(xhr, status, error);
-                                        });
-                                }
-
-                            })
-                            .fail(function (xhr, status, error) {
-                                options.error(xhr, status, error);
-                            });
-                    }
-                }
+            load: function (options) {
+                this.transport.setOptions({
+                    language: options && options.language,
+                    userId: options && options.userId
+                });
+                return this.query(options);
             }
         });
 
