@@ -290,21 +290,20 @@ window.jQuery.holdReady(true);
          */
         window.handleOpenURL = function (url) {
 
+            // Hide the SafariViewController in all circumstances
+            // This has to be done before the setTimeout otherwise the SafariViewController does not close in iOS
+            // mobile.support.safariViewController is iOS only until https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/51
+            if (mobile.support.safariViewController) {
+                try {
+                    mobile.SafariViewController.hide();
+                } catch(ex) {
+                    // They say mobile.SafariViewController.hide is not implemented on Android
+                    // https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/62
+                }
+            }
+
             // Handle the url
             setTimeout(function () {
-
-                // Hide the SafariViewController in all circumstances
-                // This has to be done before the setTimeout otherwise the SafariViewController does not close in iOS
-                // mobile.support.safariViewController is iOS only until https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/51
-                if (mobile.support.safariViewController) {
-                    try {
-                        mobile.SafariViewController.hide();
-                    } catch(ex) {
-                        // They say mobile.SafariViewController.hide is not implemented on Android
-                        // https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/62
-                    }
-                }
-
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
                     // The whole oAuth flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
