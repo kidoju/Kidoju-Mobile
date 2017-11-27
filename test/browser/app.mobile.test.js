@@ -12,7 +12,7 @@
 
     var expect = window.chai.expect;
 
-    describe('Test PageItemCollectionDataSource', function () {
+    describe('app.mobile', function () {
 
         describe('When doing something', function () {
             it('We expect something else', function () {
