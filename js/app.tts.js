@@ -30,6 +30,7 @@
         var UNDEFINED = 'undefined';
         var CHUNK_SIZE = 175;
         var RX_IOS = /^i(phone|pad|pod)$/i;
+        var RX_IOS_11 = /i(phone|pad|pod) OS 11_/i;
         var voices = [];
         var loadVoices = function () {
             voices = window.speechSynthesis.getVoices();
@@ -59,7 +60,7 @@
          */
         tts._useCordovaPlugIn = function () {
             // This has to be a function because it needs to be evaluated once the TTS plugin is loaded
-            return !!(window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak));
+            return !!(window.cordova && window.device && window.device.platform !== 'browser' && !RX_IOS_11.test(window.navigator.userAgent) && window.TTS && $.isFunction(window.TTS.speak));
         };
 
         /**
@@ -213,8 +214,7 @@
                         locale: language === 'fr' ? 'fr-FR' : 'en-US',
                         // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
                         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
-                        // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1
-                        rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 3 : 1
+                        rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1
                     },
                     dfd.resolve,
                     dfd.reject
@@ -232,8 +232,8 @@
                     promises.push(tts._speechSynthesisPromise(chunk, language));
                 });
                 $.when.apply(null, promises)
-                    .done(dfd.resolve)
-                    .fail(dfd.reject);
+	                .done(dfd.resolve)
+	                .fail(dfd.reject);
                 logger.debug({
                     method: 'tts.doSpeak',
                     message: 'Text spoken with W3C Speech API'
