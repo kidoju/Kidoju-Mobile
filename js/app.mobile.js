@@ -2626,7 +2626,8 @@ window.jQuery.holdReady(true);
          * @param callback
          * @private
          */
-        mobile._parseTokenAndLoadUser = function (url, callback) {
+        mobile._parseTokenAndLoadUser = function (url) {
+            var dfd = $.Deferred();
             // parseToken sets the token in localStorage
             var token = rapi.util.parseToken(url);
             // No need to clean the history when opening in InAppBrowser or SafariViewController
@@ -2640,9 +2641,7 @@ window.jQuery.holdReady(true);
                     method: 'mobile._parseTokenAndLoadUser',
                     data: { url: url }
                 });
-                if ($.isFunction(callback)) {
-                    callback();
-                }
+                dfd.reject(new Error(token.error)); // Make it an XHRError?
                 /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
             } else if (token && token.access_token) {
                 /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
@@ -2651,19 +2650,17 @@ window.jQuery.holdReady(true);
                     .done(function (data) {
                         // Yield time for transition effects to complete, especially when testing in the browser
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
-                        // setTimeout(function () {
+                        // app.mobile.application.view().one('transitionEnd', function () {
+                        setTimeout(function () {
+                            debugger;
+                            window.alert('user2 ' + JSON.stringify(data));
                             mobile.application.navigate(HASH + VIEW.USER);
-                        // }, 0);
+                            dfd.resolve(data);
+                        }, 100);
                     })
-                    .fail(function () {
-                        window.alert('oops');
-                    })
-                    .always(function () {
-                        if ($.isFunction(callback)) {
-                            callback();
-                        }
-                    });
+                    .fail(dfd.reject);
             }
+            return dfd.promise();
         };
 
         /**
@@ -2674,7 +2671,6 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile.enableSigninButtons(true);
-            // Parse the token and load the new user when we redirect signin without InAppBrowser
             if (!mobile.support.inAppBrowser) {
                 mobile._parseTokenAndLoadUser(window.location.href);
             }
@@ -2779,7 +2775,7 @@ window.jQuery.holdReady(true);
                 // Once https://github.com/apache/cordova-plugin-inappbrowser/pull/99 is fixed
                 // we should be able to have the same flow as in SafariViewController
                 if (e.url.startsWith(returnUrl)) {
-                    mobile._parseTokenAndLoadUser(e.url, close);
+                    mobile._parseTokenAndLoadUser(e.url).always(close);
                 }
             };
             var loadError = function (error) {
