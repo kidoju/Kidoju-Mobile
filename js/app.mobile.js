@@ -148,6 +148,7 @@ window.jQuery.holdReady(true);
         var INPUT = 'input';
         var KEYDOWN = 'keydown';
         var KEYPRESS = 'keypress';
+        var APPINIT = 'app.init';
         var LOADED = 'i18n.loaded';
         var RX_LANGUAGE = /^[a-z]{2}$/;
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
@@ -285,6 +286,35 @@ window.jQuery.holdReady(true);
         });
 
         /**
+         * Function to handle open Url
+         * @param url
+         */
+        function handleOpenURL(url) {
+            if (url.startsWith(URL_SCHEME + 'oauth')) {
+                // The whole oAuth flow is documented at
+                // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
+                mobile._parseTokenAndLoadUser(url);
+            } else if (RX_URL_SCHEME.test(url)) {
+                var matches = RX_URL_SCHEME.exec(url);
+                // Note: we have already tested the url, so we know there is a match
+                var language = matches[1];
+                var summaryId = matches[3];
+                if (language === i18n.locale()) {
+                    mobile.application.navigate(HASH + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' + encodeURIComponent(summaryId));
+                } else {
+                    app.notification.warning(i18n.culture.notifications.openUrlLanguage);
+                }
+            } else {
+                logger.warn({
+                    message: 'App scheme called with unknown url',
+                    method: 'window.handleOpenURL',
+                    data: { url: url }
+                });
+                app.notification.warning(i18n.culture.notifications.openUrlUnknown);
+            }
+        }
+
+        /**
          * Event handler triggered when calling a url with the com.kidoju.mobile:// scheme
          * @param url
          */
@@ -302,33 +332,11 @@ window.jQuery.holdReady(true);
                 }
             }
 
-            window.alert('window.handleOpenURL');
-
-            // Handle the url
-            setTimeout(function () {
-                if (url.startsWith(URL_SCHEME + 'oauth')) {
-                    // The whole oAuth flow is documented at
-                    // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
-                    mobile._parseTokenAndLoadUser(url);
-                } else if (RX_URL_SCHEME.test(url)) {
-                    var matches = RX_URL_SCHEME.exec(url);
-                    // Note: we have already tested the url, so we know there is a match
-                    var language = matches[1];
-                    var summaryId = matches[3];
-                    if (language === i18n.locale()) {
-                        mobile.application.navigate(HASH + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' + encodeURIComponent(summaryId));
-                    } else {
-                        app.notification.warning(i18n.culture.notifications.openUrlLanguage);
-                    }
-                } else {
-                    logger.warn({
-                        message: 'App scheme called with unknown url',
-                        method: 'window.handleOpenURL',
-                        data: { url: url }
-                    });
-                    app.notification.warning(i18n.culture.notifications.openUrlUnknown);
-                }
-            }, 0);
+            if (mobile.application instanceof kendo.mobile.Application && $.isPlainObject(i18n.culture)) {
+                handleOpenURL(url);
+            } else {
+                $(document).one(APPINIT, function () { handleOpenURL(url); });
+            }
         };
 
         /**
@@ -2011,6 +2019,8 @@ window.jQuery.holdReady(true);
                             mobile._initNotification();
                             // Bind the router change event to the onRouterViewChange handler
                             mobile.application.router.bind(CHANGE, mobile.onRouterViewChange);
+                            // Trigger application init event
+                            $(document).trigger(APPINIT);
                             // hide the splash screen
                             setTimeout(function () {
                                 if (mobile.support.splashscreen) {
