@@ -241,11 +241,6 @@
                 var storage = (RX_IEXPLORE.test(navigator.userAgent) || RX_ANDROID.test(navigator.userAgent)) ? localStorage : sessionStorage; // use localStorage in Android and IE
                 if (storage) {
                     storage.setItem(STATE, state);
-                    if (RX_ANDROID.test(navigator.userAgent)) {
-                        window.alert('Android State\n' + window.location.hostname + '\n' + storage.getItem(STATE));
-                    } else {
-                        window.alert('not Android');
-                    }
                     logger.debug({
                         message: 'state added to sessionStorage',
                         method: 'util.setState',
@@ -262,11 +257,6 @@
                 var storage = (RX_IEXPLORE.test(navigator.userAgent) || RX_ANDROID.test(navigator.userAgent)) ? localStorage : sessionStorage; // use localStorage in Android and IE
                 if (storage) {
                     state = storage.getItem(STATE);
-                    if (RX_ANDROID.test(navigator.userAgent)) {
-                        window.alert('Android State\n' + window.location.hostname + '\n' + state);
-                    } else {
-                        window.alert('not Android');
-                    }
                     storage.removeItem(STATE);
                     logger.debug({
                         message: 'state read and cleared from sessionStorage',
@@ -334,14 +324,6 @@
 
                     if ($.type(qs.error) !== STRING) {
 
-                        // Check timestamp // TODO
-                        var now = Date.now();
-                        // Note there might be a lag, therefore -30s is required
-                        hasVerifiedTimestamp = ((now - qs.ts > -30 * 1000) && (now - qs.ts < 5 * 60 * 1000));
-                        if (!hasVerifiedTimestamp) {
-                            qs.error = 'Invalid timestamp';
-                        }
-
                         // Check access_token
                         // Note: We could not find any better rule to match access tokens from facebook, google, live and twitter
                         hasVerifiedToken = ($.type(qs.access_token) === STRING && qs.access_token.length > 10);
@@ -353,10 +335,17 @@
 
                         // Check state
                         // Note: rapi.util.getState() erases state, so it is not indempotent
-                        // hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
                         hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
                         if (!hasVerifiedState) {
                             qs.error = 'Invalid state';
+                        }
+
+                        // Check timestamp
+                        var now = Date.now();
+                        // Note there might be a lag, therefore -30s is required
+                        hasVerifiedTimestamp = ((now - qs.ts > -30 * 1000) && (now - qs.ts < 5 * 60 * 1000));
+                        if (!hasVerifiedTimestamp) {
+                            qs.error = 'Invalid timestamp';
                         }
 
                     }
