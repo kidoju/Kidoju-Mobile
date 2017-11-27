@@ -28,7 +28,7 @@
         app.constants = {
             appName: 'Kidoju',
             // The authorId to search summaries from (until we support organizationId)
-            authorId: '56d6ee31bc039c1a00062950',
+            authorId: '', // '56d6ee31bc039c1a00062950',
             // The app language
             language: '', // 'fr',
             // TODO: logo to display in drawer...
