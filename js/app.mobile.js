@@ -296,10 +296,13 @@ window.jQuery.holdReady(true);
             // This has to be done before the setTimeout otherwise the SafariViewController does not close on iOS
             // mobile.support.safariViewController is iOS only until https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/51
             if (mobile.support.safariViewController) {
-                mobile.SafariViewController.hide();
+                try {
+                    // https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/62
+                    mobile.SafariViewController.hide();
+                } catch(ex) {
+                    window.alert(ex.message);
+                }
             }
-
-            window.alert('closed');
 
             // Handle the url
             setTimeout(function () {
