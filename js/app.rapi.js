@@ -169,6 +169,7 @@
                         /* jshint +W016 */
                     }
                 }
+                window.alert(navigator.userAgent + ' (' + hash + ')');
                 return Math.abs(hash); // We have experienced a negative fingerprint on PhantomJS in Travis-CI
             },
 
@@ -292,9 +293,6 @@
                 // When running tests with grunt.mochaTest, the url is a file url - file:///C:/Users/Jacques-Louis/Creative Cloud Files/Kidoju/Kidoju.Server/test/client/app.cache.test.html
                 // Also this assert fails in Phonegap InAppBrowser
                 // assert.match(RX_URL, url, rapi.util.format(assert.messages.match.default, 'url', RX_URL));
-
-                window.alert('parseToken');
-
                 var pos1 = rapi.util.getAccessTokenHashPos(url);
                 var qs = {};
                 var token = {};
@@ -320,29 +318,42 @@
                     });
 
                     // Check error
-                    var hasError = ($.type(qs.error) === STRING);
+                    var hasVerifiedToken = false;
+                    var hasVerifiedState = false;
+                    var hasVerifiedTimestamp = false;
 
-                    // Check access_token
-                    // Note: We could not find any better rule to match access tokens from facebook, google, live and twitter
-                    var hasVerifiedToken = ($.type(qs.access_token) === STRING && qs.access_token.length > 10);
-                    window.alert('token verified: ' + hasVerifiedToken);
-                    // Note: We could check expires (Google and Windows Live are 3600 = 60*60 = 1h amd Facebook and Twitter are 5184000 = 60*60*24*60 = 60d)
+                    if ($.type(qs.error) === UNDEFINED) {
 
-                    // Check state
-                    // Note: rapi.util.getState() erases state, so it is not indempotent
-                    var hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
-                    window.alert('state verified: ' + hasVerifiedState);
+                        // Check access_token
+                        // Note: We could not find any better rule to match access tokens from facebook, google, live and twitter
+                        hasVerifiedToken = ($.type(qs.access_token) === STRING && qs.access_token.length > 10);
+                        if (!hasVerifiedToken) {
+                            qs.error = 'Invalid token';
+                        }
 
-                    // Check timestamp
-                    var now = Date.now();
-                    // Note there might be a lag, therefore -30s is required
-                    var hasVerifiedTimestamp = ((now - qs.ts > -30 * 1000) && (now - qs.ts < 5 * 60 * 1000));
-                    window.alert('timestamp verified: ' + hasVerifiedTimestamp);
+                        // Note: We could check expires (Google and Windows Live are 3600 = 60*60 = 1h amd Facebook and Twitter are 5184000 = 60*60*24*60 = 60d)
+
+                        // Check state
+                        // Note: rapi.util.getState() erases state, so it is not indempotent
+                        hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
+                        if (!hasVerifiedState) {
+                            qs.error = 'Invalid state';
+                        }
+
+                        // Check timestamp
+                        var now = Date.now();
+                        // Note there might be a lag, therefore -30s is required
+                        hasVerifiedTimestamp = ((now - qs.ts > -30 * 1000) && (now - qs.ts < 5 * 60 * 1000));
+                        if (!hasVerifiedTimestamp) {
+                            qs.error = 'Invalid timestamp';
+                        }
+
+                    }
 
                     logger.debug({
                         message: 'token verified',
                         method: 'parseToken',
-                        data: { qs: qs, hasError: hasError, hasVerifiedToken: hasVerifiedToken, hasVerifiedState: hasVerifiedState, hasVerifiedTimestamp: hasVerifiedTimestamp }
+                        data: { qs: qs }
                     });
 
                     if (hasVerifiedToken && hasVerifiedState && hasVerifiedTimestamp) {
@@ -353,25 +364,18 @@
                             expires: qs.expires,
                             ts: qs.ts
                         };
-
                         // setToken in localStorage
                         rapi.util.setToken(token);
-
                         // Notify page
-                        setTimeout(function () {
-                            $(document).trigger(AUTHENTICATION_SUCCESS);
-                        }, 500);
-
-                    } else if (hasError) {
+                        setTimeout(function () { $(document).trigger(AUTHENTICATION_SUCCESS); }, 500);
+                    } else {
                         token = {
                             error: qs.error
                         };
                         // Let's simply discard any attempt to set a token that does not pass the checks here above
                         rapi.util.clearToken();
                         // Notify page (we may have qs.error)
-                        setTimeout(function () {
-                            $(document).trigger(AUTHENTICATION_FAILURE, { error: qs.error });
-                        }, 500);
+                        setTimeout(function () { $(document).trigger(AUTHENTICATION_FAILURE, { error: qs.error }); }, 500);
                     }
 
                 }
