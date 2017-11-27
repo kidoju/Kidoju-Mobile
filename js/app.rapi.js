@@ -324,6 +324,14 @@
 
                     if ($.type(qs.error) !== STRING) {
 
+                        // Check timestamp // TODO
+                        var now = Date.now();
+                        // Note there might be a lag, therefore -30s is required
+                        hasVerifiedTimestamp = ((now - qs.ts > -30 * 1000) && (now - qs.ts < 5 * 60 * 1000));
+                        if (!hasVerifiedTimestamp) {
+                            qs.error = 'Invalid timestamp';
+                        }
+
                         // Check access_token
                         // Note: We could not find any better rule to match access tokens from facebook, google, live and twitter
                         hasVerifiedToken = ($.type(qs.access_token) === STRING && qs.access_token.length > 10);
@@ -335,18 +343,14 @@
 
                         // Check state
                         // Note: rapi.util.getState() erases state, so it is not indempotent
-                        hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
-                        window.alert('Verified state: ' + hasVerifiedState);
+                        // hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
+                        var state = rapi.util.getState();
+                        var fingerPrint = rapi.util.getFingerPrint();
+                        hasVerifiedState = (state === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
+                        window.alert('Session storage state\n' + state + '\nToken state\n' + qs.state);
+                        window.alert('Fingerprint\n' + fingerPrint);
                         if (!hasVerifiedState) {
                             qs.error = 'Invalid state';
-                        }
-
-                        // Check timestamp
-                        var now = Date.now();
-                        // Note there might be a lag, therefore -30s is required
-                        hasVerifiedTimestamp = ((now - qs.ts > -30 * 1000) && (now - qs.ts < 5 * 60 * 1000));
-                        if (!hasVerifiedTimestamp) {
-                            qs.error = 'Invalid timestamp';
                         }
 
                     }
