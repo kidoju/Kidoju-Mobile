@@ -290,6 +290,8 @@ window.jQuery.holdReady(true);
          */
         window.handleOpenURL = function (url) {
 
+            window.alert(url);
+
             // Hide the SafariViewController in all circumstances
             // This has to be done before the setTimeout otherwise the SafariViewController does not close on iOS
             // mobile.support.safariViewController is iOS only until https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/51
@@ -297,8 +299,13 @@ window.jQuery.holdReady(true);
                 mobile.SafariViewController.hide();
             }
 
+            window.alert('closed');
+
             // Handle the url
             setTimeout(function () {
+
+                window.alert('setTimeout');
+
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
                     // The whole oAuth flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
