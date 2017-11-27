@@ -2649,7 +2649,6 @@ window.jQuery.holdReady(true);
                 // Load the remote mobile user (me) using the oAuth token
                 viewModel.loadUser()
                     .done(function (data) {
-                        window.alert('user ' + JSON.stringify(data));
                         // Yield time for transition effects to complete, especially when testing in the browser
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
                         // setTimeout(function () {
