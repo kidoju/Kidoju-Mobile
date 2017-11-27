@@ -51,6 +51,8 @@
         var MACHINE_POS = 8;
         var MACHINE_ID = '000000';
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
+        var META = '__meta__';
+        var VERSION = 'version';
         var NOT_IMPLEMENTED = 'Not yet implemented';
 
         /* Blocks are nested too deeply. */
@@ -654,11 +656,13 @@
             this._idField = options.idField || 'id';
 
             // Configure localForage
-            options.storeName = options.name;
+            options.storeName = options.name; // TODO ????????????????????????????
+
             // Force the use of WEBSQL in iOS WKWebView because indexedDB does not work properly
             // if (!window.chrome && window.webkit && window.indexedDB) {
             //     options.driver = localForage.WEBSQL;
             // }
+
             localForage.config(options);
             /*
             localForage.config({
@@ -671,11 +675,49 @@
             });
             */
 
+            // Add meta store
+            this._meta = localForage.createInstance({ name: META });
+
             // Add collections
             var collections = options.collections;
             for (var i = 0, length = collections.length; i < length; i++) {
                 this[collections[i]] = new Collection({ db: this, name: collections[i] });
             }
+        };
+
+        /**
+         * Version
+         * @param value
+         */
+        Database.prototype.version = function (value) {
+            var dfd = $.Deferred();
+            if ($.type(value) === UNDEFINED) {
+                this._meta.getItem(VERSION, function (err, item) {
+                    if (err) {
+                        dfd.reject(err);
+                    } else if ($.type(item) === STRING) {
+                        dfd.resolve(item);
+                    } else {
+                        // If the value of version is not found, we set it to app.version
+                        this._meta.setItem(VERSION, app.version, function (err, item) {
+                            if (err) {
+                                dfd.reject(err);
+                            } else {
+                                dfd.resolve(item);
+                            }
+                        });
+                    }
+                });
+            } else {
+                this._meta.setItem(VERSION, value, function (err, item) {
+                    if (err) {
+                        dfd.reject(err);
+                    } else {
+                        dfd.resolve(item);
+                    }
+                });
+            }
+            return dfd.promise();
         };
 
         /**
