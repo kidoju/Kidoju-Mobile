@@ -242,6 +242,11 @@
                 var storage = (RX_IEXPLORE.test(navigator.userAgent) || RX_ANDROID.test(navigator.userAgent)) ? localStorage : sessionStorage; // use localStorage in Android and IE
                 if (storage) {
                     storage.setItem(STATE, state);
+                    if (RX_ANDROID.test(navigator.userAgent)) {
+                        window.alert('Android State\n' + storage.getItem(STATE));
+                    } else {
+                        window.alert('not Android');
+                    }
                     logger.debug({
                         message: 'state added to sessionStorage',
                         method: 'util.setState',
