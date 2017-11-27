@@ -2645,6 +2645,7 @@ window.jQuery.holdReady(true);
                 }
                 /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
             } else if (token && token.access_token) {
+                window.alert(token.access_token);
                 /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                 // Load the remote mobile user (me) using the oAuth token
                 viewModel.loadUser()
@@ -2655,9 +2656,9 @@ window.jQuery.holdReady(true);
                             mobile.application.navigate(HASH + VIEW.USER);
                         }, 0);
                     })
-                    // .fail(function () {
-                    //     window.alert('oops');
-                    // })
+                    .fail(function () {
+                        window.alert('oops');
+                    })
                     .always(function () {
                         if ($.isFunction(callback)) {
                             callback();

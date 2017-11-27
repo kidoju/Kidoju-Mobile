@@ -241,7 +241,6 @@
                 var storage = (RX_IEXPLORE.test(navigator.userAgent) || RX_ANDROID.test(navigator.userAgent)) ? localStorage : sessionStorage; // use localStorage in Android and IE
                 if (storage) {
                     storage.setItem(STATE, state);
-                    window.alert('Write\n' + state);
                     logger.debug({
                         message: 'state added to sessionStorage',
                         method: 'util.setState',
@@ -258,7 +257,6 @@
                 var storage = (RX_IEXPLORE.test(navigator.userAgent) || RX_ANDROID.test(navigator.userAgent)) ? localStorage : sessionStorage; // use localStorage in Android and IE
                 if (storage) {
                     state = storage.getItem(STATE);
-                    window.alert('Read\n' + state);
                     storage.removeItem(STATE);
                     logger.debug({
                         message: 'state read and cleared from sessionStorage',
