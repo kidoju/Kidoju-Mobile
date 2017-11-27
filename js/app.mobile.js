@@ -268,9 +268,9 @@ window.jQuery.holdReady(true);
                     error: error,
                     data: { source:  source, lineno: lineno, colno: colno }
                 });
-                if (app.DEBUG) {
+                // if (app.DEBUG) { // TODO
                     window.alert(message);
-                }
+                // }
                 if (mobile.application instanceof kendo.mobile.Application) {
                     mobile.application.hideLoading();
                 }
@@ -301,6 +301,8 @@ window.jQuery.holdReady(true);
                     // https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/62
                 }
             }
+
+            window.alert('window.handleOpenURL');
 
             // Handle the url
             setTimeout(function () {
@@ -905,7 +907,11 @@ window.jQuery.holdReady(true);
 
                 // Languages
                 // this.set(VIEW_MODEL.LANGUAGE, language);
-                this.set(VIEW_MODEL.LANGUAGES, i18n.culture.viewModel.languages);
+                if (i18n && i18n.culture) { // TODO
+                    this.set(VIEW_MODEL.LANGUAGES, i18n.culture.viewModel.languages);
+                } else {
+                    window.alert('no i18n;')
+                }
 
                 // Selected player page
                 this.set(VIEW_MODEL.SELECTED_PAGE, undefined);
@@ -923,7 +929,9 @@ window.jQuery.holdReady(true);
 
                 // Themes
                 // this.set(VIEW_MODEL.THEME, app.theme.name());
-                this.set(VIEW_MODEL.THEMES, i18n.culture.viewModel.themes);
+                if (i18n && i18n.culture) { // TODO
+                    this.set(VIEW_MODEL.THEMES, i18n.culture.viewModel.themes);
+                }
 
                 // Do not change the user as a change of language or user has brought us here
                 // otherwise viewModel.bind(CHANGE, ...) will create an infinite loop and a stack overflow
@@ -1915,6 +1923,7 @@ window.jQuery.holdReady(true);
          * Loads the application, especially initialize plugins (which where not available until now)
          */
         mobile.onDeviceReady = function () {
+            window.alert('onDeviceReady!');
             logger.debug({
                 message: 'Device is ready',
                 method: 'mobile.onDeviceReady'
@@ -1948,6 +1957,7 @@ window.jQuery.holdReady(true);
          */
         mobile.oni18nLoaded = function () {
             assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'i18n.culture'));
+            window.alert('i18n.loaded!');
             logger.debug({
                 message: 'i18n culture is loaded',
                 method: 'mobile.oni18nLoaded'
