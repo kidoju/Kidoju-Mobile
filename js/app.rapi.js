@@ -322,7 +322,7 @@
                     var hasVerifiedState = false;
                     var hasVerifiedTimestamp = false;
 
-                    if ($.type(qs.error) === UNDEFINED) {
+                    if ($.type(qs.error) !== STRING) {
 
                         // Check access_token
                         // Note: We could not find any better rule to match access tokens from facebook, google, live and twitter
@@ -336,6 +336,7 @@
                         // Check state
                         // Note: rapi.util.getState() erases state, so it is not indempotent
                         hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
+                        window.alert('Verified state: ' + hasVerifiedState);
                         if (!hasVerifiedState) {
                             qs.error = 'Invalid state';
                         }
