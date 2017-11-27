@@ -170,7 +170,6 @@
                         /* jshint +W016 */
                     }
                 }
-                window.alert(navigator.userAgent + ' (' + hash + ')');
                 return Math.abs(hash); // We have experienced a negative fingerprint on PhantomJS in Travis-CI
             },
 
@@ -243,7 +242,7 @@
                 if (storage) {
                     storage.setItem(STATE, state);
                     if (RX_ANDROID.test(navigator.userAgent)) {
-                        window.alert('Android State\n' + storage.getItem(STATE));
+                        window.alert('Android State\n' + window.location.hostname + '\n' + storage.getItem(STATE));
                     } else {
                         window.alert('not Android');
                     }
@@ -263,6 +262,11 @@
                 var storage = (RX_IEXPLORE.test(navigator.userAgent) || RX_ANDROID.test(navigator.userAgent)) ? localStorage : sessionStorage; // use localStorage in Android and IE
                 if (storage) {
                     state = storage.getItem(STATE);
+                    if (RX_ANDROID.test(navigator.userAgent)) {
+                        window.alert('Android State\n' + window.location.hostname + '\n' + state);
+                    } else {
+                        window.alert('not Android');
+                    }
                     storage.removeItem(STATE);
                     logger.debug({
                         message: 'state read and cleared from sessionStorage',
