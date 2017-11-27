@@ -2850,6 +2850,7 @@ window.jQuery.holdReady(true);
                         method: 'mobile.onSigninButtonClick',
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
+                    window.alert(signInUrl);
                     // window.alert(mobile.support.safariViewController ? 'Yep' : 'Nope');
                     if (mobile.support.safariViewController) {
                         // running in Phonegap, using SFSafariViewController
