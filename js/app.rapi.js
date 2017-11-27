@@ -325,17 +325,19 @@
                     // Check access_token
                     // Note: We could not find any better rule to match access tokens from facebook, google, live and twitter
                     var hasVerifiedToken = ($.type(qs.access_token) === STRING && qs.access_token.length > 10);
-
+                    window.alert('token verified: ' + hasVerifiedToken);
                     // Note: We could check expires (Google and Windows Live are 3600 = 60*60 = 1h amd Facebook and Twitter are 5184000 = 60*60*24*60 = 60d)
 
                     // Check state
                     // Note: rapi.util.getState() erases state, so it is not indempotent
                     var hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
+                    window.alert('state verified: ' + hasVerifiedState);
 
                     // Check timestamp
                     var now = Date.now();
                     // Note there might be a lag, therefore -30s is required
                     var hasVerifiedTimestamp = ((now - qs.ts > -30 * 1000) && (now - qs.ts < 5 * 60 * 1000));
+                    window.alert('timestamp verified: ' + hasVerifiedTimestamp);
 
                     logger.debug({
                         message: 'token verified',
@@ -352,12 +354,8 @@
                             ts: qs.ts
                         };
 
-                        window.alert(token.access_token); // TODO
-
                         // setToken in localStorage
                         rapi.util.setToken(token);
-
-                        window.alert('notified!');
 
                         // Notify page
                         setTimeout(function () {
