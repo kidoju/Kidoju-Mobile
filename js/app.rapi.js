@@ -292,6 +292,9 @@
                 // When running tests with grunt.mochaTest, the url is a file url - file:///C:/Users/Jacques-Louis/Creative Cloud Files/Kidoju/Kidoju.Server/test/client/app.cache.test.html
                 // Also this assert fails in Phonegap InAppBrowser
                 // assert.match(RX_URL, url, rapi.util.format(assert.messages.match.default, 'url', RX_URL));
+
+                window.alert('parseToken');
+
                 var pos1 = rapi.util.getAccessTokenHashPos(url);
                 var qs = {};
                 var token = {};
@@ -348,10 +351,19 @@
                             expires: qs.expires,
                             ts: qs.ts
                         };
+
+                        window.alert(token.access_token); // TODO
+
                         // setToken in localStorage
                         rapi.util.setToken(token);
+
+                        window.alert('notified!');
+
                         // Notify page
-                        setTimeout(function () { $(document).trigger(AUTHENTICATION_SUCCESS); }, 500);
+                        setTimeout(function () {
+                            $(document).trigger(AUTHENTICATION_SUCCESS);
+                        }, 500);
+
                     } else if (hasError) {
                         token = {
                             error: qs.error
@@ -359,7 +371,9 @@
                         // Let's simply discard any attempt to set a token that does not pass the checks here above
                         rapi.util.clearToken();
                         // Notify page (we may have qs.error)
-                        setTimeout(function () { $(document).trigger(AUTHENTICATION_FAILURE, { error: qs.error }); }, 500);
+                        setTimeout(function () {
+                            $(document).trigger(AUTHENTICATION_FAILURE, { error: qs.error });
+                        }, 500);
                     }
 
                 }

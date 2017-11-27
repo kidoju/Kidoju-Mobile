@@ -308,13 +308,7 @@ window.jQuery.holdReady(true);
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
                     // The whole oAuth flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
-                    window.alert(url);
-                    try {
-                        mobile._parseTokenAndLoadUser(url);
-                    } catch (ex) {
-                        window.alert(ex.message);
-                    }
-                    window.alert(url);
+                    mobile._parseTokenAndLoadUser(url);
                 } else if (RX_URL_SCHEME.test(url)) {
                     var matches = RX_URL_SCHEME.exec(url);
                     // Note: we have already tested the url, so we know there is a match
@@ -2634,7 +2628,6 @@ window.jQuery.holdReady(true);
          * @private
          */
         mobile._parseTokenAndLoadUser = function (url, callback) {
-            window.alert('_parseTokenAndLoadUser');
             // parseToken sets the token in localStorage
             var token = rapi.util.parseToken(url);
             // No need to clean the history when opening in InAppBrowser or SafariViewController
@@ -2653,7 +2646,6 @@ window.jQuery.holdReady(true);
                 }
                 /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
             } else if (token && token.access_token) {
-                window.alert(token.access_token);
                 /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                 // Load the remote mobile user (me) using the oAuth token
                 viewModel.loadUser()
@@ -2664,9 +2656,9 @@ window.jQuery.holdReady(true);
                             mobile.application.navigate(HASH + VIEW.USER);
                         }, 0);
                     })
-                    .fail(function () {
-                        window.alert('oops');
-                    })
+                    // .fail(function () {
+                    //     window.alert('oops');
+                    // })
                     .always(function () {
                         if ($.isFunction(callback)) {
                             callback();
