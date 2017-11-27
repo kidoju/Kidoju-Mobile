@@ -307,7 +307,12 @@ window.jQuery.holdReady(true);
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
                     // The whole oAuth flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
-                    mobile._parseTokenAndLoadUser(url);
+                    window.alert(url);
+                    try {
+                        mobile._parseTokenAndLoadUser(url);
+                    } catch (ex) {
+                        window.alert(ex.message);
+                    }
                 } else if (RX_URL_SCHEME.test(url)) {
                     var matches = RX_URL_SCHEME.exec(url);
                     // Note: we have already tested the url, so we know there is a match
