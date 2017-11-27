@@ -144,8 +144,8 @@
     <engine name="windows" spec="^5.0.0" />
     <engine name="ios" spec="^4.5.3" />
     <engine name="android" spec="^6.4.0" />
-    <plugin name="cordova-plugin-file" spec="^5.0.0" />
-    <plugin name="cordova-plugin-file-transfer" spec="^1.7.0" />
+    <plugin name="cordova-plugin-file" spec="4.3.3" />
+    <plugin name="cordova-plugin-file-transfer" spec="1.6.3" />
     <plugin name="cordova-plugin-google-analytics" spec="^1.8.3" />
     <plugin name="cordova-plugin-safariviewcontroller" spec="^1.4.7" />
     <plugin name="cordova-plugin-tts" spec="^0.2.3" />
