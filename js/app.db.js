@@ -593,6 +593,7 @@
          */
         Collection.prototype.drop = function () {
             // TODO as and when localForage implements it - see https://github.com/localForage/localForage/issues/620
+            // Note: we could keep track of collections in the META table
             throw new Error(NOT_IMPLEMENTED);
         };
 
@@ -655,8 +656,8 @@
             this._options = options;
             this._idField = options.idField || 'id';
 
-            // Configure localForage
-            options.storeName = options.name; // TODO ????????????????????????????
+            // Configure localForage default store name
+            options.storeName = META;
 
             // Force the use of WEBSQL in iOS WKWebView because indexedDB does not work properly
             // if (!window.chrome && window.webkit && window.indexedDB) {
@@ -675,9 +676,6 @@
             });
             */
 
-            // Add meta store
-            this._meta = localForage.createInstance({ name: META });
-
             // Add collections
             var collections = options.collections;
             for (var i = 0, length = collections.length; i < length; i++) {
@@ -692,14 +690,14 @@
         Database.prototype.version = function (value) {
             var dfd = $.Deferred();
             if ($.type(value) === UNDEFINED) {
-                this._meta.getItem(VERSION, function (err, item) {
+                localForage.getItem(VERSION, function (err, item) {
                     if (err) {
                         dfd.reject(err);
                     } else if ($.type(item) === STRING) {
                         dfd.resolve(item);
                     } else {
                         // If the value of version is not found, we set it to app.version
-                        this._meta.setItem(VERSION, app.version, function (err, item) {
+                        localForage.setItem(VERSION, (app && app.version) || '0.0.1', function (err, item) {
                             if (err) {
                                 dfd.reject(err);
                             } else {
@@ -709,7 +707,7 @@
                     }
                 });
             } else {
-                this._meta.setItem(VERSION, value, function (err, item) {
+                localForage.setItem(VERSION, value, function (err, item) {
                     if (err) {
                         dfd.reject(err);
                     } else {
@@ -726,6 +724,7 @@
          * @param name
          */
         Database.prototype.createCollection = function (name, options) {
+            // Note: we could keep track of collections in the META table
             throw new Error('Instantiate a new Database object and pass an array of collection names to the constructor.');
         };
 

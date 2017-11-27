@@ -1692,7 +1692,7 @@ window.jQuery.holdReady(true);
                     viewElement = $(HASH + VIEW.NETWORK);
                     var viewWidget = viewElement.data('kendoMobileView');
                     // Note: we could also localize image alt attribute
-                    viewElement.find('h2.message').html(culture.network.message);
+                    viewElement.find('h2.title').html(culture.network.title);
 
                     // Localize player
                     viewElement = $(HASH + VIEW.PLAYER);
@@ -1730,7 +1730,11 @@ window.jQuery.holdReady(true);
                     summaryActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.summary.actionSheet.cancel);
 
                     // Localize sync
-                    // viewElement = $(HASH + VIEW.SYNC);
+                    viewElement = $(HASH + VIEW.SYNC);
+                    var viewWidget = viewElement.data('kendoMobileView');
+                    // Note: we could also localize image alt attribute
+                    viewElement.find('h2.title').html(culture.sync.title);
+                    // viewElement.find('p.message').html(culture.sync.message);
 
                     // Localize user
                     viewElement = $(HASH + VIEW.USER);

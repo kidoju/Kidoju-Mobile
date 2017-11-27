@@ -103,8 +103,8 @@
             // Network connection view
             network: {
                 viewTitle: 'Connection',
-                // h2
-                message: 'No Network'
+                title: 'No Network'
+                // message: ''
             },
             // Notification messages
             notifications: {
@@ -156,10 +156,6 @@
                 viewTitle: 'Page {0} of {1}',
                 // Labels
                 instructions: 'Instructions'
-            },
-            // Progress view
-            progress: {
-                viewTitle: 'Synchronization'
             },
             // Score view
             score: {
@@ -214,6 +210,12 @@
                     message: 'Assess your knowledge on Kidoju.\n\nTitle:\t\t{0}\nLink:\t\t{1}\nDescription:\t{2}',
                     subject: 'How much do you know about \u201C{0}\u201D?'
                 }
+            },
+            // Sync view
+            sync: {
+                viewTitle: 'Synchronization',
+                title: 'Progress'
+                // message: ''
             },
             // User view
             user: {

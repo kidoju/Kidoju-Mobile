@@ -27,15 +27,9 @@
     (function ($, undefined) {
 
         var kendo = window.kendo;
-        var assert = window.assert;
+        // var assert = window.assert;
         var logger = new window.Logger('app.db.migration');
         var OBJECT = 'object';
-        // var STRING = 'string';
-        // var UNDEFINED = 'undefined';
-        // var MACHINE_POS = 8;
-        // var MACHINE_ID = '000000';
-        // var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
-        // var NOT_IMPLEMENTED = 'Not yet implemented';
 
         /**
          * Compare semantic versions (either directly or as a _version property of an object)
@@ -68,15 +62,30 @@
          * An upgrade is a series of migrations
          */
         pongodb.Upgrade = kendo.Class.extend({
+
+            /**
+             * Initialisation
+             * @constructor
+             * @param options
+             */
             init: function (options) {
                 this._db = options.db;
                 this._migrations = [];
             },
+
+            /**
+             * Push migration
+             * @param migration
+             */
             push: function (migration) {
                 migration._db = this._db;
                 this._migrations.push(migration);
             },
             // TODO Check application upgrade with ping!!!!!
+
+            /**
+             * Execution
+             */
             execute: function () {
                 var that = this;
                 var dfd = $.Deferred();
@@ -90,11 +99,21 @@
                             var migration = migrations[i];
                             if (compareVersions(version, migration._version) < 0) {
                                 found = true;
+                                logger.info({
+                                    method: 'pongodb.Upgrade.execute',
+                                    message: 'Starting migration',
+                                    data: { version: migration._version }
+                                });
                                 migration.execute()
                                     .progress(dfd.notify)
                                     .done(function () {
                                         that._db.version(migration._version)
                                             .done(function () {
+                                                logger.info({
+                                                    method: 'pongodb.Upgrade.execute',
+                                                    message: 'Completed migration',
+                                                    data: { version: migration._version }
+                                                });
                                                 // Use recursion to execute the following migration
                                                 that.execute()
                                                     .progress(dfd.notify)
@@ -122,11 +141,21 @@
          * IMPORTANT: Migrations need to be idempotent (can be executed any number of times)
          */
         pongodb.Migration = kendo.Class.extend({
+
+            /**
+             * Initialisation
+             * @constructor
+             * @param options
+             */
             init: function (options) {
                 this._db = null;
                 this._scripts = options.scripts || [];
                 this._version = options.version || '0.0.1';
             },
+
+            /**
+             * Execution
+             */
             execute: function () {
                 var dfd = $.Deferred();
                 var scripts = this._scripts;

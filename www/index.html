@@ -338,7 +338,8 @@
     <!-- N0 network view -->
     <div id="network" data-role="view" data-layout="main-layout" data-title="No Network" data-transition="fade" data-show="app.mobile.onNetworkViewShow">
         <img src="./img/antenna.svg" alt="No Network" class="km-thumbnail picture">
-        <h2 class="message">No Network</h2>
+        <h2 class="title">No Network</h2>
+        <!--p class="message">Progress</p-->
     </div>
 
     <!-- Player view -->
@@ -508,8 +509,13 @@
     </div>
 
     <!-- Sync view -->
-    <div id="sync" data-role="view" data-layout="main-layout" data-title="Sync" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSyncViewShow">
-        <div></div>
+    <div id="sync" data-role="view" data-layout="main-layout" data-title="Synchronization" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSyncViewShow">
+        <img src="./img/gearwheels.svg" alt="Progress" class="km-thumbnail picture">
+        <h2 class="title">Progress</h2>
+        <p class="message">Progress</p>
+        <div>
+            <div data-role="progressbar"></div>
+        </div>
     </div>
 
     <!-- User view -->
