@@ -55,6 +55,7 @@
         var COMMANDS = ['publish', 'draft'];
         var FORM_CONTENT_TYPE = 'application/x-www-form-urlencoded';
         var JSON_CONTENT_TYPE = 'application/json';
+        var RX_ANDROID = /Android/;
         var RX_IEXPLORE = /;\s(MSIE\s|Trident\/)/;
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var RX_LANGUAGE = /^[a-z]{2}$/;
@@ -238,7 +239,7 @@
              */
             setState: function (state) {
                 assert.type(STRING, state, rapi.util.format(assert.messages.type.default, 'state', STRING)); // Note: we could consider an assert.match here
-                var storage = RX_IEXPLORE.test(navigator.userAgent) ? localStorage : sessionStorage; // use localStorage in IE
+                var storage = (RX_IEXPLORE.test(navigator.userAgent) || RX_ANDROID.test(navigator.userAgent)) ? localStorage : sessionStorage; // use localStorage in Android and IE
                 if (storage) {
                     storage.setItem(STATE, state);
                     logger.debug({
@@ -254,7 +255,7 @@
              */
             getState: function () {
                 var state;
-                var storage = RX_IEXPLORE.test(navigator.userAgent) ? localStorage : sessionStorage; // use localStorage in IE
+                var storage = (RX_IEXPLORE.test(navigator.userAgent) || RX_ANDROID.test(navigator.userAgent)) ? localStorage : sessionStorage; // use localStorage in Android and IE
                 if (storage) {
                     state = storage.getItem(STATE);
                     storage.removeItem(STATE);
@@ -344,11 +345,7 @@
                         // Check state
                         // Note: rapi.util.getState() erases state, so it is not indempotent
                         // hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
-                        var state = rapi.util.getState();
-                        var fingerPrint = rapi.util.getFingerPrint();
-                        hasVerifiedState = (state === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
-                        window.alert('Session storage state\n' + state + '\nToken state\n' + qs.state);
-                        window.alert('Fingerprint\n' + fingerPrint);
+                        hasVerifiedState = (rapi.util.getState() === qs.state && qs.state.indexOf(rapi.util.getFingerPrint()) === 0);
                         if (!hasVerifiedState) {
                             qs.error = 'Invalid state';
                         }
