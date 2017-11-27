@@ -2645,16 +2645,16 @@ window.jQuery.holdReady(true);
                 }
                 /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
             } else if (token && token.access_token) {
-                window.alert(token.access_token);
                 /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                 // Load the remote mobile user (me) using the oAuth token
                 viewModel.loadUser()
-                    .done(function () {
+                    .done(function (data) {
+                        window.alert('user ' + JSON.stringify(data));
                         // Yield time for transition effects to complete, especially when testing in the browser
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
-                        setTimeout(function () {
+                        // setTimeout(function () {
                             mobile.application.navigate(HASH + VIEW.USER);
-                        }, 0);
+                        // }, 0);
                     })
                     .fail(function () {
                         window.alert('oops');
