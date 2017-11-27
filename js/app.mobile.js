@@ -290,25 +290,20 @@ window.jQuery.holdReady(true);
          */
         window.handleOpenURL = function (url) {
 
-            window.alert(url);
-
             // Hide the SafariViewController in all circumstances
             // This has to be done before the setTimeout otherwise the SafariViewController does not close on iOS
             // mobile.support.safariViewController is iOS only until https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/51
             if (mobile.support.safariViewController) {
                 try {
-                    // https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/62
                     mobile.SafariViewController.hide();
                 } catch(ex) {
-                    window.alert(ex.message);
+                    // They say mobile.SafariViewController.hide is not implemented on Android
+                    // https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/62
                 }
             }
 
             // Handle the url
             setTimeout(function () {
-
-                window.alert('setTimeout');
-
                 if (url.startsWith(URL_SCHEME + 'oauth')) {
                     // The whole oAuth flow is documented at
                     // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
@@ -2650,6 +2645,7 @@ window.jQuery.holdReady(true);
                 }
                 /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
             } else if (token && token.access_token) {
+                window.alert(token.access_token);
                 /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                 // Load the remote mobile user (me) using the oAuth token
                 viewModel.loadUser()
@@ -2659,6 +2655,9 @@ window.jQuery.holdReady(true);
                         setTimeout(function () {
                             mobile.application.navigate(HASH + VIEW.USER);
                         }, 0);
+                    })
+                    .fail(function () {
+                        window.alert('oops');
                     })
                     .always(function () {
                         if ($.isFunction(callback)) {
