@@ -13,7 +13,7 @@
     <preference name="LoadUrlTimeoutValue" value="60000" />
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
-    <preference name="AndroidLaunchMode" value="singleInstance" />
+    <preference name="AndroidLaunchMode" value="singleTask" />
     <preference name="windows-target-version" value="10.0" />
     <preference name="windows-arch" value="x64" />
     <preference name="phonegap-version" value="cli-7.0.1" />
@@ -111,7 +111,7 @@
             <application hardwareAccelerated="false" />
         </config-file>
         <config-file parent="/manifest/application" platform="android">
-            <activity android:launchMode="singleInstance" />
+            <activity android:launchMode="singleTask" />
         </config-file>
     </platform>
     <platform name="browser">
@@ -157,7 +157,7 @@
     </plugin>
     <plugin name="cordova-plugin-console" spec="^1.1.0" />
     <plugin name="cordova-plugin-x-socialsharing" spec="^5.2.1" />
-    <plugin name="phonegap-plugin-barcodescanner" spec="^7.0.0">
+    <plugin name="phonegap-plugin-barcodescanner" spec="6.0.8">
         <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
     </plugin>
     <plugin name="cordova-plugin-compat" spec="^1.2.0" />
