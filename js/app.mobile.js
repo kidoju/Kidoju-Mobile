@@ -282,7 +282,7 @@ window.jQuery.holdReady(true);
          * By default jQuery has no timeout (0), but let's time out at 30sec on mobile devices
          */
         $.ajaxSetup({
-            timeout: 30000 // Timeout in milliseconds
+            timeout: 20000 // Timeout in milliseconds
         });
 
         /**
@@ -333,8 +333,11 @@ window.jQuery.holdReady(true);
             }
 
             if (mobile.application instanceof kendo.mobile.Application && $.isPlainObject(i18n.culture)) {
-                handleOpenURL(url);
+                setTimeout(function () { handleOpenURL(url); }, 0);
             } else {
+                // Android closes and launches the app, triggering onDeviceReady
+                // So we have added an APPINIT event which is triggered form the init event handler of kendo.mobile.Application
+                // At this stage mobile.application and i18n.culture are available for any statement in handleOpenURL
                 $(document).one(APPINIT, function () { handleOpenURL(url); });
             }
         };
@@ -891,6 +894,9 @@ window.jQuery.holdReady(true);
              * Important: this cannot be a promise so loading has to occur elsewhere
              */
             reset: function () {
+                // i18n.culture must be loaded
+                assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'app.i18n.culture'));
+
                 var language = i18n.locale();
                 var userId = this.get(VIEW_MODEL.USER.SID);
                 var rootCategoryId = this.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID) || DEFAULT.ROOT_CATEGORY_ID[language];
@@ -902,7 +908,6 @@ window.jQuery.holdReady(true);
                     language: language,
                     userId: userId
                 });
-                // TODO read
 
                 // List of categories
                 this.get(VIEW_MODEL.CATEGORIES).filter({ field: 'id', operator: 'startsWith', value: rootCategoryId.substr(0, TOP_LEVEL_CHARS) });
@@ -915,11 +920,7 @@ window.jQuery.holdReady(true);
 
                 // Languages
                 // this.set(VIEW_MODEL.LANGUAGE, language);
-                if (i18n && i18n.culture) { // TODO
-                    this.set(VIEW_MODEL.LANGUAGES, i18n.culture.viewModel.languages);
-                } else {
-                    window.alert('no i18n;')
-                }
+                this.set(VIEW_MODEL.LANGUAGES, i18n.culture.viewModel.languages);
 
                 // Selected player page
                 this.set(VIEW_MODEL.SELECTED_PAGE, undefined);
@@ -937,9 +938,7 @@ window.jQuery.holdReady(true);
 
                 // Themes
                 // this.set(VIEW_MODEL.THEME, app.theme.name());
-                if (i18n && i18n.culture) { // TODO
-                    this.set(VIEW_MODEL.THEMES, i18n.culture.viewModel.themes);
-                }
+                this.set(VIEW_MODEL.THEMES, i18n.culture.viewModel.themes);
 
                 // Do not change the user as a change of language or user has brought us here
                 // otherwise viewModel.bind(CHANGE, ...) will create an infinite loop and a stack overflow
