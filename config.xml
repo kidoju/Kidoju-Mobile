@@ -110,7 +110,7 @@
         <config-file parent="/manifest" platform="android">
             <application hardwareAccelerated="false" />
         </config-file>
-        <config-file parent="/manifest/application" platform="android" mode="merge">
+        <config-file parent="/manifest/application" platform="android">
             <activity android:launchMode="singleInstance" />
         </config-file>
     </platform>
