@@ -67,7 +67,6 @@
                     }
                     // Load culture
                     i18n.culture = cultures[locale];
-                    window.alert('culture loaded!');
                     // Log readiness
                     logger.debug({
                         message: locale + ' locale loaded',

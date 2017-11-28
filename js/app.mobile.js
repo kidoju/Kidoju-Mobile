@@ -312,6 +312,9 @@ window.jQuery.holdReady(true);
                 });
                 app.notification.warning(i18n.culture.notifications.openUrlUnknown);
             }
+            if (mobile.support.splashscreen) {
+                mobile.splashscreen.hide();
+            }
         }
 
         /**
@@ -333,9 +336,11 @@ window.jQuery.holdReady(true);
             }
 
             if (mobile.application instanceof kendo.mobile.Application && $.isPlainObject(i18n.culture)) {
+                // iOS goes through this branch
+                // browser apps use a simple redirection which does not require a custom url scheme
                 setTimeout(function () { handleOpenURL(url); }, 0);
             } else {
-                // Android closes and launches the app, triggering onDeviceReady
+                // Android creates a new intent to perform the task, triggering onDeviceReady and actually reloading the app
                 // So we have added an APPINIT event which is triggered form the init event handler of kendo.mobile.Application
                 // At this stage mobile.application and i18n.culture are available for any statement in handleOpenURL
                 $(document).one(APPINIT, function () { handleOpenURL(url); });
@@ -1456,8 +1461,9 @@ window.jQuery.holdReady(true);
                     // Do not trigger before the kendo mobile application is loaded
                     if (mobile.application instanceof kendo.mobile.Application && $.isPlainObject(i18n.culture)) {
                         var language = e.sender.get(VIEW_MODEL.LANGUAGE);
-                        mobile.localize(language)
+                        i18n.load(language)
                             .done(function () {
+                                mobile.localize(language);
                                 // Reset categories
                                 viewModel.set(VIEW_MODEL.CATEGORIES, new models.LazyCategoryDataSource()); // This is necessary because it loads for i18n.locale()
                                 // Reset the root category
@@ -1616,7 +1622,7 @@ window.jQuery.holdReady(true);
          * Init the notification widget
          * @private
          */
-        mobile._initNotification = function () {
+        mobile._initToastNotifications = function () {
             var notification = $('#notification');
             assert.hasLength(notification, kendo.format(assert.messages.hasLength.default, '#notification'));
             if (app && app.notification instanceof kendo.ui.Notification) {
@@ -1667,114 +1673,112 @@ window.jQuery.holdReady(true);
             assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
             assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'locale', app.locales));
 
-            return i18n.load(language)
-                .done(function () {
-                    var viewElement;
-                    var culture = i18n.culture;
+            var viewElement;
+            var culture = i18n.culture;
 
-                    // Localize Main Layout
-                    $(HASH + LAYOUT.MAIN + '-back').text(culture.layout.back);
+            // Localize Main Layout
+            $(HASH + LAYOUT.MAIN + '-back').text(culture.layout.back);
 
-                    // Localize drawer
-                    var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
-                    viewElement = $(HASH + VIEW.DRAWER);
-                    // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
-                    var categoriesElement = viewElement.find('ul>li>a.km-listview-link:eq(0)');
-                    categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.categories));
-                    var scanElement = viewElement.find('ul>li>a.km-listview-link:eq(1)');
-                    scanElement.html(scanElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.scan));
-                    // var favouritesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
-                    // favouritesElement.html(favouritesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.favourites));
-                    var activitiesElement = viewElement.find('ul>li>a.km-listview-link:eq(2)');
-                    activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.activities));
-                    var settingsElement = viewElement.find('ul>li>a.km-listview-link:eq(3)');
-                    settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.settings));
+            // Localize drawer
+            var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
+            viewElement = $(HASH + VIEW.DRAWER);
+            // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
+            var categoriesElement = viewElement.find('ul>li>a.km-listview-link:eq(0)');
+            categoriesElement.html(categoriesElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.categories));
+            var scanElement = viewElement.find('ul>li>a.km-listview-link:eq(1)');
+            scanElement.html(scanElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.scan));
+            // var favouritesElement = drawerViewElement.find('ul>li>a.km-listview-link:eq(2)');
+            // favouritesElement.html(favouritesElement.html().replace(RX_REPLACE, '$1$2' + drawerCulture.favourites));
+            var activitiesElement = viewElement.find('ul>li>a.km-listview-link:eq(2)');
+            activitiesElement.html(activitiesElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.activities));
+            var settingsElement = viewElement.find('ul>li>a.km-listview-link:eq(3)');
+            settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.settings));
 
-                    // Localize activities
-                    viewElement = $(HASH + VIEW.ACTIVITIES);
-                    viewElement.find('ul[data-role="buttongroup"]>li:eq(0)').html(culture.activities.buttonGroup.list);
-                    viewElement.find('ul[data-role="buttongroup"]>li:eq(1)').html(culture.activities.buttonGroup.chart);
+            // Localize activities
+            viewElement = $(HASH + VIEW.ACTIVITIES);
+            viewElement.find('ul[data-role="buttongroup"]>li:eq(0)').html(culture.activities.buttonGroup.list);
+            viewElement.find('ul[data-role="buttongroup"]>li:eq(1)').html(culture.activities.buttonGroup.chart);
 
-                    // Localize categories
-                    // viewElement = $(HASH + VIEW.CATEGORIES);
+            // Localize categories
+            // viewElement = $(HASH + VIEW.CATEGORIES);
 
-                    // Localize correction
-                    viewElement = $(HASH + VIEW.CORRECTION);
-                    viewElement.find('span.explanations').html(culture.correction.explanations);
+            // Localize correction
+            viewElement = $(HASH + VIEW.CORRECTION);
+            viewElement.find('span.explanations').html(culture.correction.explanations);
 
-                    // Localize favourites
-                    // viewElement = $(HASH + VIEW.FAVOURITES);
+            // Localize favourites
+            // viewElement = $(HASH + VIEW.FAVOURITES);
 
-                    // Localize finder
-                    // viewElement = $(HASH + VIEW.FINDER);
+            // Localize finder
+            // viewElement = $(HASH + VIEW.FINDER);
 
-                    // Localize network
-                    viewElement = $(HASH + VIEW.NETWORK);
-                    var viewWidget = viewElement.data('kendoMobileView');
-                    // Note: we could also localize image alt attribute
-                    viewElement.find('h2.title').html(culture.network.title);
+            // Localize network
+            viewElement = $(HASH + VIEW.NETWORK);
+            var viewWidget = viewElement.data('kendoMobileView');
+            // Note: we could also localize image alt attribute
+            viewElement.find('h2.title').html(culture.network.title);
 
-                    // Localize player
-                    viewElement = $(HASH + VIEW.PLAYER);
-                    viewElement.find('span.instructions').html(culture.player.instructions);
+            // Localize player
+            viewElement = $(HASH + VIEW.PLAYER);
+            viewElement.find('span.instructions').html(culture.player.instructions);
 
-                    // Localize score
-                    // viewElement = $(HASH + VIEW.SCORE);
+            // Localize score
+            // viewElement = $(HASH + VIEW.SCORE);
 
-                    // Localize settings
-                    viewElement = $(HASH + VIEW.SETTINGS);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.settings.user);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.settings.version);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.settings.theme);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.settings.language);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.settings.category);
-                    viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.settings.switch); // button before view is initialized
-                    viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.settings.switch);              // button after view is initialized
+            // Localize settings
+            viewElement = $(HASH + VIEW.SETTINGS);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.settings.user);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.settings.version);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.settings.theme);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.settings.language);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.settings.category);
+            viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.settings.switch); // button before view is initialized
+            viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.settings.switch);              // button after view is initialized
 
-                    // Localize signin
-                    viewElement = $(HASH + VIEW.SIGNIN);
-                    viewElement.find('.k-notification-wrap>span.k-text').text(culture.signin.welcome);
+            // Localize signin
+            viewElement = $(HASH + VIEW.SIGNIN);
+            viewElement.find('.k-notification-wrap>span.k-text').text(culture.signin.welcome);
 
-                    // Localize summary
-                    viewElement = $(HASH + VIEW.SUMMARY);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.summary.title);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.summary.categories);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.summary.tags);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.summary.description);
-                    viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.summary.go);       // button before view is initialized
-                    viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.summary.go);                    // button after view is initialized
-                    var summaryActionSheetElement = $(HASH + VIEW.SUMMARY + '-actionsheet');
-                    summaryActionSheetElement.find('li.km-actionsheet-play > a').text(culture.summary.actionSheet.play);
-                    summaryActionSheetElement.find('li.km-actionsheet-share > a').text(culture.summary.actionSheet.share);
-                    summaryActionSheetElement.find('li.km-actionsheet-feedback > a').text(culture.summary.actionSheet.feedback);
-                    summaryActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.summary.actionSheet.cancel);
+            // Localize summary
+            viewElement = $(HASH + VIEW.SUMMARY);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.summary.title);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.summary.categories);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.summary.tags);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.summary.description);
+            viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.summary.go);       // button before view is initialized
+            viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.summary.go);                    // button after view is initialized
+            var summaryActionSheetElement = $(HASH + VIEW.SUMMARY + '-actionsheet');
+            summaryActionSheetElement.find('li.km-actionsheet-play > a').text(culture.summary.actionSheet.play);
+            summaryActionSheetElement.find('li.km-actionsheet-share > a').text(culture.summary.actionSheet.share);
+            summaryActionSheetElement.find('li.km-actionsheet-feedback > a').text(culture.summary.actionSheet.feedback);
+            summaryActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.summary.actionSheet.cancel);
 
-                    // Localize sync
-                    viewElement = $(HASH + VIEW.SYNC);
-                    var viewWidget = viewElement.data('kendoMobileView');
-                    // Note: we could also localize image alt attribute
-                    viewElement.find('h2.title').html(culture.sync.title);
-                    // viewElement.find('p.message').html(culture.sync.message);
+            // Localize sync
+            viewElement = $(HASH + VIEW.SYNC);
+            var viewWidget = viewElement.data('kendoMobileView');
+            // Note: we could also localize image alt attribute
+            viewElement.find('h2.title').html(culture.sync.title);
+            // viewElement.find('p.message').html(culture.sync.message);
 
-                    // Localize user
-                    viewElement = $(HASH + VIEW.USER);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.user.firstName);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.user.lastName);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.user.lastUse);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.user.pin);
-                    viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.user.confirm);
-                    viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.user.save);        // button before view is initialized
-                    viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.user.save);                     // button after view is initializef
-                    viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(1)').text(culture.user.signIn);      // button before view is initialized
-                    viewElement.find('.buttons>.km-button>span.km-text:eq(1)').text(culture.user.signIn);                   // button after view is initializef
-                    viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(2)').text(culture.user.newUser);     // button before view is initialized
-                    viewElement.find('.buttons>.km-button>span.km-text:eq(2)').text(culture.user.newUser);                  // button after view is initializef
+            // Localize user
+            viewElement = $(HASH + VIEW.USER);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.user.firstName);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.user.lastName);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.user.lastUse);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.user.pin);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.user.confirm);
+            viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.user.save);        // button before view is initialized
+            viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.user.save);                     // button after view is initializef
+            viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(1)').text(culture.user.signIn);      // button before view is initialized
+            viewElement.find('.buttons>.km-button>span.km-text:eq(1)').text(culture.user.signIn);                   // button after view is initializef
+            viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(2)').text(culture.user.newUser);     // button before view is initialized
+            viewElement.find('.buttons>.km-button>span.km-text:eq(2)').text(culture.user.newUser);                  // button after view is initializef
 
-                    // Reset navbar title
-                    if (mobile.application instanceof kendo.mobile.Application) {
-                        mobile._setNavBarTitle(mobile.application.view());
-                    }
-                });
+            // Reset navbar title
+            if (mobile.application instanceof kendo.mobile.Application) {
+                mobile._setNavBarTitle(mobile.application.view());
+            }
+
         };
 
         /*******************************************************************************************
@@ -1915,7 +1919,7 @@ window.jQuery.holdReady(true);
             // In Android, onResize might be triggered before kendo.mobile.Application is instantiated
             if (mobile.application instanceof kendo.mobile.Application) {
                 var view = mobile.application.view();
-                mobile._initNotification();
+                mobile._initToastNotifications();
                 mobile._resizeStage(view);
                 mobile._resizeChart(view);
             }
@@ -1930,7 +1934,7 @@ window.jQuery.holdReady(true);
          * Loads the application, especially initialize plugins (which where not available until now)
          */
         mobile.onDeviceReady = function () {
-            window.alert('onDeviceReady!');
+            // window.alert('onDeviceReady!');
             logger.debug({
                 message: 'Device is ready',
                 method: 'mobile.onDeviceReady'
@@ -1964,7 +1968,6 @@ window.jQuery.holdReady(true);
          */
         mobile.oni18nLoaded = function () {
             assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'i18n.culture'));
-            window.alert('i18n.loaded!');
             logger.debug({
                 message: 'i18n culture is loaded',
                 method: 'mobile.oni18nLoaded'
@@ -1972,7 +1975,7 @@ window.jQuery.holdReady(true);
             // Schedule OS notifications
             mobile._scheduleSystemNotifications();
             // Initialize toast notifications
-            mobile._initNotification();
+            mobile._initToastNotifications();
             // Initialize battery events
             mobile._initBatteryEvents();
             // Initialize network events
@@ -2012,21 +2015,19 @@ window.jQuery.holdReady(true);
                     // Fix skin variant
                     mobile._fixThemeVariant(e.sender.options.skin);
                     // Localize the application
-                    mobile.localize(viewModel.get(VIEW_MODEL.LANGUAGE))
-                        .done(function () {
-                            // Reinitialize notifications now that we know the size of .km-header
-                            mobile._initNotification();
-                            // Bind the router change event to the onRouterViewChange handler
-                            mobile.application.router.bind(CHANGE, mobile.onRouterViewChange);
-                            // Trigger application init event
-                            $(document).trigger(APPINIT);
-                            // hide the splash screen
-                            setTimeout(function () {
-                                if (mobile.support.splashscreen) {
-                                    mobile.splashscreen.hide();
-                                }
-                            }, 500); // + 500 is default fadeOut time
-                        });
+                    mobile.localize(viewModel.get(VIEW_MODEL.LANGUAGE));
+                    // Reinitialize notifications now that we know the size of .km-header
+                    mobile._initToastNotifications();
+                    // Bind the router change event to the onRouterViewChange handler
+                    mobile.application.router.bind(CHANGE, mobile.onRouterViewChange);
+                    // Trigger application init event for handleOpenURL event han lder (custom url scheme)
+                    $(document).trigger(APPINIT);
+                    // hide the splash screen
+                    setTimeout(function () {
+                        if (mobile.support.splashscreen) {
+                            mobile.splashscreen.hide();
+                        }
+                    }, 500); // + 500 is default fadeOut time
                 }
             });
         };
@@ -2671,11 +2672,9 @@ window.jQuery.holdReady(true);
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
                         // app.mobile.application.view().one('transitionEnd', function () {
                         setTimeout(function () {
-                            debugger;
-                            window.alert('user2 ' + JSON.stringify(data));
                             mobile.application.navigate(HASH + VIEW.USER);
                             dfd.resolve(data);
-                        }, 100);
+                        }, 0);
                     })
                     .fail(dfd.reject);
             }
@@ -2869,7 +2868,6 @@ window.jQuery.holdReady(true);
                         method: 'mobile.onSigninButtonClick',
                         data: { provider: provider, returnUrl: returnUrl, signInUrl: signInUrl }
                     });
-                    window.alert(signInUrl);
                     // window.alert(mobile.support.safariViewController ? 'Yep' : 'Nope');
                     if (mobile.support.safariViewController) {
                         // running in Phonegap, using SFSafariViewController
