@@ -312,9 +312,8 @@ window.jQuery.holdReady(true);
                 });
                 app.notification.warning(i18n.culture.notifications.openUrlUnknown);
             }
-            if (mobile.support.splashscreen) {
-                mobile.splashscreen.hide();
-            }
+            // Trying to accelerate the hiding of the splash screen does not help
+            // if (mobile.support.splashscreen) { mobile.splashscreen.hide(); }
         }
 
         /**
