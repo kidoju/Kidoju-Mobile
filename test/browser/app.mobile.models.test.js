@@ -30,11 +30,51 @@
     describe('app.mobile.models', function () {
 
         before(function (done) {
+            debugger;
             mockDB.load()
                 .done(done)
                 .fail(function (xhr, status, error) {
                     done(new Error(this.url + ' ' + error));
                 });
+        });
+
+        describe('MobileTransport', function () {
+
+            var transport = new models.MobileTransport({
+                partition: {
+                    userId: '000000000000000000000000',
+                    'version.state': 5
+                }
+            });
+
+            before(function () {
+
+            });
+
+            describe('When creating an item', function () {
+                it('A new item should be created', function () {
+
+                });
+            });
+
+            describe('When reading an item', function () {
+                it('The item should be found if it exists', function () {
+
+                });
+            });
+
+            describe('When updating an item', function () {
+                it('The item should be updated if it exists', function () {
+
+                });
+            });
+
+            describe('When destroying an item', function () {
+                it('The item should be destroyed if it exists', function () {
+
+                });
+            });
+
         });
 
         describe('MobileUser', function () {

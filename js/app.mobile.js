@@ -908,9 +908,9 @@ window.jQuery.holdReady(true);
                 // List of activities
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
                 assert.instanceof(models.MobileActivityDataSource, activities, kendo.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
-                activities.transport.setOptions({
-                    language: language,
-                    userId: userId
+                activities.transport.setPartition({
+                    'version.language': language,
+                    'actor.userId': userId
                 });
 
                 // List of categories
@@ -932,7 +932,7 @@ window.jQuery.holdReady(true);
                 // Search (per category or full text)
                 var summaries = this.get(VIEW_MODEL.SUMMARIES);
                 assert.instanceof(models.LazySummaryDataSource, summaries, kendo.format(assert.messages.instanceof.default, 'summaries', 'app.models.LazySummaryDataSource'));
-                summaries.transport.setOptions({
+                summaries.transport.setOptions({ // TODO setPartition
                     language: language,
                     userId: app.constants.authorId
                 });
@@ -981,11 +981,14 @@ window.jQuery.holdReady(true);
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
                 var dfd = $.Deferred();
                 if (activities.total() > 0 &&
-                    activities.transport._language === options.language &&
-                    activities.transport._userId === options.userId) {
+                    activities.transport._partition['version.language'] === options.language &&
+                    activities.transport._partition['actor.userId'] === options.userId) {
                     dfd.resolve();
                 } else {
-                    activities.transport.setOptions(options);
+                    activities.transport.setPartition({
+                        'version.language': options.language,
+                        'actor.userId': options.userId
+                    });
                     activities._filter = undefined;
                     activities.read()
                         .done(dfd.resolve)

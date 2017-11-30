@@ -103,6 +103,7 @@
 
         /**
          * An error helper that converts an error into an array [xhr, status, error]
+         * in order to match $.ajax errors
          * @param error
          * @returns {[*,string,*]}
          * @constructor
@@ -158,14 +159,14 @@
                 var partition = this._partition;
                 for (var prop in partition) {
                     if (partition.hasOwnProperty(prop)) {
+                        var value = item;
+                        // We need to find the value of composite properties like in item['prop1.prop2'] which should be read as item.prop1.prop2
+                        // We need that for activity.author.userId or activity.version.language
                         var props = prop.split('.');
-                        var partProp = partition;
-                        var itemProp = item;
                         for (var i = 0, length = props.length; i < length; i++) {
-                            partProp = partProp[props[i]];
-                            itemProp = itemProp[props[i]];
+                            value = value[props[i]];
                         }
-                        if ($.type(partProp) !== UNDEFINED && partProp !== itemProp) {
+                        if ($.type(partition[prop]) !== UNDEFINED && partition[prop] !== value) {
                             var err = new Error('Invalid ' + prop);
                             err.prop = prop;
                             errors.push(err);
@@ -189,13 +190,17 @@
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var item = JSON.parse(JSON.stringify(options.data));
+                // item.updated = new Date();
+                item.__state__ = STATE.CREATED;
                 var errors = this._validate(item);
                 if (errors.length) {
                     var err = new Error('Invalid item');
                     err.errors = errors;
                     return options.error.apply(this, ErrorXHR(err));
                 }
-                // The database will give us an id (but not a date)
+                // Unless we give one, the database will give us an id, but not a date
+                // TODO check updated which is a stirng
+                debugger;
                 this.collection.insert(item)
                     .done(function() {
                         options.success({ total: 1, data: [item] });
@@ -216,9 +221,22 @@
                     method: 'app.models.MobileTransport.destroy',
                     data: options.data
                 });
-                var item = options.data;
+                // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
+                var item = JSON.parse(JSON.stringify(options.data));
                 var id = item.id;
+                // TODO: if item_state is created, remove from database otther wise mark as destroyed
+                // item.updated = new Date();
+                item.__state__ = STATE.DESTROYED;
+                /*
+                var errors = this._validate(item);
+                if (errors.length) {
+                    var err = new Error('Invalid item');
+                    err.errors = errors;
+                    return options.error.apply(this, ErrorXHR(err));
+                }
+                */
                 if (RX_MONGODB_ID.test(id)) {
+                    // TODO: we might prefer __STATE___
                     this.collection.remove({ id: id })
                         .done(function(result) {
                             if (result && result.nRemoved === 1) {
@@ -247,11 +265,9 @@
                 });
                 if ($.type(this._partition) === UNDEFINED) {
                     // This lets us create a dataSource without knowing the partition, which can be set later with setPartition
-                    // CReate the MobileTransport with options.partition: false to avoid this test
+                    // Create the MobileTransport with options.partition: false to avoid this test
                     options.success({ total: 0, data: [] });
                 } else {
-                    // TODO: we need to implement filtering, paging, sorting and grouping
-                    // TODO: ideally we should also consider field projections
                     this.collection
                         .find(this._partition).done(function(result) { // TODO: Test this._partition === false
                             if ($.isArray(result)) {
@@ -306,6 +322,299 @@
                 }
             }
 
+        });
+
+        /**
+         * An offline strategy using pongodb (and localForage)
+         * @class OfflineStrategy
+         */
+        models.OfflineStrategy = kendo.Class.extend({
+
+            /**
+             * Initialization
+             * @constructor
+             */
+            init: function (options) {
+                this.remoteTransport = options.transport;
+                this.collection = options.collection;
+            },
+
+            /**
+             * Create a local item
+             * @param options
+             */
+            create: function (options) {
+                var result = options.data;
+                debugger;
+                var partition = this.remoteTransport._partition;
+                result.id = kendo.guid();
+                for (var prop in partition) {
+                    if (partition.hasOwnProperty(prop)) {
+                        result[prop] = partition[prop];
+                    }
+                }
+                result.updated = new Date();
+                result.__state__ = STATE.CREATED;
+                localforage.setItem(result.id, result)
+                .then(function () {
+                    options.success({ total: 1, data: [result] });
+                })
+                .catch(function (err) {
+                    options.error(err);
+                });
+            },
+
+            /**
+             * Destroy a local item
+             * @param options
+             */
+            destroy: function (options) {
+                var result = options.data;
+                debugger;
+                result.updated = new Date();
+                result.__state__ = STATE.DESTROYED;
+                localforage.setItem(result.id, result)
+                .then(function () {
+                    options.success({ total: 1, data: [result] });
+                })
+                .catch(function (err) {
+                    options.error(err);
+                });
+            },
+
+            /**
+             * Read local items
+             * @param options
+             */
+            read: function (options) {
+                var result = [];
+                debugger;
+                var partition = this.remoteTransport._partition;
+                debugger;
+                // TODO sorting, filtering and paging
+                localforage.iterate(function(value) {
+                    if (value.__state__ !== STATE.DESTROYED) {
+                        var include = true;
+                        for (var prop in partition) {
+                            if (partition.hasOwnProperty(prop) && value[prop] !== partition[prop]) {
+                                include = false;
+                                break;
+                            }
+                        }
+                        if (include) {
+                            result.push(value);
+                        }
+                    }
+                }).then(function() {
+                    options.success({ total: result.length, data: result });
+                }).catch(function(err) {
+                    options.error(err);
+                });
+            },
+
+            /**
+             * Update a local item
+             * @param options
+             */
+            update: function (options) {
+                var result = options.data;
+                debugger;
+                result.updated = new Date();
+                if ($.type(result.__state__) === UNDEFINED) { // Especially if `created`
+                    result.__state__ = STATE.UPDATED;
+                }
+                localforage.setItem(result.id, result)
+                .then(function () {
+                    options.success({ total: 1, data: [result] });
+                })
+                .catch(function (err) {
+                    options.error(err);
+                });
+            },
+
+            /**
+             * Upload a created item
+             * @param item
+             * @private
+             */
+            _createSync: function (item) {
+                var dfd = $.Deferred();
+                // assert.equal(STATE.CREATED, item.__state__)
+                delete item.__state__;
+                debugger;
+                var localId = item.id;
+                item.id = null; // Note: We need a server id
+                this.remoteTransport.create({
+                    data: item,
+                    error: function (err) {
+                        // oops
+                        debugger;
+                        dfd.reject(err);
+                    },
+                    success: function (response) {
+                        Promise.all([
+                            localforage.removeItem(localId),
+                            localforage.setItem(response.data[0].id, response.data[0])
+                        ])
+                        .then(dfd.resolve)
+                        .catch(dfd.reject);
+                    }
+                });
+                return dfd.promise();
+            },
+
+            /**
+             * Upload a destroyed item
+             * @param item
+             * @private
+             */
+            _destroySync: function (item) {
+                var dfd = $.Deferred();
+                // assert.equal(STATE.DESTROYED, item.__state__)
+                delete item.__state__;
+                debugger;
+                this.remoteTransport.destroy({
+                    data: item,
+                    error: function (err) {
+                        if (err.message = '404') {
+                            // If item is not found on the server, remove from local database
+                            localforage.removeItem(item.id)
+                            .then(dfd.resolve)
+                            .catch(dfd.reject);
+                        } else {
+                            debugger;
+                            dfd.reject(err);
+                        }
+                    },
+                    success: function (response) {
+                        localforage.removeItem(item.id)
+                        .then(dfd.resolve)
+                        .catch(dfd.reject);
+                    }
+                });
+                return dfd.promise();
+            },
+
+            /**
+             * Download remote items
+             * @private
+             */
+            _readSync: function () {
+                var dfd = $.Deferred();
+                debugger;
+                this.remoteTransport.read({
+                    success: function (response) {
+                        var result = response.data; // this.remoteTransport.read ensures data is already partitioned
+                        var promises = [];
+                        // TODO: we certainly have an issue with paging
+                        for (var idx = 0, length = result.length; idx < length; idx++) {
+                            promises.push(localforage.setItem(result[idx].id, result[idx])
+                                .then(function () {
+                                    dfd.notify({ pass: 2, index: idx, total: length});
+                                })
+                                .catch(function () {
+                                    dfd.notify({ pass: 2, index: idx, total: length});
+                                })
+                            );
+                        }
+                        Promise.all(promises)
+                        .then(dfd.resolve)
+                        .catch(dfd.reject);
+                    },
+                    error: dfd.reject
+                });
+                return dfd.promise();
+            },
+
+            /**
+             * Upload an updated item
+             * @param item
+             * @private
+             */
+            _updateSync: function (item) {
+                var dfd = $.Deferred();
+                debugger;
+                // assert.equal(STATE.UPDATED, item.__state__)
+                delete item.__state__;
+                this.remoteTransport.update({
+                    data: item,
+                    error: function (err) {
+                        debugger;
+                        if (err.message = '404') {
+                            // If item is not found on the server, remove from local database
+                            localforage.removeItem(item.id)
+                            .then(dfd.resolve)
+                            .catch(dfd.reject);
+                        } else {
+                            debugger;
+                            dfd.reject(err);
+                        }
+                    },
+                    success: function (response) {
+                        localforage.setItem(response.data[0].id, response.data[0])
+                        .then(dfd.resolve)
+                        .catch(dfd.reject);
+                    }
+                });
+                return dfd.promise();
+            },
+
+            /**
+             * Synchronize
+             */
+            synchronize: function () {
+                var that = this;
+                var dfd = $.Deferred();
+                var partition = that.remoteTransport._partition;
+                var promises = [];
+                localforage.length()
+                .then(function (total) {
+                    localforage.iterate(function(value, key, index) {
+                        var include = true;
+                        for (var prop in partition) {
+                            if (partition.hasOwnProperty(prop) && value[prop] !== partition[prop]) {
+                                include = false;
+                                break;
+                            }
+                        }
+                        if (include) {
+                            if (value.__state__ === STATE.CREATED) {
+                                promises.push(that._createSync(value)
+                                    .always(function () {
+                                        dfd.notify({ pass: 1, index: index, total: total });
+                                    })
+                                );
+                            } else if (value.__state__ === STATE.DESTROYED) {
+                                promises.push(that._destroySync(value)
+                                    .always(function () {
+                                        dfd.notify({ pass: 1, index: index, total: total }); // TODO Add db table
+                                    })
+                                );
+                            } else if (value.__state__ === STATE.UPDATED) {
+                                promises.push(that._updateSync(value)
+                                    .always(function () {
+                                        dfd.notify({ pass: 1, index: index, total: total });
+                                    })
+                                );
+                            } else {
+                                total = (total - 1) || 1; // Should never be 0
+                            }
+                        }
+                    }).then(function() {
+                        $.when(promises)
+                        .done(function () {
+                            dfd.notify({ pass: 1, index: total - 1, total: total }); // Last index, we are done
+                            that._readSync()
+                            .progress(dfd.notify)
+                            .done(dfd.resolve)
+                            .fail(dfd.reject);
+                        })
+                        .fail(dfd.reject);
+                    }).catch(dfd.reject);
+                })
+                .catch(dfd.reject);
+                return dfd.promise();
+            }
         });
 
         /**
@@ -779,470 +1088,6 @@
         });
 
         /**
-         * An offline strategy using pongodb (and localForage)
-         * @class OfflineStrategy
-         */
-        models.OfflineStrategy = kendo.Class.extend({
-
-            /**
-             * Initialization
-             * @constructor
-             */
-            init: function (options) {
-                this.remoteTransport = options.transport;
-                this.collection = options.collection;
-            },
-
-            /**
-             * Create a local item
-             * @param options
-             */
-            create: function (options) {
-                var result = options.data;
-                debugger;
-                var partition = this.remoteTransport._partition;
-                result.id = kendo.guid();
-                for (var prop in partition) {
-                    if (partition.hasOwnProperty(prop)) {
-                        result[prop] = partition[prop];
-                    }
-                }
-                result.updated = new Date();
-                result.__state__ = STATE.CREATED;
-                localforage.setItem(result.id, result)
-                .then(function () {
-                    options.success({ total: 1, data: [result] });
-                })
-                .catch(function (err) {
-                    options.error(err);
-                });
-            },
-
-            /**
-             * Destroy a local item
-             * @param options
-             */
-            destroy: function (options) {
-                var result = options.data;
-                debugger;
-                result.updated = new Date();
-                result.__state__ = STATE.DESTROYED;
-                localforage.setItem(result.id, result)
-                .then(function () {
-                    options.success({ total: 1, data: [result] });
-                })
-                .catch(function (err) {
-                    options.error(err);
-                });
-            },
-
-            /**
-             * Read local items
-             * @param options
-             */
-            read: function (options) {
-                var result = [];
-                debugger;
-                var partition = this.remoteTransport._partition;
-                debugger;
-                // TODO sorting, filtering and paging
-                localforage.iterate(function(value) {
-                    if (value.__state__ !== STATE.DESTROYED) {
-                        var include = true;
-                        for (var prop in partition) {
-                            if (partition.hasOwnProperty(prop) && value[prop] !== partition[prop]) {
-                                include = false;
-                                break;
-                            }
-                        }
-                        if (include) {
-                            result.push(value);
-                        }
-                    }
-                }).then(function() {
-                    options.success({ total: result.length, data: result });
-                }).catch(function(err) {
-                    options.error(err);
-                });
-            },
-
-            /**
-             * Update a local item
-             * @param options
-             */
-            update: function (options) {
-                var result = options.data;
-                debugger;
-                result.updated = new Date();
-                if ($.type(result.__state__) === UNDEFINED) { // Especially if `created`
-                    result.__state__ = STATE.UPDATED;
-                }
-                localforage.setItem(result.id, result)
-                .then(function () {
-                    options.success({ total: 1, data: [result] });
-                })
-                .catch(function (err) {
-                    options.error(err);
-                });
-            },
-
-            /**
-             * Upload a created item
-             * @param item
-             * @private
-             */
-            _createSync: function (item) {
-                var dfd = $.Deferred();
-                // assert.equal(STATE.CREATED, item.__state__)
-                delete item.__state__;
-                debugger;
-                var localId = item.id;
-                item.id = null; // Note: We need a server id
-                this.remoteTransport.create({
-                    data: item,
-                    error: function (err) {
-                        // oops
-                        debugger;
-                        dfd.reject(err);
-                    },
-                    success: function (response) {
-                        Promise.all([
-                            localforage.removeItem(localId),
-                            localforage.setItem(response.data[0].id, response.data[0])
-                        ])
-                        .then(dfd.resolve)
-                        .catch(dfd.reject);
-                    }
-                });
-                return dfd.promise();
-            },
-
-            /**
-             * Upload a destroyed item
-             * @param item
-             * @private
-             */
-            _destroySync: function (item) {
-                var dfd = $.Deferred();
-                // assert.equal(STATE.DESTROYED, item.__state__)
-                delete item.__state__;
-                debugger;
-                this.remoteTransport.destroy({
-                    data: item,
-                    error: function (err) {
-                        if (err.message = '404') {
-                            // If item is not found on the server, remove from local database
-                            localforage.removeItem(item.id)
-                            .then(dfd.resolve)
-                            .catch(dfd.reject);
-                        } else {
-                            debugger;
-                            dfd.reject(err);
-                        }
-                    },
-                    success: function (response) {
-                        localforage.removeItem(item.id)
-                        .then(dfd.resolve)
-                        .catch(dfd.reject);
-                    }
-                });
-                return dfd.promise();
-            },
-
-            /**
-             * Download remote items
-             * @private
-             */
-            _readSync: function () {
-                var dfd = $.Deferred();
-                debugger;
-                this.remoteTransport.read({
-                    success: function (response) {
-                        var result = response.data; // this.remoteTransport.read ensures data is already partitioned
-                        var promises = [];
-                        // TODO: we certainly have an issue with paging
-                        for (var idx = 0, length = result.length; idx < length; idx++) {
-                            promises.push(localforage.setItem(result[idx].id, result[idx])
-                                .then(function () {
-                                    dfd.notify({ pass: 2, index: idx, total: length});
-                                })
-                                .catch(function () {
-                                    dfd.notify({ pass: 2, index: idx, total: length});
-                                })
-                            );
-                        }
-                        Promise.all(promises)
-                        .then(dfd.resolve)
-                        .catch(dfd.reject);
-                    },
-                    error: dfd.reject
-                });
-                return dfd.promise();
-            },
-
-            /**
-             * Upload an updated item
-             * @param item
-             * @private
-             */
-            _updateSync: function (item) {
-                var dfd = $.Deferred();
-                debugger;
-                // assert.equal(STATE.UPDATED, item.__state__)
-                delete item.__state__;
-                this.remoteTransport.update({
-                    data: item,
-                    error: function (err) {
-                        debugger;
-                        if (err.message = '404') {
-                            // If item is not found on the server, remove from local database
-                            localforage.removeItem(item.id)
-                            .then(dfd.resolve)
-                            .catch(dfd.reject);
-                        } else {
-                            debugger;
-                            dfd.reject(err);
-                        }
-                    },
-                    success: function (response) {
-                        localforage.setItem(response.data[0].id, response.data[0])
-                        .then(dfd.resolve)
-                        .catch(dfd.reject);
-                    }
-                });
-                return dfd.promise();
-            },
-
-            /**
-             * Synchronize
-             */
-            synchronize: function () {
-                var that = this;
-                var dfd = $.Deferred();
-                var partition = that.remoteTransport._partition;
-                var promises = [];
-                localforage.length()
-                .then(function (total) {
-                    localforage.iterate(function(value, key, index) {
-                        var include = true;
-                        for (var prop in partition) {
-                            if (partition.hasOwnProperty(prop) && value[prop] !== partition[prop]) {
-                                include = false;
-                                break;
-                            }
-                        }
-                        if (include) {
-                            if (value.__state__ === STATE.CREATED) {
-                                promises.push(that._createSync(value)
-                                    .always(function () {
-                                        dfd.notify({ pass: 1, index: index, total: total });
-                                    })
-                                );
-                            } else if (value.__state__ === STATE.DESTROYED) {
-                                promises.push(that._destroySync(value)
-                                    .always(function () {
-                                        dfd.notify({ pass: 1, index: index, total: total }); // TODO Add db table
-                                    })
-                                );
-                            } else if (value.__state__ === STATE.UPDATED) {
-                                promises.push(that._updateSync(value)
-                                    .always(function () {
-                                        dfd.notify({ pass: 1, index: index, total: total });
-                                    })
-                                );
-                            } else {
-                                total = (total - 1) || 1; // Should never be 0
-                            }
-                        }
-                    }).then(function() {
-                        $.when(promises)
-                        .done(function () {
-                            dfd.notify({ pass: 1, index: total - 1, total: total }); // Last index, we are done
-                            that._readSync()
-                            .progress(dfd.notify)
-                            .done(dfd.resolve)
-                            .fail(dfd.reject);
-                        })
-                        .fail(dfd.reject);
-                    }).catch(dfd.reject);
-                })
-                .catch(dfd.reject);
-                return dfd.promise();
-            }
-        });
-
-        /**
-         * MobileActivityTransport transport
-         */
-        models.MobileActivityTransport = Class.extend({
-
-            /**
-             * Init
-             * @constructor
-             * @param options
-             */
-            init: function(options) {
-                this.setOptions(options || {});
-            },
-
-            /**
-             * Set options
-             * Note: calling setOptions on the transport requires calling read on the DataSource and possibly resetting filters, page size and sort order
-             * @param options
-             */
-            setOptions: function(options) {
-                this._language = options.language || i18n.locale();
-                this._userId = options.userId || null;
-            },
-
-            /**
-             * Validate that activity creation/update belongs here
-             * @param activity
-             * @private
-             */
-            _validate: function(activity) {
-                var errors = [];
-                var language = activity.version.language;
-                if (!RX_LANGUAGE.test(language) || language !== this._language) {
-                    errors.push('Language does not match.');
-                }
-                var userId = activity.actor.userId;
-                if (!RX_MONGODB_ID.test(userId) || userId !== this._userId) {
-                    errors.push('Cannot delegate the creation of activities.');
-                }
-                return errors;
-            },
-
-            /**
-             * Create transport
-             * @param options
-             * @returns {*}
-             * @private
-             */
-            create: function(options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                logger.debug({
-                    message: 'Activity data creation',
-                    method: 'app.models.MobileActivityDataSource.transport.create'
-                });
-                // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
-                var activity = JSON.parse(JSON.stringify(options.data));
-                var errors = this._validate(activity); // TODO
-                if (errors.length) {
-                    return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
-                }
-                // The database will give us an id (but not a date)
-                db.activities.insert(activity)
-                    .done(function() {
-                        options.success({total: 1, data: [activity]});
-                    }).fail(function(error) {
-                        options.error.apply(this, ErrorXHR(error));
-                    });
-            },
-
-            /**
-             * Destroy transport
-             * @param options
-             * @private
-             */
-            destroy: function(options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                logger.debug({
-                    message: 'Activity data deletion',
-                    method: 'app.models.MobileActivityDataSource.transport.destroy'
-                });
-                var activity = options.data;
-                var id = activity.id;
-                if (RX_MONGODB_ID.test(id)) {
-                    db.activities.remove({ id: id })
-                        .done(function(result) {
-                            if (result && result.nRemoved === 1) {
-                                options.success({total: 1, data: [activity]});
-                            } else {
-                                options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                            }
-                        }).fail(function(error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
-                } else {
-                    // No need to hit the database, it won't be found
-                    options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                }
-            },
-
-            /**
-             * Read transport
-             * @param options
-             * @private
-             */
-            read: function(options) {
-                logger.debug({
-                    message: 'Activity data read',
-                    method: 'app.models.MobileActivityDataSource.transport.read'
-                });
-                if ($.type(this._userId) === NULL) {
-                    // This lets us create a dataSource without knowing the userId, which can be set later with setOptions
-                    options.success({ total: 0, data: [] });
-                } else {
-                    db.activities
-                        .find({ 'version.language': this._language, 'actor.userId': this._userId }).done(function(result) {
-                            if ($.isArray(result)) {
-                                options.success({ total: result.length, data: result });
-                            } else {
-                                options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
-                            }
-                        }).fail(function(error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
-                }
-            },
-
-            /**
-             * Update transpoort
-             * @param options
-             * @returns {*}
-             * @private
-             */
-            update: function(options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                logger.debug({
-                    message: 'Activity data update',
-                    method: 'app.models.MobileActivityDataSource.transport.update'
-                });
-
-                // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
-                var activity = JSON.parse(JSON.stringify(options.data));
-                var errors = this._validate(activity);
-                if (errors.length) {
-                    return options.error.apply(this, ErrorXHR(new Error('Invalid activity')));
-                }
-                var id = activity.id;
-                if (RX_MONGODB_ID.test(id)) {
-                    activity.id = undefined;
-                    // TODO: check userId?
-                    db.activities.update({id: id}, activity).done(function(result) {
-                        if (result && result.nMatched === 1 && result.nModified === 1) {
-                            activity.id = id;
-                            options.success({total: 1, data: [activity]});
-                            // TODO serverSync if connected
-                        } else {
-                            options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                        }
-                    }).fail(function(error) {
-                        options.error.apply(this, ErrorXHR(error));
-                    });
-                } else {
-                    // No need to hit the database, it won't be found
-                    options.error.apply(this, ErrorXHR(new Error('Activity not found')));
-                }
-            }
-
-        });
-
-        /**
          * MobileActivity model
          * @type {kidoju.data.Model}
          */
@@ -1250,11 +1095,6 @@
             id: 'id', // the identifier of the model, which is required for isNew() to work
             fields: {
                 id: {
-                    type: STRING,
-                    nullable: true
-                },
-                // An activity without a sid does not exist on our servers
-                sid: {
                     type: STRING,
                     nullable: true
                 },
@@ -1418,9 +1258,9 @@
              */
             init: function (options) {
                 DataSource.fn.init.call(this, $.extend(true, {}, options, {
-                    transport: new models.MobileActivityTransport({
-                        language: options && options.language,
-                        userId: options && options.userId
+                    transport: new models.MobileTransport({
+                        collection: db.activities,
+                        partition: options && options.partition
                     }),
                     serverAggregates: false,
                     serverFiltering: false,
