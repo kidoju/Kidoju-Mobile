@@ -79,7 +79,7 @@
     "wdio-mocha-framework": "^0.5.11",
     "wdio-selenium-standalone-service": "0.0.9",
     "wdio-static-server-service": "^1.0.1",
-    "webdriverio": "^4.9.10",
+    "webdriverio": "^4.9.11",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.5"
   },
@@ -105,7 +105,7 @@
     "cordova-plugin-globalization": "^1.0.8",
     "cordova-plugin-google-analytics": "^1.8.3",
     "cordova-plugin-network-information": "^1.3.4",
-    "cordova-plugin-safariviewcontroller": "^1.4.7",
+    "cordova-plugin-safariviewcontroller": "^1.5.0",
     "cordova-plugin-splashscreen": "^4.1.0",
     "cordova-plugin-tts": "^0.2.3",
     "cordova-plugin-whitelist": "^1.3.3",
@@ -119,7 +119,6 @@
     "plugins": {
       "cordova-plugin-file": {},
       "cordova-plugin-google-analytics": {},
-      "cordova-plugin-safariviewcontroller": {},
       "cordova-plugin-tts": {},
       "cordova-plugin-customurlscheme": {
         "URL_SCHEME": "com.kidoju.mobile",
@@ -141,7 +140,8 @@
       "cordova-plugin-file-transfer": {},
       "phonegap-plugin-barcodescanner": {
         "CAMERA_USAGE_DESCRIPTION": " "
-      }
+      },
+      "cordova-plugin-safariviewcontroller": {}
     },
     "platforms": [
       "browser",
