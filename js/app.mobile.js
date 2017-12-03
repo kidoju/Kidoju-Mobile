@@ -178,6 +178,7 @@ window.jQuery.holdReady(true);
             SUMMARY: 'summary',
             SIGNIN: 'signin',
             SYNC: 'sync',
+            TOUR: 'tour',
             USER: 'user'
         };
         // var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.ACTIVITIES, VIEW.CATEGORIES, VIEW.NETWORK, VIEW.SETTINGS, VIEW.SIGNIN, VIEW.USER].join('|') + ')', 'i');
@@ -1413,7 +1414,7 @@ window.jQuery.holdReady(true);
                             data: { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
-            }
+            },
 
         });
 
@@ -1571,6 +1572,9 @@ window.jQuery.holdReady(true);
                 case HASH + VIEW.SUMMARY:
                     showDrawerButton = true;
                     showHomeButton = true;
+                    break;
+                case HASH + VIEW.TOUR:
+                    showDrawerButton = true;
                     break;
                 case HASH + VIEW.SYNC:
                     break;
@@ -1736,6 +1740,8 @@ window.jQuery.holdReady(true);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.settings.category);
             viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.settings.switch); // button before view is initialized
             viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.settings.switch);              // button after view is initialized
+            viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(1)').text(culture.settings.tour);  // button before view is initialized
+            viewElement.find('.buttons>.km-button>span.km-text:eq(1)').text(culture.settings.tour);                // button after view is initialized
 
             // Localize signin
             viewElement = $(HASH + VIEW.SIGNIN);
@@ -2266,6 +2272,9 @@ window.jQuery.holdReady(true);
                     break;
                 case 'settings':
                     mobile.application.navigate(HASH + VIEW.SETTINGS + '?userId=' + encodeURIComponent(userId));
+                    break;
+                case 'tour':
+                    mobile.application.navigate(HASH + VIEW.TOUR);
                     break;
             }
         };
@@ -3008,7 +3017,49 @@ window.jQuery.holdReady(true);
          * Event handler triggered when showing the sync view
          * @param e
          */
-        mobile.onSyncViewShow = mobile.onGenericViewShow;
+        mobile.onSyncViewShow = function (e) {
+            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            var culture = i18n.culture.sync;
+            var message = e.view.content.find('p.message');
+            var passProgressBar = e.view.content.find('#sync-pass').data('kendoProgressBar');
+            var percentProgressBar = e.view.content.find('#sync-percent').data('kendoProgressBar');
+            // Update navigation bar
+            mobile.onGenericViewShow(e);
+            // Reset progress bars
+            passProgressBar.value(0);
+            percentProgressBar.value(0);
+            // Display custom status
+            passProgressBar.unbind('change');
+            passProgressBar.bind('change', function (e) {
+                e.sender.progressStatus.text(status.pass < 2 ? culture.pass.remote : culture.pass.local);
+            });
+            // Bind continue button
+            var continueButton = e.view.content.find('#sync-continue').data('kendoMobileButton');
+            continueButton.unbind('click');
+            continueButton.bind('click', function (e) {
+                e.preventDefault();
+                // mobile.application.navigate(HASH + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language) + '&userId=' + encodeURIComponent(userId));
+                mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
+            });
+
+            // TODO Signin if token has expired
+            // TODO connect progress bars
+            // TODO: batteries and network???
+
+            viewModel.activities.remoteSync().progress(function (status) {
+                message.text(culture.message[status.collection]);
+                passProgressBar.value(status.pass);
+                percentProgressBar.value(100 * (status.index + 1) / status.total);
+            });
+        };
+
+        /**
+         * Event handler triggered when showing the Tour view
+         * Note: the view event is triggered each time the view is requested
+         * @param e
+         */
+        mobile.onTourViewShow = mobile.onGenericViewShow;
 
         /**
          * Event handler triggered when initializing the user view
@@ -3320,8 +3371,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarSyncClick = function (e) {
-            // TODO
-            $.noop(e);
+            mobile.application.navigate(HASH + VIEW.SYNC);
         };
 
         /**

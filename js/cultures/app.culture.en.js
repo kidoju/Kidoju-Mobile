@@ -179,7 +179,8 @@
                 user: 'User',
                 version: 'Version',
                 // Buttons
-                switch: 'Switch User'
+                switch: 'Switch user',
+                tour: 'Take the tour'
             },
             // Sign-in view
             signin: {
@@ -214,8 +215,18 @@
             // Sync view
             sync: {
                 viewTitle: 'Synchronization',
-                title: 'Progress'
-                // message: ''
+                title: 'Progress',
+                message: {
+                    activities: 'Syncing activities'
+                },
+                pass: {
+                    remote: 'Remote',
+                    local: 'Local'
+                }
+            },
+            // Tour view
+            tour: {
+                viewTitle: 'Walkthrough'
             },
             // User view
             user: {

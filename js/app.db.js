@@ -30,17 +30,23 @@
         var logger = new window.Logger('app.db');
         var OBJECT = 'object';
 
+        // TODO Check application upgrade with ping!!!!!
+
         /**
          * Database definition
          */
         var db = app.db = new pongodb.Database({
             name: 'KidojuDB',
-            size: 5 * 1024 * 1024,
+            size: 10 * 1024 * 1024,
             collections: ['activities', 'users'],
             version: '0.3.4' // TODO
         });
 
         // TODO Triggers;
+        // 1. A first trigger would update summary with activity score so that a user would know which summaries he/she has already played
+        // db.addTrigger('activities', 'create', function (item) {
+        // `this` has to be the database so as to access other collections
+        // });
 
         // TODO Migrations
 

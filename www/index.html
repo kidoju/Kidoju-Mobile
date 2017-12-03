@@ -443,7 +443,8 @@
             </ul>
         </form>
         <div class="buttons">
-            <a data-role="button" class="km-large km-justified km-primary" data-click="app.mobile.onSettingsSwitchClick">Switch User</a>
+            <a data-role="button" class="km-large km-justified km-primary" data-click="app.mobile.onSettingsSwitchClick">Switch user</a>
+            <a data-role="button" class="km-large km-justified" href="#tour">Take the tour</a>
         </div>
     </div>
 
@@ -513,9 +514,22 @@
         <img src="./img/gearwheels.svg" alt="Progress" class="km-thumbnail picture">
         <h2 class="title">Progress</h2>
         <p class="message">Progress</p>
-        <div>
-            <div id="sync-pass" data-role="progressbar" data-type="chunk" data-chunk-count="2" data-min="0", data-max="2"></div>
-            <div id="sync-progress" data-role="progressbar" data-type="percent"></div>
+        <div class="progress">
+            <div id="sync-pass" data-role="progressbar" data-min="0" data-max="2"></div>
+            <div id="sync-percent" data-role="progressbar" data-type="percent"></div>
+        </div>
+        <div class="buttons"><a id="sync-continue" data-role="button" href="#">Continue</a></div>
+    </div>
+
+    <!-- Tour view: onboarding screens -->
+    <div id="tour" data-role="view" data-layout="main-layout" data-title="Tour" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onTourViewShow">
+        <div id="scrollView" data-role="scrollview" class="km-scrollview-overlay">
+            <div data-role="page">
+                Foo
+            </div>
+            <div data-role="page">
+                Bar
+            </div>
         </div>
     </div>
 

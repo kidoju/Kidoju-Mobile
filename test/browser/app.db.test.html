@@ -5,14 +5,15 @@
     <link href="../vendor/mocha.css" rel="stylesheet" />
     <script src="../vendor/mocha.js"></script>
     <script src="../vendor/chai.js"></script>
+    <script src="../vendor/sinon.js"></script>
+    <script src="../vendor/sinon-chai.js"></script>
     <!--script src="../vendor/blanket.min.js" data-cover-adapter="../vendor/blanket_mocha.min.js"></script-->
     <!--script src="../vendor/blanket.js" data-cover-flags="debug" data-cover-adapter="../vendor/blanket_mocha.js"></script-->
     <script src="../../js/vendor/jQuery/jquery-3.2.1.min.js"></script>
-    <!-- localforage.nopromises.js fails in browsers that do not support promises or require a polyfill like PhantomJS -->
-    <!--script src="../../js/vendor/localForage/localforage.nopromises.js"></script-->
-    <script src="../../js/vendor/localForage/localforage.js"></script>
+    <script src="../../js/vendor/localForage/localforage.nopromises.js"></script>
     <script src="../../js/window.assert.js"></script>
     <script src="../../js/window.logger.js"></script>
+    <script src="../../js/window.pongodb.js"></script>
     <script>
         mocha.setup('bdd');
         mocha.timeout(10000);

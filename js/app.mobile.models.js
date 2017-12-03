@@ -59,16 +59,10 @@
         var DataSource = kidoju.data.DataSource;
         var assert = window.assert;
         var logger = new window.Logger('app.mobile.models');
+        var db = app.db;
         var i18n = app.i18n;
         var fileSystem = new app.FileSystem();
         var md5 = md5H || window.md5;
-        var pongodb = window.pongodb;
-        var db = app.db = new pongodb.Database({
-            name: 'KidojuDB',
-            size: 5 * 1024 * 1024,
-            collections: ['activities', 'users'],
-            version: '0.3.4' // TODO
-        });
         // var i18n = app.i18n = app.i18n || { };
         // This is for testing only because we should get values from config files (see ./js/app.config.jsx)
         var uris = app.uris = app.uris || {};
@@ -79,11 +73,11 @@
         uris.mobile.pictures = uris.mobile.pictures || '{0}users/{1}';
         var DATE = 'date';
         var FUNCTION = 'function';
-        var NULL = 'null';
+        // var NULL = 'null';
         var NUMBER = 'number';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
-        var RX_LANGUAGE = /^[a-z]{2}$/;
+        // var RX_LANGUAGE = /^[a-z]{2}$/;
         var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var DOT_JPEG = '.jpg';
         var DEFAULT = {
@@ -126,9 +120,9 @@
         }
 
         /**
-         * A generic mobile transport using pongodb
+         * A generic mobile transport using pongodb (and localForage)
          */
-        models.MobileTransport = Class.extend({
+        var MobileTransport = models.MobileTransport = kendo.Observable.extend({
 
             /**
              * Initialization
@@ -150,13 +144,20 @@
             },
 
             /**
+             * Gets the partition
+             */
+            partition: function () {
+                return this._partition;
+            },
+
+            /**
              * Validates item against partition
              * @param item
              * @private
              */
             _validate: function (item) {
                 var errors = [];
-                var partition = this._partition;
+                var partition = this.partition();
                 for (var prop in partition) {
                     if (partition.hasOwnProperty(prop)) {
                         var value = item;
@@ -190,21 +191,25 @@
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var item = JSON.parse(JSON.stringify(options.data));
-                // item.updated = new Date();
+                if (item.updated) {
+                    // Beware! JSON.parse(JSON.stringify(...)) converts dates to ISO Strings, so we need to be consistent
+                    item.updated = new Date().toISOString();
+                }
                 item.__state__ = STATE.CREATED;
+                // Validate item against partition
                 var errors = this._validate(item);
                 if (errors.length) {
                     var err = new Error('Invalid item');
                     err.errors = errors;
                     return options.error.apply(this, ErrorXHR(err));
                 }
-                // Unless we give one, the database will give us an id, but not a date
-                // TODO check updated which is a stirng
-                debugger;
+                // Unless we give one ourselves, the collection will give the item an id
                 this.collection.insert(item)
-                    .done(function() {
+                    .then(function() {
+                        // Note: the item now has an id
                         options.success({ total: 1, data: [item] });
-                    }).fail(function(error) {
+                    })
+                    .catch(function(error) {
                         options.error.apply(this, ErrorXHR(error));
                     });
             },
@@ -224,32 +229,55 @@
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var item = JSON.parse(JSON.stringify(options.data));
                 var id = item.id;
-                // TODO: if item_state is created, remove from database otther wise mark as destroyed
-                // item.updated = new Date();
-                item.__state__ = STATE.DESTROYED;
-                /*
-                var errors = this._validate(item);
-                if (errors.length) {
-                    var err = new Error('Invalid item');
-                    err.errors = errors;
-                    return options.error.apply(this, ErrorXHR(err));
-                }
-                */
-                if (RX_MONGODB_ID.test(id)) {
-                    // TODO: we might prefer __STATE___
-                    this.collection.remove({ id: id })
-                        .done(function(result) {
-                            if (result && result.nRemoved === 1) {
-                                options.success({ total: 1, data: [item] });
-                            } else {
-                                options.error.apply(this, ErrorXHR(new Error('Item not found')));
-                            }
-                        }).fail(function(error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
+                if (item.__state__ === STATE.CREATED) {
+                    // Items with __state__ === 'created' can be safely removed because they do not exist on the remote server
+                    if (RX_MONGODB_ID.test(id)) {
+                        this.collection.remove({ id: id })
+                            .then(function(result) {
+                                if (result && result.nRemoved === 1) {
+                                    options.success({ total: 1, data: [item] });
+                                } else {
+                                    options.error.apply(this, ErrorXHR(new Error('Not found')));
+                                }
+                            })
+                            .catch(function(error) {
+                                options.error.apply(this, ErrorXHR(error));
+                            });
+                    } else {
+                        // No need to hit the database, it won't be found
+                        options.error.apply(this, ErrorXHR(new Error('Not found')));
+                    }
                 } else {
-                    // No need to hit the database, it won't be found
-                    options.error.apply(this, ErrorXHR(new Error('Item not found')));
+                    if (item.updated) {
+                        // Beware! JSON.parse(JSON.stringify(...)) converts dates to ISO Strings, so we need to be consistent
+                        item.updated = new Date().toISOString();
+                    }
+                    item.__state__ = STATE.DESTROYED;
+                    // Validate item against partition
+                    var errors = this._validate(item);
+                    if (errors.length) {
+                        var err = new Error('Invalid item');
+                        err.errors = errors;
+                        return options.error.apply(this, ErrorXHR(err));
+                    }
+                    if (RX_MONGODB_ID.test(id)) {
+                        item.id = undefined;
+                        this.collection.update({ id: id }, item)
+                            .then(function(result) {
+                                if (result && result.nMatched === 1 && result.nModified === 1) {
+                                    item.id = id;
+                                    options.success({ total: 1, data: [item] });
+                                } else {
+                                    options.error.apply(this, ErrorXHR(new Error('Not found')));
+                                }
+                            })
+                            .catch(function(error) {
+                                options.error.apply(this, ErrorXHR(error));
+                            });
+                    } else {
+                        // No need to hit the database, it won't be found
+                        options.error.apply(this, ErrorXHR(new Error('Not found')));
+                    }
                 }
             },
 
@@ -258,24 +286,28 @@
              * @param options
              */
             read: function (options) {
+                var partition = this.partition();
                 logger.debug({
                     message: 'Read mobile data',
                     method: 'app.models.MobileTransport.read',
                     data: options.data
                 });
-                if ($.type(this._partition) === UNDEFINED) {
+                if ($.type(partition) === UNDEFINED) {
                     // This lets us create a dataSource without knowing the partition, which can be set later with setPartition
                     // Create the MobileTransport with options.partition: false to avoid this test
                     options.success({ total: 0, data: [] });
                 } else {
-                    this.collection
-                        .find(this._partition).done(function(result) { // TODO: Test this._partition === false
+                    // Filter all records with __state___ === 'destroyed', considering partition is ignored when false
+                    var query = $.extend(true, {}, partition, { __state__: { $ne: STATE.DESTROYED } });
+                    this.collection.find(query)
+                        .then(function(result) {
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
                             } else {
                                 options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
                             }
-                        }).fail(function(error) {
+                        })
+                        .catch(function(error) {
                             options.error.apply(this, ErrorXHR(error));
                         });
                 }
@@ -293,9 +325,17 @@
                     method: 'app.models.MobileTransport.update',
                     data: options.data
                 });
-
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var item = JSON.parse(JSON.stringify(options.data));
+                if (item.updated) {
+                    // Beware! JSON.parse(JSON.stringify(...)) converts dates to ISO Strings, so we need to be consistent
+                    item.updated = new Date().toISOString();
+                }
+                if ($(item.__state__) === UNDEFINED) {
+                    // Do not change the state of created and destroyed items
+                    item.__state__ = STATE.UPDATED;
+                }
+                // Validate item against partition
                 var errors = this._validate(item);
                 if (errors.length) {
                     var err = new Error('Invalid item');
@@ -306,130 +346,150 @@
                 if (RX_MONGODB_ID.test(id)) {
                     item.id = undefined;
                     this.collection.update({ id: id }, item)
-                        .done(function(result) {
+                        .then(function(result) {
                             if (result && result.nMatched === 1 && result.nModified === 1) {
                                 item.id = id;
                                 options.success({ total: 1, data: [item] });
                             } else {
-                                options.error.apply(this, ErrorXHR(new Error('Item not found')));
+                                options.error.apply(this, ErrorXHR(new Error('Not found')));
                             }
-                        }).fail(function(error) {
+                        })
+                        .catch(function(error) {
                             options.error.apply(this, ErrorXHR(error));
                         });
                 } else {
                     // No need to hit the database, it won't be found
-                    options.error.apply(this, ErrorXHR(new Error('Item not found')));
+                    options.error.apply(this, ErrorXHR(new Error('Not found')));
                 }
             }
 
         });
 
         /**
-         * An offline strategy using pongodb (and localForage)
-         * @class OfflineStrategy
+         * DummyTransport
          */
-        models.OfflineStrategy = kendo.Class.extend({
+        var DummyTransport = models.DummyTransport = Class.extend({
+
+            init: function (options) {
+                options = options || {};
+                this._data = [];
+                this.setPartition(options.partition);
+            },
+
+            /**
+             * Sets a table partition (kind of permanent filter)
+             * @param partition
+             */
+            setPartition: function (partition) {
+                this._partition = partition;
+            },
+
+            /**
+             * Gets the partition
+             */
+            partition: function () {
+                return this._partition;
+            },
+
+            create: function (options) {
+                var item = options.data;
+                item.id = new window.pongodb.ObjectId().toString();
+                this._data.push(item);
+                options.success({ total: 1, data: [item] });
+            },
+
+            destroy : function (options) {
+                var id = options.data.id;
+                var found = false;
+                for (var idx = 0, length = this._data.length; idx < length; idx++) {
+                    var item = this._data[idx];
+                    if (item.id === id) {
+                        found = true;
+                        this._data.splice(idx, 1);
+                        options.success({ total: 1, data: [item] });
+                        break;
+                    }
+                }
+                if (!found) {
+                    options.error.apply(this, ErrorXHR(new Error('Not found')));
+                }
+            },
+
+            read : function (options) {
+                options.success({ total: this._data.length, data: this._data });
+            },
+
+            update : function (options) {
+                var id = options.data.id;
+                var found = false;
+                for (var idx = 0, length = this._data.length; idx < length; idx++) {
+                    if (this._data[idx].id === id) {
+                        found = true;
+                        var item = this._data[idx] = $.extend(this._data[idx], options.data);
+                        options.success({ total: 1, data: [item] });
+                        break;
+                    }
+                }
+                if (!found) {
+                    options.error.apply(this, ErrorXHR(new Error('Not found')));
+                }
+            }
+
+        });
+
+        /**
+         * An Offline cache strategy using pongodb (and localForage)
+         * Note: Only applies to items that cannot be modified
+         * @class ReadOfflineStrategy
+         */
+        /*
+        models.OfflineCacheStrategy = Class.extend({
+
+            init: function (options) {
+                this.remoteTransport = options.transport;
+            },
+
+            getById: function (options) {
+
+            },
+
+            read: function (options) {
+
+            }
+
+        });
+        */
+
+        /**
+         * A synchronization strategy using pongodb (and localForage)
+         * @class SynchronizationStrategy
+         */
+        models.SynchronizationStrategy = MobileTransport.extend({
 
             /**
              * Initialization
              * @constructor
              */
             init: function (options) {
-                this.remoteTransport = options.transport;
+                options = options || {};
                 this.collection = options.collection;
+                this.remoteTransport = options.remoteTransport;
+                // MobileTransport.fn.init.call(this, options);
             },
 
             /**
-             * Create a local item
-             * @param options
+             * Sets a table partition (kind of permanent filter)
+             * @param partition
              */
-            create: function (options) {
-                var result = options.data;
-                debugger;
-                var partition = this.remoteTransport._partition;
-                result.id = kendo.guid();
-                for (var prop in partition) {
-                    if (partition.hasOwnProperty(prop)) {
-                        result[prop] = partition[prop];
-                    }
-                }
-                result.updated = new Date();
-                result.__state__ = STATE.CREATED;
-                localforage.setItem(result.id, result)
-                .then(function () {
-                    options.success({ total: 1, data: [result] });
-                })
-                .catch(function (err) {
-                    options.error(err);
-                });
+            setPartition: function (partition) {
+                this.remoteTransport.setPartition(partition);
             },
 
             /**
-             * Destroy a local item
-             * @param options
+             * Gets the partition
              */
-            destroy: function (options) {
-                var result = options.data;
-                debugger;
-                result.updated = new Date();
-                result.__state__ = STATE.DESTROYED;
-                localforage.setItem(result.id, result)
-                .then(function () {
-                    options.success({ total: 1, data: [result] });
-                })
-                .catch(function (err) {
-                    options.error(err);
-                });
-            },
-
-            /**
-             * Read local items
-             * @param options
-             */
-            read: function (options) {
-                var result = [];
-                debugger;
-                var partition = this.remoteTransport._partition;
-                debugger;
-                // TODO sorting, filtering and paging
-                localforage.iterate(function(value) {
-                    if (value.__state__ !== STATE.DESTROYED) {
-                        var include = true;
-                        for (var prop in partition) {
-                            if (partition.hasOwnProperty(prop) && value[prop] !== partition[prop]) {
-                                include = false;
-                                break;
-                            }
-                        }
-                        if (include) {
-                            result.push(value);
-                        }
-                    }
-                }).then(function() {
-                    options.success({ total: result.length, data: result });
-                }).catch(function(err) {
-                    options.error(err);
-                });
-            },
-
-            /**
-             * Update a local item
-             * @param options
-             */
-            update: function (options) {
-                var result = options.data;
-                debugger;
-                result.updated = new Date();
-                if ($.type(result.__state__) === UNDEFINED) { // Especially if `created`
-                    result.__state__ = STATE.UPDATED;
-                }
-                localforage.setItem(result.id, result)
-                .then(function () {
-                    options.success({ total: 1, data: [result] });
-                })
-                .catch(function (err) {
-                    options.error(err);
-                });
+            partition: function () {
+                return this.remoteTransport.partition();
             },
 
             /**
@@ -438,26 +498,29 @@
              * @private
              */
             _createSync: function (item) {
+                assert.isPlainObject(item, kendo.format(assert.messages.isPlainObject.default, 'item'));
+                assert.equal(STATE.CREATED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'created'));
                 var dfd = $.Deferred();
-                // assert.equal(STATE.CREATED, item.__state__)
+                var collection = this.collection;
                 delete item.__state__;
                 debugger;
-                var localId = item.id;
-                item.id = null; // Note: We need a server id
+                var mobileId = item.id;
+                item.id = null;
                 this.remoteTransport.create({
                     data: item,
                     error: function (err) {
-                        // oops
                         debugger;
                         dfd.reject(err);
                     },
                     success: function (response) {
-                        Promise.all([
-                            localforage.removeItem(localId),
-                            localforage.setItem(response.data[0].id, response.data[0])
-                        ])
-                        .then(dfd.resolve)
-                        .catch(dfd.reject);
+                        // Note: we do not prioritize deletion and creation but we should probably create before deleting
+                        // as it is probably better to have a duplicate than a missing record
+                        $.when(
+                            collection.remove({ id: mobileId }),
+                            collection.insert(response.data[0])
+                        )
+                            .then(dfd.resolve)
+                            .catch(dfd.reject);
                     }
                 });
                 return dfd.promise();
@@ -469,27 +532,31 @@
              * @private
              */
             _destroySync: function (item) {
+                assert.isPlainObject(item, kendo.format(assert.messages.isPlainObject.default, 'item'));
+                assert.equal(STATE.DESTROYED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'destroyed'));
                 var dfd = $.Deferred();
-                // assert.equal(STATE.DESTROYED, item.__state__)
+                var collection = this.collection;
                 delete item.__state__;
                 debugger;
                 this.remoteTransport.destroy({
                     data: item,
                     error: function (err) {
-                        if (err.message = '404') {
+                        if (err.message = '404') { // TODO -----------------------------------------------------------------------------------
+                            debugger;
                             // If item is not found on the server, remove from local database
-                            localforage.removeItem(item.id)
-                            .then(dfd.resolve)
-                            .catch(dfd.reject);
+                            collection.remove({ id: item.id })
+                                .then(dfd.resolve)
+                                .catch(dfd.reject);
                         } else {
                             debugger;
                             dfd.reject(err);
                         }
                     },
                     success: function (response) {
-                        localforage.removeItem(item.id)
-                        .then(dfd.resolve)
-                        .catch(dfd.reject);
+                        debugger;
+                        collection.remove({ id: item.id })
+                            .then(dfd.resolve)
+                            .catch(dfd.reject);
                     }
                 });
                 return dfd.promise();
@@ -500,26 +567,32 @@
              * @private
              */
             _readSync: function () {
+                var that = this;
                 var dfd = $.Deferred();
+                var collection = this.collection;
                 debugger;
+                // TODO: we certainly have an issue with paging
                 this.remoteTransport.read({
                     success: function (response) {
                         var result = response.data; // this.remoteTransport.read ensures data is already partitioned
+                        var length = result.length;
                         var promises = [];
-                        // TODO: we certainly have an issue with paging
-                        for (var idx = 0, length = result.length; idx < length; idx++) {
-                            promises.push(localforage.setItem(result[idx].id, result[idx])
-                                .then(function () {
-                                    dfd.notify({ pass: 2, index: idx, total: length});
-                                })
-                                .catch(function () {
-                                    dfd.notify({ pass: 2, index: idx, total: length});
+                        for (var idx = 0; idx < length; idx++) {
+                            var item = result[idx];
+                            promises.push(collection.update({ id: item.id }, item)
+                                .always(function () {
+                                    dfd.notify({ collection: collection.name(), pass: 2, index: idx, total: length});
                                 })
                             );
                         }
-                        Promise.all(promises)
-                        .then(dfd.resolve)
-                        .catch(dfd.reject);
+                        $.when.apply(that, promises)
+                            .always(function () {
+                                // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
+                                length = length || 1; // Cannot divide by 0;
+                                dfd.notify({ collection: collection.name(), pass: 2, index: length - 1, total: length}); // Make sure we always end up at 100%
+                            })
+                            .then(dfd.resolve)
+                            .catch(dfd.reject);
                     },
                     error: dfd.reject
                 });
@@ -532,28 +605,31 @@
              * @private
              */
             _updateSync: function (item) {
+                assert.isPlainObject(item, kendo.format(assert.messages.isPlainObject.default, 'item'));
+                assert.equal(STATE.UPDATED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'updated'));
                 var dfd = $.Deferred();
+                var collection = this.collection;
                 debugger;
-                // assert.equal(STATE.UPDATED, item.__state__)
                 delete item.__state__;
                 this.remoteTransport.update({
                     data: item,
                     error: function (err) {
                         debugger;
-                        if (err.message = '404') {
-                            // If item is not found on the server, remove from local database
-                            localforage.removeItem(item.id)
-                            .then(dfd.resolve)
-                            .catch(dfd.reject);
-                        } else {
+                        if (err.message = '404') { // TODO
                             debugger;
+                            // If item is not found on the server, remove from local database
+                            collection.remove({ id: item.id })
+                                .then(dfd.resolve)
+                                .catch(dfd.reject);
+                        } else {
                             dfd.reject(err);
                         }
                     },
                     success: function (response) {
-                        localforage.setItem(response.data[0].id, response.data[0])
-                        .then(dfd.resolve)
-                        .catch(dfd.reject);
+                        debugger;
+                        collection.update({ id: response.data[0].id }, response.data[0])
+                            .then(dfd.resolve)
+                            .catch(dfd.reject);
                     }
                 });
                 return dfd.promise();
@@ -561,58 +637,55 @@
 
             /**
              * Synchronize
+             * Note: the only limitation of our algorithm is we cannot identify items deleted on the server
              */
-            synchronize: function () {
+            sync: function () {
                 var that = this;
                 var dfd = $.Deferred();
+                var collection = that.collection;
                 var partition = that.remoteTransport._partition;
-                var promises = [];
-                localforage.length()
-                .then(function (total) {
-                    localforage.iterate(function(value, key, index) {
-                        var include = true;
-                        for (var prop in partition) {
-                            if (partition.hasOwnProperty(prop) && value[prop] !== partition[prop]) {
-                                include = false;
-                                break;
+                // TODO : how should we use lastSync? -------------------------------------------------------------------------------------
+                this.collection.find(partition)
+                    .then(function (items) {
+                        var promises = [];
+                        var length = items.length;
+                        for (var idx = 0; idx < length; idx ++) {
+                            var item = items[idx];
+                            if (item.__state__ === STATE.CREATED) {
+                                promises.push(that._createSync(item)
+                                    .always(function () {
+                                        dfd.notify({ collection: collection.name(), pass: 1, index: idx, total: length });
+                                    })
+                                );
+                            } else if (item.__state__ === STATE.DESTROYED) {
+                                promises.push(that._destroySync(item)
+                                    .always(function () {
+                                        dfd.notify({ collection: collection.name(), pass: 1, index: idx, total: length });
+                                    })
+                                );
+                            } else if (item.__state__ === STATE.UPDATED) {
+                                promises.push(that._updateSync(item)
+                                    .always(function () {
+                                        dfd.notify({ collection: collection.name(), pass: 1, index: idx, total: length });
+                                    })
+                                );
                             }
                         }
-                        if (include) {
-                            if (value.__state__ === STATE.CREATED) {
-                                promises.push(that._createSync(value)
-                                    .always(function () {
-                                        dfd.notify({ pass: 1, index: index, total: total });
-                                    })
-                                );
-                            } else if (value.__state__ === STATE.DESTROYED) {
-                                promises.push(that._destroySync(value)
-                                    .always(function () {
-                                        dfd.notify({ pass: 1, index: index, total: total }); // TODO Add db table
-                                    })
-                                );
-                            } else if (value.__state__ === STATE.UPDATED) {
-                                promises.push(that._updateSync(value)
-                                    .always(function () {
-                                        dfd.notify({ pass: 1, index: index, total: total });
-                                    })
-                                );
-                            } else {
-                                total = (total - 1) || 1; // Should never be 0
-                            }
-                        }
-                    }).then(function() {
                         $.when(promises)
-                        .done(function () {
-                            dfd.notify({ pass: 1, index: total - 1, total: total }); // Last index, we are done
-                            that._readSync()
-                            .progress(dfd.notify)
-                            .done(dfd.resolve)
-                            .fail(dfd.reject);
-                        })
-                        .fail(dfd.reject);
-                    }).catch(dfd.reject);
-                })
-                .catch(dfd.reject);
+                            .always(function () {
+                                // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
+                                length = length || 1; // Cannot divide by 0;
+                                dfd.notify({ collection: collection.name(), pass: 1, index: length - 1, total: length }); // Make sure we always end up at 100%
+                            })
+                            .then(function () {
+                                that._readSync()
+                                    .progress(dfd.notify)
+                                    .then(dfd.resolve)
+                                    .catch(dfd.reject);
+                            })
+                            .catch(dfd.reject);
+                    })
+                    .catch(dfd.reject);
                 return dfd.promise();
             }
         });
@@ -782,22 +855,22 @@
                     assert.match(RX_MONGODB_ID, sid, kendo.format(assert.messages.match.default, 'sid', RX_MONGODB_ID));
                     // Note: this may fail if user does not allow storage space
                     fileSystem.init()
-                        .done(function () {
+                        .then(function () {
                             var directoryPath = kendo.format(uris.mobile.pictures, '', '');
                             var fileName = sid + DOT_JPEG;
                             fileSystem.getDirectoryEntry(directoryPath, window.PERSISTENT)
-                                .done(function (directoryEntry) {
+                                .then(function (directoryEntry) {
                                     fileSystem.getFileEntry(directoryEntry, fileName)
-                                        .done(function (fileEntry) {
+                                        .then(function (fileEntry) {
                                             fileSystem.download(remoteUrl, fileEntry)
-                                                .done(dfd.resolve)
-                                                .fail(dfd.reject);
+                                                .then(dfd.resolve)
+                                                .catch(dfd.reject);
                                         })
-                                        .fail(dfd.reject);
+                                        .catch(dfd.reject);
                                 })
-                                .fail(dfd.reject);
+                                .catch(dfd.reject);
                         })
-                        .fail(dfd.reject);
+                        .catch(dfd.reject);
                 }
                 return dfd.promise();
             },
@@ -843,7 +916,7 @@
                 assert.ok(that.isNew(), 'Cannot load a new user into an existing user!');
                 app.cache.removeMe();
                 return app.cache.getMe()
-                    .done(function (data) {
+                    .then(function (data) {
                         if ($.isPlainObject(data) && RX_MONGODB_ID.test(data.id)) {
                             // Since we have marked fields as non editable, we cannot use 'that.set',
                             // This should raise a change event on the parent viewModel
@@ -922,19 +995,19 @@
                 // This replaces the machine id in the mongoDB server id by MACHINE_ID
                 // This ensures uniqueness of user in mobile app when sid is unique without further checks
                 // i.e. same user with the same sid recorded twice under different ids in mobile device
-                user.id = new pongodb.ObjectId(user.sid).toMobileId();
+                user.id = new window.pongodb.ObjectId(user.sid).toMobileId();
                 // Start with saving the picture to avoid a broken image in UI if user is saved without
                 models.MobileUser.fn._saveMobilePicture.call(user)
-                    .done(function () {
+                    .then(function () {
                         db.users.insert(user)
-                            .done(function () {
+                            .then(function () {
                                 options.success({ total: 1, data: [user] });
                             })
-                            .fail(function (error) {
+                            .catch(function (error) {
                                 options.error.apply(this, ErrorXHR(error));
                             });
                 })
-                .fail(function (error) {
+                .catch(function (error) {
                     options.error.apply(this, ErrorXHR(error));
                 });
             },
@@ -955,14 +1028,14 @@
                 var id = user.id;
                 if (RX_MONGODB_ID.test(id)) {
                     db.users.remove({ id: id })
-                        .done(function (result) {
+                        .then(function (result) {
                             if (result && result.nRemoved === 1) {
                                 options.success({ total: 1, data: [user] });
                             } else {
                                 options.error.apply(this, ErrorXHR(new Error('User not found')));
                             }
                         })
-                        .fail(function (error) {
+                        .catch(function (error) {
                             options.error.apply(this, ErrorXHR(error));
                         });
                 } else {
@@ -983,21 +1056,21 @@
                 });
                 // Initialize the file system for mobilePicture$
                 fileSystem.init()
-                .done(function () {
+                .then(function () {
                     // Query the database of all users
                     db.users.find()
-                        .done(function (result) {
+                        .then(function (result) {
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
                             } else {
                                 options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
                             }
                         })
-                        .fail(function (error) {
+                        .catch(function (error) {
                             options.error.apply(this, ErrorXHR(error));
                         });
                 })
-                .fail(function (error) {
+                .catch(function (error) {
                     options.error.apply(this, ErrorXHR(error));
                 });
             },
@@ -1026,7 +1099,7 @@
                     // pongodb does not allow the id to be part of the update
                     user.id = undefined;
                     db.users.update({ id: id }, user)
-                    .done(function (result) {
+                    .then(function (result) {
                         if (result && result.nMatched === 1 && result.nModified === 1) {
                             // Update the image from time to time
                             if (Math.floor(4 * Math.random()) === 0) {
@@ -1040,7 +1113,7 @@
                             options.error.apply(this, ErrorXHR(new Error('User not found')));
                         }
                     })
-                    .fail(function (error) {
+                    .catch(function (error) {
                         options.error.apply(this, ErrorXHR(error));
                     });
                 } else {
@@ -1258,9 +1331,11 @@
              */
             init: function (options) {
                 DataSource.fn.init.call(this, $.extend(true, {}, options, {
-                    transport: new models.MobileTransport({
+                    transport: new models.SynchronizationStrategy({
                         collection: db.activities,
-                        partition: options && options.partition
+                        remoteTransport: new models.DummyTransport({
+                            partition: options && options.partition
+                        })
                     }),
                     serverAggregates: false,
                     serverFiltering: false,

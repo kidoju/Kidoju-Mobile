@@ -152,9 +152,13 @@ html, body {
         .title, .message {
             text-align: center;
         }
-        .k-progressbar {
-            width: 80%;
-            margin: 1em 10%;
+        .progress {
+            margin: 1em;
+            .k-progressbar {
+                border-box: content-box;
+                width: 100%; // calc(100% - 4px);
+                margin: 1em 0;
+            }
         }
     }
     /**********************************************************
@@ -283,6 +287,14 @@ html, body {
             p:first-child {
                 margin-top: 0;
             }
+        }
+    }
+    /**********************************************************
+     * Tour view
+     **********************************************************/
+    #tour {
+        .k-scrollview.km-scrollview {
+            border: none;
         }
     }
     /**********************************************************
