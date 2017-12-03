@@ -639,7 +639,7 @@
          * @type {pongodb.Trigger}
          */
         /*
-        var Trigger = pongodb.Trigger = function (options) {
+        var Trigger = function (options) {
             this._db = options.db;
             this._collection = options.collection;
             this._event = options.event;
@@ -775,7 +775,6 @@
             migration._db = this._db;
             this._migrations.push(migration);
         };
-        // TODO Check application upgrade with ping!!!!!
 
         /**
          * Execute upgrade (execute all migrations)
