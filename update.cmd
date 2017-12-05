@@ -130,6 +130,7 @@ ATTRIB -R .\js\window*.js
 COPY ..\Kidoju.Widgets\src\js\*.js .\js /Y
 ATTRIB +R .\js\kidoju*.js
 ATTRIB +R .\js\window*.js
+ATTRIB -R .\js\window.pongodb.js
 
 ATTRIB -R .\js\messages\kidoju*.js
 COPY ..\Kidoju.Widgets\src\js\messages\kidoju*.js .\js\messages /Y
