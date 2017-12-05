@@ -158,14 +158,10 @@
             // Score view
             score: {
                 viewTitle: 'Score {0:p0}',
-                // Grid
-                grid: {
-                    columns: {
-                        question: 'Question',
-                        page: 'Page',
-                        result: 'Résultat'
-                    },
-                    noRecords: 'Pas d\'activité'
+                listView: {
+                    groups: 'Page {0}',
+                    answer: 'Réponse',
+                    solution: 'Solution'
                 }
             },
             // Settings view

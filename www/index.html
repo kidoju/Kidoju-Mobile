@@ -374,7 +374,7 @@
         </h2>
         <ul id="score-listview"></ul>
         <script type="text/x-kendo-template" id="score-header-template">
-            #: 'Page ' + (value + 1) #
+            #: kendo.format(app.i18n.culture.score.listView.groups, value + 1) #
         </script>
         <!-- TODO Consider adding score calculations in the form a/b and percentage -->
         <script type="text/x-kendo-template" id="score-template">
@@ -388,8 +388,8 @@
                 # } #
                 <div class="score">
                     <h4>#: question #</h4>
-                    <div class="small">#: 'Answer: ' + value #</div>
-                    <div class="small">#: 'Solution: ' + solution #</div>
+                    <div class="small"><div class="left">#: app.i18n.culture.score.listView.answer #</div><div class="right">#= value #</div></div>
+                    <div class="small"><div class="left">#: app.i18n.culture.score.listView.solution #</div><div class="right">#= solution #</div></div>
                 </div>
                 # if (typeof result !== 'boolean') { #
                 <span class="km-badge km-badge-warning">#: kendo.toString(score, 'n') #</span>

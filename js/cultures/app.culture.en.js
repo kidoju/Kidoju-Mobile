@@ -160,13 +160,10 @@
             // Score view
             score: {
                 viewTitle: 'Score {0:p0}',
-                // Grid
-                grid: {
-                    columns: {
-                        question: 'Question',
-                        page: 'Page',
-                        result: 'Result'
-                    }
+                listView: {
+                    groups: 'Page {0}',
+                    answer: 'Answer',
+                    solution: 'Solution'
                 }
             },
             // Settings view

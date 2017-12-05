@@ -98,8 +98,14 @@
             font-size: @app-form-filter-font-size;
         }
     }
-    .km-listview.km-list {
+    .km-listview.km-list,   // without grouping
+    .km-listview .km-list { // with grouping
         // TODO ellipsis on finder list
+        .small {
+            .left {
+                color: @disabled-text-color;
+            }
+        }
         .km-badge-error {
             background-color: @notification-error-background-color !important;
             color: @notification-error-text-color !important;
