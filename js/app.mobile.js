@@ -933,9 +933,9 @@ window.jQuery.holdReady(true);
                 // Search (per category or full text)
                 var summaries = this.get(VIEW_MODEL.SUMMARIES);
                 assert.instanceof(models.LazySummaryDataSource, summaries, kendo.format(assert.messages.instanceof.default, 'summaries', 'app.models.LazySummaryDataSource'));
-                summaries.transport.setOptions({ // TODO setPartition
+                summaries.transport.setPartition({
                     language: language,
-                    userId: app.constants.authorId
+                    'author.userId': app.constants.authorId
                 });
 
                 // Summary being played
@@ -952,8 +952,9 @@ window.jQuery.holdReady(true);
                 this.set(VIEW_MODEL.VERSION.$, new models.Version());
 
                 // Other versions in the same summary (only used to play the latest)
-                this.set(VIEW_MODEL.VERSIONS, new models.LazyVersionDataSource());
-
+                var versions = this.get(VIEW_MODEL.VERSIONS);
+                assert.instanceof(models.LazyVersionDataSource, versions, kendo.format(assert.messages.instanceof.default, 'versions', 'app.models.LazyVersionDataSource'));
+                versions.transport.setPartition(); // resets partition
             },
 
             /**
@@ -982,8 +983,8 @@ window.jQuery.holdReady(true);
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
                 var dfd = $.Deferred();
                 if (activities.total() > 0 &&
-                    activities.transport._partition['version.language'] === options.language &&
-                    activities.transport._partition['actor.userId'] === options.userId) {
+                    activities.transport.partition()['version.language'] === options.language &&
+                    activities.transport.partition()['actor.userId'] === options.userId) {
                     dfd.resolve();
                 } else {
                     activities.transport.setPartition({
@@ -1216,7 +1217,7 @@ window.jQuery.holdReady(true);
                     app.notification.warning(i18n.culture.notifications.networkOffline);
                     dfd.reject(undefined, 'offline', 'No network connection');
                 } else {
-                    viewModel.versions.load(options)
+                    viewModel.versions.load({ partition: options })
                         .done(dfd.resolve)
                         .fail(function (xhr, status, error) {
                             dfd.reject(xhr, status, error);
@@ -1225,8 +1226,7 @@ window.jQuery.holdReady(true);
                                 message: 'error loading versions',
                                 method: 'viewModel.loadLazyVersions',
                                 data: {
-                                    language: options.language,
-                                    summaryId: options.summaryId,
+                                    partition: options.partition,
                                     status: status,
                                     error: error,
                                     response: parseResponse(xhr)
@@ -3467,6 +3467,7 @@ window.jQuery.holdReady(true);
                         // With version 0.9 - https://github.com/katzer/cordova-plugin-local-notifications
                         // trigger: { every: 7, unit: 'day' },
                         // trigger: { every: 1, unit: 'hour', firstAt: firstAt }
+                        // trigger: { every: 2, unit: 'hour', firstAt: new Date(2018, 1, 1), count: 10 }
                         // foreground: true
                     });
                 });
