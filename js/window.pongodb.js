@@ -421,18 +421,19 @@
 
         /**
          * Update a set of documents
-         * TODO: Manage upserts
          * @see https://docs.mongodb.com/manual/reference/method/db.collection.update/
          * @param query
-         * @param update
+         * @param doc
+         * @param options
          */
-        Collection.prototype.update = function (query, update) {
+        Collection.prototype.update = function (query, doc, options) {
             assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
-            assert.type(OBJECT, update, assert.format(assert.messages.type.default, 'update', OBJECT));
+            assert.type(OBJECT, doc, assert.format(assert.messages.type.default, 'doc', OBJECT));
             var that = this;
             var idField = that._db._idField;
+            var upsert = !!(options && options.upsert);
             var dfd = $.Deferred();
-            if ($.type(update[idField]) !== UNDEFINED) {
+            if ($.type(doc[idField]) !== UNDEFINED && doc[idField] !== query[idField]) {
                 dfd.reject(new Error('Cannot update ' + idField));
             } else if ($.type(query) === OBJECT && RX_MONGODB_ID.test(query[idField])) {
                 // We have an id to get straight to the document
@@ -445,7 +446,7 @@
                         if (match(query, item)) {
                             // https://localforage.github.io/localForage/#data-api-setitem
                             // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
-                            that._localForage.setItem(item[idField], $.extend(true, item, update), function (err, item) {
+                            that._localForage.setItem(item[idField], $.extend(true, item, doc), function(err, item) {
                                 if (err) {
                                     dfd.reject(err);
                                 } else {
@@ -456,6 +457,14 @@
                             // if not found simply return 0 modified documents
                             dfd.resolve({ nMatched: 0, nUpserted: 0, nModified: 0 });
                         }
+                    } else if (upsert) {
+                        that._localForage.setItem(query[idField], $.extend(true, doc, query), function(err, item) {
+                            if (err) {
+                                dfd.reject(err);
+                            } else {
+                                dfd.resolve({ nMatched: 0, nUpserted: 1, nModified: 0 });
+                            }
+                        });
                     } else {
                         // If not found
                         dfd.resolve({ nMatched: 0, nUpserted: 0, nModified: 0 });
@@ -472,6 +481,7 @@
                         dfd.resolve({ nMatched: 0, nUpserted: 0, nModified: 0 });
                     } else {
                         var updates = {};
+                        // TODO Not sure what is an upsert when query has not idField
                         // https://localforage.github.io/localForage/#data-api-iterate
                         that._localForage.iterate(
                             function (item, key, index) {
@@ -479,7 +489,7 @@
                                     // https://localforage.github.io/localForage/#data-api-setitem
                                     // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
                                     updates[key] = $.Deferred();
-                                    that._localForage.setItem(item[idField], $.extend(true, item, update), function (err) { // }, doc) {
+                                    that._localForage.setItem(item[idField], $.extend(true, item, doc), function (err) { // }, doc) {
                                         if (err) {
                                             return err; // return something to stop iterating
                                         }
