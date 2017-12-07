@@ -35,7 +35,7 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "autoprefixer": "^7.2.0",
+    "autoprefixer": "^7.2.1",
     "bundle-loader": "^0.5.5",
     "chai": "^4.1.2",
     "css-loader": "^0.28.7",
@@ -80,8 +80,8 @@
     "wdio-selenium-standalone-service": "0.0.9",
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.9.11",
-    "webpack": "^3.9.1",
-    "webpack-dev-server": "^2.9.5"
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.7"
   },
   "engines": {
     "node": ">=4"
