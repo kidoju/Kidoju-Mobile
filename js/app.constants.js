@@ -28,23 +28,23 @@
         app.constants = {
             appName: 'Kidoju',
             // The authorId to search summaries from (until we support organizationId)
-            authorId: '', // '56d6ee31bc039c1a00062950',
+            authorId: undefined, // '56d6ee31bc039c1a00062950',
             // The app language
-            language: '', // 'fr',
+            language: undefined, // 'fr',
             // TODO: logo to display in drawer...
             // The root categoryId
             rootCategoryId: {
-                en: '',
+                en: undefined,
                 // en: '000100010000000000000000', // General Knowledge
                 // en: '000100020000000000000000', // Reception
                 // en: '000100030000000000000000', // Year 1
-                fr: ''
+                fr: undefined
                 // fr: '000200010000000000000000' // Culture Générale
                 // fr: '000200030000000000000000' // Maternelle
                 // fr: '000200040000000000000000' // CP
             },
             // The app theme
-            theme: '' // 'flat'
+            theme: undefined // 'flat'
             // TODO: We might also want the possibility to hide categories for museum apps
         };
 
