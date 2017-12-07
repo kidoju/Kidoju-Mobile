@@ -54,19 +54,59 @@
         var META = '__meta__';
         var VERSION = 'version';
         var NOT_IMPLEMENTED = 'Not yet implemented';
+        var TRIGGER = {
+            INSERT: 'insert',
+            UPDATE: 'update',
+            REMOVE: 'remove'
+        };
 
-        /* Blocks are nested too deeply. */
-        /* jshint -W073 */
-
-        /*  This function's cyclomatic complexity is too high.  */
-        /* jshint -W074 */
 
         /**
-         * Match a doc to a query
-         * @param query
-         * @param doc
+         * Utility functions
+         * @type {{}}
          */
-        function match(query, doc) {
+        pongodb.util = {
+
+            /**
+             * Compare semantic versions (either directly or as a _version property of an object)
+             * @see: https://github.com/substack/semver-compare/blob/master/index.js
+             * @param a
+             * @param b
+             * @returns {number}
+             */
+            compareVersions: function(a, b) {
+            // Get _version as an object property
+            var va = $.type(a) === OBJECT ? a._version : a;
+            var vb = $.type(b) === OBJECT ? b._version : b;
+            // Remove `v` prefix if any
+            va = va.charAt(0) === 'v' ? va.substr(1) : va;
+            vb = vb.charAt(0) === 'v' ? vb.substr(1) : vb;
+            var pa = va.split('.');
+            var pb = vb.split('.');
+            for (var i = 0; i < 3; i++) {
+                var na = parseInt(pa[i], 10);
+                var nb = parseInt(pb[i], 10);
+                if (na > nb) { return 1; }
+                if (nb > na) { return -1; }
+                if (!isNaN(na) && isNaN(nb)) { return 1; }
+                if (isNaN(na) && !isNaN(nb)) { return -1; }
+            }
+            return 0;
+        },
+
+            /* Blocks are nested too deeply. */
+            /* jshint -W073 */
+
+            /*  This function's cyclomatic complexity is too high.  */
+            /* jshint -W074 */
+
+            /**
+             * Match a doc to a query
+             * @param query
+             * @param doc
+             * @param textFields for text searches
+             */
+            match: function (query, doc, textFields) {
             // TODO: We are missing $and and $or
             // Note that kendo UI builds a function with eval (although eval is evil)
             assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
@@ -110,6 +150,9 @@
                                         case '$regex':
                                             match = match && criterion[operator].test(value);
                                             break;
+                                        case '$search':
+                                            match = match && pongodb.util.search(criterion[operator], doc, textFields);
+                                            break;
                                     }
                                 }
                             }
@@ -123,37 +166,114 @@
                 }
             }
             return match;
-        }
+        },
 
-        /* jshint +W074 */
-        /* jshint +W073 */
+            /* jshint +W074 */
+            /* jshint +W073 */
 
-        /**
-         * Compare semantic versions (either directly or as a _version property of an object)
-         * @see: https://github.com/substack/semver-compare/blob/master/index.js
-         * @param a
-         * @param b
-         * @returns {number}
-         */
-        function compareVersions(a, b) {
-            // Get _version as an object property
-            var va = $.type(a) === OBJECT ? a._version : a;
-            var vb = $.type(b) === OBJECT ? b._version : b;
-            // Remove `v` prefix if any
-            va = va.charAt(0) === 'v' ? va.substr(1) : va;
-            vb = vb.charAt(0) === 'v' ? vb.substr(1) : vb;
-            var pa = va.split('.');
-            var pb = vb.split('.');
-            for (var i = 0; i < 3; i++) {
-                var na = parseInt(pa[i], 10);
-                var nb = parseInt(pb[i], 10);
-                if (na > nb) { return 1; }
-                if (nb > na) { return -1; }
-                if (!isNaN(na) && isNaN(nb)) { return 1; }
-                if (isNaN(na) && !isNaN(nb)) { return -1; }
+            /**
+             * Search for str in a doc's indexed fields
+             * @param str
+             * @param doc
+             * @param textFields
+             * @returns {boolean}
+             */
+            search: function (str, doc, textFields) {
+                assert.type(STRING, str, assert.format(assert.messages.type.default, 'str', STRING));
+                assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
+                assert.isArray(textFields, assert.format(assert.messages.isArray.default, 'textFields'));
+                var match = false;
+                if (str.length < 1) {
+                    return match;
+                }
+                for (var i = 0, length = textFields.length; i < length; i++) {
+                    var prop = textFields[i];
+                    var path = prop.split('.');
+                    var value = doc;
+                    while (path.length > 0) {
+                        value = value && value[path[0]];
+                        path.shift();
+                    }
+                    if (Array.isArray(value)) {
+                        for (var j = 0, count = value.length; j < count; j++) {
+                            match = match || new RegExp(str, 'i').test(value[j]);
+                            if (match) {
+                                break;
+                            }
+                        }
+                    } else if ($.type(value) === STRING) {
+                        match = match || new RegExp(str, 'i').test(value);
+                    }
+                    if (match) {
+                        break;
+                    }
+                }
+                return match;
+            },
+
+            /**
+             * Convert a filter to a query
+             * TODO: Not recursive at this stage and only logic 'and' because match is not recursive either
+             * @param filter
+             */
+            convertFilter2Query: function (filter) { // TODO text index + item.field in the form a.b like author.userId
+                assert.equal('and', filter.logic, assert.format(assert.messages.equal.default, 'filter.logic', 'and'));
+                assert.isArray(filter.filters, assert.format(assert.messages.isArray.default, 'assert.messages.equal.default', 'filter.filters'));
+                var query = {};
+                for (var i = 0, length = filter.filters.length; i < length; i++) {
+                    var item = filter.filters[i];
+                    var op = {};
+                    if (item.field === '$text' && item.operator === 'eq' && $.type(item.value) !== UNDEFINED) {
+                        // Note: we do not handle item.ignoreCase
+                        op.$text = { $search: item.value };
+                    } else if ($.type(item.field) === STRING && $.type(item.value) !== UNDEFINED) {
+                        switch (item.operator) {
+                            case 'eq':
+                                op[item.field] = { $eq: item.value };
+                                break;
+                            case 'neq':
+                                op[item.field] = { $ne: item.value };
+                                break;
+                            case 'lt':
+                                op[item.field] = { $lt: item.value };
+                                break;
+                            case 'lte':
+                                op[item.field] = { $lte: item.value };
+                                break;
+                            case 'gt':
+                                op[item.field] = { $gt: item.value };
+                                break;
+                            case 'gte':
+                                op[item.field] = { $gte: item.value };
+                                break;
+                            case 'flags': // Not a Kendo UI operator
+                                op[item.field] = { $bitsAnySet: item.value };
+                                break;
+                            case 'startswith':
+                                op[item.field] = { $regex: '^' + item.value, $options: 'i' };
+                                break;
+                            case 'endswith':
+                                op[item.field] = { $regex: item.value + '$', $options: 'i' };
+                                break;
+                            case 'contains':
+                                op[item.field] = { $regex: item.value, $options: 'i' };
+                                break;
+                            case 'doesnotcontain':
+                                // https://docs.mongodb.com/manual/reference/operator/query/not/
+                                // http://stackoverflow.com/questions/20175122/how-can-i-use-not-like-operator-in-mongodb
+                                // op[item.field] = { $not: new RegExp(item.value, 'i') };
+                                op[item.field] = { $regex: '^((?!' + item.value + ').)*$', $options: 'i' };
+                                break;
+                        }
+                    }
+                    // Note extend might not be the perfect choice because it would replace { a: 1 } with {a : 2 }
+                    // matching all items where a is 2 instead of matching no items becuase a cannnot be bother 1 and 2
+                    $.extend(query, op);
+                }
+                return query;
             }
-            return 0;
-        }
+
+        };
 
         /**
          * An ObjectId like MongoDB
@@ -212,16 +332,22 @@
          * @param options
          * @constructor
          */
-        var Collection = pongodb.Collection = function (options) {
+        var Collection = function (options) { // = pongodb.Collection = function (options) {
             assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
             assert.instanceof(Database, options.db, assert.format(assert.messages.instanceof.default, 'options.db', 'pongodb.Database'));
             assert.type(STRING, options.name, assert.format(assert.messages.isPlainObject.default, 'options.name', STRING));
             this._db = options.db;
             this._name = options.name;
             this._localForage = localForage.createInstance({
-                name: this._db._options.name, // Database name
+                name: this._db._name, // Database name
                 storeName: options.name // Collection name
             });
+            this._textFields = []; // for full text searches
+            this._triggers = {
+                insert: [],
+                remove: [],
+                update: []
+            };
         };
 
         /**
@@ -253,7 +379,7 @@
                         dfd.reject(err);
                     } else if (item) {
                         // If found, check that the entire query matches
-                        if (!match(query, item)) {
+                        if (!pongodb.util.match(query, item, that._textFields)) {
                             item = null;
                         }
                         dfd.resolve(item ? [item] : []);
@@ -275,7 +401,7 @@
                         // https://localforage.github.io/localForage/#data-api-iterate
                         that._localForage.iterate(
                             function (item, key, index) {
-                                if (match(query, item)) {
+                                if (pongodb.util.match(query, item, that._textFields)) {
                                     found.push(item);
                                 }
                                 if (breakOnFirst) {
@@ -335,7 +461,7 @@
                         dfd.reject(err);
                     } else if (item) {
                         // If found, check that the entire query matches
-                        if (match(query, item)) {
+                        if (pongodb.util.match(query, item, that._textFields)) {
                             count++;
                         }
                         dfd.resolve(count); // 1
@@ -356,7 +482,7 @@
                         // https://localforage.github.io/localForage/#data-api-iterate
                         that._localForage.iterate(
                             function (item, key, index) {
-                                if (match(query, item)) {
+                                if (pongodb.util.match(query, item, that._textFields)) {
                                     count++;
                                 }
                                 dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
@@ -393,7 +519,11 @@
                     if (err) {
                         dfd.reject(err);
                     } else {
-                        dfd.resolve(item);
+                        $.when.apply(that, that.triggers(TRIGGER.INSERT, item))
+                            .done(function () {
+                                dfd.resolve(item);
+                            })
+                            .fail(dfd.reject);
                     }
                 });
             } else {
@@ -410,7 +540,11 @@
                             if (err) {
                                 dfd.reject(err);
                             } else {
-                                dfd.resolve(item);
+                                $.when.apply(that, that.triggers(TRIGGER.INSERT, item))
+                                .done(function () {
+                                    dfd.resolve(item);
+                                })
+                                .fail(dfd.reject);
                             }
                         });
                     }
@@ -443,7 +577,7 @@
                         dfd.reject(err);
                     } else if (item) {
                         // If found, check that the entire query matches
-                        if (match(query, item)) {
+                        if (pongodb.util.match(query, item, that._textFields)) {
                             // https://localforage.github.io/localForage/#data-api-setitem
                             // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
                             that._localForage.setItem(item[idField], $.extend(true, item, doc), function(err, item) {
@@ -485,7 +619,7 @@
                         // https://localforage.github.io/localForage/#data-api-iterate
                         that._localForage.iterate(
                             function (item, key, index) {
-                                if (match(query, item)) {
+                                if (pongodb.util.match(query, item, that._textFields)) {
                                     // https://localforage.github.io/localForage/#data-api-setitem
                                     // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
                                     updates[key] = $.Deferred();
@@ -552,7 +686,11 @@
                             if (err) {
                                 dfd.reject(err);
                             } else {
-                                dfd.resolve({ nRemoved: 1 });
+                                $.when.apply(that, that.triggers(TRIGGER.REMOVE, item))
+                                    .done(function () {
+                                        dfd.resolve({ nRemoved: 1 });
+                                    })
+                                    .fail(dfd.reject);
                             }
                         });
                     } else {
@@ -573,14 +711,19 @@
                         // https://localforage.github.io/localForage/#data-api-iterate
                         that._localForage.iterate(
                             function (item, key, index) {
-                                if (match(query, item)) {
+                                if (pongodb.util.match(query, item, that._textFields)) {
                                     removals[key] = $.Deferred();
                                     // https://localforage.github.io/localForage/#data-api-removeitem
                                     that._localForage.removeItem(item[idField], function (err) {
                                         if (err) {
-                                            return err; // return something to stop iterating
+                                            return removals[key].reject(err); // return something to stop iterating
+                                        } else {
+                                            $.when.apply(that, that.triggers(TRIGGER.REMOVE, item))
+                                                .done(function () {
+                                                    removals[key].resolve();
+                                                })
+                                                .fail(removals[key].reject);
                                         }
-                                        removals[key].resolve();
                                     });
                                 }
                                 dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
@@ -616,6 +759,20 @@
         };
 
         /**
+         * Gets triggers as an array of promises
+         * @param event
+         * @param item
+         */
+        Collection.prototype.triggers = function (event, item) {
+            var promises = [];
+            var triggers = this._triggers[event];
+            for (var i = 0, length = triggers.length; i < length; i ++) {
+                promises.push(triggers[i](item));
+            }
+            return promises;
+        };
+
+        /**
          * Clear a collection
          * Note: not a mongoDB feature
          * @param options
@@ -645,19 +802,6 @@
         };
 
         /**
-         * TODO Trigger
-         * @type {pongodb.Trigger}
-         */
-        /*
-        var Trigger = function (options) {
-            this._db = options.db;
-            this._collection = options.collection;
-            this._event = options.event;
-            this._execute = options.execute;
-        };
-        */
-
-        /**
          * Database
          * @param options
          * @constructor
@@ -667,7 +811,6 @@
             assert.type(STRING, options.name, assert.format(assert.messages.isPlainObject.default, 'options.name', STRING));
             assert.isArray(options.collections, assert.format(assert.messages.isArray.default, 'db', 'options.collections'));
 
-            this._options = options;
             this._idField = options.idField || 'id';
             this._name = options.name || 'pongodb';
 
@@ -745,10 +888,45 @@
          * Create a collection
          * @see https://docs.mongodb.com/manual/reference/method/db.createCollection/
          * @param name
+         * @param options
          */
         Database.prototype.createCollection = function (name, options) {
             // Note: we could keep track of collections in the META table
             throw new Error('Instantiate a new Database object and pass an array of collection names to the constructor.');
+        };
+
+        /**
+         * Add full text index
+         * @param collection
+         * @param textFields
+         */
+        Database.prototype.addFullTextIndex = function (collection, textFields) {
+            assert.type(STRING, collection, assert.format(assert.messages.type.default, 'collection', STRING));
+            assert.instanceof(Collection, this[collection], assert.format(assert.messages.instanceof.default, 'this[collection]', 'Collection'));
+            assert.isArray(textFields, assert.format(assert.messages.isArray.default, 'textFields'));
+            this[collection]._textFields = textFields;
+        };
+
+        /**
+         * Trigger
+         * @param collection
+         * @param events, a string or an array of strings
+         * @param callback
+         */
+        Database.prototype.createTrigger = function (collection, events, callback) {
+            if ($.type(events) === STRING) {
+                events = [events];
+            }
+            assert.type(STRING, collection, assert.format(assert.messages.type.default, 'collection', STRING));
+            assert.instanceof(Collection, this[collection], assert.format(assert.messages.instanceof.default, 'this[collection]', 'Collection'));
+            assert.isArray(events, assert.format(assert.messages.isArray.default, 'events'));
+            assert.isFunction(callback, assert.format(assert.messages.isFunction.default, 'callback'));
+            for (var i = 0, length = events.length; i < length; i++) {
+                var event = events[i].toLowerCase();
+                if ([TRIGGER.INSERT, TRIGGER.UPDATE, TRIGGER.REMOVE].indexOf(event) > -1) {
+                    this[collection]._triggers[event].push(callback);
+                }
+            }
         };
 
         /**
@@ -795,12 +973,12 @@
             that._db.version() // Read from storage
                 .done(function (version) {
                     // Sort migrations by version number
-                    var migrations = that._migrations.sort(compareVersions);
+                    var migrations = that._migrations.sort(pongodb.util.compareVersions);
                     // Find the next migration
                     var found = false;
                     for (var i = 0, length = migrations.length; i < length; i++) {
                         var migration = migrations[i];
-                        if (compareVersions(version, migration._version) < 0) {
+                        if (pongodb.util.compareVersions(version, migration._version) < 0) {
                             found = true;
                             logger.info({
                                 method: 'pongodb.Upgrade.execute',
