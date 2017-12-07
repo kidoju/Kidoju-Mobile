@@ -182,7 +182,7 @@ window.jQuery.holdReady(true);
             USER: 'user'
         };
         // var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.ACTIVITIES, VIEW.CATEGORIES, VIEW.NETWORK, VIEW.SETTINGS, VIEW.SIGNIN, VIEW.USER].join('|') + ')', 'i');
-        var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.NETWORK, VIEW.USER].join('|') + ')', 'i');
+        var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.ACTIVITIES, VIEW.CATEGORIES, VIEW.FINDER, VIEW.NETWORK, VIEW.USER].join('|') + ')', 'i');
         var DISPLAY = {
             INLINE: 'inline-block',
             NONE: 'none',
@@ -682,11 +682,7 @@ window.jQuery.holdReady(true);
             /**
              * Summaries
              */
-            summaries: new models.LazySummaryDataSource({
-                language: i18n.locale(),
-                pageSize: VIRTUAL_PAGE_SIZE,
-                userId: app.constants.authorId
-            }),
+            summaries: new models.LazySummaryDataSource({ pageSize: VIRTUAL_PAGE_SIZE }),
 
             /**
              * Selected summary
@@ -910,8 +906,9 @@ window.jQuery.holdReady(true);
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
                 assert.instanceof(models.MobileActivityDataSource, activities, kendo.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
                 activities.transport.setPartition({
-                    'version.language': language,
-                    'actor.userId': userId
+                    'actor.userId': userId,
+                    'type': 'Score',
+                    'version.language': language
                 });
 
                 // List of categories
@@ -934,8 +931,9 @@ window.jQuery.holdReady(true);
                 var summaries = this.get(VIEW_MODEL.SUMMARIES);
                 assert.instanceof(models.LazySummaryDataSource, summaries, kendo.format(assert.messages.instanceof.default, 'summaries', 'app.models.LazySummaryDataSource'));
                 summaries.transport.setPartition({
+                    'author.userId': app.constants.authorId,
                     language: language,
-                    'author.userId': app.constants.authorId
+                    type: 'Test'
                 });
 
                 // Summary being played
@@ -988,8 +986,9 @@ window.jQuery.holdReady(true);
                     dfd.resolve();
                 } else {
                     activities.transport.setPartition({
-                        'version.language': options.language,
-                        'actor.userId': options.userId
+                        'actor.userId': options.userId,
+                        type: 'Score',
+                        'version.language': options.language
                     });
                     activities._filter = undefined;
                     activities.read()
@@ -1013,24 +1012,24 @@ window.jQuery.holdReady(true);
              */
             loadLazySummaries: function (query) {
                 assert.isPlainObject(query, kendo.format(assert.messages.isPlainObject.default, 'query'));
-                var dfd = $.Deferred();
-                if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warning(i18n.culture.notifications.networkOffline);
-                    dfd.reject(undefined, 'offline', 'No network connection');
-                } else {
-                    viewModel.summaries.query(query)
-                        .done(dfd.resolve)
-                        .fail(function (xhr, status, error) {
-                            dfd.reject(xhr, status, error);
-                            app.notification.error(i18n.culture.notifications.summariesQueryFailure);
-                            logger.error({
-                                message: 'error loading summaries',
-                                method: 'viewModel.loadLazySummaries',
-                                data: { query: query, status: status, error: error, response: parseResponse(xhr) }
-                            });
+                // var dfd = $.Deferred();
+                // if (window.navigator.connection.type === window.Connection.NONE) {
+                //    app.notification.warning(i18n.culture.notifications.networkOffline);
+                //    dfd.reject(undefined, 'offline', 'No network connection');
+                // } else {
+                return viewModel.summaries.query(query)
+                    // .done(dfd.resolve)
+                    .fail(function (xhr, status, error) {
+                        // dfd.reject(xhr, status, error);
+                        app.notification.error(i18n.culture.notifications.summariesQueryFailure);
+                        logger.error({
+                            message: 'error loading summaries',
+                            method: 'viewModel.loadLazySummaries',
+                            data: { query: query, status: status, error: error, response: parseResponse(xhr) }
                         });
-                }
-                return dfd.promise();
+                    });
+                // }
+                // return dfd.promise();
             },
 
             /**
@@ -1340,7 +1339,7 @@ window.jQuery.holdReady(true);
                     },
                     // test initialized for player data binding
                     test: viewModel.version.stream.pages.getTestFromProperties(),
-                    type: 'score',
+                    type: 'Score',
                     version : {
                         language: language,
                         // TODO Add categories for better statistics
@@ -2608,7 +2607,7 @@ window.jQuery.holdReady(true);
                 // If we have an activityId, replace the current test to display score and correction
                 var activity = viewModel.activities.get(activityId);
                 assert.instanceof(models.MobileActivity, activity, kendo.format(assert.messages.instanceof.default, 'activity', 'app.models.MobileActivity'));
-                assert.equal('score', activity.type, kendo.format(assert.messages.instanceof.default, 'activity.type', 'score'));
+                assert.equal('Score', activity.type, kendo.format(assert.messages.instanceof.default, 'activity.type', 'Score'));
                 $.when(
                     viewModel.loadSummary({ language: i18n.locale(), id: activity.get('version.summaryId') }),
                     viewModel.loadVersion({ language: i18n.locale(), summaryId: activity.get('version.summaryId'), versionId: activity.get('version.versionId') })

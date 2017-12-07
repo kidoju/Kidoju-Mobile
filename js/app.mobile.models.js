@@ -106,11 +106,12 @@
             assert.instanceof(Error, error, kendo.format(assert.messages.instanceof.default, 'error', 'Error'));
             assert.type(STRING, error.message, kendo.format(assert.messages.type.default, 'error.message', STRING));
             // JSON.stringify(error) is always {} - $.extend is a workaround to collect non-undefined error properties
-            var obj = $.extend({}, {
+            var obj = $.extend(true, {}, {
                 message: error.message,
                 type: error.type,
                 code: error.code,
                 stack: error.stack && error.stack.toString()
+                // TODO: review missing errors
             });
             return [
                 { responseText: JSON.stringify({ error: obj }) },
@@ -120,9 +121,141 @@
         }
 
         /**
+         * Lazy transport (only has read)
+         */
+        var LazyTransport = models.LazyTransport = models.BaseTransport.extend({
+
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isFunction(options.collection, kendo.format(assert.messages.isFunction.default, 'options.collection'));
+                this._collection = options.collection; // Something like app.rapi.v2.activities
+                models.BaseTransport.fn.init.call(this, options);
+            },
+
+            /**
+             * Sets a partition
+             * @param partition
+             */
+            setPartition: function (partition) {
+                models.BaseTransport.fn.setPartition.call(this, partition);
+                this._rapi = this._collection(this._partition);
+                assert.isFunction(this._rapi.create, kendo.format(assert.messages.isFunction.default, 'this._rapid.create'));
+                assert.isFunction(this._rapi.destroy, kendo.format(assert.messages.isFunction.default, 'this._rapid.destroy'));
+                assert.isFunction(this._rapi.read, kendo.format(assert.messages.isFunction.default, 'this._rapid.read'));
+                assert.isFunction(this._rapi.update, kendo.format(assert.messages.isFunction.default, 'this._rapid.update'));
+            },
+
+            /**
+             * Read
+             * @param options
+             */
+            read: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
+                var partition = this.partition();
+                if ($.type(partition) === UNDEFINED) {
+                    // Makes it possible to create the data source without partition
+                    // But this can be  bypassed by passing { partition: false }
+                    options.success({ total: 0, data: [] });
+                } else {
+                    // Fields, filters and default sort order are assigned in this._rapi.read
+                    this._rapi.read(options.data).done(options.success).fail(options.error);
+                }
+            }
+
+        });
+
+        /**
+         * Rapi transport (extends lazy transport with create, destroy and update)
+         */
+        var RapiTransport = models.RapiTransport = models.LazyTransport.extend({
+
+            /**
+             * Create
+             * @param options
+             */
+            create: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
+                var item = options.data;
+                // Validate item against partition
+                var err = this._validate(item);
+                if (err) {
+                    return options.error.apply(this, ErrorXHR(err));
+                }
+                // Execute request
+                this._rapi.create(item)
+                    .done(function (response) {
+                        options.success({ total: 1, data: [response] })
+                    })
+                    .fail(options.error);
+            },
+
+            /**
+             * Destroy
+             * @param options
+             */
+            destroy: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
+                assert.match(RX_MONGODB_ID, options.data.id, kendo.format(assert.messages.match.default, 'options.data.id'));
+                var item = options.data;
+                // Validate item against partition
+                var err = this._validate(item);
+                if (err) {
+                    return options.error.apply(this, ErrorXHR(err));
+                }
+                // Execute request
+                this._rapi.destroy(item.id)
+                    .done(function (response) {
+                        options.success({ total: 1, data: [response] })
+                    })
+                    .fail(options.error);
+            },
+
+            /**
+             * Update
+             * @param options
+             */
+            update: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
+                assert.match(RX_MONGODB_ID, options.data.id, kendo.format(assert.messages.match.default, 'options.data.id'));
+                var item = options.data;
+                var id = option.data.id;
+                // item.id = undefined;
+                // Validate item against partition
+                var err = this._validate(item);
+                if (err) {
+                    return options.error.apply(this, ErrorXHR(err));
+                }
+                // Execute request
+                this._rapi.update(item.id, item)
+                    .done(function (response) {
+                        options.success({ total: 1, data: [response] })
+                    })
+                    .fail(options.error);
+            }
+
+        });
+
+        /**
          * A generic mobile transport using pongodb (and localForage)
          */
-        var MobileTransport = models.MobileTransport = kendo.Observable.extend({
+        var MobileTransport = models.MobileTransport = models.BaseTransport.extend({
 
             /**
              * Initialization
@@ -131,50 +264,8 @@
              */
             init: function (options) {
                 options = options || {};
+                models.BaseTransport.fn.init.call(this, options);
                 this.collection = options.collection;
-                this.setPartition(options.partition);
-            },
-
-            /**
-             * Sets a table partition (kind of permanent filter)
-             * @param partition
-             */
-            setPartition: function (partition) {
-                this._partition = partition;
-            },
-
-            /**
-             * Gets the partition
-             */
-            partition: function () {
-                return this._partition;
-            },
-
-            /**
-             * Validates item against partition
-             * @param item
-             * @private
-             */
-            _validate: function (item) {
-                var errors = [];
-                var partition = this.partition();
-                for (var prop in partition) {
-                    if (partition.hasOwnProperty(prop)) {
-                        var value = item;
-                        // We need to find the value of composite properties like in item['prop1.prop2'] which should be read as item.prop1.prop2
-                        // We need that for activity.author.userId or activity.version.language
-                        var props = prop.split('.');
-                        for (var i = 0, length = props.length; i < length; i++) {
-                            value = value[props[i]];
-                        }
-                        if ($.type(partition[prop]) !== UNDEFINED && partition[prop] !== value) {
-                            var err = new Error('Invalid ' + prop);
-                            err.prop = prop;
-                            errors.push(err);
-                        }
-                    }
-                }
-                return errors;
             },
 
             /**
@@ -184,6 +275,8 @@
             create: function (options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 logger.debug({
                     message: 'Create mobile data',
                     method: 'app.models.MobileTransport.create',
@@ -191,25 +284,28 @@
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var item = JSON.parse(JSON.stringify(options.data));
+                /*
                 if (item.updated) {
                     // Beware! JSON.parse(JSON.stringify(...)) converts dates to ISO Strings, so we need to be consistent
                     item.updated = new Date().toISOString();
                 }
-                item.__state__ = STATE.CREATED;
+                */
+                if ($.type(item.id) === UNDEFINED) {
+                    debugger;
+                    item.__state__ = STATE.CREATED;
+                }
                 // Validate item against partition
-                var errors = this._validate(item);
-                if (errors.length) {
-                    var err = new Error('Invalid item');
-                    err.errors = errors;
+                var err = this._validate(item);
+                if (err) {
                     return options.error.apply(this, ErrorXHR(err));
                 }
                 // Unless we give one ourselves, the collection will give the item an id
                 this.collection.insert(item)
-                    .then(function() {
+                    .done(function() {
                         // Note: the item now has an id
                         options.success({ total: 1, data: [item] });
                     })
-                    .catch(function(error) {
+                    .fail(function(error) {
                         options.error.apply(this, ErrorXHR(error));
                     });
             },
@@ -221,6 +317,8 @@
             destroy: function (options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 logger.debug({
                     message: 'Destroy mobile data',
                     method: 'app.models.MobileTransport.destroy',
@@ -233,14 +331,14 @@
                     // Items with __state__ === 'created' can be safely removed because they do not exist on the remote server
                     if (RX_MONGODB_ID.test(id)) {
                         this.collection.remove({ id: id })
-                            .then(function(result) {
+                            .done(function(result) {
                                 if (result && result.nRemoved === 1) {
                                     options.success({ total: 1, data: [item] });
                                 } else {
                                     options.error.apply(this, ErrorXHR(new Error('Not found')));
                                 }
                             })
-                            .catch(function(error) {
+                            .fail(function(error) {
                                 options.error.apply(this, ErrorXHR(error));
                             });
                     } else {
@@ -254,16 +352,15 @@
                     }
                     item.__state__ = STATE.DESTROYED;
                     // Validate item against partition
-                    var errors = this._validate(item);
-                    if (errors.length) {
-                        var err = new Error('Invalid item');
-                        err.errors = errors;
+                    var err = this._validate(item);
+                    if (err) {
                         return options.error.apply(this, ErrorXHR(err));
                     }
+                    // Execute request
                     if (RX_MONGODB_ID.test(id)) {
                         item.id = undefined;
                         this.collection.update({ id: id }, item)
-                            .then(function(result) {
+                            .done(function(result) {
                                 if (result && result.nMatched === 1 && result.nModified === 1) {
                                     item.id = id;
                                     options.success({ total: 1, data: [item] });
@@ -271,7 +368,7 @@
                                     options.error.apply(this, ErrorXHR(new Error('Not found')));
                                 }
                             })
-                            .catch(function(error) {
+                            .fail(function(error) {
                                 options.error.apply(this, ErrorXHR(error));
                             });
                     } else {
@@ -286,6 +383,10 @@
              * @param options
              */
             read: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                // assert.isOptionalObject(options.data, kendo.format(assert.messages.isOptionalObject.default, 'options.data')); // because of option.data === {}
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 var partition = this.partition();
                 logger.debug({
                     message: 'Read mobile data',
@@ -297,17 +398,19 @@
                     // Create the MobileTransport with options.partition: false to avoid this test
                     options.success({ total: 0, data: [] });
                 } else {
+                    app.rapi.util.filterExtend(options.data, partition);
                     // Filter all records with __state___ === 'destroyed', considering partition is ignored when false
-                    var query = $.extend(true, {}, partition, { __state__: { $ne: STATE.DESTROYED } });
+                    options.data.filter.filters.push({ field: '__state__', operator: 'neq',  value: STATE.DESTROYED });
+                    var query = pongodb.util.convertFilter2Query(options.data.filter);
                     this.collection.find(query)
-                        .then(function(result) {
+                        .done(function(result) {
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
                             } else {
                                 options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
                             }
                         })
-                        .catch(function(error) {
+                        .fail(function(error) {
                             options.error.apply(this, ErrorXHR(error));
                         });
                 }
@@ -320,6 +423,8 @@
             update: function (options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 logger.debug({
                     message: 'Update mobile data',
                     method: 'app.models.MobileTransport.update',
@@ -336,17 +441,16 @@
                     item.__state__ = STATE.UPDATED;
                 }
                 // Validate item against partition
-                var errors = this._validate(item);
-                if (errors.length) {
-                    var err = new Error('Invalid item');
-                    err.errors = errors;
+                var err = this._validate(item);
+                if (err) {
                     return options.error.apply(this, ErrorXHR(err));
                 }
+                // Execute request
                 var id = item.id;
                 if (RX_MONGODB_ID.test(id)) {
                     item.id = undefined;
                     this.collection.update({ id: id }, item)
-                        .then(function(result) {
+                        .done(function(result) {
                             if (result && result.nMatched === 1 && result.nModified === 1) {
                                 item.id = id;
                                 options.success({ total: 1, data: [item] });
@@ -354,7 +458,7 @@
                                 options.error.apply(this, ErrorXHR(new Error('Not found')));
                             }
                         })
-                        .catch(function(error) {
+                        .fail(function(error) {
                             options.error.apply(this, ErrorXHR(error));
                         });
                 } else {
@@ -368,27 +472,11 @@
         /**
          * DummyTransport
          */
-        var DummyTransport = models.DummyTransport = Class.extend({
+        var DummyTransport = models.DummyTransport = models.BaseTransport.extend({
 
             init: function (options) {
-                options = options || {};
+                models.BaseTransport.fn.init.call(this, options);
                 this._data = [];
-                this.setPartition(options.partition);
-            },
-
-            /**
-             * Sets a table partition (kind of permanent filter)
-             * @param partition
-             */
-            setPartition: function (partition) {
-                this._partition = partition;
-            },
-
-            /**
-             * Gets the partition
-             */
-            partition: function () {
-                return this._partition;
             },
 
             create: function (options) {
@@ -442,23 +530,69 @@
          * Note: Only applies to items that cannot be modified
          * @class ReadOfflineStrategy
          */
-        /*
-        models.OfflineCacheStrategy = Class.extend({
+        models.OfflineCacheStrategy = MobileTransport.extend({
 
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
             init: function (options) {
-                this.remoteTransport = options.transport;
+                options = options || {};
+                this.remoteTransport = options.remoteTransport;
+                MobileTransport.fn.init.call(this, options); // Calls setPartition
             },
 
-            getById: function (options) {
-
+            /**
+             * Sets a table partition (kind of permanent filter)
+             * @param partition
+             */
+            setPartition: function (partition) {
+                this.remoteTransport.setPartition(partition);
             },
 
+            /**
+             * Gets the partition
+             */
+            partition: function () {
+                return this.remoteTransport.partition();
+            },
+
+            /**
+             * Read transport
+             * @param options
+             */
             read: function (options) {
-
+                var that = this;
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                    MobileTransport.fn.read.call(this, options);
+                } else {
+                    this.remoteTransport.read({
+                        data: options.data,
+                        error: options.error,
+                        success: function (response) {
+                            var promises = [];
+                            for (var idx = 0, length = response.data.length; idx < length; idx++) {
+                                var data = response.data[idx];
+                                promises.push(function() {
+                                    var dfd = $.Deferred();
+                                    MobileTransport.fn.create.call(that, {
+                                        data: data,
+                                        error: dfd.reject,
+                                        success: dfd.resolve
+                                    });
+                                    return dfd.promise();
+                                }());
+                            }
+                            $.when.apply(that, promises)
+                                .always(function () { // Note: we ignore errors caching the response
+                                    options.success(response);
+                                });
+                        }
+                    });
+                }
             }
-
         });
-        */
 
         /**
          * A synchronization strategy using pongodb (and localForage)
@@ -472,9 +606,8 @@
              */
             init: function (options) {
                 options = options || {};
-                this.collection = options.collection;
                 this.remoteTransport = options.remoteTransport;
-                // MobileTransport.fn.init.call(this, options);
+                MobileTransport.fn.init.call(this, options); // Calls setPartition
             },
 
             /**
@@ -503,13 +636,11 @@
                 var dfd = $.Deferred();
                 var collection = this.collection;
                 delete item.__state__;
-                debugger;
                 var mobileId = item.id;
                 item.id = null;
                 this.remoteTransport.create({
                     data: item,
                     error: function (err) {
-                        debugger;
                         dfd.reject(err);
                     },
                     success: function (response) {
@@ -519,8 +650,8 @@
                             collection.remove({ id: mobileId }),
                             collection.insert(response.data[0])
                         )
-                            .then(dfd.resolve)
-                            .catch(dfd.reject);
+                            .done(dfd.resolve)
+                            .fail(dfd.reject);
                     }
                 });
                 return dfd.promise();
@@ -537,26 +668,22 @@
                 var dfd = $.Deferred();
                 var collection = this.collection;
                 delete item.__state__;
-                debugger;
                 this.remoteTransport.destroy({
                     data: item,
                     error: function (err) {
                         if (err.message = '404') { // TODO -----------------------------------------------------------------------------------
-                            debugger;
                             // If item is not found on the server, remove from local database
                             collection.remove({ id: item.id })
-                                .then(dfd.resolve)
-                                .catch(dfd.reject);
+                                .done(dfd.resolve)
+                                .fail(dfd.reject);
                         } else {
-                            debugger;
                             dfd.reject(err);
                         }
                     },
                     success: function (response) {
-                        debugger;
                         collection.remove({ id: item.id })
-                            .then(dfd.resolve)
-                            .catch(dfd.reject);
+                            .done(dfd.resolve)
+                            .fail(dfd.reject);
                     }
                 });
                 return dfd.promise();
@@ -570,16 +697,19 @@
                 var that = this;
                 var dfd = $.Deferred();
                 var collection = this.collection;
-                debugger;
-                // TODO: we certainly have an issue with paging
                 this.remoteTransport.read({
+                    data: {
+                        // TODO we certainly have an issue with paging
+                        filter: undefined, // Should we use lastSync ????
+                        sort: undefined
+                    },
                     success: function (response) {
                         var result = response.data; // this.remoteTransport.read ensures data is already partitioned
                         var length = result.length;
                         var promises = [];
                         for (var idx = 0; idx < length; idx++) {
                             var item = result[idx];
-                            promises.push(collection.update({ id: item.id }, item)
+                            promises.push(collection.update({ id: item.id }, item, { upsert: true })
                                 .always(function () {
                                     dfd.notify({ collection: collection.name(), pass: 2, index: idx, total: length});
                                 })
@@ -591,8 +721,8 @@
                                 length = length || 1; // Cannot divide by 0;
                                 dfd.notify({ collection: collection.name(), pass: 2, index: length - 1, total: length}); // Make sure we always end up at 100%
                             })
-                            .then(dfd.resolve)
-                            .catch(dfd.reject);
+                            .done(dfd.resolve)
+                            .fail(dfd.reject);
                     },
                     error: dfd.reject
                 });
@@ -609,27 +739,23 @@
                 assert.equal(STATE.UPDATED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'updated'));
                 var dfd = $.Deferred();
                 var collection = this.collection;
-                debugger;
                 delete item.__state__;
                 this.remoteTransport.update({
                     data: item,
                     error: function (err) {
-                        debugger;
                         if (err.message = '404') { // TODO
-                            debugger;
                             // If item is not found on the server, remove from local database
                             collection.remove({ id: item.id })
-                                .then(dfd.resolve)
-                                .catch(dfd.reject);
+                                .done(dfd.resolve)
+                                .fail(dfd.reject);
                         } else {
                             dfd.reject(err);
                         }
                     },
                     success: function (response) {
-                        debugger;
                         collection.update({ id: response.data[0].id }, response.data[0])
-                            .then(dfd.resolve)
-                            .catch(dfd.reject);
+                            .done(dfd.resolve)
+                            .fail(dfd.reject);
                     }
                 });
                 return dfd.promise();
@@ -646,7 +772,7 @@
                 var partition = that.remoteTransport._partition;
                 // TODO : how should we use lastSync? -------------------------------------------------------------------------------------
                 this.collection.find(partition)
-                    .then(function (items) {
+                    .done(function (items) {
                         var promises = [];
                         var length = items.length;
                         for (var idx = 0; idx < length; idx ++) {
@@ -677,15 +803,15 @@
                                 length = length || 1; // Cannot divide by 0;
                                 dfd.notify({ collection: collection.name(), pass: 1, index: length - 1, total: length }); // Make sure we always end up at 100%
                             })
-                            .then(function () {
+                            .done(function () {
                                 that._readSync()
                                     .progress(dfd.notify)
-                                    .then(dfd.resolve)
-                                    .catch(dfd.reject);
+                                    .done(dfd.resolve)
+                                    .fail(dfd.reject);
                             })
-                            .catch(dfd.reject);
+                            .fail(dfd.reject);
                     })
-                    .catch(dfd.reject);
+                    .fail(dfd.reject);
                 return dfd.promise();
             }
         });
@@ -855,22 +981,22 @@
                     assert.match(RX_MONGODB_ID, sid, kendo.format(assert.messages.match.default, 'sid', RX_MONGODB_ID));
                     // Note: this may fail if user does not allow storage space
                     fileSystem.init()
-                        .then(function () {
+                        .done(function () {
                             var directoryPath = kendo.format(uris.mobile.pictures, '', '');
                             var fileName = sid + DOT_JPEG;
                             fileSystem.getDirectoryEntry(directoryPath, window.PERSISTENT)
-                                .then(function (directoryEntry) {
+                                .done(function (directoryEntry) {
                                     fileSystem.getFileEntry(directoryEntry, fileName)
-                                        .then(function (fileEntry) {
+                                        .done(function (fileEntry) {
                                             fileSystem.download(remoteUrl, fileEntry)
-                                                .then(dfd.resolve)
-                                                .catch(dfd.reject);
+                                                .done(dfd.resolve)
+                                                .fail(dfd.reject);
                                         })
-                                        .catch(dfd.reject);
+                                        .fail(dfd.reject);
                                 })
-                                .catch(dfd.reject);
+                                .fail(dfd.reject);
                         })
-                        .catch(dfd.reject);
+                        .fail(dfd.reject);
                 }
                 return dfd.promise();
             },
@@ -916,7 +1042,7 @@
                 assert.ok(that.isNew(), 'Cannot load a new user into an existing user!');
                 app.cache.removeMe();
                 return app.cache.getMe()
-                    .then(function (data) {
+                    .done(function (data) {
                         if ($.isPlainObject(data) && RX_MONGODB_ID.test(data.id)) {
                             // Since we have marked fields as non editable, we cannot use 'that.set',
                             // This should raise a change event on the parent viewModel
@@ -966,11 +1092,19 @@
              * @param user
              */
             _validate: function (user) {
+                var ret;
                 var errors = [];
-                if ($.type(user.md5pin) !== STRING) {
-                    errors.push('Missing user pin');
+                if ($.type(user.md5pin) !== STRING || user.md5pin.length < 4) {
+                    var err = new Error('Invalid md5pin');
+                    err.prop = 'md5pin';
+                    errors.push(err);
                 }
-                return errors;
+                if (errors.length) {
+                    ret = new Error('Bad request');
+                    ret.code = 400;
+                    ret.errors = errors;
+                }
+                return ret;
             },
 
             /**
@@ -988,9 +1122,10 @@
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var user = JSON.parse(JSON.stringify(options.data));
-                var errors = this._validate(user);
-                if (errors.length) {
-                    return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
+                // Validate item against partition
+                var err = this._validate(user);
+                if (err) {
+                    return options.error.apply(this, ErrorXHR(err));
                 }
                 // This replaces the machine id in the mongoDB server id by MACHINE_ID
                 // This ensures uniqueness of user in mobile app when sid is unique without further checks
@@ -998,16 +1133,16 @@
                 user.id = new window.pongodb.ObjectId(user.sid).toMobileId();
                 // Start with saving the picture to avoid a broken image in UI if user is saved without
                 models.MobileUser.fn._saveMobilePicture.call(user)
-                    .then(function () {
+                    .done(function () {
                         db.users.insert(user)
-                            .then(function () {
+                            .done(function () {
                                 options.success({ total: 1, data: [user] });
                             })
-                            .catch(function (error) {
+                            .fail(function (error) {
                                 options.error.apply(this, ErrorXHR(error));
                             });
                 })
-                .catch(function (error) {
+                .fail(function (error) {
                     options.error.apply(this, ErrorXHR(error));
                 });
             },
@@ -1028,14 +1163,14 @@
                 var id = user.id;
                 if (RX_MONGODB_ID.test(id)) {
                     db.users.remove({ id: id })
-                        .then(function (result) {
+                        .done(function (result) {
                             if (result && result.nRemoved === 1) {
                                 options.success({ total: 1, data: [user] });
                             } else {
                                 options.error.apply(this, ErrorXHR(new Error('User not found')));
                             }
                         })
-                        .catch(function (error) {
+                        .fail(function (error) {
                             options.error.apply(this, ErrorXHR(error));
                         });
                 } else {
@@ -1056,21 +1191,21 @@
                 });
                 // Initialize the file system for mobilePicture$
                 fileSystem.init()
-                .then(function () {
+                .done(function () {
                     // Query the database of all users
                     db.users.find()
-                        .then(function (result) {
+                        .done(function (result) {
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
                             } else {
                                 options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
                             }
                         })
-                        .catch(function (error) {
+                        .fail(function (error) {
                             options.error.apply(this, ErrorXHR(error));
                         });
                 })
-                .catch(function (error) {
+                .fail(function (error) {
                     options.error.apply(this, ErrorXHR(error));
                 });
             },
@@ -1090,16 +1225,18 @@
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var user = JSON.parse(JSON.stringify(options.data));
-                var errors = this._validate(user);
-                if (errors.length) {
-                    return options.error.apply(this, ErrorXHR(new Error('Invalid user')));
+                // Vlidate item against partition
+                var err = this._validate(user);
+                if (err) {
+                    return options.error.apply(this, ErrorXHR(err));
                 }
+                // Execute request
                 var id = user.id;
                 if (RX_MONGODB_ID.test(id)) {
                     // pongodb does not allow the id to be part of the update
                     user.id = undefined;
                     db.users.update({ id: id }, user)
-                    .then(function (result) {
+                    .done(function (result) {
                         if (result && result.nMatched === 1 && result.nModified === 1) {
                             // Update the image from time to time
                             if (Math.floor(4 * Math.random()) === 0) {
@@ -1113,7 +1250,7 @@
                             options.error.apply(this, ErrorXHR(new Error('User not found')));
                         }
                     })
-                    .catch(function (error) {
+                    .fail(function (error) {
                         options.error.apply(this, ErrorXHR(error));
                     });
                 } else {
@@ -1333,7 +1470,8 @@
                 DataSource.fn.init.call(this, $.extend(true, {}, options, {
                     transport: new models.SynchronizationStrategy({
                         collection: db.activities,
-                        remoteTransport: new models.DummyTransport({
+                        remoteTransport: new models.RapiTransport({
+                            collection: app.rapi.v2.activities,
                             partition: options && options.partition
                         })
                     }),
@@ -1369,6 +1507,17 @@
             },
 
             /**
+             * Sets the partition and queries the data source
+             * @param options
+             */
+            load: function (options) {
+                if (options && $.isPlainObject(options.partition)) {
+                    this.transport.setPartition(options.partition);
+                }
+                return this.query(options);
+            },
+
+            /**
              * Synchronizes user activities with the server
              */
             remoteSync: function () {
@@ -1388,6 +1537,75 @@
          * @type {kidoju.data.Model}
          */
         // models.MobileVersionDataSource = DataSource.define({});
+
+        /**
+         * MobileSummaryDataSource datasource (stored localy)
+         * @type {kidoju.data.Model}
+         */
+        models.LazySummaryDataSource = DataSource.extend({
+
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                DataSource.fn.init.call(this, $.extend(true, { pageSize: 5 }, options, {
+                    transport: new models.OfflineCacheStrategy({
+                        collection: db.summaries,
+                        remoteTransport: new models.RapiTransport({
+                            collection: app.rapi.v2.summaries,
+                            partition: options && options.partition
+                        })
+                    }),
+                    serverFiltering: true,
+                    serverSorting: true,
+                    // pageSize: 5,
+                    serverPaging: true,
+                    schema: {
+                        data: 'data',
+                        total: 'total',
+                        errors: 'error',
+                        modelBase: models.LazySummary,
+                        model: models.LazySummary,
+                        parse: function (response) {
+                            // We parse the response to flatten data for our LazySummary model (instead of using field.from and field.defaultValue definitions)
+                            if (response && $.type(response.total) === NUMBER && $.isArray(response.data)) {
+                                $.each(response.data, function (index, summary) {
+                                    // We need to flatten author and metrics in case we need to represent data in a kendo.ui.Grid
+                                    // Flatten author
+                                    assert.isPlainObject(summary.author, kendo.format(assert.messages.isPlainObject.default, 'summary.author'));
+                                    summary.userId = summary.author.userId;
+                                    summary.firstName = summary.author.firstName;
+                                    summary.lastName = summary.author.lastName;
+                                    delete summary.author;
+                                    // Flatten metrics
+                                    summary.comments = summary.metrics && summary.metrics.comments && summary.metrics.comments.count || 0;
+                                    summary.ratings = summary.metrics && summary.metrics.ratings && summary.metrics.ratings.average || null;
+                                    summary.scores = summary.metrics && summary.metrics.scores && summary.metrics.scores.average || null;
+                                    summary.views = summary.metrics && summary.metrics.views && summary.metrics.views.count || 0;
+                                    if ($.isPlainObject(summary.metrics)) {
+                                        delete summary.metrics;
+                                    }
+                                });
+                            }
+                            return response;
+                        }
+                    }
+                }));
+            },
+
+            /**
+             * Sets the partition and queries the data source
+             * @param options
+             */
+            load: function (options) {
+                if (options && $.isPlainObject(options.partition)) {
+                    this.transport.setPartition(options.partition);
+                }
+                return this.query(options);
+            }
+        });
 
     }(window.jQuery));
 

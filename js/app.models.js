@@ -66,49 +66,49 @@
         var models = app.models = app.models || {};
         // Have some values for testing
         var i18n = app.i18n = app.i18n || {
-                locale: function () { return 'en'; },
-                culture: {
-                    dateFormat: 'dd MMM yyyy',
-                    languages: [
-                        {
-                            value: 'en',
-                            name: 'English',
-                            icon: ''
-                        },
-                        {
-                            value: 'fr',
-                            name: 'French',
-                            icon: ''
-                        }
-                    ],
-                    finder: {
-                        treeview: {
-                            rootNodes: {
-                                home: {
-                                    text: 'Home',
-                                    icon: 'home'
-                                },
-                                favourites: {
-                                    text: 'Favourites',
-                                    icon: 'star'
-                                },
-                                categories: {
-                                    text: 'Categories',
-                                    icon: 'folders2'
-                                }
+            locale: function () { return 'en'; },
+            culture: {
+                dateFormat: 'dd MMM yyyy',
+                languages: [
+                    {
+                        value: 'en',
+                        name: 'English',
+                        icon: ''
+                    },
+                    {
+                        value: 'fr',
+                        name: 'French',
+                        icon: ''
+                    }
+                ],
+                finder: {
+                    treeview: {
+                        rootNodes: {
+                            home: {
+                                text: 'Home',
+                                icon: 'home'
+                            },
+                            favourites: {
+                                text: 'Favourites',
+                                icon: 'star'
+                            },
+                            categories: {
+                                text: 'Categories',
+                                icon: 'folders2'
                             }
                         }
+                    }
+                },
+                versions: {
+                    draft: {
+                        name: 'Draft'
                     },
-                    versions: {
-                        draft: {
-                            name: 'Draft'
-                        },
-                        published: {
-                            name: 'Version {0}'
-                        }
+                    published: {
+                        name: 'Version {0}'
                     }
                 }
-            };
+            }
+        };
         // Have some values for testing (uris.rapi probably already exists)
         var uris = app.uris = app.uris || {};
         uris.cdn = uris.cdn || {};
@@ -189,6 +189,74 @@
           }
          */
 
+        /*******************************************************************************
+         * Base classes
+         *******************************************************************************/
+
+        /**
+         * BaseTransport transport
+         */
+        var BaseTransport = models.BaseTransport = Class.extend({
+
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                options = options || {};
+                this.setPartition(options.partition);
+            },
+
+            /**
+             * Sets a table partition (kind of permanent filter)
+             * @param partition
+             */
+            setPartition: function (partition) {
+                // `version.language` (mandatory) and `version.summaryId` (mandatory)
+                this._partition = partition;
+            },
+
+            /**
+             * Gets the partition
+             */
+            partition: function () {
+                return this._partition;
+            },
+
+            /**
+             * Validates item against partition
+             * @param item
+             * @private
+             */
+            _validate: function (item) {
+                var ret;
+                var errors = [];
+                var partition = this.partition();
+                for (var prop in partition) { // undefined is ok
+                    if (partition.hasOwnProperty(prop)) {
+                        var value = item;
+                        // We need to find the value of composite properties like in item['prop1.prop2'] which should be read as item.prop1.prop2
+                        // We need that for activity.author.userId or activity.version.language
+                        var props = prop.split('.');
+                        for (var i = 0, length = props.length; i < length; i++) {
+                            value = value[props[i]];
+                        }
+                        if ($.type(partition[prop]) !== UNDEFINED && partition[prop] !== value) {
+                            var err = new Error('Invalid ' + prop);
+                            err.prop = prop;
+                            errors.push(err);
+                        }
+                    }
+                }
+                if (errors.length) {
+                    ret = new Error('Bad request');
+                    ret.code = 400;
+                    ret.errors = errors;
+                }
+                return ret;
+            }
+        });
 
         /*******************************************************************************
          * Taxonomy
@@ -667,7 +735,7 @@
                     $.when(
                         app.cache.getFavouriteHierarchy(i18n.locale()),
                         app.cache.getCategoryHierarchy(i18n.locale())
-                        )
+                    )
                         .done(function (favourites, categories) {
                             var rootNodes = i18n.culture.finder.treeview.rootNodes;
                             var rummages = [
@@ -697,9 +765,9 @@
                     return app.rapi.v1.user.deleteMyFavourite(i18n.locale(), options.data.id)
                         .done(function () {
                             app.cache.removeMyFavourites(i18n.locale())
-                                .always(function () {
-                                    options.success(options.data);
-                                });
+                            .always(function () {
+                                options.success(options.data);
+                            });
                         })
                         .fail(options.error);
                 }
@@ -1794,50 +1862,39 @@
         /**
          * LazySummaryTransport transport
          */
-        models.LazySummaryTransport = Class.extend({
-
-            /**
-             * Init
-             * @constructor
-             * @param options
-             */
-            init: function (options) {
-                this.setOptions(options || {});
-            },
-
-            /**
-             * Set options
-             * Note: calling setOptions on the transport requires calling read on the DataSource and possibly resetting filters, page size and sort order
-             * @param options
-             */
-            setOptions: function (options) {
-                this._language = options.language || i18n.locale();
-                this._userId = options.userId || null;
-            },
+        models.LazySummaryTransport = BaseTransport.extend({
 
             /**
              * Read transport
              * @param options
              */
             read: function (options) {
-                var that = this;
+                var partition = this.partition();
+
+                // TODO: Partition by type (quiz, flashcards, ...) !!!!
 
                 logger.debug({
                     message: 'dataSource.read',
                     method: 'app.models.LazySummaryDataSource.transport.read',
-                    data: { userId: that._userId }
+                    data: { partition: partition }
                 });
 
-                // add options.filter.filters.push({ field: 'language', operator: 'eq', value: i18n.locale() });
+                // add options.data.filter.filters.push({ field: 'language', operator: 'eq', value: i18n.locale() });
                 // ATTENTION logic and or or
 
+                // TODO: Find fields in Model
                 options.data.fields = 'author,icon,metrics.comments.count,language,metrics.ratings.average,metrics.scores.average,metrics.views.count,published,tags,title,type,updated';
                 options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
 
-                if (!RX_MONGODB_ID.test(that._userId)) {
+                if ($.type(partition) === UNDEFINED) {
+
+                    // Makes it possible to create the data source without partition
+                    options.success({ total: 0, data: [] });
+
+                } else if (!RX_MONGODB_ID.test(partition['author.userId'])) {
 
                     // Without user id, we just query public summaries
-                    rapi.v1.content.findSummaries(that._language, options.data)
+                    rapi.v1.content.findSummaries(partition.language, options.data)
                         .done(function (response) {
                             options.success(response);
                         })
@@ -1851,10 +1908,10 @@
                     app.cache.getMe()
                         .done(function (me) {
 
-                            if ($.isPlainObject(me) && that._userId === me.id) {
+                            if ($.isPlainObject(me) && partition['author.userId'] === me.id) {
 
                                 // If we request the summaries of the authenticated user, include drafts
-                                rapi.v1.user.findMySummaries(that._language, options.data)
+                                rapi.v1.user.findMySummaries(partition.language, options.data)
                                     .done(function (response) {
                                         options.success(response);
                                     })
@@ -1868,7 +1925,7 @@
                                 var filter = {
                                     logic: 'and',
                                     filters: [
-                                        { field: 'author.userId', operator: 'eq', value: that._userId }
+                                        { field: 'author.userId', operator: 'eq', value: partition['author.userId'] }
                                     ]
                                 };
                                 if ($.isPlainObject(options.data.filter)) {
@@ -1882,7 +1939,7 @@
                                 }
                                 options.data.filter = filter;
 
-                                rapi.v1.content.findSummaries(that._language, options.data)
+                                rapi.v1.content.findSummaries(partition.language, options.data)
                                     .done(function (response) {
                                         options.success(response);
                                     })
@@ -1912,16 +1969,13 @@
              * @param options
              */
             init: function (options) {
-
-                var that = this;
-                DataSource.fn.init.call(that, $.extend(true, {}, options, {
+                DataSource.fn.init.call(this, $.extend(true, { pageSize: 5 }, options, {
                     transport: new models.LazySummaryTransport({
-                        language: options && options.language,
-                        userId: options && options.userId
+                        partition: options && options.partition
                     }),
                     serverFiltering: true,
                     serverSorting: true,
-                    pageSize: 5,
+                    // pageSize: 5,
                     serverPaging: true,
                     schema: {
                         data: 'data',
@@ -1953,19 +2007,17 @@
                             return response;
                         }
                     }
-                }, options));
-
+                }));
             },
 
             /**
-             * Load
+             * Sets the partition and queries the data source
              * @param options
              */
             load: function (options) {
-                this.transport.setOptions({
-                    language: options && options.language,
-                    userId: options && options.userId
-                });
+                if (options && $.isPlainObject(options.partition)) {
+                    this.transport.setPartition(options.partition);
+                }
                 return this.query(options);
             }
         });
@@ -2207,26 +2259,101 @@
         });
 
         /**
+         * LazyVersionTransport transport
+         */
+        models.LazyVersionTransport = BaseTransport.extend({
+
+            /**
+             * Read transport
+             * @param options
+             */
+            read: function (options) {
+
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                // assert.type(STRING, options.data.summaryId, kendo.format(assert.messages.type.default, 'options.data.summaryId', STRING));
+                // assert.equal(this.summaryId, options.data.summaryId, kendo.format(assert.messages.equal.default, options.data.summaryId, this.summaryId ));
+
+                var partition = this.partition();
+
+                logger.debug({
+                    message: 'dataSource.read',
+                    method: 'app.models.LazyVersionDataSource.transport.read',
+                    data: { partition: partition }
+                });
+
+                if ($.type(partition) === UNDEFINED) {
+
+                    // Makes it possible to create the data source without partition
+                    options.success({ total: 0, data: [] });
+
+                } else {
+
+                    options.data.fields = 'state,summaryId';
+                    options.data.sort = [{ field: 'id', dir: 'desc' }];
+
+                    rapi.v1.content.findSummaryVersions(partition.language, partition.summaryId, options.data)
+                        .done(function (response) {
+                            options.success(response);
+                        })
+                        .fail(function (xhr, error, status) {
+                            options.error(xhr, error, status);
+                        });
+                }
+            },
+
+            /**
+             * Destroy transport
+             * @param options
+             */
+            destroy: function (options) {
+
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                // TODO: review considering partition (use this._validation)
+                assert.type(STRING, options.data.id, kendo.format(assert.messages.type.default, 'options.data.id', STRING));
+                assert.type(STRING, options.data.summaryId, kendo.format(assert.messages.type.default, 'options.data.summaryId', STRING));
+                // assert.equal(this.summaryId, options.data.summaryId, kendo.format(assert.messages.equal.default, options.data.summaryId, this.summaryId));
+
+                var partition = this.partition();
+
+                logger.debug({
+                    message: 'dataSource.destroy',
+                    method: 'app.models.LazyVersionDataSource.transport.destroy',
+                    data: { partition: partition, versionId: options.data.id }
+                });
+
+                // TODO In order to support a generic transport we should have rapi.v1.version.destroy(options) where options extends partition with options.data.id
+                rapi.v1.content.deleteSummaryVersion(partition.language, partition.summaryId, options.data.id)
+                    .done(function (response) {
+                        options.success(response);
+                    })
+                    .fail(function (xhr, error, status) {
+                        options.error(xhr, error, status);
+                    });
+            }
+
+        });
+
+        /**
          * Lazy version data source (especially for drop down list)
          * @type {*|void}
          */
         models.LazyVersionDataSource = DataSource.extend({
 
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
             init: function (options) {
-                var that = this;
-
-                // TODO that._language = options && options.language;
-                that.summaryId = options && options.summaryId;
-
-                DataSource.fn.init.call(that, $.extend(true, {}, {
-                    transport: {
-                        read: $.proxy(that._transport._read, that),
-                        destroy: $.proxy(that._transport._destroy, that),
-                        update: $.proxy(that._transport._update, that)
-                    },
+                DataSource.fn.init.call(this, $.extend(true, { pageSize: 100 }, options, {
+                    transport: new models.LazyVersionTransport({
+                        partition: options && options.partition
+                    }),
                     serverFiltering: true,
                     serverSorting: true,
-                    pageSize: 100,
+                    // pageSize: 100,
                     serverPaging: true,
                     schema: {
                         data: 'data',
@@ -2248,71 +2375,18 @@
                             return response;
                         }
                     }
-                }, options));
+                }));
             },
-            load: function (options) {
-                var that = this;
-                // TODO that._language = options && options.language;
-                that.summaryId = options && options.summaryId;
-                return that.query(options);
-                // return that.read();
-            },
-            /*
-             * Setting _transport._read here with a reference above is a trick
-             * so as to be able to replace this function in mockup scenarios
+
+            /**
+             * Sets the partition and queries the data source
+             * @param options
              */
-            _transport: {
-                _read: function (options) {
-
-                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                    // assert.type(STRING, options.data.summaryId, kendo.format(assert.messages.type.default, 'options.data.summaryId', STRING));
-                    // assert.equal(this.summaryId, options.data.summaryId, kendo.format(assert.messages.equal.default, options.data.summaryId, this.summaryId ));
-
-                    var that = this;
-
-                    logger.debug({
-                        message: 'dataSource.read',
-                        method: 'app.models.LazyVersionDataSource.transport.read',
-                        data: { language: i18n.locale(), summaryId: that.summaryId }
-                    });
-
-                    options.data.fields = 'state,summaryId';
-                    options.data.sort = [{ field: 'id', dir: 'desc' }];
-
-                    // TODO: replace i18n.locale() by language and remove dependency on i18n
-                    rapi.v1.content.findSummaryVersions(i18n.locale(), that.summaryId, options.data)
-                        .done(function (response) {
-                            options.success(response);
-                        })
-                        .fail(function (xhr, error, status) {
-                            options.error(xhr, error, status);
-                        });
-                },
-                _destroy: function (options) {
-
-                    assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                    assert.type(STRING, options.data.id, kendo.format(assert.messages.type.default, 'options.data.id', STRING));
-                    assert.type(STRING, options.data.summaryId, kendo.format(assert.messages.type.default, 'options.data.summaryId', STRING));
-                    assert.equal(this.summaryId, options.data.summaryId, kendo.format(assert.messages.equal.default, options.data.summaryId, this.summaryId));
-
-                    var that = this;
-
-                    logger.debug({
-                        message: 'dataSource.destroy',
-                        method: 'app.models.LazyVersionDataSource.transport.destroy',
-                        data: { language: i18n.locale(), summaryId: options.data.summaryId, versionId: options.data.id }
-                    });
-
-                    rapi.v1.content.deleteSummaryVersion(i18n.locale(), options.data.summaryId, options.data.id)
-                        .done(function (response) {
-                            options.success(response);
-                        })
-                        .fail(function (xhr, error, status) {
-                            options.error(xhr, error, status);
-                        });
+            load: function (options) {
+                if (options && $.isPlainObject(options.partition)) {
+                    this.transport.setPartition(options.partition);
                 }
+                return this.query(options);
             }
 
         });
@@ -2556,23 +2630,80 @@
         });
 
         /**
+         * LazyActivityTransport transport
+         */
+        models.LazyActivityTransport = BaseTransport.extend({
+
+            /**
+             * Read transport
+             * @param options
+             */
+            read: function (options) {
+
+                var partition = this.partition();
+
+                logger.debug({
+                    message: 'dataSource.read',
+                    method: 'app.models.LazyActivityDataSource.transport.read',
+                    data: { partition: partition }
+                });
+
+                if ($.type(partition) === UNDEFINED) {
+
+                    // Makes it possible to create the data source without partition
+                    options.success({ total: 0, data: [] });
+
+                } else if (RX_MONGODB_ID.test(partition.summaryId)) { // If we have a summaryId for the content being displayed, we fetch summary activities
+
+                    options.data.fields = 'actor,score,type,updated,version';
+                    options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
+
+                    // TODO should be rapi.v1.summary.read
+                    rapi.v1.content.findSummaryActivities(partition['version.language'], partition['version.summaryId'], options.data)
+                        .done(function (response) {
+                            options.success(response);
+                        })
+                        .fail(function (xhr, status, error) {
+                            options.error(xhr, status, error);
+                        });
+
+                } else { // Without a summaryId, we need an authenticated user to fetch user activities
+
+                    // options.data.fields = 'actor,score,type,updated,version'; <-- actor is always the same
+                    options.data.fields = 'score,type,updated,version';
+                    options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
+
+                    rapi.v1.user.findMyActivities(partition.language, options.data)
+                        .done(function (response) {
+                            options.success(response);
+                        })
+                        .fail(function (xhr, status, error) {
+                            options.error(xhr, status, error);
+                        });
+                }
+            }
+
+        });
+
+        /**
          * Datasource of user activities
          * @type {kendo.Observable}
          */
         models.LazyActivityDataSource = DataSource.extend({
 
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
             init: function (options) {
-                var that = this;
-
-                that.summaryId = options && options.summaryId;
-
-                DataSource.fn.init.call(that, $.extend(true, {}, {
-                    transport: {
-                        read: $.proxy(that._transport._read, that)
-                    },
+                DataSource.fn.init.call(this, $.extend(true, { pageSize: 5 }, options, {
+                    transport: new models.LazyActivityTransport({
+                        partition: options && options.partition
+                    }),
                     serverFiltering: true,
                     serverSorting: true,
-                    pageSize: 5,
+                    // pageSize: 5
                     serverPaging: true,
                     schema: {
                         data: 'data',
@@ -2610,57 +2741,18 @@
                             return response;
                         }
                     }
-                }, options));
+                }));
             },
-            load: function (options) {
-                var that = this;
-                that.summaryId = options && options.summaryId;
-                return that.query(options);
-                // return that.read();
-            },
-            /*
-             * Setting _transport._read here with a reference above is a trick
-             * so as to be able to replace this function in mockup scenarios
+
+            /**
+             * Sets the partition and queries the data source
+             * @param options
              */
-            _transport: {
-                _read: function (options) {
-
-                    var that = this;
-
-                    logger.debug({
-                        message: 'dataSource.read',
-                        method: 'app.models.LazyActivityDataSource.transport.read',
-                        data: { summaryId: that.summaryId }
-                    });
-
-                    if (RX_MONGODB_ID.test(that.summaryId)) { // If we have a summaryId for the content being displayed, we fetch summary activities
-
-                        options.data.fields = 'actor,score,type,updated,version';
-                        options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
-
-                        rapi.v1.content.findSummaryActivities(i18n.locale(), that.summaryId, options.data)
-                            .done(function (response) {
-                                options.success(response);
-                            })
-                            .fail(function (xhr, status, error) {
-                                options.error(xhr, status, error);
-                            });
-
-                    } else { // Without a summaryId, we need an authenticated user to fetch user activities
-
-                        // options.data.fields = 'actor,score,type,updated,version'; <-- actor is always the same
-                        options.data.fields = 'score,type,updated,version';
-                        options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
-
-                        rapi.v1.user.findMyActivities(i18n.locale(), options.data)
-                            .done(function (response) {
-                                options.success(response);
-                            })
-                            .fail(function (xhr, status, error) {
-                                options.error(xhr, status, error);
-                            });
-                    }
+            load: function (options) {
+                if (options && $.isPlainObject(options.partition)) {
+                    this.transport.setPartition(options.partition);
                 }
+                return this.query(options);
             }
         });
 
@@ -2788,6 +2880,11 @@
          */
         models.CommentDataSource = DataSource.extend({
 
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
             init: function (options) {
                 var that = this;
                 that.userId = options && options.userId; // the authenticated user
@@ -2847,10 +2944,10 @@
                 _create: function (options) {
                     var that = this;
                     rapi.v1.content.createSummaryActivity(
-                            (options.data.version && options.data.version.language) || i18n.locale(),
-                            (options.data.version && options.data.version.summaryId) || that.summaryId,
+                        (options.data.version && options.data.version.language) || i18n.locale(),
+                        (options.data.version && options.data.version.summaryId) || that.summaryId,
                         { type: 'comment', text: options.data.text }
-                        )
+                    )
                         .done(function (response) {
                             options.success(response);
                         })
@@ -2864,7 +2961,7 @@
                         options.data.version.language,
                         options.data.version.summaryId,
                         options.data.id
-                        )
+                    )
                         .done(function (response) {
                             options.success(response);
                         })
@@ -2883,7 +2980,7 @@
                         i18n.locale(),
                         that.summaryId,
                         options.data
-                        )
+                    )
                         .done(function (response) {
                             options.success(response);
                         })
@@ -2897,7 +2994,7 @@
                         options.data.version.summaryId,
                         options.data.id,
                         { text: options.data.text }
-                        )
+                    )
                         .done(function (response) {
                             options.success(response);
                         })
@@ -2934,7 +3031,7 @@
                 // Call the base init method
                 Model.fn.init.call(this, data);
                 // Enforce the type
-                this.type = 'score';
+                this.type = 'Score';
             },
             scoreName$ : function () {
                 var id = this.get('id');
@@ -2951,18 +3048,23 @@
          */
         models.ScoreDataSource = DataSource.extend({
 
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
             init: function (options) {
                 var that = this;
                 that.summaryId = options && options.summaryId;
                 that.userId = options && options.userId; // optional authenticated user
                 that.versionId = options && options.versionId;
-                DataSource.fn.init.call(that, $.extend(true, {}, {
+                DataSource.fn.init.call(that, $.extend(true, { pageSize: 100 }, options, {
                     transport: {
                         read: $.proxy(that._transport._read, that)
                     },
                     serverFiltering: true,
                     serverSorting: true,
-                    pageSize: 100,
+                    // pageSize: 100,
                     serverPaging: true,
                     schema: {
                         data: function (response) {
@@ -2991,8 +3093,9 @@
                             return response;
                         }
                     }
-                }, options));
+                }));
             },
+
             load: function (options) {
                 var that = this;
                 that.summaryId = options && options.summaryId;
@@ -3024,7 +3127,7 @@
                         i18n.locale(),
                         that.summaryId,
                         options.data
-                        )
+                    )
                         .done(function (response) {
                             options.success(response);
                         })
