@@ -60,11 +60,24 @@
         db.addFullTextIndex(COLLECTION.SUMMARIES, ['author.lastName', 'description', 'tags', 'title']);
 
         /**
-         * Triggers
+         * Trigger to create summary and version from new activity
          */
-        db.createTrigger(COLLECTION.ACTIVITIES, [TRIGGER.INSERT, TRIGGER.UPDATE], function (item) {
-            debugger;
-            return $.Deferred().resolve().promise();
+        db.createTrigger(COLLECTION.ACTIVITIES, TRIGGER.INSERT, function (activity) {
+            var dfd = new $.Deferred();
+            var language = activity.version.language;
+            var summaryId = activity.version.summaryId;
+            var versionId = activity.version.versionId;
+            var summaries = app.rapi.v2.summaries({ language: language });
+            var versions = app.rapi.v2.versions({ language: language, summaryId: summaryId });
+            $.when(summaries.get(summaryId), versions.get(versionId))
+                .done(function (summary, version) {
+                    $.when(
+                        app.db.summaries.update({ id: summaryId }, $.extend(true, summary[0], { activity: { activityId: activity.id, score: activity.score /*TODO: date*/ } }), { upsert: true }),
+                        app.db.versions.update({ id: versionId }, version[0], { upsert: true })
+                    ).done(dfd.resolve).fail(dfd.reject);
+                })
+                .fail(dfd.reject);
+            return dfd.promise();
         });
 
         // TODO Triggers;
