@@ -311,7 +311,7 @@
     <div id="finder" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
         <ul data-role="listview" data-bind="source: summaries" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-load-more="true" data-template="finder-template"></ul>
         <script type="text/x-kendo-template" id="finder-template">
-            <a href="\#summary?language=#: language #&summaryId=#: id #">
+            <a href="\#summary?language=#: language #&summaryId=#: id #" data-bind="css: { played: played }">
                 <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
                 <div class="summary">
                     <h4>#: title #</h4>

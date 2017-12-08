@@ -205,6 +205,7 @@
              */
             init: function (options) {
                 options = options || {};
+                this.idField = options.idField || 'id';
                 this.setPartition(options.partition);
             },
 
@@ -255,6 +256,16 @@
                     ret.errors = errors;
                 }
                 return ret;
+            },
+
+            /**
+             * Parameter map to change options.data payload before sending to rapi
+             * @param data
+             * @param type (create, destroy, get, read or update)
+             * @returns {*}
+             */
+            parameterMap: function (data/*, type*/) {
+                return data;
             }
         });
 
@@ -1782,6 +1793,10 @@
                     type: STRING,
                     editable: false
                 },
+                played: { // Used in Kidoju-Mobile only
+                    type: BOOLEAN,
+                    editable: false
+                },
                 published: {
                     type: DATE,
                     nullable: true,
@@ -2117,7 +2132,6 @@
             },
             _onChange: function (e) {
                 // call the base function
-                Model.fn._notifyChange.call(this, e);
                 Model.fn._notifyChange.call(this, e);
                 // kendo only handles add/remove on arrays of child elements
                 // set dirty when an itemchange occurs in an array, e.g. versions
