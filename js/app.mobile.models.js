@@ -703,7 +703,7 @@
              */
             get: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
                     MobileTransport.fn.get.call(this, options);
                 } else {
                     this.remoteTransport.get(options);
@@ -716,7 +716,7 @@
              */
             read: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
                     MobileTransport.fn.read.call(this, options);
                 } else {
                     this.remoteTransport.read(options);
@@ -763,7 +763,7 @@
              */
             get: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
                     window.alert('offline!');
                     MobileTransport.fn.get.call(that, options);
                 } else {
@@ -788,7 +788,7 @@
              */
             read: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)  || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
                     window.alert('offline!');
                     MobileTransport.fn.read.call(that, options);
                 } else {
@@ -859,7 +859,7 @@
              */
             get: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
                     window.alert('offline!');
                     MobileTransport.fn.get.call(that, options);
                 } else {
@@ -892,7 +892,8 @@
              */
             read: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
+                    window.alert('offline!');
                     MobileTransport.fn.read.call(that, options);
                 } else {
                     that.remoteTransport.read({
