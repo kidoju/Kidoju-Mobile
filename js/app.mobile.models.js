@@ -102,7 +102,7 @@
          * @returns {[*,string,*]}
          * @constructor
          */
-        function ErrorXHR(error) {
+        function error2XHR(error) {
             assert.instanceof(Error, error, kendo.format(assert.messages.instanceof.default, 'error', 'Error'));
             assert.type(STRING, error.message, kendo.format(assert.messages.type.default, 'error.message', STRING));
             // JSON.stringify(error) is always {} - $.extend is a workaround to collect non-undefined error properties
@@ -111,7 +111,7 @@
                 type: error.type,
                 code: error.code,
                 stack: error.stack && error.stack.toString()
-                // TODO: review missing errors
+                // TODO: review missing sub errors
             });
             return [
                 { responseText: JSON.stringify({ error: obj }) },
@@ -121,9 +121,104 @@
         }
 
         /**
-         * Lazy transport (only has read)
+         * Extend model with transport
+         * @param DataModel - Note: use DataModel to avoid any confusion with Model in kendo.data.Model
+         * @param transport
          */
-        var LazyTransport = models.LazyTransport = models.BaseTransport.extend({
+        function extendModelWithTransport(DataModel, transport) {
+            assert.isFunction(DataModel, assert.format(assert.messages.isFunction.default, 'DataModel'));
+            assert.isFunction(transport.get, assert.format(assert.messages.isFunction.default, 'transport.get'));
+            assert.isFunction(transport.create, assert.format(assert.messages.isFunction.default, 'transport.create'));
+            assert.isFunction(transport.update, assert.format(assert.messages.isFunction.default, 'transport.update'));
+
+            // Add transport to kendo.data.Model
+            DataModel.fn.transport = transport;
+
+            // Implement load function
+            DataModel.fn.load = function (options) {
+                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.match(RX_MONGODB_ID, options[this.idField], assert.format(assert.messages.match.default, 'options[this.idField]', RX_MONGODB_ID));
+                var that = this;
+                var dfd = $.Deferred();
+                if (!that.dirty && (that.get(that.idField) === options[that.idField])) {
+                    // Already loaded and not modified
+                    dfd.resolve(that.toJSON())
+                } else {
+                    var data = {};
+                    data[that.idField] = options[that.idField];
+                    delete options[that.idField];
+                    that.transport.setPartition(options);
+                    that.transport.get({
+                        data: that.transport.parameterMap(data, 'get'),
+                        error: dfd.reject,
+                        success: function(response) {
+                            // TODO: Not found? is error or empty response
+                            that.accept(response.data[0]);
+                            dfd.resolve(response.data[0]);
+                        }
+                    });
+                }
+                return dfd.promise();
+            };
+
+            // Implement reset function
+            DataModel.fn.reset = function () {
+                var data = {};
+                for (var prop in this.defaults) {
+                    if (this.defaults.hasOwnProperty(prop)) {
+                        data[prop] = $.isFunction(this.defaults[prop]) ? this.defaults[prop]() : this.defaults[prop];
+                    }
+                }
+                // TODO references ?????
+                this.accept(data);
+            };
+
+            // Implement save function
+            // Note that all model fields marked as serializable === false won't be sent
+            DataModel.fn.save = function () {
+                var that = this;
+                var dfd = $.Deferred();
+                if (that.isNew()) {
+                    // that.transport.setPartition must have been called when loading
+                    that.transport.create({
+                        data: that.transport.parameterMap(that.toJSON(), 'create'),
+                        error: dfd.reject,
+                        success: function (response) {
+                            // TODO: Not found? is error or empty response
+                            that.accept(response.data[0]);
+                            dfd.resolve(response.data[0]);
+                        }
+                    });
+                } else if (that.dirty) {
+                    var json = that.transport.parameterMap(that.toJSON(), 'update');
+                    var data = {};
+                    // Only send dirty fields with id for update
+                    data[that.idField] = json[that.idField];
+                    for (var prop in that.dirtyFields) {
+                        if (that.dirtyFields[prop]) {
+                            data[prop] = json[prop];
+                        }
+                    }
+                    that.transport.update({
+                        data: data,
+                        error: dfd.reject,
+                        success: function (response) {
+                            // TODO: Not found? is error or empty response
+                            that.accept(response.data[0]);
+                            dfd.resolve(response.data[0]);
+                        }
+                    });
+                } else {
+                    dfd.resolve(that.toJSON());
+                }
+                return dfd.promise();
+            };
+        }
+
+        /**
+         * Lazy remote transport (read-only)
+         */
+        var LazyRemoteTransport = models.LazyRemoteTransport = models.BaseTransport.extend({
 
             /**
              * Init
@@ -144,10 +239,23 @@
             setPartition: function (partition) {
                 models.BaseTransport.fn.setPartition.call(this, partition);
                 this._rapi = this._collection(this._partition);
-                assert.isFunction(this._rapi.create, kendo.format(assert.messages.isFunction.default, 'this._rapid.create'));
-                assert.isFunction(this._rapi.destroy, kendo.format(assert.messages.isFunction.default, 'this._rapid.destroy'));
-                assert.isFunction(this._rapi.read, kendo.format(assert.messages.isFunction.default, 'this._rapid.read'));
-                assert.isFunction(this._rapi.update, kendo.format(assert.messages.isFunction.default, 'this._rapid.update'));
+                assert.isFunction(this._rapi.create, kendo.format(assert.messages.isFunction.default, 'this._rapi.create'));
+                assert.isFunction(this._rapi.destroy, kendo.format(assert.messages.isFunction.default, 'this._rapi.destroy'));
+                assert.isFunction(this._rapi.get, kendo.format(assert.messages.isFunction.default, 'this._rapi.get'));
+                assert.isFunction(this._rapi.read, kendo.format(assert.messages.isFunction.default, 'this._rapi.read'));
+                assert.isFunction(this._rapi.update, kendo.format(assert.messages.isFunction.default, 'this._rapi.update'));
+            },
+
+            /**
+             * Get
+             * @param options
+             */
+            get: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
+                this._rapi.get(this.parameterMap(options.data, 'get')).done(options.success).fail(options.error);
             },
 
             /**
@@ -161,21 +269,23 @@
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 var partition = this.partition();
                 if ($.type(partition) === UNDEFINED) {
-                    // Makes it possible to create the data source without partition
-                    // But this can be  bypassed by passing { partition: false }
+                    // Makes it possible to create the data source without partition considering its load method
+                    // But this can be bypassed by passing { partition: false }
                     options.success({ total: 0, data: [] });
                 } else {
                     // Fields, filters and default sort order are assigned in this._rapi.read
-                    this._rapi.read(options.data).done(options.success).fail(options.error);
+                    this._rapi.read(this.parameterMap(options.data, 'read')).done(options.success).fail(options.error);
                 }
             }
 
         });
 
         /**
-         * Rapi transport (extends lazy transport with create, destroy and update)
+         * Rapi transport (all CRUD operations)
          */
-        var RapiTransport = models.RapiTransport = models.LazyTransport.extend({
+        var RemoteTransport = models.RemoteTransport = models.LazyRemoteTransport.extend({
+
+            // TODO: field projections
 
             /**
              * Create
@@ -186,11 +296,11 @@
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
-                var item = options.data;
+                var item = this.parameterMap(options.data, 'create');
                 // Validate item against partition
                 var err = this._validate(item);
                 if (err) {
-                    return options.error.apply(this, ErrorXHR(err));
+                    return options.error.apply(this, error2XHR(err));
                 }
                 // Execute request
                 this._rapi.create(item)
@@ -209,15 +319,14 @@
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
-                assert.match(RX_MONGODB_ID, options.data.id, kendo.format(assert.messages.match.default, 'options.data.id'));
-                var item = options.data;
+                var item = this.parameterMap(options.data, 'destroy');
                 // Validate item against partition
                 var err = this._validate(item);
                 if (err) {
-                    return options.error.apply(this, ErrorXHR(err));
+                    return options.error.apply(this, error2XHR(err));
                 }
                 // Execute request
-                this._rapi.destroy(item.id)
+                this._rapi.destroy(item)
                     .done(function (response) {
                         options.success({ total: 1, data: [response] })
                     })
@@ -226,6 +335,7 @@
 
             /**
              * Update
+             * TODO: filter dirty fields
              * @param options
              */
             update: function (options) {
@@ -233,40 +343,109 @@
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
-                assert.match(RX_MONGODB_ID, options.data.id, kendo.format(assert.messages.match.default, 'options.data.id'));
-                var item = options.data;
-                var id = option.data.id;
-                // item.id = undefined;
+                var item = this.parameterMap(options.data, 'update');
                 // Validate item against partition
                 var err = this._validate(item);
                 if (err) {
-                    return options.error.apply(this, ErrorXHR(err));
+                    return options.error.apply(this, error2XHR(err));
                 }
                 // Execute request
-                this._rapi.update(item.id, item)
+                this._rapi.update(item)
                     .done(function (response) {
                         options.success({ total: 1, data: [response] })
                     })
                     .fail(options.error);
             }
+        });
 
+        /**
+         *
+         */
+        var LazyMobileTransport = models.LazyMobileTransport = models.BaseTransport.extend({
+
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.instanceof(pongodb.Collection, options.collection, kendo.format(assert.messages.instanceof.default, 'options.collection', 'pongodb.Collection'));
+                this._collection = options.collection;
+                models.BaseTransport.fn.init.call(this, options);
+            },
+
+            /**
+             * Get
+             * @param options
+             */
+            get: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
+                logger.debug({
+                    message: 'Get mobile data',
+                    method: 'app.models.MobileTransport.get',
+                    data: options.data
+                });
+                var data = this.parameterMap(options.data, 'get');
+                var query = {};
+                query[this.idField] = data[this.idField];
+                var projection; // TODO
+                this._collection.findOne(query, projection)
+                    .done(function(result) {
+                        options.success(result);
+                    })
+                    .fail(function(error) {
+                        options.error.apply(this, error2XHR(error));
+                    });
+            },
+
+            /**
+             * Read
+             * @param options
+             */
+            read: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                // assert.isOptionalObject(options.data, kendo.format(assert.messages.isOptionalObject.default, 'options.data')); // because of option.data === {}
+                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
+                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
+                var partition = this.partition();
+                logger.debug({
+                    message: 'Read mobile data',
+                    method: 'app.models.MobileTransport.read',
+                    data: options.data
+                });
+                if ($.type(partition) === UNDEFINED) {
+                    // This lets us create a dataSource without knowing the partition, which can be set later with setPartition
+                    // Create the MobileTransport with options.partition: false to avoid this test
+                    options.success({ total: 0, data: [] });
+                } else {
+                    var query = this.parameterMap(options.data, 'read');
+                    app.rapi.util.filterExtend(query, partition);
+                    // Filter all records with __state___ === 'destroyed', considering partition is ignored when false
+                    query.filter.filters.push({ field: '__state__', operator: 'neq',  value: STATE.DESTROYED });
+                    query = pongodb.util.convertFilter2Query(options.data.filter);
+                    this._collection.find(query)
+                        .done(function(result) {
+                            if ($.isArray(result)) {
+                                options.success({ total: result.length, data: result });
+                            } else {
+                                options.error.apply(this, error2XHR(new Error('Database should return an array')));
+                            }
+                        })
+                        .fail(function(error) {
+                            options.error.apply(this, error2XHR(error));
+                        });
+                }
+            }
         });
 
         /**
          * A generic mobile transport using pongodb (and localForage)
          */
-        var MobileTransport = models.MobileTransport = models.BaseTransport.extend({
-
-            /**
-             * Initialization
-             * @constructor
-             * @param options
-             */
-            init: function (options) {
-                options = options || {};
-                models.BaseTransport.fn.init.call(this, options);
-                this.collection = options.collection;
-            },
+        var MobileTransport = models.MobileTransport = models.LazyMobileTransport.extend({
 
             /**
              * Create
@@ -291,22 +470,21 @@
                 }
                 */
                 if ($.type(item.id) === UNDEFINED) {
-                    debugger;
                     item.__state__ = STATE.CREATED;
                 }
                 // Validate item against partition
                 var err = this._validate(item);
                 if (err) {
-                    return options.error.apply(this, ErrorXHR(err));
+                    return options.error.apply(this, error2XHR(err));
                 }
                 // Unless we give one ourselves, the collection will give the item an id
-                this.collection.insert(item)
+                this._collection.insert(item)
                     .done(function() {
                         // Note: the item now has an id
                         options.success({ total: 1, data: [item] });
                     })
                     .fail(function(error) {
-                        options.error.apply(this, ErrorXHR(error));
+                        options.error.apply(this, error2XHR(error));
                     });
             },
 
@@ -330,20 +508,20 @@
                 if (item.__state__ === STATE.CREATED) {
                     // Items with __state__ === 'created' can be safely removed because they do not exist on the remote server
                     if (RX_MONGODB_ID.test(id)) {
-                        this.collection.remove({ id: id })
+                        this._collection.remove({ id: id })
                             .done(function(result) {
                                 if (result && result.nRemoved === 1) {
                                     options.success({ total: 1, data: [item] });
                                 } else {
-                                    options.error.apply(this, ErrorXHR(new Error('Not found')));
+                                    options.error.apply(this, error2XHR(new Error('Not found')));
                                 }
                             })
                             .fail(function(error) {
-                                options.error.apply(this, ErrorXHR(error));
+                                options.error.apply(this, error2XHR(error));
                             });
                     } else {
                         // No need to hit the database, it won't be found
-                        options.error.apply(this, ErrorXHR(new Error('Not found')));
+                        options.error.apply(this, error2XHR(new Error('Not found')));
                     }
                 } else {
                     if (item.updated) {
@@ -354,65 +532,27 @@
                     // Validate item against partition
                     var err = this._validate(item);
                     if (err) {
-                        return options.error.apply(this, ErrorXHR(err));
+                        return options.error.apply(this, error2XHR(err));
                     }
                     // Execute request
                     if (RX_MONGODB_ID.test(id)) {
                         item.id = undefined;
-                        this.collection.update({ id: id }, item)
+                        this._collection.update({ id: id }, item)
                             .done(function(result) {
                                 if (result && result.nMatched === 1 && result.nModified === 1) {
                                     item.id = id;
                                     options.success({ total: 1, data: [item] });
                                 } else {
-                                    options.error.apply(this, ErrorXHR(new Error('Not found')));
+                                    options.error.apply(this, error2XHR(new Error('Not found')));
                                 }
                             })
                             .fail(function(error) {
-                                options.error.apply(this, ErrorXHR(error));
+                                options.error.apply(this, error2XHR(error));
                             });
                     } else {
                         // No need to hit the database, it won't be found
-                        options.error.apply(this, ErrorXHR(new Error('Not found')));
+                        options.error.apply(this, error2XHR(new Error('Not found')));
                     }
-                }
-            },
-
-            /**
-             * Read
-             * @param options
-             */
-            read: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                // assert.isOptionalObject(options.data, kendo.format(assert.messages.isOptionalObject.default, 'options.data')); // because of option.data === {}
-                assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
-                assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
-                var partition = this.partition();
-                logger.debug({
-                    message: 'Read mobile data',
-                    method: 'app.models.MobileTransport.read',
-                    data: options.data
-                });
-                if ($.type(partition) === UNDEFINED) {
-                    // This lets us create a dataSource without knowing the partition, which can be set later with setPartition
-                    // Create the MobileTransport with options.partition: false to avoid this test
-                    options.success({ total: 0, data: [] });
-                } else {
-                    app.rapi.util.filterExtend(options.data, partition);
-                    // Filter all records with __state___ === 'destroyed', considering partition is ignored when false
-                    options.data.filter.filters.push({ field: '__state__', operator: 'neq',  value: STATE.DESTROYED });
-                    var query = pongodb.util.convertFilter2Query(options.data.filter);
-                    this.collection.find(query)
-                        .done(function(result) {
-                            if ($.isArray(result)) {
-                                options.success({ total: result.length, data: result });
-                            } else {
-                                options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
-                            }
-                        })
-                        .fail(function(error) {
-                            options.error.apply(this, ErrorXHR(error));
-                        });
                 }
             },
 
@@ -443,27 +583,27 @@
                 // Validate item against partition
                 var err = this._validate(item);
                 if (err) {
-                    return options.error.apply(this, ErrorXHR(err));
+                    return options.error.apply(this, error2XHR(err));
                 }
                 // Execute request
                 var id = item.id;
                 if (RX_MONGODB_ID.test(id)) {
                     item.id = undefined;
-                    this.collection.update({ id: id }, item)
+                    this._collection.update({ id: id }, item)
                         .done(function(result) {
                             if (result && result.nMatched === 1 && result.nModified === 1) {
                                 item.id = id;
                                 options.success({ total: 1, data: [item] });
                             } else {
-                                options.error.apply(this, ErrorXHR(new Error('Not found')));
+                                options.error.apply(this, error2XHR(new Error('Not found')));
                             }
                         })
                         .fail(function(error) {
-                            options.error.apply(this, ErrorXHR(error));
+                            options.error.apply(this, error2XHR(error));
                         });
                 } else {
                     // No need to hit the database, it won't be found
-                    options.error.apply(this, ErrorXHR(new Error('Not found')));
+                    options.error.apply(this, error2XHR(new Error('Not found')));
                 }
             }
 
@@ -499,7 +639,7 @@
                     }
                 }
                 if (!found) {
-                    options.error.apply(this, ErrorXHR(new Error('Not found')));
+                    options.error.apply(this, error2XHR(new Error('Not found')));
                 }
             },
 
@@ -519,18 +659,77 @@
                     }
                 }
                 if (!found) {
-                    options.error.apply(this, ErrorXHR(new Error('Not found')));
+                    options.error.apply(this, error2XHR(new Error('Not found')));
                 }
             }
 
         });
 
         /**
+         * An lazy offline strategy using pongodb (and localForage)
+         * @class LazyOfflineStrategy
+         */
+        models.LazyOfflineStrategy = LazyMobileTransport.extend({
+
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                options = options || {};
+                this.remoteTransport = options.remoteTransport;
+                LazyMobileTransport.fn.init.call(this, options); // Calls setPartition
+            },
+
+            /**
+             * Sets a table partition (kind of permanent filter)
+             * @param partition
+             */
+            setPartition: function (partition) {
+                this.remoteTransport.setPartition(partition);
+            },
+
+            /**
+             * Gets the partition
+             */
+            partition: function () {
+                return this.remoteTransport.partition();
+            },
+
+            /**
+             * Get
+             * @param options
+             */
+            get: function (options) {
+                var that = this;
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                    MobileTransport.fn.get.call(this, options);
+                } else {
+                    this.remoteTransport.get(options);
+                }
+            },
+
+            /**
+             * Read
+             * @param options
+             */
+            read: function (options) {
+                var that = this;
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                    MobileTransport.fn.read.call(this, options);
+                } else {
+                    this.remoteTransport.read(options);
+                }
+            }
+        });
+
+        /**
          * An Offline cache strategy using pongodb (and localForage)
          * Note: Only applies to items that cannot be modified
-         * @class ReadOfflineStrategy
+         * @class LazyCacheStrategy
          */
-        models.OfflineCacheStrategy = MobileTransport.extend({
+        models.LazyCacheStrategy = MobileTransport.extend({
 
             /**
              * Init
@@ -559,25 +758,51 @@
             },
 
             /**
-             * Read transport
+             * Ger
+             * @param options
+             */
+            get: function (options) {
+                var that = this;
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                    window.alert('offline!');
+                    MobileTransport.fn.get.call(that, options);
+                } else {
+                    that.remoteTransport.get({
+                        data: options.data,
+                        error: options.error,
+                        success: function (response) {
+                            // TODO: this should be an upsert, merging fields
+                            MobileTransport.fn.create.call(that, {
+                                data: response.data[0],
+                                error: options.error,
+                                success: options.success
+                            });
+                        }
+                    });
+                }
+            },
+
+            /**
+             * Read
              * @param options
              */
             read: function (options) {
                 var that = this;
                 if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
-                    MobileTransport.fn.read.call(this, options);
+                    window.alert('offline!');
+                    MobileTransport.fn.read.call(that, options);
                 } else {
-                    this.remoteTransport.read({
+                    that.remoteTransport.read({
                         data: options.data,
                         error: options.error,
                         success: function (response) {
                             var promises = [];
                             for (var idx = 0, length = response.data.length; idx < length; idx++) {
-                                var data = response.data[idx];
                                 promises.push(function() {
                                     var dfd = $.Deferred();
+                                    // TODO: This should be an upsert, merging fields
                                     MobileTransport.fn.create.call(that, {
-                                        data: data,
+                                        data: response.data[idx],
                                         error: dfd.reject,
                                         success: dfd.resolve
                                     });
@@ -585,7 +810,116 @@
                                 }());
                             }
                             $.when.apply(that, promises)
-                                .always(function () { // Note: we ignore errors caching the response
+                                .always(function () {
+                                    // Note: ignore errors caching the response
+                                    options.success(response);
+                                });
+                        }
+                    });
+                }
+            }
+        });
+
+        /**
+         * An Offline strategy using pongodb (and localForage)
+         * Note: Only applies to summaries
+         * @class LazyCacheStrategy
+         */
+        models.LazySummaryOfflineStrategy = models.LazyOfflineStrategy.extend({
+
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                options = options || {};
+                this.remoteTransport = options.remoteTransport;
+                MobileTransport.fn.init.call(this, options); // Calls setPartition
+            },
+
+            /**
+             * Sets a table partition (kind of permanent filter)
+             * @param partition
+             */
+            setPartition: function (partition) {
+                this.remoteTransport.setPartition(partition);
+            },
+
+            /**
+             * Gets the partition
+             */
+            partition: function () {
+                return this.remoteTransport.partition();
+            },
+
+            /**
+             * Ger
+             * @param options
+             */
+            get: function (options) {
+                var that = this;
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                    window.alert('offline!');
+                    MobileTransport.fn.get.call(that, options);
+                } else {
+                    that.remoteTransport.get({
+                        data: options.data,
+                        error: options.error,
+                        success: function (response) {
+                            // TODO: this should be an upsert, merging fields
+                            MobileTransport.fn.get.call(that, {
+                                data: response.data[0],
+                                error: function () {
+                                    /// TODO merge both
+                                    debugger;
+                                    options.error.apply(that, arguments);
+                                },
+                                success: function () {
+                                    /// TODO merge both
+                                    debugger;
+                                    options.success.apply(that, arguments);
+                                }
+                            });
+                        }
+                    });
+                }
+            },
+
+            /**
+             * Read
+             * @param options
+             */
+            read: function (options) {
+                var that = this;
+                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+                    MobileTransport.fn.read.call(that, options);
+                } else {
+                    that.remoteTransport.read({
+                        data: options.data,
+                        error: options.error,
+                        success: function (response) {
+                            var promises = [];
+                            for (var i = 0, length = response.data.length; i < length; i++) {
+                                promises.push(function(idx) {
+                                    // Do not use i in closure because it is mutable and might not be the expected value when executing
+                                    var dfd = $.Deferred();
+                                    MobileTransport.fn.get.call(that, {
+                                        data: response.data[idx],
+                                        error: function () {
+                                            dfd.resolve(); // We do not care!
+                                        },
+                                        success: function (item) {
+                                            response.data[idx] = $.extend(true, item, response.data[idx]);
+                                            dfd.resolve();
+                                        }
+                                    });
+                                    return dfd.promise();
+                                }(i));
+                            }
+                            $.when.apply(that, promises)
+                                .always(function () {
+                                    // Note: ignore errors caching the response
                                     options.success(response);
                                 });
                         }
@@ -634,7 +968,7 @@
                 assert.isPlainObject(item, kendo.format(assert.messages.isPlainObject.default, 'item'));
                 assert.equal(STATE.CREATED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'created'));
                 var dfd = $.Deferred();
-                var collection = this.collection;
+                var collection = this._collection;
                 delete item.__state__;
                 var mobileId = item.id;
                 item.id = null;
@@ -666,7 +1000,7 @@
                 assert.isPlainObject(item, kendo.format(assert.messages.isPlainObject.default, 'item'));
                 assert.equal(STATE.DESTROYED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'destroyed'));
                 var dfd = $.Deferred();
-                var collection = this.collection;
+                var collection = this._collection;
                 delete item.__state__;
                 this.remoteTransport.destroy({
                     data: item,
@@ -696,7 +1030,7 @@
             _readSync: function () {
                 var that = this;
                 var dfd = $.Deferred();
-                var collection = this.collection;
+                var collection = this._collection;
                 this.remoteTransport.read({
                     data: {
                         // TODO we certainly have an issue with paging
@@ -738,7 +1072,7 @@
                 assert.isPlainObject(item, kendo.format(assert.messages.isPlainObject.default, 'item'));
                 assert.equal(STATE.UPDATED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'updated'));
                 var dfd = $.Deferred();
-                var collection = this.collection;
+                var collection = this._collection;
                 delete item.__state__;
                 this.remoteTransport.update({
                     data: item,
@@ -768,10 +1102,10 @@
             sync: function () {
                 var that = this;
                 var dfd = $.Deferred();
-                var collection = that.collection;
+                var collection = that._collection;
                 var partition = that.remoteTransport._partition;
                 // TODO : how should we use lastSync? -------------------------------------------------------------------------------------
-                this.collection.find(partition)
+                this._collection.find(partition)
                     .done(function (items) {
                         var promises = [];
                         var length = items.length;
@@ -1125,7 +1459,7 @@
                 // Validate item against partition
                 var err = this._validate(user);
                 if (err) {
-                    return options.error.apply(this, ErrorXHR(err));
+                    return options.error.apply(this, error2XHR(err));
                 }
                 // This replaces the machine id in the mongoDB server id by MACHINE_ID
                 // This ensures uniqueness of user in mobile app when sid is unique without further checks
@@ -1139,11 +1473,11 @@
                                 options.success({ total: 1, data: [user] });
                             })
                             .fail(function (error) {
-                                options.error.apply(this, ErrorXHR(error));
+                                options.error.apply(this, error2XHR(error));
                             });
                 })
                 .fail(function (error) {
-                    options.error.apply(this, ErrorXHR(error));
+                    options.error.apply(this, error2XHR(error));
                 });
             },
 
@@ -1167,15 +1501,15 @@
                             if (result && result.nRemoved === 1) {
                                 options.success({ total: 1, data: [user] });
                             } else {
-                                options.error.apply(this, ErrorXHR(new Error('User not found')));
+                                options.error.apply(this, error2XHR(new Error('User not found')));
                             }
                         })
                         .fail(function (error) {
-                            options.error.apply(this, ErrorXHR(error));
+                            options.error.apply(this, error2XHR(error));
                         });
                 } else {
                     // No need to hit the database, it won't be found
-                    options.error.apply(this, ErrorXHR(new Error('User not found')));
+                    options.error.apply(this, error2XHR(new Error('User not found')));
                 }
             },
 
@@ -1198,15 +1532,15 @@
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
                             } else {
-                                options.error.apply(this, ErrorXHR(new Error('Database should return an array')));
+                                options.error.apply(this, error2XHR(new Error('Database should return an array')));
                             }
                         })
                         .fail(function (error) {
-                            options.error.apply(this, ErrorXHR(error));
+                            options.error.apply(this, error2XHR(error));
                         });
                 })
                 .fail(function (error) {
-                    options.error.apply(this, ErrorXHR(error));
+                    options.error.apply(this, error2XHR(error));
                 });
             },
 
@@ -1228,7 +1562,7 @@
                 // Vlidate item against partition
                 var err = this._validate(user);
                 if (err) {
-                    return options.error.apply(this, ErrorXHR(err));
+                    return options.error.apply(this, error2XHR(err));
                 }
                 // Execute request
                 var id = user.id;
@@ -1236,26 +1570,26 @@
                     // pongodb does not allow the id to be part of the update
                     user.id = undefined;
                     db.users.update({ id: id }, user)
-                    .done(function (result) {
-                        if (result && result.nMatched === 1 && result.nModified === 1) {
-                            // Update the image from time to time
-                            if (Math.floor(4 * Math.random()) === 0) {
-                                // We discard success/failure because the user is saved
-                                models.MobileUser.fn._saveMobilePicture.call(user);
+                        .done(function (result) {
+                            if (result && result.nMatched === 1 && result.nModified === 1) {
+                                // Update the image from time to time
+                                if (Math.floor(4 * Math.random()) === 0) {
+                                    // We discard success/failure because the user is saved
+                                    models.MobileUser.fn._saveMobilePicture.call(user);
+                                }
+                                // Restore id and return updated user to datasource
+                                user.id = id;
+                                options.success({ total: 1, data: [user] });
+                            } else {
+                                options.error.apply(this, error2XHR(new Error('User not found')));
                             }
-                            // Restore id and return updated user to datasource
-                            user.id = id;
-                            options.success({ total: 1, data: [user] });
-                        } else {
-                            options.error.apply(this, ErrorXHR(new Error('User not found')));
-                        }
-                    })
-                    .fail(function (error) {
-                        options.error.apply(this, ErrorXHR(error));
-                    });
+                        })
+                        .fail(function (error) {
+                            options.error.apply(this, error2XHR(error));
+                        });
                 } else {
                     // No need to hit the database, it won't be found
-                    options.error.apply(this, ErrorXHR(new Error('User not found')));
+                    options.error.apply(this, error2XHR(new Error('User not found')));
                 }
             }
 
@@ -1470,7 +1804,7 @@
                 DataSource.fn.init.call(this, $.extend(true, {}, options, {
                     transport: new models.SynchronizationStrategy({
                         collection: db.activities,
-                        remoteTransport: new models.RapiTransport({
+                        remoteTransport: new models.RemoteTransport({
                             collection: app.rapi.v2.activities,
                             partition: options && options.partition
                         })
@@ -1527,19 +1861,7 @@
         });
 
         /**
-         * MobileVersion model
-         * @type {kidoju.data.Model}
-         */
-        // models.MobileVersion = Model.define({});
-
-        /**
-         * MobileVersionDataSource datasource (stored localy)
-         * @type {kidoju.data.Model}
-         */
-        // models.MobileVersionDataSource = DataSource.define({});
-
-        /**
-         * MobileSummaryDataSource datasource (stored localy)
+         * LazySummaryDataSource datasource
          * @type {kidoju.data.Model}
          */
         models.LazySummaryDataSource = DataSource.extend({
@@ -1551,16 +1873,15 @@
              */
             init: function (options) {
                 DataSource.fn.init.call(this, $.extend(true, { pageSize: 5 }, options, {
-                    transport: new models.OfflineCacheStrategy({
+                    transport: new models.LazySummaryOfflineStrategy({
                         collection: db.summaries,
-                        remoteTransport: new models.RapiTransport({
+                        remoteTransport: new models.RemoteTransport({
                             collection: app.rapi.v2.summaries,
                             partition: options && options.partition
                         })
                     }),
                     serverFiltering: true,
                     serverSorting: true,
-                    // pageSize: 5,
                     serverPaging: true,
                     schema: {
                         data: 'data',
@@ -1587,6 +1908,11 @@
                                     if ($.isPlainObject(summary.metrics)) {
                                         delete summary.metrics;
                                     }
+                                    // Flatten activity (only mobile application)
+                                    if (summary.activity && summary.activity.activityId) {
+                                        summary.played = true;
+                                        delete summary.activity;
+                                    }
                                 });
                             }
                             return response;
@@ -1606,6 +1932,18 @@
                 return this.query(options);
             }
         });
+
+        /**
+         * MobileVersion model
+         * @type {kidoju.data.Model}
+         */
+        // models.MobileVersion = Model.define({});
+
+        /**
+         * MobileVersionDataSource datasource (stored localy)
+         * @type {kidoju.data.Model}
+         */
+        // models.MobileVersionDataSource = DataSource.define({});
 
     }(window.jQuery));
 
