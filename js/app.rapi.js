@@ -1632,13 +1632,10 @@
                      * @returns {*}
                      */
                     create: function (doc) {
-                        debugger;
                         assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
-                        var language = partition['version.language'] || doc.version.language;
-                        assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
-                        var summaryId = partition['version.summaryId'] || doc.version.summaryId;
-                        assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
-                        var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, language, summaryId);
+                        assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition.version.language', RX_LANGUAGE));
+                        assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition.version.summaryId', RX_MONGODB_ID));
+                        var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, partition['version.language'], partition['version.summaryId']);
                         logger.info({
                             message: '$.ajax',
                             method: 'v2.activities.create',
@@ -1655,18 +1652,14 @@
 
                     /**
                      * Destroy (formerly rapi.v1.content.deleteSummaryActivity)
-                     * @param doc
+                     * @param id
                      * @returns {*}
                      */
-                    destroy: function (doc) {
-                        debugger;
-                        assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
-                        assert.match(RX_MONGODB_ID, doc.id, assert.format(assert.messages.match.default, 'doc.id', RX_MONGODB_ID));
-                        var language = partition['version.language'] || doc.version.language;
-                        assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
-                        var summaryId = partition['version.summaryId'] || doc.version.summaryId;
-                        assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
-                        var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, language, summaryId, doc.id);
+                    destroy: function (id) {
+                        assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
+                        assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition.version.language', RX_LANGUAGE));
+                        assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition.version.summaryId', RX_MONGODB_ID));
+                        var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, partition['version.language'], partition['version.summaryId'], id);
                         logger.info({
                             message: '$.ajax',
                             method: 'v2.activities.destroy',
@@ -1686,10 +1679,10 @@
                      * @returns {*}
                      */
                     get: function (id, query) {
-                        assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition[\'version.language\']', RX_LANGUAGE));
-                        assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition[\'version.summaryId\']', RX_MONGODB_ID));
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
                         assert.isOptionalObject(query, assert.format(assert.messages.isOptionalObject.default, 'query'));
+                        assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition.version.language', RX_LANGUAGE));
+                        assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition.version.summaryId', RX_MONGODB_ID));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, partition['version.language'], partition['version.summaryId'], id);
                         logger.info({
                             message: '$.ajax',
@@ -1711,24 +1704,23 @@
                      * @returns {*}
                      */
                     read: function (query) {
-                        debugger;
                         assert.isOptionalObject(query, assert.format(assert.messages.isOptionalObject.default, 'query'));
-                        var language = partition['version.language'];
-                        assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
-                        var summaryId = partition['version.summaryId'];
+                        assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition.version.language', RX_LANGUAGE));
+                        assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition.version.summaryId', RX_MONGODB_ID));
                         var headers;
                         var url;
-                        // TODO: Add partition to filter
+                        // TODO: query.page and query.pageSize
+                        // TODO: query aggregates and query.groups
                         // TODO: query.fields from Model???
-                        // TODO: query.filter
                         // TODO: query.sort
+                        // Extend filter with partition
                         rapi.util.filterExtend(query, partition);
-                        if (RX_MONGODB_ID.test(summaryId)) {
+                        if (RX_MONGODB_ID.test(partition['version.summaryId'])) {
                             headers = rapi.util.getHeaders({ trace: true });
-                            url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, language, summaryId);
+                            url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, partition['version.language'], partition['version.summaryId']);
                         } else {
                             headers = rapi.util.getHeaders({ security: true, trace: true });
-                            url = uris.rapi.root + rapi.util.format(uris.rapi.v1.myActivities, language);
+                            url = uris.rapi.root + rapi.util.format(uris.rapi.v1.myActivities, partition['version.language']);
                         }
                         logger.info({
                             message: '$.ajax',
@@ -1750,12 +1742,11 @@
                      * @param doc
                      * @returns {*}
                      */
-                    update: function (id, doc) { // TODO: Uniquement doc????
-                        assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition[\'version.language\']', RX_LANGUAGE));
-                        assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition[\'version.summaryId\']', RX_MONGODB_ID));
+                    update: function (id, doc) {
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
                         assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
-                        // Note: considering we allow partial updates, we cannot check activity properties here
+                        assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition.version.language', RX_LANGUAGE));
+                        assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition.version.summaryId', RX_MONGODB_ID));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, partition['version.language'], partition['version.summaryId'], id);
                         logger.info({
                             message: '$.ajax',
@@ -1819,8 +1810,8 @@
                      * @returns {*}
                      */
                     create: function (doc) {
+                        assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
                         assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
-                        assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'summary'));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summaries, partition.language);
                         logger.info({
                             message: '$.ajax',
@@ -1837,13 +1828,13 @@
                     },
 
                     /**
-                     * Destroy (formerly rapi.v1.content.createSummary)
+                     * Destroy (formerly rapi.v1.content.deleteSummary)
                      * @param id
                      * @returns {*}
                      */
                     destroy: function (id) {
-                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
+                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, partition.language, id);
                         logger.info({
                             message: '$.ajax',
@@ -1864,9 +1855,9 @@
                      * @returns {*}
                      */
                     get: function (id, query) {
-                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
                         assert.isOptionalObject(query, assert.format(assert.messages.isOptionalObject.default, 'query'));
+                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, partition.language, id);
                         logger.info({
                             message: '$.ajax',
@@ -1876,7 +1867,7 @@
                         return $.ajax({
                             cache: false,
                             data: query,
-                            headers: rapi.util.getHeaders({ security: true, trace: true }),
+                            headers: rapi.util.getHeaders({ trace: true }),
                             type: GET,
                             url: url
                         });
@@ -1888,8 +1879,8 @@
                      * @returns {*}
                      */
                     read: function (query) {
-                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         assert.isOptionalObject(query, assert.format(assert.messages.isOptionalObject.default, 'query'));
+                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summaries, partition.language);
                         logger.info({
                             message: '$.ajax',
@@ -1912,10 +1903,9 @@
                      * @returns {*}
                      */
                     update: function (id, doc) {
-                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
                         assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
-                        // Note: considering we allow partial updates, we cannot check summary properties here
+                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, partition.language, id);
                         logger.info({
                             message: '$.ajax',
@@ -1944,62 +1934,105 @@
                 return {
 
                     /**
-                     * Create
+                     * Create (formerly rapi.v1.content.createSummaryVersion)
                      * @param doc
                      */
                     create: function (doc) {
-                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
-                        assert.match(RX_MONGODB_ID, partition.summaryId, assert.format(assert.messages.match.default, 'partition.summaryId', RX_MONGODB_ID));
-                        assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'summary'));
-                        // TODO
+                        throw new Error('Not implemented: rapi.v1.content.executeCommand');
                     },
 
                     /**
-                     * Destroy
+                     * Destroy (formerly rapi.v1.content.deleteSummaryVersion)
                      * @param id
                      */
                     destroy: function (id) {
+                        assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
                         assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         assert.match(RX_MONGODB_ID, partition.summaryId, assert.format(assert.messages.match.default, 'partition.summaryId', RX_MONGODB_ID));
-                        assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
-                        // TODO
+                        var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.version, partition.language, partition.summaryId, id);
+                        logger.info({
+                            message: '$.ajax',
+                            method: 'v2.versions.destroy',
+                            data: { url: url }
+                        });
+                        return $.ajax({
+                            headers: rapi.util.getHeaders({ security: true, trace: true }),
+                            type: DELETE,
+                            url: url
+                        });
                     },
 
                     /**
-                     * Get
+                     * Get (formerly rapi.v1.content.getSummaryVersion)
                      * @param id
                      * @param query
                      */
                     get: function (id, query) {
-                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
-                        assert.match(RX_MONGODB_ID, partition.summaryId, assert.format(assert.messages.match.default, 'partition.summaryId', RX_MONGODB_ID));
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
                         assert.isOptionalObject(query, assert.format(assert.messages.isOptionalObject.default, 'query'));
-                        // TODO
+                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
+                        assert.match(RX_MONGODB_ID, partition.summaryId, assert.format(assert.messages.match.default, 'partition.summaryId', RX_MONGODB_ID));
+                        var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.version, partition.language, partition.summaryId, id);
+                        logger.info({
+                            message: '$.ajax',
+                            method: 'v2.versions.get',
+                            data: { url: url, q: query }
+                        });
+                        return $.ajax({
+                            cache: false,
+                            data: query,
+                            headers: rapi.util.getHeaders({ trace: true }),
+                            type: GET,
+                            url: url
+                        });
                     },
 
                     /**
-                     * Read
+                     * Read (formerly rapi.v1.content.findSummaryVersions)
                      * @param query
                      */
                     read: function (query) {
+                        assert.isOptionalObject(query, assert.format(assert.messages.isOptionalObject.default, 'query'));
                         assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         assert.match(RX_MONGODB_ID, partition.summaryId, assert.format(assert.messages.match.default, 'partition.summaryId', RX_MONGODB_ID));
-                        assert.isOptionalObject(query, assert.format(assert.messages.isOptionalObject.default, 'query'));
-                        // TODO
+                        var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.versions, partition.language, partition.summaryId);
+                        logger.info({
+                            message: '$.ajax',
+                            method: 'v2.versions.read',
+                            data: { url: url, q:  query }
+                        });
+                        return $.ajax({
+                            cache: false,
+                            data: query,
+                            headers: rapi.util.getHeaders({ trace: true }),
+                            type: GET,
+                            url: url
+                        });
                     },
 
                     /**
-                     * Update
+                     * Update (formerly rapi.v1.content.updateSummaryVersion)
                      * @param id
                      * @param doc
                      */
                     update: function (id, doc) {
-                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
-                        assert.match(RX_MONGODB_ID, partition.summaryId, assert.format(assert.messages.match.default, 'partition.summaryId', RX_MONGODB_ID));
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
                         assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'summary'));
-                        // TODO
+                        assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
+                        assert.match(RX_MONGODB_ID, partition.summaryId, assert.format(assert.messages.match.default, 'partition.summaryId', RX_MONGODB_ID));
+                        var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.version, partition.language, partition.summaryId, id);
+                        logger.info({
+                            message: '$.ajax',
+                            method: 'v2.versions.update',
+                            data: { url: url, doc: doc }
+                        });
+                        return $.ajax({
+                            contentType: JSON_CONTENT_TYPE,
+                            data: JSON.stringify(doc),
+                            headers: rapi.util.getHeaders({ security: true, trace: true }),
+                            type: PUT,
+                            url: url
+                        });
                     }
 
                 };
