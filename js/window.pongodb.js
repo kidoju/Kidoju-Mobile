@@ -332,7 +332,7 @@
          * @param options
          * @constructor
          */
-        var Collection = function (options) { // = pongodb.Collection = function (options) {
+        var Collection = pongodb.Collection = function (options) {
             assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
             assert.instanceof(Database, options.db, assert.format(assert.messages.instanceof.default, 'options.db', 'pongodb.Database'));
             assert.type(STRING, options.name, assert.format(assert.messages.isPlainObject.default, 'options.name', STRING));
@@ -435,8 +435,11 @@
             this.find(query, projection, true)
                 .done(function (results) {
                     assert.isArray(results, assert.format(assert.messages.isArray.default, 'results'));
-                    assert.ok(results.length === 1, '`results` should have a length of 1');
-                    dfd.resolve(results[0]);
+                    if (results.length) {
+                        dfd.resolve(results[0]);
+                    } else {
+                        dfd.reject(new Error('Not found'));
+                    }
                 })
                 .fail(dfd.reject);
             return dfd.promise();
