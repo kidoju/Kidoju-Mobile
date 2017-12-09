@@ -401,14 +401,16 @@
                         // https://localforage.github.io/localForage/#data-api-iterate
                         that._localForage.iterate(
                             function (item, key, index) {
+                                window.alert(index + ' ' + key);
                                 if (pongodb.util.match(query, item, that._textFields)) {
+                                    window.alert('found!');
                                     found.push(item);
                                 }
                                 if (breakOnFirst) {
                                     // return something to stop iterating
                                     return item;
                                 }
-                                dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ index: index, total: length }); // length > 0 otherwise we would not be in this branch
                             },
                             function (err) {
                                 if (err) {
@@ -488,7 +490,7 @@
                                 if (pongodb.util.match(query, item, that._textFields)) {
                                     count++;
                                 }
-                                dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ index: index, total: length }); // length > 0 otherwise we would not be in this branch
                             },
                             function (err) {
                                 if (err) {
@@ -633,7 +635,7 @@
                                         updates[key].resolve();
                                     });
                                 }
-                                dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ index: index, total: length }); // length > 0 otherwise we would not be in this branch
                             },
                             function (err) {
                                 if (err) {
@@ -729,7 +731,7 @@
                                         }
                                     });
                                 }
-                                dfd.notify({ percent: index / length }); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ index: index, total: length }); // length > 0 otherwise we would not be in this branch
                             },
                             function (err) {
                                 if (err) {

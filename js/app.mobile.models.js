@@ -1052,7 +1052,7 @@
                             .always(function () {
                                 // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
                                 length = length || 1; // Cannot divide by 0;
-                                dfd.notify({ collection: collection.name(), pass: 2, index: length - 1, total: length}); // Make sure we always end up at 100%
+                                dfd.notify({ collection: collection.name(), pass: 2, index: length - 1, total: length}); // Make sure we always reach 100%
                             })
                             .done(dfd.resolve)
                             .fail(dfd.reject);
@@ -1134,7 +1134,7 @@
                             .always(function () {
                                 // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
                                 length = length || 1; // Cannot divide by 0;
-                                dfd.notify({ collection: collection.name(), pass: 1, index: length - 1, total: length }); // Make sure we always end up at 100%
+                                dfd.notify({ collection: collection.name(), pass: 1, index: length - 1, total: length }); // Make sure we always reach 100%
                             })
                             .done(function () {
                                 that._readSync()
