@@ -418,7 +418,6 @@
                     data: options.data
                 });
                 if ($.type(partition) === UNDEFINED) {
-                    window.alert('No partition!');
                     // This lets us create a dataSource without knowing the partition, which can be set later with setPartition
                     // Create the MobileTransport with options.partition: false to avoid this test
                     options.success({ total: 0, data: [] });
@@ -431,7 +430,6 @@
                     this._collection.find(query)
                         .done(function(result) {
                             if ($.isArray(result)) {
-                                window.alert(result.length);
                                 options.success({ total: result.length, data: result });
                             } else {
                                 options.error.apply(this, error2XHR(new Error('Database should return an array')));

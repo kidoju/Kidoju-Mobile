@@ -75,24 +75,24 @@
              * @returns {number}
              */
             compareVersions: function(a, b) {
-            // Get _version as an object property
-            var va = $.type(a) === OBJECT ? a._version : a;
-            var vb = $.type(b) === OBJECT ? b._version : b;
-            // Remove `v` prefix if any
-            va = va.charAt(0) === 'v' ? va.substr(1) : va;
-            vb = vb.charAt(0) === 'v' ? vb.substr(1) : vb;
-            var pa = va.split('.');
-            var pb = vb.split('.');
-            for (var i = 0; i < 3; i++) {
-                var na = parseInt(pa[i], 10);
-                var nb = parseInt(pb[i], 10);
-                if (na > nb) { return 1; }
-                if (nb > na) { return -1; }
-                if (!isNaN(na) && isNaN(nb)) { return 1; }
-                if (isNaN(na) && !isNaN(nb)) { return -1; }
-            }
-            return 0;
-        },
+                // Get _version as an object property
+                var va = $.type(a) === OBJECT ? a._version : a;
+                var vb = $.type(b) === OBJECT ? b._version : b;
+                // Remove `v` prefix if any
+                va = va.charAt(0) === 'v' ? va.substr(1) : va;
+                vb = vb.charAt(0) === 'v' ? vb.substr(1) : vb;
+                var pa = va.split('.');
+                var pb = vb.split('.');
+                for (var i = 0; i < 3; i++) {
+                    var na = parseInt(pa[i], 10);
+                    var nb = parseInt(pb[i], 10);
+                    if (na > nb) { return 1; }
+                    if (nb > na) { return -1; }
+                    if (!isNaN(na) && isNaN(nb)) { return 1; }
+                    if (isNaN(na) && !isNaN(nb)) { return -1; }
+                }
+                return 0;
+            },
 
             /* Blocks are nested too deeply. */
             /* jshint -W073 */
@@ -107,66 +107,68 @@
              * @param textFields for text searches
              */
             match: function (query, doc, textFields) {
-            // TODO: We are missing $and and $or
-            // Note that kendo UI builds a function with eval (although eval is evil)
-            assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
-            assert.type(OBJECT, doc, assert.format(assert.messages.type.default, 'doc', OBJECT));
-            var match = true;
-            if ($.type(query) === OBJECT) {
-                for (var prop in query) {
-                    if (prop && query.hasOwnProperty(prop)) {
-                        var path = prop.split('.');
-                        var value = doc;
-                        while (path.length > 0) {
-                            value = value && value[path[0]];
-                            path.shift();
-                        }
-                        var criterion = query[prop];
-                        if (criterion instanceof RegExp) {
-                            match = match && criterion.test(value);
-                        } else if ($.type(criterion) === OBJECT) {
-                            for (var operator in criterion) {
-                                if (criterion.hasOwnProperty(operator)) {
-                                    // @see http://docs.mongodb.org/manual/reference/operator/query/
-                                    switch (operator) {
-                                        case '$eq':
-                                            match = match && (value === criterion[operator]);
-                                            break;
-                                        case '$gt':
-                                            match = match && (value > criterion[operator]);
-                                            break;
-                                        case '$gte':
-                                            match = match && (value >= criterion[operator]);
-                                            break;
-                                        case '$lt':
-                                            match = match && (value < criterion[operator]);
-                                            break;
-                                        case '$lte':
-                                            match = match && (value <= criterion[operator]);
-                                            break;
-                                        case '$ne':
-                                            match = match && (value !== criterion[operator]);
-                                            break;
-                                        case '$regex':
-                                            match = match && criterion[operator].test(value);
-                                            break;
-                                        case '$search':
-                                            match = match && pongodb.util.search(criterion[operator], doc, textFields);
-                                            break;
+                // TODO: We are missing $and and $or
+                // Note that kendo UI builds a function with eval (although eval is evil)
+                assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
+                assert.type(OBJECT, doc, assert.format(assert.messages.type.default, 'doc', OBJECT));
+                var match = true;
+                debugger;
+                if ($.type(query) === OBJECT) {
+                    for (var prop in query) {
+                        if (prop && query.hasOwnProperty(prop)) {
+                            var path = prop.split('.');
+                            var value = doc;
+                            while (path.length > 0) {
+                                value = value && value[path[0]];
+                                path.shift();
+                            }
+                            var criterion = query[prop];
+                            if (criterion instanceof RegExp) {
+                                match = match && criterion.test(value);
+                            } else if ($.type(criterion) === OBJECT) {
+                                for (var operator in criterion) {
+                                    if (criterion.hasOwnProperty(operator)) {
+                                        // @see http://docs.mongodb.org/manual/reference/operator/query/
+                                        switch (operator) {
+                                            case '$eq':
+                                                match = match && (value === criterion[operator]);
+                                                break;
+                                            case '$gt':
+                                                match = match && (value > criterion[operator]);
+                                                break;
+                                            case '$gte':
+                                                match = match && (value >= criterion[operator]);
+                                                break;
+                                            case '$lt':
+                                                match = match && (value < criterion[operator]);
+                                                break;
+                                            case '$lte':
+                                                match = match && (value <= criterion[operator]);
+                                                break;
+                                            case '$ne':
+                                                match = match && (value !== criterion[operator]);
+                                                break;
+                                            case '$regex':
+                                                match = match && criterion[operator].test(value);
+                                                break;
+                                            case '$search':
+                                                match = match && pongodb.util.search(criterion[operator], doc, textFields);
+                                                break;
+                                        }
                                     }
                                 }
+                            } else {
+                                match = match && (value === criterion);
                             }
-                        } else {
-                            match = match && (value === criterion);
+                            window.alert(match + ' ' + JSON.stringify(criterion));
+                        }
+                        if (!match) {
+                            break;
                         }
                     }
-                    if (!match) {
-                        break;
-                    }
                 }
-            }
-            return match;
-        },
+                return match;
+            },
 
             /* jshint +W074 */
             /* jshint +W073 */
@@ -401,9 +403,8 @@
                         // https://localforage.github.io/localForage/#data-api-iterate
                         that._localForage.iterate(
                             function (item, key, index) {
-                                window.alert(index + ' ' + key);
+                                debugger;
                                 if (pongodb.util.match(query, item, that._textFields)) {
-                                    window.alert('found!');
                                     found.push(item);
                                 }
                                 if (breakOnFirst) {
