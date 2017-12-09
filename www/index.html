@@ -311,7 +311,7 @@
     <div id="finder" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
         <ul data-role="listview" data-bind="source: summaries" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-load-more="true" data-template="finder-template"></ul>
         <script type="text/x-kendo-template" id="finder-template">
-            <a href="\#summary?language=#: language #&summaryId=#: id #" data-bind="css: { played: played }">
+            <a href="\#summary?language=#: language #&summaryId=#: id #" data-bind="css: { offline: offline }">
                 <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
                 <div class="summary">
                     <h4>#: title #</h4>
@@ -331,6 +331,13 @@
                         # if (scores) { #<i class="kf kf-score"></i><span>#: kendo.toString(scores, 'n0') #%</span># } #
                     </div>
                 </div>
+                # if ($.type(lastScore) === 'number' && lastScore >= 75) { #
+                <span class="km-badge km-badge-success">#: kendo.toString(lastScore / 100, 'p0') #</span>
+                # } else if ($.type(lastScore) === 'number' && lastScore >= 50) { #
+                <span class="km-badge km-badge-warning">#: kendo.toString(lastScore / 100, 'p0') #</span>
+                # } else if ($.type(lastScore) === 'number') { #
+                <span class="km-badge km-badge-error">#: kendo.toString(lastScore / 100, 'p0') #</span>
+                # } #
             </a>
         </script>
     </div>

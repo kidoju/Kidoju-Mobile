@@ -418,6 +418,7 @@
                     data: options.data
                 });
                 if ($.type(partition) === UNDEFINED) {
+                    window.alert('No partition!');
                     // This lets us create a dataSource without knowing the partition, which can be set later with setPartition
                     // Create the MobileTransport with options.partition: false to avoid this test
                     options.success({ total: 0, data: [] });
@@ -430,6 +431,7 @@
                     this._collection.find(query)
                         .done(function(result) {
                             if ($.isArray(result)) {
+                                window.alert(result.length);
                                 options.success({ total: result.length, data: result });
                             } else {
                                 options.error.apply(this, error2XHR(new Error('Database should return an array')));
@@ -703,7 +705,7 @@
              */
             get: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
+                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.get.call(this, options);
                 } else {
                     this.remoteTransport.get(options);
@@ -716,7 +718,7 @@
              */
             read: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
+                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.read.call(this, options);
                 } else {
                     this.remoteTransport.read(options);
@@ -763,8 +765,7 @@
              */
             get: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
-                    window.alert('offline!');
+                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.get.call(that, options);
                 } else {
                     that.remoteTransport.get({
@@ -788,8 +789,7 @@
              */
             read: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)  || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
-                    window.alert('offline!');
+                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)  || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
                     MobileTransport.fn.read.call(that, options);
                 } else {
                     that.remoteTransport.read({
@@ -821,8 +821,8 @@
         });
 
         /**
-         * An Offline strategy using pongodb (and localForage)
-         * Note: Only applies to summaries
+         * An offline strategy for summaries using pongodb (and localForage)
+         * Note: This matches a remote summary with a mobile summary to show the ones available offline
          * @class LazyCacheStrategy
          */
         models.LazySummaryOfflineStrategy = models.LazyOfflineStrategy.extend({
@@ -859,8 +859,7 @@
              */
             get: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
-                    window.alert('offline!');
+                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.get.call(that, options);
                 } else {
                     that.remoteTransport.get({
@@ -892,8 +891,7 @@
              */
             read: function (options) {
                 var that = this;
-                if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE) || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
-                    window.alert('offline!');
+                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.read.call(that, options);
                 } else {
                     that.remoteTransport.read({
@@ -906,12 +904,12 @@
                                     // Do not use i in closure because it is mutable and might not be the expected value when executing
                                     var dfd = $.Deferred();
                                     MobileTransport.fn.get.call(that, {
-                                        data: response.data[idx],
+                                        data: response.data[idx], // The remote data
                                         error: function () {
                                             dfd.resolve(); // We do not care!
                                         },
-                                        success: function (item) {
-                                            response.data[idx] = $.extend(true, item, response.data[idx]);
+                                        success: function (offlineData) { // The local data
+                                            response.data[idx] = $.extend(true, offlineData, response.data[idx], { offline: true });
                                             dfd.resolve();
                                         }
                                     });
@@ -1900,19 +1898,19 @@
                                     summary.userId = summary.author.userId;
                                     summary.firstName = summary.author.firstName;
                                     summary.lastName = summary.author.lastName;
-                                    delete summary.author;
+                                    summary.author = undefined;
                                     // Flatten metrics
-                                    summary.comments = summary.metrics && summary.metrics.comments && summary.metrics.comments.count || 0;
-                                    summary.ratings = summary.metrics && summary.metrics.ratings && summary.metrics.ratings.average || null;
-                                    summary.scores = summary.metrics && summary.metrics.scores && summary.metrics.scores.average || null;
-                                    summary.views = summary.metrics && summary.metrics.views && summary.metrics.views.count || 0;
-                                    if ($.isPlainObject(summary.metrics)) {
-                                        delete summary.metrics;
+                                    if (summary.metrics) {
+                                        summary.comments = summary.metrics.comments && summary.metrics.comments.count || 0;
+                                        summary.ratings = summary.metrics.ratings && summary.metrics.ratings.average || null;
+                                        summary.scores = summary.metrics.scores && summary.metrics.scores.average || null;
+                                        summary.views = summary.metrics.views && summary.metrics.views.count || 0;
+                                        summary.metrics = undefined;
                                     }
                                     // Flatten activity (only mobile application)
-                                    if (summary.activity && summary.activity.activityId) {
-                                        summary.played = true;
-                                        delete summary.activity;
+                                    if (summary.activity) {
+                                        summary.lastScore = summary.activity.score;
+                                        summary.activity = undefined;
                                     }
                                 });
                             }

@@ -1793,7 +1793,12 @@
                     type: STRING,
                     editable: false
                 },
-                played: { // Used in Kidoju-Mobile only
+                lastScore: { // Used in Kidoju-Mobile only
+                    type: NUMBER,
+                    nullable: true,
+                    editable: false
+                },
+                offline: { // Used in Kidoju-Mobile only
                     type: BOOLEAN,
                     editable: false
                 },
