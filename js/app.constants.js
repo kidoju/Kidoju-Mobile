@@ -8,7 +8,9 @@
 
 (function (f, define) {
     'use strict';
-    define([], f);
+    define([
+        './window.assert'
+    ], f);
 })(function () {
 
     'use strict';
@@ -17,9 +19,17 @@
 
     (function () {
 
+        var assert = window.assert;
         var LANGUAGE = 'language';
         var THEME = 'theme';
         var UNDEFINED = 'undefined';
+        // First 4 bytes define the language
+        // Following 4 bytes define the selected top category
+        var LEVEL_CHARS = 4;
+        var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
+        var RX_TOP_LEVEL_MATCH = new RegExp('^[a-z0-9]{' + TOP_LEVEL_CHARS + '}0{' + (24 - TOP_LEVEL_CHARS) + '}$');
+        var RX_LANGUAGE = /^[a-z]{2}$/;
+        var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
         var localStorage; // = window.localStorage;
         // An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
         try { localStorage = window.localStorage; } catch (ex) {}
@@ -47,6 +57,20 @@
             theme: undefined // 'flat'
             // TODO: We might also want the possibility to hide categories for museum apps
         };
+
+        // Assert values
+        if ($.type(app.constants.authorId) !== UNDEFINED) {
+            assert.match(RX_MONGODB_ID, app.constants.authorId, assert.format(assert.messages.match.equal, 'app.constants.authorId', RX_MONGODB_ID));
+        }
+        if ($.type(app.constants.language) !== UNDEFINED) {
+            assert.match(RX_LANGUAGE, app.constants.language, assert.format(assert.messages.match.equal, 'app.constants.language', RX_LANGUAGE));
+        }
+        if ($.type(app.constants.rootCategoryId.en) !== UNDEFINED) {
+            assert.match(RX_TOP_LEVEL_MATCH, app.constants.rootCategoryId.en, assert.format(assert.messages.match.equal, 'app.constants.rootCategoryId.en', RX_TOP_LEVEL_MATCH));
+        }
+        if ($.type(app.constants.rootCategoryId.fr) !== UNDEFINED) {
+            assert.match(RX_TOP_LEVEL_MATCH, app.constants.rootCategoryId.fr, assert.format(assert.messages.match.equal, 'app.constants.rootCategoryId.fr', RX_TOP_LEVEL_MATCH));
+        }
 
         // Set locale
         if (typeof (app && app.i18n) !== UNDEFINED) {
