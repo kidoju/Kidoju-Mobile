@@ -112,7 +112,6 @@
                 assert.typeOrUndef(OBJECT, query, assert.format(assert.messages.typeOrUndef.default, 'query', OBJECT));
                 assert.type(OBJECT, doc, assert.format(assert.messages.type.default, 'doc', OBJECT));
                 var match = true;
-                debugger;
                 if ($.type(query) === OBJECT) {
                     for (var prop in query) {
                         if (prop && query.hasOwnProperty(prop)) {
@@ -156,11 +155,13 @@
                                                 break;
                                         }
                                     }
+                                    if (!match) {
+                                        break;
+                                    }
                                 }
                             } else {
                                 match = match && (value === criterion);
                             }
-                            window.alert(match + ' ' + JSON.stringify(criterion));
                         }
                         if (!match) {
                             break;
@@ -403,7 +404,6 @@
                         // https://localforage.github.io/localForage/#data-api-iterate
                         that._localForage.iterate(
                             function (item, key, index) {
-                                debugger;
                                 if (pongodb.util.match(query, item, that._textFields)) {
                                     found.push(item);
                                 }
@@ -411,7 +411,7 @@
                                     // return something to stop iterating
                                     return item;
                                 }
-                                dfd.notify({ index: index, total: length }); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ index: index - 1, total: length }); // index starts at 1
                             },
                             function (err) {
                                 if (err) {
@@ -491,7 +491,7 @@
                                 if (pongodb.util.match(query, item, that._textFields)) {
                                     count++;
                                 }
-                                dfd.notify({ index: index, total: length }); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ index: index - 1, total: length }); // index starts at 1
                             },
                             function (err) {
                                 if (err) {
@@ -636,7 +636,7 @@
                                         updates[key].resolve();
                                     });
                                 }
-                                dfd.notify({ index: index, total: length }); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ index: index - 1, total: length }); // index starts at 1
                             },
                             function (err) {
                                 if (err) {
@@ -732,7 +732,7 @@
                                         }
                                     });
                                 }
-                                dfd.notify({ index: index, total: length }); // length > 0 otherwise we would not be in this branch
+                                dfd.notify({ index: index - 1, total: length }); // index starts at 1
                             },
                             function (err) {
                                 if (err) {
