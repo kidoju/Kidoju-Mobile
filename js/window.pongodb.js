@@ -547,10 +547,10 @@
                                 dfd.reject(err);
                             } else {
                                 $.when.apply(that, that.triggers(TRIGGER.INSERT, item))
-                                .done(function () {
-                                    dfd.resolve(item);
-                                })
-                                .fail(dfd.reject);
+                                    .done(function () {
+                                        dfd.resolve(item);
+                                    })
+                                    .fail(dfd.reject);
                             }
                         });
                     }
@@ -590,7 +590,11 @@
                                 if (err) {
                                     dfd.reject(err);
                                 } else {
-                                    dfd.resolve({ nMatched: 1, nUpserted: 0, nModified: 1 });
+                                    $.when.apply(that, that.triggers(TRIGGER.UPDATE, item))
+                                        .done(function () {
+                                            dfd.resolve({ nMatched: 1, nUpserted: 0, nModified: 1 });
+                                        })
+                                        .fail(dfd.reject);
                                 }
                             });
                         } else {
@@ -602,7 +606,11 @@
                             if (err) {
                                 dfd.reject(err);
                             } else {
-                                dfd.resolve({ nMatched: 0, nUpserted: 1, nModified: 0 });
+                                $.when.apply(that, that.triggers(TRIGGER.UPDATE, item))
+                                    .done(function () {
+                                        dfd.resolve({ nMatched: 1, nUpserted: 1, nModified: 0 });
+                                    })
+                                    .fail(dfd.reject);
                             }
                         });
                     } else {
@@ -611,7 +619,7 @@
                     }
                 });
             } else {
-                // Without an id, we need to iterate
+                // Without an id, we need to iterate but we do not upsert
                 // https://localforage.github.io/localForage/#data-api-length
                 that._localForage.length(function (err, length) {
                     if (err) {
@@ -620,46 +628,37 @@
                         // Without length, no need to iterate
                         dfd.resolve({ nMatched: 0, nUpserted: 0, nModified: 0 });
                     } else {
-                        var updates = {};
-                        // TODO Not sure what is an upsert when query has not idField
+                        var promises = [];
                         // https://localforage.github.io/localForage/#data-api-iterate
                         that._localForage.iterate(
                             function (item, key, index) {
                                 if (pongodb.util.match(query, item, that._textFields)) {
-                                    // https://localforage.github.io/localForage/#data-api-setitem
-                                    // TODO: consider what to do with update fields explicitly set to undefined, which $.extend ignores
-                                    updates[key] = $.Deferred();
-                                    that._localForage.setItem(item[idField], $.extend(true, item, doc), function (err) { // }, doc) {
-                                        if (err) {
-                                            return err; // return something to stop iterating
-                                        }
-                                        updates[key].resolve();
-                                    });
+                                    promises.push(function (obj) {
+                                        var def = $.Deferred();
+                                        // https://localforage.github.io/localForage/#data-api-setitem
+                                        that._localForage.setItem(obj[idField], $.extend(true, obj, doc), function (err) { // }, doc) {
+                                            if (err) {
+                                                def.reject(err);
+                                            } else {
+                                                $.when.apply(that, that.triggers(TRIGGER.UPDATE, doc))
+                                                    .done(def.resolve).fail(def.reject);
+                                            }
+                                        });
+                                        return def.promise();
+                                    }(item));
                                 }
                                 dfd.notify({ index: index - 1, total: length }); // index starts at 1
                             },
                             function (err) {
                                 if (err) {
                                     dfd.reject(err);
+                                } else {
+                                    $.when(promises)
+                                        .done(function() {
+                                            dfd.notify({index: length - 1, total: length}); // Make sure we reach 100%
+                                            dfd.resolve({nMatched: count, nUpserted: 0, nModified: promises.length});
+                                        });
                                 }
-                                // Note: we need the updates hash and the promises array
-                                // because this success callback is executed before some
-                                // of the setItem callbacks in the iterate method
-                                // These promises and $.when ensure all updates are completed
-                                // before we return a count of updated items
-                                // TODO Write concern errors - https://docs.mongodb.com/manual/reference/method/db.collection.update/#write-concern-errors
-                                // In other words how many items have been removed before an error occurred?
-                                var count = Object.keys(updates).length;
-                                var promises = [];
-                                for (var key in updates) {
-                                    if (updates.hasOwnProperty(key)) {
-                                        promises.push(updates[key].promise());
-                                    }
-                                }
-                                $.when(promises)
-                                    .done(function () {
-                                        dfd.resolve({ nMatched: count, nUpserted: 0, nModified: count });
-                                    });
                             }
                         );
                     }
