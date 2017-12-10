@@ -318,13 +318,10 @@
                     # var tags = tags$(); if (Array.isArray(tags) && tags.length) { #
                     <div class="tags"><i class="kf kf-tags"></i>
                         # for (var i = 0; i < tags.length; i++) { #
-                        <span>#: tags[i].name #</span># if (i < tags.length -1) { #, # } #
+                        <span>#: tags[i].name #</span>#: i < tags.length - 1 ? ', ' : '' #
                         # } #
                     </div>
                     # } #
-                    <!--div class="author">
-                        <%- __('finder.list.author.publishedOn') %><span>#: kendo.toString(published, "<%- __('dateFormat') %>") #</span><%- __('finder.list.author.by') %><a href="#= authorUri$() #">#: authorName$() #</a>
-                    </div-->
                     <div class="metrics">
                         <span class="kf"><input data-role="rating" value="#: ratings #" readonly></span>
                         <i class="kf kf-view"></i><span>#: views #</span>
@@ -488,7 +485,11 @@
                 <li>
                     <label>
                         <span class="km-bold-font">Rating</span>
-                        <div class="bottom"><div data-role="rating" data-bind="value: summary.metrics.ratings.average"></div></div>
+                        <div class="bottom">
+                            <span class="kf"><input data-role="rating" data-bind="value: summary.metrics.ratings.average" readonly></span>
+                            <i class="kf kf-view"></i><span data-bind="text: summary.metrics.views.count"></span>
+                            <i class="kf kf-score"></i><span data-bind="text: summary.metrics.scores.average, visible: summary.metrics.scores.average"></span>
+                        </div>
                     </label>
                 </li>
                 <li>
