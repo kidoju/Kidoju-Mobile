@@ -60,16 +60,16 @@
 
         // Assert values
         if ($.type(app.constants.authorId) !== UNDEFINED) {
-            assert.match(RX_MONGODB_ID, app.constants.authorId, assert.format(assert.messages.match.equal, 'app.constants.authorId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, app.constants.authorId, assert.format(assert.messages.match.default, 'app.constants.authorId', RX_MONGODB_ID));
         }
         if ($.type(app.constants.language) !== UNDEFINED) {
-            assert.match(RX_LANGUAGE, app.constants.language, assert.format(assert.messages.match.equal, 'app.constants.language', RX_LANGUAGE));
+            assert.match(RX_LANGUAGE, app.constants.language, assert.format(assert.messages.match.default, 'app.constants.language', RX_LANGUAGE));
         }
         if ($.type(app.constants.rootCategoryId.en) !== UNDEFINED) {
-            assert.match(RX_TOP_LEVEL_MATCH, app.constants.rootCategoryId.en, assert.format(assert.messages.match.equal, 'app.constants.rootCategoryId.en', RX_TOP_LEVEL_MATCH));
+            assert.match(RX_TOP_LEVEL_MATCH, app.constants.rootCategoryId.en, assert.format(assert.messages.match.default, 'app.constants.rootCategoryId.en', RX_TOP_LEVEL_MATCH));
         }
         if ($.type(app.constants.rootCategoryId.fr) !== UNDEFINED) {
-            assert.match(RX_TOP_LEVEL_MATCH, app.constants.rootCategoryId.fr, assert.format(assert.messages.match.equal, 'app.constants.rootCategoryId.fr', RX_TOP_LEVEL_MATCH));
+            assert.match(RX_TOP_LEVEL_MATCH, app.constants.rootCategoryId.fr, assert.format(assert.messages.match.default, 'app.constants.rootCategoryId.fr', RX_TOP_LEVEL_MATCH));
         }
 
         // Set locale
