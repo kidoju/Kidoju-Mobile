@@ -169,7 +169,7 @@ window.jQuery.holdReady(true);
             CORRECTION: 'correction',
             DEFAULT: 'activities', // <---------- url is '/'
             DRAWER: 'drawer',
-            FAVOURITES: 'favourites',
+            // FAVOURITES: 'favourites',
             FINDER: 'finder',
             NETWORK: 'network',
             PLAYER: 'player',
@@ -181,8 +181,7 @@ window.jQuery.holdReady(true);
             TOUR: 'tour',
             USER: 'user'
         };
-        // var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.ACTIVITIES, VIEW.CATEGORIES, VIEW.NETWORK, VIEW.SETTINGS, VIEW.SIGNIN, VIEW.USER].join('|') + ')', 'i');
-        var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.ACTIVITIES, VIEW.CATEGORIES, VIEW.FINDER, VIEW.NETWORK, VIEW.USER].join('|') + ')', 'i');
+        var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.ACTIVITIES, VIEW.CATEGORIES, VIEW.CORRECTION, VIEW.FINDER, VIEW.NETWORK, VIEW.PLAYER, VIEW.SCORE, VIEW.SETTINGS, VIEW.SUMMARY, VIEW.TOUR, VIEW.USER].join('|') + ')', 'i');
         var DISPLAY = {
             INLINE: 'inline-block',
             NONE: 'none',
@@ -209,6 +208,7 @@ window.jQuery.holdReady(true);
             SELECTED_PAGE: 'selectedPage',
             SUMMARY: {
                 $: 'summary',
+                CATEGORY_ID: 'summary.categoryId',
                 DESCRIPTION: 'summary.description',
                 ID: 'summary.id',
                 LANGUAGE: 'summary.language',
@@ -729,6 +729,13 @@ window.jQuery.holdReady(true);
             },
 
             /**
+             * Whether the app has a constant author id
+             */
+            hasConstantAuthorId$: function () {
+                return !!app.constants.authorId;
+            },
+
+            /**
              * Whether the app has a constant language
              */
             hasConstantLanguage$: function () {
@@ -813,7 +820,7 @@ window.jQuery.holdReady(true);
             },
 
             /**
-             * Language name form selected value
+             * Language name from selected value
              */
             language$: function () {
                 var value = this.get(VIEW_MODEL.LANGUAGE);
@@ -841,6 +848,22 @@ window.jQuery.holdReady(true);
                 var id = this.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID);
                 var found = this.get(VIEW_MODEL.CATEGORIES).get(id);
                 return found && found.name;
+            },
+
+            /**
+             * Summary category
+             */
+            summaryCategory$: function () {
+                var ret = '';
+                var categoryId = this.get(VIEW_MODEL.SUMMARY.CATEGORY_ID);
+                var category = this.get(VIEW_MODEL.CATEGORIES).get(categoryId);
+                if (category instanceof models.LazyCategory && $.isFunction(category.path.map) && category.path.length) {
+                    var path = category.path.map(function (item) {
+                        return item.name;
+                    });
+                    ret = '<span>' + path.join('</span><span class="k-icon k-i-arrow-60-right"></span><span>') + '</span>';
+                }
+                return ret;
             },
 
             /**
@@ -952,7 +975,10 @@ window.jQuery.holdReady(true);
                 // Other versions in the same summary (only used to play the latest)
                 var versions = this.get(VIEW_MODEL.VERSIONS);
                 assert.instanceof(models.LazyVersionDataSource, versions, kendo.format(assert.messages.instanceof.default, 'versions', 'app.models.LazyVersionDataSource'));
-                versions.transport.setPartition(); // resets partition
+                versions.transport.setPartition({
+                    language: language,
+                    summaryId: '000000000000000000000000'
+                }); // resets partition
             },
 
             /**
@@ -1008,28 +1034,21 @@ window.jQuery.holdReady(true);
 
             /**
              * Load lazy summaries
-             * @param query
+             * @param options
              */
-            loadLazySummaries: function (query) {
-                assert.isPlainObject(query, kendo.format(assert.messages.isPlainObject.default, 'query'));
-                // var dfd = $.Deferred();
-                // if (window.navigator.connection.type === window.Connection.NONE) {
-                //    app.notification.warning(i18n.culture.notifications.networkOffline);
-                //    dfd.reject(undefined, 'offline', 'No network connection');
-                // } else {
-                return viewModel.summaries.query(query)
-                    // .done(dfd.resolve)
+            loadLazySummaries: function (options) {
+                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.partition, kendo.format(assert.messages.isPlainObject.default, 'options.partition'));
+                assert.match(RX_LANGUAGE, options.partition.language, kendo.format(assert.messages.match.default, 'options.partition.language', RX_LANGUAGE));
+                return viewModel.summaries.load(options)
                     .fail(function (xhr, status, error) {
-                        // dfd.reject(xhr, status, error);
                         app.notification.error(i18n.culture.notifications.summariesQueryFailure);
                         logger.error({
                             message: 'error loading summaries',
                             method: 'viewModel.loadLazySummaries',
-                            data: { query: query, status: status, error: error, response: parseResponse(xhr) }
+                            data: { options: options, status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
-                // }
-                // return dfd.promise();
             },
 
             /**
@@ -1040,28 +1059,15 @@ window.jQuery.holdReady(true);
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.match(RX_LANGUAGE, options.language, kendo.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
                 assert.match(RX_MONGODB_ID, options.id, kendo.format(assert.messages.match.default, 'options.id', RX_MONGODB_ID));
-                var dfd = $.Deferred();
-                if (viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE) === options.language &&
-                    viewModel.get(VIEW_MODEL.SUMMARY.ID) === options.id) {
-                    dfd.resolve();
-                } else if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warning(i18n.culture.notifications.networkOffline);
-                    dfd.reject(undefined, 'offline', 'No network connection');
-                } else {
-                    // TODO viewModel.summary.load(options)
-                    return viewModel.summary.load(options.id)
-                        .done(dfd.resolve)
-                        .fail(function (xhr, status, error) {
-                            dfd.reject(xhr, status, error);
-                            app.notification.error(i18n.culture.notifications.summaryLoadFailure);
-                            logger.error({
-                                message: 'error loading summary',
-                                method: 'viewModel.loadSummary',
-                                data: { status: status, error: error, response: parseResponse(xhr) }
-                            });
+                return viewModel.summary.load(options)
+                    .fail(function (xhr, status, error) {
+                        app.notification.error(i18n.culture.notifications.summaryLoadFailure);
+                        logger.error({
+                            message: 'error loading summary',
+                            method: 'viewModel.loadSummary',
+                            data: { status: status, error: error, response: parseResponse(xhr) }
                         });
-                }
-                return dfd.promise();
+                    });
             },
 
             /**
@@ -1150,7 +1156,6 @@ window.jQuery.holdReady(true);
             loadVersion: function (options) {
 
                 function versionLoadFailure(xhr, status, error) {
-                    dfd.reject(xhr, status, error);
                     app.notification.error(i18n.culture.notifications.versionLoadFailure);
                     logger.error({
                         message: 'error loading version',
@@ -1163,40 +1168,26 @@ window.jQuery.holdReady(true);
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.match(RX_LANGUAGE, options.language, assert.messages.match.default, 'options.language', RX_LANGUAGE);
                 assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
-                assert.match(RX_MONGODB_ID, options.versionId, assert.messages.match.default, 'options.versionId', RX_MONGODB_ID);
+                assert.match(RX_MONGODB_ID, options.id, assert.messages.match.default, 'options.id', RX_MONGODB_ID);
 
-                var dfd = $.Deferred();
-                if (viewModel.get(VIEW_MODEL.VERSION.LANGUAGE) === options.language &&
-                    viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID) === options.summaryId &&
-                    viewModel.get(VIEW_MODEL.VERSION.ID) === options.versionId) {
-                    dfd.resolve();
-                } else if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warning(i18n.culture.notifications.networkOffline);
-                    dfd.reject(undefined, 'offline', 'No network connection');
-                } else {
-                    // TODO viewModel.version.load(options)
-                    viewModel.version.load(options.summaryId, options.versionId)
-                        .done(function () {
-                            // Load stream
-                            viewModel.version.stream.load()
-                                .done(function () {
-                                    var promises = [];
-                                    var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
-                                    assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
-                                    $.each(pageCollectionDataSource.data(), function (idx, page) {
-                                        assert.instanceof(Page, page, kendo.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
-                                        promises.push(page.load());
-                                    });
-                                    $.when(promises)
-                                        .done(dfd.resolve)
-                                        .fail(versionLoadFailure);
-                                })
-                                .fail(versionLoadFailure);
-                        })
-                        .fail(versionLoadFailure);
-                }
+                return viewModel.version.load(options)
+                    .done(function () {
+                        // Load stream
+                        viewModel.version.stream.load()
+                            .done(function () {
+                                var promises = [];
+                                var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
+                                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                                $.each(pageCollectionDataSource.data(), function (idx, page) {
+                                    assert.instanceof(Page, page, kendo.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
+                                    promises.push(page.load());
+                                });
+                                $.when(promises).fail(versionLoadFailure);
+                            })
+                            .fail(versionLoadFailure);
+                    })
+                    .fail(versionLoadFailure);
 
-                return dfd.promise();
             },
 
             /**
@@ -1205,35 +1196,23 @@ window.jQuery.holdReady(true);
              */
             loadLazyVersions: function (options) {
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.match(RX_LANGUAGE, options.language, assert.messages.match.default, 'options.language', RX_LANGUAGE);
-                assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
-
-                var dfd = $.Deferred();
-                if (viewModel.versions.total() > 0 &&
-                    viewModel.versions.at(0).get('summaryId') === options.summaryId) {
-                    dfd.resolve();
-                } else if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warning(i18n.culture.notifications.networkOffline);
-                    dfd.reject(undefined, 'offline', 'No network connection');
-                } else {
-                    viewModel.versions.load({ partition: options })
-                        .done(dfd.resolve)
-                        .fail(function (xhr, status, error) {
-                            dfd.reject(xhr, status, error);
-                            app.notification.error(i18n.culture.notifications.versionsLoadFailure);
-                            logger.error({
-                                message: 'error loading versions',
-                                method: 'viewModel.loadLazyVersions',
-                                data: {
-                                    partition: options.partition,
-                                    status: status,
-                                    error: error,
-                                    response: parseResponse(xhr)
-                                }
-                            });
+                assert.isPlainObject(options.partition, kendo.format(assert.messages.isPlainObject.default, 'options.partition'));
+                assert.match(RX_LANGUAGE, options.partition.language, assert.messages.match.default, 'options.partition.language', RX_LANGUAGE);
+                assert.match(RX_MONGODB_ID, options.partition.summaryId, assert.messages.match.default, 'options.partition.summaryId', RX_MONGODB_ID);
+                return viewModel.versions.load(options)
+                    .fail(function (xhr, status, error) {
+                        app.notification.error(i18n.culture.notifications.versionsLoadFailure);
+                        logger.error({
+                            message: 'error loading versions',
+                            method: 'viewModel.loadLazyVersions',
+                            data: {
+                                options: options,
+                                status: status,
+                                error: error,
+                                response: parseResponse(xhr)
+                            }
                         });
-                }
-                return dfd.promise();
+                    });
             },
 
             /**
@@ -1749,9 +1728,12 @@ window.jQuery.holdReady(true);
             // Localize summary
             viewElement = $(HASH + VIEW.SUMMARY);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.summary.title);
-            viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.summary.categories);
-            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.summary.tags);
-            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.summary.description);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.summary.metrics);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.summary.category);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.summary.tags);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.summary.description);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(5)').text(culture.summary.author);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(6)').text(culture.summary.published);
             viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.summary.go);       // button before view is initialized
             viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.summary.go);                    // button after view is initialized
             var summaryActionSheetElement = $(HASH + VIEW.SUMMARY + '-actionsheet');
@@ -2388,7 +2370,7 @@ window.jQuery.holdReady(true);
             // assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
             // assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
             // Localize UI (cannot be done in init because language may have changed during the session)
-            // version is already loaded - viewModel.loadVersion({ language: language, summaryId: summaryId, versionId: versionId }),
+            // version is already loaded - viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
             // activities are already loaded - viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
             viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(page - 1));
             mobile._resizeStage(e.view);
@@ -2440,6 +2422,9 @@ window.jQuery.holdReady(true);
         mobile.onFinderViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
+            var language = e.view.params.language;
             // Launch the query
             // Kendo UI is not good at building the e.view.params object from query string params
             // Here we would typically get e.view.params like:
@@ -2457,7 +2442,7 @@ window.jQuery.holdReady(true);
             //   }
             // }
             // So we really need $.deparam($.param(...))
-            var query = $.extend(true, { page: 1, pageSize: viewModel.summaries.pageSize() }, $.deparam($.param(e.view.params)));
+            var query = $.extend(true, { page: 1, pageSize: viewModel.summaries.pageSize(), partition: { language: language, type: 'Test', 'author.userId': app.constants.authorId } }, $.deparam($.param(e.view.params)));
             viewModel.loadLazySummaries(query)
                 // See comment for mobile.onSummariesBeforeViewShow
                 .always(function () {
@@ -2516,7 +2501,7 @@ window.jQuery.holdReady(true);
             assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
             $.when(
                 // load version to display quiz content in the player
-                viewModel.loadVersion({ language: language, summaryId: summaryId, versionId: versionId }),
+                viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
                 // Load activities to save score in datasource
                 viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
             )
@@ -2610,7 +2595,7 @@ window.jQuery.holdReady(true);
                 assert.equal('Score', activity.type, kendo.format(assert.messages.instanceof.default, 'activity.type', 'Score'));
                 $.when(
                     viewModel.loadSummary({ language: i18n.locale(), id: activity.get('version.summaryId') }),
-                    viewModel.loadVersion({ language: i18n.locale(), summaryId: activity.get('version.summaryId'), versionId: activity.get('version.versionId') })
+                    viewModel.loadVersion({ language: i18n.locale(), summaryId: activity.get('version.summaryId'), id: activity.get('version.versionId') })
                 )
                     .done(function () {
                         // Note: We cannot assign the activity, otherwise calculate will make changes that will make it dirty in MobileActivityDataSource
@@ -2948,7 +2933,7 @@ window.jQuery.holdReady(true);
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
 
             // Find latest version (version history is not available in the mobile app)
-            viewModel.loadLazyVersions({ language: language, summaryId: summaryId })
+            viewModel.loadLazyVersions({ partition: { language: language, summaryId: summaryId } })
                 .done(function () {
                     var version = viewModel.versions.at(0); // First is latest version
                     assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
@@ -3377,7 +3362,8 @@ window.jQuery.holdReady(true);
          * Event handler triggered when clicking the search button in the navbar
          */
         mobile.onNavBarSearchClick = function () {
-            mobile.application.navigate(HASH + VIEW.FINDER);
+            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE);
+            mobile.application.navigate(HASH + VIEW.FINDER + '?language=' + encodeURIComponent(language));
             // @see http://www.telerik.com/forums/hiding-filter-input-in-mobile-listview
             // var summaryView = $(HASH + VIEW.FINDER);
             // summaryView.find(kendo.roleSelector('listview')).getKendoMobileListView()._filter._clearFilter({ preventDefault: $.noop });

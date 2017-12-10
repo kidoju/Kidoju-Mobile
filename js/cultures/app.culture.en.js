@@ -189,8 +189,11 @@
             summary: {
                 viewTitle: 'Details',
                 // Labels
-                categories: 'Categories',
+                author: 'Author',
+                category: 'Category',
                 description: 'Description',
+                metrics: '',
+                published: 'Published on',
                 tags: 'Tags',
                 title: 'Title',
                 // Buttons

@@ -266,7 +266,7 @@
         <!-- listview of sub-categories -->
         <ul data-role="listview" data-bind="source: categories" data-template="categories-template" data-filterable="false"></ul>
         <script type="text/x-kendo-template" id="categories-template">
-            <a href="\#finder?#: filter$() #" style="margin-left: #: depth$() - 1 #em;">
+            <a href="\#finder?language=#: language #&#: filter$() #" style="margin-left: #: depth$() - 1 #em;">
                 <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
                 <span class="name">#: name #</span>
                 <span class="km-badge km-badge-info">#: count #</span>
@@ -487,8 +487,14 @@
                 </li>
                 <li>
                     <label>
-                        <span class="km-bold-font">Categories</span>
-                        <div data-bind="text: summary.categories$" class="bottom"></div>
+                        <span class="km-bold-font">Rating</span>
+                        <div class="bottom"><div data-role="rating" data-bind="value: summary.metrics.ratings.average"></div></div>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span class="km-bold-font">Category</span>
+                        <div data-bind="html: summaryCategory$" class="bottom"></div>
                     </label>
                 </li>
                 <li>
@@ -503,7 +509,18 @@
                         <div data-role="markdown" data-bind="value: summary.description" class="bottom"></div>
                     </label>
                 </li>
-                <!-- author, creation date, metrics, etc. -->
+                <li data-bind="invisible: hasConstantAuthorId$">
+                    <label>
+                        <span class="km-bold-font">Author</span>
+                        <div data-bind="text: summary.author.fullName$" class="bottom"></div>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span class="km-bold-font">Published</span>
+                        <div data-bind="text: summary.published" data-format="dd MMM yyyy" class="bottom"></div>
+                    </label>
+                </li>
             </ul>
         </form>
         <div class="buttons">

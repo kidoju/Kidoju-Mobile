@@ -187,8 +187,11 @@
             summary: {
                 viewTitle: 'Détails',
                 // Labels
-                categories: 'Catégories',
+                author: 'Auteur',
+                category: 'Catégorie',
                 description: 'Description',
+                metrics: '',
+                published: 'Publié le',
                 tags: 'Mots Clés',
                 title: 'Titre',
                 // Buttons
