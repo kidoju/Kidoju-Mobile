@@ -2013,14 +2013,14 @@
                                     summary.userId = summary.author.userId;
                                     summary.firstName = summary.author.firstName;
                                     summary.lastName = summary.author.lastName;
-                                    delete summary.author;
+                                    summary.author = undefined; // delete summary.author;
                                     // Flatten metrics
                                     summary.comments = summary.metrics && summary.metrics.comments && summary.metrics.comments.count || 0;
                                     summary.ratings = summary.metrics && summary.metrics.ratings && summary.metrics.ratings.average || null;
                                     summary.scores = summary.metrics && summary.metrics.scores && summary.metrics.scores.average || null;
                                     summary.views = summary.metrics && summary.metrics.views && summary.metrics.views.count || 0;
                                     if ($.isPlainObject(summary.metrics)) {
-                                        delete summary.metrics;
+                                        summary.metrics = undefined; // delete summary.metrics;
                                     }
                                 });
                             }
@@ -2743,7 +2743,7 @@
                                     activity.firstName = activity.actor && activity.actor.firstName || '';
                                     activity.lastName = activity.actor && activity.actor.lastName || '';
                                     if (activity.actor) {
-                                        delete activity.actor;
+                                        activity.actor = undefined; // delete activity.actor;
                                     }
                                     // Flatten version
                                     activity.language = activity.version && activity.version.language || i18n.locale();
@@ -2751,7 +2751,7 @@
                                     activity.title = activity.version && activity.version.title || '';
                                     activity.versionId = activity.version && activity.version.versionId || null;
                                     if (activity.version) {
-                                        delete activity.version;
+                                        activity.version = undefined; // delete activity.version;
                                     }
                                 });
 

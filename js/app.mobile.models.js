@@ -128,8 +128,8 @@
         function extendModelWithTransport(DataModel, transport) {
             assert.isFunction(DataModel, assert.format(assert.messages.isFunction.default, 'DataModel'));
             assert.isFunction(transport.get, assert.format(assert.messages.isFunction.default, 'transport.get'));
-            assert.isFunction(transport.create, assert.format(assert.messages.isFunction.default, 'transport.create'));
-            assert.isFunction(transport.update, assert.format(assert.messages.isFunction.default, 'transport.update'));
+            // assert.isFunction(transport.create, assert.format(assert.messages.isFunction.default, 'transport.create'));
+            // assert.isFunction(transport.update, assert.format(assert.messages.isFunction.default, 'transport.update'));
 
             // Add transport to kendo.data.Model
             DataModel.fn.transport = transport;
@@ -153,8 +153,8 @@
                         error: dfd.reject,
                         success: function(response) {
                             // TODO: Not found? is error or empty response
-                            that.accept(response.data[0]);
-                            dfd.resolve(response.data[0]);
+                            that.accept(response);
+                            dfd.resolve(response);
                         }
                     });
                 }
@@ -255,7 +255,9 @@
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
-                this._rapi.get(this.parameterMap(options.data, 'get')).done(options.success).fail(options.error);
+                // TODO: projections
+                var data = this.parameterMap(options.data, 'get');
+                this._rapi.get(data[this.idField]).done(options.success).fail(options.error);
             },
 
             /**
@@ -274,7 +276,9 @@
                     options.success({ total: 0, data: [] });
                 } else {
                     // Fields, filters and default sort order are assigned in this._rapi.read
-                    this._rapi.read(this.parameterMap(options.data, 'read')).done(options.success).fail(options.error);
+                    // TODO: projections
+                    var data = this.parameterMap(options.data, 'read');
+                    this._rapi.read(data).done(options.success).fail(options.error);
                 }
             }
 
@@ -285,8 +289,6 @@
          */
         var RemoteTransport = models.RemoteTransport = models.LazyRemoteTransport.extend({
 
-            // TODO: field projections
-
             /**
              * Create
              * @param options
@@ -296,14 +298,14 @@
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
-                var item = this.parameterMap(options.data, 'create');
-                // Validate item against partition
-                var err = this._validate(item);
+                var data = this.parameterMap(options.data, 'create');
+                // Validate data against partition
+                var err = this._validate(data);
                 if (err) {
                     return options.error.apply(this, error2XHR(err));
                 }
                 // Execute request
-                this._rapi.create(item)
+                this._rapi.create(data)
                     .done(function (response) {
                         options.success({ total: 1, data: [response] })
                     })
@@ -319,14 +321,14 @@
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
-                var item = this.parameterMap(options.data, 'destroy');
-                // Validate item against partition
-                var err = this._validate(item);
+                var data = this.parameterMap(options.data, 'destroy');
+                // Validate data against partition
+                var err = this._validate(data);
                 if (err) {
                     return options.error.apply(this, error2XHR(err));
                 }
                 // Execute request
-                this._rapi.destroy(item)
+                this._rapi.destroy(data[this.idField])
                     .done(function (response) {
                         options.success({ total: 1, data: [response] })
                     })
@@ -335,7 +337,6 @@
 
             /**
              * Update
-             * TODO: filter dirty fields
              * @param options
              */
             update: function (options) {
@@ -343,14 +344,15 @@
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
-                var item = this.parameterMap(options.data, 'update');
-                // Validate item against partition
-                var err = this._validate(item);
+                var data = this.parameterMap(options.data, 'update');
+                // Validate data against partition
+                var err = this._validate(data);
                 if (err) {
                     return options.error.apply(this, error2XHR(err));
                 }
+                // TODO: filter dirty fields --------------------------------
                 // Execute request
-                this._rapi.update(item)
+                this._rapi.update(data[this.idField], data)
                     .done(function (response) {
                         options.success({ total: 1, data: [response] })
                     })
@@ -576,7 +578,7 @@
                     // Beware! JSON.parse(JSON.stringify(...)) converts dates to ISO Strings, so we need to be consistent
                     item.updated = new Date().toISOString();
                 }
-                if ($(item.__state__) === UNDEFINED) {
+                if ($.type(item.__state__) === UNDEFINED) {
                     // Do not change the state of created and destroyed items
                     item.__state__ = STATE.UPDATED;
                 }
@@ -589,9 +591,9 @@
                 var id = item.id;
                 if (RX_MONGODB_ID.test(id)) {
                     item.id = undefined;
-                    this._collection.update({ id: id }, item)
+                    this._collection.update({ id: id }, item, { upsert: true })
                         .done(function(result) {
-                            if (result && result.nMatched === 1 && result.nModified === 1) {
+                            if (result && result.nMatched === 1 && (result.nModified + result.nUpserted) === 1) {
                                 item.id = id;
                                 options.success({ total: 1, data: [item] });
                             } else {
@@ -703,7 +705,7 @@
              */
             get: function (options) {
                 var that = this;
-                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.navigator.onLine === false) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.get.call(this, options);
                 } else {
                     this.remoteTransport.get(options);
@@ -716,7 +718,7 @@
              */
             read: function (options) {
                 var that = this;
-                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.navigator.onLine === false) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.read.call(this, options);
                 } else {
                     this.remoteTransport.read(options);
@@ -758,23 +760,26 @@
             },
 
             /**
-             * Ger
+             * Get
              * @param options
              */
             get: function (options) {
                 var that = this;
-                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.navigator.onLine === false) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.get.call(that, options);
                 } else {
                     that.remoteTransport.get({
                         data: options.data,
                         error: options.error,
                         success: function (response) {
-                            // TODO: this should be an upsert, merging fields
-                            MobileTransport.fn.create.call(that, {
-                                data: response.data[0],
+                            // This update is actually an upsert
+                            MobileTransport.fn.update.call(that, {
+                                data: response,
                                 error: options.error,
-                                success: options.success
+                                success: function (response) {
+                                    assert.equal(1, response && response.total, assert.format(assert.messages.equal.default, 'response.total', '1'));
+                                    options.success(response.data[0]);
+                                }
                             });
                         }
                     });
@@ -787,7 +792,7 @@
              */
             read: function (options) {
                 var that = this;
-                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)  || (window.navigator.connection.type === window.Connection.UNKNOWN)) {
+                if ((window.navigator.onLine === false) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.read.call(that, options);
                 } else {
                     that.remoteTransport.read({
@@ -799,7 +804,7 @@
                                 promises.push(function() {
                                     var dfd = $.Deferred();
                                     // TODO: This should be an upsert, merging fields
-                                    MobileTransport.fn.create.call(that, {
+                                    MobileTransport.fn.update.call(that, {
                                         data: response.data[idx],
                                         error: dfd.reject,
                                         success: dfd.resolve
@@ -820,68 +825,10 @@
 
         /**
          * An offline strategy for summaries using pongodb (and localForage)
-         * Note: This matches a remote summary with a mobile summary to show the ones available offline
+         * Note: This matches a remote summary with a mobile summary to show the ones available offline with their scores
          * @class LazyCacheStrategy
          */
         models.LazySummaryOfflineStrategy = models.LazyOfflineStrategy.extend({
-
-            /**
-             * Init
-             * @constructor
-             * @param options
-             */
-            init: function (options) {
-                options = options || {};
-                this.remoteTransport = options.remoteTransport;
-                MobileTransport.fn.init.call(this, options); // Calls setPartition
-            },
-
-            /**
-             * Sets a table partition (kind of permanent filter)
-             * @param partition
-             */
-            setPartition: function (partition) {
-                this.remoteTransport.setPartition(partition);
-            },
-
-            /**
-             * Gets the partition
-             */
-            partition: function () {
-                return this.remoteTransport.partition();
-            },
-
-            /**
-             * Ger
-             * @param options
-             */
-            get: function (options) {
-                var that = this;
-                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
-                    MobileTransport.fn.get.call(that, options);
-                } else {
-                    that.remoteTransport.get({
-                        data: options.data,
-                        error: options.error,
-                        success: function (response) {
-                            // TODO: this should be an upsert, merging fields
-                            MobileTransport.fn.get.call(that, {
-                                data: response.data[0],
-                                error: function () {
-                                    /// TODO merge both
-                                    debugger;
-                                    options.error.apply(that, arguments);
-                                },
-                                success: function () {
-                                    /// TODO merge both
-                                    debugger;
-                                    options.success.apply(that, arguments);
-                                }
-                            });
-                        }
-                    });
-                }
-            },
 
             /**
              * Read
@@ -889,7 +836,7 @@
              */
             read: function (options) {
                 var that = this;
-                if ((window.navigator.onLine === false) || (window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.navigator.onLine === false) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.read.call(that, options);
                 } else {
                     that.remoteTransport.read({
@@ -1869,7 +1816,9 @@
              * @param options
              */
             init: function (options) {
-                DataSource.fn.init.call(this, $.extend(true, { pageSize: 5 }, options, {
+                var that = this;
+                that._userId = options._userId;
+                DataSource.fn.init.call(that, $.extend(true, { pageSize: 5 }, options, {
                     transport: new models.LazySummaryOfflineStrategy({
                         collection: db.summaries,
                         remoteTransport: new models.RemoteTransport({
@@ -1898,17 +1847,99 @@
                                     summary.lastName = summary.author.lastName;
                                     summary.author = undefined;
                                     // Flatten metrics
+                                    summary.comments = summary.comments && summary.metrics.comments && summary.metrics.comments.count || 0;
+                                    summary.ratings = summary.comments && summary.metrics.ratings && summary.metrics.ratings.average || null;
+                                    summary.scores = summary.comments && summary.metrics.scores && summary.metrics.scores.average || null;
+                                    summary.views = summary.comments && summary.metrics.views && summary.metrics.views.count || 0;
                                     if (summary.metrics) {
-                                        summary.comments = summary.metrics.comments && summary.metrics.comments.count || 0;
-                                        summary.ratings = summary.metrics.ratings && summary.metrics.ratings.average || null;
-                                        summary.scores = summary.metrics.scores && summary.metrics.scores.average || null;
-                                        summary.views = summary.metrics.views && summary.metrics.views.count || 0;
                                         summary.metrics = undefined;
                                     }
                                     // Flatten activity (only mobile application)
-                                    if (summary.activity) {
-                                        summary.lastScore = summary.activity.score;
-                                        summary.activity = undefined;
+                                    if (Array.isArray(summary.activities)) {
+                                        for (var i = 0, length = summary.activities.length; i < length; i++) {
+                                            if (summary.activities[i].actorId === that._userId) {
+                                                summary.lastScore = summary.activities[i].score;
+                                                break;
+                                            }
+                                        }
+                                        summary.activities = undefined;
+                                    }
+                                });
+                            }
+                            return response;
+                        }
+                    }
+                }));
+            },
+
+            /**
+             * Set user id
+             * @param userId
+             */
+            setUserId: function (userId) {
+                this._userId = userId;
+            },
+
+            /**
+             * Sets the partition and queries the data source
+             * @param options
+             */
+            load: function (options) {
+                if (options && $.isPlainObject(options.partition)) {
+                    this.transport.setPartition(options.partition);
+                }
+                return this.query(options);
+            }
+        });
+
+        /**
+         * Summary model with transport
+         */
+        extendModelWithTransport(models.Summary, new models.LazySummaryOfflineStrategy({
+            collection: db.summaries,
+            remoteTransport: new models.RemoteTransport({
+                collection: app.rapi.v2.summaries
+                // partition: ?
+            })
+        }));
+
+        /**
+         * LazyVersionDataSource datasource
+         * @type {kidoju.data.Model}
+         */
+        models.LazyVersionDataSource = DataSource.extend({
+
+            /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                DataSource.fn.init.call(this, $.extend(true, { pageSize: 100 }, options, {
+                    transport: new models.LazyOfflineStrategy({
+                        collection: db.versions,
+                        remoteTransport: new models.RemoteTransport({
+                            collection: app.rapi.v2.versions,
+                            partition: options && options.partition
+                        })
+                    }),
+                    serverFiltering: true,
+                    serverSorting: true,
+                    serverPaging: true,
+                    schema: {
+                        data: 'data',
+                        total: 'total',
+                        errors: 'error',
+                        modelBase: models.LazyVersion,
+                        model: models.LazyVersion,
+                        parse: function (response) {
+                            // Name versions: draft, version 1, version 2, ....
+                            if (response && $.type(response.total === NUMBER && $.isArray(response.data))) {
+                                $.each(response.data, function (index, version) {
+                                    if (version.state === 0) { // VERSION_STATE.DRAFT) {
+                                        version.name = ''; // i18n.culture.versions.draft.name;
+                                    } else {
+                                        version.name = ''; // kendo.format(i18n.culture.versions.published.name, response.data.length - index);
                                     }
                                 });
                             }
@@ -1931,16 +1962,16 @@
         });
 
         /**
-         * MobileVersion model
-         * @type {kidoju.data.Model}
+         * Version model with transport
          */
-        // models.MobileVersion = Model.define({});
+        extendModelWithTransport(models.Version, new models.LazyCacheStrategy({
+            collection: db.versions,
+            remoteTransport: new models.RemoteTransport({
+                collection: app.rapi.v2.versions
+                // partition: ?
+            })
+        }));
 
-        /**
-         * MobileVersionDataSource datasource (stored localy)
-         * @type {kidoju.data.Model}
-         */
-        // models.MobileVersionDataSource = DataSource.define({});
 
     }(window.jQuery));
 

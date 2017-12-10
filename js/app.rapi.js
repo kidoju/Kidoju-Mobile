@@ -559,12 +559,19 @@
                 return fileName.substr(0, pos).replace(/[^\w\\\/]+/gi, '_').replace(/_{2,}/g, '_').replace(/(^_|_$)/, '') + '.' + fileName.substr(pos + 1);
             },
 
+            /* Blocks are nested too deeply. */
+            /* jshint -W073 */
+
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             /**
              * Merge partition into filter
              * @param query
              * @param partition
              */
             filterExtend: function (query, partition) {
+                /* jshint maxcomplexity: 11 */
                 if (!$.isPlainObject(partition)) {
                     return query;
                 }
@@ -597,6 +604,9 @@
                     }
                 }
             }
+
+            /* jshint +W074 */
+            /* jshint +W073 */
         };
 
         /**
@@ -1706,7 +1716,7 @@
                     read: function (query) {
                         assert.isOptionalObject(query, assert.format(assert.messages.isOptionalObject.default, 'query'));
                         assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition.version.language', RX_LANGUAGE));
-                        assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition.version.summaryId', RX_MONGODB_ID));
+                        // assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition.version.summaryId', RX_MONGODB_ID));
                         var headers;
                         var url;
                         // TODO: query.page and query.pageSize

@@ -953,6 +953,7 @@ window.jQuery.holdReady(true);
                 // Search (per category or full text)
                 var summaries = this.get(VIEW_MODEL.SUMMARIES);
                 assert.instanceof(models.LazySummaryDataSource, summaries, kendo.format(assert.messages.instanceof.default, 'summaries', 'app.models.LazySummaryDataSource'));
+                summaries.setUserId(userId);
                 summaries.transport.setPartition({
                     'author.userId': app.constants.authorId,
                     language: language,
@@ -1169,7 +1170,6 @@ window.jQuery.holdReady(true);
                 assert.match(RX_LANGUAGE, options.language, assert.messages.match.default, 'options.language', RX_LANGUAGE);
                 assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
                 assert.match(RX_MONGODB_ID, options.id, assert.messages.match.default, 'options.id', RX_MONGODB_ID);
-
                 return viewModel.version.load(options)
                     .done(function () {
                         // Load stream
@@ -1624,10 +1624,10 @@ window.jQuery.holdReady(true);
                 // button: true, // only works with built-in templates
                 position: {
                     left: 0,
-                    bottom: 2 // to allow for border
-                    // top: navbar.length ? navbar.height() + 1 : 0 // navbar or splashscreen
+                    // bottom: 2 // to allow for border
+                    top: navbar.length ? navbar.outerHeight() : 0 // navbar or splashscreen
                 },
-                stacking: 'up', // 'down',
+                stacking: 'down', // 'up',
                 width: $(window).width() - 2 // - 2 is for borders as box-sizing on .k-notification-wrap does not help
             }).data('kendoNotification');
             assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
@@ -2041,7 +2041,7 @@ window.jQuery.holdReady(true);
         mobile.checkNetwork = function (e) {
             // Note: there is a window.navigator.network.isReachable function but we could not make it work
             // See https://www.neotericdesign.com/articles/2011/3/checking-the-online-status-with-phonegap-jquery
-            if (!window.navigator.onLine || (window.navigator.connection.type === window.Connection.NONE)) {
+            if ((window.navigator.onLine === false) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                 if (!RX_OFFLINE_PAGES.test(e.url)) { // Note: e.url might be ''
                     e.preventDefault();
                     var view = mobile.application.view();
@@ -2400,7 +2400,7 @@ window.jQuery.holdReady(true);
         /**
          * Event handler triggered before showing the Summaries view
          */
-        mobile.onFinderBeforeViewShow = function () {
+        mobile.onFinderBeforeViewShow = function (e) {
             // The application loader is transparent by default and covers the entire layout
             // if (mobile.application instanceof kendo.mobile.Application) {
             //     mobile.application.showLoading();
@@ -3191,7 +3191,6 @@ window.jQuery.holdReady(true);
             var pinValue = pinElement.val();
 
             if (viewModel.user.verifyPin(pinValue)) {
-
                 viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
                 viewModel.syncUsers(false)
                     .done(function () {
