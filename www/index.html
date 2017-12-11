@@ -315,10 +315,11 @@
                 <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
                 <div class="summary">
                     <h4>#: title #</h4>
-                    # var tags = tags$(); if (Array.isArray(tags) && tags.length) { #
+                    <!-- Do not use tags as a variable name otherwise the model tags will be changed -->
+                    # var t = tags$(); if (Array.isArray(t) && t.length) { #
                     <div class="tags"><i class="kf kf-tags"></i>
-                        # for (var i = 0; i < tags.length; i++) { #
-                        <span>#: tags[i].name #</span>#: i < tags.length - 1 ? ', ' : '' #
+                        # for (var i = 0; i < t.length; i++) { #
+                        <span>#: t[i].name #</span>#: i < t.length - 1 ? ', ' : '' #
                         # } #
                     </div>
                     # } #

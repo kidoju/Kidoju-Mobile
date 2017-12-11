@@ -1860,7 +1860,10 @@
             tags$: function () {
                 var ret = [];
                 var tags = this.get('tags');
-                if (tags instanceof kendo.data.ObservableArray) {
+                // In kendo.mobile.ui.ListView, tags are a kendo.data.ObservableArray when the list is built
+                // but tags are an array when redrawing the list after scrolling back (up then down)
+                // @see https://github.com/kidoju/Kidoju-Mobile/issues/147
+                if (Array.isArray(tags) || tags instanceof kendo.data.ObservableArray) {
                     ret = tags.map(function (tag) {
                         return {
                             name: tag,
