@@ -210,9 +210,8 @@
                 // Note: iOS UIWebView supports speechSynthesis but not Chrome 61 on Android 5.1.1 (Nexus 7)
                 // window.alert('Cordova TTS Plugin');
                 navigator.notification.prompt(
-                    'Enter a rate: ' + (RX_IOS.test(window.navigator.userAgent) && !window.MSStream),
+                    'Enter a rate ' + (RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? '(iOS):' : '(Not iOS):'),
                     function (result) {
-                        window.alert(result.input1)
                         window.TTS.speak(
                             {
                                 text: text,
@@ -220,10 +219,14 @@
                                 // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
                                 // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
                                 // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1 // with v0.2.3 of plugin, but too slow for iOS 11
-                                // On Android, 1 is too slow, 1.5 is better,
+
+                                // With https://github.com/vilic/cordova-plugin-tts#deecc11
+                                // On Android, 1 is too slow, 1.5 is too fast and 1.2 is ideal
                                 // On iOS 10, ????? is too quick
-                                // On iOS 11, 0.5 and 0.75 are too quick
-                                // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 0.1 : 1.75;
+                                // On iOS 11, 1 is too slow, 1.2 is too fast
+
+                                // With https://github.com/vilic/cordova-plugin-tts#b25e7ac (more recent than #deecc11)
+
                                 rate: parseFloat(result.input1) || undefined
                             },
                             dfd.resolve,
