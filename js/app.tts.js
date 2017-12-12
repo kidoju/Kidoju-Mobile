@@ -211,7 +211,8 @@
                 // window.alert('Cordova TTS Plugin');
                 navigator.notification.prompt(
                     'Enter a rate: ' + (RX_IOS.test(window.navigator.userAgent) && !window.MSStream),
-                    function (rate) {
+                    function (result) {
+                        window.alert(result.input1)
                         window.TTS.speak(
                             {
                                 text: text,
@@ -223,7 +224,7 @@
                                 // On iOS 10, ????? is too quick
                                 // On iOS 11, 0.5 and 0.75 are too quick
                                 // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 0.1 : 1.75;
-                                rate: parseFloat(rate) || undefined
+                                rate: parseFloat(result.input1) || undefined
                             },
                             dfd.resolve,
                             dfd.reject
