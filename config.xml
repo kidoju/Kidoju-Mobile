@@ -168,5 +168,5 @@
         <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
     </plugin>
     <plugin name="cordova-plugin-safariviewcontroller" spec="1.4.7" />
-    <plugin name="cordova-plugin-tts" spec="https://github.com/vilic/cordova-plugin-tts" />
+    <plugin name="cordova-plugin-tts" spec="https://github.com/vilic/cordova-plugin-tts#b25e7ac" />
 </widget>

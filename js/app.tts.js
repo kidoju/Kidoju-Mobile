@@ -215,7 +215,7 @@
                         locale: language === 'fr' ? 'fr-FR' : 'en-US',
                         // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
                         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
-                        rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1
+                        rate: 0.75 // RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1
                     },
                     dfd.resolve,
                     dfd.reject
