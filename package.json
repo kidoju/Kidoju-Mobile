@@ -107,7 +107,7 @@
     "cordova-plugin-network-information": "^1.3.4",
     "cordova-plugin-safariviewcontroller": "^1.4.7",
     "cordova-plugin-splashscreen": "^4.1.0",
-    "cordova-plugin-tts": "^0.2.3",
+    "cordova-plugin-tts": "git+https://github.com/vilic/cordova-plugin-tts.git",
     "cordova-plugin-whitelist": "^1.3.3",
     "cordova-plugin-x-socialsharing": "^5.2.1",
     "cordova-windows": "^5.0.0",
@@ -119,7 +119,6 @@
     "plugins": {
       "cordova-plugin-file": {},
       "cordova-plugin-google-analytics": {},
-      "cordova-plugin-tts": {},
       "cordova-plugin-customurlscheme": {
         "URL_SCHEME": "com.kidoju.mobile",
         "ANDROID_SCHEME": " ",
@@ -141,7 +140,8 @@
       "phonegap-plugin-barcodescanner": {
         "CAMERA_USAGE_DESCRIPTION": " "
       },
-      "cordova-plugin-safariviewcontroller": {}
+      "cordova-plugin-safariviewcontroller": {},
+      "cordova-plugin-tts": {}
     },
     "platforms": [
       "browser",
