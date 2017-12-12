@@ -224,16 +224,10 @@
         <!-- list -->
         <ul data-role="listview" data-bind="source: activities" data-filterable="false" data-template="activities-template" data-header-template="activities-header-template" data-fixed-headers="true" data-type="group"></ul>
         <script type="text/x-kendo-template" id="activities-template">
-            <a href="\#score#: queryString$() #">
+            <a href="\#score#: queryString$() #" data-bind="css: { error: error$, success: success$, warning: warning$ }">
                 <div class="title">#: title$() #</div>
-                <div class="small">#: kendo.toString(updated, 'dd MMM yyyy') #</div>
-                # if (score >= 75) { #
-                <span class="km-badge km-badge-success">#: kendo.toString(score / 100, 'p0') #</span>
-                # } else if (score >= 50) { #
-                <span class="km-badge km-badge-warning">#: kendo.toString(score / 100, 'p0') #</span>
-                # } else { #
-                <span class="km-badge km-badge-error">#: kendo.toString(score / 100, 'p0') #</span>
-                # } #
+                <div class="small">#: updated$() #</div>
+                <span class="km-badge km-badge-info">#: score$() #</span>
             </a>
         </script>
         <!-- Note we are using value (instead of period$) to display the group field value -->
@@ -311,15 +305,15 @@
     <div id="finder" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onFinderBeforeViewShow" data-show="app.mobile.onFinderViewShow">
         <ul data-role="listview" data-bind="source: summaries" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-load-more="true" data-template="finder-template"></ul>
         <script type="text/x-kendo-template" id="finder-template">
-            <a href="\#summary?language=#: language #&summaryId=#: id #" data-bind="css: { offline: offline }">
+            <a href="\#summary?language=#: language #&summaryId=#: id #" data-bind="css: { offline: offline, error: error$, success: success$, warning: warning$ }">
                 <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
                 <div class="summary">
                     <h4>#: title #</h4>
                     <!-- Do not use tags as a variable name otherwise the model tags will be changed -->
-                    # var t = tags$(); if (Array.isArray(t) && t.length) { #
+                    # var t$ = tags$(); if (Array.isArray(t$) && t$.length) { #
                     <div class="tags"><i class="kf kf-tags"></i>
-                        # for (var i = 0; i < t.length; i++) { #
-                        <span>#: t[i].name #</span>#: i < t.length - 1 ? ', ' : '' #
+                        # for (var i = 0; i < t$.length; i++) { #
+                        <span>#: t$[i].name #</span>#: i < t$.length - 1 ? ', ' : '' #
                         # } #
                     </div>
                     # } #
@@ -329,12 +323,8 @@
                         # if (scores) { #<i class="kf kf-score"></i><span>#: kendo.toString(scores, 'n0') #%</span># } #
                     </div>
                 </div>
-                # if ($.type(lastScore) === 'number' && lastScore >= 75) { #
-                <span class="km-badge km-badge-success">#: kendo.toString(lastScore / 100, 'p0') #</span>
-                # } else if ($.type(lastScore) === 'number' && lastScore >= 50) { #
-                <span class="km-badge km-badge-warning">#: kendo.toString(lastScore / 100, 'p0') #</span>
-                # } else if ($.type(lastScore) === 'number') { #
-                <span class="km-badge km-badge-error">#: kendo.toString(lastScore / 100, 'p0') #</span>
+                # if (hasUserScore$()) { #
+                <span class="km-badge km-badge-info" data-bind="text: userScore$"></span>
                 # } #
             </a>
         </script>
@@ -490,7 +480,9 @@
                             <span class="kf"><input data-role="rating" data-bind="value: summary.metrics.ratings.average" readonly></span>
                             <i class="kf kf-view"></i><span data-bind="text: summary.metrics.views.count"></span>
                             <i class="kf kf-score"></i><span data-bind="text: summary.metrics.scores.average, visible: summary.metrics.scores.average" data-format="n0"></span>%
+                            <span data-bind="text: summary.userScore$, css: { km-badge-error: error$, km-badge-success: summary.success$, km-badge-warning: summary.warning$ }, visible: summary.hasUserScore$"></span>
                         </div>
+
                     </label>
                 </li>
                 <li>

@@ -831,6 +831,34 @@
         models.LazySummaryOfflineStrategy = models.LazyOfflineStrategy.extend({
 
             /**
+             * Get
+             * @param options
+             */
+            get: function (options) {
+                var that = this;
+                if ((window.navigator.onLine === false) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+                    MobileTransport.fn.get.call(that, options);
+                } else {
+                    that.remoteTransport.get({
+                        data: options.data,
+                        error: options.error,
+                        success: function (response) {
+                            MobileTransport.fn.get.call(that, {
+                                data: options.data, // The remote data
+                                error: function (err) {
+                                    options.success(response); // We do not care if we have an error here
+                                },
+                                success: function (offlineData) { // The local data
+                                    response = $.extend(true, offlineData, response, { offline: true });
+                                    options.success(response);
+                                }
+                            });
+                        }
+                    });
+                }
+            },
+
+            /**
              * Read
              * @param options
              */
@@ -1626,8 +1654,13 @@
                     }
                 }
             },
+            /*
             category$: function () {
-                return ''; // TODO
+                return this.get('version.categoryId')
+            },
+            */
+            error$: function () {
+                return this.get('score') >= 0 && this.get('score') < 50;
             },
             period$: function () {
                 // Time zones ????
@@ -1649,89 +1682,27 @@
                     return new Date(updated.getFullYear(), updated.getMonth(), 1);
                 }
             },
-            title$: function () {
-                return this.get('version.title'); // Flattens data depth
-            },
-            queryString$: function () {
+            queryString$: function () { // TODO replace with activityUri tested on Cordova versus WebApp
                 return '?language=' + window.encodeURIComponent(this.get('version.language')) +
                     '&summaryId=' + window.encodeURIComponent(this.get('version.summaryId')) +
                     '&versionId=' + window.encodeURIComponent(this.get('version.versionId')) +
                     '&activityId=' + window.encodeURIComponent(this.get('id'));
-            }
-            // TODO: See validateTestFromProperties in kidoju.data
-            /**
-            getScoreArray: function () {
-                function matchPageConnectors (pageIdx) {
-                    // Connectors are a match if they have the same solution
-                    var ret = {};
-                    var connectors = pageCollectionDataSource.at(pageIdx).components.data().filter(function (component) {
-                        return component.tool === 'connector';
-                    });
-                    for (var i = 0, length = connectors.length; i < length; i++) {
-                        var connector = connectors[i];
-                        var name = connector.properties.name;
-                        assert.match(RX_VALID_NAME, name, kendo.format(assert.messages.match.default, 'name', RX_VALID_NAME));
-                        var solution = connector.properties.solution;
-                        var found = false;
-                        for (var prop in ret) {
-                            if (ret.hasOwnProperty(prop)) {
-                                if (prop === name) {
-                                    // already processed
-                                    found = true;
-                                    break;
-                                } else if (ret[prop] === solution) {
-                                    // found matching connector, point to name
-                                    ret[prop] = name;
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!found) {
-                            // Add first connector, waiting to find a matching one
-                            ret[name] = solution;
-                        }
-                    }
-                    return ret;
-                }
-                function matchConnectors () {
-                    // We need a separate function because matching connectors neded to have the same solution on the same page (not a different page)
-                    var ret = {};
-                    for (var pageIdx = 0, pageTotal = pageCollectionDataSource.total(); pageIdx < pageTotal; pageIdx++) {
-                        ret = $.extend(ret, matchPageConnectors(pageIdx));
-                    }
-                    return ret;
-                }
-                assert.instanceof(kendo.data.ObservableObject, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.data.ObservableObject'));
-                var that = this; // this is variable `result`
-                var matchingConnectors = matchConnectors();
-                var redundantConnectors = {};
-                var scoreArray = [];
-                for (var name in that) {
-                    // Only display valid names in the form val_xxxxxx that are not redundant connectors
-                    if (that.hasOwnProperty(name) && RX_VALID_NAME.test(name) && !redundantConnectors.hasOwnProperty(name)) {
-                        var testItem = that.get(name);
-                        var scoreItem = testItem.toJSON();
-                        // Improved display of values in score grids
-                        scoreItem.value = testItem.value$();
-                        scoreItem.solution = testItem.solution$();
-                        // Aggregate score of redundant items (connectors)
-                        var redundantName = matchingConnectors[name];
-                        if (that.hasOwnProperty(redundantName) && RX_VALID_NAME.test(redundantName)) {
-                            // If there is a redundancy, adjust scores
-                            var redundantItem = that.get(redundantName);
-                            scoreItem.failure += redundantItem.failure;
-                            scoreItem.omit += redundantItem.omit;
-                            scoreItem.score += redundantItem.score;
-                            scoreItem.success += redundantItem.success;
-                            redundantConnectors[redundantName] = true;
-                        }
-                        scoreArray.push(scoreItem);
-                    }
-                }
-                return scoreArray;
             },
-            **/
+            score$: function () {
+                return kendo.toString(this.get('score') / 100, 'p0');
+            },
+            success$: function () {
+                return this.get('score') >= 75;
+            },
+            title$: function () {
+                return this.get('version.title'); // Flattens data depth
+            },
+            updated$: function () {
+                return kendo.toString(this.get('updated'), 'dd MMM yyyy');
+            },
+            warning$: function () {
+                return this.get('score') >= 50 && this.get('score') < 75;
+            }
         });
 
         /**
@@ -1837,6 +1808,10 @@
                         model: models.LazySummary,
                         parse: function (response) {
                             // We parse the response to flatten data for our LazySummary model (instead of using field.from and field.defaultValue definitions)
+                            // We cannot use nested model properties as in https://docs.telerik.com/kendo-ui/controls/data-management/grid/how-to/binding/use-nested-model-properties
+                            // because we need that._userId to parse activities for the latest user score
+                            // Also we need to create the path to nested properties anyway otherwise kendo.getter will fail
+                            // because kendo.expr won't be able to evaluate a property like metrics.comments.count if metrics.comments is undefined
                             if (response && $.type(response.total) === NUMBER && $.isArray(response.data)) {
                                 $.each(response.data, function (index, summary) {
                                     // We need to flatten author and metrics in case we need to represent data in a kendo.ui.Grid
@@ -1858,7 +1833,7 @@
                                     if (Array.isArray(summary.activities)) {
                                         for (var i = 0, length = summary.activities.length; i < length; i++) {
                                             if (summary.activities[i].actorId === that._userId) {
-                                                summary.lastScore = summary.activities[i].score;
+                                                summary.userScore = summary.activities[i].score;
                                                 break;
                                             }
                                         }

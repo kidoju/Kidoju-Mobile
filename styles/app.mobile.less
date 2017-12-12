@@ -6,6 +6,13 @@
     user-select: none;                          /* prevent copy paste, to allow, change 'none' to 'text' */
 }
 
+/*
+// Helper to assist in identifying img tags missing alt attribute
+img[alt=""], img:not([alt]) {
+    border: dashed 5px red;
+}
+*/
+
 html, body {
     text-size-adjust: none; /* prevent webkit from resizing text to fit */
     height: 100%;
@@ -292,14 +299,18 @@ html, body {
             display: block;
             float: none;
         }
-        .form-readonly {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-        }
-        .kj-markdown {
-            p:first-child {
-                margin-top: 0;
+        form {
+            .km-badge-error, .km-badge-success, .km-badge-warning {
+                border-radius: 50%;
+                float: right;
+                padding: 6px;
+                margin-top: -6px;
+                position: relative;
+            }
+            .kj-markdown {
+                p:first-child {
+                    margin-top: 0;
+                }
             }
         }
     }

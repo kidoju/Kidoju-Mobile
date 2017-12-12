@@ -922,7 +922,8 @@ window.jQuery.holdReady(true);
                 assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'app.i18n.culture'));
 
                 var language = i18n.locale();
-                var userId = this.get(VIEW_MODEL.USER.SID);
+                // Note: we are  assigning app._userId so that app.models.Summary.fields['userScore'].parse can find the userId
+                var userId = app._userId = this.get(VIEW_MODEL.USER.SID);
                 var rootCategoryId = this.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID) || DEFAULT.ROOT_CATEGORY_ID[language];
 
                 // List of activities
@@ -2911,6 +2912,7 @@ window.jQuery.holdReady(true);
         mobile.onSummaryViewShow = function (e) {
             assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            var view = e.view;
             // load the summary
             var language = i18n.locale();
             assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
@@ -2918,6 +2920,13 @@ window.jQuery.holdReady(true);
             viewModel.loadSummary({ language: language, id: summaryId })
                 .always(function () {
                     mobile.onGenericViewShow(e);
+                    // Set the background color
+                    // This cannot be done via bindings because the view and vien.content cannot be bound
+                    var summary = viewModel.get(VIEW_MODEL.SUMMARY.$);
+                    view.content
+                        .toggleClass('error', summary.error$())
+                        .toggleClass('success', summary.success$())
+                        .toggleClass('warning', summary.warning$());
                     app.notification.info(i18n.culture.notifications.summaryViewInfo);
                 });
         };

@@ -1793,11 +1793,6 @@
                     type: STRING,
                     editable: false
                 },
-                lastScore: { // Used in Kidoju-Mobile only
-                    type: NUMBER,
-                    nullable: true,
-                    editable: false
-                },
                 offline: { // Used in Kidoju-Mobile only
                     type: BOOLEAN,
                     editable: false
@@ -1839,6 +1834,11 @@
                     editable: false,
                     nullable: true
                 },
+                userScore: { // Used in Kidoju-Mobile only
+                    type: NUMBER,
+                    nullable: true,
+                    editable: false
+                },
                 views: {
                     type: NUMBER,
                     defaultValue: 0,
@@ -1851,10 +1851,23 @@
             authorUri$: function () {
                 return kendo.format(uris.webapp.user, this.get('language'), this.get('userId'));
             },
+            error$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                // Note: we need to test the value type because comparing a null to a number is always true
+                return ($.type(userScore) === NUMBER) && userScore < 50;
+            },
+            hasUserScore$: function () { // Used in Kidoju-Mobile only
+                return $.type(this.get('userScore')) === NUMBER;
+            },
             icon$: function () {
                 return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
             },
+            success$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                return ($.type(userScore) === NUMBER) && userScore >= 75;
+            },
             summaryUri$: function () {
+                // TODO test window.cordova or uris.webapp to build a mobile URI
                 return kendo.format(uris.webapp.summary, this.get('language'), this.get('id'));
             },
             tags$: function () {
@@ -1872,6 +1885,13 @@
                     });
                 }
                 return ret;
+            },
+            userScore$: function () { // Used in Kidoju-Mobile only
+                return kendo.toString(this.get('userScore') / 100, 'p0');
+            },
+            warning$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                return ($.type(userScore) === NUMBER) && userScore >= 50 && userScore < 75;
             },
             createDraft: function () {
                 return rapi.v1.content.executeCommand(this.get('language'), this.get('id'), { command: 'draft' });
@@ -2096,10 +2116,10 @@
                 metrics: {
                     defaultValue: {},
                     editable: false,
+                    serializable: false,
                     parse: function (value) {
                         return value instanceof models.SummaryMetricsReference ? value : new models.SummaryMetricsReference(value);
-                    },
-                    serializable: false
+                    }
                 },
                 published: {
                     type: DATE,
@@ -2122,16 +2142,53 @@
                     type: DATE,
                     editable: false,
                     serializable: false
+                },
+                userScore: { // Used in Kidoju-Mobile only
+                    from: 'activities',
+                    type: NUMBER,
+                    editable: false,
+                    nullable: true,
+                    serializable: false,
+                    parse: function (activities) {
+                        // We need a userId but `this` is undefined, so we cannot find it in this object or in its parents
+                        // so we are assigning app._userId in app.mobile.viewModel._reset but this is really crap
+                        if (Array.isArray(activities) && RX_MONGODB_ID.test(app._userId)) {
+                            for (var i = 0, length = activities.length; i < length; i++) {
+                                if (activities[i].actorId === app._userId) {
+                                    return activities[i].score;
+                                }
+                            }
+                        }
+                    }
                 }
+            },
+            error$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                // Note: we need to test the value type because comparing a null to a number is always true
+                return ($.type(userScore) === NUMBER) && userScore < 50;
+            },
+            hasUserScore$: function () { // Used in Kidoju-Mobile only
+                return $.type(this.get('userScore')) === NUMBER;
             },
             icon$: function () {
                 return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
+            },
+            success$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                return ($.type(userScore) === NUMBER) && userScore >= 75;
             },
             summaryUri$: function () {
                 return kendo.format(uris.webapp.summary, this.get('language'), this.get('id'));
             },
             tags$: function () {
                 return this.get('tags').join(', ');
+            },
+            userScore$: function () { // Used in Kidoju-Mobile only
+                return kendo.toString(this.get('userScore') / 100, 'p0');
+            },
+            warning$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                return ($.type(userScore) === NUMBER) && userScore >= 50 && userScore < 75;
             },
             init: function (data) {
                 var that = this;
