@@ -209,25 +209,34 @@
                 // For iOS and Android via TTS plugin
                 // Note: iOS UIWebView supports speechSynthesis but not Chrome 61 on Android 5.1.1 (Nexus 7)
                 // window.alert('Cordova TTS Plugin');
-                window.TTS.speak(
-                    {
-                        text: text,
-                        locale: language === 'fr' ? 'fr-FR' : 'en-US',
-                        // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
-                        // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
-                        // On Android, 1 is too slow
-                        // On iOS 10, ????? is too quick
-                        // On iOS 11, 0.5 is too quick
-                        rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 0.75 : 1.5
-                        // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1 (with v0.2.3 of plugin, but too slow for iOS 11)
+                navigator.notification.prompt(
+                    'Enter a rate: ' + (RX_IOS.test(window.navigator.userAgent) && !window.MSStream),
+                    function (rate) {
+                        window.TTS.speak(
+                            {
+                                text: text,
+                                locale: language === 'fr' ? 'fr-FR' : 'en-US',
+                                // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
+                                // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
+                                // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1 // with v0.2.3 of plugin, but too slow for iOS 11
+                                // On Android, 1 is too slow, 1.5 is better,
+                                // On iOS 10, ????? is too quick
+                                // On iOS 11, 0.5 and 0.75 are too quick
+                                // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 0.1 : 1.75;
+                                rate: parseFloat(rate) || 1
+                            },
+                            dfd.resolve,
+                            dfd.reject
+                        );
+                        logger.debug({
+                            method: 'tts.doSpeak',
+                            message: 'Text spoken with Cordova TTS Plugin'
+                        });
                     },
-                    dfd.resolve,
-                    dfd.reject
+                    'TTS Plugin',
+                    ['OK'],
+                    '1'
                 );
-                logger.debug({
-                    method: 'tts.doSpeak',
-                    message: 'Text spoken with Cordova TTS Plugin'
-                });
             } else if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 // window.alert('W3C Speech API');
