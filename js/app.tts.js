@@ -60,7 +60,8 @@
          */
         tts._useCordovaPlugIn = function () {
             // This has to be a function because it needs to be evaluated once the TTS plugin is loaded
-            return !!(window.cordova && window.device && window.device.platform !== 'browser' && !RX_IOS_11.test(window.navigator.userAgent) && window.TTS && $.isFunction(window.TTS.speak));
+            // return !!(window.cordova && window.device && window.device.platform !== 'browser' && !RX_IOS_11.test(window.navigator.userAgent) && window.TTS && $.isFunction(window.TTS.speak));
+            return !!(window.cordova && window.device && window.device.platform !== 'browser' && window.TTS && $.isFunction(window.TTS.speak));
         };
 
         /**

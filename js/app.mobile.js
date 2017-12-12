@@ -1250,6 +1250,7 @@ window.jQuery.holdReady(true);
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(0));
+                app.tts.cancelSpeak();
             },
 
             /**
@@ -1263,6 +1264,7 @@ window.jQuery.holdReady(true);
                 var index = pageCollectionDataSource.indexOf(page);
                 if ($.type(index) === NUMBER && index > 0) {
                     this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(index - 1));
+                    app.tts.cancelSpeak();
                 }
             },
 
@@ -1277,6 +1279,7 @@ window.jQuery.holdReady(true);
                 var index = pageCollectionDataSource.indexOf(page);
                 if ($.type(index) === NUMBER && index < pageCollectionDataSource.total() - 1) {
                     this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(index + 1));
+                    app.tts.cancelSpeak();
                 }
             },
 
@@ -1289,6 +1292,7 @@ window.jQuery.holdReady(true);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var lastPage = pageCollectionDataSource.total() - 1;
                 this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(lastPage));
+                app.tts.cancelSpeak();
             },
 
             /**
@@ -2389,6 +2393,8 @@ window.jQuery.holdReady(true);
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
             // TODO destroy stage
+            // Cancel any utterance spoken
+            app.tts.cancelSpeak();
         };
 
         /**
@@ -2529,6 +2535,8 @@ window.jQuery.holdReady(true);
             // viewModel.set(VIEW_MODEL.SELECTED_PAGE, new Page());
             // TODO Review floating toolbar
             // TODO Destroy the stage
+            // Cancel any utterance spoken
+            app.tts.cancelSpeak();
         };
 
         /**
