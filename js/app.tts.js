@@ -29,7 +29,7 @@
         var STRING = 'string';
         var UNDEFINED = 'undefined';
         var CHUNK_SIZE = 175;
-        var RX_IOS = /^i(phone|pad|pod)$/i;
+        var RX_IOS = /i(phone|pad|pod)/i;
         var RX_IOS_11 = /i(phone|pad|pod) OS 11_/i;
         var voices = [];
         var loadVoices = function () {
@@ -223,7 +223,7 @@
                                 // On iOS 10, ????? is too quick
                                 // On iOS 11, 0.5 and 0.75 are too quick
                                 // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 0.1 : 1.75;
-                                rate: parseFloat(rate) || 1
+                                rate: parseFloat(rate) || undefined
                             },
                             dfd.resolve,
                             dfd.reject
