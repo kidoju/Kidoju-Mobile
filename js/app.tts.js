@@ -215,7 +215,11 @@
                         locale: language === 'fr' ? 'fr-FR' : 'en-US',
                         // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
                         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
-                        rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 0.5 : 1
+                        // On Android, 1 is too slow
+                        // On iOS 10, ????? is too quick
+                        // On iOS 11, 0.5 is too quick
+                        rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 0.75 : 1.5
+                        // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1 (with v0.2.3 of plugin, but too slow for iOS 11)
                     },
                     dfd.resolve,
                     dfd.reject
