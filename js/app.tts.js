@@ -30,7 +30,7 @@
         var UNDEFINED = 'undefined';
         var CHUNK_SIZE = 175;
         var RX_IOS = /i(phone|pad|pod)/i;
-        var RX_IOS_11 = /i(phone|pad|pod) OS 11_/i;
+        // var RX_IOS_11 = /i(phone|pad|pod) OS 11_/i;
         var voices = [];
         var loadVoices = function () {
             voices = window.speechSynthesis.getVoices();
@@ -208,39 +208,42 @@
             if (tts._useCordovaPlugIn()) {
                 // For iOS and Android via TTS plugin
                 // Note: iOS UIWebView supports speechSynthesis but not Chrome 61 on Android 5.1.1 (Nexus 7)
-                // window.alert('Cordova TTS Plugin');
-                navigator.notification.prompt(
-                    'Enter a rate ' + (RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? '(iOS):' : '(Not iOS):'),
-                    function (result) {
-                        window.TTS.speak(
-                            {
-                                text: text,
-                                locale: language === 'fr' ? 'fr-FR' : 'en-US',
-                                // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
-                                // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
-                                // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1 // with v0.2.3 of plugin, but too slow for iOS 11
 
-                                // With https://github.com/vilic/cordova-plugin-tts#deecc11
-                                // On Android, 1 is too slow, 1.5 is too fast and 1.2 is ideal
-                                // On iOS 10, ????? is too quick
-                                // On iOS 11, 1 is too slow, 1.2 is too fast
+                // navigator.notification.prompt(
+                //     'Enter a rate ' + (RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? '(iOS):' : '(Not iOS):'),
+                //     function (result) {
+                window.TTS.speak(
+                    {
+                        text: text,
+                        locale: language === 'fr' ? 'fr-FR' : 'en-US',
+                        // https://docs.telerik.com/kendo-ui/api/javascript/kendo#fields-support.mobileOS
+                        // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
+                        // The higher the rate the quicker
 
-                                // With https://github.com/vilic/cordova-plugin-tts#b25e7ac (more recent than #deecc11)
+                        // With https://github.com/vilic/cordova-plugin-tts#0.2.3
+                        // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.5 : 1 // but too slow for iOS 11
 
-                                rate: parseFloat(result.input1) || undefined
-                            },
-                            dfd.resolve,
-                            dfd.reject
-                        );
-                        logger.debug({
-                            method: 'tts.doSpeak',
-                            message: 'Text spoken with Cordova TTS Plugin'
-                        });
+                        // With https://github.com/vilic/cordova-plugin-tts#deecc11
+                        // rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 1.1 : 1.2 // Not tested on iOS 10 and below
+
+                        // With https://github.com/vilic/cordova-plugin-tts#b25e7ac           (more recent than #deecc11)
+                        rate: RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? 0.7 : 2 // Not tested on iOS 10 and below
+
+                        // When using a confirm cordova dialog
+                        // rate: parseFloat(result.input1) || undefined
                     },
-                    'TTS Plugin',
-                    ['OK'],
-                    '1'
+                    dfd.resolve,
+                    dfd.reject
                 );
+                logger.debug({
+                    method: 'tts.doSpeak',
+                    message: 'Text spoken with Cordova TTS Plugin'
+                });
+                //     },
+                //     'TTS Plugin',
+                //     ['OK'],
+                //     '1'
+                // );
             } else if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
                 // window.alert('W3C Speech API');
@@ -250,8 +253,8 @@
                     promises.push(tts._speechSynthesisPromise(chunk, language));
                 });
                 $.when.apply(null, promises)
-	                .done(dfd.resolve)
-	                .fail(dfd.reject);
+                    .done(dfd.resolve)
+                    .fail(dfd.reject);
                 logger.debug({
                     method: 'tts.doSpeak',
                     message: 'Text spoken with W3C Speech API'
