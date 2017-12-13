@@ -2488,9 +2488,10 @@ window.jQuery.holdReady(true);
             var contentElement = e.view.content;
 
             // The play TTS button is a bit small, so let's use the entire heading
-            contentElement.find('div.heading h2')
+            contentElement.find('div.heading')
                 .off()
                 .on(CLICK + ' ' + TAP, function (e) {
+                    e.preventDefault(); // So that a tap does not trigger a click, resulting in this code being executed twice thus cancelling TTS
                     var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
