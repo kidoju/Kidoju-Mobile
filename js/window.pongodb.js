@@ -68,6 +68,17 @@
         pongodb.util = {
 
             /**
+             * Escape string to be passed to RegExp
+             * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+             * @see https://github.com/lodash/lodash/blob/master/escapeRegExp.js
+             * @param str
+             */
+            escapeRegExp: function (str) {
+                // return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                return str.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
+            },
+
+            /**
              * Compare semantic versions (either directly or as a _version property of an object)
              * @see: https://github.com/substack/semver-compare/blob/master/index.js
              * @param a
@@ -156,7 +167,7 @@
                                         }
                                     }
                                     if (!match) {
-                                        window.alert(prop + ' ' + operator + criterion[operator]);
+                                        window.alert(prop + ' ' + operator + ' ' + criterion[operator]);
                                         break;
                                     }
                                 }
@@ -186,10 +197,11 @@
                 assert.type(STRING, str, assert.format(assert.messages.type.default, 'str', STRING));
                 assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
                 assert.isArray(textFields, assert.format(assert.messages.isArray.default, 'textFields'));
-                var match = false;
                 if (str.length < 1) {
-                    return match;
+                    return true;
                 }
+                // TODO: consider str as a sum of words (build an array split on spaces)
+                var match = false;
                 for (var i = 0, length = textFields.length; i < length; i++) {
                     var prop = textFields[i];
                     var path = prop.split('.');
@@ -198,15 +210,15 @@
                         value = value && value[path[0]];
                         path.shift();
                     }
-                    if (Array.isArray(value)) {
+                    if (Array.isArray(value)) { // like summary tags
                         for (var j = 0, count = value.length; j < count; j++) {
-                            match = match || new RegExp(str, 'i').test(value[j]);
+                            match = match || new RegExp(pongodb.util.escapeRegExp(str), 'i').test(value[j]);
                             if (match) {
                                 break;
                             }
                         }
                     } else if ($.type(value) === STRING) {
-                        match = match || new RegExp(str, 'i').test(value);
+                        match = match || new RegExp(pongodb.util.escapeRegExp(str), 'i').test(value);
                     }
                     if (match) {
                         break;
