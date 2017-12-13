@@ -705,7 +705,8 @@
              */
             get: function (options) {
                 var that = this;
-                if ((window.device.platform === 'browser' && !window.navigator.onLine) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
+                    ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.get.call(this, options);
                 } else {
                     this.remoteTransport.get(options);
@@ -718,7 +719,8 @@
              */
             read: function (options) {
                 var that = this;
-                if ((window.device.platform === 'browser' && !window.navigator.onLine) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
+                    ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.read.call(this, options);
                 } else {
                     this.remoteTransport.read(options);
@@ -765,7 +767,8 @@
              */
             get: function (options) {
                 var that = this;
-                if ((window.device.platform === 'browser' && !window.navigator.onLine) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
+                    ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.get.call(that, options);
                 } else {
                     that.remoteTransport.get({
@@ -792,7 +795,8 @@
              */
             read: function (options) {
                 var that = this;
-                if ((window.device.platform === 'browser' && !window.navigator.onLine) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
+                    ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.read.call(that, options);
                 } else {
                     that.remoteTransport.read({
@@ -836,7 +840,8 @@
              */
             get: function (options) {
                 var that = this;
-                if ((window.device.platform === 'browser' && !window.navigator.onLine) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
+                    ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.get.call(that, options);
                 } else {
                     that.remoteTransport.get({
@@ -864,7 +869,8 @@
              */
             read: function (options) {
                 var that = this;
-                if ((window.device.platform === 'browser' && !window.navigator.onLine) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+                if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
+                    ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.read.call(that, options);
                 } else {
                     that.remoteTransport.read({
