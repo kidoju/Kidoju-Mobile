@@ -1418,18 +1418,18 @@ window.jQuery.holdReady(true);
                         // Reset NavBar buttons and title
                         mobile._setNavBar(view);
                         mobile._setNavBarTitle(view);
-                        if (viewModel.isLastPage$() && !view.element.attr(kendo.attr('showScoreInfo'))) {
+                        if (viewModel.isLastPage$() && !view.element.prop(kendo.attr('showScoreInfo'))) {
                             // Let's remember that we have already displayed this notification for this test
-                            view.element.attr(kendo.attr('showScoreInfo', 'true'));
+                            view.element.prop(kendo.attr('showScoreInfo'), true);
                             app.notification.info(i18n.culture.notifications.showScoreInfo);
                         }
                     } else if (view.id === HASH + VIEW.PLAYER) {
                         // Reset NavBar buttons and title
                         mobile._setNavBar(view);
                         mobile._setNavBarTitle(view);
-                        if (viewModel.isLastPage$() && !view.element.attr(kendo.attr('clickSubmitInfo'))) {
+                        if (viewModel.isLastPage$() && !view.element.prop(kendo.attr('clickSubmitInfo'))) {
                             // Let's remember that we have already displayed this notification for this test
-                            view.element.attr(kendo.attr('clickSubmitInfo', 'true'));
+                            view.element.prop(kendo.attr('clickSubmitInfo'), true);
                             app.notification.info(i18n.culture.notifications.clickSubmitInfo);
                         }
                     }
@@ -2377,7 +2377,7 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
 
             // Let's remove the showScoreInfo attr (see viewModel.bind(CHANGE))
-            e.view.element.removeAttr(kendo.attr('showScoreInfo'));
+            e.view.element.removeProp(kendo.attr('showScoreInfo'));
 
             // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
             // var summaryId = e.view.params.summaryId;
@@ -2513,7 +2513,7 @@ window.jQuery.holdReady(true);
             assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
             // Let's remove the clickSubmitInfo attr (see viewModel.bind(CHANGE))
-            e.view.element.removeAttr(kendo.attr('clickSubmitInfo'));
+            e.view.element.removeProp(kendo.attr('clickSubmitInfo'));
             var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
             var summaryId = e.view.params.summaryId;
             var versionId = e.view.params.versionId;
