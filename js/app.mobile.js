@@ -2044,17 +2044,17 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.checkNetwork = function (e) {
-            // Note: there is a window.navigator.network.isReachable function but we could not make it work
-            // See https://www.neotericdesign.com/articles/2011/3/checking-the-online-status-with-phonegap-jquery
+            /*
             window.alert(
                 'platform: ' + window.device.platform +
                 '\nonLine: ' + window.navigator.onLine +
                 '\ntype: ' + window.navigator.connection.type +
-                '\nisReachable: ' + ($.isFunction(window.navigator.network.isReachable) ? window.navigator.network.isReachable() : 'N/A') +
+                // Note: there used to be window.navigator.network.isReachable function - @see https://www.neotericdesign.com/articles/2011/3/checking-the-online-status-with-phonegap-jquery
+                // '\nreachable: ' + ($.isFunction(window.navigator.network.isReachable) ? window.navigator.network.isReachable() : 'N/A') +
                 // '\neffective: ' + window.navigator.connection.effectiveType +
                 '\nOffline test: ' + ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE))
             );
-
+            */
             if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
                 ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                 if (!RX_OFFLINE_PAGES.test(e.url)) { // Note: e.url might be ''

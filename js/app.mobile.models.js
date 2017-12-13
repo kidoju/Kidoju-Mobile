@@ -431,6 +431,7 @@
                     query = pongodb.util.convertFilter2Query(options.data.filter);
                     this._collection.find(query)
                         .done(function(result) {
+                            window.alert('offline: ' + result.length);
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
                             } else {
