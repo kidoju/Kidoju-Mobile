@@ -156,6 +156,7 @@
                                         }
                                     }
                                     if (!match) {
+                                        window.alert(prop + ' ' + operator + criterion[operator]);
                                         break;
                                     }
                                 }
@@ -394,7 +395,6 @@
                 // Without an id, we need to iterate
                 // https://localforage.github.io/localForage/#data-api-length
                 that._localForage.length(function (err, length) {
-                    window.alert('pongodb total: ' + length);
                     if (err) {
                         dfd.reject(err);
                     } else if (!length) {
@@ -418,7 +418,6 @@
                                 if (err) {
                                     dfd.reject(err);
                                 } else {
-                                    window.alert('pongodb found: ' + length);
                                     dfd.resolve(found);
                                 }
                             }
