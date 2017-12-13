@@ -864,6 +864,12 @@
              */
             read: function (options) {
                 var that = this;
+                window.alert(
+                    'onLine: ' + window.navigator.onLine +
+                    '\ntype: ' + window.navigator.connection.type +
+                    '\neffective: ' + window.navigator.connection.effectiveType +
+                    '\nTest: ' + ((window.navigator.onLine === false) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE))
+                );
                 if ((window.navigator.onLine === false) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
                     MobileTransport.fn.read.call(that, options);
                 } else {
@@ -871,6 +877,7 @@
                         data: options.data,
                         error: options.error,
                         success: function (response) {
+                            window.alert('Online success: ' + response.data.length);
                             var promises = [];
                             for (var i = 0, length = response.data.length; i < length; i++) {
                                 promises.push(function(idx) {
@@ -891,6 +898,7 @@
                             }
                             $.when.apply(that, promises)
                                 .always(function () {
+                                    window.alert('Offline success: ' + response.data.length);
                                     // Note: ignore errors caching the response
                                     options.success(response);
                                 });
