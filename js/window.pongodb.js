@@ -143,7 +143,7 @@
                                             case '$eq':
                                                 // Until AWS is upgraded with latest Kidoju-Server, type downloaded from RAPI is `test` instead of `Test`,
                                                 // match = match && (value === criterion[operator]);
-                                                match = match && ((prop === 'type') ? (value.toLowerCase() === criterion[operator].toLowerCase()) : (value === criterion[operator]));
+                                                match = match && ((prop === 'type') ? (String(value).toLowerCase() === String(criterion[operator]).toLowerCase()) : (value === criterion[operator]));
                                                 break;
                                             case '$gt':
                                                 match = match && (value > criterion[operator]);
