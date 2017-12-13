@@ -1910,8 +1910,11 @@ window.jQuery.holdReady(true);
          * @private
          */
         mobile.onResize = function () {
-            // In Android, onResize might be triggered before kendo.mobile.Application is instantiated
-            if (mobile.application instanceof kendo.mobile.Application) {
+            // In Android and iOS, onResize might be triggered before kendo.mobile.Application is instantiated
+            // and/or before mobile.application as a pane which would trigger an error in mobile.application.view()
+            // which is a shortcut for mobile.application.pane.view()
+            if (mobile.application instanceof kendo.mobile.Application &&
+                mobile.application.pane instanceof kendo.mobile.ui.Pane) {
                 var view = mobile.application.view();
                 mobile._initToastNotifications();
                 mobile._resizeStage(view);
@@ -3122,7 +3125,7 @@ window.jQuery.holdReady(true);
             /*
             // This was used for debugging user pictures
             e.view.element.find('img').on(CLICK, function (e) {
-                alert($(e.target).attr('src'));
+                window.alert($(e.target).attr('src'));
             });
             */
         };
