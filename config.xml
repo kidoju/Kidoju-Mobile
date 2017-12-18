@@ -127,7 +127,7 @@
     <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application">
         <application android:hardwareAccelerated="false" />
     </edit-config>
-    <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[android:label='@string/activity_name']">
+    <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[android:label='&#64;string/activity_name']">
         <activity android:configChanges="orientation|keyboardHidden" android:launchMode="singleTask" android:windowSoftInputMode="adjustPan" />
     </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
