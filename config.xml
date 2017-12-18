@@ -166,6 +166,6 @@
     <plugin name="cordova-plugin-tts" spec="https://github.com/vilic/cordova-plugin-tts#b25e7ac" />
     <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.2" />
     <plugin name="phonegap-plugin-barcodescanner" spec="^7.0.0">
-        <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
+        <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
     </plugin>
 </widget>
