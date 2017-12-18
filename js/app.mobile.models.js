@@ -428,8 +428,11 @@
                     app.rapi.util.filterExtend(query, partition);
                     // Filter all records with __state___ === 'destroyed', considering partition is ignored when false
                     query.filter.filters.push({ field: '__state__', operator: 'neq',  value: STATE.DESTROYED });
-                    query = pongodb.util.convertFilter2Query(options.data.filter);
-                    this._collection.find(query)
+                    query = pongodb.util.convertFilter(options.data.filter);
+                    debugger;
+                    this._collection.find(
+
+                    ) // TODO projection, options);
                         .done(function(result) {
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });

@@ -230,11 +230,13 @@
             },
 
             /**
-             * Convert a filter to a query
+             * Convert a Kendo UI filter to a MongoDB query
              * TODO: Not recursive at this stage and only logic 'and' because match is not recursive either
+             * TODO This conversion is inefficient:https://github.com/kidoju/Kidoju-Mobile/issues/144
+             * TODO: @see https://docs.telerik.com/kendo-ui/api/javascript/data/query especially how they convert filter into a test function
              * @param filter
              */
-            convertFilter2Query: function (filter) { // TODO text index + item.field in the form a.b like author.userId
+            convertFilter: function (filter) { // TODO text index + item.field in the form a.b like author.userId
                 assert.equal('and', filter.logic, assert.format(assert.messages.equal.default, 'filter.logic', 'and'));
                 assert.isArray(filter.filters, assert.format(assert.messages.isArray.default, 'assert.messages.equal.default', 'filter.filters'));
                 var query = {};
@@ -289,6 +291,28 @@
                     $.extend(query, op);
                 }
                 return query;
+            },
+
+            /**
+             * Converts a Kendo UI sort to MongoDB sort options
+             * TODO This conversion is inefficient:https://github.com/kidoju/Kidoju-Mobile/issues/144
+             */
+            convertSort: function (sort) {
+                var ret;
+                if ($.type(sort) === UNDEFINED || $.isEmptyObject(sort) || (Array.isArray(sort) && sort.length === 0)) {
+                    return ret;
+                }
+                if ($.isPlainObject(sort) && $.type(sort.field) === STRING && $.type(sort.dir) === STRING) {
+                    sort = [sort];
+                }
+                assert.isArray(sort, assert.format(assert.messages.isArray.default, sort));
+                for (var i = 0, length = sort.length; i < length; i++) {
+                    if ($.type(sort.field) === STRING && $.type(sort.dir) === STRING) {
+                        ret = ret || {};
+                        ret[field] = sort.dir === 'asc' ? 1 : -1;
+                    }
+                }
+                return ret;
             }
 
         };

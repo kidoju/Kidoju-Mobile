@@ -2462,8 +2462,14 @@ window.jQuery.holdReady(true);
             //   }
             // }
             // So we really need $.deparam($.param(...))
-            var query = $.extend(true, { page: 1, pageSize: viewModel.summaries.pageSize(), partition: { language: language, type: 'Test', 'author.userId': app.constants.authorId } }, $.deparam($.param(e.view.params)));
-            viewModel.loadLazySummaries(query)
+            viewModel.loadLazySummaries($.extend(true, {
+                // TODO: fields could be found in models.LazySummary (use the from property not the field name) - @see https://github.com/kidoju/Kidoju-Widgets/issues/218
+                fields: 'author,icon,metrics.comments.count,language,metrics.ratings.average,metrics.scores.average,metrics.views.count,published,tags,title,type,updated',
+                page: 1,
+                pageSize: viewModel.summaries.pageSize(),
+                partition: { language: language, type: 'Test', 'author.userId': app.constants.authorId },
+                sort: { field: 'updated', dir: 'desc' }
+            }, $.deparam($.param(e.view.params))))
                 // See comment for mobile.onSummariesBeforeViewShow
                 .always(function () {
                     mobile.onGenericViewShow(e);
@@ -2964,8 +2970,15 @@ window.jQuery.holdReady(true);
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
 
             // Find latest version (version history is not available in the mobile app)
-            viewModel.loadLazyVersions({ partition: { language: language, summaryId: summaryId } })
+            debugger;
+            viewModel.loadLazyVersions({
+                // TODO: fields could be found in models.LazyVersion (use the from property not the field name) - @see https://github.com/kidoju/Kidoju-Widgets/issues/218
+                fields: 'id,state,summaryId', // Note for whatever reason we also receive the type in the response payload
+                filter: { field: 'state', operator: 'eq', value: 5 },
+                partition: { language: language, summaryId: summaryId },
+                sort: { field: 'id', dir: 'desc' } })
                 .done(function () {
+                    debugger;
                     var version = viewModel.versions.at(0); // First is latest version
                     assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
                     assert.match(RX_MONGODB_ID, version.get('id'), kendo.format(assert.messages.match.default, 'version.get(\'id")', RX_MONGODB_ID));
