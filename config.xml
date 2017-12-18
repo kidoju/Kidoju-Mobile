@@ -127,6 +127,9 @@
     <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application">
         <application android:hardwareAccelerated="false" />
     </edit-config>
+    <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:name='MainActivity']">
+        <activity android:theme="@style/Theme.AppCompat.NoActionBar" />
+    </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
         <false />
     </edit-config>
@@ -143,7 +146,7 @@
     <engine name="windows" spec="^5.0.0" />
     <engine name="ios" spec="^4.5.3" />
     <engine name="android" spec="^6.4.0" />
-    <plugin name="cordova-plugin-file" spec="^5.0.0" />
+    <plugin name="cordova-plugin-file" spec="4.3.3" />
     <plugin name="cordova-plugin-google-analytics" spec="^1.8.3" />
     <plugin name="cordova-plugin-customurlscheme" spec="^4.3.0">
         <variable name="URL_SCHEME" value="com.kidoju.mobile" />
@@ -161,7 +164,7 @@
     <plugin name="cordova-plugin-splashscreen" spec="^4.1.0" />
     <plugin name="cordova-plugin-globalization" spec="^1.0.8" />
     <plugin name="de.appplant.cordova.plugin.local-notification" spec="^0.8.5" />
-    <plugin name="cordova-plugin-file-transfer" spec="^1.7.0" />
+    <plugin name="cordova-plugin-file-transfer" spec="1.6.3" />
     <plugin name="phonegap-plugin-barcodescanner" spec="6.0.8">
         <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
     </plugin>
