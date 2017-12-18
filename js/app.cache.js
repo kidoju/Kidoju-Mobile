@@ -79,6 +79,7 @@
          * @private
          */
         cache._getLocalItem = function (name, noexpire) {
+            debugger;
             if (!NOCACHE && localStorage) {
                 var item = JSON.parse(localStorage.getItem(name));
                 if ((!item) || (!noexpire && item.ts && item.expires && item.ts + 1000 * item.expires < Date.now())) {
@@ -224,6 +225,7 @@
             var dfd = $.Deferred();
             var me = cache._getSessionItem(ME);
             var token = rapi.util.getAccessToken();
+            debugger;
             if ((token && me && me.id === NULL) || // remove unauthenticated me, since we have a valid token
                 (!token && me && $.type(me.id) === STRING)) { // remove authenticated me since we do not have a valid token
                 cache.removeMe();
@@ -312,6 +314,7 @@
          */
         cache.getAllCategories = function (locale) {
             var dfd = $.Deferred();
+            debugger;
             var categories = cache._getLocalItem(CATEGORIES + locale);
             if ($.isArray(categories)) {
                 logger.debug({

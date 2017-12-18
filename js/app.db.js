@@ -114,8 +114,8 @@
                 }
             }
 
-            if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
-                ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+            if (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) ||
+                (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
                 app.db.versions.findOne({ id: versionId })
                     .done(function (local) {
                         upsert(activity, local, dfd);
@@ -149,8 +149,8 @@
             var dfd = new $.Deferred();
             var language = version.language;
             var summaryId = version.summaryId;
-            if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
-                ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+            if (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) ||
+                (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
                 // Update local summary
                 app.db.summaries.update({ id: summaryId }, { activities: version.activities }).done(dfd.resolve).fail(dfd.reject);
             } else {

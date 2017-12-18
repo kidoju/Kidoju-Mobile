@@ -2047,7 +2047,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.checkNetwork = function (e) {
-            /*
+
             window.alert(
                 'platform: ' + window.device.platform +
                 '\nonLine: ' + window.navigator.onLine +
@@ -2055,11 +2055,11 @@ window.jQuery.holdReady(true);
                 // Note: there used to be window.navigator.network.isReachable function - @see https://www.neotericdesign.com/articles/2011/3/checking-the-online-status-with-phonegap-jquery
                 // '\nreachable: ' + ($.isFunction(window.navigator.network.isReachable) ? window.navigator.network.isReachable() : 'N/A') +
                 // '\neffective: ' + window.navigator.connection.effectiveType +
-                '\nOffline test: ' + ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) || ('Connection' in window && window.navigator.connection.type === window.Connection.NONE))
+                '\nOffline test: ' + (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) || (window.device && window.device.platform === 'browser' && !window.navigator.onLine))
             );
-            */
-            if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
-                ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+
+            if (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) ||
+                (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
                 if (!RX_OFFLINE_PAGES.test(e.url)) { // Note: e.url might be ''
                     e.preventDefault();
                     var view = mobile.application.view();
@@ -2103,6 +2103,7 @@ window.jQuery.holdReady(true);
             document.addEventListener(
                 'offline',
                 function () {
+                    window.alert(window.navigator.connection.type);
                     app.notification.warning(i18n.culture.notifications.networkOffline);
                     var view = mobile.application.view();
                     // Close opened action sheets
