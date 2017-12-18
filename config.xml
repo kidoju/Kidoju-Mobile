@@ -127,9 +127,6 @@
     <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application">
         <application android:hardwareAccelerated="false" />
     </edit-config>
-    <edit-config file="AndroidManifest.xml" mode="overwrite" platform="android" target="/manifest/application/activity[@android:name='MainActivity']">
-        <activity android:launchMode="singleTask" />
-    </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
         <false />
     </edit-config>
