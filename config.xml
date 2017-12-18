@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.kidoju.mobile" version="0.3.4" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:gap="http://phonegap.com/ns/1.0" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.kidoju.mobile" version="0.3.4" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <log level="DEBUG" />
     <name>Kidoju Mobile</name>
     <description>Create and share phenomenal quizzes.</description>
@@ -25,18 +25,18 @@
         <icon density="xhdpi" src="www/res/icon/android/drawable-xhdpi-icon.png" />
         <icon density="xxhdpi" src="www/res/icon/android/drawable-xxhdpi-icon.png" />
         <icon density="xxxhdpi" src="www/res/icon/android/drawable-xxxhdpi-icon.png" />
-        <splash qualifier="land-ldpi" src="www/res/screen/android/drawable-land-ldpi-screen.png" />
-        <splash qualifier="land-mdpi" src="www/res/screen/android/drawable-land-mdpi-screen.png" />
-        <splash qualifier="land-hdpi" src="www/res/screen/android/drawable-land-hdpi-screen.png" />
-        <splash qualifier="land-xhdpi" src="www/res/screen/android/drawable-land-xhdpi-screen.png" />
-        <splash qualifier="land-xxhdpi" src="www/res/screen/android/drawable-land-xxhdpi-screen.png" />
-        <splash qualifier="land-xxxhdpi" src="www/res/screen/android/drawable-land-xxxhdpi-screen.png" />
-        <splash qualifier="port-ldpi" src="www/res/screen/android/drawable-port-ldpi-screen.png" />
-        <splash qualifier="port-mdpi" src="www/res/screen/android/drawable-port-mdpi-screen.png" />
-        <splash qualifier="port-hdpi" src="www/res/screen/android/drawable-port-hdpi-screen.png" />
-        <splash qualifier="port-xhdpi" src="www/res/screen/android/drawable-port-xhdpi-screen.png" />
-        <splash qualifier="port-xxhdpi" src="www/res/screen/android/drawable-port-xxhdpi-screen.png" />
-        <splash qualifier="port-xxxhdpi" src="www/res/screen/android/drawable-port-xxxhdpi-screen.png" />
+        <splash density="land-ldpi" src="www/res/screen/android/drawable-land-ldpi-screen.png" />
+        <splash density="land-mdpi" src="www/res/screen/android/drawable-land-mdpi-screen.png" />
+        <splash density="land-hdpi" src="www/res/screen/android/drawable-land-hdpi-screen.png" />
+        <splash density="land-xhdpi" src="www/res/screen/android/drawable-land-xhdpi-screen.png" />
+        <splash density="land-xxhdpi" src="www/res/screen/android/drawable-land-xxhdpi-screen.png" />
+        <splash density="land-xxxhdpi" src="www/res/screen/android/drawable-land-xxxhdpi-screen.png" />
+        <splash density="port-ldpi" src="www/res/screen/android/drawable-port-ldpi-screen.png" />
+        <splash density="port-mdpi" src="www/res/screen/android/drawable-port-mdpi-screen.png" />
+        <splash density="port-hdpi" src="www/res/screen/android/drawable-port-hdpi-screen.png" />
+        <splash density="port-xhdpi" src="www/res/screen/android/drawable-port-xhdpi-screen.png" />
+        <splash density="port-xxhdpi" src="www/res/screen/android/drawable-port-xxhdpi-screen.png" />
+        <splash density="port-xxxhdpi" src="www/res/screen/android/drawable-port-xxxhdpi-screen.png" />
     </platform>
     <platform name="ios">
         <icon height="57" platform="ios" src="www/res/icon/ios/icon.png" width="57" />
@@ -109,12 +109,6 @@
         <preference name="SplashScreen" value="splash" />
         <preference name="android-windowSoftInputMode" value="adjustPan" />
         <preference name="android-configChanges" value="orientation|keyboardHidden" />
-        <config-file parent="/manifest" platform="android">
-            <application android:hardwareAccelerated="false" />
-        </config-file>
-        <config-file parent="/manifest/application" platform="android">
-            <activity android:launchMode="singleTask" />
-        </config-file>
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/res/screen/browser/splashscreen.png" />
@@ -130,23 +124,29 @@
         <preference name="iosPersistentFileLocation" value="Library" />
         <preference name="StatusBarOverlaysWebView" value="true" />
     </platform>
-    <edit-config target="ITSAppUsesNonExemptEncryption" file="*-Info.plist" mode="overwrite" platform="ios">
+    <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application">
+        <application android:hardwareAccelerated="false" />
+    </edit-config>
+    <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:name='MainActivity']">
+        <activity android:launchMode="singleTask" />
+    </edit-config>
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
         <false />
     </edit-config>
-    <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="overwrite" platform="ios">
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="NSCameraUsageDescription">
         <string>Scan QR Codes</string>
     </edit-config>
-    <edit-config target="UIStatusBarHidden" file="*-Info.plist" mode="overwrite" platform="ios">
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIStatusBarHidden">
         <true />
     </edit-config>
-    <edit-config target="UIViewControllerBasedStatusBarAppearance" file="*-Info.plist" mode="overwrite" platform="ios">
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIViewControllerBasedStatusBarAppearance">
         <false />
     </edit-config>
     <engine name="browser" spec="^5.0.1" />
     <engine name="windows" spec="^5.0.0" />
     <engine name="ios" spec="^4.5.3" />
     <engine name="android" spec="^6.4.0" />
-    <plugin name="cordova-plugin-file" spec="4.3.3" />
+    <plugin name="cordova-plugin-file" spec="^4.3.3" />
     <plugin name="cordova-plugin-google-analytics" spec="^1.8.3" />
     <plugin name="cordova-plugin-customurlscheme" spec="^4.3.0">
         <variable name="URL_SCHEME" value="com.kidoju.mobile" />
@@ -165,10 +165,10 @@
     <plugin name="cordova-plugin-splashscreen" spec="^4.1.0" />
     <plugin name="cordova-plugin-globalization" spec="^1.0.8" />
     <plugin name="de.appplant.cordova.plugin.local-notification" spec="^0.8.5" />
-    <plugin name="cordova-plugin-file-transfer" spec="1.6.3" />
-    <plugin name="phonegap-plugin-barcodescanner" spec="6.0.8">
-        <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
+    <plugin name="cordova-plugin-file-transfer" spec="^1.6.3" />
+    <plugin name="phonegap-plugin-barcodescanner" spec="^6.0.8">
+        <variable name="CAMERA_USAGE_DESCRIPTION" value=" " />
     </plugin>
-    <plugin name="cordova-plugin-safariviewcontroller" spec="1.4.7" />
-    <plugin name="cordova-plugin-tts" spec="https://github.com/vilic/cordova-plugin-tts#b25e7ac" />
+    <plugin name="cordova-plugin-safariviewcontroller" spec="^1.4.7" />
+    <plugin name="cordova-plugin-tts" spec="git+https://github.com/vilic/cordova-plugin-tts.git" />
 </widget>
