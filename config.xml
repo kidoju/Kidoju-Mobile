@@ -134,7 +134,7 @@
         <false />
     </edit-config>
     <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="overwrite" platform="ios">
-        <string>Allows users to save photos to their camera roll</string>
+        <string>Scan QR Codes</string>
     </edit-config>
     <edit-config target="UIStatusBarHidden" file="*-Info.plist" mode="overwrite" platform="ios">
         <true />
