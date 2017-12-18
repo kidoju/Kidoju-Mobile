@@ -2047,7 +2047,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.checkNetwork = function (e) {
-
+            /*
             window.alert(
                 'platform: ' + window.device.platform +
                 '\nonLine: ' + window.navigator.onLine +
@@ -2057,7 +2057,7 @@ window.jQuery.holdReady(true);
                 // '\neffective: ' + window.navigator.connection.effectiveType +
                 '\nOffline test: ' + (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) || (window.device && window.device.platform === 'browser' && !window.navigator.onLine))
             );
-
+            */
             if (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) ||
                 (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
                 if (!RX_OFFLINE_PAGES.test(e.url)) { // Note: e.url might be ''
@@ -2086,14 +2086,22 @@ window.jQuery.holdReady(true);
          */
         mobile._initNetworkEvents = function () {
 
+            // The online event is triggered when swithcing from wifi to cell networks
+            // although the connection never really went offline, so we need to keep track of the connection state
+            var online = true;
+
             // online
             document.addEventListener(
                 'online',
                 function () {
-                    app.notification.warning(i18n.culture.notifications.networkOnline);
-                    var view = mobile.application.view();
-                    if (view.id === HASH + VIEW.NETWORK) {
-                        mobile.application.navigate(window.decodeURIComponent(view.params.url));
+                    if (!online && mobile.application instanceof kendo.mobile.Application &&
+                        mobile.application.pane instanceof kendo.mobile.ui.Pane) {
+                        online = true;
+                        app.notification.warning(i18n.culture.notifications.networkOnline);
+                        var view = mobile.application.view();
+                        if (view.id === HASH + VIEW.NETWORK) {
+                            mobile.application.navigate(window.decodeURIComponent(view.params.url));
+                        }
                     }
                 },
                 false
@@ -2103,27 +2111,30 @@ window.jQuery.holdReady(true);
             document.addEventListener(
                 'offline',
                 function () {
-                    window.alert(window.navigator.connection.type);
-                    app.notification.warning(i18n.culture.notifications.networkOffline);
-                    var view = mobile.application.view();
-                    // Close opened action sheets
-                    // view.element.find(kendo.roleSelector('actionsheet')).each(function (index, actionSheet) {
-                    $(document).find(kendo.roleSelector('actionsheet')).each(function (index, actionSheet) {
-                        var actionSheetWidget = $(actionSheet).data('kendoMobileActionSheet');
-                        if (actionSheetWidget instanceof kendo.mobile.ui.ActionSheet) {
-                            actionSheetWidget.close();
-                        }
-                    });
-                    // Close opened drop down lists
-                    view.element.find(kendo.roleSelector('dropdownlist')).each(function (index, dropDownList) {
-                        var dropDownListWidget = $(dropDownList).data('kendoDropDownList');
-                        if (dropDownListWidget instanceof kendo.ui.DropDownList) {
-                            dropDownListWidget.close();
-                        }
-                    });
-                    // Check network to redirect to #network view
-                    var url = (view.id.substr(1) || VIEW.DEFAULT) + '?' + window.decodeURIComponent($.param(view.params));
-                    mobile.checkNetwork({ preventDefault: $.noop, url: url });
+                    online = false;
+                    if (mobile.application instanceof kendo.mobile.Application &&
+                        mobile.application.pane instanceof kendo.mobile.ui.Pane) {
+                        app.notification.warning(i18n.culture.notifications.networkOffline);
+                        var view = mobile.application.view();
+                        // Close opened action sheets
+                        // view.element.find(kendo.roleSelector('actionsheet')).each(function (index, actionSheet) {
+                        $(document).find(kendo.roleSelector('actionsheet')).each(function(index, actionSheet) {
+                            var actionSheetWidget = $(actionSheet).data('kendoMobileActionSheet');
+                            if (actionSheetWidget instanceof kendo.mobile.ui.ActionSheet) {
+                                actionSheetWidget.close();
+                            }
+                        });
+                        // Close opened drop down lists
+                        view.element.find(kendo.roleSelector('dropdownlist')).each(function(index, dropDownList) {
+                            var dropDownListWidget = $(dropDownList).data('kendoDropDownList');
+                            if (dropDownListWidget instanceof kendo.ui.DropDownList) {
+                                dropDownListWidget.close();
+                            }
+                        });
+                        // Check network to redirect to #network view
+                        var url = (view.id.substr(1) || VIEW.DEFAULT) + '?' + window.decodeURIComponent($.param(view.params));
+                        mobile.checkNetwork({preventDefault: $.noop, url: url})
+                    }
                 },
                 false
             );
