@@ -429,7 +429,7 @@
                     // Filter all records with __state___ === 'destroyed', considering partition is ignored when false
                     query.filter.filters.push({ field: '__state__', operator: 'neq',  value: STATE.DESTROYED });
                     query = pongodb.util.convertFilter(options.data.filter);
-                    debugger;
+                    // TODO debugger;
                     this._collection.find(
 
                     ) // TODO projection, options);
@@ -1272,6 +1272,7 @@
                         method: 'MobileUser.mobilePicture$',
                         data: { path: path }
                     });
+                    // window.alert(path);
                     return path;
                 } else {
                     return kendo.format(uris.mobile.icons, 'user');
@@ -1294,7 +1295,7 @@
                     dfd.resolve();
                 } else {
                     assert.match(RX_MONGODB_ID, sid, kendo.format(assert.messages.match.default, 'sid', RX_MONGODB_ID));
-                    // Note: this may fail if user does not allow storage space
+                    // Note: this may fail if user does not allow sufficient storage space
                     fileSystem.init()
                         .done(function () {
                             var directoryPath = kendo.format(uris.mobile.pictures, '', '');
@@ -1553,9 +1554,8 @@
                     db.users.update({ id: id }, user)
                         .done(function (result) {
                             if (result && result.nMatched === 1 && result.nModified === 1) {
-                                // Update the image from time to time
-                                if (Math.floor(4 * Math.random()) === 0) {
-                                    // We discard success/failure because the user is saved
+                                if (('Connection' in window && window.navigator.connection.type !== window.Connection && window.navigator.onLine)) {
+                                    // We discard success/failure because the user is already saved
                                     models.MobileUser.fn._saveMobilePicture.call(user);
                                 }
                                 // Restore id and return updated user to datasource

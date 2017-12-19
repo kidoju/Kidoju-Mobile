@@ -25,7 +25,9 @@
         var STRING = 'string';
         var OBJECT = 'object';
         var UNDEFINED = 'undefined';
-        var STORAGE_SIZE = 100 * 1024 * 1024; // 100 MB
+        var DOT_TEMP = '.tmp';
+        var PERSISTENT_STORAGE_SIZE = 100 * 1024 * 1024; // 100 MB
+        var TEMPORARY_STORAGE_SIZE = 10 * 1024 * 1024; // 10 MB
         // The following allows FS_ROOT[window.TEMPORARY] and FS_ROOT[window.PERSISTENT];
         // var FS_ROOT = ['cdvfile://localhost/temporary/', 'cdvfile://localhost/persistent/'];
         var FS_ERROR_MISSING_API = 'HTML 5 FileSystem API not supported';
@@ -81,7 +83,7 @@
             var that = this;
             var dfd = $.Deferred();
             window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-            window.storageInfo = window.storageInfo || window.webkitStorageInfo;
+            window.storageInfo = window.storageInfo || window.webkitStorageInfo; // Check window.navigator.webkitTemporaryStorage;
             logger.debug({
                 message: 'Initializing temporary file system',
                 method: 'FileSystem.prototype._initTemporary',
@@ -99,7 +101,7 @@
                 if ($.type(that._temporary) === UNDEFINED) {
                     window.storageInfo.requestQuota(
                         window.TEMPORARY,
-                        STORAGE_SIZE,
+                        TEMPORARY_STORAGE_SIZE,
                         function (grantedBytes) {
                             window.requestFileSystem(
                                 window.TEMPORARY,
@@ -134,7 +136,7 @@
         FileSystem.prototype._initPersistent = function () {
             var that = this;
             var dfd = $.Deferred();
-            window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+            window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem; // Check window.navigator.webkitPersistentStorage;
             window.storageInfo = window.storageInfo || window.webkitStorageInfo;
             logger.debug({
                 message: 'Initializing persistent file system',
@@ -153,7 +155,7 @@
                 if ($.type(that._persistent) === UNDEFINED) {
                     window.storageInfo.requestQuota(
                         window.PERSISTENT,
-                        STORAGE_SIZE,
+                        PERSISTENT_STORAGE_SIZE,
                         function (grantedBytes) {
                             window.requestFileSystem(
                                 window.PERSISTENT,
@@ -331,10 +333,26 @@
 
             fileTransfer.onProgress = dfd.notify; // Consider reviewing event parameter passed to dfd.notify without formatting
 
+            // An error (especially no connection) erases the existing file instead of updating
+            // @see https://issues.apache.org/jira/browse/CB-7073
+            // So we download with DOT_TMP extension and rename (moveTo) without DOT_TMP upon successful download
             fileTransfer.download(
                 remoteUrl,
-                fileURL,
-                dfd.resolve,
+                fileURL + DOT_TEMP,
+                function (fileEntry) {
+                    fileEntry.getParent(
+                        function (directoryEntry) {
+                            fileEntry.moveTo(
+                                directoryEntry,
+                                fileEntry.name.slice(0, -DOT_TEMP.length),
+                                dfd.resolve,
+                                dfd.reject
+                            );
+                            dfd.resolve(fileEntry);
+                        },
+                        dfd.reject
+                    );
+                },
                 dfd.reject,
                 false, // trustAllHosts
                 $.isPlainObject(headers) ? { headers: headers } : {}
