@@ -74,17 +74,16 @@
         /**
          * Gets an item from browser local storage
          * @param name
-         * @param noexpire
+         * @param force
          * @returns {*}
          * @private
          */
-        cache._getLocalItem = function (name, noexpire) {
-            debugger;
+        cache._getLocalItem = function (name, force) {
             if (!NOCACHE && localStorage) {
                 var item = JSON.parse(localStorage.getItem(name));
-                if ((!item) || (!noexpire && item.ts && item.expires && item.ts + 1000 * item.expires < Date.now())) {
+                if ((!item) || (!force && item.ts && item.expires && item.ts + 1000 * item.expires < Date.now())) {
                     if (item) {
-                        localStorage.removeItem(name);
+                        // localStorage.removeItem(name); // otherwise we cannot force the use of cached data
                         logger.debug({
                             message: 'value read from localStorage has expired',
                             method: 'app.cache._getLocalItem',
@@ -162,15 +161,16 @@
         /**
          * Gets an item from browser session storage
          * @param name
+         * @param force
          * @returns {*}
          * @private
          */
-        cache._getSessionItem = function (name) {
+        cache._getSessionItem = function (name, force) {
             if (!NOCACHE && sessionStorage) {
                 var item = JSON.parse(sessionStorage.getItem(name));
-                if ((!item) || (item.ts && item.expires && item.ts + 1000 * item.expires < Date.now())) {
+                if ((!item) || (!force && item.ts && item.expires && item.ts + 1000 * item.expires < Date.now())) {
                     if (item) {
-                        sessionStorage.removeItem(name);
+                        // sessionStorage.removeItem(name); // otherwise we cannot force the use of cached data
                         logger.debug({
                             message: 'value read from sessionStorage has expired',
                             method: 'app.cache._getSessionItem',
@@ -225,7 +225,6 @@
             var dfd = $.Deferred();
             var me = cache._getSessionItem(ME);
             var token = rapi.util.getAccessToken();
-            debugger;
             if ((token && me && me.id === NULL) || // remove unauthenticated me, since we have a valid token
                 (!token && me && $.type(me.id) === STRING)) { // remove authenticated me since we do not have a valid token
                 cache.removeMe();
@@ -314,7 +313,6 @@
          */
         cache.getAllCategories = function (locale) {
             var dfd = $.Deferred();
-            debugger;
             var categories = cache._getLocalItem(CATEGORIES + locale);
             if ($.isArray(categories)) {
                 logger.debug({
