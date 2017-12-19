@@ -114,7 +114,7 @@
         uris.cdn = uris.cdn || {};
         uris.cdn.icons = uris.cdn.icons || 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg';
         uris.mobile = uris.mobile || {};
-        uris.mobile.icons = uris.mobile.icons || './img/{0}.svg';
+        uris.mobile.icons = uris.mobile.icons || './img/icons/{0}.svg';
         uris.webapp = uris.webapp ||  {};
         uris.webapp.editor = uris.webapp.editor || (window.location.protocol + '//' + window.location.host + '/{0}/e/{1}/{2}');
         uris.webapp.finder = uris.webapp.finder || (window.location.protocol + '//' + window.location.host + '/{0}');

@@ -248,7 +248,7 @@
             "images": "/kidoju/%s"
         },
         "mobile": {
-            "icons": "./img/%s.svg",
+            "icons": "./img/icons/%s.svg",
             "pictures": "%susers/%s"
         },
         "webapp": {

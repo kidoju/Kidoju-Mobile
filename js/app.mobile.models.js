@@ -69,7 +69,7 @@
         uris.cdn = uris.cdn || {};
         uris.cdn.icons = uris.cdn.icons || 'https://cdn.kidoju.com/images/o_collection/svg/office/{0}.svg';
         uris.mobile = uris.mobile || {};
-        uris.mobile.icons = uris.mobile.icons || './img/{0}.svg';
+        uris.mobile.icons = uris.mobile.icons || './img/icons/{0}.svg';
         uris.mobile.pictures = uris.mobile.pictures || '{0}users/{1}';
         var DATE = 'date';
         var FUNCTION = 'function';
