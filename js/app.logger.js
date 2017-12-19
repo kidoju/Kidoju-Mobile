@@ -55,8 +55,8 @@
                 // Return false if the ajax call was not made, considering the logging level
                 return dfd.resolve(false);
             }
-            if ((window.device && window.device.platform === 'browser' && !window.navigator.onLine) ||
-                ('Connection' in window && window.navigator.connection.type === window.Connection.NONE)) {
+            if (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) ||
+                (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
                 return dfd.resolve(false);
             } else {
                 $.ajax({
