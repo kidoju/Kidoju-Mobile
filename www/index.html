@@ -278,7 +278,7 @@
         <div class="stretched-item k-widget km-content padding">
             <div class="heading">
                 <h2>
-                    <img src="./img/teacher.svg" alt="Explanations">
+                    <img src="./img/icons/teacher.svg" alt="Explanations">
                     <span class="explanations">Explanations</span>
                     <a data-role="button" class="tts" data-icon="ear" data-tts="selectedPage.explanations" data-click-on="down" data-click="app.mobile.onTTSClick"></a>
                 </h2><hr/>
@@ -332,7 +332,7 @@
 
     <!-- N0 network view -->
     <div id="network" data-role="view" data-layout="main-layout" data-title="No Network" data-transition="fade" data-show="app.mobile.onNetworkViewShow">
-        <img src="./img/antenna.svg" alt="No Network" class="km-thumbnail picture">
+        <img src="./img/icons/antenna.svg" alt="No Network" class="km-thumbnail picture">
         <h2 class="title">No Network</h2>
         <!--p class="message">Progress</p-->
     </div>
@@ -348,7 +348,7 @@
         <div class="stretched-item k-widget km-content padding">
             <div class="heading">
                 <h2>
-                    <img src="./img/teacher.svg" alt="Instructions">
+                    <img src="./img/icons/teacher.svg" alt="Instructions">
                     <span class="instructions">Instructions</span>
                     <a data-role="button" class="tts" data-icon="ear" data-tts="selectedPage.instructions" data-click-on="down" data-click="app.mobile.onTTSClick"></a>
                 </h2><hr/>
@@ -375,11 +375,11 @@
         <script type="text/x-kendo-template" id="score-template">
             <a href="">
                 # if (typeof result !== 'boolean') { #
-                <img src="./img/sign_warning.svg" alt="#: result #" class="icon">
+                <img src="./img/icons/sign_warning.svg" alt="#: result #" class="icon">
                 # } else if (!result) { #
-                <img src="./img/error.svg" alt="#: result #" class="icon">
+                <img src="./img/icons/error.svg" alt="#: result #" class="icon">
                 # } else { #
-                <img src="./img/ok.svg" alt="#: result #" class="icon">
+                <img src="./img/icons/ok.svg" alt="#: result #" class="icon">
                 # } #
                 <div class="score">
                     <h4>#: question #</h4>
@@ -529,7 +529,7 @@
 
     <!-- Sync view -->
     <div id="sync" data-role="view" data-layout="main-layout" data-title="Synchronization" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSyncViewShow">
-        <img src="./img/gearwheels.svg" alt="Progress" class="km-thumbnail picture">
+        <img src="./img/icons/gearwheels.svg" alt="Progress" class="km-thumbnail picture">
         <h2 class="title">Progress</h2>
         <p class="message">Progress</p>
         <div class="progress">
@@ -579,6 +579,8 @@
                     <li>
                         <label>
                             <span class="km-bold-font">PIN</span>
+                            <!-- keep username to let browsers save your password -->
+                            <input type="text" name="username" data-bind="value: user.sid" style="display:none;">
                             <input type="password" class="pin" autocomplete="off">
                         </label>
                     </li>
