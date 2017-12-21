@@ -2222,14 +2222,14 @@ window.jQuery.holdReady(true);
          */
         mobile._initBatteryEvents = function () {
 
-            app.battery = app.battery || { status: {} };
+            // app.battery = app.battery || { status: {} };
 
             // batterylow
             window.addEventListener(
                 'batterylow',
                 function (status) { // status is en Event
-                    app.battery.status.isPlugged = status.isPlugged;
-                    app.battery.status.level = status.level;
+                    // app.battery.status.isPlugged = status.isPlugged;
+                    // app.battery.status.level = status.level;
                     app.notification.warning(i18n.culture.notifications.batteryLow);
                 },
                 false
@@ -2239,8 +2239,8 @@ window.jQuery.holdReady(true);
             window.addEventListener(
                 'batterycritical',
                 function (status) { // status is en Event
-                    app.battery.status.isPlugged = status.isPlugged;
-                    app.battery.status.level = status.level;
+                    // app.battery.status.isPlugged = status.isPlugged;
+                    // app.battery.status.level = status.level;
                     app.notification.warning(i18n.culture.notifications.batteryCritical);
                 },
                 false
@@ -2250,6 +2250,7 @@ window.jQuery.holdReady(true);
             // @see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-battery-status/#quirks-android-&-amazon-fire-os
 
             // batterystatus
+            /*
             window.addEventListener(
                 'batterystatus',
                 function (status) { // status is en Event
@@ -2258,6 +2259,7 @@ window.jQuery.holdReady(true);
                 },
                 false
             );
+            */
 
         };
 
@@ -3237,10 +3239,12 @@ window.jQuery.holdReady(true);
                 return app.notification.warning(i18n.culture.notifications.syncBandwidthLow);
             }
 
-            // Check batteries
+            // Check batteries: there is no way to ensure a battery event to set app.battery.status before syncing
+            /*
             if ((!app.battery.status.isPlugged) && ($.type(app.battery.status.level) !== NUMBER || app.battery.status.level < 20)) {
                 return app.notification.warning(i18n.culture.notifications.syncBatteryLow);
             }
+            */
 
             // TODO: We need to sync in all languages
 
