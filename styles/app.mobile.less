@@ -320,6 +320,36 @@ html, body {
     #tour {
         .k-scrollview.km-scrollview {
             border: none;
+            div[data-role="page"] {
+                overflow: hidden;
+                div.image {
+                    position: absolute;
+                    width: 80vmin;
+                    top: 10vmin;
+                    left: 50%;
+                    margin-left: -40vmin;
+                    img {
+                        width: 100%;
+                    }
+                }
+                div.text {
+                    position: absolute;
+                    bottom: 0;
+                    height: 30%;
+                    width: 100%;
+                    background-color: #EDC87E;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    p {
+                        text-align: center;
+                        width: 80%;
+                    }
+                }
+            }
+            ol.k-pages.km-pages {
+                background-color: #EDC87E;
+            }
         }
     }
     /**********************************************************
