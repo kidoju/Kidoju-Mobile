@@ -74,6 +74,7 @@
         var DATE = 'date';
         var FUNCTION = 'function';
         // var NULL = 'null';
+        var BOOLEAN = 'boolean';
         var NUMBER = 'number';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
@@ -113,6 +114,8 @@
                 stack: error.stack && error.stack.toString()
                 // TODO: review missing sub errors
             });
+            // Possible responseText from rapi calls are:
+            // - "{"error":{"name":"ApplicationError","i18n":"errors.http.401","status":401,"message":"Unauthorized"}}"
             return [
                 { responseText: JSON.stringify({ error: obj }) },
                 'error',
@@ -1169,7 +1172,9 @@
                 // The current user is the user with the most recent lastUse
                 lastUse: {
                     type: DATE,
-                    defaultValue: DEFAULT.DATE
+                    defaultValue: function () {
+                        return new Date();
+                    }
                 },
                 md5pin: {
                     type: STRING,
@@ -1179,18 +1184,26 @@
                     type: STRING,
                     editable: false
                 },
+                // We are keeping the original provider, but we may consider also saving the token
+                provider: {
+                    type: STRING,
+                    editable: false
+                },
                 rootCategoryId: {
                     type: STRING,
                     defaultValue: function () {
                         return DEFAULT.ROOT_CATEGORY_ID[i18n.locale()];
                     }
-                }
+                },
                 /*
                 theme: {
                     type: STRING,
                     defaultValue: DEFAULT.THEME
                 }
                 */
+                tour: {
+                    type: BOOLEAN
+                }
                 // consider locale (for display of numbers, dates and currencies)
                 // consider timezone (for display of dates), born (for searches)
             },
@@ -1348,11 +1361,12 @@
                 assert.match(RX_MONGODB_ID, salt, kendo.format(assert.messages.match.default, 'salt', RX_MONGODB_ID));
                 var md5pin = md5(salt + pin);
                 return this.get('md5pin') === md5pin;
-            },
+            }
             /**
              * Load user from Kidoju-Server
              * @returns {*}
              */
+            /*
             load: function () {
                 var that = this;
                 assert.ok(that.isNew(), 'Cannot load a new user into an existing user!');
@@ -1379,9 +1393,11 @@
                     });
 
             },
+            */
             /**
              * Reset user
              */
+            /*
             reset: function () {
                 // Since we have marked fields as non editable, we cannot use 'that.set'
                 this.accept({
@@ -1396,6 +1412,7 @@
                     rootCategoryId: this.defaults.rootCategoryId()
                 });
             }
+            */
         });
 
         /**
@@ -1554,8 +1571,8 @@
                     db.users.update({ id: id }, user)
                         .done(function (result) {
                             if (result && result.nMatched === 1 && result.nModified === 1) {
-                                if (('Connection' in window && window.navigator.connection.type !== window.Connection && window.navigator.onLine)) {
-                                    // We discard success/failure because the user is already saved
+                                if (('Connection' in window && window.navigator.connection.type !== window.Connection.NONE && window.navigator.onLine)) {
+                                    // We only update the image when connected ans discard success/failure because the user is already saved with an image
                                     models.MobileUser.fn._saveMobilePicture.call(user);
                                 }
                                 // Restore id and return updated user to datasource

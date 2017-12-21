@@ -136,7 +136,11 @@
                 summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
                 summaryLoadFailure: 'Il y a eu une erreur lors du chargement des données du résumé descriptif.',
                 summaryViewInfo: 'Pressez le bouton en bas de page.',
-                unknownError: 'Il y a eu une erreur inconnue. Veuillez redémarrer l\'app',
+                syncBandwidthLow: 'Vous ne pouvez pas synchroniser vos données avec une faible bande passante.',
+                syncBatteryLow: 'Vous ne pouvez pas synchroniser vos données avec des batteries déchargées.',
+                syncFailure: 'Il y a eu une erreur de synchronisation des données.',
+                syncUnauthorized: 'Vous n\'êtes pas autorisé à synchroniser vos données. Veuillez vous identifier avec un service d\'authentification.',
+                unknownError: 'Il y a eu une erreur inconnue. Veuillez redémarrer l\'app.',
                 userLoadFailure: 'Il y a eu une erreur lors du chargement du profil utilisateur.',
                 userSaveFailure: 'Il y a eu une erreur d\'enregistremenet de votre profil utilisateur.',
                 userSaveSuccess: 'Votre profil utilisateur a été enregistré avec succès.',
@@ -179,7 +183,12 @@
             },
             // Sign-in view
             signin: {
-                viewTitle: 'Identification',
+                viewTitle: 'Tour',
+                viewTitle2: 'Identification',
+                // Onboarding
+                page0: 'Naviguez et recherchez des exercices et des tests de connaissance organisés par matière.',
+                page1: 'Jouez les questions, donnez vos réponses et l\'application calcule votre score.',
+                page2: 'Suivez et mesurez vos progrès.',
                 // Notification
                 welcome: 'Veuillez sélectionner un service d\'authentification.'
             },
@@ -215,16 +224,13 @@
                 viewTitle: 'Synchronisation',
                 title: 'Progrès',
                 message: {
-                    activities: 'Synchonisation des activités'
+                    activities: 'Synchonisation des activités',
+                    complete: 'Synchronisation terminée'
                 },
                 pass: {
                     remote: 'Central',
                     local: 'Local'
                 }
-            },
-            // Tour view
-            tour: {
-                viewTitle: 'Tour'
             },
             // User view
             user: {
@@ -234,6 +240,7 @@
                 lastName: 'Nom',
                 lastUse: 'Dern. Util.',
                 pin: 'PIN',
+                newPIN: 'Nouv. PIN',
                 confirm: 'Confirmation',
                 // Buttons
                 save: 'Enregistrer',

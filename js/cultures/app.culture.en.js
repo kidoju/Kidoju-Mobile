@@ -134,11 +134,15 @@
                 sharingFailure: 'There was an error sharing this quiz.',
                 sharingSuccess: 'This quiz has been successfully shared.',
                 showScoreInfo: 'Press <i class="kf kf-score"></i> to go back to your score.',
-                signinUrlFailure: 'There was an error obtaining a sign-in url.',
+                signinUrlFailure: 'There was an error obtaining a sign-in url for an authentication provider.',
                 summariesQueryFailure: 'There was an error querying our remote servers.',
                 summaryLoadFailure: 'There was an error loading summary data.',
                 summaryViewInfo: 'Press the button at the bottom of the page.',
-                unknownError: 'There has been an unknown error. Please restart the app',
+                syncBandwidthLow: 'You cannot synchronize with low bandwidth.',
+                syncBatteryLow: 'You cannot synchronize with low batteries.',
+                syncFailure: 'There has been an error syncing your data.',
+                syncUnauthorized: 'You are unauthorised to synchronize. Please signin with an authentication provider.',
+                unknownError: 'There has been an unknown error. Please restart the app.',
                 userLoadFailure: 'There was an error loading your user profile.',
                 userSaveFailure: 'There was an error saving your user profile.',
                 userSaveSuccess: 'User profile successfully saved.',
@@ -181,7 +185,12 @@
             },
             // Sign-in view
             signin: {
-                viewTitle: 'Sign in',
+                viewTitle: 'Walkthrough',
+                viewTitle2: 'Sign in',
+                // Onboarding
+                page0: 'Browse and search assessments, practice tests and quizzes organized by subject categories.',
+                page1: 'Play questions, give answers and let the app compute your score.',
+                page2: 'Track and measure your progresses.',
                 // Notification
                 welcome: 'Please select an authentication provider.'
             },
@@ -217,16 +226,13 @@
                 viewTitle: 'Synchronization',
                 title: 'Progress',
                 message: {
-                    activities: 'Syncing activities'
+                    activities: 'Syncing activities',
+                    complete: 'Synchronization complete'
                 },
                 pass: {
                     remote: 'Remote',
                     local: 'Local'
                 }
-            },
-            // Tour view
-            tour: {
-                viewTitle: 'Walkthrough'
             },
             // User view
             user: {
@@ -236,6 +242,7 @@
                 lastName: 'Last Name',
                 lastUse: 'Last Use',
                 pin: 'PIN',
+                newPIN: 'New PIN',
                 confirm: 'Confirm',
                 // Buttons
                 save: 'Save',

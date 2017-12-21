@@ -770,7 +770,7 @@ window.jQuery.holdReady(true);
             isFirstUser$: function () {
                 var user = this.get(VIEW_MODEL.USER.$);
                 var userDataSource = this.get(VIEW_MODEL.USERS);
-                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                assert.instanceof(models.MobileUserDataSource, userDataSource, assert.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
                 var index = userDataSource.indexOf(user);
                 return !user.isNew() && index === 0;
             },
@@ -782,9 +782,17 @@ window.jQuery.holdReady(true);
             isLastUser$: function () {
                 var user = this.get(VIEW_MODEL.USER.$);
                 var userDataSource = this.get(VIEW_MODEL.USERS);
-                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                assert.instanceof(models.MobileUserDataSource, userDataSource, assert.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
                 var index = userDataSource.indexOf(user);
                 return !user.isNew() && index === userDataSource.total() - 1;
+            },
+
+            /**
+             * Current user is set and new
+             */
+            isNewUser$: function () {
+                var user = viewModel.get(VIEW_MODEL.USER.$);
+                return (user instanceof models.MobileUser) && user.isNew() && (viewModel.users.indexOf(user) > -1);
             },
 
             /**
@@ -792,7 +800,15 @@ window.jQuery.holdReady(true);
              */
             isSavedUser$: function () {
                 var user = viewModel.get(VIEW_MODEL.USER.$);
-                return user instanceof models.MobileUser && !user.isNew() && viewModel.users.indexOf(user) > -1;
+                return (user instanceof models.MobileUser) && !user.isNew() && (viewModel.users.indexOf(user) > -1);
+            },
+
+            /**
+             * Current user saved and synced in the last 30 days
+             */
+            isSyncedUser$: function () {
+                var user = viewModel.get(VIEW_MODEL.USER.$);
+                return (user instanceof models.MobileUser) && !user.isNew() && (viewModel.users.indexOf(user) > -1) && (Date.now() <= user.lastSync + 30 * 24 * 60 * 60 * 1000);
             },
 
             /**
@@ -802,7 +818,7 @@ window.jQuery.holdReady(true);
             isFirstPage$: function () {
                 var page = this.get(VIEW_MODEL.SELECTED_PAGE);
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var index = pageCollectionDataSource.indexOf(page);
                 return index === 0;
             },
@@ -814,7 +830,7 @@ window.jQuery.holdReady(true);
             isLastPage$: function () {
                 var page = this.get(VIEW_MODEL.SELECTED_PAGE);
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var index = pageCollectionDataSource.indexOf(page);
                 return index === -1 || index === pageCollectionDataSource.total() - 1;
             },
@@ -837,7 +853,7 @@ window.jQuery.holdReady(true);
             page$: function () {
                 var page = this.get(VIEW_MODEL.SELECTED_PAGE);
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 return pageCollectionDataSource.indexOf(page) + 1;
             },
 
@@ -882,7 +898,7 @@ window.jQuery.holdReady(true);
              */
             totalPages$: function () {
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 return pageCollectionDataSource.total();
             },
 
@@ -919,7 +935,7 @@ window.jQuery.holdReady(true);
              */
             reset: function () {
                 // i18n.culture must be loaded
-                assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'app.i18n.culture'));
+                assert.isPlainObject(i18n.culture, assert.format(assert.messages.isPlainObject.default, 'app.i18n.culture'));
 
                 var language = i18n.locale();
                 // Note: we are  assigning app._userId so that app.models.Summary.fields['userScore'].parse can find the userId
@@ -928,7 +944,7 @@ window.jQuery.holdReady(true);
 
                 // List of activities
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
-                assert.instanceof(models.MobileActivityDataSource, activities, kendo.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
+                assert.instanceof(models.MobileActivityDataSource, activities, assert.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
                 activities.transport.setPartition({
                     'actor.userId': userId,
                     'type': 'Score',
@@ -953,7 +969,7 @@ window.jQuery.holdReady(true);
 
                 // Search (per category or full text)
                 var summaries = this.get(VIEW_MODEL.SUMMARIES);
-                assert.instanceof(models.LazySummaryDataSource, summaries, kendo.format(assert.messages.instanceof.default, 'summaries', 'app.models.LazySummaryDataSource'));
+                assert.instanceof(models.LazySummaryDataSource, summaries, assert.format(assert.messages.instanceof.default, 'summaries', 'app.models.LazySummaryDataSource'));
                 summaries.setUserId(userId);
                 summaries.transport.setPartition({
                     'author.userId': app.constants.authorId,
@@ -976,7 +992,7 @@ window.jQuery.holdReady(true);
 
                 // Other versions in the same summary (only used to play the latest)
                 var versions = this.get(VIEW_MODEL.VERSIONS);
-                assert.instanceof(models.LazyVersionDataSource, versions, kendo.format(assert.messages.instanceof.default, 'versions', 'app.models.LazyVersionDataSource'));
+                assert.instanceof(models.LazyVersionDataSource, versions, assert.format(assert.messages.instanceof.default, 'versions', 'app.models.LazyVersionDataSource'));
                 versions.transport.setPartition({
                     language: language,
                     summaryId: '000000000000000000000000'
@@ -1003,9 +1019,9 @@ window.jQuery.holdReady(true);
              * @param options
              */
             loadActivities: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.match(RX_LANGUAGE, options.language, kendo.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
-                assert.match(RX_MONGODB_ID, options.userId, kendo.format(assert.messages.match.default, 'options.userId', RX_MONGODB_ID));
+                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.match(RX_LANGUAGE, options.language, assert.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
+                assert.match(RX_MONGODB_ID, options.userId, assert.format(assert.messages.match.default, 'options.userId', RX_MONGODB_ID));
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
                 var dfd = $.Deferred();
                 if (activities.total() > 0 &&
@@ -1039,9 +1055,9 @@ window.jQuery.holdReady(true);
              * @param options
              */
             loadLazySummaries: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.partition, kendo.format(assert.messages.isPlainObject.default, 'options.partition'));
-                assert.match(RX_LANGUAGE, options.partition.language, kendo.format(assert.messages.match.default, 'options.partition.language', RX_LANGUAGE));
+                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.partition, assert.format(assert.messages.isPlainObject.default, 'options.partition'));
+                assert.match(RX_LANGUAGE, options.partition.language, assert.format(assert.messages.match.default, 'options.partition.language', RX_LANGUAGE));
                 return viewModel.summaries.load(options)
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.summariesQueryFailure);
@@ -1058,9 +1074,9 @@ window.jQuery.holdReady(true);
              * @param options
              */
             loadSummary: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.match(RX_LANGUAGE, options.language, kendo.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
-                assert.match(RX_MONGODB_ID, options.id, kendo.format(assert.messages.match.default, 'options.id', RX_MONGODB_ID));
+                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.match(RX_LANGUAGE, options.language, assert.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
+                assert.match(RX_MONGODB_ID, options.id, assert.format(assert.messages.match.default, 'options.id', RX_MONGODB_ID));
                 return viewModel.summary.load(options)
                     .fail(function (xhr, status, error) {
                         app.notification.error(i18n.culture.notifications.summaryLoadFailure);
@@ -1073,29 +1089,58 @@ window.jQuery.holdReady(true);
             },
 
             /**
-             * Load user from remote server
+             * Load me from remote server
              * @returns {*}
              */
             loadUser: function () {
                 var dfd = $.Deferred();
-                if (window.navigator.connection.type === window.Connection.NONE) {
-                    app.notification.warning(i18n.culture.notifications.networkOffline);
-                    dfd.reject(undefined, 'offline', 'No network connection');
-                } else {
-                    // Set a new user since the existing user might be in the database and we do not want to change its properties
-                    viewModel.set(VIEW_MODEL.USER.$, new models.MobileUser());
-                    return viewModel.user.load()
-                        .done(dfd.resolve)
-                        .fail(function (xhr, status, error) {
-                            dfd.reject(xhr, status, error);
-                            app.notification.error(i18n.culture.notifications.userLoadFailure);
-                            logger.error({
-                                message: 'error loading user',
-                                method: 'viewModel.loadUser',
-                                data: { status: status, error: error, response: parseResponse(xhr) }
-                            });
+                // Search me in viewModel.users or create new viewModel.user and add it to viewModel.users
+                app.cache.removeMe();
+                app.cache.getMe()
+                    .done(function (me) {
+                        assert.isPlainObject(me, assert.format(assert.messages.isPlainObject.default, 'me'));
+                        assert.match(RX_MONGODB_ID, me.id, assert.format(assert.messages.match.default, 'me.id', RX_MONGODB_ID));
+                        // Search for me in the users data source
+                        var user = viewModel.users.data().find(function (data) {
+                            return data.get('sid') === me.id;
                         });
-                }
+                        // If not found, create a new user
+                        if (!(user instanceof models.MobileUser)) {
+                            // Read provider set in mobile.onSigninButtonClick
+                            var provider = localStorage.getItem('provider'); // TODO Manage errors
+                            user = new models.MobileUser();
+                            // Since we have marked fields as non editable, we cannot use 'user.set'.
+                            // `accept` should raise a change event on the parent viewModel
+                            user.accept({
+                                id: user.defaults.id, // Without default id, 'isNew' and 'sync' won't work
+                                sid: me.id,
+                                firstName: me.firstName,
+                                lastName: me.lastName,
+                                lastSync: user.defaults.lastSync,
+                                lastUse: user.defaults.lastUse(),
+                                md5pin: user.defaults.md5pin,
+                                picture: me.picture,
+                                provider: provider,
+                                rootCategoryId: user.defaults.rootCategoryId(),
+                                tour: user.defaults.tour
+                            });
+                            viewModel.users.add(user);
+                        }
+                        viewModel.set(VIEW_MODEL.USER.$, user);
+                        // Remove provider from local storage
+                        localStorage.removeItem('provider'); // TODO: Manage errors
+                        // Note: At this stage user is not saved in database
+                        dfd.resolve(user);
+                    })
+                    .fail(function (xhr, status, error) {
+                        dfd.reject(xhr, status, error);
+                        app.notification.error(i18n.culture.notifications.userLoadFailure);
+                        logger.error({
+                            message: 'error loading user',
+                            method: 'viewModel.loadUser',
+                            data: { status: status, error: error, response: parseResponse(xhr) }
+                        });
+                    });
                 return dfd.promise();
             },
 
@@ -1167,7 +1212,7 @@ window.jQuery.holdReady(true);
                 }
 
                 // Load version and pages
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
                 assert.match(RX_LANGUAGE, options.language, assert.messages.match.default, 'options.language', RX_LANGUAGE);
                 assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
                 assert.match(RX_MONGODB_ID, options.id, assert.messages.match.default, 'options.id', RX_MONGODB_ID);
@@ -1178,9 +1223,9 @@ window.jQuery.holdReady(true);
                             .done(function () {
                                 var promises = [];
                                 var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
-                                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                                 $.each(pageCollectionDataSource.data(), function (idx, page) {
-                                    assert.instanceof(Page, page, kendo.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
+                                    assert.instanceof(Page, page, assert.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
                                     promises.push(page.load());
                                 });
                                 $.when(promises).fail(versionLoadFailure);
@@ -1196,8 +1241,8 @@ window.jQuery.holdReady(true);
              * @param options
              */
             loadLazyVersions: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.partition, kendo.format(assert.messages.isPlainObject.default, 'options.partition'));
+                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.partition, assert.format(assert.messages.isPlainObject.default, 'options.partition'));
                 assert.match(RX_LANGUAGE, options.partition.language, assert.messages.match.default, 'options.partition.language', RX_LANGUAGE);
                 assert.match(RX_MONGODB_ID, options.partition.summaryId, assert.messages.match.default, 'options.partition.summaryId', RX_MONGODB_ID);
                 return viewModel.versions.load(options)
@@ -1222,7 +1267,7 @@ window.jQuery.holdReady(true);
             previousUser: function () {
                 var user = this.get(VIEW_MODEL.USER.$);
                 var userDataSource = this.get(VIEW_MODEL.USERS);
-                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                assert.instanceof(models.MobileUserDataSource, userDataSource, assert.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
                 var index = userDataSource.indexOf(user);
                 if ($.type(index) === NUMBER && index > 0) {
                     this.set(VIEW_MODEL.USER.$, userDataSource.at(index - 1));
@@ -1235,7 +1280,7 @@ window.jQuery.holdReady(true);
             nextUser: function () {
                 var user = this.get(VIEW_MODEL.USER.$);
                 var userDataSource = this.get(VIEW_MODEL.USERS);
-                assert.instanceof(models.MobileUserDataSource, userDataSource, kendo.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
+                assert.instanceof(models.MobileUserDataSource, userDataSource, assert.format(assert.messages.instanceof.default, 'userDataSource', 'app.models.MobileUserDataSource'));
                 var index = userDataSource.indexOf(user);
                 if ($.type(index) === NUMBER && index < userDataSource.total() - 1) {
                     this.set(VIEW_MODEL.USER.$, userDataSource.at(index + 1));
@@ -1248,7 +1293,7 @@ window.jQuery.holdReady(true);
             firstPage: function () {
                 logger.debug({ method: 'viewModel.firstPage', message: 'Show first page' });
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(0));
                 app.tts.cancelSpeak();
             },
@@ -1260,7 +1305,7 @@ window.jQuery.holdReady(true);
                 logger.debug({ method: 'viewModel.previousPage', message: 'Show previous page' });
                 var page = this.get(VIEW_MODEL.SELECTED_PAGE);
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var index = pageCollectionDataSource.indexOf(page);
                 if ($.type(index) === NUMBER && index > 0) {
                     this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(index - 1));
@@ -1275,7 +1320,7 @@ window.jQuery.holdReady(true);
                 logger.debug({ method: 'viewModel.nextPage', message: 'Show next page' });
                 var page = this.get(VIEW_MODEL.SELECTED_PAGE);
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var index = pageCollectionDataSource.indexOf(page);
                 if ($.type(index) === NUMBER && index < pageCollectionDataSource.total() - 1) {
                     this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(index + 1));
@@ -1289,7 +1334,7 @@ window.jQuery.holdReady(true);
             lastPage: function () {
                 logger.debug({ method: 'viewModel.lastPage', message: 'Show last page' });
                 var pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 var lastPage = pageCollectionDataSource.total() - 1;
                 this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(lastPage));
                 app.tts.cancelSpeak();
@@ -1302,16 +1347,16 @@ window.jQuery.holdReady(true);
                 var that = this;
                 // Assert ids
                 var userId = that.get(VIEW_MODEL.USER.SID); // Foreign keys use sids (server ids)
-                assert.match(RX_MONGODB_ID, userId, kendo.format(assert.messages.match.default, 'userId', RX_MONGODB_ID));
+                assert.match(RX_MONGODB_ID, userId, assert.format(assert.messages.match.default, 'userId', RX_MONGODB_ID));
                 var language = i18n.locale();
-                assert.equal(language, that.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
-                assert.equal(language, that.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
-                assert.equal(language, that.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
+                assert.equal(language, that.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+                assert.equal(language, that.get(VIEW_MODEL.SUMMARY.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
+                assert.equal(language, that.get(VIEW_MODEL.VERSION.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
                 var summaryId = that.get(VIEW_MODEL.SUMMARY.ID);
-                assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
-                assert.equal(summaryId, this.get(VIEW_MODEL.VERSION.SUMMARY_ID), kendo.format(assert.messages.equal.default, 'viewModel.get("version.summaryId")', summaryId));
+                assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+                assert.equal(summaryId, this.get(VIEW_MODEL.VERSION.SUMMARY_ID), assert.format(assert.messages.equal.default, 'viewModel.get("version.summaryId")', summaryId));
                 var versionId = that.get(VIEW_MODEL.VERSION.ID);
-                assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+                assert.match(RX_MONGODB_ID, versionId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
                 // Set viewModel field
                 // IMPORTANT: viewModel.current is not a models.MobileActivity - For more information, see saveCurrent
                 // viewModel.set(VIEW_MODEL.CURRENT.$, new models.MobileActivity({
@@ -1340,13 +1385,13 @@ window.jQuery.holdReady(true);
              */
             calculate: function () {
                 var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, kendo.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
+                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
                 return pageCollectionDataSource.validateTestFromProperties(viewModel.get(VIEW_MODEL.CURRENT.TEST))
                     .done(function (result) {
                         // Note: result has methods including percent and getScoreArray
-                        assert.isPlainObject(result, kendo.format(assert.messages.isPlainObject.default, 'result'));
-                        assert.type(FUNCTION, result.percent, kendo.format(assert.messages.type.default, 'result.percent', FUNCTION));
-                        assert.type(FUNCTION, result.getScoreArray, kendo.format(assert.messages.type.default, 'result.getScoreArray', FUNCTION));
+                        assert.isPlainObject(result, assert.format(assert.messages.isPlainObject.default, 'result'));
+                        assert.type(FUNCTION, result.percent, assert.format(assert.messages.type.default, 'result.percent', FUNCTION));
+                        assert.type(FUNCTION, result.getScoreArray, assert.format(assert.messages.type.default, 'result.getScoreArray', FUNCTION));
                         viewModel.set(VIEW_MODEL.CURRENT.TEST, result);
                     })
                     .fail(function (xhr, status, error) {
@@ -1366,16 +1411,16 @@ window.jQuery.holdReady(true);
             saveCurrent: function () {
                 // Get current
                 var current = this.get(VIEW_MODEL.CURRENT.$);
-                // assert.instanceof(models.MobileActivity, current, kendo.format(assert.messages.instanceof.default, 'current', 'app.models.MobileActivity'));
-                assert.type(UNDEFINED, current.id, kendo.format(assert.messages.type.default, 'current.id', UNDEFINED));
-                assert.type(FUNCTION, current.test.percent, kendo.format(assert.messages.type.default, 'current.test.percent', FUNCTION));
-                assert.type(FUNCTION, current.test.getScoreArray, kendo.format(assert.messages.type.default, 'current.test.getScoreArray', FUNCTION));
+                // assert.instanceof(models.MobileActivity, current, assert.format(assert.messages.instanceof.default, 'current', 'app.models.MobileActivity'));
+                assert.type(UNDEFINED, current.id, assert.format(assert.messages.type.default, 'current.id', UNDEFINED));
+                assert.type(FUNCTION, current.test.percent, assert.format(assert.messages.type.default, 'current.test.percent', FUNCTION));
+                assert.type(FUNCTION, current.test.getScoreArray, assert.format(assert.messages.type.default, 'current.test.getScoreArray', FUNCTION));
                 // Update current
                 viewModel.set(VIEW_MODEL.CURRENT.SCORE, current.test.percent());
                 viewModel.set(VIEW_MODEL.CURRENT.UPDATED, new Date());
                 // Add to datasource and sync
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
-                assert.instanceof(models.MobileActivityDataSource, activities, kendo.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
+                assert.instanceof(models.MobileActivityDataSource, activities, assert.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
                 var activity = new models.MobileActivity(current);
                 activities.add(activity);
                 return activities.sync()
@@ -1383,7 +1428,7 @@ window.jQuery.holdReady(true);
                         // current is not a models.MobileActivity because since percent and getScoreArray are not model methods,
                         // There are lost at this stage. We would need to make a model with percent and getScoreArray methods
                         var activityId = activity.get('id');
-                        assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
+                        assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
                         viewModel.set(VIEW_MODEL.CURRENT.ID, activityId);
                         app.notification.success(i18n.culture.notifications.scoreSaveSuccess);
                         // TODO: server sync here or in DataSource???
@@ -1397,7 +1442,7 @@ window.jQuery.holdReady(true);
                             data: { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
-            },
+            }
 
         });
 
@@ -1408,9 +1453,9 @@ window.jQuery.holdReady(true);
          * Event handler for the viewModel change event
          */
         viewModel.bind(CHANGE, function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isOptionalObject.default, 'e'));
-            assert.type(STRING, e.field, kendo.format(assert.messages.type.default, 'e.field', STRING));
-            assert.instanceof(kendo.Observable, e.sender, kendo.format(assert.messages.instanceof.default, 'e.sender', 'kendo.Observable'));
+            assert.isPlainObject(e, assert.format(assert.messages.isOptionalObject.default, 'e'));
+            assert.type(STRING, e.field, assert.format(assert.messages.type.default, 'e.field', STRING));
+            assert.instanceof(kendo.Observable, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.Observable'));
             switch (e.field) {
                 case VIEW_MODEL.SELECTED_PAGE:
                     var view = mobile.application.view();
@@ -1455,6 +1500,7 @@ window.jQuery.holdReady(true);
                                 // Reset the root category
                                 // Note this triggers a change that executes `case VIEW_MODEL.USER.ROOT_CATEGORY_ID` here above
                                 viewModel.set(VIEW_MODEL.USER.ROOT_CATEGORY_ID, DEFAULT.ROOT_CATEGORY_ID[language]);
+                                logger.debug({method: 'viewModel.bind', message: 'Language changed to ' + language});
                             });
                     }
                     break;
@@ -1489,7 +1535,7 @@ window.jQuery.holdReady(true);
          */
         mobile._setNavBar = function (view) {
             /* jshint maxcomplexity: 13 */
-            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var viewElement = view.element;
             var showBackButton = false;
             var showDrawerButton = false;
@@ -1588,20 +1634,26 @@ window.jQuery.holdReady(true);
         /**
          * Set the navigation bar title
          * @param view
+         * @param text
          * @private
          */
-        mobile._setNavBarTitle = function (view) {
-            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var id = view.id === '/' ? VIEW.DEFAULT : view.id.substr(1); // Remove #
-            var culture = i18n.culture[id]; // Note: this supposes culture names match view id names
+        mobile._setNavBarTitle = function (view, text) {
+            assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var navbarElement = view.header.find('.km-navbar');
             var navbarWidget = navbarElement.data('kendoMobileNavBar');
-            if (id === VIEW.SCORE) {
-                navbarWidget.title(kendo.format(culture.viewTitle, viewModel.get((VIEW_MODEL.CURRENT.SCORE) || 0) / 100));
-            } else if (id === VIEW.CORRECTION || id === VIEW.PLAYER) {
-                navbarWidget.title(kendo.format(culture.viewTitle, viewModel.page$(), viewModel.totalPages$()));
+            if ($.type(text) === UNDEFINED) {
+                // TODO Review this part
+                var id = view.id === '/' ? VIEW.DEFAULT : view.id.substr(1); // Remove #
+                var culture = i18n.culture[id]; // Note: this supposes culture names match view id names
+                if (id === VIEW.SCORE) {
+                    navbarWidget.title(kendo.format(culture.viewTitle, viewModel.get((VIEW_MODEL.CURRENT.SCORE) || 0) / 100));
+                } else if (id === VIEW.CORRECTION || id === VIEW.PLAYER) {
+                    navbarWidget.title(kendo.format(culture.viewTitle, viewModel.page$(), viewModel.totalPages$()));
+                } else {
+                    navbarWidget.title(culture.viewTitle);
+                }
             } else {
-                navbarWidget.title(culture.viewTitle);
+                navbarWidget.title(text);
             }
             // Fix km-no-title issue to align km-view-title properly within km-navbar
             view.header.find('.km-view-title').removeClass('km-no-title'); // Does not work here so it is repeated in mobile.onGenericViewShow, where it works
@@ -1613,7 +1665,7 @@ window.jQuery.holdReady(true);
          */
         mobile._initToastNotifications = function () {
             var notification = $('#notification');
-            assert.hasLength(notification, kendo.format(assert.messages.hasLength.default, '#notification'));
+            assert.hasLength(notification, assert.format(assert.messages.hasLength.default, '#notification'));
             if (app && app.notification instanceof kendo.ui.Notification) {
                 // Do not leave pending notifications
                 var notifications = app.notification.getNotifications();
@@ -1635,7 +1687,7 @@ window.jQuery.holdReady(true);
                 stacking: 'down', // 'up',
                 width: $(window).width() - 2 // - 2 is for borders as box-sizing on .k-notification-wrap does not help
             }).data('kendoNotification');
-            assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+            assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
             // Modify default TEMPLATE (see kendo.notification.js) to wrap text properly
             // var TEMPLATE = '<div class="k-notification-wrap">' + '<span class="k-icon k-i-#=typeIcon#">#=typeIcon#</span>' + '#=content#' + '<span class="k-icon k-i-close">Hide</span>' + '</div>';
             var TEMPLATE = '<div class="k-notification-wrap">' + '<span class="k-icon k-i-#=typeIcon#">#=typeIcon#</span><span class="k-text">' + '#=content#' + '</span><span class="k-icon k-i-close">Hide</span>' + '</div>';
@@ -1659,8 +1711,8 @@ window.jQuery.holdReady(true);
          * @private
          */
         mobile.localize = function (language) {
-            assert.type(ARRAY, app.locales, kendo.format(assert.messages.type.default, 'app.locales', ARRAY));
-            assert.enum(app.locales, language, kendo.format(assert.messages.enum.default, 'locale', app.locales));
+            assert.type(ARRAY, app.locales, assert.format(assert.messages.type.default, 'app.locales', ARRAY));
+            assert.enum(app.locales, language, assert.format(assert.messages.enum.default, 'locale', app.locales));
 
             var viewElement;
             var culture = i18n.culture;
@@ -1728,7 +1780,10 @@ window.jQuery.holdReady(true);
 
             // Localize signin
             viewElement = $(HASH + VIEW.SIGNIN);
-            viewElement.find('.k-notification-wrap>span.k-text').text(culture.signin.welcome);
+            viewElement.find('div[data-role="page"]:eq(0) div.text>p').text(culture.signin.page0);
+            viewElement.find('div[data-role="page"]:eq(1) div.text>p').text(culture.signin.page1);
+            viewElement.find('div[data-role="page"]:eq(2) div.text>p').text(culture.signin.page2);
+            viewElement.find('div[data-role="page"]:eq(3) .k-notification-wrap>span.k-text').text(culture.signin.welcome);
 
             // Localize summary
             viewElement = $(HASH + VIEW.SUMMARY);
@@ -1760,7 +1815,8 @@ window.jQuery.holdReady(true);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.user.lastName);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.user.lastUse);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.user.pin);
-            viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.user.confirm);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.user.newPin);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(5)').text(culture.user.confirm);
             viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.user.save);        // button before view is initialized
             viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.user.save);                     // button after view is initializef
             viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(1)').text(culture.user.signIn);      // button before view is initialized
@@ -1779,6 +1835,21 @@ window.jQuery.holdReady(true);
          * Resizing
          *******************************************************************************************/
 
+        /**
+         * Resize signin page scrollview
+         * @param view
+         * @private
+         */
+        mobile._resizeScrollView = function (view) {
+            assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            var content = view.content;
+            var scrollViewElement = content.find(kendo.roleSelector('scrollview'));
+            var scrollViewWidget = scrollViewElement.data('kendoMobileScrollView');
+            if (scrollViewWidget instanceof kendo.mobile.ui.ScrollView) {
+                scrollViewWidget.refresh();
+            }
+        };
+
         /* This function's cyclomatic complexity is too high. */
         /* jshint -W074 */
 
@@ -1788,7 +1859,7 @@ window.jQuery.holdReady(true);
          * @private
          */
         mobile._resizeStage = function (view) {
-            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var contentElement = view.content;
             var stageElement = contentElement.find(kendo.roleSelector('stage'));
             var stageWidget = stageElement.data('kendoStage');
@@ -1802,9 +1873,9 @@ window.jQuery.holdReady(true);
                  * See https://github.com/jquery/jquery/issues/3193
                  */
                 var HEIGHT = stageElement.outerHeight();
-                assert.equal(HEIGHT, 768, kendo.format(assert.messages.equal.default, 'HEIGHT', '768'));
+                assert.equal(HEIGHT, 768, assert.format(assert.messages.equal.default, 'HEIGHT', '768'));
                 var WIDTH = stageElement.outerWidth();
-                assert.equal(WIDTH, 1024, kendo.format(assert.messages.equal.default, 'WIDTH', '1024'));
+                assert.equal(WIDTH, 1024, assert.format(assert.messages.equal.default, 'WIDTH', '1024'));
                 var height = contentElement.height();  // The screen height minus layout header and footer
                 var width = contentElement.width();    // The screen width minus layout header and footer
                 var scale;
@@ -1863,7 +1934,7 @@ window.jQuery.holdReady(true);
                 var markdownElement = contentElement.find(kendo.roleSelector('markdown'));
                 var markdownScrollerElement = markdownElement.closest(kendo.roleSelector('scroller'));
                 var markdownScroller = markdownScrollerElement.data('kendoMobileScroller');
-                assert.instanceof(kendo.mobile.ui.Scroller, markdownScroller, kendo.format(assert.messages.instanceof.default, 'markdownScroller', 'kendo.mobile.ui.Scroller'));
+                assert.instanceof(kendo.mobile.ui.Scroller, markdownScroller, assert.format(assert.messages.instanceof.default, 'markdownScroller', 'kendo.mobile.ui.Scroller'));
                 var markdownContainer = markdownElement.closest('.stretched-item');
                 var markdownHeading = markdownContainer.children('.heading');
                 markdownContainer
@@ -1890,7 +1961,7 @@ window.jQuery.holdReady(true);
          * @private
          */
         mobile._resizeChart = function (view) {
-            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var content = view.content;
             var chart = content.find(kendo.roleSelector('chart'));
             if (chart.length) {
@@ -1917,6 +1988,7 @@ window.jQuery.holdReady(true);
                 mobile.application.pane instanceof kendo.mobile.ui.Pane) {
                 var view = mobile.application.view();
                 mobile._initToastNotifications();
+                mobile._resizeScrollView(view);
                 mobile._resizeStage(view);
                 mobile._resizeChart(view);
             }
@@ -1964,7 +2036,7 @@ window.jQuery.holdReady(true);
          * Initialize the user interface now that cordova plugins and i18n resources are loaded
          */
         mobile.oni18nLoaded = function () {
-            assert.isPlainObject(i18n.culture, kendo.format(assert.messages.isPlainObject.default, 'i18n.culture'));
+            assert.isPlainObject(i18n.culture, assert.format(assert.messages.isPlainObject.default, 'i18n.culture'));
             logger.debug({
                 message: 'i18n culture is loaded',
                 method: 'mobile.oni18nLoaded'
@@ -2017,7 +2089,7 @@ window.jQuery.holdReady(true);
                     mobile._initToastNotifications();
                     // Bind the router change event to the onRouterViewChange handler
                     mobile.application.router.bind(CHANGE, mobile.onRouterViewChange);
-                    // Trigger application init event for handleOpenURL event han lder (custom url scheme)
+                    // Trigger application init event for handleOpenURL event handler (custom url scheme)
                     $(document).trigger(APPINIT);
                     // hide the splash screen
                     setTimeout(function () {
@@ -2034,7 +2106,7 @@ window.jQuery.holdReady(true);
          * @param theme
          */
         mobile._fixThemeVariant = function (theme) {
-            assert.type(STRING, theme, kendo.format(assert.messages.type.default, 'theme', STRING));
+            assert.type(STRING, theme, assert.format(assert.messages.type.default, 'theme', STRING));
             var skin = theme.split('-');
             if (Array.isArray(skin) && skin.length > 1) {
                 $(document.body).addClass('km-' + theme);
@@ -2058,6 +2130,9 @@ window.jQuery.holdReady(true);
                 '\nOffline test: ' + (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) || (window.device && window.device.platform === 'browser' && !window.navigator.onLine))
             );
             */
+
+            // TODO Review when there is no user: the only page to restore in this case is the #signin page
+
             if (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) ||
                 (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
                 if (!RX_OFFLINE_PAGES.test(e.url)) { // Note: e.url might be ''
@@ -2147,10 +2222,14 @@ window.jQuery.holdReady(true);
          */
         mobile._initBatteryEvents = function () {
 
+            app.battery = app.battery || { status: {} };
+
             // batterylow
             window.addEventListener(
                 'batterylow',
-                function (status) {
+                function (status) { // status is en Event
+                    app.battery.status.isPlugged = status.isPlugged;
+                    app.battery.status.level = status.level;
                     app.notification.warning(i18n.culture.notifications.batteryLow);
                 },
                 false
@@ -2159,11 +2238,27 @@ window.jQuery.holdReady(true);
             // batterycritical
             window.addEventListener(
                 'batterycritical',
-                function (status) {
+                function (status) { // status is en Event
+                    app.battery.status.isPlugged = status.isPlugged;
+                    app.battery.status.level = status.level;
                     app.notification.warning(i18n.culture.notifications.batteryCritical);
                 },
                 false
             );
+
+            // Warning: the Android and Fire OS implementations are greedy and prolonged use will drain the device's battery.
+            // @see https://cordova.apache.org/docs/en/latest/reference/cordova-plugin-battery-status/#quirks-android-&-amazon-fire-os
+
+            // batterystatus
+            window.addEventListener(
+                'batterystatus',
+                function (status) { // status is en Event
+                    app.battery.status.isPlugged = status.isPlugged;
+                    app.battery.status.level = status.level;
+                },
+                false
+            );
+
         };
 
         /**
@@ -2180,8 +2275,8 @@ window.jQuery.holdReady(true);
                         // result.canceled is 0 or 1 - 1 is when pressing the cancel button
                         // result also has properties text which contains our url and format which should be `QR_CODE`
                         if (!result.cancelled) {
-                            assert.type(STRING, result.text, kendo.format(assert.messages.type.default, 'result.text', STRING));
-                            assert.equal(QR_CODE, result.format, kendo.format(assert.messages.equal.default, 'result.format', QR_CODE));
+                            assert.type(STRING, result.text, assert.format(assert.messages.type.default, 'result.text', STRING));
+                            assert.equal(QR_CODE, result.format, assert.format(assert.messages.equal.default, 'result.format', QR_CODE));
                             var matches = result.text.match(RX_QR_CODE_MATCH);
                             if ($.isArray(matches) && matches.length > 2) {
                                 var language = matches[1];
@@ -2224,8 +2319,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onRouterViewChange = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.type(STRING, e.url, kendo.format(assert.messages.type.default, 'e.url', STRING));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.type(STRING, e.url, assert.format(assert.messages.type.default, 'e.url', STRING));
             // if (mobile.application instanceof kendo.mobile.Application) {
             mobile.application.showLoading();
             // }
@@ -2244,8 +2339,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onLayoutViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // Reset view scroller
             if (e.view.scroller instanceof kendo.mobile.ui.Scroller) {
                 // Stretched view like #correction and #player do not have a scroller
@@ -2265,8 +2360,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onDrawerListViewClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.item, kendo.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.item, assert.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             e.preventDefault();
             var command = e.item.attr(kendo.attr('command'));
             var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE);
@@ -2295,8 +2390,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onGenericViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile._setNavBar(e.view);
             mobile._setNavBarTitle(e.view);
             if (mobile.application instanceof kendo.mobile.Application) {
@@ -2311,14 +2406,14 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onActivitiesViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
             var language = e.view.params.language;
-            assert.equal(language, i18n.locale(), kendo.format(assert.messages.equal.default, 'i18n.locale()', language));
-            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+            assert.equal(language, i18n.locale(), assert.format(assert.messages.equal.default, 'i18n.locale()', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
             var userId = e.view.params.userId;
-            assert.equal(userId, viewModel.get(VIEW_MODEL.USER.SID), kendo.format(assert.messages.equal.default, 'viewModel.get("user.sid")', userId));
+            assert.equal(userId, viewModel.get(VIEW_MODEL.USER.SID), assert.format(assert.messages.equal.default, 'viewModel.get("user.sid")', userId));
 
             // Always reload
             viewModel.loadActivities({ language: language, userId: userId })
@@ -2332,8 +2427,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onActivitiesButtonGroupSelect = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.type(NUMBER, e.index, kendo.format(assert.messages.type.default, 'e.index', NUMBER));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.type(NUMBER, e.index, assert.format(assert.messages.type.default, 'e.index', NUMBER));
             var view = app.mobile.application.view();
             if (!e.index) { // ListView
                 view.content.find(kendo.roleSelector('listview')).show();
@@ -2358,8 +2453,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onCorrectionViewInit = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var contentElement = e.view.content;
 
             // The play TTS button is a bit small, so let's use the entire heading
@@ -2384,9 +2479,9 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onCorrectionViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
 
             // Let's remove the showScoreInfo attr (see viewModel.bind(CHANGE))
             e.view.element.removeProp(kendo.attr('showScoreInfo'));
@@ -2397,8 +2492,8 @@ window.jQuery.holdReady(true);
             var activityId = e.view.params.activityId;
             var page = e.view.params.page || 1;
             // TODO reload data iof not already reloaded - see
-            // assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
-            // assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+            // assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
+            // assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
             // Localize UI (cannot be done in init because language may have changed during the session)
             // version is already loaded - viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
             // activities are already loaded - viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
@@ -2414,9 +2509,9 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onCorrectionViewHide = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            // assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
             // TODO destroy stage
             // Cancel any utterance spoken
             app.tts.cancelSpeak();
@@ -2452,9 +2547,9 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onFinderViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
             // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
             var language = e.view.params.language;
             // Launch the query
@@ -2501,8 +2596,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onPlayerViewInit = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var contentElement = e.view.content;
 
             // The play TTS button is a bit small, so let's use the entire heading
@@ -2528,16 +2623,16 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onPlayerViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            assert.isPlainObject(e.view.params, kendo.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
             // Let's remove the clickSubmitInfo attr (see viewModel.bind(CHANGE))
             e.view.element.removeProp(kendo.attr('clickSubmitInfo'));
             var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
             var summaryId = e.view.params.summaryId;
             var versionId = e.view.params.versionId;
-            assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
-            assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, versionId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
             $.when(
                 // load version to display quiz content in the player
                 viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
@@ -2560,8 +2655,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onPlayerViewHide = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // Although it would have made more sense, undefined does not trigger a refresh
             // viewModel.set(VIEW_MODEL.SELECTED_PAGE, undefined);
             // viewModel.set(VIEW_MODEL.SELECTED_PAGE, new Page());
@@ -2577,7 +2672,7 @@ window.jQuery.holdReady(true);
          * @private
          */
         mobile._initScoreListView = function (view) {
-            assert.instanceof(kendo.mobile.ui.View, view, kendo.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var language = view.params.language;
             var summaryId = view.params.summaryId;
             var versionId = view.params.versionId;
@@ -2624,16 +2719,16 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onScoreViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // Get the activity id from params
             var activityId = e.view.params.activityId; // Note: activityId is a local id (not a sid)
             if (RX_MONGODB_ID.test(activityId)) {
                 // TODO: reload activities ???
                 // If we have an activityId, replace the current test to display score and correction
                 var activity = viewModel.activities.get(activityId);
-                assert.instanceof(models.MobileActivity, activity, kendo.format(assert.messages.instanceof.default, 'activity', 'app.models.MobileActivity'));
-                assert.equal('Score', activity.type, kendo.format(assert.messages.instanceof.default, 'activity.type', 'Score'));
+                assert.instanceof(models.MobileActivity, activity, assert.format(assert.messages.instanceof.default, 'activity', 'app.models.MobileActivity'));
+                assert.equal('Score', activity.type, assert.format(assert.messages.instanceof.default, 'activity.type', 'Score'));
                 $.when(
                     viewModel.loadSummary({ language: i18n.locale(), id: activity.get('version.summaryId') }),
                     viewModel.loadVersion({ language: i18n.locale(), summaryId: activity.get('version.summaryId'), id: activity.get('version.versionId') })
@@ -2670,8 +2765,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSettingsSwitchClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             // Navigate to the user view
             mobile.application.navigate(HASH + VIEW.USER);
         };
@@ -2679,7 +2774,6 @@ window.jQuery.holdReady(true);
         /**
          * Parse token and load user
          * @param url
-         * @param callback
          * @private
          */
         mobile._parseTokenAndLoadUser = function (url) {
@@ -2697,19 +2791,26 @@ window.jQuery.holdReady(true);
                     method: 'mobile._parseTokenAndLoadUser',
                     data: { url: url }
                 });
-                dfd.reject(new Error(token.error)); // Make it an XHRError?
+                dfd.reject(new Error(token.error)); // TODO Make it an XHRError to match viewModel.loadUser
                 /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
             } else if (token && token.access_token) {
                 /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                 // Load the remote mobile user (me) using the oAuth token
+                // We cannot navigate to a page here because the initial page is defined in the constructor of kendo.mobile.Application
                 viewModel.loadUser()
-                    .done(function (data) {
+                    .done(function () {
                         // Yield time for transition effects to complete, especially when testing in the browser
                         // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
                         // app.mobile.application.view().one('transitionEnd', function () {
                         setTimeout(function () {
-                            mobile.application.navigate(HASH + VIEW.USER);
-                            dfd.resolve(data);
+                            if (viewModel.isNewUser$()) {
+                                // Save new user first
+                                mobile.application.navigate(HASH + VIEW.USER);
+                            } else {
+                                // Sync user data since we have a recent token
+                                mobile.application.navigate(HASH + VIEW.SYNC);
+                            }
+                            dfd.resolve();
                         }, 0);
                     })
                     .fail(dfd.reject);
@@ -2718,16 +2819,61 @@ window.jQuery.holdReady(true);
         };
 
         /**
+         * Event handler triggered when initializing the signin view
+         * @param e
+         */
+        mobile.onSigninViewInit = function (e) {
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            var view = e.view;
+            var scrollViewElement = view.content.find(kendo.roleSelector('scrollview'));
+            var scrollViewWidget = scrollViewElement.data('kendoMobileScrollView');
+            if (scrollViewWidget instanceof kendo.mobile.ui.ScrollView) {
+                // Note: the change event occurs a little bit late to coordinate scrolling with titles and styles
+                scrollViewWidget.bind('changing', function (e) {
+                    // Note: The user needs to scroll through pages for this event to be triggered
+                    // Especially, it is not triggered when showing the initial page, so page 0 has default values
+                    assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                    assert.type(NUMBER, e.nextPage, assert.format(assert.messages.type.default, 'e.nextPage', NUMBER));
+                    if (e.nextPage === 3) {
+                        mobile._setNavBarTitle(view, i18n.culture.signin.viewTitle2);
+                        view.content.find('ol.k-pages.km-pages').addClass('no-background');
+                    } else {
+                        mobile._setNavBarTitle(view);
+                        view.content.find('ol.k-pages.km-pages').removeClass('no-background');
+                    }
+                });
+            }
+        };
+
+        /**
          * Event handler triggered when showing the signin view
          * @param e
          */
         mobile.onSigninViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            mobile.enableSigninButtons(true);
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+
+            // Parse token
+            // TODO was if (!mobile.support.inAppBrowser && !mobile.support.safariViewController) {
             if (!mobile.support.inAppBrowser) {
+                e.preventDefault();
                 mobile._parseTokenAndLoadUser(window.location.href);
             }
+
+            // Enable buttons
+            mobile.enableSigninButtons(true);
+
+            // Scroll to page if designated in e.view.params
+            var view = e.view;
+            var scrollViewElement = view.content.find(kendo.roleSelector('scrollview'));
+            var scrollViewWidget = scrollViewElement.data('kendoMobileScrollView');
+            // Scroll to page 0 unless there is a page in params
+            if (scrollViewWidget instanceof kendo.mobile.ui.ScrollView) {
+                scrollViewWidget.scrollTo(parseInt(view.params.page, 10) || 0, true);
+            }
+
+            // Generic handler
             mobile.onGenericViewShow(e);
         };
 
@@ -2746,10 +2892,10 @@ window.jQuery.holdReady(true);
          * @param signInUrl
          * @private
          */
-        mobile._signInWithSafariViewController = function (signInUrl) {
+        mobile._signinWithSafariViewController = function (signInUrl) {
             logger.debug({
                 message: 'opening signInUrl in SafariViewController',
-                method: 'mobile._signInWithSafariViewController',
+                method: 'mobile._signinWithSafariViewController',
                 data: { signInUrl: signInUrl }
             });
             mobile.SafariViewController.isAvailable(function (available) {
@@ -2769,14 +2915,14 @@ window.jQuery.holdReady(true);
                             // result has only one property, event which can take any value among 'opened', 'loaded' and 'closed'
                             logger.debug({
                                 message: 'safari/chrome successfully opened',
-                                method: 'mobile._signInWithSafariViewController',
+                                method: 'mobile._signinWithSafariViewController',
                                 data: { event: result.event }
                             });
                         },
                         function (msg) {
                             logger.error({
                                 message: 'safari/chrome failed to opened',
-                                method: 'mobile._signInWithSafariViewController',
+                                method: 'mobile._signinWithSafariViewController',
                                 error: new Error(msg)
                             });
                         });
@@ -2800,7 +2946,7 @@ window.jQuery.holdReady(true);
          * @param returnUrl
          * @private
          */
-        mobile._signInWithInAppBrowser = function (signInUrl, returnUrl) {
+        mobile._signinWithInAppBrowser = function (signInUrl, returnUrl) {
             var close = function () {
                 if (browser) { // Makes it idempotent in case it has already been called
                     browser.removeEventListener('loadstart', loadStart);
@@ -2810,7 +2956,7 @@ window.jQuery.holdReady(true);
                     browser = undefined;
                     logger.debug({
                         message: 'closed InAppBrowser',
-                        method: 'mobile._signInWithInAppBrowser'
+                        method: 'mobile._signinWithInAppBrowser'
                     });
                 }
             };
@@ -2823,7 +2969,7 @@ window.jQuery.holdReady(true);
                 // Has yet to be released - https://github.com/kidoju/Kidoju-Mobile/issues/34
                 logger.debug({
                     message: 'loadstart event of InAppBrowser',
-                    method: 'mobile._signInWithInAppBrowser',
+                    method: 'mobile._signinWithInAppBrowser',
                     data: { url: e.url }
                 });
                 // Once https://github.com/apache/cordova-plugin-inappbrowser/pull/99 is fixed
@@ -2838,7 +2984,7 @@ window.jQuery.holdReady(true);
                 // window.alert(JSON.stringify($.extend({}, error)));
                 logger.error({
                     message: 'loaderror event of InAppBrowser',
-                    method: 'mobile._signInWithInAppBrowser',
+                    method: 'mobile._signinWithInAppBrowser',
                     error: error,
                     data: { url: error.url }
                 });
@@ -2852,7 +2998,7 @@ window.jQuery.holdReady(true);
             browser.addEventListener('loaderror', loadError);
             logger.debug({
                 message: 'opening signInUrl in InAppBrowser',
-                method: 'mobile._signInWithInAppBrowser',
+                method: 'mobile._signinWithInAppBrowser',
                 data: { signInUrl: signInUrl }
             });
         };
@@ -2865,10 +3011,10 @@ window.jQuery.holdReady(true);
          * @param signInUrl
          * @private
          */
-        mobile._signInWithinBrowser = function (signInUrl) {
+        mobile._signinWithinBrowser = function (signInUrl) {
             logger.debug({
                 message: 'opening signInUrl in browser',
-                method: 'mobile._signInWithinBrowser',
+                method: 'mobile._signinWithinBrowser',
                 data: { signInUrl: signInUrl }
             });
             //
@@ -2880,8 +3026,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSigninButtonClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // Disable buttons to avoid double clicks
             mobile.enableSigninButtons(false);
@@ -2899,6 +3045,8 @@ window.jQuery.holdReady(true);
             // So if the device platform is a browser, we need to keep the sameflow as Kidoju-WebApp with a redirectUrl that targets the user view
             rapi.oauth.getSignInUrl(provider, returnUrl)
                 .done(function (signInUrl) {
+                    // Save provider to read in viewModel.loadUser
+                    localStorage.setItem('provider', provider); // TODO Manage errors
                     logger.debug({
                         message: 'getSignInUrl',
                         method: 'mobile.onSigninButtonClick',
@@ -2909,14 +3057,14 @@ window.jQuery.holdReady(true);
                         // running in Phonegap, using SFSafariViewController
                         // requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
                         // also requires https://github.com/EddyVerbruggen/Custom-URL-scheme
-                        mobile._signInWithSafariViewController(signInUrl);
+                        mobile._signinWithSafariViewController(signInUrl);
                     } else if (mobile.support.inAppBrowser) {
                         // running in Phonegap, using InAppBrowser
                         // requires https://github.com/apache/cordova-plugin-inappbrowser
-                        mobile._signInWithInAppBrowser(signInUrl, returnUrl);
+                        mobile._signinWithInAppBrowser(signInUrl, returnUrl);
                     } else {
                         // Running in a browser, simply redirect to signInUrl
-                        mobile._signInWithinBrowser(signInUrl);
+                        mobile._signinWithinBrowser(signInUrl);
                     }
                 })
                 .fail(function (xhr, status, error) {
@@ -2950,12 +3098,12 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSummaryViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var view = e.view;
             // load the summary
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
             var summaryId = e.view.params.summaryId;
             viewModel.loadSummary({ language: language, id: summaryId })
                 .always(function () {
@@ -2975,10 +3123,10 @@ window.jQuery.holdReady(true);
          * Event handler triggered when clicking the play option in the action sheet displayed from the GO button of summaries
          */
         mobile.onSummaryActionPlay = function () {
-            // assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            // assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
-            assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
 
             // Find latest version (version history is not available in the mobile app)
@@ -2992,11 +3140,11 @@ window.jQuery.holdReady(true);
                 .done(function () {
                     debugger;
                     var version = viewModel.versions.at(0); // First is latest version
-                    assert.instanceof(models.LazyVersion, version, kendo.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
-                    assert.match(RX_MONGODB_ID, version.get('id'), kendo.format(assert.messages.match.default, 'version.get(\'id")', RX_MONGODB_ID));
+                    assert.instanceof(models.LazyVersion, version, assert.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
+                    assert.match(RX_MONGODB_ID, version.get('id'), assert.format(assert.messages.match.default, 'version.get(\'id")', RX_MONGODB_ID));
                     // version has no language - we therfore assume same langauge
-                    // assert.equal(language, version.get('language'), kendo.format(assert.messages.equal.default, 'version.get(\'language")', language));
-                    assert.equal(summaryId, version.get('summaryId'), kendo.format(assert.messages.equal.default, 'version.get(\'summaryId")', summaryId));
+                    // assert.equal(language, version.get('language'), assert.format(assert.messages.equal.default, 'version.get(\'language")', language));
+                    assert.equal(summaryId, version.get('summaryId'), assert.format(assert.messages.equal.default, 'version.get(\'summaryId")', summaryId));
                     mobile.application.navigate(HASH + VIEW.PLAYER +
                         '?language=' + window.encodeURIComponent(language) +
                         '&summaryId=' + window.encodeURIComponent(summaryId) +
@@ -3058,89 +3206,137 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSyncViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var culture = i18n.culture.sync;
             var message = e.view.content.find('p.message');
             var passProgressBar = e.view.content.find('#sync-pass').data('kendoProgressBar');
             var percentProgressBar = e.view.content.find('#sync-percent').data('kendoProgressBar');
+
             // Update navigation bar
             mobile.onGenericViewShow(e);
+
             // Reset progress bars
-            passProgressBar.value(0);
-            percentProgressBar.value(0);
+            // passProgressBar.value(0);
+            // percentProgressBar.value(0);
+
             // Display custom status
             passProgressBar.unbind('change');
             passProgressBar.bind('change', function (e) {
                 e.sender.progressStatus.text(status.pass < 2 ? culture.pass.remote : culture.pass.local);
             });
-            // Bind continue button
+
+            // Disable continue button
             var continueButton = e.view.content.find('#sync-continue').data('kendoMobileButton');
             continueButton.unbind('click');
-            continueButton.bind('click', function (e) {
-                e.preventDefault();
-                // mobile.application.navigate(HASH + VIEW.ACTIVITIES + '?language=' + encodeURIComponent(language) + '&userId=' + encodeURIComponent(userId));
-                mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
-            });
+            continueButton.enable(false);
 
-            // TODO Signin if token has expired
-            // TODO connect progress bars
-            // TODO: batteries and network???
+            // Check network
+            if ((window.device && window.device.platform !== 'browser' && 'Connection' in window && window.navigator.connection.type !== window.Connection.ETHERNET && window.navigator.connection.type !== window.Connection.WIFI) ||
+                (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
+                return app.notification.warning(i18n.culture.notifications.syncBandwidthLow);
+            }
 
-            viewModel.activities.remoteSync().progress(function (status) {
-                message.text(culture.message[status.collection]);
-                passProgressBar.value(status.pass);
-                percentProgressBar.value(100 * (status.index + 1) / status.total);
-            });
+            // Check batteries
+            if ((!app.battery.status.isPlugged) && ($.type(app.battery.status.level) !== NUMBER || app.battery.status.level < 20)) {
+                return app.notification.warning(i18n.culture.notifications.syncBatteryLow);
+            }
+
+            // TODO: We need to sync in all languages
+
+            viewModel.activities.remoteSync()
+                .progress(function (status) {
+                    message.text(culture.message[status.collection]);
+                    passProgressBar.value(status.pass);
+                    percentProgressBar.value(100 * (status.index + 1) / status.total);
+                })
+                .done(function () {
+                    message.text(culture.message.complete);
+                    passProgressBar.value(2);
+                    percentProgressBar.value(1);
+
+                    // TODO Update user lastSync
+                    // Enable COntine button
+
+                })
+                .fail(function (xhr, status, error) {
+                    if (xhr.status === 401) {
+                        app.notification.error(i18n.culture.notifications.syncUnauthorized);
+                    } else {
+                        app.notification.error(i18n.culture.notifications.syncFailure);
+                    }
+                })
+                .always(function () {
+                    // Enable continue button
+                    continueButton.bind('click', function (e) {
+                        e.preventDefault();
+                        var language = i18n.locale();
+                        assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+                        mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
+                    });
+                    continueButton.enable(true);
+                })
         };
 
         /**
-         * Event handler triggered when showing the Tour view
-         * Note: the view event is triggered each time the view is requested
+         * Event handler triggered when hiding the sync view
          * @param e
          */
-        mobile.onTourViewShow = mobile.onGenericViewShow;
+        mobile.onSyncViewHide = function (e) {
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            var message = e.view.content.find('p.message');
+            var passProgressBar = e.view.content.find('#sync-pass').data('kendoProgressBar');
+            var percentProgressBar = e.view.content.find('#sync-percent').data('kendoProgressBar');
+
+            // Reset message
+            message.text('');
+
+            // Reset progress bars
+            passProgressBar.value(0);
+            percentProgressBar.value(0);
+        };
 
         /**
          * Event handler triggered when initializing the user view
          * @param e
          */
         mobile.onUserViewInit = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // Init pin textboxes if not already initialized
             // We have removed kendo.ui.MaskedTextBox because the experience was not great
             // especially because it always displays 4 password dots making the number of characters actually typed unclear
             e.view.element
                 .off(FOCUS + ' ' + INPUT + ' ' + KEYDOWN + ' ' + KEYPRESS, SELECTORS.PIN)
                 .on(FOCUS, SELECTORS.PIN, function (e) {
-                    assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                    assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                     assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
                     // Empty the pin input on focus
                     $(e.target).val('');
                 })
                 .on(INPUT, SELECTORS.PIN, function (e) {
-                    assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                    assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                     assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
                     // Note: android does not trigger the keypress event, so we need the input event
                     // Only keep the first 4 digits
                     $(e.target).val($(e.target).val().replace(/\D+/g, '').substr(0, 4));
                 })
                 .on(KEYDOWN, SELECTORS.PIN, function (e) {
-                    assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                    assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                     assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
                     if (e.which === 13) {
                         // This is a carriage return, so trigger the primary button
                         var viewElement = $(e.target).closest(kendo.roleSelector('view'));
                         var buttonElement = viewElement.find(kendo.roleSelector('button') + '.km-primary:visible');
-                        assert.equal(1, buttonElement.length, kendo.format(assert.messages.equal.default, 'buttonElement.length', '1'));
+                        assert.equal(1, buttonElement.length, assert.format(assert.messages.equal.default, 'buttonElement.length', '1'));
                         var buttonWidget = buttonElement.data('kendoMobileButton');
-                        assert.instanceof(kendo.mobile.ui.Button, buttonWidget, kendo.format(assert.messages.instanceof.default, 'buttonWidget', 'kendo.mobile.ui.Button'));
+                        assert.instanceof(kendo.mobile.ui.Button, buttonWidget, assert.format(assert.messages.instanceof.default, 'buttonWidget', 'kendo.mobile.ui.Button'));
                         buttonWidget.trigger(CLICK, { button: buttonElement });
                     }
                 })
                 .on(KEYPRESS, SELECTORS.PIN, function (e) {
-                    assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
+                    assert.instanceof($.Event, e, assert.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
                     assert.ok($(e.target).is(SELECTORS.PIN), '`e.target` should be a pin textbox');
                     // Special characters including backspace, delete, end, home and arrows do not trigger the keypress event (they trigger keydown though)
                     if (e.which < 48 || e.which > 57 || $(e.target).val().length > 3) {
@@ -3157,12 +3353,40 @@ window.jQuery.holdReady(true);
         };
 
         /**
+         * Event handler triggered when before the user view
+         * BEWARE: Because #user is the initial view designated in the constructor of kendo.mobile.Application
+         * this necessarily executes when loading the application
+         * @param e
+         */
+        mobile.onUserViewBeforeShow = function (e) {
+            // Note: we need this event because mobile.onRouteViewChange is not triggered on the initial page designated in the constructor of kendo.mobile.Application
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            var saved = viewModel.isSavedUser$();
+            var synced = viewModel.isSyncedUser$();
+            debugger;
+            /**
+            if (synced) {
+                e.preventDefault();
+                var language = i18n.locale();
+                assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+                mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + language);
+            } else if (saved) {
+                e.preventDefault();
+                mobile.application.navigate(HASH + VIEW.SIGNIN);
+            }
+            **/
+        };
+
+        /**
          * Event handler triggered when showing the user view
+         * BEWARE: Because #user is the initial view designated in the constructor of kendo.mobile.Application
+         * this necessarily executes when loading the application
          * @param e
          */
         mobile.onUserViewShow = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, kendo.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile.enableUserButtons(true);
             mobile.onGenericViewShow(e);
             // Display a notification
@@ -3180,55 +3404,52 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserSaveClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // Disable buttons to avoid double clicks
             mobile.enableUserButtons(false);
 
-            // Do we have matching pins?
+            // Get user from viewModel
+            var user = viewModel.get(VIEW_MODEL.USER.$);
+            assert.instanceof(models.MobileUser, user, assert.format(assert.messages.instanceof.default, 'user', 'models.MobileUser'));
+
+            // Read pin values
             var view = e.button.closest(kendo.roleSelector('view'));
             var pinElements = view.find(SELECTORS.PIN);
-            assert.equal(2, pinElements.length, kendo.format(assert.messages.equal.default, 'pinElements.length', '2'));
-            var pinValue = pinElements.first().val();
-            var confirmValue = pinElements.last().val();
+            assert.equal(3, pinElements.length, assert.format(assert.messages.equal.default, 'pinElements.length', '3'));
+            var pinValue = pinElements.eq(0).val();
+            var newPinValue = pinElements.eq(1).val();
+            var confirmValue = pinElements.eq(2).val();
 
-            if (RX_PIN.test(pinValue) && confirmValue === pinValue) {
-                var language = i18n.locale();
-                assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+            if ((user.isNew() && RX_PIN.test(newPinValue) && confirmValue === newPinValue) ||
+                (!user.isNew() && RX_PIN.test(newPinValue) && confirmValue === newPinValue && user.verifyPin(pinValue))) {
 
-                // Does the user already exist in database?
-                var sid = viewModel.get(VIEW_MODEL.USER.SID);
-                var user = viewModel.users.data().find(function (data) {
-                    return data.get('sid') === sid;
-                });
-
-                // If not found, add to local database
-                if (!(user instanceof models.MobileUser)) {
-                    user = viewModel.get(VIEW_MODEL.USER.$);
-                    viewModel.users.add(user);
-                }
-
-                // Set pin and lastUse properties
+                // Update user with new pin
+                user.addPin(newPinValue);
                 viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
-                user.addPin(pinValue);
 
-                // Synchronize
+                // Synchronize changes
                 viewModel.syncUsers()
-                    .done(function () {
-                        viewModel.set(VIEW_MODEL.USER.$, user);
+                    .done(function() {
                         // Trigger a change event to update user + settings view data bindings
-                        viewModel.trigger(CHANGE, { field: VIEW_MODEL.USER.$ });
+                        // viewModel.trigger(CHANGE, {field: VIEW_MODEL.USER.$});
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
-                        mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + language);
-                    })
-                    .always(function () {
+                        mobile.application.navigate(HASH + VIEW.SYNC);
+                    }).always(function() {
                         mobile.enableUserButtons(true);
                     });
 
+            } else if (!user.isNew() && RX_PIN.test(newPinValue) && confirmValue === newPinValue && !user.verifyPin(pinValue)) {
+
+                app.notification.warning(i18n.culture.notifications.pinValidationFailure);
+                mobile.enableUserButtons(true);
+
             } else {
+
                 app.notification.warning(i18n.culture.notifications.pinSaveFailure);
                 mobile.enableUserButtons(true);
+
             }
         };
 
@@ -3237,13 +3458,13 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserSignInClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // Check the correct pin
             var view = e.button.closest(kendo.roleSelector('view'));
             var pinElement = view.find(SELECTORS.PIN + ':visible');
-            assert.equal(1, pinElement.length, kendo.format(assert.messages.equal.default, 'pinElement.length', '1'));
+            assert.equal(1, pinElement.length, assert.format(assert.messages.equal.default, 'pinElement.length', '1'));
             var pinValue = pinElement.val();
 
             if (viewModel.user.verifyPin(pinValue)) {
@@ -3264,9 +3485,9 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserNewClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-            mobile.application.navigate(HASH + VIEW.SIGNIN);
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            mobile.application.navigate(HASH + VIEW.SIGNIN + '?page=3');
         };
 
         /**
@@ -3287,12 +3508,12 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarPreviousUserClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var viewElement = e.button.closest('.km-view');
-            assert.hasLength(viewElement, kendo.format(assert.messages.hasLength.default, 'viewElement'));
+            assert.hasLength(viewElement, assert.format(assert.messages.hasLength.default, 'viewElement'));
             var viewWidget = viewElement.data('kendoMobileView');
-            assert.instanceof(kendo.mobile.ui.View, viewWidget, kendo.format(assert.messages.instanceof.default, 'viewWidget', 'kendo.mobile.ui.View'));
+            assert.instanceof(kendo.mobile.ui.View, viewWidget, assert.format(assert.messages.instanceof.default, 'viewWidget', 'kendo.mobile.ui.View'));
             viewModel.previousUser();
             mobile._setNavBar(viewWidget);
         };
@@ -3302,12 +3523,12 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarNextUserClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var viewElement = e.button.closest('.km-view');
-            assert.hasLength(viewElement, kendo.format(assert.messages.hasLength.default, 'viewElement'));
+            assert.hasLength(viewElement, assert.format(assert.messages.hasLength.default, 'viewElement'));
             var viewWidget = viewElement.data('kendoMobileView');
-            assert.instanceof(kendo.mobile.ui.View, viewWidget, kendo.format(assert.messages.instanceof.default, 'viewWidget', 'kendo.mobile.ui.View'));
+            assert.instanceof(kendo.mobile.ui.View, viewWidget, assert.format(assert.messages.instanceof.default, 'viewWidget', 'kendo.mobile.ui.View'));
             viewModel.nextUser();
             mobile._setNavBar(viewWidget);
         };
@@ -3345,16 +3566,16 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarScoreClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var language = viewModel.get(VIEW_MODEL.CURRENT.VERSION.LANGUAGE);
-            assert.match(RX_LANGUAGE, language, kendo.format(assert.messages.match.default, 'language', RX_LANGUAGE));
+            assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
             var summaryId = viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARY_ID);
-            assert.match(RX_MONGODB_ID, summaryId, kendo.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
             var versionId = viewModel.get(VIEW_MODEL.CURRENT.VERSION.VERSION_ID);
-            assert.match(RX_MONGODB_ID, versionId, kendo.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, versionId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
             var activityId = viewModel.get(VIEW_MODEL.CURRENT.ID);
-            assert.match(RX_MONGODB_ID, activityId, kendo.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
             mobile.application.navigate(HASH + VIEW.SCORE +
                 '?language=' + encodeURIComponent(language) +
                 '&summaryId=' + encodeURIComponent(summaryId) +
@@ -3368,8 +3589,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarSubmitClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             mobile.dialogs.confirm(
                 i18n.culture.notifications.confirmSubmit,
                 function (buttonIndex) {
@@ -3391,14 +3612,14 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarSummaryClick = function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var language = i18n.locale();
-            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("language")', language));
-            assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
-            assert.equal(language, viewModel.get(VIEW_MODEL.VERSION.LANGUAGE), kendo.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
+            assert.equal(language, viewModel.get(VIEW_MODEL.VERSION.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
-            assert.equal(summaryId, viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID), kendo.format(assert.messages.equal.default, 'viewModel.get("version.summaryId")', summaryId));
+            assert.equal(summaryId, viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID), assert.format(assert.messages.equal.default, 'viewModel.get("version.summaryId")', summaryId));
             mobile.application.navigate(HASH + VIEW.SUMMARY +
                 '?language=' + encodeURIComponent(language) +
                 '&summaryId=' + encodeURIComponent(summaryId)
@@ -3430,7 +3651,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onPageSwipe =  function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             if (e.direction === 'left') {
                 viewModel.nextPage();
             } else if (e.direction === 'right') {
@@ -3443,7 +3664,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserSwipe =  function (e) {
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             if (e.direction === 'left') {
                 viewModel.nextUser();
             } else if (e.direction === 'right') {
@@ -3458,8 +3679,8 @@ window.jQuery.holdReady(true);
          */
         mobile.onTTSClick = function (e) {
             var SPEAKING = 'speaking';
-            assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof($, e.button, kendo.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // IMPORTANT: prevent bubbling considering parent element might have triggered the click
             e.preventDefault();
