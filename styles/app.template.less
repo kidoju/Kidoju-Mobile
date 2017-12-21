@@ -5,7 +5,7 @@
 //---------------------------------------------
 // Navbar
 .km-navbar {
-    height: 3rem; // We need this because we want the navbar in the drawer to be the same size as the navbar in the main layout
+    height: 3rem; // We need this because we want the navbar in the drawer to be the same size as the navbar in the main pain
 }
 //---------------------------------------------
 // The body tag
@@ -212,6 +212,20 @@
         vertical-align: top;
     }
     */
+    /**********************************************************
+    * Tour
+    **********************************************************/
+    .k-scrollview.km-scrollview {
+        div[data-role="page"] {
+            div.text {
+                background-color: @app-tour-background-color;
+                border-color: @app-tour-border-color;
+            }
+        }
+        ol.k-pages.km-pages {
+            background-color: @app-tour-background-color;
+        }
+    }
 }
 //---------------------------------------------
 // Listview filter

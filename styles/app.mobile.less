@@ -239,6 +239,46 @@ html, body {
     * Sign-in view
     **********************************************************/
     #signin {
+        .k-scrollview.km-scrollview {
+            border: none;
+            div[data-role="page"] {
+                overflow: hidden;
+                div.image {
+                    position: absolute;
+                    width: 80vmin;
+                    top: 10vmin;
+                    left: 50%;
+                    margin-left: -40vmin;
+                    img {
+                        width: 100%;
+                    }
+                }
+                div.text {
+                    position: absolute;
+                    bottom: 0;
+                    height: 30%;
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-style: solid;
+                    border-width: 1px 0 0 0;
+                    // background-color and border-color in app.template.less
+                    p {
+                        text-align: center;
+                        white-space: initial;
+                        width: 80%;
+                    }
+                }
+            }
+            ol.k-pages.km-pages {
+                // background-color in app.template.less
+                &.no-background {
+                    background-color: initial;
+                    border: none;
+                }
+            }
+        }
         .km-list > li {
             >span.km-icon {
                 display: none; // Fix for a useless span that breaks our layout
@@ -311,44 +351,6 @@ html, body {
                 p:first-child {
                     margin-top: 0;
                 }
-            }
-        }
-    }
-    /**********************************************************
-     * Tour view
-     **********************************************************/
-    #tour {
-        .k-scrollview.km-scrollview {
-            border: none;
-            div[data-role="page"] {
-                overflow: hidden;
-                div.image {
-                    position: absolute;
-                    width: 80vmin;
-                    top: 10vmin;
-                    left: 50%;
-                    margin-left: -40vmin;
-                    img {
-                        width: 100%;
-                    }
-                }
-                div.text {
-                    position: absolute;
-                    bottom: 0;
-                    height: 30%;
-                    width: 100%;
-                    background-color: #EDC87E;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    p {
-                        text-align: center;
-                        width: 80%;
-                    }
-                }
-            }
-            ol.k-pages.km-pages {
-                background-color: #EDC87E;
             }
         }
     }
