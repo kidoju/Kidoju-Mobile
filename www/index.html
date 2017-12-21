@@ -269,7 +269,7 @@
     </div>
 
     <!-- Correction view (Review mode) -->
-    <div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onCorrectionViewInit" data-show="app.mobile.onCorrectionViewShow" data-hide="app.mobile.onCorrectionViewHide">
+    <div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-hide="app.mobile.onCorrectionViewHide" data-init="app.mobile.onCorrectionViewInit" data-show="app.mobile.onCorrectionViewShow">
         <div class="stretched-item">
             <div class="centered">
                 <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
@@ -338,7 +338,7 @@
     </div>
 
     <!-- Player view -->
-    <div id="player" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow" data-hide="app.mobile.onPlayerViewHide">
+    <div id="player" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-hide="app.mobile.onPlayerViewHide" data-init="app.mobile.onPlayerViewInit" data-show="app.mobile.onPlayerViewShow">
         <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
         <div class="stretched-item">
             <div class="centered">
@@ -439,27 +439,42 @@
         </form>
         <div class="buttons">
             <a data-role="button" class="km-large km-justified km-primary" data-click="app.mobile.onSettingsSwitchClick">Switch user</a>
-            <a data-role="button" class="km-large km-justified" href="#tour">Take the tour</a>
         </div>
     </div>
 
     <!-- Sign-in view -->
-    <div id="signin" data-role="view" data-layout="main-layout" data-title="Sign in" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSigninViewShow">
-        <div class="k-widget k-notification k-notification-info">
-            <div class="k-notification-wrap">
-                <span class="k-icon k-i-info">Info</span>
-                <span class="k-text">Please select an authentication provider.</span>
-                <!--span class="k-icon k-i-close">Hide</span-->
+    <div id="signin" data-role="view" data-layout="main-layout" data-title="Sign in" data-transition="fade" data-stretch="true" data-model="app.mobile.viewModel" data-init="app.mobile.onSigninViewInit" data-show="app.mobile.onSigninViewShow">
+        <div data-role="scrollview" class="km-scrollview-overlay" data-content-height="100%">
+            <div data-role="page">
+                <div class="image"><img src="./img/tour/t1.svg"></div>
+                <div class="text"><p>Browse and search assessments, practice tests and quizzes organized by subject categories.</p></div>
+            </div>
+            <div data-role="page">
+                <div class="image"><img src="./img/tour/t2.svg"></div>
+                <div class="text"><p>Play questions, give answers and let the app compute your score.</p></div>
+            </div>
+            <div data-role="page">
+                <div class="image"><img src="./img/tour/t3.svg"></div>
+                <div class="text"><p>Track and measure your progresses.</p></div>
+            </div>
+            <div data-role="page">
+                <div class="k-widget k-notification k-notification-info">
+                    <div class="k-notification-wrap">
+                        <span class="k-icon k-i-info">Info</span>
+                        <span class="k-text">Please select an authentication provider.</span>
+                        <!--span class="k-icon k-i-close">Hide</span-->
+                    </div>
+                </div>
+                <form>
+                    <ul data-role="listview" data-filterable="false" data-style="inset">
+                        <li><button data-role="button" class="km-large km-justified" data-icon="google" data-provider="google" data-click="app.mobile.onSigninButtonClick">Google</button></li>
+                        <li><button data-role="button" class="km-large km-justified" data-icon="facebook" data-provider="facebook" data-click="app.mobile.onSigninButtonClick">Facebook</button></li>
+                        <li><button data-role="button" class="km-large km-justified" data-icon="twitter" data-provider="twitter" data-click="app.mobile.onSigninButtonClick">Twitter</button></li>
+                        <li><button data-role="button" class="km-large km-justified" data-icon="live" data-provider="live" data-click="app.mobile.onSigninButtonClick">Windows Live</button></li>
+                    </ul>
+                </form>
             </div>
         </div>
-        <form>
-            <ul data-role="listview" data-filterable="false" data-style="inset">
-                <li><button data-role="button" class="km-large km-justified" data-icon="google" data-provider="google" data-click="app.mobile.onSigninButtonClick">Google</button></li>
-                <li><button data-role="button" class="km-large km-justified" data-icon="facebook" data-provider="facebook" data-click="app.mobile.onSigninButtonClick">Facebook</button></li>
-                <li><button data-role="button" class="km-large km-justified" data-icon="twitter" data-provider="twitter" data-click="app.mobile.onSigninButtonClick">Twitter</button></li>
-                <li><button data-role="button" class="km-large km-justified" data-icon="live" data-provider="live" data-click="app.mobile.onSigninButtonClick">Windows Live</button></li>
-            </ul>
-        </form>
     </div>
 
     <!-- Summary view -->
@@ -528,7 +543,7 @@
     </div>
 
     <!-- Sync view -->
-    <div id="sync" data-role="view" data-layout="main-layout" data-title="Synchronization" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSyncViewShow">
+    <div id="sync" data-role="view" data-layout="main-layout" data-title="Synchronization" data-transition="fade" data-model="app.mobile.viewModel" data-hide="app.mobile.onSyncViewHide" data-show="app.mobile.onSyncViewShow">
         <img src="./img/icons/gearwheels.svg" alt="Progress" class="km-thumbnail picture">
         <h2 class="title">Progress</h2>
         <p class="message">Progress</p>
@@ -539,20 +554,8 @@
         <div class="buttons"><a id="sync-continue" data-role="button" href="#">Continue</a></div>
     </div>
 
-    <!-- Tour view: onboarding screens -->
-    <div id="tour" data-role="view" data-layout="main-layout" data-title="Tour" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onTourViewShow">
-        <div id="scrollView" data-role="scrollview" class="km-scrollview-overlay">
-            <div data-role="page">
-                Foo
-            </div>
-            <div data-role="page">
-                Bar
-            </div>
-        </div>
-    </div>
-
     <!-- User view -->
-    <div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
+    <div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onUserViewBeforeShow" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
         <div data-role="touch" data-enable-swipe="true" data-swipe="app.mobile.onUserSwipe">
             <img data-bind="invisible: isSavedUser$, attr: { src: user.largerPicture$, alt: user.fullName$ }" class="km-thumbnail picture">
             <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
@@ -576,11 +579,17 @@
                             <div data-bind="text: user.lastUse" data-format="g" class="right"></div>
                         </label>
                     </li>
-                    <li>
+                    <li data-bind="visible: isSavedUser$">
                         <label>
                             <span class="km-bold-font">PIN</span>
                             <!-- keep username to let browsers save your password -->
                             <input type="text" name="username" data-bind="value: user.sid" style="display:none;">
+                            <input type="password" class="pin" autocomplete="off">
+                        </label>
+                    </li>
+                    <li data-bind="invisible: isSavedUser$">
+                        <label>
+                            <span class="km-bold-font">New PIN</span>
                             <input type="password" class="pin" autocomplete="off">
                         </label>
                     </li>
