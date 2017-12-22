@@ -551,11 +551,11 @@
             <div id="sync-pass" data-role="progressbar" data-min="0" data-max="2"></div>
             <div id="sync-percent" data-role="progressbar" data-type="percent"></div>
         </div>
-        <div class="buttons"><a id="sync-continue" data-role="button" href="#">Continue</a></div>
+        <div class="buttons"><a data-role="button" href="#">Continue</a></div>
     </div>
 
     <!-- User view -->
-    <div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.mobile.viewModel" data-before-show="app.mobile.onUserViewBeforeShow" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
+    <div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.mobile.viewModel" data-init="app.mobile.onUserViewInit" data-show="app.mobile.onUserViewShow">
         <div data-role="touch" data-enable-swipe="true" data-swipe="app.mobile.onUserSwipe">
             <img data-bind="invisible: isSavedUser$, attr: { src: user.largerPicture$, alt: user.fullName$ }" class="km-thumbnail picture">
             <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">

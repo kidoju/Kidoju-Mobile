@@ -232,6 +232,9 @@
                 pass: {
                     remote: 'Remote',
                     local: 'Local'
+                },
+                buttons: {
+                    continue: 'Continue'
                 }
             },
             // User view
