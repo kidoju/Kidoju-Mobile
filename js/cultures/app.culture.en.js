@@ -141,6 +141,7 @@
                 syncBandwidthLow: 'You cannot synchronize with low bandwidth.',
                 syncBatteryLow: 'You cannot synchronize with low batteries.',
                 syncFailure: 'There has been an error syncing your data.',
+                syncSuccess: 'Mobile data successfully synchronized with remote servers.',
                 syncUnauthorized: 'You are unauthorised to synchronize. Please signin with an authentication provider.',
                 unknownError: 'There has been an unknown error. Please restart the app.',
                 userLoadFailure: 'There was an error loading your user profile.',

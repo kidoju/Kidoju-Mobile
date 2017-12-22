@@ -139,6 +139,7 @@
                 syncBandwidthLow: 'Vous ne pouvez pas synchroniser vos données avec une faible bande passante.',
                 syncBatteryLow: 'Vous ne pouvez pas synchroniser vos données avec des batteries déchargées.',
                 syncFailure: 'Il y a eu une erreur de synchronisation des données.',
+                syncSuccess: 'les données locales sont synchronisées avec les serveurs distants.',
                 syncUnauthorized: 'Vous n\'êtes pas autorisé à synchroniser vos données. Veuillez vous identifier avec un service d\'authentification.',
                 unknownError: 'Il y a eu une erreur inconnue. Veuillez redémarrer l\'app.',
                 userLoadFailure: 'Il y a eu une erreur lors du chargement du profil utilisateur.',

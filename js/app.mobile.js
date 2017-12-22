@@ -225,6 +225,7 @@ window.jQuery.holdReady(true);
                 ID: 'user.id',
                 // LANGUAGE: 'user.language',
                 LAST_NAME: 'user.lastName',
+                LAST_SYNC: 'user.lastSync',
                 LAST_USE: 'user.lastUse',
                 PROVIDER: 'user.provider',
                 SID: 'user.sid'
@@ -811,7 +812,7 @@ window.jQuery.holdReady(true);
              */
             isSyncedUser$: function () {
                 var user = viewModel.get(VIEW_MODEL.USER.$);
-                return (user instanceof models.MobileUser) && !user.isNew() && (viewModel.users.indexOf(user) > -1) && (Date.now() <= user.lastSync + 30 * 24 * 60 * 60 * 1000);
+                return (user instanceof models.MobileUser) && !user.isNew() && (viewModel.users.indexOf(user) > -1) && (Date.now() <= user.lastSync.getTime() + 30 * 24 * 60 * 60 * 1000);
             },
 
             /**
@@ -3264,15 +3265,15 @@ window.jQuery.holdReady(true);
                 return app.notification.warning(i18n.culture.notifications.syncBandwidthLow);
             }
 
-            // Check batteries: there is no way to ensure a battery event to set app.battery.status before syncing
+            // Check batteries
+            // Commented because there is no way to ensure a battery event to set app.battery.status before syncing
             /*
             if ((!app.battery.status.isPlugged) && ($.type(app.battery.status.level) !== NUMBER || app.battery.status.level < 20)) {
                 return app.notification.warning(i18n.culture.notifications.syncBatteryLow);
             }
             */
 
-            // TODO: We need to sync in all languages
-
+            // Synchronize activities
             viewModel.activities.remoteSync()
                 .progress(function (status) {
                     message.text(culture.message[status.collection]);
@@ -3280,19 +3281,37 @@ window.jQuery.holdReady(true);
                     percentProgressBar.value(100 * (status.index + 1) / status.total);
                 })
                 .done(function () {
-                    message.text(culture.message.complete);
                     passProgressBar.value(2);
-                    percentProgressBar.value(1);
+                    percentProgressBar.value(100);
 
-                    // TODO Update user lastSync
-                    // Enable COntine button
-
+                    // Update user
+                    var now = new Date();
+                    viewModel.set(VIEW_MODEL.USER.LAST_USE, now);
+                    viewModel.set(VIEW_MODEL.USER.LAST_SYNC, now);
+                    viewModel.users.sync()
+                        .done(function () {
+                            message.text(culture.message.complete);
+                            app.notification.success(i18n.culture.notifications.syncSuccess);
+                        })
+                        .fail(function (xhr, status, error) {
+                            app.notification.error(i18n.culture.notifications.userSaveFailure);
+                            logger.error({
+                                message: 'Error updating user after synchronization',
+                                method: 'mobile.onSyncViewShow',
+                                data: { error: error, status: status, responseText: xhr.responseText }
+                            });
+                        });
                 })
                 .fail(function (xhr, status, error) {
                     if (xhr.status === 401) {
                         app.notification.error(i18n.culture.notifications.syncUnauthorized);
                     } else {
                         app.notification.error(i18n.culture.notifications.syncFailure);
+                        logger.error({
+                            message: 'Error Synchronizing',
+                            method: 'mobile.onSyncViewShow',
+                            data: { error: error, status: status, responseText: xhr.responseText }
+                        });
                     }
                 })
                 .always(function () {
