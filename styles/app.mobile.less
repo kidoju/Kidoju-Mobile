@@ -285,13 +285,15 @@ html, body {
             }
             .km-button {
                 width: 100%;
-                color: #ffffff;
                 .km-icon {
                     margin-left: -0.7em;
                     margin-right: 0.7em;
                 }
             }
-            .km-button[data-provider="google"] {
+            .km-button[data-provider]:not(.km-state-disabled) {
+                color: #ffffff;
+            }
+            .km-button[data-provider="google"]:not(.km-state-disabled) {
                 background-color: #d9534f;
                 border-color: #d43f3a;
             }
@@ -299,7 +301,7 @@ html, body {
                 background-color: #c9302c;
                 border-color: #ac2925;
             }
-            .km-button[data-provider="facebook"] {
+            .km-button[data-provider="facebook"]:not(.km-state-disabled) {
                 background-color: #337ab7;
                 border-color: #2e6da4;
             }
@@ -307,7 +309,7 @@ html, body {
                 background-color: #204d74;
                 border-color: #122b40;
             }
-            .km-button[data-provider="twitter"] {
+            .km-button[data-provider="twitter"]:not(.km-state-disabled) {
                 background-color: #5bc0de;
                 border-color: #46b8da;
             }
@@ -315,7 +317,7 @@ html, body {
                 background-color: #31b0d5;
                 border-color: #269abc;
             }
-            .km-button[data-provider="live"] {
+            .km-button[data-provider="live"]:not(.km-state-disabled) {
                 background-color: #5cb85c;
                 border-color: #4cae4c;
             }
