@@ -80,7 +80,8 @@
             var versionId = activity.version.versionId;
 
             function upsert(activity, version, deferred) {
-                if ((activity.type === 'Score' && version.type === 'Test') &&
+                // TODO if ((activity.type === 'Score' && version.type === 'Test') &&
+                if ((activity.type.toLowerCase() === 'score' && version.type.toLowerCase() === 'test') &&
                     ($.type(constants.authorId) === UNDEFINED || constants.authorId === version.userId) &&
                     ($.type(constants.language) === UNDEFINED || constants.language === language) &&
                     ($.type(constants.rootCategoryId[language]) === UNDEFINED || version.categoryId.startsWith(ROOT_CATEGORY_ID[language]))) {
@@ -155,7 +156,7 @@
                 app.db.summaries.update({ id: summaryId }, { activities: version.activities }).done(dfd.resolve).fail(dfd.reject);
             } else {
                 // Get remote summary
-                var summaries = app.rapi.v2.summaries({language: language}); //, type: 'Test' });
+                var summaries = app.rapi.v2.summaries({language: language}); // TODO , type: 'Test' });
                 summaries.get(summaryId)
                     .done(function(summary) {
                         // Propagate activities from version to summary
@@ -168,8 +169,7 @@
             return dfd.promise();
         });
 
-        // TODO Triggers;
-        // 3. We could use trigger to create/update/remove MobileUser picture
+        // TODO We could also use a trigger to create/update/remove MobileUser picture
 
         /**
          * Migrations
