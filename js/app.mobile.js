@@ -159,6 +159,7 @@ window.jQuery.holdReady(true);
         var LEVEL_CHARS = 4;
         var TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
         var RX_TOP_LEVEL_MATCH = new RegExp('^[a-z0-9]{' + TOP_LEVEL_CHARS + '}0{' + (24 - TOP_LEVEL_CHARS) + '}$');
+        var SIGNIN_PAGE = 3; // Last page of walkthrough tour
         var HASH = '#';
         var LAYOUT = {
             MAIN: 'main-layout'
@@ -221,9 +222,11 @@ window.jQuery.holdReady(true);
                 $: 'user',
                 ROOT_CATEGORY_ID: 'user.rootCategoryId',
                 FIRST_NAME: 'user.firstName',
+                ID: 'user.id',
                 // LANGUAGE: 'user.language',
                 LAST_NAME: 'user.lastName',
                 LAST_USE: 'user.lastUse',
+                PROVIDER: 'user.provider',
                 SID: 'user.sid'
                 // THEME: 'user.theme'
             },
@@ -1804,10 +1807,10 @@ window.jQuery.holdReady(true);
 
             // Localize sync
             viewElement = $(HASH + VIEW.SYNC);
-            var viewWidget = viewElement.data('kendoMobileView');
             // Note: we could also localize image alt attribute
             viewElement.find('h2.title').html(culture.sync.title);
             // viewElement.find('p.message').html(culture.sync.message);
+            viewElement.find(kendo.roleSelector('button')).text(culture.sync.buttons.continue);
 
             // Localize user
             viewElement = $(HASH + VIEW.USER);
@@ -2066,9 +2069,21 @@ window.jQuery.holdReady(true);
             // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
             kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.name === 'android' ? 0 : 20);
             // Considering potential adverse effects with drag and drop, we are using http://docs.telerik.com/kendo-ui/api/javascript/mobile/ui/button#configuration-clickOn
+            // Initial page
+            var initial = HASH;
+            if (viewModel.isSyncedUser$()) {
+                // The viewModel user has been recently synced, show the user view
+                initial += VIEW.USER;
+            } else if (viewModel.isSavedUser$()) {
+                // The viewModel user has not been synced for a while, suggest to signin to sync
+                initial += VIEW.SIGNIN + '?page=' + encodeURIComponent(SIGNIN_PAGE) + '&userId=' + encodeURIComponent(viewModel.get(VIEW_MODEL.USER.ID));
+            } else {
+                // The viewModel user is new, show walkthrough before signing in
+                initial += VIEW.SIGNIN;
+            }
             // Initialize application
             mobile.application = new kendo.mobile.Application(document.body, {
-                initial: HASH + (viewModel.isSavedUser$() ? VIEW.USER : VIEW.SIGNIN),
+                initial: initial,
                 skin: app.theme.name(),
                 // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
                 // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
@@ -2837,7 +2852,7 @@ window.jQuery.holdReady(true);
                     // Especially, it is not triggered when showing the initial page, so page 0 has default values
                     assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
                     assert.type(NUMBER, e.nextPage, assert.format(assert.messages.type.default, 'e.nextPage', NUMBER));
-                    if (e.nextPage === 3) {
+                    if (e.nextPage === SIGNIN_PAGE) {
                         mobile._setNavBarTitle(view, i18n.culture.signin.viewTitle2);
                         view.content.find('ol.k-pages.km-pages').addClass('no-background');
                     } else {
@@ -2855,24 +2870,27 @@ window.jQuery.holdReady(true);
         mobile.onSigninViewShow = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            var view = e.view;
 
             // Parse token
-            // TODO was if (!mobile.support.inAppBrowser && !mobile.support.safariViewController) {
+            // TODO was: if (!mobile.support.inAppBrowser && !mobile.support.safariViewController) {
             if (!mobile.support.inAppBrowser) {
                 e.preventDefault();
                 mobile._parseTokenAndLoadUser(window.location.href);
             }
 
             // Enable buttons
-            mobile.enableSigninButtons(true);
+            var provider = view.params.userId === viewModel.get(VIEW_MODEL.USER.ID) ? viewModel.get(VIEW_MODEL.USER.PROVIDER) : '';
+            mobile.enableSigninButtons(provider || true);
 
             // Scroll to page if designated in e.view.params
-            var view = e.view;
             var scrollViewElement = view.content.find(kendo.roleSelector('scrollview'));
             var scrollViewWidget = scrollViewElement.data('kendoMobileScrollView');
             // Scroll to page 0 unless there is a page in params
             if (scrollViewWidget instanceof kendo.mobile.ui.ScrollView) {
-                scrollViewWidget.scrollTo(parseInt(view.params.page, 10) || 0, true);
+                var page = parseInt(view.params.page, 10) || 0;
+                scrollViewWidget.trigger('changing', { nextPage: page });
+                scrollViewWidget.scrollTo(page, true);
             }
 
             // Generic handler
@@ -3087,10 +3105,17 @@ window.jQuery.holdReady(true);
          * @param enable
          */
         mobile.enableSigninButtons = function (enable) {
+            // enable is either a boolean or a provider
+            // If it is a provider, only enable the button corresponding to this provider
+            var provider = $.type(enable) === STRING ? enable : '';
+            enable = provider.length ? false : enable;
+
             $(HASH + VIEW.SIGNIN).children(kendo.roleSelector('content')).find(kendo.roleSelector('button')).each(function () {
+                var buttonElement = $(this);
+                var buttonProvider = buttonElement.attr(kendo.attr('provider'));
                 var buttonWidget = $(this).data('kendoMobileButton');
                 if (buttonWidget instanceof kendo.mobile.ui.Button) {
-                    buttonWidget.enable(enable);
+                    buttonWidget.enable(enable || (buttonProvider === provider));
                 }
             });
         };
@@ -3228,8 +3253,8 @@ window.jQuery.holdReady(true);
                 e.sender.progressStatus.text(status.pass < 2 ? culture.pass.remote : culture.pass.local);
             });
 
-            // Disable continue button
-            var continueButton = e.view.content.find('#sync-continue').data('kendoMobileButton');
+            // Disable single continue button
+            var continueButton = e.view.content.find(kendo.roleSelector('button')).data('kendoMobileButton');
             continueButton.unbind('click');
             continueButton.enable(false);
 
@@ -3354,32 +3379,6 @@ window.jQuery.holdReady(true);
                 window.alert($(e.target).attr('src'));
             });
             */
-        };
-
-        /**
-         * Event handler triggered when before the user view
-         * BEWARE: Because #user is the initial view designated in the constructor of kendo.mobile.Application
-         * this necessarily executes when loading the application
-         * @param e
-         */
-        mobile.onUserViewBeforeShow = function (e) {
-            // Note: we need this event because mobile.onRouteViewChange is not triggered on the initial page designated in the constructor of kendo.mobile.Application
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
-            assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            var saved = viewModel.isSavedUser$();
-            var synced = viewModel.isSyncedUser$();
-            debugger;
-            /**
-            if (synced) {
-                e.preventDefault();
-                var language = i18n.locale();
-                assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
-                mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + language);
-            } else if (saved) {
-                e.preventDefault();
-                mobile.application.navigate(HASH + VIEW.SIGNIN);
-            }
-            **/
         };
 
         /**
