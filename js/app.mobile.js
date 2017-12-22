@@ -1540,10 +1540,10 @@ window.jQuery.holdReady(true);
             /* jshint maxcomplexity: 13 */
             assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
             var viewElement = view.element;
-            var showBackButton = false;
             var showDrawerButton = false;
-            // We do not show the first page button to leave room for the drawer button
             var showHomeButton = false;
+            var showUserButton = false;
+            // We do not show the first page button to leave room for the drawer button
             // var showFirstPageButton = false;
             var showPreviousPageButton = false;
             var showPreviousUserButton = false;
@@ -1599,7 +1599,7 @@ window.jQuery.holdReady(true);
                     showDrawerButton = true;
                     break;
                 case HASH + VIEW.SIGNIN:
-                    showBackButton = viewModel.isSavedUser$();
+                    showUserButton = viewModel.isSavedUser$();
                     break;
                 case HASH + VIEW.SUMMARY:
                     showDrawerButton = true;
@@ -1616,9 +1616,9 @@ window.jQuery.holdReady(true);
                     break;
             }
             // Note: each view has no button by default, so let's fix that
-            viewElement.find(HASH + LAYOUT.MAIN + '-back').css({ display: showBackButton ? DISPLAY.INLINE : DISPLAY.NONE });
             viewElement.find(HASH + LAYOUT.MAIN + '-drawer').css({ display: showDrawerButton ? DISPLAY.INLINE : DISPLAY.NONE });
             viewElement.find(HASH + LAYOUT.MAIN + '-home').css({ display: showHomeButton ? DISPLAY.INLINE : DISPLAY.NONE });
+            viewElement.find(HASH + LAYOUT.MAIN + '-user').css({ display: showUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
             // viewElement.find(HASH + LAYOUT.MAIN + '-first-page').css({ display: showFirstPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
             viewElement.find(HASH + LAYOUT.MAIN + '-previous-page').css({ display: showPreviousPageButton ? DISPLAY.INLINE : DISPLAY.NONE });
             viewElement.find(HASH + LAYOUT.MAIN + '-previous-user').css({ display: showPreviousUserButton ? DISPLAY.INLINE : DISPLAY.NONE });
@@ -2873,8 +2873,8 @@ window.jQuery.holdReady(true);
             var view = e.view;
 
             // Parse token
-            // TODO was: if (!mobile.support.inAppBrowser && !mobile.support.safariViewController) {
-            if (!mobile.support.inAppBrowser) {
+            if (!mobile.support.inAppBrowser && !mobile.support.safariViewController) {
+                // TODO was: if (!mobile.support.inAppBrowser) {
                 e.preventDefault();
                 mobile._parseTokenAndLoadUser(window.location.href);
             }
