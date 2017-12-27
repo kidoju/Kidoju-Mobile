@@ -206,23 +206,37 @@
             init: function (options) {
                 options = options || {};
                 this.idField = options.idField || 'id';
-                this.setPartition(options.partition);
+                this.partition(options.partition);
+                this.projection(options.projection);
+                if ($.isFunction(options.parameterMap)) {
+                    this.parameterMap = options.parameterMap.bind(this);
+                }
             },
 
             /**
-             * Sets a table partition (kind of permanent filter)
-             * @param partition
+             * Gets/Sets the partition (kind of permanent filter)
+             * @param value
              */
-            setPartition: function (partition) {
-                // `version.language` (mandatory) and `version.summaryId` (mandatory)
-                this._partition = partition;
+            partition: function (value) {
+                if ($.type(value) === UNDEFINED) {
+                    return this._partition;
+                } else if ($.isPlainObject(value)) {
+                    this._partition = value;
+                } else {
+                    this._partition = undefined;
+                }
             },
 
             /**
-             * Gets the partition
+             * Gets/Sets the projection (list of fields to return)
+             * @param value
              */
-            partition: function () {
-                return this._partition;
+            projection: function (value) {
+                if ($.type(value) === UNDEFINED) {
+                    return this._projection;
+                } else { // Any preferred type?
+                    this._projection = value;
+                }
             },
 
             /**
@@ -2059,7 +2073,7 @@
              */
             load: function (options) {
                 if (options && $.isPlainObject(options.partition)) {
-                    this.transport.setPartition(options.partition);
+                    this.transport.partition(options.partition);
                 }
                 return this.query(options);
             }
@@ -2463,7 +2477,7 @@
              */
             load: function (options) {
                 if (options && $.isPlainObject(options.partition)) {
-                    this.transport.setPartition(options.partition);
+                    this.transport.partition(options.partition);
                 }
                 return this.query(options);
             }
@@ -2829,7 +2843,7 @@
              */
             load: function (options) {
                 if (options && $.isPlainObject(options.partition)) {
-                    this.transport.setPartition(options.partition);
+                    this.transport.partition(options.partition);
                 }
                 return this.query(options);
             }

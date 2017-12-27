@@ -949,7 +949,7 @@ window.jQuery.holdReady(true);
                 // List of activities
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
                 assert.instanceof(models.MobileActivityDataSource, activities, assert.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
-                activities.transport.setPartition({
+                activities.transport.partition({
                     'actor.userId': userId,
                     'type': 'Score',
                     'version.language': language
@@ -975,7 +975,7 @@ window.jQuery.holdReady(true);
                 var summaries = this.get(VIEW_MODEL.SUMMARIES);
                 assert.instanceof(models.LazySummaryDataSource, summaries, assert.format(assert.messages.instanceof.default, 'summaries', 'app.models.LazySummaryDataSource'));
                 summaries.setUserId(userId);
-                summaries.transport.setPartition({
+                summaries.transport.partition({
                     'author.userId': app.constants.authorId,
                     language: language,
                     type: 'Test'
@@ -997,7 +997,7 @@ window.jQuery.holdReady(true);
                 // Other versions in the same summary (only used to play the latest)
                 var versions = this.get(VIEW_MODEL.VERSIONS);
                 assert.instanceof(models.LazyVersionDataSource, versions, assert.format(assert.messages.instanceof.default, 'versions', 'app.models.LazyVersionDataSource'));
-                versions.transport.setPartition({
+                versions.transport.partition({
                     language: language,
                     summaryId: '000000000000000000000000'
                 }); // resets partition
@@ -1033,7 +1033,7 @@ window.jQuery.holdReady(true);
                     activities.transport.partition()['actor.userId'] === options.userId) {
                     dfd.resolve();
                 } else {
-                    activities.transport.setPartition({
+                    activities.transport.partition({
                         'actor.userId': options.userId,
                         type: 'Score',
                         'version.language': options.language
@@ -2742,11 +2742,10 @@ window.jQuery.holdReady(true);
             // Get the activity id from params
             var activityId = e.view.params.activityId; // Note: activityId is a local id (not a sid)
             if (RX_MONGODB_ID.test(activityId)) {
-                // TODO: reload activities ???
                 // If we have an activityId, replace the current test to display score and correction
                 var activity = viewModel.activities.get(activityId);
                 assert.instanceof(models.MobileActivity, activity, assert.format(assert.messages.instanceof.default, 'activity', 'app.models.MobileActivity'));
-                assert.equal('Score', activity.type, assert.format(assert.messages.instanceof.default, 'activity.type', 'Score'));
+                assert.equal('Score', activity.type, assert.format(assert.messages.equal.default, 'activity.type', 'Score'));
                 $.when(
                     viewModel.loadSummary({ language: i18n.locale(), id: activity.get('version.summaryId') }),
                     viewModel.loadVersion({ language: i18n.locale(), summaryId: activity.get('version.summaryId'), id: activity.get('version.versionId') })
@@ -3166,7 +3165,6 @@ window.jQuery.holdReady(true);
                 partition: { language: language, summaryId: summaryId },
                 sort: { field: 'id', dir: 'desc' } })
                 .done(function () {
-                    debugger;
                     var version = viewModel.versions.at(0); // First is latest version
                     assert.instanceof(models.LazyVersion, version, assert.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
                     assert.match(RX_MONGODB_ID, version.get('id'), assert.format(assert.messages.match.default, 'version.get(\'id")', RX_MONGODB_ID));
@@ -3510,6 +3508,16 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             mobile.application.navigate(HASH + VIEW.SIGNIN + '?page=3');
+        };
+
+        /**
+         * Event handler triggered when clicking the change pin button of the user view
+         * @param e
+         */
+        mobile.onUserChangePin = function (e) {
+            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
+            window.alert('Not yet implemented'); // TODO
         };
 
         /**

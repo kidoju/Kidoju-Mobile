@@ -150,7 +150,7 @@
                     var data = {};
                     data[that.idField] = options[that.idField];
                     delete options[that.idField];
-                    that.transport.setPartition(options);
+                    that.transport.partition(options);
                     that.transport.get({
                         data: that.transport.parameterMap(data, 'get'),
                         error: dfd.reject,
@@ -182,7 +182,7 @@
                 var that = this;
                 var dfd = $.Deferred();
                 if (that.isNew()) {
-                    // that.transport.setPartition must have been called when loading
+                    // that.transport.partition() must have been called when loading
                     that.transport.create({
                         data: that.transport.parameterMap(that.toJSON(), 'create'),
                         error: dfd.reject,
@@ -236,17 +236,21 @@
             },
 
             /**
-             * Sets a partition
-             * @param partition
+             * Gets/sets a partition
+             * @param value
              */
-            setPartition: function (partition) {
-                models.BaseTransport.fn.setPartition.call(this, partition);
-                this._rapi = this._collection(this._partition);
-                assert.isFunction(this._rapi.create, kendo.format(assert.messages.isFunction.default, 'this._rapi.create'));
-                assert.isFunction(this._rapi.destroy, kendo.format(assert.messages.isFunction.default, 'this._rapi.destroy'));
-                assert.isFunction(this._rapi.get, kendo.format(assert.messages.isFunction.default, 'this._rapi.get'));
-                assert.isFunction(this._rapi.read, kendo.format(assert.messages.isFunction.default, 'this._rapi.read'));
-                assert.isFunction(this._rapi.update, kendo.format(assert.messages.isFunction.default, 'this._rapi.update'));
+            partition: function (value) {
+                if ($.type(value) === UNDEFINED) {
+                    return models.BaseTransport.fn.partition.call(this);
+                } else {
+                    models.BaseTransport.fn.partition.call(this, value);
+                    this._rapi = this._collection(this._partition);
+                    assert.isFunction(this._rapi.create, kendo.format(assert.messages.isFunction.default, 'this._rapi.create'));
+                    assert.isFunction(this._rapi.destroy, kendo.format(assert.messages.isFunction.default, 'this._rapi.destroy'));
+                    assert.isFunction(this._rapi.get, kendo.format(assert.messages.isFunction.default, 'this._rapi.get'));
+                    assert.isFunction(this._rapi.read, kendo.format(assert.messages.isFunction.default, 'this._rapi.read'));
+                    assert.isFunction(this._rapi.update, kendo.format(assert.messages.isFunction.default, 'this._rapi.update'));
+                }
             },
 
             /**
@@ -258,9 +262,9 @@
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
-                // TODO: projections
+                // Fields are part of options.data, filter and sort order are not applicable
                 var data = this.parameterMap(options.data, 'get');
-                this._rapi.get(data[this.idField]).done(options.success).fail(options.error);
+                this._rapi.get(data[this.idField], { fields: data.fields }).done(options.success).fail(options.error);
             },
 
             /**
@@ -274,13 +278,13 @@
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 var partition = this.partition();
                 if ($.type(partition) === UNDEFINED) {
-                    // Makes it possible to create the data source without partition considering its load method
-                    // But this can be bypassed by passing { partition: false }
+                    // This lets us create a dataSource without knowing the partition, which can be set in the load method of the data source
                     options.success({ total: 0, data: [] });
                 } else {
-                    // Fields, filters and default sort order are assigned in this._rapi.read
-                    // TODO: projections
+                    // Fields, filters and default sort order are part of options.data
+                    // Note: parameterMap can be used to merge filter and partition as needed
                     var data = this.parameterMap(options.data, 'read');
+                    data.partition = undefined;
                     this._rapi.read(data).done(options.success).fail(options.error);
                 }
             }
@@ -328,7 +332,7 @@
                 // Validate data against partition
                 var err = this._validate(data);
                 if (err) {
-                    return options.error.apply(this, error2XHR(err));
+                    return options.error.apply(this, error2XHR(err)); // TODO review error2XHR
                 }
                 // Execute request
                 this._rapi.destroy(data[this.idField])
@@ -391,15 +395,15 @@
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 logger.debug({
                     message: 'Get mobile data',
-                    method: 'app.models.MobileTransport.get',
+                    method: 'app.models.LazyMobileTransport.get',
                     data: options.data
                 });
                 var data = this.parameterMap(options.data, 'get');
                 var query = {};
                 query[this.idField] = data[this.idField];
-                var projection; // TODO
-                this._collection.findOne(query, projection)
+                this._collection.findOne(query, this.projection())
                     .done(function(result) {
+                        debugger;
                         options.success(result);
                     })
                     .fail(function(error) {
@@ -419,12 +423,11 @@
                 var partition = this.partition();
                 logger.debug({
                     message: 'Read mobile data',
-                    method: 'app.models.MobileTransport.read',
+                    method: 'app.models.LazyMobileTransport.read',
                     data: options.data
                 });
                 if ($.type(partition) === UNDEFINED) {
-                    // This lets us create a dataSource without knowing the partition, which can be set later with setPartition
-                    // Create the MobileTransport with options.partition: false to avoid this test
+                    // This lets us create a dataSource without knowing the partition, which can be set in the load method of the data source
                     options.success({ total: 0, data: [] });
                 } else {
                     var query = this.parameterMap(options.data, 'read');
@@ -432,11 +435,9 @@
                     // Filter all records with __state___ === 'destroyed', considering partition is ignored when false
                     query.filter.filters.push({ field: '__state__', operator: 'neq',  value: STATE.DESTROYED });
                     query = pongodb.util.convertFilter(options.data.filter);
-                    // TODO debugger;
-                    this._collection.find(
-
-                    ) // TODO projection, options);
+                    this._collection.find(query, this.projection())
                         .done(function(result) {
+                            debugger;
                             if ($.isArray(result)) {
                                 options.success({ total: result.length, data: result });
                             } else {
@@ -470,7 +471,7 @@
                     data: options.data
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
-                var item = JSON.parse(JSON.stringify(options.data));
+                var item = JSON.parse(JSON.stringify(this.parameterMap(options.data, 'create')));
                 /*
                 if (item.updated) {
                     // Beware! JSON.parse(JSON.stringify(...)) converts dates to ISO Strings, so we need to be consistent
@@ -511,7 +512,7 @@
                     data: options.data
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
-                var item = JSON.parse(JSON.stringify(options.data));
+                var item = JSON.parse(JSON.stringify(this.parameterMap(options.data, 'destroy')));
                 var id = item.id;
                 if (item.__state__ === STATE.CREATED) {
                     // Items with __state__ === 'created' can be safely removed because they do not exist on the remote server
@@ -579,7 +580,7 @@
                     data: options.data
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
-                var item = JSON.parse(JSON.stringify(options.data));
+                var item = JSON.parse(JSON.stringify(this.parameterMap(options.data, 'update')));
                 if (item.updated) {
                     // Beware! JSON.parse(JSON.stringify(...)) converts dates to ISO Strings, so we need to be consistent
                     item.updated = new Date().toISOString();
@@ -687,22 +688,23 @@
             init: function (options) {
                 options = options || {};
                 this.remoteTransport = options.remoteTransport;
-                LazyMobileTransport.fn.init.call(this, options); // Calls setPartition
+                LazyMobileTransport.fn.init.call(this, options); // Calls partition() and projection()
             },
 
             /**
-             * Sets a table partition (kind of permanent filter)
-             * @param partition
+             * Gets/sets the partition (kind of permanent filter)
+             * @param value
              */
-            setPartition: function (partition) {
-                this.remoteTransport.setPartition(partition);
+            partition: function (value) {
+                return this.remoteTransport.partition(value);
             },
 
             /**
-             * Gets the partition
+             * Gets/sets the projection (list of fields to return)
+             * @param value
              */
-            partition: function () {
-                return this.remoteTransport.partition();
+            projection: function (value) {
+                return this.remoteTransport.projection(value);
             },
 
             /**
@@ -749,22 +751,23 @@
             init: function (options) {
                 options = options || {};
                 this.remoteTransport = options.remoteTransport;
-                MobileTransport.fn.init.call(this, options); // Calls setPartition
+                MobileTransport.fn.init.call(this, options); // Calls partition() and projection()
             },
 
             /**
-             * Sets a table partition (kind of permanent filter)
-             * @param partition
+             * Gets/sets the partition (kind of permanent filter)
+             * @param value
              */
-            setPartition: function (partition) {
-                this.remoteTransport.setPartition(partition);
+            partition: function (value) {
+                return this.remoteTransport.partition(value);
             },
 
             /**
-             * Gets the partition
+             * Gets/sets the projection (list of fields to return)
+             * @param value
              */
-            partition: function () {
-                return this.remoteTransport.partition();
+            projection: function (value) {
+                return this.remoteTransport.projection(value);
             },
 
             /**
@@ -925,22 +928,23 @@
             init: function (options) {
                 options = options || {};
                 this.remoteTransport = options.remoteTransport;
-                MobileTransport.fn.init.call(this, options); // Calls setPartition
+                MobileTransport.fn.init.call(this, options); // Calls partition() and projection()
             },
 
             /**
-             * Sets a table partition (kind of permanent filter)
-             * @param partition
+             * Gets/sets the partition (kind of permanent filter)
+             * @param value
              */
-            setPartition: function (partition) {
-                this.remoteTransport.setPartition(partition);
+            partition: function (value) {
+                return this.remoteTransport.partition(value);
             },
 
             /**
-             * Gets the partition
+             * Gets/sets the projection (list of fields to return)
+             * @param value
              */
-            partition: function () {
-                return this.remoteTransport.partition();
+            projection: function (value) {
+                return this.remoteTransport.projection(value);
             },
 
             /**
@@ -1027,6 +1031,10 @@
                         var promises = [];
                         for (var idx = 0; idx < length; idx++) {
                             var item = result[idx];
+                            // TODO This can be removed after updating Kidoju-Server as this fixes test vs. Test and score vs. Score
+                            if (item && $.type(item.type) === STRING && item.type.length) {
+                                item.type = item.type.substr(0, 1).toUpperCase() + item.type.substr(1).toLowerCase();
+                            }
                             promises.push(collection.update({ id: item.id }, item, { upsert: true })
                                 .always(function () {
                                     dfd.notify({ collection: collection.name(), pass: 2, index: idx, total: length});
@@ -1089,8 +1097,9 @@
                 var collection = that._collection;
                 var partition = that.remoteTransport._partition;
                 // TODO : how should we use lastSync? -------------------------------------------------------------------------------------
-                this._collection.find(partition)
+                this._collection.find(partition, this.projection())
                     .done(function (items) {
+                        debugger;
                         var promises = [];
                         var length = items.length;
                         for (var idx = 0; idx < length; idx ++) {
@@ -1787,7 +1796,7 @@
              */
             load: function (options) {
                 if (options && $.isPlainObject(options.partition)) {
-                    this.transport.setPartition(options.partition);
+                    this.transport.partition(options.partition);
                 }
                 return this.query(options);
             },
@@ -1887,7 +1896,7 @@
              */
             load: function (options) {
                 if (options && $.isPlainObject(options.partition)) {
-                    this.transport.setPartition(options.partition);
+                    this.transport.partition(options.partition);
                 }
                 return this.query(options);
             }
@@ -1956,7 +1965,7 @@
              */
             load: function (options) {
                 if (options && $.isPlainObject(options.partition)) {
-                    this.transport.setPartition(options.partition);
+                    this.transport.partition(options.partition);
                 }
                 return this.query(options);
             }
