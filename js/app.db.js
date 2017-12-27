@@ -39,7 +39,7 @@
             fr: (constants.rootCategoryId.fr || '').replace(RX_ZEROS, '')
         };
         var DB_NAME = 'KidojuDB';
-        var DB_VERSION = '0.3.4'; // TODO
+        var DB_VERSION = '0.3.4'; // TODO Change!
         var COLLECTION = {
             ACTIVITIES: 'activities',
             SUMMARIES: 'summaries',
@@ -80,8 +80,7 @@
             var versionId = activity.version.versionId;
 
             function upsert(activity, version, deferred) {
-                // TODO if ((activity.type === 'Score' && version.type === 'Test') &&
-                if ((activity.type.toLowerCase() === 'score' && version.type.toLowerCase() === 'test') &&
+                if ((activity.type === 'Score' && version.type === 'Test') &&
                     ($.type(constants.authorId) === UNDEFINED || constants.authorId === version.userId) &&
                     ($.type(constants.language) === UNDEFINED || constants.language === language) &&
                     ($.type(constants.rootCategoryId[language]) === UNDEFINED || version.categoryId.startsWith(ROOT_CATEGORY_ID[language]))) {
