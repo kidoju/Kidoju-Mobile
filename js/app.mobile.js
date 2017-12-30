@@ -2479,6 +2479,9 @@ window.jQuery.holdReady(true);
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var contentElement = e.view.content;
 
+            // Destroy the stage - see mobile.onCorrectionViewHide
+            kendo.destroy(e.view.content.find(kendo.roleSelector('stage')));
+
             // The play TTS button is a bit small, so let's use the entire heading
             contentElement.find('div.heading h2')
                 .off()
@@ -2508,14 +2511,18 @@ window.jQuery.holdReady(true);
             // Let's remove the showScoreInfo attr (see viewModel.bind(CHANGE))
             e.view.element.removeProp(kendo.attr('showScoreInfo'));
 
+            // Scan params
             // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
             // var summaryId = e.view.params.summaryId;
             // var versionId = e.view.params.versionId;
             var activityId = e.view.params.activityId;
             var page = e.view.params.page || 1;
-            // TODO reload data iof not already reloaded - see
             // assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
             // assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+
+            // Bind viewModel
+            kendo.bind(e.view.content.find(kendo.roleSelector('stage')), app.mobile.viewModel, kendo.ui, kendo.dataviz.ui, kendo.mobile.ui);
+
             // Localize UI (cannot be done in init because language may have changed during the session)
             // version is already loaded - viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
             // activities are already loaded - viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
@@ -2533,8 +2540,10 @@ window.jQuery.holdReady(true);
         mobile.onCorrectionViewHide = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            // assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
-            // TODO destroy stage
+
+            // Destroy the stage (necessary to hide the floating toolbar and avoid initializing widgets simultaneously in correction and player modes)
+            kendo.destroy(e.view.content.find(kendo.roleSelector('stage')));
+
             // Cancel any utterance spoken
             app.tts.cancelSpeak();
         };
@@ -2622,6 +2631,9 @@ window.jQuery.holdReady(true);
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var contentElement = e.view.content;
 
+            // Destroy the stage - see mobile.onPlayerViewHide
+            kendo.destroy(e.view.content.find(kendo.roleSelector('stage')));
+
             // The play TTS button is a bit small, so let's use the entire heading
             contentElement.find('div.heading')
                 .off()
@@ -2648,13 +2660,21 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
-            // Let's remove the clickSubmitInfo attr (see viewModel.bind(CHANGE))
+
+            // Let's remove the clickSubmitInfo attr used to track and limit toast notifications (see viewModel.bind(CHANGE))
             e.view.element.removeProp(kendo.attr('clickSubmitInfo'));
+
+            // Scan params
             var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
             var summaryId = e.view.params.summaryId;
             var versionId = e.view.params.versionId;
             assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
             assert.match(RX_MONGODB_ID, versionId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+
+            // Bind viewModel
+            kendo.bind(e.view.content.find(kendo.roleSelector('stage')), app.mobile.viewModel, kendo.ui, kendo.dataviz.ui, kendo.mobile.ui);
+
+            // load data
             $.when(
                 // load version to display quiz content in the player
                 viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
@@ -2679,11 +2699,10 @@ window.jQuery.holdReady(true);
         mobile.onPlayerViewHide = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            // Although it would have made more sense, undefined does not trigger a refresh
-            // viewModel.set(VIEW_MODEL.SELECTED_PAGE, undefined);
-            // viewModel.set(VIEW_MODEL.SELECTED_PAGE, new Page());
-            // TODO Review floating toolbar
-            // TODO Destroy the stage
+
+            // Destroy the stage (necessary to hide the floating toolbar and avoid initializing widgets simultaneously in correction and player modes)
+            kendo.destroy(e.view.content.find(kendo.roleSelector('stage')));
+
             // Cancel any utterance spoken
             app.tts.cancelSpeak();
         };
