@@ -122,7 +122,7 @@
             if ('chrome' in window && $.type(window.StyleMedia) === UNDEFINED) {
                 var matches = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
                 var version = $.isArray(matches) && matches.length === 3 && parseInt(matches[2], 10);
-                if (version < 56) {
+                if ($.type(version) === NUMBER && version < 56) {
                     // Note: This regular expression could be improved:
                     // 1. to exclude native voices which do not fail at ~200-300 characters
                     // 2. not to break up numbers like 10,000.00 - see https://github.com/unk1911/speech/blob/master/js/speech.js
