@@ -249,7 +249,8 @@
                 // Buttons
                 save: 'Enregistrer',
                 signIn: 'S\'identifier',
-                newUser: 'Nouvel Utilisateur'
+                newUser: 'Nouvel Utilisateur',
+                changePIN: 'Nouveau PIN'
             },
             // viewModel
             viewModel: {

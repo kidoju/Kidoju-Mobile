@@ -580,7 +580,7 @@
                             <div data-bind="text: user.lastUse" data-format="g" class="right"></div>
                         </label>
                     </li>
-                    <li data-bind="visible: isSavedUser$">
+                    <li data-bind="invisible: isNewUser$">
                         <label>
                             <span class="km-bold-font">PIN</span>
                             <!-- keep username to let browsers save your password -->
@@ -607,7 +607,7 @@
             <a data-role="button" data-bind="invisible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSaveClick">Save</a>
             <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.mobile.onUserSignInClick">Signin</a>
             <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified"  data-click="app.mobile.onUserNewClick">New User</a>
-            <a data-role="button" class="km-large km-justified" data-click="app.mobile.onUserChangePin">TODO: Change PIN</a>
+            <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified" data-click="app.mobile.onUserChangePin">Change PIN</a>
         </div>
     </div>
 

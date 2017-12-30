@@ -804,7 +804,9 @@ window.jQuery.holdReady(true);
              */
             isSavedUser$: function () {
                 var user = viewModel.get(VIEW_MODEL.USER.$);
-                return (user instanceof models.MobileUser) && !user.isNew() && (viewModel.users.indexOf(user) > -1);
+                // The following ensures thet #user button bindings are refreshed when pressing "Change PIN" following mobile.onUserChangePin
+                var lastUse = viewModel.get(VIEW_MODEL.USER.LAST_USE);
+                return (user instanceof models.MobileUser) && !user.dirty && (viewModel.users.indexOf(user) > -1);
             },
 
             /**
@@ -1192,7 +1194,7 @@ window.jQuery.holdReady(true);
                         app.notification.error(i18n.culture.notifications.userSaveFailure);
                         logger.error({
                             message: 'error syncing users',
-                            method: 'mobile.onUserSaveClick',
+                            method: 'viewModel.syncUsers',
                             data:  { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
@@ -1724,7 +1726,7 @@ window.jQuery.holdReady(true);
             // Localize Main Layout
             $(HASH + LAYOUT.MAIN + '-back').text(culture.layout.back);
 
-            // Localize drawer
+            // #drawer
             var RX_REPLACE = /^(<[^<>\/]+>)(<\/[^<>\/]+>)([\s\S]+)$/i;
             viewElement = $(HASH + VIEW.DRAWER);
             // categoriesElement.html() === '<span class="km-icon km-home"></span>Explore' and we only want to replace the Explore title
@@ -1739,38 +1741,38 @@ window.jQuery.holdReady(true);
             var settingsElement = viewElement.find('ul>li>a.km-listview-link:eq(3)');
             settingsElement.html(settingsElement.html().replace(RX_REPLACE, '$1$2' + culture.drawer.settings));
 
-            // Localize activities
+            // #activities
             viewElement = $(HASH + VIEW.ACTIVITIES);
             viewElement.find('ul[data-role="buttongroup"]>li:eq(0)').html(culture.activities.buttonGroup.list);
             viewElement.find('ul[data-role="buttongroup"]>li:eq(1)').html(culture.activities.buttonGroup.chart);
 
-            // Localize categories
+            // #categories
             // viewElement = $(HASH + VIEW.CATEGORIES);
 
-            // Localize correction
+            // #correction
             viewElement = $(HASH + VIEW.CORRECTION);
             viewElement.find('span.explanations').html(culture.correction.explanations);
 
-            // Localize favourites
+            // #favourites
             // viewElement = $(HASH + VIEW.FAVOURITES);
 
-            // Localize finder
+            // #finder
             // viewElement = $(HASH + VIEW.FINDER);
 
-            // Localize network
+            // #network
             viewElement = $(HASH + VIEW.NETWORK);
             var viewWidget = viewElement.data('kendoMobileView');
             // Note: we could also localize image alt attribute
             viewElement.find('h2.title').html(culture.network.title);
 
-            // Localize player
+            // #player
             viewElement = $(HASH + VIEW.PLAYER);
             viewElement.find('span.instructions').html(culture.player.instructions);
 
-            // Localize score
+            // #score
             // viewElement = $(HASH + VIEW.SCORE);
 
-            // Localize settings
+            // #settings
             viewElement = $(HASH + VIEW.SETTINGS);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.settings.user);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.settings.version);
@@ -1782,14 +1784,14 @@ window.jQuery.holdReady(true);
             viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(1)').text(culture.settings.tour);  // button before view is initialized
             viewElement.find('.buttons>.km-button>span.km-text:eq(1)').text(culture.settings.tour);                // button after view is initialized
 
-            // Localize signin
+            // #signin
             viewElement = $(HASH + VIEW.SIGNIN);
             viewElement.find('div[data-role="page"]:eq(0) div.text>p').text(culture.signin.page0);
             viewElement.find('div[data-role="page"]:eq(1) div.text>p').text(culture.signin.page1);
             viewElement.find('div[data-role="page"]:eq(2) div.text>p').text(culture.signin.page2);
             viewElement.find('div[data-role="page"]:eq(3) .k-notification-wrap>span.k-text').text(culture.signin.welcome);
 
-            // Localize summary
+            // #summary
             viewElement = $(HASH + VIEW.SUMMARY);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.summary.title);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.summary.metrics);
@@ -1806,27 +1808,29 @@ window.jQuery.holdReady(true);
             summaryActionSheetElement.find('li.km-actionsheet-feedback > a').text(culture.summary.actionSheet.feedback);
             summaryActionSheetElement.find('li.km-actionsheet-cancel > a').text(culture.summary.actionSheet.cancel);
 
-            // Localize sync
+            // #sync
             viewElement = $(HASH + VIEW.SYNC);
             // Note: we could also localize image alt attribute
             viewElement.find('h2.title').html(culture.sync.title);
             // viewElement.find('p.message').html(culture.sync.message);
             viewElement.find(kendo.roleSelector('button')).text(culture.sync.buttons.continue);
 
-            // Localize user
+            // #user
             viewElement = $(HASH + VIEW.USER);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(0)').text(culture.user.firstName);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(1)').text(culture.user.lastName);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(2)').text(culture.user.lastUse);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(3)').text(culture.user.pin);
-            viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.user.newPin);
+            viewElement.find('ul>li>label>span:not(.k-widget):eq(4)').text(culture.user.newPIN);
             viewElement.find('ul>li>label>span:not(.k-widget):eq(5)').text(culture.user.confirm);
             viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(0)').text(culture.user.save);        // button before view is initialized
-            viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.user.save);                     // button after view is initializef
+            viewElement.find('.buttons>.km-button>span.km-text:eq(0)').text(culture.user.save);                     // button after view is initialized
             viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(1)').text(culture.user.signIn);      // button before view is initialized
-            viewElement.find('.buttons>.km-button>span.km-text:eq(1)').text(culture.user.signIn);                   // button after view is initializef
+            viewElement.find('.buttons>.km-button>span.km-text:eq(1)').text(culture.user.signIn);                   // button after view is initialized
             viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(2)').text(culture.user.newUser);     // button before view is initialized
-            viewElement.find('.buttons>.km-button>span.km-text:eq(2)').text(culture.user.newUser);                  // button after view is initializef
+            viewElement.find('.buttons>.km-button>span.km-text:eq(2)').text(culture.user.newUser);                  // button after view is initialized
+            viewElement.find('.buttons>[data-role="button"]:not(.km-button):eq(3)').text(culture.user.changePIN);     // button before view is initialized
+            viewElement.find('.buttons>.km-button>span.km-text:eq(3)').text(culture.user.changePIN);                  // button after view is initialized
 
             // Reset navbar title
             if (mobile.application instanceof kendo.mobile.Application) {
@@ -3433,6 +3437,7 @@ window.jQuery.holdReady(true);
             // Get user from viewModel
             var user = viewModel.get(VIEW_MODEL.USER.$);
             assert.instanceof(models.MobileUser, user, assert.format(assert.messages.instanceof.default, 'user', 'models.MobileUser'));
+            var isNewUser = user.isNew();
 
             // Read pin values
             var view = e.button.closest(kendo.roleSelector('view'));
@@ -3452,10 +3457,14 @@ window.jQuery.holdReady(true);
                 // Synchronize changes
                 viewModel.syncUsers()
                     .done(function() {
-                        // Trigger a change event to update user + settings view data bindings
-                        // viewModel.trigger(CHANGE, {field: VIEW_MODEL.USER.$});
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
-                        mobile.application.navigate(HASH + VIEW.SYNC);
+                        if (isNewUser) {
+                            mobile.application.navigate(HASH + VIEW.SYNC);
+                        } else {
+                            var language = i18n.locale();
+                            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+                            mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
+                        }
                     }).always(function() {
                         mobile.enableUserButtons(true);
                     });
@@ -3507,7 +3516,7 @@ window.jQuery.holdReady(true);
         mobile.onUserNewClick = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-            mobile.application.navigate(HASH + VIEW.SIGNIN + '?page=3');
+            mobile.application.navigate(HASH + VIEW.SIGNIN + '?page=' + encodeURIComponent(SIGNIN_PAGE));
         };
 
         /**
@@ -3517,7 +3526,8 @@ window.jQuery.holdReady(true);
         mobile.onUserChangePin = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
-            window.alert('Not yet implemented'); // TODO
+            // Simply change a property to show the Save button considering declarative bindings based on viewModel.isSavedUser$()
+            viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
         };
 
         /**

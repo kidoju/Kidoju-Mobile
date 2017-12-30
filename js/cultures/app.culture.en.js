@@ -251,7 +251,8 @@
                 // Buttons
                 save: 'Save',
                 signIn: 'Sign In',
-                newUser: 'New User'
+                newUser: 'New User',
+                changePIN: 'Change PIN'
             },
             // viewModel
             viewModel: {
