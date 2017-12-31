@@ -1203,16 +1203,13 @@
                     defaultValue: function () {
                         return DEFAULT.ROOT_CATEGORY_ID[i18n.locale()];
                     }
-                },
+                }
                 /*
                 theme: {
                     type: STRING,
                     defaultValue: DEFAULT.THEME
                 }
                 */
-                tour: {
-                    type: BOOLEAN
-                }
                 // consider locale (for display of numbers, dates and currencies)
                 // consider timezone (for display of dates), born (for searches)
             },
