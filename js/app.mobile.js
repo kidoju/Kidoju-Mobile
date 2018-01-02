@@ -1029,10 +1029,11 @@ window.jQuery.holdReady(true);
                 assert.match(RX_LANGUAGE, options.language, assert.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
                 assert.match(RX_MONGODB_ID, options.userId, assert.format(assert.messages.match.default, 'options.userId', RX_MONGODB_ID));
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
+                var partition = activities.transport.partition();
                 var dfd = $.Deferred();
                 if (activities.total() > 0 &&
-                    activities.transport.partition()['version.language'] === options.language &&
-                    activities.transport.partition()['actor.userId'] === options.userId) {
+                    partition['version.language'] === options.language &&
+                    partition['actor.userId'] === options.userId) {
                     dfd.resolve();
                 } else {
                     activities.transport.partition({
@@ -1113,7 +1114,7 @@ window.jQuery.holdReady(true);
                         // If not found, create a new user
                         if (!(user instanceof models.MobileUser)) {
                             // Read provider set in mobile.onSigninButtonClick
-                            var provider = localStorage.getItem('provider'); // TODO Manage errors
+                            var provider = localStorage.getItem('provider'); // TODO Manage localStorage errors
                             user = new models.MobileUser();
                             // Since we have marked fields as non editable, we cannot use 'user.set'.
                             // `accept` should raise a change event on the parent viewModel
@@ -1127,14 +1128,13 @@ window.jQuery.holdReady(true);
                                 md5pin: user.defaults.md5pin,
                                 picture: me.picture,
                                 provider: provider,
-                                rootCategoryId: user.defaults.rootCategoryId(),
-                                tour: user.defaults.tour
+                                rootCategoryId: user.defaults.rootCategoryId()
                             });
                             viewModel.users.add(user);
                         }
                         viewModel.set(VIEW_MODEL.USER.$, user);
                         // Remove provider from local storage
-                        localStorage.removeItem('provider'); // TODO: Manage errors
+                        localStorage.removeItem('provider'); // TODO: Manage localStorage errors
                         // Note: At this stage user is not saved in database
                         dfd.resolve(user);
                     })
@@ -1213,7 +1213,7 @@ window.jQuery.holdReady(true);
                     logger.error({
                         message: 'error loading version',
                         method: 'viewModel.loadVersion',
-                        data: { language: options.language, summaryId: options.summaryId, versionId: options.versionId, status: status, error: error } // TODO xhr.responseText
+                        data: { language: options.language, summaryId: options.summaryId, versionId: options.versionId, response: parseResponse(xhr) }
                     });
                 }
 
@@ -1377,7 +1377,7 @@ window.jQuery.holdReady(true);
                     type: 'Score',
                     version : {
                         language: language,
-                        // TODO Add categories for better statistics
+                        // TODO Add categoryId for better statistics
                         summaryId: summaryId,
                         title: that.get(VIEW_MODEL.SUMMARY.TITLE),
                         versionId: versionId
@@ -1437,13 +1437,12 @@ window.jQuery.holdReady(true);
                         assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
                         viewModel.set(VIEW_MODEL.CURRENT.ID, activityId);
                         app.notification.success(i18n.culture.notifications.scoreSaveSuccess);
-                        // TODO: server sync here or in DataSource???
                     })
                     .fail(function (xhr, status, error) {
                         activities.remove(activity);
                         app.notification.error(i18n.culture.notifications.scoreSaveFailure);
                         logger.error({
-                            message: 'error saving score current',
+                            message: 'error saving current score',
                             method: 'viewModel.saveCurrent',
                             data: { status: status, error: error, response: parseResponse(xhr) }
                         });
@@ -1468,7 +1467,7 @@ window.jQuery.holdReady(true);
                     if (view.id === HASH + VIEW.CORRECTION) {
                         // Reset NavBar buttons and title
                         mobile._setNavBar(view);
-                        mobile._setNavBarTitle(view);
+                        mobile._setNavBarTitle(view, kendo.format(i18n.culture.correction.viewTitle, viewModel.page$(), viewModel.totalPages$()));
                         if (viewModel.isLastPage$() && !view.element.prop(kendo.attr('showScoreInfo'))) {
                             // Let's remember that we have already displayed this notification for this test
                             view.element.prop(kendo.attr('showScoreInfo'), true);
@@ -1477,7 +1476,7 @@ window.jQuery.holdReady(true);
                     } else if (view.id === HASH + VIEW.PLAYER) {
                         // Reset NavBar buttons and title
                         mobile._setNavBar(view);
-                        mobile._setNavBarTitle(view);
+                        mobile._setNavBarTitle(view, kendo.format(i18n.culture.player.viewTitle, viewModel.page$(), viewModel.totalPages$()));
                         if (viewModel.isLastPage$() && !view.element.prop(kendo.attr('clickSubmitInfo'))) {
                             // Let's remember that we have already displayed this notification for this test
                             view.element.prop(kendo.attr('clickSubmitInfo'), true);
@@ -1648,16 +1647,9 @@ window.jQuery.holdReady(true);
             var navbarElement = view.header.find('.km-navbar');
             var navbarWidget = navbarElement.data('kendoMobileNavBar');
             if ($.type(text) === UNDEFINED) {
-                // TODO Review this part
-                var id = view.id === '/' ? VIEW.DEFAULT : view.id.substr(1); // Remove #
-                var culture = i18n.culture[id]; // Note: this supposes culture names match view id names
-                if (id === VIEW.SCORE) {
-                    navbarWidget.title(kendo.format(culture.viewTitle, viewModel.get((VIEW_MODEL.CURRENT.SCORE) || 0) / 100));
-                } else if (id === VIEW.CORRECTION || id === VIEW.PLAYER) {
-                    navbarWidget.title(kendo.format(culture.viewTitle, viewModel.page$(), viewModel.totalPages$()));
-                } else {
-                    navbarWidget.title(culture.viewTitle);
-                }
+                var id = view.id === '/' ? VIEW.DEFAULT : view.id.substr(1); // Removes #
+                var culture = i18n.culture[id]; // Note: this supposes culture properties match view id names
+                navbarWidget.title(culture.viewTitle);
             } else {
                 navbarWidget.title(text);
             }
@@ -2508,26 +2500,50 @@ window.jQuery.holdReady(true);
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
 
+            // Scan params
+            var language = e.view.params.language;
+            var summaryId = e.view.params.summaryId;
+            var versionId = e.view.params.versionId;
+            var activityId = e.view.params.activityId;
+            var page = parseInt(e.view.params.page, 10) || 1;
+
+            assert.equal(viewModel.get(VIEW_MODEL.LANGUAGE), language, assert.format(assert.messages.equal.default, 'language', 'viewModel.get("language")'));
+            assert.equal(i18n.locale(), language, assert.format(assert.messages.equal.default, 'language', 'i18n.locale()'));
+            assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, versionId, assert.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
+
             // Let's remove the showScoreInfo attr (see viewModel.bind(CHANGE))
             e.view.element.removeProp(kendo.attr('showScoreInfo'));
 
-            // Scan params
-            // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
-            // var summaryId = e.view.params.summaryId;
-            // var versionId = e.view.params.versionId;
-            var activityId = e.view.params.activityId;
-            var page = e.view.params.page || 1;
-            // assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
-            // assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
-
-            // Bind viewModel
+            // Rebuild stage and bind viewModel
             kendo.bind(e.view.content.find(kendo.roleSelector('stage')), app.mobile.viewModel, kendo.ui, kendo.dataviz.ui, kendo.mobile.ui);
+            mobile._resizeStage(e.view);
 
-            // Localize UI (cannot be done in init because language may have changed during the session)
+            /*
+            // TODO We are dependant on the data loaded in mobile.onScoreViewShow, so this page cannot be refreshed in dev
+            // We might want to reload the data after reviewing activities not to have to recalculate scores
+            // Load data
+            $.when(
+                // load version to display quiz content in the player
+                viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
+                // Load activities
+                viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
+            )
+            .done(function () {
+                // Set activity, but we do not want to recalculate score
+                viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(page - 1));
+            })
+            .always(function () {
+                mobile.onGenericViewShow(e);
+                app.notification.info(i18n.culture.notifications.pageNavigationInfo);
+            });
+            */
+
             // version is already loaded - viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
             // activities are already loaded - viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
             viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(page - 1));
-            mobile._resizeStage(e.view);
+
             mobile.onGenericViewShow(e);
             app.notification.info(i18n.culture.notifications.pageNavigationInfo);
         };
@@ -2661,18 +2677,24 @@ window.jQuery.holdReady(true);
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
 
-            // Let's remove the clickSubmitInfo attr used to track and limit toast notifications (see viewModel.bind(CHANGE))
-            e.view.element.removeProp(kendo.attr('clickSubmitInfo'));
-
             // Scan params
-            var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
+            var language = e.view.params.language; // TODO
             var summaryId = e.view.params.summaryId;
             var versionId = e.view.params.versionId;
+
+            debugger;
+
+            assert.equal(viewModel.get(VIEW_MODEL.LANGUAGE), language, assert.format(assert.messages.equal.default, 'language', 'viewModel.get("language")'));
+            assert.equal(i18n.locale(), language, assert.format(assert.messages.equal.default, 'language', 'i18n.locale()'));
             assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
             assert.match(RX_MONGODB_ID, versionId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
 
-            // Bind viewModel
+            // Let's remove the clickSubmitInfo attr used to track and limit toast notifications (see viewModel.bind(CHANGE))
+            e.view.element.removeProp(kendo.attr('clickSubmitInfo'));
+
+            // Rebuild stage and bind viewModel
             kendo.bind(e.view.content.find(kendo.roleSelector('stage')), app.mobile.viewModel, kendo.ui, kendo.dataviz.ui, kendo.mobile.ui);
+            mobile._resizeStage(e.view);
 
             // load data
             $.when(
@@ -2686,7 +2708,6 @@ window.jQuery.holdReady(true);
                     viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(0));
                 })
                 .always(function () {
-                    mobile._resizeStage(e.view);
                     mobile.onGenericViewShow(e);
                     app.notification.info(i18n.culture.notifications.pageNavigationInfo);
                 });
@@ -2776,9 +2797,9 @@ window.jQuery.holdReady(true);
                     .done(function () {
                         // Note: We cannot assign the activity, otherwise calculate will make changes that will make it dirty in MobileActivityDataSource
                         viewModel.set(VIEW_MODEL.CURRENT.$, activity.toJSON());
-                        viewModel.calculate()
+                        viewModel.calculate() // TODO: We should not have to recalculate what is already calculated
                             .done(function () {
-                                mobile._setNavBarTitle(e.view, kendo.format(i18n.culture.score.viewTitle, viewModel.get(VIEW_MODEL.CURRENT.SCORE) / 100));
+                                mobile._setNavBarTitle(e.view, kendo.format(i18n.culture.score.viewTitle, viewModel.get((VIEW_MODEL.CURRENT.SCORE) || 0) / 100));
                                 mobile._initScoreListView(e.view);
                             });
                     })
@@ -3186,7 +3207,8 @@ window.jQuery.holdReady(true);
                 fields: 'id,state,summaryId', // Note for whatever reason we also receive the type in the response payload
                 filter: { field: 'state', operator: 'eq', value: 5 },
                 partition: { language: language, summaryId: summaryId },
-                sort: { field: 'id', dir: 'desc' } })
+                sort: { field: 'id', dir: 'desc' }
+            })
                 .done(function () {
                     var version = viewModel.versions.at(0); // First is latest version
                     assert.instanceof(models.LazyVersion, version, assert.format(assert.messages.instanceof.default, 'version', 'models.LazyVersion'));
@@ -3319,7 +3341,7 @@ window.jQuery.holdReady(true);
                             logger.error({
                                 message: 'Error updating user after synchronization',
                                 method: 'mobile.onSyncViewShow',
-                                data: { error: error, status: status, responseText: xhr.responseText }
+                                data: { error: error, status: status, response: parseResponse(xhr) }
                             });
                         });
                 })
@@ -3331,7 +3353,7 @@ window.jQuery.holdReady(true);
                         logger.error({
                             message: 'Error Synchronizing',
                             method: 'mobile.onSyncViewShow',
-                            data: { error: error, status: status, responseText: xhr.responseText }
+                            data: { error: error, status: status, response: parseResponse(xhr) }
                         });
                     }
                 })
