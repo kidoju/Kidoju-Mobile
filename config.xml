@@ -146,7 +146,7 @@
     <engine name="browser" spec="^5.0.1" />
     <engine name="ios" spec="^4.5.3" />
     <engine name="windows" spec="^5.0.0" />
-    <plugin name="cordova-plugin-file" spec="^5.0.1" />
+    <plugin name="cordova-plugin-file" spec="^6.0.1" />
     <plugin name="cordova-plugin-google-analytics" spec="^1.8.3" />
     <plugin name="cordova-plugin-customurlscheme" spec="^4.3.0">
         <variable name="URL_SCHEME" value="com.kidoju.mobile" />
