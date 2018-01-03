@@ -805,8 +805,8 @@ window.jQuery.holdReady(true);
             isSavedUser$: function () {
                 var user = viewModel.get(VIEW_MODEL.USER.$);
                 // The following ensures thet #user button bindings are refreshed when pressing "Change PIN" following mobile.onUserChangePin
-                var lastUse = viewModel.get(VIEW_MODEL.USER.LAST_USE);
-                return (user instanceof models.MobileUser) && !user.dirty && (viewModel.users.indexOf(user) > -1);
+                viewModel.get(VIEW_MODEL.USER.LAST_USE);
+                return (user instanceof models.MobileUser) && !user.isNew() && !user.dirty && (viewModel.users.indexOf(user) > -1);
             },
 
             /**
