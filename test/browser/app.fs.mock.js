@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true */
+/* jshint browser: true, expr: true, mocha: true */
 
 'use strict';
 

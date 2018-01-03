@@ -3,14 +3,14 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, expr: true */
-/* global describe, it, before */
+/* jshint browser: true, jquery: true, expr: true, mocha: true */
 
 ;(function ($, undefined) {
 
     'use strict';
 
     var expect = window.chai.expect;
+    var sinon = window.sinon;
     var kendo = window.kendo;
     var pongodb = window.pongodb;
     var UNDEFINED = 'undefined';
@@ -27,6 +27,7 @@
             }
         }
     });
+
     function script() {
         var that = this;
         var dfd = $.Deferred();

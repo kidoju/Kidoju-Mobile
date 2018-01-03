@@ -3,8 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true, expr: true */
-/* globals describe, it, before, beforeEach */
+/* jshint browser: true, jquery: true, expr: true, mocha: true */
 
 ;(function ($) {
 
