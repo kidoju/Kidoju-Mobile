@@ -145,7 +145,7 @@
                 var dfd = $.Deferred();
                 if (!that.dirty && (that.get(that.idField) === options[that.idField])) {
                     // Already loaded and not modified
-                    dfd.resolve(that.toJSON())
+                    dfd.resolve(that.toJSON());
                 } else {
                     var data = {};
                     data[that.idField] = options[that.idField];
@@ -314,7 +314,7 @@
                 // Execute request
                 this._rapi.create(data)
                     .done(function (response) {
-                        options.success({ total: 1, data: [response] })
+                        options.success({ total: 1, data: [response] });
                     })
                     .fail(options.error);
             },
@@ -337,7 +337,7 @@
                 // Execute request
                 this._rapi.destroy(data[this.idField])
                     .done(function (response) {
-                        options.success({ total: 1, data: [response] })
+                        options.success({ total: 1, data: [response] });
                     })
                     .fail(options.error);
             },
@@ -361,7 +361,7 @@
                 // Execute request
                 this._rapi.update(data[this.idField], data)
                     .done(function (response) {
-                        options.success({ total: 1, data: [response] })
+                        options.success({ total: 1, data: [response] });
                     })
                     .fail(options.error);
             }
@@ -813,17 +813,18 @@
                         error: options.error,
                         success: function (response) {
                             var promises = [];
+                            var upsert = function (index) {
+                                var dfd = $.Deferred();
+                                // TODO: This should be an upsert, merging fields
+                                MobileTransport.fn.update.call(that, {
+                                    data: response.data[index],
+                                    error: dfd.reject,
+                                    success: dfd.resolve
+                                });
+                                return dfd.promise();
+                            };
                             for (var idx = 0, length = response.data.length; idx < length; idx++) {
-                                promises.push(function() {
-                                    var dfd = $.Deferred();
-                                    // TODO: This should be an upsert, merging fields
-                                    MobileTransport.fn.update.call(that, {
-                                        data: response.data[idx],
-                                        error: dfd.reject,
-                                        success: dfd.resolve
-                                    });
-                                    return dfd.promise();
-                                }());
+                                promises.push(upsert(idx));
                             }
                             $.when.apply(that, promises)
                                 .always(function () {
@@ -1102,6 +1103,7 @@
                         debugger;
                         var promises = [];
                         var length = items.length;
+
                         for (var idx = 0; idx < length; idx ++) {
                             var item = items[idx];
                             if (item.__state__ === STATE.CREATED) {

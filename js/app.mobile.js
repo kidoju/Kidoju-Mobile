@@ -2220,7 +2220,7 @@ window.jQuery.holdReady(true);
                         });
                         // Check network to redirect to #network view
                         var url = (view.id.substr(1) || VIEW.DEFAULT) + '?' + window.decodeURIComponent($.param(view.params));
-                        mobile.checkNetwork({preventDefault: $.noop, url: url})
+                        mobile.checkNetwork({preventDefault: $.noop, url: url});
                     }
                 },
                 false
@@ -3366,7 +3366,7 @@ window.jQuery.holdReady(true);
                         mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
                     });
                     continueButton.enable(true);
-                })
+                });
         };
 
         /**
