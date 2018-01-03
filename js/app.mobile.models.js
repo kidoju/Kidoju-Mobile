@@ -1285,10 +1285,10 @@
                     // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
                     // To test WKWebView against UIWebView, check https://stackoverflow.com/questions/28795476/detect-if-page-is-loaded-inside-wkwebview-in-javascript
                     // var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB ?
-                    var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
-                        persistent.root.toInternalURL() : persistent.root.toURL();
+                    // var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
+                    //     persistent.root.toInternalURL() : persistent.root.toURL();
                     // var path = kendo.format(uris.mobile.pictures, persistent.root.toInternalURL(), sid + DOT_JPEG);
-                    var path = kendo.format(uris.mobile.pictures, rootURL, sid + DOT_JPEG);
+                    var path = kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG);
                     logger.debug({
                         message: 'binding to mobilePicture$',
                         method: 'MobileUser.mobilePicture$',
@@ -1485,8 +1485,6 @@
                             });
                     })
                     .fail(function (error) {
-                        debugger;
-                        window.alert(error.toString());
                         options.error.apply(this, error2XHR(error));
                     });
             },

@@ -241,8 +241,9 @@
                 // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
                 // To test WKWebView against UIWebView, check https://stackoverflow.com/questions/28795476/detect-if-page-is-loaded-inside-wkwebview-in-javascript
                 // var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB  ?
-                var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
-                    root.toInternalURL() : root.toURL();
+                // var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
+                //     root.toInternalURL() : root.toURL();
+                var rootURL = root.toURL();
 
                 logger.debug({
                     message: 'Calling DirectoryEntry.getDirectory',
@@ -289,8 +290,9 @@
             // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
             // To test WKWebView against UIWebView, check https://stackoverflow.com/questions/28795476/detect-if-page-is-loaded-inside-wkwebview-in-javascript
             // var directoryURL = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB  ?
-            var directoryURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
-                directoryEntry.toInternalURL() : directoryEntry.toURL();
+            // var directoryURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
+            //    directoryEntry.toInternalURL() : directoryEntry.toURL();
+            var directoryURL = directoryEntry.toURL();
 
             window.alert(directoryURL);
 
@@ -392,26 +394,30 @@
             xhr.onload = function (e) {
                 var blob = xhr.response; // Note: not xhr.responseText
                 if (blob) {
-                    fileEntry.createWriter(function (fileWriter) {
-                        fileWriter.onwriteend = dfd.resolve;
-                        fileWriter.onerror = function (err) {
-                            window.alert(err.toString());
-                            dfd.reject(err);
-                        };
-                        fileWriter.write(blob);
-                    });
+                    fileEntry.createWriter(
+                        function (fileWriter) {
+                            fileWriter.onwriteend = dfd.resolve;
+                            fileWriter.onerror = dfd.reject;
+                            fileWriter.write(blob);
+                        },
+                        dfd.reject
+                    );
                 } else {
-                    dfd.reject(new Error('XMLHttpRequest failed'));
+                    dfd.reject(new Error('XMLHttpRequest missing body'));
                 }
             };
 
             // Report download progress
             xhr.onprogress = dfd.notify;
             // Report errors
-            xhr.onerror = dfd.reject;
+            xhr.onerror = function (e) {
+                // e is an XMLHttpRequestProgressEvent
+                dfd.reject(new Error('XMLHttpRequest error'));
+            };
 
             // Report cancellation
             xhr.onabort = function () {
+                // e is an XMLHttpRequestProgressEvent
                 dfd.reject(new Error('XMLHttpRequest aborted'));
             };
 
