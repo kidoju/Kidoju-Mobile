@@ -244,8 +244,6 @@
                 var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
                     root.toInternalURL() : root.toURL();
 
-                window.alert(rootURL);
-
                 logger.debug({
                     message: 'Calling DirectoryEntry.getDirectory',
                     method: 'FileSystem.prototype.getDirectoryEntry',
