@@ -239,14 +239,17 @@
                 }
 
                 // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
-                // and the way to test WkWebView against UIWebView is to test window.indexedDB
-                var rootUrl = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB ?
+                // To test WKWebView against UIWebView, check https://stackoverflow.com/questions/28795476/detect-if-page-is-loaded-inside-wkwebview-in-javascript
+                // var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB  ?
+                var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
                     root.toInternalURL() : root.toURL();
+
+                window.alert(rootURL);
 
                 logger.debug({
                     message: 'Calling DirectoryEntry.getDirectory',
                     method: 'FileSystem.prototype.getDirectoryEntry',
-                    data: { rootUrl: rootUrl, folder: folders[0] }
+                    data: { rootURL: rootURL, folder: folders[0] }
                 });
 
                 root.getDirectory(
@@ -286,9 +289,12 @@
             assert.type(STRING, fileName, assert.format(assert.messages.type.default, 'fileName', STRING));
 
             // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
-            // and the way to test WkWebView against UIWebView is to test window.indexedDB
-            var directoryURL = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB  ?
+            // To test WKWebView against UIWebView, check https://stackoverflow.com/questions/28795476/detect-if-page-is-loaded-inside-wkwebview-in-javascript
+            // var directoryURL = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB  ?
+            var directoryURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
                 directoryEntry.toInternalURL() : directoryEntry.toURL();
+
+            window.alert(directoryURL);
 
             logger.debug({
                 message: 'Getting file entry',
@@ -331,7 +337,7 @@
             logger.debug({
                 message: 'Downloading a file',
                 method: 'FileSystem.prototype.download',
-                data: { remoteUrl: remoteUrl,  fileURL: fileURL, headers: JSON.stringify(headers) }
+                data: { remoteUrl: remoteUrl, fileURL: fileURL, headers: JSON.stringify(headers) }
             });
 
             fileTransfer.onProgress = dfd.notify; // Consider reviewing event parameter passed to dfd.notify without formatting
@@ -388,11 +394,14 @@
             xhr.onload = function (e) {
                 var blob = xhr.response; // Note: not xhr.responseText
                 if (blob) {
-                    fileEntry.createWriter(function(fileWriter) {
+                    fileEntry.createWriter(function (fileWriter) {
                         fileWriter.onwriteend = dfd.resolve;
-                        fileWriter.onerror = dfd.reject;
+                        fileWriter.onerror = function (err) {
+                            window.alert(err.toString());
+                            dfd.reject(err);
+                        };
                         fileWriter.write(blob);
-                    })
+                    });
                 } else {
                     dfd.reject(new Error('XMLHttpRequest failed'));
                 }
@@ -404,9 +413,15 @@
             xhr.onerror = dfd.reject;
 
             // Report cancellation
-            xhr.onabort = function (e) {
+            xhr.onabort = function () {
                 dfd.reject(new Error('XMLHttpRequest aborted'));
             };
+
+            logger.debug({
+                message: 'Downloading a file',
+                method: 'FileSystem.prototype.download',
+                data: { remoteUrl: remoteUrl, headers: JSON.stringify(headers) }
+            });
 
             // Send the request
             xhr.send(null);
