@@ -111,19 +111,13 @@
     "cordova-plugin-x-socialsharing": "^5.2.1",
     "cordova-windows": "^5.0.0",
     "de.appplant.cordova.plugin.local-notification": "^0.8.5",
-    "es6-promise-plugin": "^4.1.0",
+    "es6-promise-plugin": "^4.2.2",
     "phonegap-plugin-barcodescanner": "^6.0.8"
   },
   "cordova": {
     "plugins": {
       "cordova-plugin-file": {},
       "cordova-plugin-google-analytics": {},
-      "cordova-plugin-customurlscheme": {
-        "URL_SCHEME": "com.kidoju.mobile",
-        "ANDROID_SCHEME": " ",
-        "ANDROID_HOST": " ",
-        "ANDROID_PATHPREFIX": "/"
-      },
       "cordova-plugin-console": {},
       "cordova-plugin-compat": {},
       "cordova-plugin-network-information": {},
@@ -139,7 +133,13 @@
       },
       "cordova-plugin-whitelist": {},
       "cordova-plugin-globalization": {},
-      "cordova-plugin-x-socialsharing": {}
+      "cordova-plugin-x-socialsharing": {},
+      "cordova-plugin-customurlscheme": {
+        "URL_SCHEME": "com.kidoju.mobile",
+        "ANDROID_SCHEME": " ",
+        "ANDROID_HOST": " ",
+        "ANDROID_PATHPREFIX": "/"
+      }
     },
     "platforms": [
       "android",
