@@ -98,6 +98,7 @@
     <access origin="https://apis.live.net/*" />
     <access origin="https://api.twitter.com/*" />
     <access origin="https://pbs.twimg.com/*" />
+    <access origin="cdvfile://*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <platform name="android">
