@@ -319,10 +319,13 @@
             assert.isOptionalObject(headers, assert.format(assert.messages.isOptionalObject.default, 'headers'));
 
             var dfd = $.Deferred();
+
+            /*
             var fileTransfer = new window.FileTransfer();
+
             // Note: cdvfile urls do not work in the browser and in WKWebViewEngine - https://issues.apache.org/jira/browse/CB-10141
-            // and the way to test WkWebView against UIWebView is to test window.indexedDB
-            var fileURL = window.cordova && window.device && window.device.platform !== 'browser' && !window.indexedDB ?
+            // To test WKWebView against UIWebView, check https://stackoverflow.com/questions/28795476/detect-if-page-is-loaded-inside-wkwebview-in-javascript
+            var fileURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
                 fileEntry.toInternalURL() : fileEntry.toURL();
 
             logger.debug({
@@ -357,6 +360,56 @@
                 false, // trustAllHosts
                 $.isPlainObject(headers) ? { headers: headers } : {}
             );
+            */
+
+            /*******************************************************************************************************
+             * cordova-plugin-filetransfer is now deprecated
+             * @see https://cordova.apache.org/blog/2017/10/18/from-filetransfer-to-xhr2.html
+             *******************************************************************************************************/
+
+            var xhr = new window.XMLHttpRequest();
+
+            // Make sure you add the domain name to the Content-Security-Policy <meta> element.
+            xhr.open('GET', remoteUrl, true);
+
+            // Define how you want the XHR data to come back
+            xhr.responseType = 'blob';
+
+            // Set request headers
+            if ($.isPlainObject(headers)) {
+                for (var header in headers) {
+                    if (headers.hasOwnProperty(header)) {
+                        xhr.setRequestHeader(header, headers[header]);
+                    }
+                }
+            }
+
+            // Save file when loaded
+            xhr.onload = function (e) {
+                var blob = xhr.response; // Note: not xhr.responseText
+                if (blob) {
+                    fileEntry.createWriter(function(fileWriter) {
+                        fileWriter.onwriteend = dfd.resolve;
+                        fileWriter.onerror = dfd.reject;
+                        fileWriter.write(blob);
+                    })
+                } else {
+                    dfd.reject(new Error('XMLHttpRequest failed'));
+                }
+            };
+
+            // Report download progress
+            xhr.onprogress = dfd.notify;
+            // Report errors
+            xhr.onerror = dfd.reject;
+
+            // Report cancellation
+            xhr.onabort = function (e) {
+                dfd.reject(new Error('XMLHttpRequest aborted'));
+            };
+
+            // Send the request
+            xhr.send(null);
 
             return dfd.promise();
         };
