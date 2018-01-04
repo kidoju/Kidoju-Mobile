@@ -95,6 +95,7 @@
     <access origin="https://*.fbcdn.net/*" />
     <access origin="https://www.googleapis.com/*" />
     <access origin="https://*.googleusercontent.com/*" />
+    <access origin="https://*.live.com/*" />
     <access origin="https://apis.live.net/*" />
     <access origin="https://api.twitter.com/*" />
     <access origin="https://pbs.twimg.com/*" />
