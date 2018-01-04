@@ -17,7 +17,11 @@
 
     var app = window.app = window.app || {};
 
+    /* This function has too many statements. */
+    /* jshint -W071 */
 
+    /* This function's cyclomatic complexity is too high. */
+    /* jshint -W074 */
 
     (function () {
 
@@ -89,6 +93,9 @@
         }
 
     }());
+
+    /* jshint +W074 */
+    /* jshint +W071 */
 
     return app;
 
