@@ -79,7 +79,11 @@
             var summaryId = activity.version.summaryId;
             var versionId = activity.version.versionId;
 
+            /* This function's cyclomatic complexity is too high. */
+            /* jshint -W074 */
+
             function upsert(activity, version, deferred) {
+                /* jshint maxcomplexity: 11 */
                 if ((activity.type === 'Score' && version.type === 'Test') &&
                     ($.type(constants.authorId) === UNDEFINED || constants.authorId === version.userId) &&
                     ($.type(constants.language) === UNDEFINED || constants.language === language) &&
@@ -104,7 +108,7 @@
                         version.activities.push({ activityId: activity.id, actorId: activity.actor.userId, score: activity.score, updated: activity.updated });
                     }
                     if (update) {
-                        app.db.versions.update({id: versionId }, version, { upsert: true }).done(deferred.resolve).fail(deferred.reject);
+                        app.db.versions.update({ id: versionId }, version, { upsert: true }).done(deferred.resolve).fail(deferred.reject);
                     } else {
                         deferred.resolve(version);
                     }
@@ -113,6 +117,8 @@
                     app.db.activities.remove({ id: activityId }).done(function () { deferred.resolve(version); }).fail(deferred.reject);
                 }
             }
+
+            /* jshint +W074 */
 
             if (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) ||
                 (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
@@ -124,7 +130,7 @@
                         dfd.reject(err);
                     });
             } else {
-                var versions = app.rapi.v2.versions({language: language, summaryId: summaryId});
+                var versions = app.rapi.v2.versions({ language: language, summaryId: summaryId });
                 versions.get(versionId)
                     .done(function (remote) {
                         app.db.versions.findOne({ id: versionId })
@@ -155,14 +161,14 @@
                 app.db.summaries.update({ id: summaryId }, { activities: version.activities }).done(dfd.resolve).fail(dfd.reject);
             } else {
                 // Get remote summary
-                var summaries = app.rapi.v2.summaries({language: language}); // TODO , type: 'Test' });
+                var summaries = app.rapi.v2.summaries({ language: language }); // TODO , type: 'Test' });
                 summaries.get(summaryId)
-                    .done(function(summary) {
+                    .done(function (summary) {
                         // Propagate activities from version to summary
                         if (Array.isArray(version.activities)) {
                             summary.activities = version.activities;
                         }
-                        app.db.summaries.update({id: summaryId}, summary, { upsert: true }).done(dfd.resolve).fail(dfd.reject);
+                        app.db.summaries.update({ id: summaryId }, summary, { upsert: true }).done(dfd.resolve).fail(dfd.reject);
                     }).fail(dfd.reject);
             }
             return dfd.promise();

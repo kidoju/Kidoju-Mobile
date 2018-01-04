@@ -274,9 +274,9 @@ window.jQuery.holdReady(true);
                     error: error,
                     data: { source:  source, lineno: lineno, colno: colno }
                 });
-                // if (app.DEBUG) { // TODO
+                if (app.DEBUG) { // TODO
                     window.alert(message);
-                // }
+                }
                 if (mobile.application instanceof kendo.mobile.Application) {
                     mobile.application.hideLoading();
                 }
@@ -333,7 +333,7 @@ window.jQuery.holdReady(true);
             if (mobile.support.safariViewController) {
                 try {
                     mobile.SafariViewController.hide();
-                } catch(ex) {
+                } catch (ex) {
                     // They say mobile.SafariViewController.hide is not implemented on Android
                     // https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/62
                 }
@@ -953,7 +953,7 @@ window.jQuery.holdReady(true);
                 assert.instanceof(models.MobileActivityDataSource, activities, assert.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
                 activities.transport.partition({
                     'actor.userId': userId,
-                    'type': 'Score',
+                    type: 'Score',
                     'version.language': language
                 });
 
@@ -1489,9 +1489,9 @@ window.jQuery.holdReady(true);
                     break;
                 case VIEW_MODEL.USER.ROOT_CATEGORY_ID:
                     viewModel.syncUsers();
-                        // .done(function () {
-                        //     viewModel.reset();
-                        // });
+                    // .done(function () {
+                    //     viewModel.reset();
+                    // });
                     break;
                 case VIEW_MODEL.LANGUAGE:
                     // Do not trigger before the kendo mobile application is loaded
@@ -1505,7 +1505,10 @@ window.jQuery.holdReady(true);
                                 // Reset the root category
                                 // Note this triggers a change that executes `case VIEW_MODEL.USER.ROOT_CATEGORY_ID` here above
                                 viewModel.set(VIEW_MODEL.USER.ROOT_CATEGORY_ID, DEFAULT.ROOT_CATEGORY_ID[language]);
-                                logger.debug({method: 'viewModel.bind', message: 'Language changed to ' + language});
+                                logger.debug({
+                                    method: 'viewModel.bind',
+                                    message: 'Language changed to ' + language
+                                });
                             });
                     }
                     break;
@@ -1514,10 +1517,13 @@ window.jQuery.holdReady(true);
                     if (mobile.application instanceof kendo.mobile.Application) {
                         var theme = e.sender.get(VIEW_MODEL.THEME);
                         // app.theme.load stores the theme in localStorage
-                        app.theme.load(theme).done(function() {
+                        app.theme.load(theme).done(function () {
                             mobile.application.skin(theme);
                             mobile._fixThemeVariant(theme);
-                            logger.debug({method: 'viewModel.bind', message: 'Theme changed to ' + theme});
+                            logger.debug({
+                                method: 'viewModel.bind',
+                                message: 'Theme changed to ' + theme
+                            });
                         });
                     }
                     break;
@@ -2205,14 +2211,14 @@ window.jQuery.holdReady(true);
                         var view = mobile.application.view();
                         // Close opened action sheets
                         // view.element.find(kendo.roleSelector('actionsheet')).each(function (index, actionSheet) {
-                        $(document).find(kendo.roleSelector('actionsheet')).each(function(index, actionSheet) {
+                        $(document).find(kendo.roleSelector('actionsheet')).each(function (index, actionSheet) {
                             var actionSheetWidget = $(actionSheet).data('kendoMobileActionSheet');
                             if (actionSheetWidget instanceof kendo.mobile.ui.ActionSheet) {
                                 actionSheetWidget.close();
                             }
                         });
                         // Close opened drop down lists
-                        view.element.find(kendo.roleSelector('dropdownlist')).each(function(index, dropDownList) {
+                        view.element.find(kendo.roleSelector('dropdownlist')).each(function (index, dropDownList) {
                             var dropDownListWidget = $(dropDownList).data('kendoDropDownList');
                             if (dropDownListWidget instanceof kendo.ui.DropDownList) {
                                 dropDownListWidget.close();
@@ -2220,7 +2226,7 @@ window.jQuery.holdReady(true);
                         });
                         // Check network to redirect to #network view
                         var url = (view.id.substr(1) || VIEW.DEFAULT) + '?' + window.decodeURIComponent($.param(view.params));
-                        mobile.checkNetwork({preventDefault: $.noop, url: url});
+                        mobile.checkNetwork({ preventDefault: $.noop, url: url });
                     }
                 },
                 false
@@ -3497,7 +3503,7 @@ window.jQuery.holdReady(true);
 
                 // Synchronize changes
                 viewModel.syncUsers()
-                    .done(function() {
+                    .done(function () {
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
                         if (isNewUser) {
                             mobile.application.navigate(HASH + VIEW.SYNC);
@@ -3506,7 +3512,7 @@ window.jQuery.holdReady(true);
                             assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
                             mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
                         }
-                    }).always(function() {
+                    }).always(function () {
                         mobile.enableUserButtons(true);
                     });
 
@@ -3797,7 +3803,7 @@ window.jQuery.holdReady(true);
                 var firstAt = new Date();
                 firstAt.setHours(firstAt.getHours() + 1);
                 // Cancel all notifications before creating new ones
-                local.cancelAll(function() {
+                local.cancelAll(function () {
                     // Setup a reminder to use the application every week
                     local.schedule({
                         title: i18n.culture.osNotifications.title,

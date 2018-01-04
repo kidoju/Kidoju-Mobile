@@ -261,7 +261,7 @@
                     { value: 'fr', text: 'French' }
                 ],
                 themes: [
-                    { value: 'android-dark', text: 'Android Dark'  },
+                    { value: 'android-dark', text: 'Android Dark' },
                     { value: 'android-light', text: 'Android Light' },
                     { value: 'blackberry', text: 'Blackberry' },
                     { value: 'fiori', text: 'Fiori' },

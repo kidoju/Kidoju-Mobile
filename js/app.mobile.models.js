@@ -14,6 +14,7 @@
         './vendor/kendo/kendo.data',
         './window.assert',
         './window.logger',
+        './window.pongodb',
         './kidoju.data',
         './kidoju.tools',
         './app.constants',
@@ -59,6 +60,7 @@
         var DataSource = kidoju.data.DataSource;
         var assert = window.assert;
         var logger = new window.Logger('app.mobile.models');
+        var pongodb = window.pongodb;
         var db = app.db;
         var i18n = app.i18n;
         var fileSystem = new app.FileSystem();
@@ -154,7 +156,7 @@
                     that.transport.get({
                         data: that.transport.parameterMap(data, 'get'),
                         error: dfd.reject,
-                        success: function(response) {
+                        success: function (response) {
                             // TODO: Not found? is error or empty response
                             that.accept(response);
                             dfd.resolve(response);
@@ -402,11 +404,10 @@
                 var query = {};
                 query[this.idField] = data[this.idField];
                 this._collection.findOne(query, this.projection())
-                    .done(function(result) {
-                        debugger;
-                        options.success(result);
+                    .done(function (response) {
+                        options.success(response);
                     })
-                    .fail(function(error) {
+                    .fail(function (error) {
                         options.error.apply(this, error2XHR(error));
                     });
             },
@@ -436,15 +437,14 @@
                     query.filter.filters.push({ field: '__state__', operator: 'neq',  value: STATE.DESTROYED });
                     query = pongodb.util.convertFilter(options.data.filter);
                     this._collection.find(query, this.projection())
-                        .done(function(result) {
-                            debugger;
-                            if ($.isArray(result)) {
-                                options.success({ total: result.length, data: result });
+                        .done(function (response) {
+                            if ($.isArray(response)) {
+                                options.success({ total: response.length, data: response });
                             } else {
                                 options.error.apply(this, error2XHR(new Error('Database should return an array')));
                             }
                         })
-                        .fail(function(error) {
+                        .fail(function (error) {
                             options.error.apply(this, error2XHR(error));
                         });
                 }
@@ -488,11 +488,11 @@
                 }
                 // Unless we give one ourselves, the collection will give the item an id
                 this._collection.insert(item)
-                    .done(function() {
+                    .done(function () {
                         // Note: the item now has an id
                         options.success({ total: 1, data: [item] });
                     })
-                    .fail(function(error) {
+                    .fail(function (error) {
                         options.error.apply(this, error2XHR(error));
                     });
             },
@@ -518,14 +518,14 @@
                     // Items with __state__ === 'created' can be safely removed because they do not exist on the remote server
                     if (RX_MONGODB_ID.test(id)) {
                         this._collection.remove({ id: id })
-                            .done(function(result) {
-                                if (result && result.nRemoved === 1) {
+                            .done(function (response) {
+                                if (response && response.nRemoved === 1) {
                                     options.success({ total: 1, data: [item] });
                                 } else {
                                     options.error.apply(this, error2XHR(new Error('Not found')));
                                 }
                             })
-                            .fail(function(error) {
+                            .fail(function (error) {
                                 options.error.apply(this, error2XHR(error));
                             });
                     } else {
@@ -547,15 +547,15 @@
                     if (RX_MONGODB_ID.test(id)) {
                         item.id = undefined;
                         this._collection.update({ id: id }, item)
-                            .done(function(result) {
-                                if (result && result.nMatched === 1 && result.nModified === 1) {
+                            .done(function (response) {
+                                if (response && response.nMatched === 1 && response.nModified === 1) {
                                     item.id = id;
                                     options.success({ total: 1, data: [item] });
                                 } else {
                                     options.error.apply(this, error2XHR(new Error('Not found')));
                                 }
                             })
-                            .fail(function(error) {
+                            .fail(function (error) {
                                 options.error.apply(this, error2XHR(error));
                             });
                     } else {
@@ -599,15 +599,15 @@
                 if (RX_MONGODB_ID.test(id)) {
                     item.id = undefined;
                     this._collection.update({ id: id }, item, { upsert: true })
-                        .done(function(result) {
-                            if (result && result.nMatched === 1 && (result.nModified + result.nUpserted) === 1) {
+                        .done(function (response) {
+                            if (response && response.nMatched === 1 && (response.nModified + response.nUpserted) === 1) {
                                 item.id = id;
                                 options.success({ total: 1, data: [item] });
                             } else {
                                 options.error.apply(this, error2XHR(new Error('Not found')));
                             }
                         })
-                        .fail(function(error) {
+                        .fail(function (error) {
                             options.error.apply(this, error2XHR(error));
                         });
                 } else {
@@ -824,6 +824,7 @@
                                 return dfd.promise();
                             };
                             for (var idx = 0, length = response.data.length; idx < length; idx++) {
+                                // avoid anonymous functions in for oops
                                 promises.push(upsert(idx));
                             }
                             $.when.apply(that, promises)
@@ -888,22 +889,23 @@
                         error: options.error,
                         success: function (response) {
                             var promises = [];
-                            for (var i = 0, length = response.data.length; i < length; i++) {
-                                promises.push(function(idx) {
-                                    // Do not use i in closure because it is mutable and might not be the expected value when executing
-                                    var dfd = $.Deferred();
-                                    MobileTransport.fn.get.call(that, {
-                                        data: response.data[idx], // The remote data
-                                        error: function () {
-                                            dfd.resolve(); // We do not care!
-                                        },
-                                        success: function (offlineData) { // The local data
-                                            response.data[idx] = $.extend(true, offlineData, response.data[idx], { offline: true });
-                                            dfd.resolve();
-                                        }
-                                    });
-                                    return dfd.promise();
-                                }(i));
+                            var extendOfflineData = function (index) {
+                                var dfd = $.Deferred();
+                                MobileTransport.fn.get.call(that, {
+                                    data: response.data[index], // The remote data
+                                    error: function () {
+                                        dfd.resolve(); // We do not care! we just don't merge
+                                    },
+                                    success: function (offlineData) { // The local data
+                                        response.data[index] = $.extend(true, offlineData, response.data[index], { offline: true });
+                                        dfd.resolve();
+                                    }
+                                });
+                                return dfd.promise();
+                            };
+                            for (var idx = 0, length = response.data.length; idx < length; idx++) {
+                                // avoid anonymous functions in for oops
+                                promises.push(extendOfflineData(idx));
                             }
                             $.when.apply(that, promises)
                                 .always(function () {
@@ -1023,30 +1025,32 @@
                 this.remoteTransport.read({
                     data: {
                         // TODO we certainly have an issue with paging
-                        filter: undefined, // Should we use lastSync ????
+                        filter: undefined, // TODO Should we use lastSync ????
                         sort: undefined
                     },
                     success: function (response) {
                         var result = response.data; // this.remoteTransport.read ensures data is already partitioned
-                        var length = result.length;
+                        var total = result.length;
                         var promises = [];
-                        for (var idx = 0; idx < length; idx++) {
-                            var item = result[idx];
-                            // TODO This can be removed after updating Kidoju-Server as this fixes test vs. Test and score vs. Score
+                        function update(index) {
+                            var item = result[index];
                             if (item && $.type(item.type) === STRING && item.type.length) {
+                                // TODO This can be removed after updating Kidoju-Server as this fixes test vs. Test and score vs. Score
                                 item.type = item.type.substr(0, 1).toUpperCase() + item.type.substr(1).toLowerCase();
                             }
-                            promises.push(collection.update({ id: item.id }, item, { upsert: true })
+                            return collection.update({ id: item.id }, item, { upsert: true })
                                 .always(function () {
-                                    dfd.notify({ collection: collection.name(), pass: 2, index: idx, total: length});
-                                })
-                            );
+                                    dfd.notify({ collection: collection.name(), pass: 2, index: index, total: total });
+                                });
+                        }
+                        for (var idx = 0; idx < total; idx++) {
+                            promises.push(update(idx));
                         }
                         $.when.apply(that, promises)
                             .always(function () {
                                 // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
-                                length = length || 1; // Cannot divide by 0;
-                                dfd.notify({ collection: collection.name(), pass: 2, index: length - 1, total: length}); // Make sure we always reach 100%
+                                total = total || 1; // Cannot divide by 0;
+                                dfd.notify({ collection: collection.name(), pass: 2, index: total - 1, total: total }); // Make sure we always reach 100%
                             })
                             .done(dfd.resolve)
                             .fail(dfd.reject);
@@ -1102,35 +1106,37 @@
                     .done(function (items) {
                         debugger;
                         var promises = [];
-                        var length = items.length;
-
-                        for (var idx = 0; idx < length; idx ++) {
-                            var item = items[idx];
+                        var total = items.length;
+                        function syncItem(index) {
+                            var item = items[index];
                             if (item.__state__ === STATE.CREATED) {
-                                promises.push(that._createSync(item)
+                                return that._createSync(item)
                                     .always(function () {
-                                        dfd.notify({ collection: collection.name(), pass: 1, index: idx, total: length });
-                                    })
-                                );
+                                        dfd.notify({ collection: collection.name(), pass: 1, index: index, total: total });
+                                    });
                             } else if (item.__state__ === STATE.DESTROYED) {
-                                promises.push(that._destroySync(item)
+                                return that._destroySync(item)
                                     .always(function () {
-                                        dfd.notify({ collection: collection.name(), pass: 1, index: idx, total: length });
-                                    })
-                                );
+                                        dfd.notify({ collection: collection.name(), pass: 1, index: index, total: total });
+                                    });
                             } else if (item.__state__ === STATE.UPDATED) {
-                                promises.push(that._updateSync(item)
+                                return that._updateSync(item)
                                     .always(function () {
-                                        dfd.notify({ collection: collection.name(), pass: 1, index: idx, total: length });
-                                    })
-                                );
+                                        dfd.notify({ collection: collection.name(), pass: 1, index: index, total: total });
+                                    });
+                            }
+                        }
+                        for (var idx = 0; idx < total; idx++) {
+                            var promise = syncItem(idx);
+                            if (promise) {
+                                promises.push(promise);
                             }
                         }
                         $.when(promises)
                             .always(function () {
                                 // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
-                                length = length || 1; // Cannot divide by 0;
-                                dfd.notify({ collection: collection.name(), pass: 1, index: length - 1, total: length }); // Make sure we always reach 100%
+                                total = total || 1; // Cannot divide by 0;
+                                dfd.notify({ collection: collection.name(), pass: 1, index: total - 1, total: total }); // Make sure we always reach 100%
                             })
                             .done(function () {
                                 that._readSync()
@@ -1505,8 +1511,8 @@
                 var id = user.id;
                 if (RX_MONGODB_ID.test(id)) {
                     db.users.remove({ id: id })
-                        .done(function (result) {
-                            if (result && result.nRemoved === 1) {
+                        .done(function (response) {
+                            if (response && response.nRemoved === 1) {
                                 options.success({ total: 1, data: [user] });
                             } else {
                                 options.error.apply(this, error2XHR(new Error('User not found')));
@@ -1536,9 +1542,9 @@
                 .done(function () {
                     // Query the database of all users
                     db.users.find()
-                        .done(function (result) {
-                            if ($.isArray(result)) {
-                                options.success({ total: result.length, data: result });
+                        .done(function (response) {
+                            if ($.isArray(response)) {
+                                options.success({ total: response.length, data: response });
                             } else {
                                 options.error.apply(this, error2XHR(new Error('Database should return an array')));
                             }
@@ -1578,8 +1584,8 @@
                     // pongodb does not allow the id to be part of the update
                     user.id = undefined;
                     db.users.update({ id: id }, user)
-                        .done(function (result) {
-                            if (result && result.nMatched === 1 && result.nModified === 1) {
+                        .done(function (response) {
+                            if (response && response.nMatched === 1 && response.nModified === 1) {
                                 if (('Connection' in window && window.navigator.connection.type !== window.Connection.NONE && window.navigator.onLine)) {
                                     // We only update the image when connected ans discard success/failure because the user is already saved with an image
                                     models.MobileUser.fn._saveMobilePicture.call(user);
@@ -1627,7 +1633,7 @@
                         model: models.MobileUser
                         /**
                         // This is for debugging only
-                        parse: function(response) {
+                        parse: function (response) {
                             // debugger;
                             return response;
                         }
@@ -1780,7 +1786,7 @@
                         total: 'total'
                         /**
                          // This is for debugging only
-                         parse: function(response) {
+                         parse: function (response) {
                             // debugger;
                             return response;
                         }
