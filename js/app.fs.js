@@ -294,8 +294,6 @@
             //    directoryEntry.toInternalURL() : directoryEntry.toURL();
             var directoryURL = directoryEntry.toURL();
 
-            window.alert(directoryURL);
-
             logger.debug({
                 message: 'Getting file entry',
                 method: 'FileSystem.prototype.getFileEntry',
