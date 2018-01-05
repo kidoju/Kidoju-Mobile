@@ -33,7 +33,7 @@
         var dfd = $.Deferred();
         var count = 0;
         var interval = setInterval(function () {
-            count ++;
+            count++;
             dfd.notify({ version: that._version, pass: 1, percent: count / 10 });
             if (count === 10) {
                 clearInterval(interval);
@@ -57,15 +57,15 @@
             var upgrade = new pongodb.Upgrade({ db: db });
             upgrade.push(new pongodb.Migration({
                 version: '0.1.0',
-                scripts: [ script ]
+                scripts: [script]
             }));
             upgrade.push(new pongodb.Migration({
                 version: '0.1.1',
-                scripts: [ script ]
+                scripts: [script]
             }));
             upgrade.push(new pongodb.Migration({
                 version: '0.1.2',
-                scripts: [ script ]
+                scripts: [script]
             }));
             upgrade.execute()
                 .progress(function (state) {
