@@ -219,7 +219,9 @@
             <li>Chart</li>
         </ul>
         <!-- graph -->
-        <div data-role="chart" data-bind="source: activities" data-series-defaults="{ type: 'scatter', markers: { type: 'cross', border: { width: 2 } } }" data-series="[{ xField: 'updated', yField: 'score', visibleInLegend: false }]"
+        <div data-role="chart" data-bind="source: activities" data-series-defaults="{ type: 'scatter', markers: { type: 'circle', size: 10, border: { width: 3 } } }"
+             data-series="[{ xField: 'updated', yField: 'score', visibleInLegend: false }]"
+             data-tooltip="{ visible: true, template: '${dataItem.version.title} (${dataItem.score}%)' }"
              data-x-axis="{ baseUnit: 'months', labels: { format: '{0:MMM\'yy}' }, type: 'date' }"
              data-y-axis="{ max: 100, labels: { format: '{0}%' } }" style="display:none;"></div>
         <!-- list -->
