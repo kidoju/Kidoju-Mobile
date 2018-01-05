@@ -2114,6 +2114,8 @@ window.jQuery.holdReady(true);
                         if (mobile.support.splashscreen) {
                             mobile.splashscreen.hide();
                         }
+                        // Application rating prompt
+                        mobile._initAppRate();
                     }, 500); // + 500 is default fadeOut time
                 }
             });
@@ -3827,6 +3829,62 @@ window.jQuery.holdReady(true);
                         // foreground: true
                     });
                 });
+            }
+        };
+
+        /**
+         * Initialize App rating
+         * Uses https://github.com/pushandplay/cordova-plugin-apprate
+         * @private
+         */
+        mobile._initAppRate = function () {
+            if (window.AppRate) {
+
+                window.AppRate.preferences = {
+                    displayAppName: app.constants.appName,
+                    usesUntilPrompt: 5,
+                    promptAgainForEachNewVersion: false,
+                    inAppReview: true,
+                    storeAppURL: {
+                        ios: '<my_app_id>',
+                        android: 'market://details?id=<package_name>',
+                        windows: 'ms-windows-store://pdp/?ProductId=<the apps Store ID>'
+                        // blackberry: 'appworld://content/[App Id]/',
+                        // windows8: 'ms-windows-store:Review?name=<the Package Family Name of the application>'
+                    },
+                    useLanguage: i18n.locale(), // @see https://github.com/pushandplay/cordova-plugin-apprate/blob/master/www/locales.js
+                    /*
+                    customLocale: {
+                        title: 'Would you mind rating %@?',
+                        message: 'It won’t take more than a minute and helps to promote our app. Thanks for your support!',
+                        cancelButtonLabel: 'No, Thanks',
+                        laterButtonLabel: 'Remind Me Later',
+                        rateButtonLabel: 'Rate It Now',
+                        yesButtonLabel: 'Yes!',
+                        noButtonLabel: 'Not really',
+                        appRatePromptTitle: 'Do you like using %@',
+                        feedbackPromptTitle: 'Mind giving us some feedback?',
+                        appRatePromptMessage: '',
+                        feedbackPromptMessage: ''
+                    },
+                    */
+                    callbacks: {
+                        handleNegativeFeedback: function(){
+                            // TODO send to slack
+                            window.alert('handleNegativeFeedback');
+                        },
+                        onRateDialogShow: function(callback){
+                            callback(1) // cause immediate click on 'Rate Now' button
+                        },
+                        onButtonClicked: function(buttonIndex){
+                            // TODO send to slack
+                            window.alert('onButtonClicked');
+                        }
+                    }
+                };
+
+                AppRate.promptForRating();
+
             }
         };
 
