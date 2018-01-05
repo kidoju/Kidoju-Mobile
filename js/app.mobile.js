@@ -450,18 +450,27 @@ window.jQuery.holdReady(true);
             }
             // notification requires cordova-plugin-dialogs
             mobile.dialogs = {
-                confirm: function (message, callback) {
+                confirm: function (message, callback, title, buttons) {
                     if (mobile.support.dialogs) {
-                        window.navigator.notification.confirm(message, callback, i18n.culture.dialogs.confirm, [i18n.culture.dialogs.buttons.ok.text, i18n.culture.dialogs.buttons.cancel.text]);
+                        window.navigator.notification.confirm(message, callback, title || i18n.culture.dialogs.confirm, Array.isArray(buttons) ? buttons : [i18n.culture.dialogs.buttons.ok.text, i18n.culture.dialogs.buttons.cancel.text]);
                     } else {
                         kendo.alertEx({
                             type: 'info',
-                            title: i18n.culture.dialogs.confirm,
+                            title: title || i18n.culture.dialogs.confirm,
                             message: message,
                             buttonLayout: 'stretched',
                             actions: [
-                                { action: 'ok', text: i18n.culture.dialogs.buttons.ok.text, primary: true, imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.ok.icon) },
-                                { action: 'cancel', text: i18n.culture.dialogs.buttons.cancel.text, imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.cancel.icon) }
+                                {
+                                    action: 'ok',
+                                    text: (Array.isArray(buttons) && buttons.length > 1 ? buttons[0] : i18n.culture.dialogs.buttons.ok.text),
+                                    primary: true,
+                                    imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.ok.icon)
+                                },
+                                {
+                                    action: 'cancel',
+                                    text: (Array.isArray(buttons) && buttons.length > 1 ? buttons[1] : i18n.culture.dialogs.buttons.cancel.text),
+                                    imageUrl: kendo.format(app.uris.cdn.icons, i18n.culture.dialogs.buttons.cancel.icon)
+                                }
                             ]
                         })
                             .done(function (result) {
@@ -2114,8 +2123,7 @@ window.jQuery.holdReady(true);
                         if (mobile.support.splashscreen) {
                             mobile.splashscreen.hide();
                         }
-                        // Application rating prompt
-                        mobile._initAppStoreRating();
+                        mobile._requestAppStoreRating(); // TODO
                     }, 500); // + 500 is default fadeOut time
                 }
             });
@@ -3095,7 +3103,7 @@ window.jQuery.holdReady(true);
                 method: 'mobile._signinWithinBrowser',
                 data: { signInUrl: signInUrl }
             });
-            //
+            // Simply assign url and let the authentication provider redirect to the registered callback
             window.location.assign(signInUrl);
         };
 
@@ -3556,6 +3564,8 @@ window.jQuery.holdReady(true);
                     .done(function () {
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
                         mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
+                        // Application rating prompt
+                        mobile._requestAppStoreRating();
                     });
 
             } else {
@@ -3833,60 +3843,82 @@ window.jQuery.holdReady(true);
         };
 
         /**
-         * Initialize App Store rating
-         * Uses https://github.com/pushandplay/cordova-plugin-apprate
+         * Request App Store rating
+         * Note: https://github.com/pushandplay/cordova-plugin-apprate is a conform dialog opening an InAppBrowser, so we can do that without a plugin
+         * @see https://github.com/pushandplay/cordova-plugin-apprate/blob/master/www/AppRate.js
+         * @see https://joshuawinn.com/adding-rate-button-to-cordova-based-mobile-app-android-ios-etc/
          * @private
          */
-        mobile._initAppStoreRating = function () {
+        mobile._requestAppStoreRating = function () {
 
-            if (window.device && window.device.platform !== 'browser' && window.AppRate) {
+            logger.debug({
+                message: 'Requesting app store rating',
+                method: 'mobile._requestAppStoreRating'
+            });
 
-                $.extend(true, window.AppRate.preferences, {
-                    displayAppName: app.constants.appName,
-                    usesUntilPrompt: 5,
-                    promptAgainForEachNewVersion: false,
-                    // inAppReview: true, @see https://github.com/pushandplay/cordova-plugin-apprate/issues/179
-                    storeAppURL: {
-                        ios: 'com.kidoju.mobile',
-                        android: 'market://details?id=com.kidoju.mobile',
-                        windows: 'ms-windows-store://pdp/?ProductId=com.kidoju.mobile'
-                        // blackberry: 'appworld://content/[App Id]/',
-                        // windows8: 'ms-windows-store:Review?name=<the Package Family Name of the application>'
-                    },
-                    useLanguage: i18n.locale(), // @see https://github.com/pushandplay/cordova-plugin-apprate/blob/master/www/locales.js
-                    /*
-                    customLocale: {
-                        title: 'Would you mind rating %@?',
-                        message: 'It won’t take more than a minute and helps to promote our app. Thanks for your support!',
-                        cancelButtonLabel: 'No, Thanks',
-                        laterButtonLabel: 'Remind Me Later',
-                        rateButtonLabel: 'Rate It Now',
-                        yesButtonLabel: 'Yes!',
-                        noButtonLabel: 'Not really',
-                        appRatePromptTitle: 'Do you like using %@',
-                        feedbackPromptTitle: 'Mind giving us some feedback?',
-                        appRatePromptMessage: '',
-                        feedbackPromptMessage: ''
-                    },
-                    */
-                    callbacks: {
-                        handleNegativeFeedback: function(){
-                            // TODO send to slack
-                            window.alert('handleNegativeFeedback');
-                        },
-                        onRateDialogShow: function(callback){
-                            callback(1) // cause immediate click on 'Rate Now' button
-                        },
-                        onButtonClicked: function(buttonIndex){
-                            // TODO send to slack
-                            window.alert('onButtonClicked');
+            var culture = i18n.culture.appStoreRating;
+            mobile.dialogs.confirm(
+                kendo.format(culture.message, app.constants.appName),
+                function (buttonIndex) {
+                    if (buttonIndex === 1) {
+                        var platform = window.device && window.device.platform;
+                        window.alert(platform);
+                        var appStoreUrl = app.constants.appStoreUrl[platform];
+                        if (mobile.support.safariViewController) {
+                            mobile.SafariViewController.isAvailable(function(available) {
+                                if (available) {
+                                    logger.debug({
+                                        message: 'opening a new SafariViewController',
+                                        method: 'mobile._requestAppStoreRating'
+                                    });
+                                    mobile.SafariViewController.show({
+                                            url: appStoreUrl
+                                            // hidden: false,
+                                            // animated: false, // default true, note that 'hide' will reuse this preference (the 'Done' button will always animate though)
+                                            // transition: 'curl', // (this only works in iOS 9.1/9.2 and lower) unless animated is false you can choose from: curl, flip, fade, slide (default)
+                                            // enterReaderModeIfAvailable: readerMode, // default false
+                                            // tintColor: "#00ffff", // default is ios blue
+                                            // barColor: "#0000ff", // on iOS 10+ you can change the background color as well
+                                            // controlTintColor: "#ffffff" // on iOS 10+ you can override the default tintColor
+                                        },
+                                        // this success handler will be invoked for the lifecycle events 'opened', 'loaded' and 'closed'
+                                        function(result) {
+                                            // result has only one property, event which can take any value among 'opened', 'loaded' and 'closed'
+                                            logger.debug({
+                                                message: 'safari/chrome successfully opened',
+                                                method: 'mobile._requestAppStoreRating',
+                                                data: { event: result.event }
+                                            });
+                                        },
+                                        function(msg) {
+                                            logger.error({
+                                                message: 'safari/chrome failed to opened',
+                                                method: 'mobile._requestAppStoreRating',
+                                                error: new Error(msg)
+                                            });
+                                        }
+                                    );
+                                }
+                            });
+                        } else if (mobile.support.inAppBrowser) {
+                            logger.debug({
+                                message: 'opening a new InAppBrowser',
+                                method: 'mobile._requestAppStoreRating'
+                            });
+                            mobile.InAppBrowser.open(appStoreUrl, '_blank', 'location=no');
+                        } else {
+                            logger.debug({
+                                message: 'opening a new browser window',
+                                method: 'mobile._requestAppStoreRating'
+                            });
+                            window.open(appStoreUrl, 'blank', 'location=no');
                         }
                     }
-                });
+                },
+                kendo.format(culture.title, app.constants.appName),
+                [culture.buttons.ok.text, culture.buttons.cancel.text]
+            );
 
-                window.AppRate.promptForRating();
-
-            }
         };
 
         /*******************************************************************************************

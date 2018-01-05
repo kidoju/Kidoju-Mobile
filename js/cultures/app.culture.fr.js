@@ -24,7 +24,7 @@
         app.cultures.fr = {
             /*
             secureStorage: {
-                success: 'Avec le vérouillage écran activé, vous bénéficiez de l\'encryption des données confidentielles.',
+                success: 'Avec le vérouillage écran activé, vous bénéficiez de l’encryption des données confidentielles.',
                 warning: 'Le vérouillage écran est désactivé. Désolé, mais notre application ne peut pas stocker les données confidentielles sans.'
             },
             */
@@ -49,7 +49,7 @@
                 },
                 listView: {
                     groups: {
-                        today: 'Aujourd\'hui',
+                        today: 'Aujourd’hui',
                         yesterday: 'Hier',
                         startOfWeek: 'Cette semaine',
                         startOfMonth: 'Ce mois'
@@ -83,6 +83,18 @@
                 info: 'Information',
                 success: 'Succès'
             },
+            appStoreRating: {
+                title: 'Votez pour {0}',
+                message: 'Si vous aimez {0}, il suffit d’une minute pour encourager nos développements. Merci pour votre soutien !',
+                buttons: {
+                    cancel: {
+                        text: 'Plus tard'
+                    },
+                    ok: {
+                        text: 'Voter maintenant'
+                    }
+                }
+            },
             // Drawer
             drawer: {
                 activities: 'Activités',
@@ -111,28 +123,28 @@
                 batteryLow: 'Niveau de batterie faible. Rechargez bientôt!',
                 clickSubmitInfo: 'Pressez <i class="kf kf-submit"></i> pour calculer votre score.',
                 confirmSubmit: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
-                networkOffline: 'Vous n\'êtes pas connecté à Internet.',
+                networkOffline: 'Vous n’êtes pas connecté à Internet.',
                 networkOnline: 'Votre connexion Internet est restaurée.',
-                oAuthTokenFailure: 'Le service d\'authentification a retourné une erreur.',
-                openUrlUnknown: 'Il y a eu une erreur d\'ouverture d\'une url inconnue.',
+                oAuthTokenFailure: 'Le service d’authentification a retourné une erreur.',
+                openUrlUnknown: 'Il y a eu une erreur d’ouverture d’une url inconnue.',
                 openUrlLanguage: 'Veuillez changer de langue pour ouvrir cette url.',
                 pageNavigationInfo: 'Pressez <i class="kf kf-previous"></i> et <i class="kf kf-next"></i> pour changer de page.',
                 pinSaveFailure: 'Les pins à 4 chiffres ne correspondent pas.',
-                pinSaveInfo: 'Veuillez saisir et confirmer votre pin à 4 chiffres avant d\'enregistrer.',
+                pinSaveInfo: 'Veuillez saisir et confirmer votre pin à 4 chiffres avant d’enregistrer.',
                 pinValidationFailure: 'Mauvais pin à 4 chiffres.',
                 pinValidationInfo: 'Veuillez saisir votre pin à 4 chiffres pour vous connecter.',
-                scanFailure: 'Erreur de scan. Vérifiez que l\'app soit autorisée à utiliser la caméra.',
-                scanPrompt: 'Veuillez placer un code dans l\'espace délimité.',
+                scanFailure: 'Erreur de scan. Vérifiez que l’app soit autorisée à utiliser la caméra.',
+                scanPrompt: 'Veuillez placer un code dans l’espace délimité.',
                 scanLanguageWarning: 'Veuillez changer de language dans les paramètres pour scanner ce code.',
                 scanMatchWarning: 'Ce code ne correspond pas.',
                 scoreCalculationFailure: 'Il y a eu une erreur de calcul de votre score.',
-                scoreSaveFailure: 'Il y a eu une erreur d\'enregistremenet de votre score.',
+                scoreSaveFailure: 'Il y a eu une erreur d’enregistremenet de votre score.',
                 scoreSaveSuccess: 'Votre score a été enregistré avec succès.',
                 settingsLoadFailure: 'Il y a eu une erreur lors du chargement des paramètres.',
                 sharingFailure: 'Il y a eu une erreur lors du partage du quiz.',
                 sharingSuccess: 'Ce quiz a été partagé avec succès.',
                 showScoreInfo: 'Pressez <i class="kf kf-score"></i> pour retourner à votre score.',
-                signinUrlFailure: 'Il y a eu une erreur d\'obtention d\'url de connexion pour le service d\'authentification.',
+                signinUrlFailure: 'Il y a eu une erreur d’obtention d’url de connexion pour le service d’authentification.',
                 summariesQueryFailure: 'Il y a eu une erreur de recherche dans la base de données.',
                 summaryLoadFailure: 'Il y a eu une erreur lors du chargement des données du résumé descriptif.',
                 summaryViewInfo: 'Pressez le bouton en bas de page.',
@@ -140,10 +152,10 @@
                 syncBatteryLow: 'Vous ne pouvez pas synchroniser vos données avec des batteries déchargées.',
                 syncFailure: 'Il y a eu une erreur de synchronisation des données.',
                 syncSuccess: 'les données locales sont synchronisées avec les serveurs distants.',
-                syncUnauthorized: 'Vous n\'êtes pas autorisé à synchroniser vos données. Veuillez vous identifier avec un service d\'authentification.',
-                unknownError: 'Il y a eu une erreur inconnue. Veuillez redémarrer l\'app.',
+                syncUnauthorized: 'Vous n’êtes pas autorisé à synchroniser vos données. Veuillez vous identifier avec un service d’authentification.',
+                unknownError: 'Il y a eu une erreur inconnue. Veuillez redémarrer l’app.',
                 userLoadFailure: 'Il y a eu une erreur lors du chargement du profil utilisateur.',
-                userSaveFailure: 'Il y a eu une erreur d\'enregistremenet de votre profil utilisateur.',
+                userSaveFailure: 'Il y a eu une erreur d’enregistremenet de votre profil utilisateur.',
                 userSaveSuccess: 'Votre profil utilisateur a été enregistré avec succès.',
                 userSignInSuccess: 'Vous êtes connecté en tant que {0}.',
                 usersQueryFailure: 'Il y a eu une erreur lors du chargement de la liste des utilisateurs.',
@@ -179,7 +191,7 @@
                 user: 'Utilisateur',
                 version: 'Version',
                 // Buttons
-                switch: 'Changer d\'utilisateur',
+                switch: 'Changer d’utilisateur',
                 tour: 'Faire un tour'
             },
             // Sign-in view
@@ -188,10 +200,10 @@
                 viewTitle2: 'Identification',
                 // Onboarding
                 page0: 'Naviguez et recherchez des exercices et des tests de connaissance organisés par matière.',
-                page1: 'Jouez les questions, donnez vos réponses et l\'application calcule votre score.',
+                page1: 'Jouez les questions, donnez vos réponses et l’application calcule votre score.',
                 page2: 'Suivez et mesurez vos progrès.',
                 // Notification
-                welcome: 'Veuillez sélectionner un service d\'authentification.'
+                welcome: 'Veuillez sélectionner un service d’authentification.'
             },
             // Summary view
             summary: {
@@ -248,7 +260,7 @@
                 confirm: 'Confirmation',
                 // Buttons
                 save: 'Enregistrer',
-                signIn: 'S\'identifier',
+                signIn: 'S’identifier',
                 newUser: 'Nouvel Utilisateur',
                 changePIN: 'Nouveau PIN'
             },

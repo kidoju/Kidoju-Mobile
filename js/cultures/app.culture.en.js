@@ -84,6 +84,18 @@
                 success: 'Success',
                 warning: 'Warning'
             },
+            appStoreRating: {
+                title: 'Would you mind rating {0}?',
+                message: 'If you enjoy {0}, it won’t take more than a minute to encourage our development effort. Thanks for your help!',
+                buttons: {
+                    cancel: {
+                        text: 'Remind Me Later'
+                    },
+                    ok: {
+                        text: 'Rate It Now'
+                    }
+                }
+            },
             // Drawer
             drawer: {
                 activities: 'Activities',

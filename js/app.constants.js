@@ -43,6 +43,13 @@
         // These constants lock the app to certain values
         app.constants = {
             appName: 'Kidoju',
+            appId: 'com.kidoju.mobile',
+            // For app store ratings
+            appStoreUrl: {
+                ios: 'com.kidoju.mobile', // TODO
+                android: 'market://details?id=com.kidoju.mobile', // TODO
+                windows: 'ms-windows-store://pdp/?ProductId=com.kidoju.mobile' // TODO
+            },
             // The authorId to search summaries from (until we support organizationId)
             authorId: undefined, // '56d6ee31bc039c1a00062950',
             // The app language
