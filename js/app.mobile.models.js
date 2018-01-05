@@ -1206,6 +1206,9 @@
                     type: STRING,
                     editable: false
                 },
+                reviewState: {
+                    defaultValue: { counter: 0 }
+                },
                 rootCategoryId: {
                     type: STRING,
                     defaultValue: function () {

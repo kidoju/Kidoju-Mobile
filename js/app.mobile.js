@@ -228,6 +228,7 @@ window.jQuery.holdReady(true);
                 LAST_SYNC: 'user.lastSync',
                 LAST_USE: 'user.lastUse',
                 PROVIDER: 'user.provider',
+                REVIEW_STATE: 'user.reviewState',
                 SID: 'user.sid'
                 // THEME: 'user.theme'
             },
@@ -2123,7 +2124,6 @@ window.jQuery.holdReady(true);
                         if (mobile.support.splashscreen) {
                             mobile.splashscreen.hide();
                         }
-                        mobile._requestAppStoreRating(); // TODO
                     }, 500); // + 500 is default fadeOut time
                 }
             });
@@ -3564,8 +3564,8 @@ window.jQuery.holdReady(true);
                     .done(function () {
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
                         mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
-                        // Application rating prompt
-                        mobile._requestAppStoreRating();
+                        // Request an app store review
+                        mobile._requestAppStoreReview();
                     });
 
             } else {
@@ -3849,75 +3849,62 @@ window.jQuery.holdReady(true);
          * @see https://joshuawinn.com/adding-rate-button-to-cordova-based-mobile-app-android-ios-etc/
          * @private
          */
-        mobile._requestAppStoreRating = function () {
+        mobile._requestAppStoreReview = function () {
 
-            logger.debug({
-                message: 'Requesting app store rating',
-                method: 'mobile._requestAppStoreRating'
-            });
+            var platform = window.device && window.device.platform && window.device.platform.toLowerCase();
+            var appStoreUrl = app.constants.appStoreUrl[platform];
+            // appStoreUrl = 'http://www.kidoju.com'; // Note browser platform has no appStoreUrl, so uncomment to test
 
-            var culture = i18n.culture.appStoreRating;
-            mobile.dialogs.confirm(
-                kendo.format(culture.message, app.constants.appName),
-                function (buttonIndex) {
-                    if (buttonIndex === 1) {
-                        var platform = window.device && window.device.platform;
-                        window.alert(platform);
-                        var appStoreUrl = app.constants.appStoreUrl[platform];
-                        if (mobile.support.safariViewController) {
-                            mobile.SafariViewController.isAvailable(function(available) {
-                                if (available) {
-                                    logger.debug({
-                                        message: 'opening a new SafariViewController',
-                                        method: 'mobile._requestAppStoreRating'
-                                    });
-                                    mobile.SafariViewController.show({
-                                            url: appStoreUrl
-                                            // hidden: false,
-                                            // animated: false, // default true, note that 'hide' will reuse this preference (the 'Done' button will always animate though)
-                                            // transition: 'curl', // (this only works in iOS 9.1/9.2 and lower) unless animated is false you can choose from: curl, flip, fade, slide (default)
-                                            // enterReaderModeIfAvailable: readerMode, // default false
-                                            // tintColor: "#00ffff", // default is ios blue
-                                            // barColor: "#0000ff", // on iOS 10+ you can change the background color as well
-                                            // controlTintColor: "#ffffff" // on iOS 10+ you can override the default tintColor
-                                        },
-                                        // this success handler will be invoked for the lifecycle events 'opened', 'loaded' and 'closed'
-                                        function(result) {
-                                            // result has only one property, event which can take any value among 'opened', 'loaded' and 'closed'
-                                            logger.debug({
-                                                message: 'safari/chrome successfully opened',
-                                                method: 'mobile._requestAppStoreRating',
-                                                data: { event: result.event }
-                                            });
-                                        },
-                                        function(msg) {
-                                            logger.error({
-                                                message: 'safari/chrome failed to opened',
-                                                method: 'mobile._requestAppStoreRating',
-                                                error: new Error(msg)
-                                            });
-                                        }
-                                    );
-                                }
-                            });
-                        } else if (mobile.support.inAppBrowser) {
-                            logger.debug({
-                                message: 'opening a new InAppBrowser',
-                                method: 'mobile._requestAppStoreRating'
-                            });
-                            mobile.InAppBrowser.open(appStoreUrl, '_blank', 'location=no');
-                        } else {
-                            logger.debug({
-                                message: 'opening a new browser window',
-                                method: 'mobile._requestAppStoreRating'
-                            });
-                            window.open(appStoreUrl, 'blank', 'location=no');
-                        }
-                    }
-                },
-                kendo.format(culture.title, app.constants.appName),
-                [culture.buttons.ok.text, culture.buttons.cancel.text]
-            );
+            if (appStoreUrl) {
+
+                var reviewState = viewModel.get(VIEW_MODEL.USER.REVIEW_STATE);
+                reviewState = reviewState || {counter: 0};
+
+                // Never rate the same version twice
+                // Only ask very 5 times (here we use signins)
+                if ((reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
+
+                    var culture = i18n.culture.appStoreRating;
+
+                    logger.debug({
+                        message: 'Requesting an app store review',
+                        method: 'mobile._requestAppStoreReview',
+                        data: {platform: platform}
+                    });
+
+                    mobile.dialogs.confirm(
+                        kendo.format(culture.message, app.constants.appName),
+                        function(buttonIndex) {
+                            if (buttonIndex === 1) { // OK
+                                logger.debug({
+                                    message: 'Opening the app store for review',
+                                    method: 'mobile._requestAppStoreReview',
+                                    data: {platform: platform}
+                                });
+                                // We are simply opening a custom url scheme and we do not need SafariViewController or InAppBrowser for that
+                                window.alert(appStoreUrl);
+                                window.open(appStoreUrl);
+                                // In truth we do not really know whether the app has been reviewed or not, we just know that the browser has been opened to the app store
+                                reviewState.version = app.version;
+                                reviewState.counter = 0;
+                            } else { // Cancel
+                                reviewState.counter++;
+                            }
+
+                        },
+                        kendo.format(culture.title, app.constants.appName),
+                        [culture.buttons.ok.text, culture.buttons.cancel.text]
+                    );
+
+                } else {
+                    reviewState.counter++;
+                }
+
+                // Update reviewState and save
+                viewModel.set(VIEW_MODEL.USER.REVIEW_STATE, reviewState);
+                viewModel.users.sync(false);
+
+            }
 
         };
 
