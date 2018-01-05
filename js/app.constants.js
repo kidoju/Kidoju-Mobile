@@ -48,10 +48,10 @@
             appId: 'com.kidoju.mobile',
             // For app store ratings
             appStoreUrl: {
-                // https://itunes.apple.com/app/viewContentsUserReviews?id=333903271
-                ios: 'itms-apps://itunes.apple.com/app/viewContentsUserReviews/id333903271?action=write-review', // TODO
-                android: 'market://details?id={0}', // TODO
-                windows: 'ms-windows-store://pdp/?ProductId={0}'
+                // TODO: these are all for testing with the twitter app
+                ios: 'itms-apps://itunes.apple.com/app/viewContentsUserReviews/id333903271?action=write-review',
+                android: 'market://details?id=com.twitter.android', // TODO
+                windows: 'ms-windows-store://pdp/?ProductId=9wzdncrfj140'
             },
             // The authorId to search summaries from (until we support organizationId)
             authorId: undefined, // '56d6ee31bc039c1a00062950',
