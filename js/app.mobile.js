@@ -2115,7 +2115,7 @@ window.jQuery.holdReady(true);
                             mobile.splashscreen.hide();
                         }
                         // Application rating prompt
-                        mobile._initAppRate();
+                        mobile._initAppStoreRating();
                     }, 500); // + 500 is default fadeOut time
                 }
             });
@@ -3833,22 +3833,23 @@ window.jQuery.holdReady(true);
         };
 
         /**
-         * Initialize App rating
+         * Initialize App Store rating
          * Uses https://github.com/pushandplay/cordova-plugin-apprate
          * @private
          */
-        mobile._initAppRate = function () {
-            if (window.AppRate) {
+        mobile._initAppStoreRating = function () {
 
-                window.AppRate.preferences = {
+            if (window.device && window.device.platform !== 'browser' && window.AppRate) {
+
+                $.extend(true, window.AppRate.preferences, {
                     displayAppName: app.constants.appName,
                     usesUntilPrompt: 5,
                     promptAgainForEachNewVersion: false,
-                    inAppReview: true,
+                    // inAppReview: true, @see https://github.com/pushandplay/cordova-plugin-apprate/issues/179
                     storeAppURL: {
-                        ios: '<my_app_id>',
-                        android: 'market://details?id=<package_name>',
-                        windows: 'ms-windows-store://pdp/?ProductId=<the apps Store ID>'
+                        ios: 'com.kidoju.mobile',
+                        android: 'market://details?id=com.kidoju.mobile',
+                        windows: 'ms-windows-store://pdp/?ProductId=com.kidoju.mobile'
                         // blackberry: 'appworld://content/[App Id]/',
                         // windows8: 'ms-windows-store:Review?name=<the Package Family Name of the application>'
                     },
@@ -3881,9 +3882,9 @@ window.jQuery.holdReady(true);
                             window.alert('onButtonClicked');
                         }
                     }
-                };
+                });
 
-                AppRate.promptForRating();
+                window.AppRate.promptForRating();
 
             }
         };
