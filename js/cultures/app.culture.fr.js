@@ -83,7 +83,7 @@
                 info: 'Information',
                 success: 'Succès'
             },
-            appStoreRating: {
+            appStoreReview: {
                 title: 'Votez pour {0}',
                 message: 'Si vous aimez {0}, il suffit d’une minute pour encourager nos développements. Merci pour votre soutien !',
                 buttons: {

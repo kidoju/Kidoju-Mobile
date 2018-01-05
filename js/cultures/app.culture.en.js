@@ -84,7 +84,7 @@
                 success: 'Success',
                 warning: 'Warning'
             },
-            appStoreRating: {
+            appStoreReview: {
                 title: 'Would you mind rating {0}?',
                 message: 'If you enjoy {0}, it won’t take more than a minute to encourage our development effort. Thanks for your help!',
                 buttons: {

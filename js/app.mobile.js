@@ -3862,9 +3862,10 @@ window.jQuery.holdReady(true);
 
                 // Never rate the same version twice
                 // Only ask very 5 times (here we use signins)
-                if ((reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
+                // if (mobile.support.inAppBrowser && (reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
+                if (mobile.support.inAppBrowser) {
 
-                    var culture = i18n.culture.appStoreRating;
+                    var culture = i18n.culture.appStoreReview;
 
                     logger.debug({
                         message: 'Requesting an app store review',
@@ -3881,9 +3882,8 @@ window.jQuery.holdReady(true);
                                     method: 'mobile._requestAppStoreReview',
                                     data: {platform: platform}
                                 });
-                                // We are simply opening a custom url scheme and we do not need SafariViewController or InAppBrowser for that
-                                window.alert(appStoreUrl);
-                                window.open(appStoreUrl);
+                                // We are simply opening a custom url scheme and we do not need SafariViewController for that
+                                mobile.InAppBrowser.open(appStoreUrl, '_system', 'location=no' );
                                 // In truth we do not really know whether the app has been reviewed or not, we just know that the browser has been opened to the app store
                                 reviewState.version = app.version;
                                 reviewState.counter = 0;
