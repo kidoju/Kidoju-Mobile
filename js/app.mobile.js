@@ -2412,8 +2412,16 @@ window.jQuery.holdReady(true);
         mobile.onGenericViewShow = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            mobile._setNavBar(e.view);
-            mobile._setNavBarTitle(e.view);
+            var view = e.view;
+            var id = view.id === '/' ? VIEW.DEFAULT : view.id.substr(1); // Remove #
+            var viewTitle = i18n.culture[id].viewTitle; // Note: this supposes culture names match view id names
+            if (id === VIEW.SCORE) {
+                viewTitle = kendo.format(viewTitle, viewModel.get((VIEW_MODEL.CURRENT.SCORE) || 0) / 100);
+            } else if (id === VIEW.CORRECTION || id === VIEW.PLAYER) {
+                viewTitle = kendo.format(viewTitle, viewModel.page$(), viewModel.totalPages$());
+            }
+            mobile._setNavBar(view);
+            mobile._setNavBarTitle(view, viewTitle);
             if (mobile.application instanceof kendo.mobile.Application) {
                 // mobile.application is not available on first view shown
                 mobile.application.hideLoading();
@@ -2684,11 +2692,9 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
 
             // Scan params
-            var language = e.view.params.language; // TODO
+            var language = e.view.params.language;
             var summaryId = e.view.params.summaryId;
             var versionId = e.view.params.versionId;
-
-            debugger;
 
             assert.equal(viewModel.get(VIEW_MODEL.LANGUAGE), language, assert.format(assert.messages.equal.default, 'language', 'viewModel.get("language")'));
             assert.equal(i18n.locale(), language, assert.format(assert.messages.equal.default, 'language', 'i18n.locale()'));
@@ -3207,7 +3213,6 @@ window.jQuery.holdReady(true);
             var summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
 
             // Find latest version (version history is not available in the mobile app)
-            debugger;
             viewModel.loadLazyVersions({
                 // TODO: fields could be found in models.LazyVersion (use the from property not the field name) - @see https://github.com/kidoju/Kidoju-Widgets/issues/218
                 fields: 'id,state,summaryId', // Note for whatever reason we also receive the type in the response payload
@@ -3801,16 +3806,19 @@ window.jQuery.holdReady(true);
             var local = window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.local;
             if (local && $.isFunction(local.cancelAll) && $.isFunction(local.schedule)) {
                 var firstAt = new Date();
-                firstAt.setHours(firstAt.getHours() + 1);
+                // firstAt.setHours(firstAt.getHours() + 1);
+                firstAt.setDate(firstAt.getDate() + 7);
                 // Cancel all notifications before creating new ones
                 local.cancelAll(function () {
                     // Setup a reminder to use the application every week
                     local.schedule({
                         title: i18n.culture.osNotifications.title,
                         text: kendo.format(i18n.culture.osNotifications.text, app.constants.appName),
+                        icon: './icon.png',
+                        // smallIcon: - @see https://documentation.onesignal.com/v3.0/docs/customize-notification-icons#section-small-icon
                         // @see https://github.com/katzer/cordova-plugin-local-notifications/issues/1412
                         // With version 0.8.5 - https://github.com/katzer/cordova-plugin-local-notifications/blob/64a6e557fd10dcd66a13b22b6aa0ed50163bcd91/README.md
-                        every: 'hour', // 'week'
+                        every: 'week',
                         firstAt: firstAt
                         // With version 0.9 - https://github.com/katzer/cordova-plugin-local-notifications
                         // trigger: { every: 7, unit: 'day' },
