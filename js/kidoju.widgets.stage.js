@@ -1510,6 +1510,7 @@
                 that.element.find('*').off();
                 // remove no page div
                 that.wrapper.children('.' + NOPAGE_CLASS).remove();
+                that.wrapper.children('.' + OVERLAY_CLASS).remove();
                 that.wrapper = undefined;
                 // empty and unwrap
                 that.element
