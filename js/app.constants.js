@@ -44,6 +44,7 @@
         app.constants = {
             // The application name
             appName: 'Kidoju',
+            // TODO: logo to display in drawer...
             // The application id
             appId: 'com.kidoju.mobile',
             // The application scheme
@@ -52,11 +53,19 @@
             appStoreUrl: {
                 // TODO: these are all for testing with the twitter app
                 // ----------------------------------------------------------------------------------------
-                // For iOS
-                ios: 'itms-apps://itunes.apple.com/app/viewContentsUserReviews/id333903271?action=write-review',
+                // For iOS, see:
+                // https://developer.apple.com/library/content/qa/qa1629/_index.html
+                // https://developer.apple.com/library/content/qa/qa1633/_index.html
+                // ios: 'itms-apps://itunes.apple.com/app/viewContentsUserReviews/id333903271?action=write-review',
+                ios: 'itms-apps://itunes.apple.com/app/id333903271?action=write-review',
                 // ----------------------------------------------------------------------------------------
-                // For Android, see https://developer.android.com/distribute/marketing-tools/linking-to-google-play.html
+                // For Android, see:
+                // https://developer.android.com/distribute/marketing-tools/linking-to-google-play.html
                 android: 'market://details?id=com.twitter.android',
+                // ----------------------------------------------------------------------------------------
+                // For Fire OS, see:
+                // https://developer.amazon.com/blogs/post/Tx3A1TVL67TB24B/Linking-To-the-Amazon-Appstore-for-Android.html
+                'amazon-fireos': 'amzn://apps/android?p=com.twitter.android',
                 // ----------------------------------------------------------------------------------------
                 // For windows (untested)
                 windows: 'ms-windows-store://pdp/?ProductId=9wzdncrfj140'
@@ -65,7 +74,6 @@
             authorId: undefined, // '56d6ee31bc039c1a00062950',
             // The app language
             language: undefined, // 'fr',
-            // TODO: logo to display in drawer...
             // The root categoryId
             rootCategoryId: {
                 en: undefined,

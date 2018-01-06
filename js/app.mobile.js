@@ -3852,6 +3852,11 @@ window.jQuery.holdReady(true);
         /**
          * Request App Store rating
          * Note: https://github.com/pushandplay/cordova-plugin-apprate is a confirm dialog opening an InAppBrowser, so we can do that without a plugin
+         * There is also another plugin at https://github.com/xmartlabs/cordova-plugin-market
+         * There are several reasons for doing it this way:
+         * - URLs change from time to time and plugins lag behind (
+         * - Plugins do not surpport FireOS
+         *
          * @see https://github.com/pushandplay/cordova-plugin-apprate/blob/master/www/AppRate.js
          * @see https://joshuawinn.com/adding-rate-button-to-cordova-based-mobile-app-android-ios-etc/
          * @private
@@ -3862,14 +3867,16 @@ window.jQuery.holdReady(true);
             var appStoreUrl = app.constants.appStoreUrl[platform];
             // appStoreUrl = 'http://www.kidoju.com'; // Note browser platform has no appStoreUrl, so uncomment to test
 
+            window.alert(window.device.platform + ': ' + mobile.support.inAppBrowser);
+
             if (appStoreUrl) {
 
                 var reviewState = viewModel.get(VIEW_MODEL.USER.REVIEW_STATE);
                 reviewState = reviewState || { counter: 0 };
 
                 // Never rate the same version twice + only ask every 5 times (this is called after signing in with a PIN, before redirecting to the categories tree)
-                if (mobile.support.inAppBrowser && (reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
-                // if (mobile.support.inAppBrowser) {
+                // if (mobile.support.inAppBrowser && (reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
+                if (mobile.support.inAppBrowser) {
 
                     var culture = i18n.culture.appStoreReview;
 

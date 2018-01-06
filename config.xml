@@ -103,6 +103,7 @@
     <allow-intent href="https://*/*" />
     <platform name="android">
         <allow-intent href="market:*" />
+        <allow-intent href="amzn:*" />
         <preference name="AndroidPersistentFileLocation" value="Internal" />
         <preference name="InAppBrowserStorageEnabled" value="false" />
         <preference name="SplashMaintainAspectRatio" value="true" />
