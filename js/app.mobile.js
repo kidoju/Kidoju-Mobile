@@ -3865,11 +3865,11 @@ window.jQuery.holdReady(true);
             if (appStoreUrl) {
 
                 var reviewState = viewModel.get(VIEW_MODEL.USER.REVIEW_STATE);
-                reviewState = reviewState || {counter: 0};
+                reviewState = reviewState || { counter: 0 };
 
                 // Never rate the same version twice + only ask every 5 times (this is called after signing in with a PIN, before redirecting to the categories tree)
-                // if (mobile.support.inAppBrowser && (reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
-                if (mobile.support.inAppBrowser) {
+                if (mobile.support.inAppBrowser && (reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
+                // if (mobile.support.inAppBrowser) {
 
                     var culture = i18n.culture.appStoreReview;
 
