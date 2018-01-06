@@ -56,9 +56,7 @@
                 ios: 'itms-apps://itunes.apple.com/app/viewContentsUserReviews/id333903271?action=write-review',
                 // ----------------------------------------------------------------------------------------
                 // For Android, see https://developer.android.com/distribute/marketing-tools/linking-to-google-play.html
-                // The trick using intent:// comes from https://github.com/apache/cordova-plugin-inappbrowser/pull/99#issuecomment-351034215
-                // android: 'market://details?id=com.twitter.android',
-                android: 'intent://details?id=com.twitter.android/#Intent;scheme=market;package=com.android.vending;end',
+                android: 'market://details?id=com.twitter.android',
                 // ----------------------------------------------------------------------------------------
                 // For windows (untested)
                 windows: 'ms-windows-store://pdp/?ProductId=9wzdncrfj140'

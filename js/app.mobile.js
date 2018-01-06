@@ -312,8 +312,7 @@ window.jQuery.holdReady(true);
                     app.notification.warning(i18n.culture.notifications.openUrlLanguage);
                 }
             } else if (RX_REVIEW_SCHEMES.test(url)) {
-                // For whatever reason calling review schemes in mobile._requestAppStoreReview trigger handleOpenUrl
-                window.alert('a review scheme!');
+                // For whatever reason calling review schemes in mobile._requestAppStoreReview triggers handleOpenUrl on iOS (but not on Android)
                 $.noop();
             } else {
                 logger.warn({
@@ -3890,16 +3889,14 @@ window.jQuery.holdReady(true);
                                     data: { platform: platform }
                                 });
                                 // We are simply opening a custom url scheme and we do not need SafariViewController for that
+                                // Note that this does not work in the Android Emulator because the play store app is missing
                                 mobile.InAppBrowser.open(appStoreUrl, '_system');
-                                // window.open(appStoreUrl, '_system');
                                 // In truth we do not really know whether the app has been reviewed or not, we just know that the browser has been opened to the app store
                                 reviewState.version = app.version;
                                 reviewState.counter = 0;
                             } else { // Cancel
-                                mobile.InAppBrowser.open('market://details?id=com.twitter.android', '_system'); // TODO remove
                                 reviewState.counter++;
                             }
-
                         },
                         kendo.format(culture.title, app.constants.appName),
                         [culture.buttons.ok.text, culture.buttons.cancel.text]
