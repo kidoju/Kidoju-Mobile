@@ -244,8 +244,8 @@ window.jQuery.holdReady(true);
         var SELECTORS = {
             PIN: '.pin'
         };
-        var URL_SCHEME = 'com.kidoju.mobile://';
-        var RX_URL_SCHEME = new RegExp('^' + URL_SCHEME + '([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
+        var RX_URL_SCHEME = new RegExp('^' + app.constants.appScheme + '([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
+        var RX_REVIEW_SCHEMES = /^(itms-apps|market|ms-windows-store):\/\//;
         var DEFAULT = {
             ROOT_CATEGORY_ID: {
                 en: app.constants.rootCategoryId.en || '000100010000000000000000',
@@ -296,7 +296,7 @@ window.jQuery.holdReady(true);
          * @param url
          */
         function handleOpenURL(url) {
-            if (url.startsWith(URL_SCHEME + 'oauth')) {
+            if (url.startsWith(app.constants.appScheme + 'oauth')) {
                 // The whole oAuth flow is documented at
                 // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                 mobile._parseTokenAndLoadUser(url);
@@ -306,10 +306,15 @@ window.jQuery.holdReady(true);
                 var language = matches[1];
                 var summaryId = matches[3];
                 if (language === i18n.locale()) {
-                    mobile.application.navigate(HASH + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' + encodeURIComponent(summaryId));
+                    mobile.application.navigate(HASH + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' +
+                        encodeURIComponent(summaryId));
                 } else {
                     app.notification.warning(i18n.culture.notifications.openUrlLanguage);
                 }
+            } else if (RX_REVIEW_SCHEMES.test(url)) {
+                // For whatever reason calling review schemes in mobile._requestAppStoreReview trigger handleOpenUrl
+                window.alert('a review scheme!');
+                $.noop();
             } else {
                 logger.warn({
                     message: 'App scheme called with unknown url',
@@ -2077,7 +2082,7 @@ window.jQuery.holdReady(true);
         mobile._initKendoApplication = function () {
             logger.debug({
                 message: 'Initialize kendo application',
-                method: 'mobile.initKendoApplicaton'
+                method: 'mobile.initKendoApplication'
             });
             // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
             kendo.UserEvents.defaultThreshold(kendo.support.mobileOS.name === 'android' ? 0 : 20);
@@ -3300,6 +3305,10 @@ window.jQuery.holdReady(true);
         mobile.onSyncViewShow = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+
+            var language = i18n.locale();
+            assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
+
             var culture = i18n.culture.sync;
             var message = e.view.content.find('p.message');
             var passProgressBar = e.view.content.find('#sync-pass').data('kendoProgressBar');
@@ -3326,7 +3335,8 @@ window.jQuery.holdReady(true);
             // Check network
             if ((window.device && window.device.platform !== 'browser' && 'Connection' in window && window.navigator.connection.type !== window.Connection.ETHERNET && window.navigator.connection.type !== window.Connection.WIFI) ||
                 (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
-                return app.notification.warning(i18n.culture.notifications.syncBandwidthLow);
+                app.notification.warning(i18n.culture.notifications.syncBandwidthLow);
+                mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
             }
 
             // Check batteries
@@ -3382,8 +3392,6 @@ window.jQuery.holdReady(true);
                     // Enable continue button
                     continueButton.bind('click', function (e) {
                         e.preventDefault();
-                        var language = i18n.locale();
-                        assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
                         mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
                     });
                     continueButton.enable(true);
@@ -3844,7 +3852,7 @@ window.jQuery.holdReady(true);
 
         /**
          * Request App Store rating
-         * Note: https://github.com/pushandplay/cordova-plugin-apprate is a conform dialog opening an InAppBrowser, so we can do that without a plugin
+         * Note: https://github.com/pushandplay/cordova-plugin-apprate is a confirm dialog opening an InAppBrowser, so we can do that without a plugin
          * @see https://github.com/pushandplay/cordova-plugin-apprate/blob/master/www/AppRate.js
          * @see https://joshuawinn.com/adding-rate-button-to-cordova-based-mobile-app-android-ios-etc/
          * @private
@@ -3860,8 +3868,7 @@ window.jQuery.holdReady(true);
                 var reviewState = viewModel.get(VIEW_MODEL.USER.REVIEW_STATE);
                 reviewState = reviewState || {counter: 0};
 
-                // Never rate the same version twice
-                // Only ask very 5 times (here we use signins)
+                // Never rate the same version twice + only ask every 5 times (this is called after signing in with a PIN, before redirecting to the categories tree)
                 // if (mobile.support.inAppBrowser && (reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
                 if (mobile.support.inAppBrowser) {
 
@@ -3870,7 +3877,7 @@ window.jQuery.holdReady(true);
                     logger.debug({
                         message: 'Requesting an app store review',
                         method: 'mobile._requestAppStoreReview',
-                        data: {platform: platform}
+                        data: { platform: platform }
                     });
 
                     mobile.dialogs.confirm(
@@ -3880,14 +3887,16 @@ window.jQuery.holdReady(true);
                                 logger.debug({
                                     message: 'Opening the app store for review',
                                     method: 'mobile._requestAppStoreReview',
-                                    data: {platform: platform}
+                                    data: { platform: platform }
                                 });
                                 // We are simply opening a custom url scheme and we do not need SafariViewController for that
-                                mobile.InAppBrowser.open(appStoreUrl, '_system', 'location=no' );
+                                mobile.InAppBrowser.open(appStoreUrl, '_system');
+                                // window.open(appStoreUrl, '_system');
                                 // In truth we do not really know whether the app has been reviewed or not, we just know that the browser has been opened to the app store
                                 reviewState.version = app.version;
                                 reviewState.counter = 0;
                             } else { // Cancel
+                                mobile.InAppBrowser.open('market://details?id=com.twitter.android', '_system'); // TODO remove
                                 reviewState.counter++;
                             }
 
@@ -3900,7 +3909,7 @@ window.jQuery.holdReady(true);
                     reviewState.counter++;
                 }
 
-                // Update reviewState and save
+                // Update reviewState and save without notification
                 viewModel.set(VIEW_MODEL.USER.REVIEW_STATE, reviewState);
                 viewModel.users.sync(false);
 

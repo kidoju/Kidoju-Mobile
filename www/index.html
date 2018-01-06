@@ -400,6 +400,18 @@
         </script>
     </div>
 
+    <!-- Rating modal view -->
+    <!--div id="rating" data-role="modalview" data-model="app.mobile.viewModel" data-show="app.mobile.onRatingViewShow" style="width: 200px; height: 300px;">
+        <h2 class="km-content summary">
+            <img class="icon" data-bind="{ attr: { src: summary.icon$, alt: summary.title } }">
+            <div class="title" data-bind="text:summary.title"></div>
+        </h2>
+        <div>
+            <span class="kf"><input data-role="rating"></span>
+            <a data-role="button" data-click="app.mobile.onRatingViewClose">Close</a>
+        </div>
+    </div-->
+
     <!-- Settings view -->
     <div id="settings" data-role="view" data-layout="main-layout" data-title="Settings" data-transition="fade" data-model="app.mobile.viewModel" data-show="app.mobile.onSettingsViewShow">
         <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
@@ -500,7 +512,6 @@
                             <i class="kf kf-score"></i><span data-bind="text: summary.metrics.scores.average, visible: summary.metrics.scores.average" data-format="n0"></span>%
                             <span data-bind="text: summary.userScore$, css: { km-badge-error: error$, km-badge-success: summary.success$, km-badge-warning: summary.warning$ }, visible: summary.hasUserScore$"></span>
                         </div>
-
                     </label>
                 </li>
                 <li>

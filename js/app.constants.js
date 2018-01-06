@@ -46,11 +46,21 @@
             appName: 'Kidoju',
             // The application id
             appId: 'com.kidoju.mobile',
+            // The application scheme
+            appScheme: 'com.kidoju.mobile://',
             // For app store ratings
             appStoreUrl: {
                 // TODO: these are all for testing with the twitter app
+                // ----------------------------------------------------------------------------------------
+                // For iOS
                 ios: 'itms-apps://itunes.apple.com/app/viewContentsUserReviews/id333903271?action=write-review',
-                android: 'market://details?id=com.twitter.android', // TODO
+                // ----------------------------------------------------------------------------------------
+                // For Android, see https://developer.android.com/distribute/marketing-tools/linking-to-google-play.html
+                // The trick using intent:// comes from https://github.com/apache/cordova-plugin-inappbrowser/pull/99#issuecomment-351034215
+                // android: 'market://details?id=com.twitter.android',
+                android: 'intent://details?id=com.twitter.android/#Intent;scheme=market;package=com.android.vending;end',
+                // ----------------------------------------------------------------------------------------
+                // For windows (untested)
                 windows: 'ms-windows-store://pdp/?ProductId=9wzdncrfj140'
             },
             // The authorId to search summaries from (until we support organizationId)
