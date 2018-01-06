@@ -81,7 +81,7 @@
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.9.11",
     "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.9.7"
+    "webpack-dev-server": "^2.10.0"
   },
   "engines": {
     "node": ">=4"

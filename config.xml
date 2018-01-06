@@ -102,6 +102,8 @@
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <platform name="android">
+        <access launch-external="yes" origin="market:*" />
+        <allow-navigation href="market:*" />
         <allow-intent href="market:*" />
         <preference name="AndroidPersistentFileLocation" value="Internal" />
         <preference name="InAppBrowserStorageEnabled" value="false" />
