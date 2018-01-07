@@ -51,10 +51,9 @@
         .km-navbar {
             font-size: 1em;
         }
-        .km-list {
-            li {
-                font-size: 1em;
-            }
+        .km-list > li {
+            font-size: 1em;
+            padding-left: 1em;
         }
         .km-navbar {
             .km-leftitem {
@@ -75,6 +74,16 @@
                 border: solid 1px @widget-border-color;
                 margin: 0;
                 padding: .28em .4em;
+            }
+        }
+        #signin {
+            // exception to app.mobile.less
+            .k-scrollview.km-scrollview {
+                div[data-role="page"] {
+                    .km-list > li {
+                        padding: .5em 1em;
+                    }
+                }
             }
         }
     }

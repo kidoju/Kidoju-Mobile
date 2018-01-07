@@ -1845,10 +1845,9 @@ window.jQuery.holdReady(true);
             viewElement.find('.buttons>.km-button>span.km-text:eq(3)').text(culture.user.changePIN);                  // button after view is initialized
 
             // Reset navbar title
-            if (mobile.application instanceof kendo.mobile.Application) {
+            if (mobile.application instanceof kendo.mobile.Application && mobile.application.pane instanceof kendo.mobile.ui.Pane) {
                 mobile._setNavBarTitle(mobile.application.view());
             }
-
         };
 
         /*******************************************************************************************
@@ -2117,6 +2116,8 @@ window.jQuery.holdReady(true);
                     mobile._fixThemeVariant(e.sender.options.skin);
                     // Localize the application
                     mobile.localize(viewModel.get(VIEW_MODEL.LANGUAGE));
+                    // Fix signin page when initial page
+                    mobile._fixSigninViewLocalization();
                     // Reinitialize notifications now that we know the size of .km-header
                     mobile._initToastNotifications();
                     // Bind the router change event to the onRouterViewChange handler
@@ -2940,7 +2941,6 @@ window.jQuery.holdReady(true);
         mobile.onSigninViewShow = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            var view = e.view;
 
             // Parse token (in browser)
             if (!mobile.support.inAppBrowser && !mobile.support.safariViewController) {
@@ -2948,11 +2948,15 @@ window.jQuery.holdReady(true);
                 mobile._parseTokenAndLoadUser(window.location.href);
             }
 
-            // Enable buttons
+            // Set Navbar
+            var view = e.view;
+            mobile._setNavBar(view);
+
+            // Enable buttons according to provider
             var provider = (view.params.userId === viewModel.get(VIEW_MODEL.USER.ID) ? viewModel.get(VIEW_MODEL.USER.PROVIDER) : '');
             mobile.enableSigninButtons(provider || true);
 
-            // Scroll to page if designated in e.view.params
+            // Scroll to page if designated in e.view.params to set the view title
             var scrollViewElement = view.content.find(kendo.roleSelector('scrollview'));
             var scrollViewWidget = scrollViewElement.data('kendoMobileScrollView');
             // Scroll to page 0 unless there is a page in params
@@ -2962,8 +2966,30 @@ window.jQuery.holdReady(true);
                 scrollViewWidget.scrollTo(page, true);
             }
 
-            // Generic handler
-            mobile.onGenericViewShow(e);
+            // mobile.onGenericViewShow(e);
+            if (mobile.application instanceof kendo.mobile.Application) {
+                // mobile.application is not available on first view shown
+                mobile.application.hideLoading();
+            }
+        };
+
+        /**
+         * Fix title and notification on #signin view
+         * Note: We need this because mobile.localize(...) is executed after onSigninViewShow, when signin is the initial page
+         * @private
+         */
+        mobile._fixSigninViewLocalization = function () {
+            if (mobile.application instanceof kendo.mobile.Application && mobile.application.pane instanceof kendo.mobile.ui.Pane) {
+                var view = mobile.application.view();
+                var culture = i18n.culture;
+                if (parseInt(view.params.page, 10) === SIGNIN_PAGE) {
+                    mobile._setNavBarTitle(view, culture.signin.viewTitle2);
+                }
+                var provider = (view.params.userId === viewModel.get(VIEW_MODEL.USER.ID) ? viewModel.get(VIEW_MODEL.USER.PROVIDER) : '');
+                if (provider) {
+                    view.content.find('div[data-role="page"]:eq(3) .k-notification-wrap>span.k-text').html(kendo.format(culture.signin.welcome2, viewModel.get(VIEW_MODEL.USER.FIRST_NAME), provider));
+                }
+            }
         };
 
         /**

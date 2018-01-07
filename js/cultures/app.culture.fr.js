@@ -203,7 +203,8 @@
                 page1: 'Jouez les questions, donnez vos réponses et l’application calcule votre score.',
                 page2: 'Suivez et mesurez vos progrès.',
                 // Notification
-                welcome: 'Veuillez sélectionner un service d’authentification.'
+                welcome: 'Veuillez sélectionner un service d’identification.',
+                welcome2: '{0}, veuillez sélectionner l’identification par {1} pour renouveler vos autorisations ou pressez <i class="kf kf-user"></i>.'
             },
             // Summary view
             summary: {

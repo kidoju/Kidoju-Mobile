@@ -205,7 +205,8 @@
                 page1: 'Play questions, give answers and let the app compute your score.',
                 page2: 'Track and measure your progresses.',
                 // Notification
-                welcome: 'Please select an authentication provider.'
+                welcome: 'Please select an authentication provider.',
+                welcome2: '{0}, please select the {1} authentication provider to renew your credentials or press <i class="kf kf-user"></i>.'
             },
             // Summary view
             summary: {
