@@ -3533,7 +3533,8 @@ window.jQuery.holdReady(true);
                             assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
                             mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
                         }
-                    }).always(function () {
+                    })
+                    .always(function () {
                         mobile.enableUserButtons(true);
                     });
 
@@ -3573,10 +3574,12 @@ window.jQuery.holdReady(true);
                 viewModel.syncUsers(false)
                     .done(function () {
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
-                        mobile.enableUserButtons(true);
                         mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
                         // Request an app store review
                         mobile._requestAppStoreReview();
+                    })
+                    .always(function () {
+                        mobile.enableUserButtons(true);
                     });
 
             } else {
