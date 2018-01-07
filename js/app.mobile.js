@@ -2942,15 +2942,14 @@ window.jQuery.holdReady(true);
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var view = e.view;
 
-            // Parse token
+            // Parse token (in browser)
             if (!mobile.support.inAppBrowser && !mobile.support.safariViewController) {
-                // TODO was: if (!mobile.support.inAppBrowser) {
                 e.preventDefault();
                 mobile._parseTokenAndLoadUser(window.location.href);
             }
 
             // Enable buttons
-            var provider = view.params.userId === viewModel.get(VIEW_MODEL.USER.ID) ? viewModel.get(VIEW_MODEL.USER.PROVIDER) : '';
+            var provider = (view.params.userId === viewModel.get(VIEW_MODEL.USER.ID) ? viewModel.get(VIEW_MODEL.USER.PROVIDER) : '');
             mobile.enableSigninButtons(provider || true);
 
             // Scroll to page if designated in e.view.params
@@ -3480,7 +3479,6 @@ window.jQuery.holdReady(true);
         mobile.onUserViewShow = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            mobile.enableUserButtons(true);
             mobile.onGenericViewShow(e);
             // Display a notification
             if (viewModel.isSavedUser$()) {
@@ -3489,6 +3487,7 @@ window.jQuery.holdReady(true);
                 app.notification.info(i18n.culture.notifications.pinSaveInfo);
             }
             // Focus on PIN
+            mobile.enableUserButtons(true);
             e.view.element.find(SELECTORS.PIN).val('').first().focus();
         };
 
@@ -3559,6 +3558,9 @@ window.jQuery.holdReady(true);
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
+            // Disable buttons to avoid double clicks
+            mobile.enableUserButtons(false);
+
             // Check the correct pin
             var view = e.button.closest(kendo.roleSelector('view'));
             var pinElement = view.find(SELECTORS.PIN + ':visible');
@@ -3566,10 +3568,12 @@ window.jQuery.holdReady(true);
             var pinValue = pinElement.val();
 
             if (viewModel.user.verifyPin(pinValue)) {
+                // Note: the following changes the value of viewModel.isSavedUser$, which changes UI layout
                 viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
                 viewModel.syncUsers(false)
                     .done(function () {
                         app.notification.success(kendo.format(i18n.culture.notifications.userSignInSuccess, viewModel.user.fullName$()));
+                        mobile.enableUserButtons(true);
                         mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(i18n.locale()));
                         // Request an app store review
                         mobile._requestAppStoreReview();
@@ -3577,6 +3581,7 @@ window.jQuery.holdReady(true);
 
             } else {
                 app.notification.warning(i18n.culture.notifications.pinValidationFailure);
+                mobile.enableUserButtons(true);
             }
         };
 
@@ -3602,10 +3607,11 @@ window.jQuery.holdReady(true);
         };
 
         /**
-         * Enable/disable user buttons (to prevent double-clicks)
+         * Enable/disable user buttons and pin inputs (to prevent double-clicks)
          * @param enable
          */
         mobile.enableUserButtons = function (enable) {
+            $(HASH + VIEW.USER).find('li:has(' + SELECTORS.PIN + ')').css('visibility', enable ? '' : 'hidden');
             $(HASH + VIEW.USER).children(kendo.roleSelector('content')).find(kendo.roleSelector('button')).each(function () {
                 var buttonWidget = $(this).data('kendoMobileButton');
                 if (buttonWidget instanceof kendo.mobile.ui.Button) {
