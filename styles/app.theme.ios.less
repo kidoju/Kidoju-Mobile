@@ -31,8 +31,8 @@
 @app-form-filter-font-size: 1em;
 
 // Tour ScrollView
-@app-tour-background-color: #FFFFFF;
-@app-tour-border-color: #FFFFFF;
+@app-tour-background-color: #f0f0f0;
+@app-tour-border-color: #c4ccd5;
 
 // Primary buttons
 @app-primary-background: @selected-background;
@@ -76,6 +76,49 @@
         .km-button.km-large {
             font-size: 1.2em;
             padding: .8em;
+        }
+        /*
+        .km-listinset {
+            // TODO: How can we make the last visible item of the inset list with border radius?
+            // https://stackoverflow.com/questions/25676053/css-selector-to-check-that-attribute-does-not-contain-both-values
+            >li:not([style*="none"]):last-of-type {
+                border-radius: 0 0  6px 6px;
+            }
+        }
+        */
+        .km-shim.km-actionsheet-root,
+        .k-list-container.k-popup {
+            // Make text bold in action sheets and dropdown popups
+            .k-item, li>a {
+                font-weight: 700;
+            }
+        }
+        #signin {
+            // exception to app.mobile.less
+            .k-scrollview.km-scrollview {
+                div[data-role="page"] {
+                    .km-list > li {
+                        padding: .5em;
+                    }
+                }
+            }
+        }
+        .kj-stage {
+            .k-button {
+                // iOS overrides bootstrap values, so we need to restore them
+                background-color: @normal-background;
+                color: @normal-text-color;
+                // We need to same state for selected and hover as explained in app.template.less
+                &:active,
+                &:hover,
+                // &.k-state-active,
+                // &.k-state-active:hover,
+                &.k-state-selected,
+                &.k-state-selected:hover {
+                    background-color: @selected-background;
+                    color: @selected-text-color;
+                }
+            }
         }
     }
 }

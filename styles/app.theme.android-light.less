@@ -31,8 +31,8 @@
 @app-form-filter-font-size: 1em;
 
 // Tour ScrollView
-@app-tour-background-color: #FFFFFF;
-@app-tour-border-color: #FFFFFF;
+@app-tour-background-color: darken(@android-light-background-color, 7.5%);
+@app-tour-border-color: @android-gray;
 
 // Primary buttons
 @app-primary-background: @android-active-background;
@@ -56,9 +56,18 @@
                 display: block;
             }
         }
-        .km-list {
-            li {
-                font-size: 1em;
+        .km-list > li {
+            font-size: 1em;
+            .km-listview-link {
+                &.offline:not(.error):not(.info):not(.success):not(.warning) {
+                    background-color: darken(@android-light-background-color, 7.5%);
+                }
+                .km-badge {
+                    right: 0.75em !important;
+                    // Make text black instead of white (using shadow)
+                    text-indent: initial;
+                    text-shadow: initial;
+                }
             }
         }
         .km-buttongroup {
@@ -76,6 +85,13 @@
             -moz-box-direction: normal;
             -webkit-flex-direction: column;
             flex-direction: column;
+        }
+        .km-shim.km-actionsheet-root,
+        .k-list-container.k-popup {
+            // Make text bold in action sheets and dropdown popups
+            .k-item, li>a {
+                font-weight: 700;
+            }
         }
     }
 }

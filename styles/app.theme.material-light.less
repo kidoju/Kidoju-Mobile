@@ -31,8 +31,8 @@
 @app-form-filter-font-size: 1em;
 
 // Tour ScrollView
-@app-tour-background-color: #FFFFFF;
-@app-tour-border-color: #FFFFFF;
+@app-tour-background-color: @button-background-color;
+@app-tour-border-color: @button-border-color;
 
 // Primary buttons
 @app-primary-background: @material-accent-color;
@@ -75,8 +75,10 @@
                 margin: 0;
                 input {
                     background: transparent;
-                    padding: .6em 1.8em;
                     border: none;
+                    padding: .6em 1.8em;
+                    // also remove the outline
+                    outline-style: unset;
                 }
             }
             .k-dropdown {
@@ -97,6 +99,32 @@
         }
         .km-button.km-large {
             font-size: 1em;
+        }
+        .k-list-container {
+            .k-list-optionlabel.k-state-selected {
+                // This ensures that stage dropdowns option label is visible when selected
+                color: @app-drawer-content-color;
+            }
+        }
+        .km-popup {
+            // Otherwise overlay background is not transparent
+            // background: fade(@mobile-overlay-background, .6);
+            background-color: rgba(51, 51, 51, .8);
+        }
+        #signin {
+            // exception to app.mobile.less
+            .k-scrollview.km-scrollview {
+                div[data-role="page"] {
+                    .km-list > li {
+                        padding: .5em 1em;
+                    }
+                }
+            }
+        }
+        .kj-stage {
+            .k-dropdown {
+                padding: 0;
+            }
         }
     }
 }

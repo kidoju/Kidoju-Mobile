@@ -56,9 +56,12 @@
                 display: block;
             }
         }
-        .km-list {
-            li {
-                font-size: 1em;
+        .km-list > li {
+            font-size: 1em;
+            .km-listview-link {
+                .km-badge {
+                    right: 0.75em !important;
+                }
             }
         }
         .km-buttongroup {
@@ -76,6 +79,33 @@
             -moz-box-direction: normal;
             -webkit-flex-direction: column;
             flex-direction: column;
+        }
+        .km-shim.km-actionsheet-root,
+        .k-list-container.k-popup {
+            // Make text bold in action sheets and dropdown popups
+            .k-item, li>a {
+                font-weight: 700;
+            }
+        }
+        #categories {
+            .km-filter-form {
+                // Narrows the dropdownlist to fix https://github.com/telerik/kendo-ui-core/issues/3907
+                padding: .75em 10%;
+            }
+        }
+        #signin {
+            .k-scrollview.km-scrollview {
+                // Otherwise the background-color is not consistent with other views
+                background-color: @android-background-color;
+                div[data-role="page"] {
+                    div.text {
+                        background-color: @android-gray;
+                    }
+                }
+                ol.k-pages.km-pages:not(.no-background) {
+                    background-color: @android-gray;
+                }
+            }
         }
     }
 }

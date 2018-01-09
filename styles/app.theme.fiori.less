@@ -31,8 +31,8 @@
 @app-form-filter-font-size: 1em;
 
 // Tour ScrollView
-@app-tour-background-color: #FFFFFF;
-@app-tour-border-color: #FFFFFF;
+@app-tour-background-color: @fiori-background;
+@app-tour-border-color: @fiori-button-selected-border;
 
 // Primary buttons
 @app-primary-background: @accent;
@@ -65,14 +65,22 @@
                 }
             }
         }
-        .km-listview {
-            li.km-state-active {
+        .km-list {
+            li {
                 .km-listview-link {
-                    // Otherwise linked list items are black on dark blue background
-                    color: @fiori-inverse-text;
-                    .k-state-disabled {
-                        // Otherwise star ratings are invisible when list items are activated
+                    &.offline:not(.error):not(.info):not(.success):not(.warning) {
+                        // without @alt-background-color, we need one for .offline
+                        background-color: @fiori-background;
+                    }
+                }
+                &.km-state-active {
+                    .km-listview-link {
+                        // Otherwise linked list items are black on dark blue background when active
                         color: @fiori-inverse-text;
+                        .k-state-disabled {
+                            // Otherwise star ratings are invisible when list items are activated
+                            color: @fiori-inverse-text;
+                        }
                     }
                 }
             }
@@ -84,14 +92,39 @@
                 border-color: @accent;
             }
         }
-        .km-button.km-primary.km-state-active {
-            // Darken active state of primary buttons
-            background-color: darken(@accent, 10%) !important;
-            border-color: darken(@accent, 10%) !important;
+        .km-button {
+            &.km-primary.km-state-active {
+                // Darken active state of primary buttons
+                background-color: darken(@accent, 10%) !important;
+                border-color: darken(@accent, 10%) !important;
+            }
+            &.km-state-active {
+                // Otherwise pressed buttons are black on dark blue background
+                color: @fiori-inverse-text;
+            }
         }
-        .km-button.km-state-active {
-            // Otherwise pressed buttons are black on dark blue background
-            color: @fiori-inverse-text;
+        .k-list-container {
+            .k-list-optionlabel:not(.k-state-selected) {
+                // This ensures that stage dropdowns option label is visible
+                color: @fiori-inverse-text;
+            }
+        }
+        .km-shim.km-actionsheet-root {
+            // Make action sheets items as big as drop down popup items
+            .km-actionsheet>li>a {
+                line-height: 2.143em;
+                min-height: 2.143em;
+            }
+        }
+        #signin {
+            // exception to app.mobile.less
+            .k-scrollview.km-scrollview {
+                div[data-role="page"] {
+                    .km-list > li {
+                        padding: .5em;
+                    }
+                }
+            }
         }
     }
 }

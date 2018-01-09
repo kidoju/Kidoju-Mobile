@@ -31,8 +31,8 @@
 @app-form-filter-font-size: 1em;
 
 // Tour ScrollView
-@app-tour-background-color: #FFFFFF;
-@app-tour-border-color: #FFFFFF;
+@app-tour-background-color: @app-drawer-content-color;
+@app-tour-border-color: @app-drawer-content-color;
 
 // Primary buttons
 @app-primary-background: @blackberry-navbar-background;
@@ -48,16 +48,61 @@
 // Style fixes
 .km-root {
     .km-blackberry {
+        .km-list > li {
+            .km-listview-link {
+                &.offline:not(.error):not(.info):not(.success):not(.warning) {
+                    // Default color is too dark
+                    background-color: @blackberry-second-background;
+                }
+                .km-badge {
+                    right: 0.75em !important;
+                }
+            }
+        }
         .k-dropdown {
             .k-input {
                 color: @blackberry-main-color;
             }
         }
-        .km-button.km-primary {
-            // color: @blackberry-main-color;
-            // background-color: @blackberry-light-background;
-            background-image: linear-gradient(to bottom, rgba(255,255,255,.7), rgba(255,255,255,0) 70%);
-            .box-shadow(~"0 1px 4px 0 rgba(0,0,0,.3)");
+        .km-button {
+            &.km-primary {
+                // color: @blackberry-main-color;
+                // background-color: @blackberry-light-background;
+                background-image: linear-gradient(to bottom, rgba(255, 255, 255, .7), rgba(255, 255, 255, 0) 70%);
+                .box-shadow(~"0 1px 4px 0 rgba(0,0,0,.3)");
+            }
+            &.km-state-disabled, .km-icon:not(.km-notext) {
+                // Especially for provider buttons, but not for .km-ear TTS button
+                color: @blackberry-active-color;
+            }
+        }
+        .buttons {
+            margin: .5em !important;
+        }
+        .k-list-container {
+            .k-list-optionlabel:not(.k-state-selected) {
+                // This ensures that stage dropdowns option label is visible
+                color: @app-drawer-content-color;
+            }
+        }
+        .kj-stage {
+            .k-dropdown .k-input {
+                // Otherwise quiz dropdowns are black on black
+                color: @blackberry-active-color;
+            }
+        }
+        #signin {
+            // exception to app.mobile.less
+            .k-scrollview.km-scrollview {
+                div[data-role="page"] {
+                    .km-list > li {
+                        padding: .5em;
+                        .km-button {
+                            margin: 0;
+                        }
+                    }
+                }
+            }
         }
     }
 }
