@@ -1443,8 +1443,10 @@ window.jQuery.holdReady(true);
                 assert.instanceof(models.MobileActivityDataSource, activities, assert.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
                 var activity = new models.MobileActivity(current);
                 activities.add(activity);
+                debugger;
                 return activities.sync()
                     .done(function () {
+                        debugger;
                         // current is not a models.MobileActivity because since percent and getScoreArray are not model methods,
                         // There are lost at this stage. We would need to make a model with percent and getScoreArray methods
                         var activityId = activity.get('id');
@@ -1453,6 +1455,7 @@ window.jQuery.holdReady(true);
                         app.notification.success(i18n.culture.notifications.scoreSaveSuccess);
                     })
                     .fail(function (xhr, status, error) {
+                        debugger;
                         activities.remove(activity);
                         app.notification.error(i18n.culture.notifications.scoreSaveFailure);
                         logger.error({
@@ -3357,10 +3360,12 @@ window.jQuery.holdReady(true);
             continueButton.enable(false);
 
             // Check network
-            if ((window.device && window.device.platform !== 'browser' && 'Connection' in window && window.navigator.connection.type !== window.Connection.ETHERNET && window.navigator.connection.type !== window.Connection.WIFI) ||
+            if ((window.device && !window.device.isVirtual && window.device.platform !== 'browser' && 'Connection' in window &&
+                    window.navigator.connection.type !== window.Connection.ETHERNET && window.navigator.connection.type !== window.Connection.WIFI) ||
                 (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
+                // !window.device.isVirtual ensures emulators do sync whatever the connection
                 app.notification.warning(i18n.culture.notifications.syncBandwidthLow);
-                mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
+                return mobile.application.navigate(HASH + VIEW.CATEGORIES + '?language=' + encodeURIComponent(language));
             }
 
             // Check batteries
