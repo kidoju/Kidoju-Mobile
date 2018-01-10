@@ -65,22 +65,20 @@
                 }
             }
         }
-        .km-list {
-            li {
-                .km-listview-link {
-                    &.offline:not(.error):not(.info):not(.success):not(.warning) {
-                        // without @alt-background-color, we need one for .offline
-                        background-color: @fiori-background;
-                    }
+        .km-list > li {
+            .km-listview-link {
+                &.offline:not(.error):not(.info):not(.success):not(.warning) {
+                    // without @alt-background-color, we need one for .offline
+                    background-color: @fiori-background;
                 }
-                &.km-state-active {
-                    .km-listview-link {
-                        // Otherwise linked list items are black on dark blue background when active
+            }
+            &.km-state-active {
+                .km-listview-link {
+                    // Otherwise linked list items are black on dark blue background when active
+                    color: @fiori-inverse-text;
+                    .k-state-disabled {
+                        // Otherwise star ratings are invisible when list items are activated
                         color: @fiori-inverse-text;
-                        .k-state-disabled {
-                            // Otherwise star ratings are invisible when list items are activated
-                            color: @fiori-inverse-text;
-                        }
                     }
                 }
             }
