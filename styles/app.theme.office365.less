@@ -50,12 +50,6 @@
         font-size: 1em;
         .km-navbar {
             font-size: 1em;
-        }
-        .km-list > li {
-            font-size: 1em;
-            padding-left: 1em;
-        }
-        .km-navbar {
             .km-leftitem {
                 // Remove any specificities for navbar leftitem button
                 .km-button {
@@ -74,6 +68,16 @@
                 border: solid 1px @widget-border-color;
                 margin: 0;
                 padding: .28em .4em;
+            }
+        }
+        .km-list > li {
+            font-size: 1em;
+            padding-left: 1em;
+            .km-listview-link {
+                &.offline:not(.error):not(.info):not(.success):not(.warning) {
+                    // without @alt-background-color, we need one for .offline
+                    background-color: @office365-button-background;
+                }
             }
         }
         #signin {
