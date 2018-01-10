@@ -80,6 +80,15 @@
         .km-list>li {
             // Fix padding around listview items, otherwise background color does not fit
             padding: .5em .7em;
+            .km-listview-link {
+                &.offline:not(.error):not(.info):not(.success):not(.warning) {
+                    background-color: #f5f6f6; // @selected-background;
+                }
+                .km-badge-error, .km-badge-info, .km-badge-success, .km-badge-warning {
+                    color: #f5f6f6 !important; // @selected-background !important;
+                }
+
+            }
         }
         .km-list > li label,
         .km-list fieldset textarea,
@@ -129,6 +138,9 @@
                     color: @normal-text-color;
                 }
             }
+        }
+        .error, .warning, .success {
+            color: @normal-text-color !important;
         }
     }
 }

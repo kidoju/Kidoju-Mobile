@@ -45,6 +45,18 @@
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
 
+/* Validation from kendo/mobile/android/template.less */
+@warning: #ffbc7b;
+.km-ios .km-list > li label.km-invalid,
+.km-ios .km-list fieldset .km-legend-button.km-invalid,
+.km-ios .km-list > li label.km-invalid.km-required:after {
+    color: @warning;
+}
+.km-ios .km-invalid-msg {
+    color: @ios-widget-color;
+    background: @warning;
+}
+
 // Style fixes
 .km-root {
     .km-ios {

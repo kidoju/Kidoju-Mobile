@@ -45,6 +45,18 @@
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
 
+/* Validation from kendo/mobile/blackberry/template.less */
+@warning: #ffa200;
+.km-blackberry .km-list > li label.km-invalid,
+.km-blackberry .km-list fieldset .km-legend-button.km-invalid,
+.km-blackberry .km-list > li label.km-invalid.km-required:after {
+    color: @warning;
+}
+.km-blackberry .km-invalid-msg {
+    color: @blackberry-active-color;
+    background: @warning;
+}
+
 // Style fixes
 .km-root {
     .km-blackberry {
