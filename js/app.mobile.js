@@ -956,7 +956,6 @@ window.jQuery.holdReady(true);
             reset: function () {
                 // i18n.culture must be loaded
                 assert.isPlainObject(i18n.culture, assert.format(assert.messages.isPlainObject.default, 'app.i18n.culture'));
-
                 var language = i18n.locale();
                 // Note: we are  assigning app._userId so that app.models.Summary.fields['userScore'].parse can find the userId
                 var userId = app._userId = this.get(VIEW_MODEL.USER.SID);
@@ -1045,9 +1044,12 @@ window.jQuery.holdReady(true);
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
                 var partition = activities.transport.partition();
                 var dfd = $.Deferred();
-                if (activities.total() > 0 &&
-                    partition['version.language'] === options.language &&
-                    partition['actor.userId'] === options.userId) {
+                if (partition['version.language'] === options.language &&
+                    partition['actor.userId'] === options.userId &&
+                    activities.total() > 0 &&
+                    activities.at(0).version.language === options.language &&
+                    activities.at(0).actor.id === options.userId
+                ) {
                     dfd.resolve();
                 } else {
                     activities.transport.partition({
@@ -1443,10 +1445,8 @@ window.jQuery.holdReady(true);
                 assert.instanceof(models.MobileActivityDataSource, activities, assert.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
                 var activity = new models.MobileActivity(current);
                 activities.add(activity);
-                debugger;
                 return activities.sync()
                     .done(function () {
-                        debugger;
                         // current is not a models.MobileActivity because since percent and getScoreArray are not model methods,
                         // There are lost at this stage. We would need to make a model with percent and getScoreArray methods
                         var activityId = activity.get('id');
@@ -1455,7 +1455,6 @@ window.jQuery.holdReady(true);
                         app.notification.success(i18n.culture.notifications.scoreSaveSuccess);
                     })
                     .fail(function (xhr, status, error) {
-                        debugger;
                         activities.remove(activity);
                         app.notification.error(i18n.culture.notifications.scoreSaveFailure);
                         logger.error({
