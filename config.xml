@@ -111,12 +111,6 @@
         <preference name="SplashScreen" value="splash" />
         <preference name="android-windowSoftInputMode" value="adjustPan" />
         <preference name="android-configChanges" value="orientation|keyboardHidden" />
-        <config-file mode="merge" parent="/manifest" platform="android">
-            <application android:hardwareAccelerated="false" />
-        </config-file>
-        <config-file mode="merge" parent="/manifest/application" platform="android">
-            <activity android:launchMode="singleTop" />
-        </config-file>
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/res/screen/browser/splashscreen.png" />
@@ -144,6 +138,12 @@
             <false />
         </config-file>
     </platform>
+    <config-file parent="/manifest" platform="android">
+        <application android:hardwareAccelerated="false" />
+    </config-file>
+    <config-file parent="/manifest/application" platform="android">
+        <activity android:launchMode="singleTop" />
+    </config-file>
     <engine name="android" spec="^6.4.0" />
     <engine name="ios" spec="^4.5.3" />
     <engine name="windows" spec="^5.0.0" />
