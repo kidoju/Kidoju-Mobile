@@ -149,6 +149,7 @@
             // Wait for Cordova to load
             document.addEventListener('deviceready', function () {
                 if (window.navigator && window.navigator.globalization) {
+                    window.alert(window.navigator.language);
                     window.navigator.globalization.getLocaleName(
                         function (locale) {
                             // Device locale found
