@@ -13,7 +13,7 @@
     <preference name="LoadUrlTimeoutValue" value="60000" />
     <preference name="AutoHideSplashScreen" value="false" />
     <preference name="ShowSplashScreenSpinner" value="false" />
-    <preference name="AndroidLaunchMode" value="singleTop" />
+    <preference name="AndroidLaunchMode" value="singleTask" />
     <preference name="windows-target-version" value="10.0" />
     <preference name="windows-arch" value="x64" />
     <preference name="phonegap-version" value="cli-7.0.1" />
@@ -138,11 +138,8 @@
             <false />
         </config-file>
     </platform>
-    <config-file parent="/manifest" platform="android">
-        <application android:hardwareAccelerated="false" />
-    </config-file>
     <config-file parent="/manifest/application" platform="android">
-        <activity android:launchMode="singleTop" />
+        <activity android:launchMode="singleTask" android:allowTaskReparenting="true" />
     </config-file>
     <engine name="android" spec="^6.4.0" />
     <engine name="ios" spec="^4.5.3" />
