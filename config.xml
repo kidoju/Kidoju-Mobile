@@ -16,7 +16,7 @@
     <preference name="AndroidLaunchMode" value="singleTask" />
     <preference name="windows-target-version" value="10.0" />
     <preference name="windows-arch" value="x64" />
-    <preference name="phonegap-version" value="cli-7.0.1" />
+    <preference name="phonegap-version" value="cli-7.1.0" />
     <preference name="pgb-builder-version" value="1" />
     <platform name="android">
         <icon density="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
@@ -138,13 +138,16 @@
             <false />
         </config-file>
     </platform>
+    <platform name="windows">
+        <preference name="WindowsToastCapable" value="true" />
+    </platform>
     <config-file parent="/manifest/application" platform="android">
         <activity android:allowTaskReparenting="true" android:launchMode="singleTask" />
     </config-file>
     <engine name="android" spec="^6.4.0" />
-    <engine name="ios" spec="^4.5.3" />
-    <engine name="windows" spec="^5.0.0" />
     <engine name="browser" spec="^5.0.3" />
+    <engine name="ios" spec="^4.5.4" />
+    <engine name="windows" spec="^5.0.0" />
     <plugin name="cordova-plugin-file" spec="^4.3.3" />
     <plugin name="cordova-plugin-google-analytics" spec="^1.8.3" />
     <plugin name="cordova-plugin-console" spec="^1.1.0" />
@@ -157,9 +160,6 @@
     <plugin name="de.appplant.cordova.plugin.local-notification" spec="^0.8.5" />
     <plugin name="cordova-plugin-tts" spec="https://github.com/vilic/cordova-plugin-tts#b25e7ac" />
     <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.2" />
-    <plugin name="phonegap-plugin-barcodescanner" spec="^6.0.8">
-        <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
-    </plugin>
     <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
     <plugin name="cordova-plugin-x-socialsharing" spec="^5.2.1" />
     <plugin name="cordova-plugin-customurlscheme" spec="^4.3.0">
@@ -169,4 +169,7 @@
         <variable name="ANDROID_PATHPREFIX" value="/" />
     </plugin>
     <plugin name="cordova-plugin-inappbrowser" spec="~2.0.1" />
+    <plugin name="phonegap-plugin-barcodescanner" spec="^7.0.2">
+        <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
+    </plugin>
 </widget>
