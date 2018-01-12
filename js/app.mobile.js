@@ -252,6 +252,21 @@ window.jQuery.holdReady(true);
                 fr: app.constants.rootCategoryId.fr || '000200010000000000000000'
             }
         };
+        var ANALYTICS = {
+            CATEGORY: {
+                ACTIVITY: 'Activity',
+                GENERAL: 'General',
+                SUMMARY: 'Summary',
+                USER: 'User'
+            },
+            ACTION: {
+                INIT: 'Init',
+                PLAY: 'Play',
+                SAVE: 'Save',
+                SCORE: 'Score',
+                SIGNIN: 'Signin'
+            }
+        };
 
         /*******************************************************************************************
          * Global handlers
@@ -275,7 +290,10 @@ window.jQuery.holdReady(true);
                     error: error,
                     data: { source:  source, lineno: lineno, colno: colno }
                 });
-                if (app.DEBUG) { // TODO
+                if (mobile.support.ga) {
+                    mobile.ga.trackException(message, true);
+                }
+                if (app.DEBUG) {
                     window.alert(message);
                 }
                 if (mobile.application instanceof kendo.mobile.Application) {
@@ -580,6 +598,7 @@ window.jQuery.holdReady(true);
          *******************************************************************************************/
 
         /**
+         * Setup analytics
          * @see https://github.com/danwilson/google-analytics-plugin
          */
         function setAnalytics () {
@@ -588,80 +607,30 @@ window.jQuery.holdReady(true);
                 // Set up analytics tracker
                 mobile.ga.startTrackerWithId(app.analytics.gaTrackingId);
 
-                // mobile.ga.setUserId('my-user-id'); // TODO
-
-                debugger;
-
                 // Set a specific app version:
                 mobile.ga.setAppVersion(app.version);
 
+                // Add custom dimensions
+                // window.ga.addCustomDimension(Key, 'Value', success, error)
+                mobile.ga.addCustomDimension(1, app.constants.appId);
+
                 // Enable automatic reporting of uncaught exceptions
                 // mobile.ga.enableUncaughtExceptionReporting(true, success, error);
-                mobile.ga.enableUncaughtExceptionReporting(
-                    true,
-                    function (a) {
-                        debugger;
-                    },
-                    function (a) {
-                        debugger;
-                    }
-                    );
+                // success/error callbacks are triggered to confirm the setting not when an error occurs
+                mobile.ga.enableUncaughtExceptionReporting(true);
 
                 if (app.DEBUG || (window.device && window.device.platform === 'browser')) {
                     // Enable verbose logging
                     mobile.ga.debugMode();
                 }
+
+                // Application launch
+                mobile.ga.trackEvent(
+                    ANALYTICS.CATEGORY.GENERAL,
+                    ANALYTICS.ACTION.INIT
+                );
+
             }
-
-            /**
-
-             To track a Screen (PageView):
-             window.ga.trackView('Screen Title')
-
-             To track a Screen (PageView) w/ campaign details:
-             window.ga.trackView('Screen Title', 'my-scheme://content/1111?utm_source=google&utm_campaign=my-campaign')
-
-             To track a Screen (PageView) and create a new session:
-             window.ga.trackView('Screen Title', '', true)
-
-             To track an Event:
-             window.ga.trackEvent('Category', 'Action', 'Label', Value) Label and Value are optional, Value is numeric
-
-             To track custom metrics:
-             window.ga.trackMetric('key', Value) Value is optional
-
-             To track an Exception:
-             window.ga.trackException('Description', Fatal) where Fatal is boolean
-
-             To track User Timing (App Speed):
-             window.ga.trackTiming('Category', IntervalInMilliseconds, 'Variable', 'Label') where IntervalInMilliseconds is numeric
-
-             To add a Transaction (Ecommerce)
-             window.ga.addTransaction('ID', 'Affiliation', Revenue, Tax, Shipping, 'Currency Code') where Revenue, Tax, and Shipping are numeric
-
-             To add a Transaction Item (Ecommerce)
-             window.ga.addTransactionItem('ID', 'Name', 'SKU', 'Category', Price, Quantity, 'Currency Code') where Price and Quantity are numeric
-
-             To add a Custom Dimension
-             window.ga.addCustomDimension('Key', 'Value', success, error)
-
-             Key should be integer index of the dimension i.e. send 1 instead of dimension1 for the first custom dimension you are tracking.
-             e.g. window.ga.addCustomDimension(1, 'Value', success, error)
-
-             To set a UserId:
-             window.ga.setUserId('my-user-id')
-
-             To set a anonymize Ip address:
-             window.ga.setAnonymizeIp(true)
-
-             To set Opt-out:
-             window.ga.setOptOut(true)
-
-             To enabling Advertising Features in Google Analytics allows you to take advantage of Remarketing, Demographics & Interests reports, and more:
-             window.ga.setAllowIDFACollection(true)
-
-
-             */
         }
 
         /*******************************************************************************************
@@ -1026,6 +995,14 @@ window.jQuery.holdReady(true);
                     language: language,
                     summaryId: '000000000000000000000000'
                 }); // resets partition
+
+                // Google analytics
+                if (mobile.support.ga) {
+                    mobile.ga.setUserId(userId);
+                    // mobile.ga.addCustomDimension(1, app.constants.appId);
+                    mobile.ga.addCustomDimension(2, language);
+                    mobile.ga.addCustomDimension(3, rootCategoryId);
+                }
             },
 
             /**
@@ -2375,7 +2352,9 @@ window.jQuery.holdReady(true);
             if (mobile.checkNetwork(e)) {
                 // Track in analytics
                 if (mobile.support.ga) {
-                    mobile.ga.trackView(e.url);
+                    var pos = e.url.indexOf('?');
+                    var view = pos > 0 ? e.url.substr(0, pos) : e.url;
+                    mobile.ga.trackView(view, e.url);
                 }
             }
         };
@@ -2749,6 +2728,13 @@ window.jQuery.holdReady(true);
                 .always(function () {
                     mobile.onGenericViewShow(e);
                     app.notification.info(i18n.culture.notifications.pageNavigationInfo);
+                    if (mobile.support.ga) {
+                        mobile.ga.trackEvent(
+                            ANALYTICS.CATEGORY.SUMMARY,
+                            ANALYTICS.ACTION.PLAY,
+                            summaryId
+                        );
+                    }
                 });
         };
 
@@ -3554,9 +3540,10 @@ window.jQuery.holdReady(true);
             var pinValue = pinElements.eq(0).val();
             var newPinValue = pinElements.eq(1).val();
             var confirmValue = pinElements.eq(2).val();
+            var isNew = user.isNew();
 
-            if ((user.isNew() && RX_PIN.test(newPinValue) && confirmValue === newPinValue) ||
-                (!user.isNew() && RX_PIN.test(newPinValue) && confirmValue === newPinValue && user.verifyPin(pinValue))) {
+            if ((isNew && RX_PIN.test(newPinValue) && confirmValue === newPinValue) ||
+                (!isNew && RX_PIN.test(newPinValue) && confirmValue === newPinValue && user.verifyPin(pinValue))) {
 
                 // Update user with new pin
                 user.addPin(newPinValue);
@@ -3576,9 +3563,16 @@ window.jQuery.holdReady(true);
                     })
                     .always(function () {
                         mobile.enableUserButtons(true);
+                        if (mobile.support.ga && isNew) {
+                            mobile.ga.trackEvent(
+                                ANALYTICS.CATEGORY.USER,
+                                ANALYTICS.ACTION.SAVE,
+                                viewModel.get(VIEW_MODEL.USER.PROVIDER)
+                            );
+                        }
                     });
 
-            } else if (!user.isNew() && RX_PIN.test(newPinValue) && confirmValue === newPinValue && !user.verifyPin(pinValue)) {
+            } else if (!isNew && RX_PIN.test(newPinValue) && confirmValue === newPinValue && !user.verifyPin(pinValue)) {
 
                 app.notification.warning(i18n.culture.notifications.pinValidationFailure);
                 mobile.enableUserButtons(true);
@@ -3620,6 +3614,13 @@ window.jQuery.holdReady(true);
                     })
                     .always(function () {
                         mobile.enableUserButtons(true);
+                        if (mobile.support.ga) {
+                            mobile.ga.trackEvent(
+                                ANALYTICS.CATEGORY.USER,
+                                ANALYTICS.ACTION.SIGNIN,
+                                viewModel.get(VIEW_MODEL.USER.PROVIDER)
+                            );
+                        }
                     });
 
             } else {
@@ -3760,6 +3761,14 @@ window.jQuery.holdReady(true);
                                 viewModel.saveCurrent()
                                     .done(function () {
                                         mobile.onNavBarScoreClick(e);
+                                        if (mobile.support.ga) {
+                                            mobile.ga.trackEvent(
+                                                ANALYTICS.CATEGORY.ACTIVITY,
+                                                ANALYTICS.ACTION.SCORE,
+                                                viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARY_ID),
+                                                viewModel.get(VIEW_MODEL.CURRENT.SCORE)
+                                            )
+                                        }
                                     });
                             });
                     }
