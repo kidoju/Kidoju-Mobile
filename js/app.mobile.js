@@ -3873,9 +3873,9 @@ window.jQuery.holdReady(true);
         mobile._scheduleSystemNotifications = function () {
             var local = window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.local;
             if (local && $.isFunction(local.cancelAll) && $.isFunction(local.schedule)) {
-                var firstAt = new Date();
+                // var firstAt = new Date();
                 // firstAt.setHours(firstAt.getHours() + 1);
-                firstAt.setDate(firstAt.getDate() + 7);
+                // firstAt.setDate(firstAt.getDate() + 7);
                 // Cancel all notifications before creating new ones
                 local.cancelAll(function () {
                     // Setup a reminder to use the application every week
@@ -3886,13 +3886,12 @@ window.jQuery.holdReady(true);
                         // smallIcon: - @see https://documentation.onesignal.com/v3.0/docs/customize-notification-icons#section-small-icon
                         // @see https://github.com/katzer/cordova-plugin-local-notifications/issues/1412
                         // With version 0.8.5 - https://github.com/katzer/cordova-plugin-local-notifications/blob/64a6e557fd10dcd66a13b22b6aa0ed50163bcd91/README.md
-                        every: 'week',
-                        firstAt: firstAt
+                        // every: 'week',
+                        // firstAt: firstAt
                         // With version 0.9 - https://github.com/katzer/cordova-plugin-local-notifications
-                        // trigger: { every: 7, unit: 'day' },
-                        // trigger: { every: 1, unit: 'hour', firstAt: firstAt }
-                        // trigger: { every: 2, unit: 'hour', firstAt: new Date(2018, 1, 1), count: 10 }
-                        // foreground: true
+                        // trigger: { every: { weekday: 5, hour: 16, minute: 0 } },
+                        trigger: { every: 1, unit: 'hour' },
+                        foreground: true
                     });
                 });
             }
