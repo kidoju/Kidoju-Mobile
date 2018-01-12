@@ -590,14 +590,24 @@ window.jQuery.holdReady(true);
 
                 // mobile.ga.setUserId('my-user-id'); // TODO
 
+                debugger;
+
                 // Set a specific app version:
-                // mobile.ga.setAppVersion('1.33.7'); // TODO
+                mobile.ga.setAppVersion(app.version);
 
                 // Enable automatic reporting of uncaught exceptions
                 // mobile.ga.enableUncaughtExceptionReporting(true, success, error);
-                mobile.ga.enableUncaughtExceptionReporting(true);
+                mobile.ga.enableUncaughtExceptionReporting(
+                    true,
+                    function (a) {
+                        debugger;
+                    },
+                    function (a) {
+                        debugger;
+                    }
+                    );
 
-                if (app.DEBUG) {
+                if (app.DEBUG || (window.device && window.device.platform === 'browser')) {
                     // Enable verbose logging
                     mobile.ga.debugMode();
                 }
