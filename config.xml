@@ -17,7 +17,7 @@
     <preference name="windows-target-version" value="10.0" />
     <preference name="windows-arch" value="x64" />
     <preference name="phonegap-version" value="cli-7.1.0" />
-    <preference name="pgb-builder-version" value="1" />
+    <preference name="pgb-builder-version" value="2" />
     <platform name="android">
         <icon density="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
         <icon density="mdpi" src="www/res/icon/android/drawable-mdpi-icon.png" />
@@ -25,18 +25,18 @@
         <icon density="xhdpi" src="www/res/icon/android/drawable-xhdpi-icon.png" />
         <icon density="xxhdpi" src="www/res/icon/android/drawable-xxhdpi-icon.png" />
         <icon density="xxxhdpi" src="www/res/icon/android/drawable-xxxhdpi-icon.png" />
-        <splash qualifier="land-ldpi" src="www/res/screen/android/drawable-land-ldpi-screen.png" />
-        <splash qualifier="land-mdpi" src="www/res/screen/android/drawable-land-mdpi-screen.png" />
-        <splash qualifier="land-hdpi" src="www/res/screen/android/drawable-land-hdpi-screen.png" />
-        <splash qualifier="land-xhdpi" src="www/res/screen/android/drawable-land-xhdpi-screen.png" />
-        <splash qualifier="land-xxhdpi" src="www/res/screen/android/drawable-land-xxhdpi-screen.png" />
-        <splash qualifier="land-xxxhdpi" src="www/res/screen/android/drawable-land-xxxhdpi-screen.png" />
-        <splash qualifier="port-ldpi" src="www/res/screen/android/drawable-port-ldpi-screen.png" />
-        <splash qualifier="port-mdpi" src="www/res/screen/android/drawable-port-mdpi-screen.png" />
-        <splash qualifier="port-hdpi" src="www/res/screen/android/drawable-port-hdpi-screen.png" />
-        <splash qualifier="port-xhdpi" src="www/res/screen/android/drawable-port-xhdpi-screen.png" />
-        <splash qualifier="port-xxhdpi" src="www/res/screen/android/drawable-port-xxhdpi-screen.png" />
-        <splash qualifier="port-xxxhdpi" src="www/res/screen/android/drawable-port-xxxhdpi-screen.png" />
+        <splash density="land-ldpi" src="www/res/screen/android/drawable-land-ldpi-screen.png" />
+        <splash density="land-mdpi" src="www/res/screen/android/drawable-land-mdpi-screen.png" />
+        <splash density="land-hdpi" src="www/res/screen/android/drawable-land-hdpi-screen.png" />
+        <splash density="land-xhdpi" src="www/res/screen/android/drawable-land-xhdpi-screen.png" />
+        <splash density="land-xxhdpi" src="www/res/screen/android/drawable-land-xxhdpi-screen.png" />
+        <splash density="land-xxxhdpi" src="www/res/screen/android/drawable-land-xxxhdpi-screen.png" />
+        <splash density="port-ldpi" src="www/res/screen/android/drawable-port-ldpi-screen.png" />
+        <splash density="port-mdpi" src="www/res/screen/android/drawable-port-mdpi-screen.png" />
+        <splash density="port-hdpi" src="www/res/screen/android/drawable-port-hdpi-screen.png" />
+        <splash density="port-xhdpi" src="www/res/screen/android/drawable-port-xhdpi-screen.png" />
+        <splash density="port-xxhdpi" src="www/res/screen/android/drawable-port-xxhdpi-screen.png" />
+        <splash density="port-xxxhdpi" src="www/res/screen/android/drawable-port-xxxhdpi-screen.png" />
     </platform>
     <platform name="ios">
         <icon height="57" platform="ios" src="www/res/icon/ios/icon.png" width="57" />
@@ -109,8 +109,6 @@
         <preference name="SplashMaintainAspectRatio" value="true" />
         <preference name="SplashShowOnlyFirstTime" value="false" />
         <preference name="SplashScreen" value="splash" />
-        <preference name="android-windowSoftInputMode" value="adjustPan" />
-        <preference name="android-configChanges" value="orientation|keyboardHidden" />
     </platform>
     <platform name="browser">
         <preference name="SplashScreen" value="/res/screen/browser/splashscreen.png" />
@@ -125,25 +123,25 @@
         <preference name="deployment-target" value="8.0" />
         <preference name="iosPersistentFileLocation" value="Library" />
         <preference name="StatusBarOverlaysWebView" value="true" />
-        <config-file overwrite="true" parent="ITSAppUsesNonExemptEncryption" platform="ios">
-            <false />
-        </config-file>
-        <config-file overwrite="true" parent="NSCameraUsageDescription" platform="ios">
-            <string>Scan QR Codes</string>
-        </config-file>
-        <config-file overwrite="true" parent="UIStatusBarHidden" platform="ios">
-            <true />
-        </config-file>
-        <config-file overwrite="true" parent="UIViewControllerBasedStatusBarAppearance" platform="ios">
-            <false />
-        </config-file>
     </platform>
     <platform name="windows">
         <preference name="WindowsToastCapable" value="true" />
     </platform>
-    <config-file parent="/manifest/application" platform="android">
-        <activity android:allowTaskReparenting="true" android:launchMode="singleTask" />
-    </config-file>
+    <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:label='@string/activity_name']">
+        <activity android:allowTaskReparenting="true" android:configChanges="orientation|keyboardHidden" android:launchMode="singleTask" android:windowSoftInputMode="adjustPan" />
+    </edit-config>
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
+        <false />
+    </edit-config>
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="NSCameraUsageDescription">
+        <string>Scan QR Codes</string>
+    </edit-config>
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIStatusBarHidden">
+        <true />
+    </edit-config>
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIViewControllerBasedStatusBarAppearance">
+        <false />
+    </edit-config>
     <engine name="browser" spec="^5.0.3" />
     <engine name="android" spec="^6.4.0" />
     <engine name="ios" spec="^4.5.4" />
