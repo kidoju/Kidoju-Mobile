@@ -3299,7 +3299,8 @@ window.jQuery.holdReady(true);
                         subject: kendo.format(culture.subject, // for email
                             viewModel.get(VIEW_MODEL.SUMMARY.TITLE)),
                         // TODO Add files - https://github.com/kidoju/Kidoju-Mobile/issues/178
-                        files: ['www/icon.png'], // an array of filenames either locally or remotely
+                        // files: ['www/icon.png'], // an array of filenames either locally or remotely
+                        // here, www/icon.png is included in email and prevents facebook from using the file linked in the web page via og:image meta tag
                         url: viewModel.summary.summaryUri$(),
                         chooserTitle: culture.chooserTitle // Android only, you can override the default share sheet title
                     },
