@@ -283,19 +283,28 @@ window.jQuery.holdReady(true);
         window.onerror = function (message, source, lineno, colno, error) {
             // setTimeout is for SafariViewController and InAppBrowser
             setTimeout(function () {
-                i18n.culture && app.notification.error(i18n.culture.notifications.unknownError);
-                logger.crit({
-                    message: message,
-                    method: 'window.onerror',
-                    error: error,
-                    data: { source:  source, lineno: lineno, colno: colno }
-                });
+                // Show error notification
+                if (i18n.culture && app.notification && $.isFunction(app.notification.error)) {
+                    app.notification.error(i18n.culture.notifications.unknownError);
+                }
+                // Log
+                if (logger && isFunction(logger.crit)) {
+                    logger.crit({
+                        message: message,
+                        method: 'window.onerror',
+                        error: error,
+                        data: {source: source, lineno: lineno, colno: colno}
+                    });
+                }
+                // Notify google analytics
                 if (mobile.support.ga) {
                     mobile.ga.trackException(message, true);
                 }
+                // Display alert when debugging
                 if (app.DEBUG) {
                     window.alert(message);
                 }
+                // Hide loading
                 if (mobile.application instanceof kendo.mobile.Application) {
                     mobile.application.hideLoading();
                 }
@@ -303,7 +312,7 @@ window.jQuery.holdReady(true);
         };
 
         /**
-         * By default jQuery has no timeout (0), but let's time out at 30sec on mobile devices
+         * By default jQuery has no timeout (0), but let's time out any $.ajax request at 20sec on mobile devices
          */
         $.ajaxSetup({
             timeout: 20000 // Timeout in milliseconds
