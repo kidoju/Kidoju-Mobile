@@ -3399,6 +3399,13 @@ window.jQuery.holdReady(true);
                         .done(function () {
                             message.text(culture.message.complete);
                             app.notification.success(i18n.culture.notifications.syncSuccess);
+                            if (mobile.support.ga) {
+                                mobile.ga.trackEvent(
+                                    ANALYTICS.CATEGORY.ACTIVITY,
+                                    ANALYTICS.ACTION.SYNC
+                                    // Note: It would be nice to report the total number of activities synced
+                                );
+                            }
                         })
                         .fail(function (xhr, status, error) {
                             app.notification.error(i18n.culture.notifications.userSaveFailure);
@@ -3775,7 +3782,7 @@ window.jQuery.holdReady(true);
                                                 ANALYTICS.CATEGORY.ACTIVITY,
                                                 ANALYTICS.ACTION.SCORE,
                                                 viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARY_ID),
-                                                viewModel.get(VIEW_MODEL.CURRENT.SCORE)
+                                                parseInt(viewModel.get(VIEW_MODEL.CURRENT.SCORE), 10)
                                             )
                                         }
                                     });
