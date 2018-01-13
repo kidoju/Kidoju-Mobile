@@ -231,7 +231,8 @@
                 // Social Sharing
                 socialSharing: {
                     chooserTitle: 'Select an application',
-                    message: 'Assess your knowledge on Kidoju.\n\nTitle:\t\t{0}\nLink:\t\t{1}\nDescription:\t{2}',
+                    // message: 'Assess your knowledge on Kidoju.\n\nTitle:\t{0}\nLink:\t{1}\nDescription:\t{2}',
+                    message: 'Assess your knowledge on Kidoju.\n\n{0}\n{1}',
                     subject: 'How much do you know about \u201C{0}\u201D?'
                 }
             },

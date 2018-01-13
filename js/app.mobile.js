@@ -3294,10 +3294,11 @@ window.jQuery.holdReady(true);
                     {
                         message: kendo.format(culture.message, // not supported on some apps (Facebook, Instagram)
                             viewModel.get(VIEW_MODEL.SUMMARY.TITLE),
-                            viewModel.summary.summaryUri$(),
+                            // viewModel.summary.summaryUri$(),
                             viewModel.get(VIEW_MODEL.SUMMARY.DESCRIPTION)),
                         subject: kendo.format(culture.subject, // for email
                             viewModel.get(VIEW_MODEL.SUMMARY.TITLE)),
+                        // TODO Add files - https://github.com/kidoju/Kidoju-Mobile/issues/178
                         // files: ['', ''], // an array of filenames either locally or remotely
                         url: viewModel.summary.summaryUri$(),
                         chooserTitle: culture.chooserTitle // Android only, you can override the default share sheet title
