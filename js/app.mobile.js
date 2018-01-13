@@ -260,10 +260,12 @@ window.jQuery.holdReady(true);
                 USER: 'User'
             },
             ACTION: {
+                APP_REVIEW: 'App Review',
                 INIT: 'Init',
                 PLAY: 'Play',
                 SAVE: 'Save',
                 SCORE: 'Score',
+                SHARE: 'Share w/',
                 SIGNIN: 'Signin'
             }
         };
@@ -3305,7 +3307,14 @@ window.jQuery.holdReady(true);
                         // mobile.dialogs.info('Share completed? ' + result.completed + '/' + result.app);
                         // On Android apps mostly return result.completed=false even while it's true
                         // On Android result.app (the app shared to) is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
-                        // TODO: track sharing on Google
+                        // Track with Google Analytics
+                        if (mobile.support.ga) {
+                            mobile.ga.trackEvent(
+                                ANALYTICS.CATEGORY.SUMMARY,
+                                ANALYTICS.ACTION.SHARE + result.app,
+                                viewModel.get(VIEW_MODEL.SUMMARY.ID)
+                            );
+                        }
                     },
                     function (msg) {
                         // mobile.dialogs.error('Sharing failed: ' + msg);
@@ -3971,6 +3980,13 @@ window.jQuery.holdReady(true);
                                 // We are simply opening a custom url scheme and we do not need SafariViewController for that
                                 // Note that this does not work in the Android Emulator because the play store app is missing
                                 mobile.InAppBrowser.open(appStoreUrl, '_system');
+                                if (mobile.support.ga) {
+                                    mobile.ga.trackEvent(
+                                        ANALYTICS.CATEGORY.GENERAL,
+                                        ANALYTICS.ACTION.APP_REVIEW,
+                                        platform
+                                    );
+                                }
                                 // In truth we do not really know whether the app has been reviewed or not, we just know that the browser has been opened to the app store
                                 reviewState.version = app.version;
                                 reviewState.counter = 0;
