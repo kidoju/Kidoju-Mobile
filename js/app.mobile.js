@@ -141,6 +141,7 @@ window.jQuery.holdReady(true);
         // var OBJECT = 'object';
         var STRING = 'string';
         var ARRAY = 'array';
+        var BACK = 'back';
         var CHANGE = 'change';
         var CLICK = 'click';
         var FOCUS = 'focus';
@@ -439,17 +440,6 @@ window.jQuery.holdReady(true);
                 return JSON.parse(xhr.responseText);
             } catch (ex) {}
         }
-
-        /**
-         * Initialize back button on Android to prevent errors when reaching the splash screen
-         * Fixes https://github.com/kidoju/Kidoju-Mobile/issues/181
-         */
-         function initBackButton() {
-            document.addEventListener('backbutton', function (e) {
-                console.log(window.history.length);
-                debugger;
-            }, false);
-         }
 
         /* This function's cyclomatic complexity is too high. */
         /* jshint -W074 */
@@ -2038,8 +2028,6 @@ window.jQuery.holdReady(true);
                 message: 'Device is ready',
                 method: 'mobile.onDeviceReady'
             });
-            // Inititalize Android backbutton to prevent errors when reaching the splash screen
-            initBackButton();
             // Set feature shortcuts (like Modernizr)
             setShortcuts();
             logger.debug({
@@ -2133,8 +2121,9 @@ window.jQuery.holdReady(true);
                     mobile._fixSigninViewLocalization();
                     // Reinitialize notifications now that we know the size of .km-header
                     mobile._initToastNotifications();
-                    // Bind the router change event to the onRouterViewChange handler
-                    mobile.application.router.bind(CHANGE, mobile.onRouterViewChange);
+                    // Bind the router change event to the onRouterChange handler
+                    mobile.application.router.bind(BACK, mobile.onRouterBack);
+                    mobile.application.router.bind(CHANGE, mobile.onRouterChange);
                     // Trigger application init event for handleOpenURL event handler (custom url scheme)
                     $(document).trigger(APPINIT);
                     // hide the splash screen
@@ -2361,12 +2350,24 @@ window.jQuery.holdReady(true);
         };
 
         /**
+         * Event handler triggered when clicking back
+         * @param e
+         */
+        mobile.onRouterBack = function (e) {
+            window.alert(
+                e.url + '\n' +
+                e.to + '\n' +
+                window.history.length
+            );
+        };
+
+        /**
          * Event handler triggered when changing views
          * This is triggered before any view is shown (except the first one)
          * Note: mobile.application.view() returns the old view where as e.url points to the new view
          * @param e
          */
-        mobile.onRouterViewChange = function (e) {
+        mobile.onRouterChange = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.type(STRING, e.url, assert.format(assert.messages.type.default, 'e.url', STRING));
             // if (mobile.application instanceof kendo.mobile.Application) {
@@ -2385,7 +2386,7 @@ window.jQuery.holdReady(true);
 
         /**
          * Event handler triggered when showing a new view based on layout
-         * Events occur in this order: 1.onRouterViewChange 2.onLayoutViewShow 3.onXXXXXXViewShow
+         * Events occur in this order: 1.onRouterChange 2.onLayoutViewShow 3.onXXXXXXViewShow
          * @param e
          */
         mobile.onLayoutViewShow = function (e) {
@@ -2464,8 +2465,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onActivitiesViewShow = function (e) {
-            console.log('mobile.onActivitiesViewShow');
-            debugger;
+            window.alert('mobile.onActivitiesViewShow');
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
