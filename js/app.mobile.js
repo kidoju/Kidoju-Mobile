@@ -290,7 +290,7 @@ window.jQuery.holdReady(true);
                     app.notification.error(i18n.culture.notifications.unknownError);
                 }
                 // Log
-                if (logger && isFunction(logger.crit)) {
+                if (logger && $.isFunction(logger.crit)) {
                     logger.crit({
                         message: message,
                         method: 'window.onerror',
@@ -439,6 +439,17 @@ window.jQuery.holdReady(true);
                 return JSON.parse(xhr.responseText);
             } catch (ex) {}
         }
+
+        /**
+         * Initialize back button on Android to prevent errors when reaching the splash screen
+         * Fixes https://github.com/kidoju/Kidoju-Mobile/issues/181
+         */
+         function initBackButton() {
+            document.addEventListener('backbutton', function (e) {
+                console.log(window.history.length);
+                debugger;
+            }, false);
+         }
 
         /* This function's cyclomatic complexity is too high. */
         /* jshint -W074 */
@@ -2027,6 +2038,8 @@ window.jQuery.holdReady(true);
                 message: 'Device is ready',
                 method: 'mobile.onDeviceReady'
             });
+            // Inititalize Android backbutton to prevent errors when reaching the splash screen
+            initBackButton();
             // Set feature shortcuts (like Modernizr)
             setShortcuts();
             logger.debug({
@@ -2451,6 +2464,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onActivitiesViewShow = function (e) {
+            console.log('mobile.onActivitiesViewShow');
+            debugger;
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
@@ -3918,7 +3933,7 @@ window.jQuery.holdReady(true);
                     local.schedule({
                         title: i18n.culture.osNotifications.title,
                         text: kendo.format(i18n.culture.osNotifications.text, app.constants.appName),
-                        // Icon paths explained at https://github.com/katzer/cordova-plugin-local-notifications/issues/1075
+                        // Icon paths explained at https://github.com/katzer/cordova-plugin-local-notifications/issues/1266#issuecomment-293508925
                         // See also https://github.com/katzer/cordova-plugin-local-notifications/wiki/10.-URIs
                         icon: 'file://img/notifications/icon.png',
                         // smallIcon: - @see https://documentation.onesignal.com/v3.0/docs/customize-notification-icons#section-small-icon
