@@ -5,7 +5,7 @@
     <description>Create and share phenomenal quizzes.</description>
     <author email="support@memba.com" href="http://www.memba.com">Memba Sarl</author>
     <content src="index.html" />
-    <icon src="www/icon.png" />
+    <icon src="www/res/icon/default.png" />
     <preference name="android-minSdkVersion" value="16" />
     <preference name="android-targetSdkVersion" value="23" />
     <preference name="android-compileSdkVersion" value="26" />
