@@ -3943,8 +3943,8 @@ window.jQuery.holdReady(true);
                         // firstAt: firstAt
                         // With version 0.9 - https://github.com/katzer/cordova-plugin-local-notifications
                         // trigger: { every: { weekday: 1, hour: 16, minute: 0 } },
-                        trigger: { every: 'hour', count: 1 },
-                        // trigger: { every: 'day', count: 7 },
+                        // trigger: { every: 'hour', count: 1 },
+                        trigger: { every: 'day', count: 7 },
                         foreground: true
                     });
                 });
