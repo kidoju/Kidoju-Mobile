@@ -38,15 +38,15 @@
 
         xdescribe('MobileTransport', function () {
 
-            var transport = new models.MobileTransport({
-                partition: {
-                    userId: '000000000000000000000000',
-                    'version.state': 5
-                }
-            });
+            var transport;
 
             before(function () {
-
+                transport = new models.MobileTransport({
+                    partition: {
+                        userId: '000000000000000000000000',
+                        'version.state': 5
+                    }
+                });
             });
 
             describe('When creating an item', function () {
@@ -78,8 +78,8 @@
         describe('MobileUser', function () {
 
             var transfer = sinon.spy();
-
-            before(function () {
+            var xbefore = $.noop;
+            xbefore(function () {
                 // Create a stub for window.FileTransfer
                 window.FileTransfer = function () {};
 
@@ -144,14 +144,18 @@
                 var user = new MobileUser(user1);
                 // This might trigger an authorization confirmation to use file storage
                 user._saveMobilePicture()
-                    .done(function (fileEntry) {
-                        expect(fileEntry.isFile).to.be.true;
+                    .done(function (e) {
+                        expect(e).to.be.an.instanceof(window.ProgressEvent);
+                        expect(e.type).to.equal('writeend');
+                        expect(e.loaded).to.equal(e.total);
                         done();
                     })
                     .fail(done);
             });
 
-            it('MobileUser should load current user (me) from remote server', function (done) {
+            xit('MobileUser should load current user (me) from remote server', function (done) {
+                // user.load has been removed
+                /*
                 var user = new MobileUser();
                 user.load()
                     .done(function (data) {
@@ -172,6 +176,7 @@
                     .fail(function (xhr, status, error) {
                         done(new Error(error));
                     });
+                 */
             });
 
         });
