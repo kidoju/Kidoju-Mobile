@@ -165,7 +165,8 @@
 
         });
 
-        describe('download', function () {
+        // window.FileTransfer is now deprecated
+        xdescribe('download with window.FileTransfer', function () {
 
             var transfer = sinon.spy();
 
@@ -212,6 +213,43 @@
                     })
                     .fail(done);
             });
+
+        });
+
+        describe('download without window.FileTransfer', function () {
+
+            it('it should download a remote url to a temporary FileSystem', function (done) {
+                var fileSystem = new FileSystem();
+                var remoteUrl = 'https://cdn.kidoju.com/kidoju/kidoju.logo.png';
+                var path = '/images';
+                var fileName = 'logo.png';
+                fileSystem.init()
+                    .done(function () {
+                        fileSystem.getDirectoryEntry(path, window.TEMPORARY)
+                            .done(function (directoryEntry) {
+                                expect(directoryEntry).not.to.be.undefined;
+                                expect(directoryEntry.isDirectory).to.be.true;
+                                fileSystem.getFileEntry(directoryEntry, fileName)
+                                    .done(function (fileEntry) {
+                                    expect(fileEntry).not.to.be.undefined;
+                                    expect(fileEntry.isFile).to.be.true;
+                                        fileSystem.download(remoteUrl, fileEntry)
+                                            .done(function (e) {
+                                                expect(e).to.be.an.instanceof(window.ProgressEvent);
+                                                expect(e.type).to.equal('writeend');
+                                                expect(e.loaded).to.equal(e.total);
+                                                done();
+                                            })
+                                            .fail(done);
+                                    })
+                                    .fail(done);
+                            })
+                            .fail(done);
+                    })
+                    .fail(done);
+            });
+
+
 
         });
 
