@@ -121,10 +121,12 @@
             // Notification messages
             notifications: {
                 activitiesQueryFailure: 'There was an error loading activities.',
+                appVersionFailure: 'You are running an old version which might raise compatibility issues. Please upgrade.',
                 batteryCritical: 'Battery level is critical. Recharge now!',
                 batteryLow: 'Battery level is low. Recharge soon!',
                 clickSubmitInfo: 'Press <i class="kf kf-submit"></i> to calculate your score.',
                 confirmSubmit: 'Do you really want to submit to calculate your score?',
+                dbMigrationFailure: 'The mobile database migration failed during the upgrade.',
                 networkOffline: 'You are disconnected from the Internet',
                 networkOnline: 'Your Internet connection is back.',
                 oAuthTokenFailure: 'The authentication service has returned an error.',

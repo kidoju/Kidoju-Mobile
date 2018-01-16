@@ -39,7 +39,6 @@
             fr: (constants.rootCategoryId.fr || '').replace(RX_ZEROS, '')
         };
         var DB_NAME = 'KidojuDB';
-        var DB_VERSION = '0.3.4'; // TODO Change!
         var COLLECTION = {
             ACTIVITIES: 'activities',
             SUMMARIES: 'summaries',
@@ -60,8 +59,7 @@
         var db = app.db = new pongodb.Database({
             name: DB_NAME,
             size: 10 * 1024 * 1024,
-            collections: [COLLECTION.ACTIVITIES, COLLECTION.SUMMARIES, COLLECTION.USERS, COLLECTION.VERSIONS],
-            version: DB_VERSION
+            collections: [COLLECTION.ACTIVITIES, COLLECTION.SUMMARIES, COLLECTION.USERS, COLLECTION.VERSIONS]
         });
 
         /**
@@ -177,9 +175,22 @@
         // TODO We could also use a trigger to create/update/remove MobileUser picture
 
         /**
-         * Migrations
+         * Migration to v0.3.4 (initial)
          */
-        // TODO Migrations
+        db.upgrade.push(new pongodb.Migration({
+            version: '0.3.4',
+            scripts: [
+                function (db) {
+                    logger.info({
+                        method: 'migration.execute',
+                        message: 'Migrating database to ' + db._version
+                    });
+                    // Basically this first script initializes the database to version 0.3.4
+                    // return $.Deferred().notify({ version: db._version, pass: 1, percent: 1 }).reject(new Error('oops')).promise();
+                    return $.Deferred().notify({ version: db._version, pass: 1, percent: 1 }).resolve().promise();
+                }
+            ]
+        }));
 
     }(window.jQuery));
 

@@ -382,6 +382,7 @@ window.jQuery.holdReady(true);
                 // Android creates a new intent to perform the task, triggering onDeviceReady and actually reloading the app
                 // So we have added an APPINIT event which is triggered form the init event handler of kendo.mobile.Application
                 // At this stage mobile.application and i18n.culture are available for any statement in handleOpenURL
+                // TODO: Check that this is still going on since launchMode singleTask
                 $(document).one(APPINIT, function () { handleOpenURL(url); });
             }
         };
@@ -2071,8 +2072,34 @@ window.jQuery.holdReady(true);
             mobile._initNetworkEvents();
             // Wire the resize event handler for changes of device orientation
             $(window).resize(mobile.onResize);
-            // Load viewModel, then initialize kendo application
-            viewModel.load().done(mobile._initKendoApplication);
+            // Check server version
+            rapi.test.ping()
+                .always(function (ping) {
+                    if (ping.compatible && window.pongodb.util.compareVersions(app.version, ping.compatible) < 0) {
+                        // This is an old version, so request an upgrade
+                        mobile.dialogs.error(i18n.culture.notifications.appVersionFailure, function () {
+                            // TODO open the app store
+                            if (window.navigator.app && $.isFunction (window.navigator.app.exitApp)) {
+                                window.navigator.app.exitApp();
+                            }
+                        });
+                    } else {
+                        // This is a current version, so upgrade the database
+                        app.db.upgrade.execute()
+                            .done(function () {
+                                // Load viewModel, then initialize kendo application
+                                viewModel.load().done(mobile._initKendoApplication);
+                            })
+                            .fail(function (err) {
+                                app.notification.error(i18n.culture.notifications.dbMigrationFailure);
+                                if (err instanceof Error) {
+                                    // setTimeout ensures we call the global error handler
+                                    // @see https://stackoverflow.com/questions/39376805/how-can-i-trigger-global-onerror-handler-via-native-promise-when-runtime-error-o
+                                    setTimeout(function() { throw err; }, 0);
+                                }
+                            });
+                    }
+                })
         };
 
         /**

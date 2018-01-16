@@ -611,7 +611,7 @@
 
         /**
          * Simple test functions
-         * @type {{getVersion: getVersion, getHeartbeat: getHeartbeat}}
+         * @type {{ping: app.rapi.test.ping, dummyResolvedDeferred: app.rapi.test.dummyResolvedDeferred, dummyRejectedDeferred: app.rapi.test.dummyRejectedDeferred}}
          */
         rapi.test = {
 

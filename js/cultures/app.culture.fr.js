@@ -119,10 +119,12 @@
             // Notification messages
             notifications: {
                 activitiesQueryFailure: 'Il y a eu une erreur lors du chargement des activités.',
+                appVersionFailure: 'Vous utilisez une ancienne version qui pourrait poser des problèmes de compatibilité. Veuillez mettre à jour.',
                 batteryCritical: 'Niveau de batterie critique. Rechargez maintenant!',
                 batteryLow: 'Niveau de batterie faible. Rechargez bientôt!',
                 clickSubmitInfo: 'Pressez <i class="kf kf-submit"></i> pour calculer votre score.',
                 confirmSubmit: 'Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?',
+                dbMigrationFailure: 'La migration de la base de données mobile a échoué lors de la mise à niveau.',
                 networkOffline: 'Vous n’êtes pas connecté à Internet.',
                 networkOnline: 'Votre connexion Internet est restaurée.',
                 oAuthTokenFailure: 'Le service d’authentification a retourné une erreur.',
