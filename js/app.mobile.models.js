@@ -1101,10 +1101,8 @@
                 var dfd = $.Deferred();
                 var collection = that._collection;
                 var partition = that.remoteTransport._partition;
-                // TODO : how should we use lastSync? -------------------------------------------------------------------------------------
                 this._collection.find(partition, this.projection())
                     .done(function (items) {
-                        debugger;
                         var promises = [];
                         var total = items.length;
                         function syncItem(index) {

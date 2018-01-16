@@ -53,6 +53,7 @@
         var RX_MONGODB_ID = /^[0-9a-f]{24}$/;
         var META = '__meta__';
         var VERSION = 'version';
+        var VERSION_000 = '0.0.0';
         var NOT_IMPLEMENTED = 'Not yet implemented';
         var TRIGGER = {
             INSERT: 'insert',
@@ -317,6 +318,10 @@
 
         };
 
+        /******************************************************************************************************
+         * pongodb.ObjectId
+         *****************************************************************************************************/
+
         /**
          * An ObjectId like MongoDB
          * @see https://docs.mongodb.com/manual/reference/method/ObjectId/
@@ -368,6 +373,10 @@
         ObjectId.prototype.toString = function () {
             return this._id;
         };
+
+        /******************************************************************************************************
+         * pongodb.Upgrade
+         *****************************************************************************************************/
 
         /**
          * Collection
@@ -845,6 +854,118 @@
             throw new Error(NOT_IMPLEMENTED);
         };
 
+        /******************************************************************************************************
+         * pongodb.Upgrade
+         *****************************************************************************************************/
+
+        /**
+         * An upgrade is a series of migrations
+         */
+        var Upgrade = pongodb.Upgrade = function (options) {
+            this._db = options.db;
+            this._migrations = [];
+        };
+
+        /**
+         * Push migration
+         * @param migration
+         */
+        Upgrade.prototype.push = function (migration) {
+            migration._db = this._db;
+            this._migrations.push(migration);
+        };
+
+        /**
+         * Execute upgrade (execute all migrations)
+         */
+        Upgrade.prototype.execute = function () {
+            var that = this;
+            var dfd = $.Deferred();
+            that._db.version() // Read from storage
+                .done(function (version) {
+                    // Sort migrations by version number
+                    var migrations = that._migrations.sort(pongodb.util.compareVersions);
+                    var execute = function (migration) {
+
+                    };
+                    // Find the next migration
+                    var found = false;
+                    for (var i = 0, length = migrations.length; i < length; i++) {
+                        var migration = migrations[i];
+                        if (pongodb.util.compareVersions(version, migration._version) < 0) {
+                            found = true;
+                            logger.info({
+                                method: 'pongodb.Upgrade.execute',
+                                message: 'Starting migration',
+                                data: { version: migration._version }
+                            });
+                            migration.execute()
+                                .progress(dfd.notify)
+                                .done(function () {
+                                    that._db.version(migration._version)
+                                        .done(function () {
+                                            logger.info({
+                                                method: 'pongodb.Upgrade.execute',
+                                                message: 'Completed migration',
+                                                data: { version: migration._version }
+                                            });
+                                            // Use recursion to execute the following migration
+                                            that.execute()
+                                                .progress(dfd.notify)
+                                                .done(dfd.resolve)
+                                                .fail(dfd.reject);
+                                        })
+                                        .fail(dfd.reject); // Note: migrations need to be idempotent otherwise this could be a problem
+                                })
+                                .fail(dfd.reject);
+                            break;
+                        }
+                    }
+                    // Without migration to execute, we are done
+                    if (!found) {
+                        dfd.resolve();
+                    }
+                })
+                .fail(dfd.reject);
+            return dfd.promise();
+        };
+
+        /******************************************************************************************************
+         * pongodb.Migration
+         *****************************************************************************************************/
+
+        /**
+         * A migration progresses a database from one version to the next
+         * IMPORTANT: Migrations need to be idempotent (can be executed any number of times)
+         */
+        var Migration = pongodb.Migration = function (options) {
+            this._db = null;
+            this._scripts = options.scripts || [];
+            this._version = options.version || '0.0.1';
+        };
+
+        /**
+         * Execute migration (execute all scripts)
+         */
+        Migration.prototype.execute = function () {
+            var dfd = $.Deferred();
+            var scripts = this._scripts;
+            var promises = [];
+            if (this._db instanceof Database) {
+                for (var i = 0; i < scripts.length; i++) {
+                    promises.push(scripts[i](this._db).progress(dfd.notify));
+                }
+            }
+            $.when.apply(this, promises)
+                .done(dfd.resolve)
+                .fail(dfd.reject);
+            return dfd.promise();
+        };
+
+        /******************************************************************************************************
+         * pongodb.Database
+         *****************************************************************************************************/
+
         /**
          * Database
          * @param options
@@ -853,6 +974,8 @@
         var Database = pongodb.Database = function (options) {
             assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
             assert.type(STRING, options.name, assert.format(assert.messages.isPlainObject.default, 'options.name', STRING));
+            assert.hasLength(options.name, assert.format(assert.messages.hasLength.default, 'options.name'));
+            options.collections = options.collections || [];
             assert.isArray(options.collections, assert.format(assert.messages.isArray.default, 'db', 'options.collections'));
 
             this._idField = options.idField || 'id';
@@ -883,6 +1006,13 @@
             for (var i = 0, length = collections.length; i < length; i++) {
                 this[collections[i]] = new Collection({ db: this, name: collections[i] });
             }
+
+            // Add upgrade
+            this.upgrade = new Upgrade({ db: this });
+
+            // We cannot set the database version in the initialization code
+            // We need to run an upgrade to set the version number unless Database.prototype.version is called explicitly
+
         };
 
         /**
@@ -906,14 +1036,8 @@
                     } else if ($.type(item) === STRING) {
                         dfd.resolve(item);
                     } else {
-                        // If the value of version is not found, we set it to app.version
-                        localForage.setItem(VERSION, (app && app.version) || '0.0.1', function (err, item) {
-                            if (err) {
-                                dfd.reject(err);
-                            } else {
-                                dfd.resolve(item);
-                            }
-                        });
+                        // If the value of version is not found, we return 0.0.0 to ensure upgrade migrations run
+                        dfd.resolve(VERSION_000);
                     }
                 });
             } else {
@@ -988,102 +1112,6 @@
                     dfd.resolve();
                 }
             });
-            return dfd.promise();
-        };
-
-        /**
-         * An upgrade is a series of migrations
-         */
-        var Upgrade = pongodb.Upgrade = function (options) {
-            this._db = options.db;
-            this._migrations = [];
-        };
-
-        /**
-         * Push migration
-         * @param migration
-         */
-        Upgrade.prototype.push = function (migration) {
-            migration._db = this._db;
-            this._migrations.push(migration);
-        };
-
-        /**
-         * Execute upgrade (execute all migrations)
-         */
-        Upgrade.prototype.execute = function () {
-            var that = this;
-            var dfd = $.Deferred();
-            that._db.version() // Read from storage
-                .done(function (version) {
-                    // Sort migrations by version number
-                    var migrations = that._migrations.sort(pongodb.util.compareVersions);
-                    // Find the next migration
-                    var found = false;
-                    for (var i = 0, length = migrations.length; i < length; i++) {
-                        var migration = migrations[i];
-                        if (pongodb.util.compareVersions(version, migration._version) < 0) {
-                            found = true;
-                            logger.info({
-                                method: 'pongodb.Upgrade.execute',
-                                message: 'Starting migration',
-                                data: { version: migration._version }
-                            });
-                            migration.execute()
-                            .progress(dfd.notify)
-                            .done(function () {
-                                that._db.version(migration._version)
-                                .done(function () {
-                                    logger.info({
-                                        method: 'pongodb.Upgrade.execute',
-                                        message: 'Completed migration',
-                                        data: { version: migration._version }
-                                    });
-                                    // Use recursion to execute the following migration
-                                    that.execute()
-                                    .progress(dfd.notify)
-                                    .done(dfd.resolve)
-                                    .fail(dfd.reject);
-                                })
-                                .fail(dfd.reject); // Note: migrations need to be idempotent otherwise this could be a problem
-                            })
-                            .fail(dfd.reject);
-                            break;
-                        }
-                    }
-                    // Without migration to execute, we are done
-                    if (!found) {
-                        dfd.resolve();
-                    }
-                })
-                .fail(dfd.reject);
-            return dfd.promise();
-        };
-
-        /**
-         * A migration progresses a database from one version to the next
-         * IMPORTANT: Migrations need to be idempotent (can be executed any number of times)
-         */
-        var Migration = pongodb.Migration = function (options) {
-            this._db = null;
-            this._scripts = options.scripts || [];
-            this._version = options.version || '0.0.1';
-        };
-
-        /**
-         * Execute migration (execute all scripts)
-         */
-        Migration.prototype.execute = function () {
-            var dfd = $.Deferred();
-            var scripts = this._scripts;
-            var promises = [];
-            for (var i = 0; i < scripts.length; i++) {
-                // bind is necessary to make this._db available to the migration script
-                promises.push(scripts[i].bind(this)().progress(dfd.notify));
-            }
-            $.when.apply(this, promises)
-            .done(dfd.resolve)
-            .fail(dfd.reject);
             return dfd.promise();
         };
 

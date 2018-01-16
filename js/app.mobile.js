@@ -296,7 +296,7 @@ window.jQuery.holdReady(true);
                         message: message,
                         method: 'window.onerror',
                         error: error,
-                        data: {source: source, lineno: lineno, colno: colno}
+                        data: { source: source, lineno: lineno, colno: colno }
                     });
                 }
                 // Notify google analytics
@@ -2472,7 +2472,8 @@ window.jQuery.holdReady(true);
         mobile.onActivitiesViewShow = function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            // If e.view.params is empty we most probably clicked the back button to the default view (/)
+            // If e.view.params is empty, so we most probably clicked the back button to the default view (/)
+            // Note that this is now fixed in mobile.onRouterBack - https://github.com/kidoju/Kidoju-Mobile/issues/181
             // if (!$.isEmptyObject(e.view.params)) {
             assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
             var language = e.view.params.language;
@@ -2482,7 +2483,7 @@ window.jQuery.holdReady(true);
             assert.equal(userId, viewModel.get(VIEW_MODEL.USER.SID), assert.format(assert.messages.equal.default, 'viewModel.get("user.sid")', userId));
 
             // Always reload
-            viewModel.loadActivities({language: language, userId: userId}).always(function() {
+            viewModel.loadActivities({ language: language, userId: userId }).always(function () {
                 mobile.onGenericViewShow(e);
             });
             // }
@@ -3815,7 +3816,7 @@ window.jQuery.holdReady(true);
                                                 ANALYTICS.ACTION.SCORE,
                                                 viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARY_ID),
                                                 parseInt(viewModel.get(VIEW_MODEL.CURRENT.SCORE), 10)
-                                            )
+                                            );
                                         }
                                     });
                             });
@@ -3996,7 +3997,7 @@ window.jQuery.holdReady(true);
 
                     mobile.dialogs.confirm(
                         kendo.format(culture.message, app.constants.appName),
-                        function(buttonIndex) {
+                        function (buttonIndex) {
                             if (buttonIndex === 1) { // OK
                                 logger.debug({
                                     message: 'Opening the app store for review',
