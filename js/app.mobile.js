@@ -1249,7 +1249,7 @@ window.jQuery.holdReady(true);
                                     assert.instanceof(Page, page, assert.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
                                     promises.push(page.load());
                                 });
-                                $.when(promises).fail(versionLoadFailure);
+                                $.when.apply($, promises).fail(versionLoadFailure);
                             })
                             .fail(versionLoadFailure);
                     })

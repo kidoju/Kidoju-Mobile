@@ -231,8 +231,8 @@
                                 expect(directoryEntry.isDirectory).to.be.true;
                                 fileSystem.getFileEntry(directoryEntry, fileName)
                                     .done(function (fileEntry) {
-                                    expect(fileEntry).not.to.be.undefined;
-                                    expect(fileEntry.isFile).to.be.true;
+                                        expect(fileEntry).not.to.be.undefined;
+                                        expect(fileEntry.isFile).to.be.true;
                                         fileSystem.download(remoteUrl, fileEntry)
                                             .done(function (e) {
                                                 expect(e).to.be.an.instanceof(window.ProgressEvent);

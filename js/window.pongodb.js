@@ -649,7 +649,8 @@
                             // if not found simply return 0 modified documents
                             dfd.resolve({ nMatched: 0, nUpserted: 0, nModified: 0 });
                         }
-                    } else if (upsert) {
+                    } else if (upsert && $.type(query[idField]) === STRING) {
+                        // The document does not exist, insert it with query[idField]
                         that._localForage.setItem(query[idField], $.extend(true, doc, query), function(err, item) {
                             if (err) {
                                 dfd.reject(err);
@@ -689,7 +690,8 @@
                                                 def.reject(err);
                                             } else {
                                                 $.when.apply(that, that.triggers(TRIGGER.UPDATE, doc))
-                                                    .done(def.resolve).fail(def.reject);
+                                                    .done(def.resolve)
+                                                    .fail(def.reject);
                                             }
                                         });
                                         return def.promise();
@@ -697,15 +699,17 @@
                                 }
                                 dfd.notify({ index: index - 1, total: length }); // index starts at 1
                             },
-                            function (err) {
+                            function (err) { // This is called at the end of the iteration
                                 if (err) {
                                     dfd.reject(err);
                                 } else {
-                                    $.when(promises)
+                                    $.when.apply(that, promises)
                                         .done(function() {
-                                            dfd.notify({index: length - 1, total: length}); // Make sure we reach 100%
-                                            dfd.resolve({nMatched: count, nUpserted: 0, nModified: promises.length});
-                                        });
+                                            dfd.notify({ index: length - 1, total: length }); // Make sure we reach 100%
+                                            // Note: Cannot upsert when query returns several documents => upsert requires an id
+                                            dfd.resolve({ nMatched: length, nUpserted: 0, nModified: promises.length });
+                                        })
+                                        .fail(dfd.reject);
                                 }
                             }
                         );
@@ -799,10 +803,11 @@
                                         promises.push(removals[key].promise());
                                     }
                                 }
-                                $.when(promises)
+                                $.when.apply(that, promises)
                                     .done(function () {
                                         dfd.resolve({ nRemoved: count });
-                                    });
+                                    })
+                                    .fail(dfd.reject);
                             }
                         );
                     }

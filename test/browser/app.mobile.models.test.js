@@ -29,7 +29,6 @@
     describe('app.mobile.models', function () {
 
         before(function (done) {
-            debugger;
             mockDB.load()
                 .done(done)
                 .fail(function (xhr, status, error) {
@@ -37,7 +36,7 @@
                 });
         });
 
-        describe('MobileTransport', function () {
+        xdescribe('MobileTransport', function () {
 
             var transport = new models.MobileTransport({
                 partition: {

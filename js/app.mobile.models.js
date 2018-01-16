@@ -1130,7 +1130,7 @@
                                 promises.push(promise);
                             }
                         }
-                        $.when(promises)
+                        $.when.apply(that.promises)
                             .always(function () {
                                 // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
                                 total = total || 1; // Cannot divide by 0;

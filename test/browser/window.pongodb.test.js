@@ -206,7 +206,7 @@
 
     });
 
-    describe('app.db (pongodb)', function () {
+    describe('pongodb', function () {
 
         describe('ObjectId', function () {
 
@@ -255,13 +255,13 @@
 
             it('Database constructor with invalid params', function () {
                 var fn1 = function () {
-                    var db = new Database();
+                    var db = new Database(); // missing name
                 };
                 var fn2 = function () {
-                    var db = new Database({ name: 'funky' }); // missing collections
+                    var db = new Database({ name: { x: 1, y: false } }); // invalid name
                 };
                 var fn3 = function () {
-                    var db = new Database({ collections: ['a', 'b'] }); // missing name
+                    var db = new Database({ collections: { x: 1, y: false }  }); // invalid collectons
                 };
                 expect(fn1).to.throw(TypeError);
                 expect(fn2).to.throw(TypeError);
@@ -379,7 +379,9 @@
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].find({ id: HERO2.id })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        // There is actually no progress notified with an ObjectId
+                        // expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
+                        throw new Error('Progress should not have been called');
                     })
                     .done(function (docs) {
                         expect(docs).to.be.an.instanceof(Array).with.property('length', 1);
@@ -397,7 +399,9 @@
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].find({ id: (new ObjectId()).toString() })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        // There is actually no progress notified with an ObjectId
+                        // expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
+                        throw new Error('Progress should not have been called');
                     })
                     .done(function (docs) {
                         expect(docs).to.be.an.instanceof(Array).with.property('length', 0);
@@ -412,7 +416,7 @@
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].find({ year: { $lte: 2012 } })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
                     })
                     .done(function (docs) {
                         expect(docs).to.be.an.instanceof(Array).with.property('length', 2);
@@ -443,7 +447,9 @@
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].count({ id: HERO2.id })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        // There is actually no progress notified with an ObjectId
+                        // expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
+                        throw new Error('Progress should not have been called');
                     })
                     .done(function (count) {
                         expect(count).to.equal(1);
@@ -458,7 +464,7 @@
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].count({ year: { $lte: 2012 } })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
                     })
                     .done(function (count) {
                         expect(count).to.equal(2);
@@ -473,7 +479,9 @@
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].update({ id: HERO2.id }, { mask: false, cape: true })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        // There is actually no progress notified with an ObjectId
+                        // expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
+                        throw new Error('Progress should not have been called');
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nMatched').that.is.equal(1);
@@ -490,7 +498,9 @@
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].update({ id: (new ObjectId()).toString() }, { mask: false, cape: true })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        // There is actually no progress notified with an ObjectId
+                        // expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
+                        throw new Error('Progress should not have been called');
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nMatched').that.is.equal(0);
@@ -507,10 +517,10 @@
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].update({ title: { $regex: /^Man/ } }, { producer: 'DC Comics' })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
                     })
                     .done(function (writeResult) {
-                        expect(writeResult).to.have.property('nMatched').that.is.equal(1);
+                        expect(writeResult).to.have.property('nMatched').that.is.equal(3);
                         expect(writeResult).to.have.property('nUpserted').that.is.equal(0);
                         expect(writeResult).to.have.property('nModified').that.is.equal(1);
                         done();
@@ -524,7 +534,9 @@
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].remove({ id: HERO3.id })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        // There is actually no progress notified with an ObjectId
+                        // expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
+                        throw new Error('Progress should not have been called');
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nRemoved').that.is.equal(1);
@@ -546,7 +558,9 @@
                 expect(db).to.have.property(HEROES).that.is.an.instanceof(Collection);
                 db[HEROES].remove({ id: (new ObjectId()).toString() })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        // There is actually no progress notified with an ObjectId
+                        // expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
+                        throw new Error('Progress should not have been called');
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nRemoved').that.is.equal(0);
@@ -568,7 +582,7 @@
                 expect(db).to.have.property(MOVIES).that.is.an.instanceof(Collection);
                 db[MOVIES].remove({ producer: 'DC Comics' })
                     .progress(function (status) {
-                        expect(status.percent).to.be.a('number').gt(0).and.lte(1);
+                        expect(status.index).to.be.a('number').gte(0).and.lt(status.total);
                     })
                     .done(function (writeResult) {
                         expect(writeResult).to.have.property('nRemoved').that.is.equal(1);
@@ -622,7 +636,15 @@
 
         });
 
-        describe('Errors', function () {
+        describe('Triggers', function () {
+            // TODO
+        });
+
+        describe('Upgraded and Migrations', function () {
+            // TODO
+        });
+
+        describe('Drop Collections and Databases', function () {
             // TODO
         });
 
