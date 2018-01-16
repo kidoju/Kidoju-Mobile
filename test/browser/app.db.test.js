@@ -11,31 +11,16 @@
 
     var expect = window.chai.expect;
     var sinon = window.sinon;
-    var kendo = window.kendo;
     var pongodb = window.pongodb;
-    var UNDEFINED = 'undefined';
-    var Database = kendo.Class.extend({
-        init: function (options) {
-            this._version = options.version;
-        },
-        version: function (value) {
-            if ($.type(value) === UNDEFINED) {
-                return $.Deferred().resolve(this._version).promise();
-            } else {
-                this._version = value;
-                return $.Deferred().resolve().promise();
-            }
-        }
-    });
+    var TOTAL = 10;
 
-    function script() {
-        var that = this;
+    function script(db) {
         var dfd = $.Deferred();
         var count = 0;
         var interval = setInterval(function () {
             count++;
-            dfd.notify({ version: that._version, pass: 1, percent: count / 10 });
-            if (count === 10) {
+            dfd.notify({ version: db._version, pass: 1, percent: count / TOTAL });
+            if (count === TOTAL) {
                 clearInterval(interval);
                 dfd.resolve();
             }
@@ -48,33 +33,35 @@
         var db;
         var spy = sinon.spy();
 
-        beforeEach(function () {
-            db = new Database({ version: '0.1.0' });
+        beforeEach(function (done) {
+            db = new pongodb.Database({ name: 'Dummy' });
+            db.version('0.1.0').always(function () { done(); });
         });
 
         it('it should upgrade', function (done) {
 
-            var upgrade = new pongodb.Upgrade({ db: db });
-            upgrade.push(new pongodb.Migration({
+            db.upgrade.push(new pongodb.Migration({
                 version: '0.1.0',
                 scripts: [script]
             }));
-            upgrade.push(new pongodb.Migration({
+            db.upgrade.push(new pongodb.Migration({
                 version: '0.1.1',
                 scripts: [script]
             }));
-            upgrade.push(new pongodb.Migration({
+            db.upgrade.push(new pongodb.Migration({
                 version: '0.1.2',
                 scripts: [script]
             }));
-            upgrade.execute()
+            db.upgrade.execute()
                 .progress(function (state) {
                     spy();
                 })
                 .always(function () {
                     db.version()
                         .done(function (version) {
-                            expect(spy).to.have.callCount(20);
+                            // 10 times for version 0.1.1 and another 10 times for version 0.1.2
+                            // considering it should not execute scripts fom version 0.1.0
+                            expect(spy).to.have.callCount(2 * TOTAL);
                             expect(version).to.equal('0.1.2');
                         })
                         .always(function () {
@@ -82,6 +69,10 @@
                         });
                 });
 
+        });
+
+        afterEach(function () {
+            // TODO Drop databases
         });
 
     });
