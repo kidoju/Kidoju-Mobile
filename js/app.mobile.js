@@ -2350,15 +2350,20 @@ window.jQuery.holdReady(true);
         };
 
         /**
-         * Event handler triggered when clicking back
+         * Event handler triggered when clicking back (on platforms android and browser)
          * @param e
          */
         mobile.onRouterBack = function (e) {
-            window.alert(
-                e.url + '\n' +
-                e.to + '\n' +
-                window.history.length
-            );
+            if (e.to === '') {
+                // This prevents an error when clicking the back button on android devices and in the browser
+                // when reaching the splash screen, which actually trigger a navigation to the default view (/)
+                // which is the activities view and which requires e.view.params
+                // Fixes https://github.com/kidoju/Kidoju-Mobile/issues/181
+                e.preventDefault();
+                if (window.navigator.app && $.isFunction(window.navigator.app.exitApp)) {
+                    window.navigator.app.exitApp();
+                }
+            }
         };
 
         /**
@@ -2465,9 +2470,10 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onActivitiesViewShow = function (e) {
-            window.alert('mobile.onActivitiesViewShow');
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
+            // If e.view.params is empty we most probably clicked the back button to the default view (/)
+            // if (!$.isEmptyObject(e.view.params)) {
             assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
             var language = e.view.params.language;
             assert.equal(language, i18n.locale(), assert.format(assert.messages.equal.default, 'i18n.locale()', language));
@@ -2476,10 +2482,10 @@ window.jQuery.holdReady(true);
             assert.equal(userId, viewModel.get(VIEW_MODEL.USER.SID), assert.format(assert.messages.equal.default, 'viewModel.get("user.sid")', userId));
 
             // Always reload
-            viewModel.loadActivities({ language: language, userId: userId })
-                .always(function () {
-                    mobile.onGenericViewShow(e);
-                });
+            viewModel.loadActivities({language: language, userId: userId}).always(function() {
+                mobile.onGenericViewShow(e);
+            });
+            // }
         };
 
         /**
