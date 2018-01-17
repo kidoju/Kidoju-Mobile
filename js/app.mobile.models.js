@@ -487,6 +487,7 @@
                     return options.error.apply(this, error2XHR(err));
                 }
                 // Unless we give one ourselves, the collection will give the item an id
+                window.alert('Inserting...');
                 this._collection.insert(item)
                     .done(function () {
                         window.alert('New item: ' + item.id);
@@ -494,6 +495,7 @@
                         options.success({ total: 1, data: [item] });
                     })
                     .fail(function (error) {
+                        window.alert('No new item: ' + error.message);
                         options.error.apply(this, error2XHR(error));
                     });
             },
@@ -572,7 +574,6 @@
              * @param options
              */
             update: function (options) {
-                debugger;
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
