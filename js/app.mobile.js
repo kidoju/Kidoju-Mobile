@@ -2873,6 +2873,7 @@ window.jQuery.holdReady(true);
             if (RX_MONGODB_ID.test(activityId)) {
                 // If we have an activityId, replace the current test to display score and correction
                 var activity = viewModel.activities.get(activityId);
+                // TODO Load activities if necessary to make the view idempotent, otherwise the following assert will fail
                 assert.instanceof(models.MobileActivity, activity, assert.format(assert.messages.instanceof.default, 'activity', 'app.models.MobileActivity'));
                 assert.equal('Score', activity.type, assert.format(assert.messages.equal.default, 'activity.type', 'Score'));
                 $.when(
