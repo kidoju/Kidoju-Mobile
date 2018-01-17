@@ -75,8 +75,8 @@
         uris.mobile.pictures = uris.mobile.pictures || '{0}users/{1}';
         var DATE = 'date';
         var FUNCTION = 'function';
+        // var BOOLEAN = 'boolean';
         // var NULL = 'null';
-        var BOOLEAN = 'boolean';
         var NUMBER = 'number';
         var STRING = 'string';
         var UNDEFINED = 'undefined';
@@ -478,7 +478,7 @@
                     item.updated = new Date().toISOString();
                 }
                 */
-                if ($.type(item.id) === UNDEFINED) {
+                if (!item[this.idField]) {
                     item.__state__ = STATE.CREATED;
                 }
                 // Validate item against partition
@@ -489,6 +489,7 @@
                 // Unless we give one ourselves, the collection will give the item an id
                 this._collection.insert(item)
                     .done(function () {
+                        window.alert('New item: ' + item.id);
                         // Note: the item now has an id
                         options.success({ total: 1, data: [item] });
                     })
@@ -513,7 +514,8 @@
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var item = JSON.parse(JSON.stringify(this.parameterMap(options.data, 'destroy')));
-                var id = item.id;
+                var idField = this.idField;
+                var id = item[idField];
                 if (item.__state__ === STATE.CREATED) {
                     // Items with __state__ === 'created' can be safely removed because they do not exist on the remote server
                     if (RX_MONGODB_ID.test(id)) {
@@ -545,11 +547,11 @@
                     }
                     // Execute request
                     if (RX_MONGODB_ID.test(id)) {
-                        item.id = undefined;
+                        item[idField] = undefined;
                         this._collection.update({ id: id }, item)
                             .done(function (response) {
                                 if (response && response.nMatched === 1 && response.nModified === 1) {
-                                    item.id = id;
+                                    item[idField] = id;
                                     options.success({ total: 1, data: [item] });
                                 } else {
                                     options.error.apply(this, error2XHR(new Error('Not found')));
@@ -570,6 +572,7 @@
              * @param options
              */
             update: function (options) {
+                debugger;
                 assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
                 assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
@@ -595,13 +598,14 @@
                     return options.error.apply(this, error2XHR(err));
                 }
                 // Execute request
-                var id = item.id;
+                var idField = this.idField;
+                var id = item[idField];
                 if (RX_MONGODB_ID.test(id)) {
-                    item.id = undefined;
+                    item[idField] = undefined;
                     this._collection.update({ id: id }, item, { upsert: true })
                         .done(function (response) {
                             if (response && response.nMatched === 1 && (response.nModified + response.nUpserted) === 1) {
-                                item.id = id;
+                                item[idField] = id;
                                 options.success({ total: 1, data: [item] });
                             } else {
                                 options.error.apply(this, error2XHR(new Error('Not found')));
@@ -630,17 +634,18 @@
 
             create: function (options) {
                 var item = options.data;
-                item.id = new window.pongodb.ObjectId().toString();
+                item[this.idField] = new window.pongodb.ObjectId().toString();
                 this._data.push(item);
                 options.success({ total: 1, data: [item] });
             },
 
             destroy : function (options) {
-                var id = options.data.id;
+                var idField = this.idField;
+                var id = options.data[idField];
                 var found = false;
                 for (var idx = 0, length = this._data.length; idx < length; idx++) {
                     var item = this._data[idx];
-                    if (item.id === id) {
+                    if (item[idField] === id) {
                         found = true;
                         this._data.splice(idx, 1);
                         options.success({ total: 1, data: [item] });
@@ -657,10 +662,11 @@
             },
 
             update : function (options) {
-                var id = options.data.id;
+                var idField = this.idField;
+                var id = options.data[idField];
                 var found = false;
                 for (var idx = 0, length = this._data.length; idx < length; idx++) {
-                    if (this._data[idx].id === id) {
+                    if (this._data[idx][idField] === id) {
                         found = true;
                         var item = this._data[idx] = $.extend(this._data[idx], options.data);
                         options.success({ total: 1, data: [item] });
@@ -960,9 +966,10 @@
                 assert.equal(STATE.CREATED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'created'));
                 var dfd = $.Deferred();
                 var collection = this._collection;
+                var idField = this.idField;
+                var mobileId = item[idField];
+                item[idField] = null;
                 delete item.__state__;
-                var mobileId = item.id;
-                item.id = null;
                 this.remoteTransport.create({
                     data: item,
                     error: function (err) {
@@ -992,13 +999,14 @@
                 assert.equal(STATE.DESTROYED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'destroyed'));
                 var dfd = $.Deferred();
                 var collection = this._collection;
+                var idField = this.idField;
                 delete item.__state__;
                 this.remoteTransport.destroy({
                     data: item,
                     error: function (err) {
                         if (err.message = '404') { // TODO -----------------------------------------------------------------------------------
                             // If item is not found on the server, remove from local database
-                            collection.remove({ id: item.id })
+                            collection.remove({ id: item[idField] })
                                 .done(dfd.resolve)
                                 .fail(dfd.reject);
                         } else {
@@ -1006,7 +1014,7 @@
                         }
                     },
                     success: function (response) {
-                        collection.remove({ id: item.id })
+                        collection.remove({ id: item[idField] })
                             .done(dfd.resolve)
                             .fail(dfd.reject);
                     }
@@ -1022,10 +1030,11 @@
                 var that = this;
                 var dfd = $.Deferred();
                 var collection = this._collection;
+                var idField = this.idField;
                 this.remoteTransport.read({
                     data: {
-                        // TODO we certainly have an issue with paging
-                        filter: undefined, // TODO Should we use lastSync ????
+                        // TODO we certainly have an issue with paging and we could use lastSync to optimize - https://github.com/kidoju/Kidoju-Mobile/issues/161
+                        filter: undefined,
                         sort: undefined
                     },
                     success: function (response) {
@@ -1035,10 +1044,10 @@
                         function update(index) {
                             var item = result[index];
                             if (item && $.type(item.type) === STRING && item.type.length) {
-                                // TODO This can be removed after updating Kidoju-Server as this fixes test vs. Test and score vs. Score
+                                // TODO This can be removed after updating Kidoju-Server as this fixes test vs. Test and score vs. Score - https://github.com/kidoju/Kidoju-Mobile/issues/154
                                 item.type = item.type.substr(0, 1).toUpperCase() + item.type.substr(1).toLowerCase();
                             }
-                            return collection.update({ id: item.id }, item, { upsert: true })
+                            return collection.update({ id: item[idField] }, item, { upsert: true })
                                 .always(function () {
                                     dfd.notify({ collection: collection.name(), pass: 2, index: index, total: total });
                                 });
@@ -1070,13 +1079,16 @@
                 assert.equal(STATE.UPDATED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'updated'));
                 var dfd = $.Deferred();
                 var collection = this._collection;
+                var idField = this.idField;
+                var query = {};
                 delete item.__state__;
                 this.remoteTransport.update({
                     data: item,
                     error: function (err) {
                         if (err.message = '404') { // TODO
                             // If item is not found on the server, remove from local database
-                            collection.remove({ id: item.id })
+                            query[idField] = item[idField];
+                            collection.remove(query)
                                 .done(dfd.resolve)
                                 .fail(dfd.reject);
                         } else {
@@ -1084,7 +1096,8 @@
                         }
                     },
                     success: function (response) {
-                        collection.update({ id: response.data[0].id }, response.data[0])
+                        query[idField] = response.data[0][idField];
+                        collection.update(query, response.data[0])
                             .done(dfd.resolve)
                             .fail(dfd.reject);
                     }
@@ -1130,7 +1143,7 @@
                                 promises.push(promise);
                             }
                         }
-                        $.when.apply(that.promises)
+                        $.when.apply(that, promises)
                             .always(function () {
                                 // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
                                 total = total || 1; // Cannot divide by 0;
@@ -1437,6 +1450,24 @@
         models.MobileUserTransport = Class.extend({
 
             /**
+             * Init
+             * @constructor
+             * @param options
+             */
+            init: function (options) {
+                options = options || {};
+                this.idField = options.idField || 'id';
+                /*
+                // Note: it is not subclassing models.BaseTransport yet (or ever)
+                this.partition(options.partition);
+                this.projection(options.projection);
+                if ($.isFunction(options.parameterMap)) {
+                    this.parameterMap = options.parameterMap.bind(this);
+                }
+                */
+            },
+
+            /**
              * Validate user before saving
              * @param user
              */
@@ -1469,6 +1500,7 @@
                     message: 'User data creation',
                     method: 'app.models.MobileUserDataSource.transport.create'
                 });
+                var idField = this.idField;
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var user = JSON.parse(JSON.stringify(options.data));
                 // Validate item against partition
@@ -1479,7 +1511,7 @@
                 // This replaces the machine id in the mongoDB server id by MACHINE_ID
                 // This ensures uniqueness of user in mobile app when sid is unique without further checks
                 // i.e. same user with the same sid recorded twice under different ids in mobile device
-                user.id = new window.pongodb.ObjectId(user.sid).toMobileId();
+                user[idField] = new window.pongodb.ObjectId(user.sid).toMobileId();
                 // Start with saving the picture to avoid a broken image in UI if user is saved without
                 models.MobileUser.fn._saveMobilePicture.call(user)
                     .done(function () {
@@ -1508,10 +1540,13 @@
                     message: 'User data deletion',
                     method: 'app.models.MobileUserDataSource.transport.destroy'
                 });
+                var idField = this.idField;
                 var user = options.data;
-                var id = user.id;
+                var id = user[idField];
                 if (RX_MONGODB_ID.test(id)) {
-                    db.users.remove({ id: id })
+                    var query = {};
+                    query[idField] = id;
+                    db.users.remove(query)
                         .done(function (response) {
                             if (response && response.nRemoved === 1) {
                                 options.success({ total: 1, data: [user] });
@@ -1574,17 +1609,20 @@
                 });
                 // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
                 var user = JSON.parse(JSON.stringify(options.data));
-                // Vlidate item against partition
+                // Validate item against partition
                 var err = this._validate(user);
                 if (err) {
                     return options.error.apply(this, error2XHR(err));
                 }
                 // Execute request
-                var id = user.id;
+                var idField = this.idField;
+                var id = user[idField];
                 if (RX_MONGODB_ID.test(id)) {
+                    var query = {};
+                    query[idField] = id;
                     // pongodb does not allow the id to be part of the update
-                    user.id = undefined;
-                    db.users.update({ id: id }, user)
+                    user[idField] = undefined;
+                    db.users.update(query, user)
                         .done(function (response) {
                             if (response && response.nMatched === 1 && response.nModified === 1) {
                                 if (('Connection' in window && window.navigator.connection.type !== window.Connection.NONE && window.navigator.onLine)) {
@@ -1592,7 +1630,7 @@
                                     models.MobileUser.fn._saveMobilePicture.call(user);
                                 }
                                 // Restore id and return updated user to datasource
-                                user.id = id;
+                                user[idField] = id;
                                 options.success({ total: 1, data: [user] });
                             } else {
                                 options.error.apply(this, error2XHR(new Error('User not found')));
