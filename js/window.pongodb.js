@@ -566,7 +566,7 @@
             var that = this;
             var idField = that._db._idField;
             var dfd = $.Deferred();
-            if ($.type(doc[idField]) !== STRING) {
+            if (!doc[idField]) {
                 // Insertion without an id requires that we create one
                 doc[idField] = (new ObjectId()).toString();
                 // https://localforage.github.io/localForage/#data-api-setitem
