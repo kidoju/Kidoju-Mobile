@@ -487,15 +487,12 @@
                     return options.error.apply(this, error2XHR(err));
                 }
                 // Unless we give one ourselves, the collection will give the item an id
-                window.alert('Inserting...');
                 this._collection.insert(item)
                     .done(function () {
-                        window.alert('New item: ' + item.id);
                         // Note: the item now has an id
                         options.success({ total: 1, data: [item] });
                     })
                     .fail(function (error) {
-                        window.alert('No new item: ' + error.message);
                         options.error.apply(this, error2XHR(error));
                     });
             },
