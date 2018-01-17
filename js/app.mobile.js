@@ -2095,11 +2095,11 @@ window.jQuery.holdReady(true);
                                 if (err instanceof Error) {
                                     // setTimeout ensures we call the global error handler
                                     // @see https://stackoverflow.com/questions/39376805/how-can-i-trigger-global-onerror-handler-via-native-promise-when-runtime-error-o
-                                    setTimeout(function() { throw err; }, 0);
+                                    setTimeout(function () { throw err; }, 0);
                                 }
                             });
                     }
-                })
+                });
         };
 
         /**
