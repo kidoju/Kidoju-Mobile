@@ -51,8 +51,6 @@
             REMOVE: 'remove'
         };
 
-        // TODO Check application upgrade with ping!!!!!
-
         /**
          * Database definition
          */
@@ -82,7 +80,8 @@
 
             function upsert(activity, version, deferred) {
                 /* jshint maxcomplexity: 11 */
-                if ((activity.type === 'Score' && version.type === 'Test') &&
+                // TODO Remove test on type - https://github.com/kidoju/Kidoju-Mobile/issues/154
+                if ((activity.type.toLowerCase() === 'score' && version.type.toLowerCase() === 'test') &&
                     ($.type(constants.authorId) === UNDEFINED || constants.authorId === version.userId) &&
                     ($.type(constants.language) === UNDEFINED || constants.language === language) &&
                     ($.type(constants.rootCategoryId[language]) === UNDEFINED || version.categoryId.startsWith(ROOT_CATEGORY_ID[language]))) {
@@ -111,6 +110,7 @@
                         deferred.resolve(version);
                     }
                 } else {
+                    window.alert('Oops! activity is being removed!');
                     // The activity (especially from synchronization does not belong here)
                     app.db.activities.remove({ id: activityId }).done(function () { deferred.resolve(version); }).fail(deferred.reject);
                 }
@@ -134,6 +134,8 @@
                         app.db.versions.findOne({ id: versionId })
                             .done(function (local) {
                                 var version = $.extend(remote, local);
+                                // TODO This can be removed after updating Kidoju-Server as this fixes test vs. Test and score vs. Score - https://github.com/kidoju/Kidoju-Mobile/issues/154
+                                version.type = version.type.substr(0, 1).toUpperCase() + version.type.substr(1).toLowerCase();
                                 upsert(activity, version, dfd);
                             })
                             .fail(function (err) {
@@ -159,9 +161,11 @@
                 app.db.summaries.update({ id: summaryId }, { activities: version.activities }).done(dfd.resolve).fail(dfd.reject);
             } else {
                 // Get remote summary
-                var summaries = app.rapi.v2.summaries({ language: language }); // TODO , type: 'Test' });
+                var summaries = app.rapi.v2.summaries({ language: language }); // TODO , type: 'Test' }); https://github.com/kidoju/Kidoju-Mobile/issues/154
                 summaries.get(summaryId)
                     .done(function (summary) {
+                        // TODO This can be removed after updating Kidoju-Server as this fixes test vs. Test and score vs. Score - https://github.com/kidoju/Kidoju-Mobile/issues/154
+                        summary.type = summary.type.substr(0, 1).toUpperCase() + summary.type.substr(1).toLowerCase();
                         // Propagate activities from version to summary
                         if (Array.isArray(version.activities)) {
                             summary.activities = version.activities;
