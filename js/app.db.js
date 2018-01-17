@@ -75,6 +75,12 @@
             var summaryId = activity.version.summaryId;
             var versionId = activity.version.versionId;
 
+            logger.debug({
+                message: 'Executing trigger on activity to upsert version',
+                method: 'db.createTrigger',
+                data: { collection: COLLECTION.ACTIVITIES, triggers: [TRIGGER.INSERT, TRIGGER.UPDATE], id: activityId }
+            });
+
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
@@ -110,9 +116,14 @@
                         deferred.resolve(version);
                     }
                 } else {
-                    window.alert('Oops! activity is being removed!');
+                    // window.alert('Warning! activity is being removed!');
                     // The activity (especially from synchronization does not belong here)
                     app.db.activities.remove({ id: activityId }).done(function () { deferred.resolve(version); }).fail(deferred.reject);
+                    logger.debug({
+                        message: 'Removing activity in local database trigger',
+                        method: 'db.createTrigger',
+                        data: { collection: COLLECTION.ACTIVITIES, triggers: [TRIGGER.INSERT, TRIGGER.UPDATE], id: activityId }
+                    });
                 }
             }
 
@@ -155,6 +166,14 @@
             var dfd = new $.Deferred();
             var language = version.language;
             var summaryId = version.summaryId;
+            var versionId = version.id;
+
+            logger.debug({
+                message: 'Executing trigger on version to upsert summary',
+                method: 'db.createTrigger',
+                data: { collection: COLLECTION.VERSIONS, triggers: [TRIGGER.INSERT, TRIGGER.UPDATE], id: versionId }
+            });
+
             if (('Connection' in window && window.navigator.connection.type === window.Connection.NONE) ||
                 (window.device && window.device.platform === 'browser' && !window.navigator.onLine)) {
                 // Update local summary
@@ -186,7 +205,7 @@
             scripts: [
                 function (db) {
                     logger.info({
-                        method: 'migration.execute',
+                        method: 'db.upgrade.push',
                         message: 'Migrating database to ' + db._version
                     });
                     // Basically this first script initializes the database to version 0.3.4
