@@ -194,7 +194,9 @@
                 version: 'Version',
                 // Buttons
                 switch: 'Changer d’utilisateur',
-                tour: 'Faire un tour'
+                tour: 'Faire un tour',
+                // Copyright
+                copyright: 'Copyright &copy; 2013-2018 Memba&reg; Sarl'
             },
             // Sign-in view
             signin: {
@@ -205,7 +207,7 @@
                 page1: 'Jouez les questions, donnez vos réponses et l’application calcule votre score.',
                 page2: 'Suivez et mesurez vos progrès.',
                 // Notification
-                welcome: 'Veuillez sélectionner un service d’identification.',
+                welcome: 'Veuillez sélectionner un service d’identification. Nous ne l’utiliserons pas pour publier à votre insu.',
                 welcome2: '{0}, veuillez sélectionner l’identification par {1} pour renouveler vos autorisations ou pressez <i class="kf kf-user"></i>.'
             },
             // Summary view
