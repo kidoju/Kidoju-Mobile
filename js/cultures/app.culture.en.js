@@ -209,7 +209,7 @@
                 page1: 'Play questions, give answers and let the app compute your score.',
                 page2: 'Track and measure your progresses.',
                 // Notification
-                welcome: 'Please select an authentication provider. We won’t use it to post on your behalf.',
+                welcome: 'Please select an authentication provider. We shall never use it to post on your behalf.',
                 welcome2: '{0}, please select the {1} authentication provider to renew your credentials or press <i class="kf kf-user"></i>.'
             },
             // Summary view
