@@ -9,7 +9,7 @@
 (function (f, define) {
     'use strict';
     define([
-        './vendor/nodeca/pako/pako_deflate.js', // Keep first or change variables below
+        './vendor/nodeca/pako_deflate.js', // Keep first or change variables below
         './window.assert',
         './window.logger'
     ], f);
@@ -17,7 +17,7 @@
 
     'use strict';
 
-    // Depending how pake.js is loaded
+    // Depending how pako.js is loaded
     // We need `pako` for webpack and `window.pako` for grunt mocha
     pako = pako || window.pako;
 
