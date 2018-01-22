@@ -21,4 +21,4 @@ TODO
 
 ## Copyright
 
-Copyright (c) 2013-2017 Memba Sarl. All rights reserved.
+Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
