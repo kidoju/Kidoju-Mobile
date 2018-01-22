@@ -42,7 +42,7 @@ module.exports = function (grunt) {
                 dest: './www/build/bluebird.core.min.js'
             },
             jquery: {
-                src: './js/vendor/jQuery/jquery-3.2.1.min.js',
+                src: './js/vendor/jquery/jquery-3.3.1.min.js',
                 dest: './www/build/jquery.min.js'
             },
             workerlib: {
