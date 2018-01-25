@@ -247,6 +247,9 @@
             "icons": "/images/o_collection/svg/office/%s.svg",
             "images": "/kidoju/%s"
         },
+        "help": {
+            "root":  "https://help.kidoju.com"
+        },
         "mobile": {
             "icons": "./img/icons/%s.svg",
             "pictures": "%susers/%s"

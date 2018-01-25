@@ -141,6 +141,9 @@
             cdn: {
                 icons: url.join('<%- uris.cdn.root %>', convertFormat('<%- uris.cdn.icons %>'))
             },
+            help: {
+                root: '<%- uris.help.root %>'
+            },
             mobile: {
                 icons: convertFormat('<%- uris.mobile.icons %>'),
                 pictures: convertFormat('<%- uris.mobile.pictures %>')

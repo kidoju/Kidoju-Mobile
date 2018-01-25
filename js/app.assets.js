@@ -12,6 +12,8 @@
         './window.assert',
         './window.logger',
         './kidoju.tools',
+        './kidoju.image',
+        './kidoju.dialogs',
         './kidoju.widgets.vectordrawing.toolbar', // For the image editor template
         './app.logger',
         './app.i18n',
@@ -55,13 +57,16 @@
         var VERSION_HIDDEN_FIELD = 'input[type="hidden"][name="version"]';
         // var DATA_SCHEME = 'data://';
         var RX_DATA_URL = /^data:\/\/s\/([^\/]+)\/([^\/]+)\/([^\/]+)$/;
+        var RX_MONGODB_ID = /^[a-f0-9]{24}$/;
+        var RX_LANGUAGE = /^[a-z]{2}$/;
+        var RX_URL = /^https?\:\/\//;
 
         // Ensure app.assets have been loaded from app.config.jsx
-        assert.isPlainObject(app.assets, kendo.format(assert.messages.isPlainObject.default, 'app.assets'));
-        assert.isPlainObject(app.assets.audio, kendo.format(assert.messages.isPlainObject.default, 'app.assets.audio'));
-        assert.isPlainObject(app.assets.icon, kendo.format(assert.messages.isPlainObject.default, 'app.assets.icon'));
-        assert.isPlainObject(app.assets.image, kendo.format(assert.messages.isPlainObject.default, 'app.assets.image'));
-        assert.isPlainObject(app.assets.video, kendo.format(assert.messages.isPlainObject.default, 'app.assets.video'));
+        assert.isPlainObject(app.assets, assert.format(assert.messages.isPlainObject.default, 'app.assets'));
+        assert.isPlainObject(app.assets.audio, assert.format(assert.messages.isPlainObject.default, 'app.assets.audio'));
+        assert.isPlainObject(app.assets.icon, assert.format(assert.messages.isPlainObject.default, 'app.assets.icon'));
+        assert.isPlainObject(app.assets.image, assert.format(assert.messages.isPlainObject.default, 'app.assets.image'));
+        assert.isPlainObject(app.assets.video, assert.format(assert.messages.isPlainObject.default, 'app.assets.video'));
 
         /**
          * Editor configurations
@@ -73,10 +78,11 @@
 
             image: {
                 // Open kendo.dataviz.ui.VectorDrawing without New and Open tools
-                template: '<div data-role="vectordrawing" data-bind="events: { command: onCommand, dialog: onDialog }" data-toolbar="' + kendo.htmlEncode(JSON.stringify({ resizable: true, tools: kendo.ui.VectorDrawingToolBar.fn.options.tools.slice(2) })) + '"></div>',
+                template: '<div data-role="vectordrawing" data-bind="events: { command: onCommand, dialog: onDialog }" data-toolbar="' +
+                    kendo.htmlEncode(JSON.stringify({ resizable: true, tools: kendo.ui.VectorDrawingToolBar.fn.options.tools.slice(2) })) + '"></div>',
                 maximize: true, // Maximize window when opening
                 openImageDialog: function () {
-                    assert.instanceof(kendo.dataviz.ui.VectorDrawing, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.dataviz.ui.VectorDrawing'));
+                    assert.instanceof(kendo.dataviz.ui.VectorDrawing, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.dataviz.ui.VectorDrawing'));
                     var vectorDrawingWidget = this;
                     // We discard some tools to avoid nesting editors and asset managers indefinitely
                     var tools = kidoju.assets.image.collections[0].tools;
@@ -84,7 +90,7 @@
                         return tool !== 'create' && tool !== 'edit';
                     });
                     // Show a nested asset manager dialog without creating and editing
-                    app.dialogs.showAssetManager(
+                    kidoju.dialogs.showAssetManager(
                         kidoju.assets.image,
                         '', // We are not replacing an existing image but adding a new image, so the url is blank
                         { title: 'Insert image' }, // TODO i18n
@@ -110,13 +116,18 @@
                 },
                 // Note: onCommand is defined in the viewModel set in _editSelected of kidoju.widgets.assetmanager and onCommand calls openUrl and saveAs
                 openUrl: function (url) {
-                    assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                    assert.instanceof(kendo.ui.Window, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
                     var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
                     url = $('<a/>').attr('href', url).get(0).href; // Note: a simple way to resolve a relative url
-                    return vectorDrawingWidget.open(url); // TODO promise????? app.notification of errors ????
+                    return vectorDrawingWidget.open(url)
+                        .fail(function () {
+                            if (app.notification && $.isFunction(app.notification.error)) {
+                                app.notification.error('Could not load image ' + url.split('/').pop());  // TODO i18n
+                            }
+                        });
                 },
                 resize: function (e) {
-                    assert.instanceof(kendo.ui.Window, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
+                    assert.instanceof(kendo.ui.Window, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.ui.Window'));
                     var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
                     var container = e.sender.element;
                     vectorDrawingWidget.element
@@ -125,24 +136,49 @@
                     vectorDrawingWidget.resize();
                 },
                 saveAs: function (name, assetManager) {
-                    assert.instanceof(kendo.dataviz.ui.VectorDrawing, this, kendo.format(assert.messages.instanceof.default, 'this', 'kendo.dataviz.ui.VectorDrawing'));
-                    assert.type(STRING, name, kendo.format(assert.messages.type.default, 'name', STRING));
-                    assert.instanceof(kendo.ui.AssetManager, assetManager, kendo.format(assert.messages.instanceof.default, 'assetManager', 'kendo.ui.AssetManager'));
-                    var exportFile = name.toLowerCase().endsWith('.svg') ? this.exportSVG : this.exportImage;
-                    exportFile.bind(this)({ json: true })
+                    assert.instanceof(kendo.dataviz.ui.VectorDrawing, this, assert.format(assert.messages.instanceof.default, 'this', 'kendo.dataviz.ui.VectorDrawing'));
+                    assert.type(STRING, name, assert.format(assert.messages.type.default, 'name', STRING));
+                    assert.instanceof(kendo.ui.AssetManager, assetManager, assert.format(assert.messages.instanceof.default, 'assetManager', 'kendo.ui.AssetManager'));
+                    var that = this;
+                    var pos = name.lastIndexOf('.');
+                    assert.ok(pos > 0, '`name` should have an extension');
+                    var extension = name.substr(pos + 1).toLowerCase();
+                    name = name.substr(0, pos);
+                    var json = false;
+                    if (extension.endsWith('+')) {
+                        json = true;
+                        extension = extension.slice(0, -1);
+                    }
+                    var exportFile = (extension === 'jpg' || extension === 'png') ? that.exportImage : that.exportSVG;
+                    exportFile.bind(that)({ json: json }) // json: true only applies to exportSVG
                         .done(function (dataUri) {
-                            var blob = assetManager._dataUri2Blob(dataUri);
-                            blob.name = name;
+                            // Important: dataUri is actually the result of getImageData for exportImage and it needs to be encoded to make a dataUri
+                            // Beware any error here will be caught in the try/catch of kendo.drawing.canvas.Surface.prototype.getImageData defined in kidoju.widgets.vectordrawing.js
+                            if (extension === 'jpg') {
+                                // Default quality is 50 which is a bit low
+                                dataUri = kidoju.image.jpegEncode(dataUri, 70);
+                            } else if (extension === 'png') {
+                                // We do our own encoding because canvas.toDataURL does no compression
+                                dataUri = kidoju.image.pngEncode(dataUri);
+                            }
+                            var blob = kidoju.image.dataUri2Blob(dataUri);
+                            blob.name = name + '.' + extension;
+                            // Note: _uploadFile calls transport.upload which triggers notifications for success/error
                             assetManager._uploadFile(blob)
-                                .done(function (a) {
-                                    debugger; // TODO
-                                })
-                                .fail(function (err) {
-                                    debugger; // TODO
+                                .done(function () {
+                                    // Update source, so that save dialog will remember the name
+                                    that._source = name + '.' + extension;
+                                    // Also update the dialog title
+                                    var windowWidget = that.element.closest(kendo.roleSelector('window')).data('kendoWindow');
+                                    if (windowWidget instanceof kendo.ui.Window) {
+                                        windowWidget.title(that._source);
+                                    }
                                 });
                         })
-                        .fail(function (error) {
-                            debugger; // TODO
+                        .fail(function () {
+                            if (app.notification && $.isFunction(app.notification.error)) {
+                                app.notification.error('Could not export ' + extension + ' file.');  // TODO i18n
+                            }
                         });
                 }
             }
@@ -164,14 +200,19 @@
              * @returns {{}}
              */
             websearch: function (type, params) {
-                assert.type(STRING, 'type', kendo.format(assert.messages.type.default, 'type', STRING));
-                assert.isPlainObject(params, kendo.format(assert.messages.isPlainObject.default, 'params'));
+                assert.type(STRING, 'type', assert.format(assert.messages.type.default, 'type', STRING));
+                assert.isPlainObject(params, assert.format(assert.messages.isPlainObject.default, 'params'));
                 return deepExtend({
                     name: 'Google', // unfortunately i18n.culture is not yet available
                     pageSize: params.pageSize, // Google returns a maximum of 10 items
                     serverPaging: true,
                     serverFiltering: true,
                     transport: {
+
+                        /**
+                         * Read transport
+                         * @param options
+                         */
                         read: function (options) {
                             var qs = options.data;
                             // options.data.filter is built by the assetmanager search box
@@ -183,6 +224,7 @@
                                 .done(options.success) // response items have mime, size and url
                                 .fail(options.error);
                         }
+
                     }
                 }, params);
             },
@@ -193,10 +235,10 @@
              * @param params
              */
             summary: function (type, params) {
-                assert.type(STRING, 'type', kendo.format(assert.messages.type.default, 'type', STRING));
-                assert.type(OBJECT, params, kendo.format(assert.messages.type.default, 'params', OBJECT));
+                assert.type(STRING, 'type', assert.format(assert.messages.type.default, 'type', STRING));
+                assert.type(OBJECT, params, assert.format(assert.messages.type.default, 'params', OBJECT));
                 return deepExtend({
-                    name: 'Project', // TODO i18n.culture.assets.collections.summary,
+                    name: 'Project', // TODO i18n.culture.assets.collections.summary, but i18n is not yet loaded
                     tools: ['upload', 'create', 'edit', 'destroy'],
                     editor: editors[type],
                     // pageSize: 12,
@@ -209,7 +251,7 @@
                          * @param options
                          */
                         create: function (options) {
-                            debugger;
+                            throw new Error('Use upload transport');
                         },
 
                         /**
@@ -220,14 +262,16 @@
                             var locale = i18n.locale();
                             var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
                             var data = options.data;
-                            assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
-                            assert.type(STRING, data.url, kendo.format(assert.messages.type.default, 'data.url', STRING));
+
+                            assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
+                            assert.type(STRING, data.url, assert.format(assert.messages.type.default, 'data.url', STRING));
                             var matches = data.url.match(RX_DATA_URL);
-                            assert.equal(4, matches.length, kendo.format(assert.messages.equal.default, 'matches.length', 4));
-                            assert.equal(locale, matches[1], kendo.format(assert.messages.equal.default, 'matches[1]', locale));
-                            assert.equal(params.summaryId, matches[2], kendo.format(assert.messages.equal.default, 'matches[2]', params.summaryId));
+                            assert.equal(4, matches.length, assert.format(assert.messages.equal.default, 'matches.length', 4));
+                            assert.equal(locale, matches[1], assert.format(assert.messages.equal.default, 'matches[1]', locale));
+                            assert.equal(params.summaryId, matches[2], assert.format(assert.messages.equal.default, 'matches[2]', params.summaryId));
+
                             // Delete file
-                            rapi.v1.content.deleteFile(matches[1], matches[2], matches[3])
+                            rapi.v1.content.deleteFile(locale, params.summaryId, matches[3])
                                 .done(function (response) {
                                     logger.debug({
                                         message: 'file deleted',
@@ -235,8 +279,8 @@
                                         data: deepExtend({ language: locale, summaryId: params.summaryId, url: data.url }, response)
                                     });
                                     options.success({ data: [data], total: 1 });
-                                    assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                    app.notification.success(i18n.culture.editor.notifications.fileDeleteSuccess); // TODO
+                                    assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                    app.notification.success(i18n.culture.editor.notifications.fileDeleteSuccess);
                                 })
                                 .fail(function (xhr, status, error) {
                                     logger.error({
@@ -245,8 +289,8 @@
                                         data: { status: status, error: error, reponse: xhr.responseText }
                                     });
                                     options.error(xhr, status, error);
-                                    assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                    app.notification.error(i18n.culture.editor.notifications.fileDeleteFailure); // TODO
+                                    assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                    app.notification.error(i18n.culture.editor.notifications.fileDeleteFailure);
                                 });
                         },
 
@@ -256,16 +300,18 @@
                          */
                         read: function (options) {
                             var locale = i18n.locale();
-                            var params = JSON.parse(
-                                $(VERSION_HIDDEN_FIELD).val());
-                            rapi.v1.content.getAllSummaryFiles(locale,
-                                params.summaryId).done(function (response) {
-                                assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
-                                assert.isArray(response.data, kendo.format(assert.messages.isArray.default, 'response.data'));
-                                assert.type(NUMBER, response.total, kendo.format(assert.messages.type.default, 'response.total', NUMBER));
-                                options.success(response);
+                            var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
+                            assert.match(RX_LANGUAGE, locale, assert.format(assert.messages.match.default, 'locale', RX_LANGUAGE));
+                            assert.match(RX_MONGODB_ID, params.summaryId, assert.format(assert.messages.match.default, params.summaryId, RX_MONGODB_ID));
 
-                                // TODO Compute total storage size to display in a progress bar
+                            // Get all project files
+                            rapi.v1.content.getAllSummaryFiles(locale, params.summaryId).done(function (response) {
+                                assert.isPlainObject(response, assert.format(assert.messages.isPlainObject.default, 'response'));
+                                assert.isArray(response.data, assert.format(assert.messages.isArray.default, 'response.data'));
+                                assert.type(NUMBER, response.total, assert.format(assert.messages.type.default, 'response.total', NUMBER));
+
+                                // The asset manager takes care of filtering assets by type
+                                options.success(response);
 
                             }).fail(function (xhr, status, error) {
                                 logger.error({
@@ -274,8 +320,8 @@
                                     data: { status: status, error: error, reponse: xhr.responseText }
                                 });
                                 options.error(xhr, status, error);
-                                assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                app.notification.error(i18n.culture.editor.notifications.filesLoadFailure); // TODO
+                                assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                app.notification.error(i18n.culture.editor.notifications.filesLoadFailure);
                             });
                         },
 
@@ -284,38 +330,32 @@
                          * @param options
                          */
                         update: function (options) {
-                            throw new Error('Should not be used');
+                            throw new Error('Use upload transport');
                         },
 
                         /**
-                         * Import transport
-                         * Note: Import is not really a kendo.data.DataSource transport but we make it available in the DataSource as transport.import
-                         * to import web search images designated by urls into this summary collection
-                         * @param options
-                         */
-                        //
-                        import: function (options) {
-                            debugger;
-                        },
-
-                        /**
-                         * Upload transport
-                         * Note: Upload is not really a kendo.data.DataSource transport but we make it available in the DataSource as transport.upload
+                         * Upload transport for create and update
+                         * Note: Upload is not a kendo.data.DataSource CRUD transport but we make it available in the DataSource as transport.upload
+                         * Important: Upload is called from the kendo.ui.AssetManager upon clicking the upload button or dropping files
                          * @param options
                          */
                         upload: function (options) {
                             var locale = i18n.locale();
                             var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
                             var data = options.data;
+
+                            assert.match(RX_LANGUAGE, locale, assert.format(assert.messages.match.default, 'locale', RX_LANGUAGE));
+                            assert.match(RX_MONGODB_ID, params.summaryId, assert.format(assert.messages.match.default, params.summaryId, RX_MONGODB_ID));
                             // Note a window.File is a sort of window.Blob with a name
-                            // assert.instanceof(window.File, data.file, kendo.format(assert.messages.instanceof.default, 'data.file', 'window.File'));
-                            assert.instanceof(window.Blob, data.file, kendo.format(assert.messages.instanceof.default, 'data.file', 'window.Blob'));
-                            assert.type(STRING, data.file.name, kendo.format(assert.messages.type.default, 'data.file.name', STRING));
+                            // assert.instanceof(window.File, data.file, assert.format(assert.messages.instanceof.default, 'data.file', 'window.File'));
+                            assert.instanceof(window.Blob, data.file, assert.format(assert.messages.instanceof.default, 'data.file', 'window.Blob'));
+                            assert.type(STRING, data.file.name, assert.format(assert.messages.type.default, 'data.file.name', STRING));
                             logger.debug({
                                 message: 'getting a signed url from aws',
                                 method: 'summary.transport.upload',
                                 data: { language: locale, summaryId: params.summaryId }
                             });
+
                             // Get a signed upload url from Amazon S3
                             rapi.v1.content.getUploadUrl(locale, params.summaryId, data.file)
                                 .done(function (uploadUrl) {
@@ -332,11 +372,11 @@
                                             }
                                         })
                                         .done(function (response) {
-                                            assert.isPlainObject(response, kendo.format(assert.messages.isPlainObject.default, 'response'));
-                                            assert.type(STRING, response.name, kendo.format(assert.messages.type.default, 'response.name', STRING));
-                                            assert.type(NUMBER, response.size, kendo.format(assert.messages.type.default, 'response.size', NUMBER));
-                                            assert.type(STRING, response.type, kendo.format(assert.messages.type.default, 'response.type', STRING));
-                                            assert.type(STRING, response.url, kendo.format(assert.messages.type.default, 'response.url', STRING));
+                                            assert.isPlainObject(response, assert.format(assert.messages.isPlainObject.default, 'response'));
+                                            assert.type(STRING, response.name, assert.format(assert.messages.type.default, 'response.name', STRING));
+                                            assert.type(NUMBER, response.size, assert.format(assert.messages.type.default, 'response.size', NUMBER));
+                                            assert.type(STRING, response.type, assert.format(assert.messages.type.default, 'response.type', STRING));
+                                            assert.type(STRING, response.url, assert.format(assert.messages.type.default, 'response.url', STRING));
                                             logger.debug({
                                                 message: 'new file/blob uploaded',
                                                 method: 'summary.transport.upload',
@@ -344,8 +384,8 @@
                                             });
                                             options.success({ data: [response], total: 1 });
                                             $(document).trigger('progress.kendoAssetManager', [1, 'complete']); // TODO trigger progress on dataSource
-                                            assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                            app.notification.success(i18n.culture.editor.notifications.fileCreateSuccess); // TODO
+                                            assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                            app.notification.success(i18n.culture.editor.notifications.fileCreateSuccess);
                                         })
                                         .fail(function (xhr, status, error) {
                                             logger.error({
@@ -354,8 +394,8 @@
                                                 data: { status: status, error: error, response: xhr.responseText }
                                             });
                                             options.error(xhr, status, error);
-                                            assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                            app.notification.error(i18n.culture.editor.notifications.fileCreateFailure); // TODO
+                                            assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                            app.notification.error(i18n.culture.editor.notifications.fileCreateFailure);
                                         });
                                 })
                                 .fail(function (xhr, status, error) {
@@ -365,8 +405,52 @@
                                         data: { status: status, error: error, reponse: xhr.responseText }
                                     });
                                     options.error(xhr, status, error);
-                                    assert.instanceof(kendo.ui.Notification, app.notification, kendo.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                                    app.notification.error(i18n.culture.editor.notifications.uploadUrlFailure); // TODO
+                                    assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                    app.notification.error(i18n.culture.editor.notifications.uploadUrlFailure);
+                                });
+                        },
+
+                        /**
+                         * Import transport
+                         * Note: Import is not a kendo.data.DataSource CRUD transport but we make it available in the DataSource as transport.import
+                         * Important: Import is called from kidoju.dialogs upon clicking the OK button of the asset manager dialog, when the url starts with http(s)://,
+                         * that is when the url is not from amazon s3
+                         * @param options
+                         */
+                        import: function (options) {
+                            var locale = i18n.locale();
+                            var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
+                            var data = options.data;
+
+                            assert.match(RX_LANGUAGE, locale, assert.format(assert.messages.match.default, 'locale', RX_LANGUAGE));
+                            assert.match(RX_MONGODB_ID, params.summaryId, assert.format(assert.messages.match.default, params.summaryId, RX_MONGODB_ID));
+                            assert.match(RX_URL, data.url, assert.format(assert.messages.match.default, data.url, RX_URL));
+
+                            window.app.rapi.v1.content.importFile(locale, params.summaryId, data.url)
+                                .done(function (response) {
+                                    assert.isPlainObject(response, assert.format(assert.messages.isPlainObject.default, 'response'));
+                                    assert.type(STRING, response.name, assert.format(assert.messages.type.default, 'response.name', STRING));
+                                    assert.type(NUMBER, response.size, assert.format(assert.messages.type.default, 'response.size', NUMBER));
+                                    assert.type(STRING, response.type, assert.format(assert.messages.type.default, 'response.type', STRING));
+                                    assert.type(STRING, response.url, assert.format(assert.messages.type.default, 'response.url', STRING));
+                                    logger.debug({
+                                        message: 'url imported',
+                                        method: 'summary.transport.import',
+                                        data: deepExtend({ language: locale, summaryId: params.summaryId }, response)
+                                    });
+                                    options.success({ data: [response], total: 1 });
+                                    assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                    app.notification.success(i18n.culture.editor.notifications.urlImportSuccess);
+                                })
+                                .fail(function (xhr, status, error) {
+                                    logger.error({
+                                        message: 'url import error',
+                                        method: 'summary.transport.import',
+                                        data: { status: status, error: error, response: xhr.responseText }
+                                    });
+                                    options.error(xhr, status, error);
+                                    assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                                    app.notification.error(i18n.culture.editor.notifications.urlImportFailure);
                                 });
                         }
                     }
