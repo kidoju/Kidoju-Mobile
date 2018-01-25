@@ -4035,12 +4035,13 @@ window.jQuery.holdReady(true);
                 var reviewState = viewModel.get(VIEW_MODEL.USER.REVIEW_STATE);
                 reviewState = reviewState || { counter: 0 };
 
-                // TODO Remove
+                /*
                 window.alert(
                     'inAppBrowser: ' + mobile.support.inAppBrowser + '\n' +
                     'version: ' + reviewState.version + '\n' +
                     'counter: ' + reviewState.counter
                 );
+                */
 
                 // Never rate the same version twice + only ask every 5 times (this is called after signing in with a PIN, before redirecting to the categories tree)
                 // if (mobile.support.inAppBrowser) {
@@ -4090,7 +4091,8 @@ window.jQuery.holdReady(true);
 
                 // Update reviewState and save without notification
                 viewModel.set(VIEW_MODEL.USER.REVIEW_STATE, reviewState);
-                viewModel.users.sync(false);
+                viewModel.get(VIEW_MODEL.USER.$).dirty = true; // Otherwise it won't be saved
+                viewModel.users.sync(false); // false hides notifications
 
             }
 
