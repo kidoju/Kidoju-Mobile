@@ -120,6 +120,10 @@ REM copy MathQUill
 XCOPY ..\Kidoju.Widgets\src\js\vendor\mathquill .\js\vendor\mathquill /C /E /I /R /Y
 ATTRIB +R .\js\vendor\mathquill\*.* /S
 
+REM copy Pako
+XCOPY ..\Kidoju.Widgets\src\js\vendor\nodeca .\js\vendor\nodeca /C /E /I /R /Y
+ATTRIB +R .\js\vendor\nodeca\*.* /S
+
 REM copy valve/fingerprintjs
 XCOPY ..\Kidoju.Server\client\js\vendor\valve .\js\vendor\valve /C /E /I /R /Y
 ATTRIB +R .\js\vendor\valve\*.* /S
