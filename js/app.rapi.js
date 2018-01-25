@@ -548,17 +548,6 @@
                 return headers;
             },
 
-            /**
-             * Get a safe file name to upload to aws s3
-             * @param fileName
-             */
-            safeFileName: function (fileName) {
-                var pos = fileName.lastIndexOf('.');
-                // In fileName.substr(0, pos), any non-alphanumeric character shall be replaced by underscores
-                // Then we shall simplify duplicated underscores and trim underscores at both ends
-                return fileName.substr(0, pos).replace(/[^\w\\\/]+/gi, '_').replace(/_{2,}/g, '_').replace(/(^_|_$)/, '') + '.' + fileName.substr(pos + 1);
-            },
-
             /* Blocks are nested too deeply. */
             /* jshint -W073 */
 
@@ -1463,18 +1452,16 @@
                         // See also https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications
                         assert.instanceof(window.File, file, assert.format(assert.messages.instanceof.default, 'file', 'File'));
                     }
-                    // Convert name for compatibility with dbutils.checkNoSQLInjection
-                    var fileId = rapi.util.safeFileName(file.name);
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.upload, language, summaryId);
                     // Log
                     logger.info({
                         message: '$.ajax',
                         method: 'v1.content.getUploadUrl',
-                        data: { url: url, fileName: file.name, s3Name: fileId, type: file.type, size: file.size }
+                        data: { url: url, fileName: file.name, type: file.type, size: file.size }
                     });
                     // $.ajax
                     return $.ajax({
-                        data: { fileId: fileId, type: file.type, size: file.size },
+                        data: { name: file.name, type: file.type, size: file.size },
                         headers: rapi.util.getHeaders({ security: true, trace: true }),
                         type: GET,
                         url: url
@@ -1526,23 +1513,50 @@
                             return xhr;
                         }
                     }).done(function () {
+                        // url: signedUrl.substr(0, signedUrl.indexOf('?'))
+                        // A typical signedUrl would be like
+                        // https://s3.amazonaws.com/memba.test/s/en/57d26b007dd0be0019024c92/Trans_dichlorotetraamminecobalt_III.png?AWSAccessKeyId=AKIAJL2KUGGU4SX7MS4Q&Cache-Control=public%2C%20max-age%3D7776000%2C%20s-maxage%3D604800&Content-Type=image%2Fpng&Expires=1490803058&Signature=kboNQaN%2BbGG2VHKGs5QTGJeV6cA%3D&x-amz-acl=public-read
+                        // This first group which is discarded is the bucket: https://s3.amazonaws.com/memba.test
+                        // The second group which is kept is the path to the file: /s/en/57d26b007dd0be0019024c92/Trans_dichlorotetraamminecobalt_III.png
+                        // The third group which is also discarded is the query string
+                        // We would have liked to make front end code completely agnostic to the backend, that is Amazon S3
+                        // See https://github.com/jlchereau/Kidoju-Server/issues/154
+                        var url = signedUrl.replace(/^(https:\/\/[\w\.]+\/[\w\.]+)(\/s\/[a-z]{2}\/[0-9a-f]{24}\/[^\?]+)([\s\S]+)$/, 'data:/$2');
                         // Note, we use a deferred to return the url of the uploaded file
                         dfd.resolve({
-                            name: rapi.util.safeFileName(file.name),
+                            name: url.split('/').pop(),
                             size: file.size,
                             type: file.type,
-                            // url: signedUrl.substr(0, signedUrl.indexOf('?'))
-                            // A typical signedUrl would be like
-                            // https://s3.amazonaws.com/memba.test/s/en/57d26b007dd0be0019024c92/Trans_dichlorotetraamminecobalt_III.png?AWSAccessKeyId=AKIAJL2KUGGU4SX7MS4Q&Cache-Control=public%2C%20max-age%3D7776000%2C%20s-maxage%3D604800&Content-Type=image%2Fpng&Expires=1490803058&Signature=kboNQaN%2BbGG2VHKGs5QTGJeV6cA%3D&x-amz-acl=public-read
-                            // This first group which is discarded is the bucket: https://s3.amazonaws.com/memba.test
-                            // The second group which is kept is the path to the file: /s/en/57d26b007dd0be0019024c92/Trans_dichlorotetraamminecobalt_III.png
-                            // The third group which is also discarded is the query string
-                            // We would have liked to make front end code completely agnostic to the backend, that is Amazon S3
-                            // See https://github.com/jlchereau/Kidoju-Server/issues/154
-                            url: signedUrl.replace(/^(https:\/\/[\w\.]+\/[\w\.]+)(\/s\/[a-z]{2}\/[0-9a-f]{24}\/[^\?]+)([\s\S]+)$/, 'data:/$2')
+                            url: url
                         });
                     }).fail(dfd.reject);
                     return dfd.promise();
+                },
+
+                /**
+                 * Import a file from an http(s) url
+                 * @param language
+                 * @param summaryId
+                 * @param fileUrl
+                 * @returns {*}
+                 */
+                importFile: function (language, summaryId, fileUrl) {
+                    assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
+                    assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
+                    assert.match(RX_URL, fileUrl, assert.format(assert.messages.match.default, 'fileUrl', RX_URL));
+                    logger.info({
+                        message: '$.ajax',
+                        method: 'v1.content.importFile',
+                        data: { fileUrl: fileUrl }
+                    });
+                    var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.files, language, summaryId);
+                    return $.ajax({
+                        contentType: JSON_CONTENT_TYPE,
+                        data: JSON.stringify({ url: fileUrl }),
+                        headers: rapi.util.getHeaders({ security: true, trace: true }),
+                        type: PUT,
+                        url: url
+                    });
                 },
 
                 /**
@@ -1567,7 +1581,7 @@
                         .done(function (response, status, xhr) {
                             if (xhr.status === 200) {
                                 var blob = new window.Blob([response], { type: xhr.getResponseHeader('content-type') });
-                                blob.name = rapi.util.safeFileName(url.split('/').pop());
+                                blob.name = url.split('/').pop();
                                 dfd.resolve(blob);
                             } else {
                                 dfd.reject(xhr, status, 'error');
