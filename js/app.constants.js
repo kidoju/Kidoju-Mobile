@@ -42,11 +42,11 @@
 
         // These constants lock the app to certain values
         app.constants = {
+            // The application id
+            appId: 'com.kidoju.mobile',
             // The application name
             appName: 'Kidoju',
             // TODO: logo to display in drawer...
-            // The application id
-            appId: 'com.kidoju.mobile',
             // The application scheme
             appScheme: 'com.kidoju.mobile://',
             // For app store ratings
@@ -70,6 +70,8 @@
                 // For windows (untested)
                 windows: 'ms-windows-store://pdp/?ProductId=9wzdncrfj140'
             },
+            // Help system
+            helpUrl: 'https://help.kidoju.com/', // TODO Add Mobile section
             // The authorId to search summaries from (until we support organizationId)
             authorId: undefined, // '56d6ee31bc039c1a00062950',
             // The app language

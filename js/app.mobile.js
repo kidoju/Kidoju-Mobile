@@ -180,10 +180,9 @@ window.jQuery.holdReady(true);
             SUMMARY: 'summary',
             SIGNIN: 'signin',
             SYNC: 'sync',
-            TOUR: 'tour',
             USER: 'user'
         };
-        var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.ACTIVITIES, VIEW.CATEGORIES, VIEW.CORRECTION, VIEW.FINDER, VIEW.NETWORK, VIEW.PLAYER, VIEW.SCORE, VIEW.SETTINGS, VIEW.SUMMARY, VIEW.TOUR, VIEW.USER].join('|') + ')', 'i');
+        var RX_OFFLINE_PAGES = new RegExp('^(' + [VIEW.ACTIVITIES, VIEW.CATEGORIES, VIEW.CORRECTION, VIEW.FINDER, VIEW.NETWORK, VIEW.PLAYER, VIEW.SCORE, VIEW.SETTINGS, VIEW.SUMMARY, VIEW.USER].join('|') + ')', 'i');
         var DISPLAY = {
             INLINE: 'inline-block',
             NONE: 'none',
@@ -262,6 +261,7 @@ window.jQuery.holdReady(true);
             },
             ACTION: {
                 APP_REVIEW: 'App Review',
+                HELP: 'Help',
                 INIT: 'Init',
                 PLAY: 'Play',
                 SAVE: 'Save',
@@ -1629,9 +1629,6 @@ window.jQuery.holdReady(true);
                     showDrawerButton = true;
                     showHomeButton = true;
                     break;
-                case HASH + VIEW.TOUR:
-                    showDrawerButton = true;
-                    break;
                 case HASH + VIEW.SYNC:
                     break;
                 case HASH + VIEW.USER:
@@ -2377,6 +2374,33 @@ window.jQuery.holdReady(true);
         };
 
         /**
+         * Open help
+         * @private
+         */
+        mobile._openHelp = function () {
+            assert.type(STRING, app.constants && app.constants.helpUrl, assert.format(assert.messages.type.default, 'app.constants.helpUrl', STRING));
+            logger.debug({
+                message: 'Opening the help content',
+                method: 'mobile._openHelp',
+                data: { url: app.constants.helpUrl }
+            });
+            if (mobile.support.inAppBrowser) {
+                // We are simply opening a custom url scheme and we do not need SafariViewController for that
+                // Note that this does not work in the Android Emulator because the play store app is missing
+                mobile.InAppBrowser.open(app.constants.helpUrl, '_system');
+            } else {
+                window.open(app.constants.helpUrl)
+            }
+            if (mobile.support.ga) {
+                mobile.ga.trackEvent(
+                    ANALYTICS.CATEGORY.GENERAL,
+                    ANALYTICS.ACTION.HELP,
+                    app.constants.helpUrl
+                );
+            }
+        };
+
+        /**
          * Event handler triggered when clicking back (on platforms android and browser)
          * @param e
          */
@@ -2462,8 +2486,8 @@ window.jQuery.holdReady(true);
                 case 'settings':
                     mobile.application.navigate(HASH + VIEW.SETTINGS + '?userId=' + encodeURIComponent(userId));
                     break;
-                case 'tour':
-                    mobile.application.navigate(HASH + VIEW.TOUR);
+                case 'help':
+                    mobile._openHelp();
                     break;
             }
         };
@@ -4010,6 +4034,13 @@ window.jQuery.holdReady(true);
 
                 var reviewState = viewModel.get(VIEW_MODEL.USER.REVIEW_STATE);
                 reviewState = reviewState || { counter: 0 };
+
+                // TODO Remove
+                window.alert(
+                    'inAppBrowser: ' + mobile.support.inAppBrowser + '\n' +
+                    'version: ' + reviewState.version + '\n' +
+                    'counter: ' + reviewState.counter
+                );
 
                 // Never rate the same version twice + only ask every 5 times (this is called after signing in with a PIN, before redirecting to the categories tree)
                 // if (mobile.support.inAppBrowser) {
