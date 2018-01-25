@@ -42,7 +42,7 @@
             },
             // Activities view
             activities: {
-                viewTitle: 'Activités',
+                viewTitle: 'Historique',
                 buttonGroup: {
                     chart: 'Graphique',
                     list: 'Liste'
@@ -97,7 +97,7 @@
             },
             // Drawer
             drawer: {
-                activities: 'Activités',
+                activities: 'Historique',
                 categories: 'Explorer',
                 favourites: 'Favoris',
                 scan: 'QR Code',
