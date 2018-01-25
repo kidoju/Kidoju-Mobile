@@ -90,7 +90,7 @@
     "msvs_version": "2015"
   },
   "dependencies": {
-    "cordova-android": "^6.4.0",
+    "cordova-android": "^7.0.0",
     "cordova-browser": "^5.0.3",
     "cordova-ios": "^4.5.4",
     "cordova-plugin-badge": "^0.8.6",
@@ -141,7 +141,6 @@
     },
     "platforms": [
       "browser",
-      "android",
       "ios",
       "windows"
     ]

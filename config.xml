@@ -16,7 +16,7 @@
     <preference name="AndroidLaunchMode" value="singleTask" />
     <preference name="windows-target-version" value="10.0" />
     <preference name="windows-arch" value="x64" />
-    <preference name="phonegap-version" value="cli-7.1.0" />
+    <preference name="phonegap-version" value="cli-8.0.0" />
     <preference name="pgb-builder-version" value="2" />
     <platform name="android">
         <icon density="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
@@ -142,8 +142,8 @@
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIViewControllerBasedStatusBarAppearance">
         <false />
     </edit-config>
+    <engine name="android" spec="^7.0.0" />
     <engine name="browser" spec="^5.0.3" />
-    <engine name="android" spec="^6.4.0" />
     <engine name="ios" spec="^4.5.4" />
     <engine name="windows" spec="^5.0.0" />
     <plugin name="cordova-plugin-google-analytics" spec="^1.8.3" />
