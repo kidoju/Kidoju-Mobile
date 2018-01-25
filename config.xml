@@ -158,7 +158,7 @@
         <variable name="ANDROID_HOST" value=" " />
         <variable name="ANDROID_PATHPREFIX" value="/" />
     </plugin>
-    <plugin name="cordova-plugin-inappbrowser" spec="~2.0.1" />
+    <plugin name="cordova-plugin-inappbrowser" spec="^2.0.1" />
     <plugin name="phonegap-plugin-barcodescanner" spec="^7.0.2">
         <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
     </plugin>
