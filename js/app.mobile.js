@@ -262,6 +262,7 @@ window.jQuery.holdReady(true);
             },
             ACTION: {
                 APP_REVIEW: 'App Review',
+                FEEDBACK: 'Feedback',
                 HELP: 'Help',
                 INIT: 'Init',
                 PLAY: 'Play',
@@ -2393,7 +2394,7 @@ window.jQuery.holdReady(true);
                 // Note that this does not work in the Android Emulator because the play store app is missing
                 mobile.InAppBrowser.open(app.constants.helpUrl, '_system');
             } else {
-                window.open(app.constants.helpUrl)
+                window.open(app.constants.helpUrl, '_system')
             }
             if (mobile.support.ga) {
                 mobile.ga.trackEvent(
@@ -3414,8 +3415,19 @@ window.jQuery.holdReady(true);
          * Event handler triggered when clicking the feedback option in the action sheet displayed from the GO button of summaries
          */
         mobile.onSummaryActionFeedback = function () {
+            var url = kendo.format(app.constants.feedbackUrl, i18n.locale(), encodeURIComponent(viewModel.summary.summaryUri$()));
             // targeting _system should open the web browser instead of the InApp browser (target = _blank)
-            window.open(kendo.format('https://www.kidoju.com/support/{0}/contact?about={1}', i18n.locale(), encodeURIComponent(viewModel.summary.summaryUri$())), '_system');
+            if (mobile.support.inAppBrowser) {
+                mobile.InAppBrowser.open(url, '_system');
+            } else {
+                window.open(url, '_system');
+            }
+            if (mobile.support.ga) {
+                mobile.ga.trackEvent(
+                    ANALYTICS.CATEGORY.GENERAL,
+                    ANALYTICS.ACTION.FEEDBACK
+                );
+            }
         };
 
         /**
@@ -4032,16 +4044,20 @@ window.jQuery.holdReady(true);
             var platform = window.device && window.device.platform && window.device.platform.toLowerCase();
             var appStoreUrl = app.constants.appStoreUrl[platform];
 
-            // appStoreUrl = 'http://www.kidoju.com'; // Note: browser platform has no appStoreUrl, so uncomment to test with Chrome on Windows
-            // window.alert(window.device.platform + ': ' + mobile.support.inAppBrowser);
+            if (app.DEBUG && platform === 'browser') {
+                // Note: browser platform has no appStoreUrl unless we give one here for testing
+                appStoreUrl = 'http://www.kidoju.com';
+            }
 
             if (appStoreUrl) {
 
+                var dfd = $.Deferred();
                 var reviewState = viewModel.get(VIEW_MODEL.USER.REVIEW_STATE);
                 reviewState = reviewState || { counter: 0 };
 
                 /*
                 window.alert(
+                    'platform: ' + platform + '\n' +
                     'inAppBrowser: ' + mobile.support.inAppBrowser + '\n' +
                     'version: ' + reviewState.version + '\n' +
                     'counter: ' + reviewState.counter
@@ -4049,8 +4065,7 @@ window.jQuery.holdReady(true);
                 */
 
                 // Never rate the same version twice + only ask every 5 times (this is called after signing in with a PIN, before redirecting to the categories tree)
-                // if (mobile.support.inAppBrowser) {
-                if (mobile.support.inAppBrowser && (reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
+                if ((reviewState.version !== app.version) && ((reviewState.counter + 1) % 5 === 0)) {
 
                     var culture = i18n.culture.appStoreReview;
 
@@ -4071,7 +4086,11 @@ window.jQuery.holdReady(true);
                                 });
                                 // We are simply opening a custom url scheme and we do not need SafariViewController for that
                                 // Note that this does not work in the Android Emulator because the play store app is missing
-                                mobile.InAppBrowser.open(appStoreUrl, '_system');
+                                if (mobile.support.inAppBrowser) {
+                                    mobile.InAppBrowser.open(appStoreUrl, '_system');
+                                } else {
+                                    window.open(appStoreUrl, '_system');
+                                }
                                 if (mobile.support.ga) {
                                     mobile.ga.trackEvent(
                                         ANALYTICS.CATEGORY.GENERAL,
@@ -4085,6 +4104,7 @@ window.jQuery.holdReady(true);
                             } else { // Cancel
                                 reviewState.counter++;
                             }
+                            dfd.resolve(reviewState);
                         },
                         kendo.format(culture.title, app.constants.appName),
                         [culture.buttons.ok.text, culture.buttons.cancel.text]
@@ -4092,13 +4112,15 @@ window.jQuery.holdReady(true);
 
                 } else {
                     reviewState.counter++;
+                    dfd.resolve(reviewState);
                 }
 
-                // Update reviewState and save without notification
-                viewModel.set(VIEW_MODEL.USER.REVIEW_STATE, reviewState);
-                viewModel.get(VIEW_MODEL.USER.$).dirty = true; // Otherwise it won't be saved
-                viewModel.users.sync(false); // false hides notifications
-
+                dfd.promise().done(function (reviewState) {
+                    // Update reviewState and save without notification
+                    // viewModel.set(VIEW_MODEL.USER.REVIEW_STATE, reviewState); // This won't set the dirty field to sync
+                    viewModel.get(VIEW_MODEL.USER.$).set('reviewSteate', reviewState);
+                    viewModel.users.sync(false); // false hides notifications
+                });
             }
 
         };

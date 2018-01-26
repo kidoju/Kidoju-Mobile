@@ -70,6 +70,8 @@
                 // For windows (untested)
                 windows: 'ms-windows-store://pdp/?ProductId=9wzdncrfj140'
             },
+            // Feedback url
+            feedbackUrl: 'https://www.kidoju.com/support/{0}/contact?about={1}', // TODO gitter?
             // Help system
             helpUrl: 'https://help.kidoju.com/', // TODO Add Mobile section
             // The authorId to search summaries from (until we support organizationId)
