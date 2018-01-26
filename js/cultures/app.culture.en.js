@@ -162,7 +162,7 @@
                 userSaveFailure: 'There was an error saving your user profile.',
                 userSaveSuccess: 'User profile successfully saved.',
                 userSignInSuccess: 'Signed in as {0}.',
-                usersQueryFailure: 'There was an error loading the users.',
+                usersQueryFailure: 'There was an error loading users.',
                 versionLoadFailure: 'There was an error loading version data.',
                 versionsLoadFailure: 'There was an error loading versions.'
             },
