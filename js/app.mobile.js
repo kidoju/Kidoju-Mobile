@@ -1598,10 +1598,12 @@ window.jQuery.holdReady(true);
                     showLastPageButton = !viewModel.isLastPage$();
                     showScoreButton = viewModel.isLastPage$();
                     break;
+                /*
                 case HASH + VIEW.FAVOURITES:
                     showDrawerButton = true;
                     showSyncButton = true;
                     break;
+                */
                 case HASH + VIEW.FINDER:
                     showDrawerButton = true;
                     showHomeButton = true;
@@ -3903,7 +3905,8 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarSyncClick = function (e) {
-            mobile.application.navigate(HASH + VIEW.SYNC);
+            // mobile.application.navigate(HASH + VIEW.SYNC);
+            mobile.application.navigate(HASH + VIEW.SIGNIN + '?page=' + encodeURIComponent(SIGNIN_PAGE) + '&userId=' + encodeURIComponent(viewModel.get(VIEW_MODEL.USER.ID)));
         };
 
         /**
