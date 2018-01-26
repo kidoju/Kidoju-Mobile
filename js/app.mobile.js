@@ -244,7 +244,8 @@ window.jQuery.holdReady(true);
         var SELECTORS = {
             PIN: '.pin'
         };
-        var RX_URL_SCHEME = new RegExp('^' + app.constants.appScheme + '([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
+        var RX_APP_SCHEME = new RegExp('^' + app.constants.appScheme + '([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
+        var RX_HELP_URL = new RegExp('^' + app.constants.helpUrl);
         var RX_REVIEW_SCHEMES = /^(itms-apps|market|ms-windows-store):\/\//;
         var DEFAULT = {
             ROOT_CATEGORY_ID: {
@@ -330,8 +331,8 @@ window.jQuery.holdReady(true);
                 // The whole oAuth flow is documented at
                 // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                 mobile._parseTokenAndLoadUser(url);
-            } else if (RX_URL_SCHEME.test(url)) {
-                var matches = RX_URL_SCHEME.exec(url);
+            } else if (RX_APP_SCHEME.test(url)) {
+                var matches = RX_APP_SCHEME.exec(url);
                 // Note: we have already tested the url, so we know there is a match
                 var language = matches[1];
                 var summaryId = matches[3];
@@ -341,8 +342,9 @@ window.jQuery.holdReady(true);
                 } else {
                     app.notification.warning(i18n.culture.notifications.openUrlLanguage);
                 }
-            } else if (RX_REVIEW_SCHEMES.test(url)) {
-                // For whatever reason calling review schemes in mobile._requestAppStoreReview triggers handleOpenUrl on iOS (but not on Android)
+            } else if (RX_HELP_URL.test(url) || RX_REVIEW_SCHEMES.test(url)) {
+                // For whatever reason, calling help in mobile._openHelp triggers handleOpenUrl on iOS (but not on Android)
+                // For whatever reason, calling review schemes in mobile._requestAppStoreReview triggers handleOpenUrl on iOS (but not on Android)
                 $.noop();
             } else {
                 logger.warn({
