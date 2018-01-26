@@ -6,7 +6,7 @@
     <author email="support@memba.com" href="http://www.memba.com">Memba Sarl</author>
     <content src="index.html" />
     <icon height="256" src="www/res/icon/default.png" width="256" />
-    <preference name="android-minSdkVersion" value="16" />
+    <preference name="android-minSdkVersion" value="19" />
     <preference name="android-targetSdkVersion" value="23" />
     <preference name="android-compileSdkVersion" value="26" />
     <preference name="DisallowOverscroll" value="true" />
@@ -127,7 +127,7 @@
     <platform name="windows">
         <preference name="WindowsToastCapable" value="true" />
     </platform>
-    <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:label='@string/activity_name']">
+    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:label='@string/activity_name']">
         <activity android:allowTaskReparenting="true" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask" android:windowSoftInputMode="adjustPan" />
     </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
