@@ -2649,6 +2649,10 @@
                     editable: false
                 },
                 */
+                date: {
+                    type: DATE,
+                    editable: false
+                },
                 firstName: {
                     type: STRING,
                     editable: false
@@ -2661,19 +2665,6 @@
                     type: STRING,
                     editable: false
                 },
-                /*text: {
-                 type: STRING,
-                 nullable: true,
-                 editable: false
-                 },*/
-                type: {
-                    type: STRING,
-                    editable: false
-                },
-                updated: {
-                    type: DATE,
-                    editable: false
-                },
                 score: {
                     type: NUMBER,
                     nullable: true,
@@ -2684,10 +2675,23 @@
                     editable: false,
                     nullable: true
                 },
+                /*text: {
+                 type: STRING,
+                 nullable: true,
+                 editable: false
+                 },*/
                 title: {
                     type: STRING,
                     editable: false
                 },
+                type: {
+                    type: STRING,
+                    editable: false
+                },
+                /*updated: {
+                    type: DATE,
+                    editable: false
+                },*/
                 userId: {
                     type: STRING,
                     editable: false,
@@ -2879,6 +2883,10 @@
                     type: DATE,
                     editable: false
                 },
+                date: {
+                    type: DATE,
+                    editable: false
+                },
                 type: {
                     type: STRING,
                     editable: false
@@ -2932,6 +2940,9 @@
          */
         models.Comment = models.Activity.define({
             fields: {
+                date: {
+                    type: DATE
+                },
                 text: {
                     type: STRING
                 },
@@ -3104,6 +3115,10 @@
          */
         models.Score = models.Activity.define({
             fields: {
+                date: {
+                    type: DATE,
+                    editable: false
+                },
                 test: {
                     defaultValue: null
                     /*
@@ -3129,7 +3144,7 @@
             scoreName$ : function () {
                 var id = this.get('id');
                 if (RX_MONGODB_ID.test(id)) {
-                    return kendo.format('{0:' + i18n.culture.dateFormat + '} ({1:p0})', this.get('created'), this.get('score') / 100);
+                    return kendo.format('{0:' + i18n.culture.dateFormat + '} ({1:p0})', this.get('date'), this.get('score') / 100);
                 }
             }
         });

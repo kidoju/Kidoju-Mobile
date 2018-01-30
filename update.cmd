@@ -109,8 +109,8 @@ XCOPY ..\Kidoju.Widgets\src\js\vendor\jquery .\js\vendor\jquery /C /E /I /R /Y
 ATTRIB +R .\js\vendor\jquery\*.* /S
 
 REM copy KateX
-XCOPY ..\Kidoju.Widgets\src\js\vendor\katex .\js\vendor\katex /C /E /I /R /Y
-ATTRIB +R .\js\vendor\katex\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\khan .\js\vendor\khan /C /E /I /R /Y
+ATTRIB +R .\js\vendor\khan\*.* /S
 
 REM Copy Markdown-It
 XCOPY ..\Kidoju.Widgets\src\js\vendor\markdown-it .\js\vendor\markdown-it /C /E /I /R /Y
@@ -180,8 +180,8 @@ REM XCOPY ..\Kidoju.Widgets\src\styles\vendor\codemirror .\styles\vendor\codemir
 REM ATTRIB +R .\styles\vendor\codemirror\*.* /S
 
 REM Copy KaTex
-XCOPY ..\Kidoju.Widgets\src\styles\vendor\katex .\styles\vendor\katex /C /E /I /R /Y
-ATTRIB +R .\styles\vendor\katex\*.* /S
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\khan .\styles\vendor\khan /C /E /I /R /Y
+ATTRIB +R .\styles\vendor\khan\*.* /S
 
 REM Copy HighlightJS
 XCOPY ..\Kidoju.Widgets\src\styles\vendor\highlight .\styles\vendor\highlight /C /E /I /R /Y

@@ -9,7 +9,7 @@
 if (typeof(require) === 'function') {
 
     // Load other CSS
-    require('../styles/vendor/katex/katex.less');
+    require('../styles/vendor/khan/katex.less');
     require('../styles/kidoju.widgets.floating.less');
     require('../styles/kidoju.widgets.markdown.less');
     require('../styles/kidoju.widgets.mathexpression.less');
