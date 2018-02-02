@@ -129,7 +129,7 @@
     <platform name="windows">
         <preference name="WindowsToastCapable" value="true" />
     </platform>
-    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:name='AppName']">
+    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:label='@string/activity_name']">
         <activity android:allowTaskReparenting="true" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask" android:windowSoftInputMode="adjustPan" />
     </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
