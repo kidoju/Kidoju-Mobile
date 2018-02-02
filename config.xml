@@ -16,7 +16,7 @@
     <preference name="AndroidLaunchMode" value="singleTask" />
     <preference name="windows-target-version" value="10.0" />
     <preference name="windows-arch" value="x64" />
-    <preference name="phonegap-version" value="cli-7.1.0" />
+    <preference name="phonegap-version" value="cli-8.0.0" />
     <preference name="pgb-builder-version" value="2" />
     <platform name="android">
         <icon density="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
@@ -129,7 +129,7 @@
     <platform name="windows">
         <preference name="WindowsToastCapable" value="true" />
     </platform>
-    <edit-config file="AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:label='@string/activity_name']">
+    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:name='AppName']">
         <activity android:allowTaskReparenting="true" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask" android:windowSoftInputMode="adjustPan" />
     </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
