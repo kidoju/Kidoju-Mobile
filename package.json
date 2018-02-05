@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^7.2.5",
-    "bundle-loader": "^0.5.5",
+    "bundle-loader": "^0.5.6",
     "chai": "^4.1.2",
     "css-loader": "^0.28.9",
     "deasync": "^0.1.12",
@@ -79,7 +79,7 @@
     "wdio-mocha-framework": "^0.5.12",
     "wdio-selenium-standalone-service": "0.0.9",
     "wdio-static-server-service": "^1.0.1",
-    "webdriverio": "^4.10.1",
+    "webdriverio": "^4.10.2",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.1"
   },
