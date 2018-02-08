@@ -42,13 +42,11 @@
 
         // These constants lock the app to certain values
         app.constants = {
-            // The application id
-            appId: 'com.kidoju.mobile',
             // The application name
             appName: 'Kidoju',
             // TODO: logo to display in drawer...
             // The application scheme
-            appScheme: 'com.kidoju.mobile://',
+            appScheme: 'com.kidoju.mobile',
             // For app store ratings
             appStoreUrl: {
                 // TODO: these are all for testing with the twitter app

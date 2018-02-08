@@ -244,7 +244,7 @@ window.jQuery.holdReady(true);
         var SELECTORS = {
             PIN: '.pin'
         };
-        var RX_APP_SCHEME = new RegExp('^' + app.constants.appScheme + '([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
+        var RX_APP_SCHEME = new RegExp('^' + app.constants.appScheme + '://([a-z]{2})/(e|s|x)/([0-9a-f]{24})($|/|\\?|#)');
         var RX_HELP_URL = new RegExp('^' + app.constants.helpUrl);
         var RX_REVIEW_SCHEMES = /^(itms-apps|market|ms-windows-store):\/\//;
         var DEFAULT = {
@@ -328,7 +328,7 @@ window.jQuery.holdReady(true);
          * @param url
          */
         function handleOpenURL(url) {
-            if (url.startsWith(app.constants.appScheme + 'oauth')) {
+            if (url.startsWith(app.constants.appScheme + '://oauth')) {
                 // The whole oAuth flow is documented at
                 // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
                 mobile._parseTokenAndLoadUser(url);
@@ -628,7 +628,7 @@ window.jQuery.holdReady(true);
 
                 // Add custom dimensions
                 // window.ga.addCustomDimension(Key, 'Value', success, error)
-                mobile.ga.addCustomDimension(1, app.constants.appId);
+                mobile.ga.addCustomDimension(1, app.constants.appScheme);
 
                 // Enable automatic reporting of uncaught exceptions
                 // mobile.ga.enableUncaughtExceptionReporting(true, success, error);
@@ -1015,7 +1015,7 @@ window.jQuery.holdReady(true);
                 // Google analytics
                 if (mobile.support.ga) {
                     mobile.ga.setUserId(userId);
-                    // mobile.ga.addCustomDimension(1, app.constants.appId);
+                    // mobile.ga.addCustomDimension(1, app.constants.appScheme);
                     mobile.ga.addCustomDimension(2, language);
                     mobile.ga.addCustomDimension(3, rootCategoryId);
                 }
