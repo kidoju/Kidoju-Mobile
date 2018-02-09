@@ -52,22 +52,22 @@
         app.locales = JSON.parse('<%- JSON.stringify(locales) %>');
 
         /**
-         * Google analytics
-         * @type {{clientId: string}}
+         * Constants
+         * Note: This is replaced by app.constants.js in Kidoju-Mobile
+         * @type {}
          */
-        app.analytics = { gaTrackingId: '<%- analytics.gaTrackingId %>' };
+        app.constants = app.constants || { // Makes sure Kidoju-Mobile wins
 
-        /**
-         * Facebook
-         * @type {{clientId: string}}
-         */
-        app.facebook = { clientID: '<%- facebook.clientID %>' };
+            // Application scheme
+            appScheme: '<%- application.scheme %>',
 
-        /**
-         * Twitter
-         * @type {{account: string}}
-         */
-        app.twitter = { account: '<%- twitter.account %>' };
+            // Facebook clientID
+            facebookAppId: '<%- facebook.clientID %>',
+
+            // Twitter account
+            twitterAccount: '<%- twitter.account %>'
+
+        };
 
         /**
          * Convert nodejs printf like formatting strings into Kendo UI formatting strings
