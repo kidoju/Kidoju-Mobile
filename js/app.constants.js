@@ -40,7 +40,11 @@
         // An exception is catched when localStorage is explicitly disabled in browser settings (Safari Private Browsing)
         try { localStorage = window.localStorage; } catch (ex) {}
 
-        // These constants lock the app to certain values
+        /**
+         * These constants allow specialized versions of the app
+         * Note:  This replaces app.constants introduced by app.config.jsx
+         * @type {}
+         */
         app.constants = {
             // The application name
             appName: 'Kidoju',
@@ -68,8 +72,10 @@
                 // For windows (untested)
                 windows: 'ms-windows-store://pdp/?ProductId=9wzdncrfj140'
             },
+            // Google analytics
+            gaTrackingId: 'UA-63281999-4',
             // Feedback url
-            feedbackUrl: 'https://www.kidoju.com/support/{0}/contact?about={1}', // TODO gitter?
+            feedbackUrl: 'https://www.kidoju.com/support/{0}/contact?about={1}', // TODO use gitter?
             // Help system
             helpUrl: 'https://help.kidoju.com/', // TODO Add Mobile section
             // The authorId to search summaries from (until we support organizationId)

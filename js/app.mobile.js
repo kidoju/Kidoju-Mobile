@@ -621,7 +621,7 @@ window.jQuery.holdReady(true);
             if (mobile.support.ga) {
 
                 // Set up analytics tracker
-                mobile.ga.startTrackerWithId(app.analytics.gaTrackingId);
+                mobile.ga.startTrackerWithId(app.constants.gaTrackingId);
 
                 // Set a specific app version:
                 mobile.ga.setAppVersion(app.version);
