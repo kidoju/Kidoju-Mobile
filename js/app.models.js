@@ -2639,12 +2639,12 @@
                     editable: false,
                     nullable: true
                 },
+                /*
                 appScheme: {
                     type: STRING,
                     editable: false,
                     defaultValue: (app.constants && app.constants.appScheme) ? app.constants.appScheme : 'com.kidoju.default' // undefined
                 },
-                /*
                 categoryId: {
                     type: STRING,
                     editable: false
