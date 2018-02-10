@@ -2346,7 +2346,7 @@
                 return kendo.format(
                     '<iframe src="{0}?embed=true{1}" style="height:500px;width:100%;border:solid 1px #d5d5d5;"></iframe>',
                     this.versionPlayUri$(),
-                    app && app.theme && $.isFunction(app.theme.name) ? '&theme=' + app.theme.name() : ''
+                    app && app.theme && $.isFunction(app.theme.name) ? '&theme=' + encodeURIComponent(app.theme.name()) : ''
                 );
             }
         });
@@ -2639,6 +2639,11 @@
                     editable: false,
                     nullable: true
                 },
+                appScheme: {
+                    type: STRING,
+                    editable: false,
+                    defaultValue: (app.constants && app.constants.appScheme) ? app.constants.appScheme : 'com.kidoju.default' // undefined
+                },
                 /*
                 categoryId: {
                     type: STRING,
@@ -2651,7 +2656,8 @@
                 */
                 date: {
                     type: DATE,
-                    editable: false
+                    editable: false,
+                    defaultValue: function () { return new Date(); }
                 },
                 firstName: {
                     type: STRING,
@@ -2665,6 +2671,21 @@
                     type: STRING,
                     editable: false
                 },
+                /*text: {
+                 type: STRING,
+                 nullable: true,
+                 editable: false
+                 },*/
+                type: {
+                    type: STRING,
+                    editable: false
+                },
+                /*
+                updated: {
+                    type: DATE,
+                    editable: false
+                },
+                */
                 score: {
                     type: NUMBER,
                     nullable: true,
@@ -2675,23 +2696,10 @@
                     editable: false,
                     nullable: true
                 },
-                /*text: {
-                 type: STRING,
-                 nullable: true,
-                 editable: false
-                 },*/
                 title: {
                     type: STRING,
                     editable: false
                 },
-                type: {
-                    type: STRING,
-                    editable: false
-                },
-                /*updated: {
-                    type: DATE,
-                    editable: false
-                },*/
                 userId: {
                     type: STRING,
                     editable: false,
@@ -2752,8 +2760,8 @@
 
                 } else if (RX_MONGODB_ID.test(partition.summaryId)) { // If we have a summaryId for the content being displayed, we fetch summary activities
 
-                    options.data.fields = 'actor,score,type,updated,version';
-                    options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
+                    options.data.fields = 'actor,date,score,type,version';
+                    options.data.sort = options.data.sort || [{ field: 'date', dir: 'desc' }];
 
                     // TODO should be rapi.v1.summary.read
                     rapi.v1.content.findSummaryActivities(partition['version.language'], partition['version.summaryId'], options.data)
@@ -2766,9 +2774,9 @@
 
                 } else { // Without a summaryId, we need an authenticated user to fetch user activities
 
-                    // options.data.fields = 'actor,score,type,updated,version'; <-- actor is always the same
-                    options.data.fields = 'score,type,updated,version';
-                    options.data.sort = options.data.sort || [{ field: 'updated', dir: 'desc' }];
+                    // options.data.fields = 'actor,date,score,type,version'; <-- actor is always the same
+                    options.data.fields = 'date,score,type,version';
+                    options.data.sort = options.data.sort || [{ field: 'date', dir: 'desc' }];
 
                     rapi.v1.user.findMyActivities(partition.language, options.data)
                         .done(function (response) {
@@ -2883,10 +2891,6 @@
                     type: DATE,
                     editable: false
                 },
-                date: {
-                    type: DATE,
-                    editable: false
-                },
                 type: {
                     type: STRING,
                     editable: false
@@ -2940,9 +2944,6 @@
          */
         models.Comment = models.Activity.define({
             fields: {
-                date: {
-                    type: DATE
-                },
                 text: {
                     type: STRING
                 },
@@ -3077,7 +3078,7 @@
                     var that = this;
                     // We cannot fetch activities without a summary Id
                     assert.match(RX_MONGODB_ID, that.summaryId, kendo.format(assert.messages.match.default, 'this.summaryId', RX_MONGODB_ID));
-                    options.data.fields = 'actor,created,text,updated,version';
+                    options.data.fields = 'actor,date,text,version';
                     options.data.filter = { field: 'type', operator: 'eq', value: 'Comment' };
                     options.data.sort = [{ field: 'id', dir: 'desc' }];
                     rapi.v1.content.findSummaryActivities(
@@ -3115,10 +3116,6 @@
          */
         models.Score = models.Activity.define({
             fields: {
-                date: {
-                    type: DATE,
-                    editable: false
-                },
                 test: {
                     defaultValue: null
                     /*
@@ -3144,7 +3141,7 @@
             scoreName$ : function () {
                 var id = this.get('id');
                 if (RX_MONGODB_ID.test(id)) {
-                    return kendo.format('{0:' + i18n.culture.dateFormat + '} ({1:p0})', this.get('date'), this.get('score') / 100);
+                    return kendo.format('{0:' + i18n.culture.dateFormat + '} ({1:p0})', this.get('created'), this.get('score') / 100);
                 }
             }
         });
@@ -3222,7 +3219,7 @@
                     assert.match(RX_MONGODB_ID, that.summaryId, kendo.format(assert.messages.match.default, 'this.summaryId', RX_MONGODB_ID));
                     // assert.match(RX_MONGODB_ID, that.userId, kendo.format(assert.messages.match.default, 'this.userId', RX_MONGODB_ID));
                     assert.match(RX_MONGODB_ID, that.versionId, kendo.format(assert.messages.match.default, 'this.versionId', RX_MONGODB_ID));
-                    options.data.fields = 'created,score,test,updated'; // Cannot get created without updated
+                    options.data.fields = 'date,score,test';
                     options.data.filter = [
                         { field: 'type', operator: 'eq', value: 'Score' },
                         { field: 'version.versionId', operator: 'eq', value: that.versionId }
@@ -3245,7 +3242,6 @@
                 }
             }
         });
-
 
     }(window.jQuery));
 

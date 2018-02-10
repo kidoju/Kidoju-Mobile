@@ -12,6 +12,7 @@
         './vendor/valve/fingerprint',
         './window.assert',
         './window.logger',
+        // './app.constants', // <-- optional
         './app.logger'
     ], f);
 })(function () {
@@ -539,10 +540,13 @@
                         headers.Authorization = 'Bearer ' + accessToken;
                     }
                 }
+                if (app && app.constants && app.constants.appScheme) {
+                    headers['X-App-Scheme'] = app.constants.appScheme;
+                }
                 if (options.trace === true) {
                     var trace = $('#trace').val();
                     if (typeof trace === STRING) {
-                        headers['X-Trace-ID'] = trace.substr(0, 40); // should be long enough for a guid
+                        headers['X-Trace-ID'] = trace.substr(0, 36); // should be long enough for a guid = 32 hex + 4 dashes
                     }
                 }
                 return headers;
@@ -596,6 +600,7 @@
 
             /* jshint +W074 */
             /* jshint +W073 */
+
         };
 
         /**
