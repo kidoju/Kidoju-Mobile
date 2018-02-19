@@ -109,6 +109,12 @@
                                 .fail(function () {
                                     if (app.notification && $.isFunction(app.notification.error)) {
                                         app.notification.error('Could not load image ' + url);  // TODO i18n
+                                        logger.error({
+                                            message: 'vectorDrawingWidget.import failed',
+                                            method: 'editors.image.openImageDialog',
+                                            data: { url: url },
+                                            error: error
+                                        });
                                     }
                                 });
                         }
@@ -120,9 +126,15 @@
                     var vectorDrawingWidget = this.element.find(kendo.roleSelector('vectordrawing')).data('kendoVectorDrawing');
                     url = $('<a/>').attr('href', url).get(0).href; // Note: a simple way to resolve a relative url
                     return vectorDrawingWidget.open(url)
-                        .fail(function () {
+                        .fail(function (error) {
                             if (app.notification && $.isFunction(app.notification.error)) {
                                 app.notification.error('Could not load image ' + url.split('/').pop());  // TODO i18n
+                                logger.error({
+                                    message: 'vectorDrawingWidget.open failed',
+                                    method: 'editors.image.openUrl',
+                                    data: { url: url },
+                                    error: error
+                                });
                             }
                         });
                 },
@@ -150,6 +162,11 @@
                         extension = extension.slice(0, -1);
                     }
                     var exportFile = (extension === 'jpg' || extension === 'png') ? that.exportImage : that.exportSVG;
+                    logger.debug({
+                        message: 'Saving file',
+                        method: 'editors.image.saveAs',
+                        data: { name: name, ext: extension }
+                    });
                     exportFile.bind(that)({ json: json }) // json: true only applies to exportSVG
                         .done(function (dataUri) {
                             // Important: dataUri is actually the result of getImageData for exportImage and it needs to be encoded to make a dataUri
@@ -163,6 +180,11 @@
                             }
                             var blob = kidoju.image.dataUri2Blob(dataUri);
                             blob.name = name + '.' + extension;
+                            logger.debug({
+                                message: 'exporFile successful',
+                                method: 'editors.image.saveAs',
+                                data: { name: name, ext: extension }
+                            });
                             // Note: _uploadFile calls transport.upload which triggers notifications for success/error
                             assetManager._uploadFile(blob)
                                 .done(function () {
@@ -175,9 +197,15 @@
                                     }
                                 });
                         })
-                        .fail(function () {
+                        .fail(function (error) {
                             if (app.notification && $.isFunction(app.notification.error)) {
                                 app.notification.error('Could not export ' + extension + ' file.');  // TODO i18n
+                                logger.error({
+                                    message: 'exportFile failed',
+                                    method: 'editors.image.saveAs',
+                                    data: { name: name, ext: extension },
+                                    error: error
+                                });
                             }
                         });
                 }
@@ -347,8 +375,8 @@
                             assert.match(RX_LANGUAGE, locale, assert.format(assert.messages.match.default, 'locale', RX_LANGUAGE));
                             assert.match(RX_MONGODB_ID, params.summaryId, assert.format(assert.messages.match.default, params.summaryId, RX_MONGODB_ID));
                             // Note a window.File is a sort of window.Blob with a name
-                            // assert.instanceof(window.File, data.file, assert.format(assert.messages.instanceof.default, 'data.file', 'window.File'));
-                            assert.instanceof(window.Blob, data.file, assert.format(assert.messages.instanceof.default, 'data.file', 'window.Blob'));
+                            // assert.instanceof(window.File, data.file, assert.format(assert.messages.instanceof.default, 'data.file', 'File'));
+                            assert.instanceof(window.Blob, data.file, assert.format(assert.messages.instanceof.default, 'data.file', 'Blob'));
                             assert.type(STRING, data.file.name, assert.format(assert.messages.type.default, 'data.file.name', STRING));
                             logger.debug({
                                 message: 'getting a signed url from aws',
