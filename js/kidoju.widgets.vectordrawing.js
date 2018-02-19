@@ -1411,8 +1411,18 @@
                     extension = extension.slice(0, -1);
                 }
                 var exportFile = (extension === 'jpg' || extension === 'png') ? this.exportImage : this.exportSVG;
+                logger.info({
+                    message: 'Saving file',
+                    method: '_onToolbarSave',
+                    data: { name: name, extension: extension }
+                });
                 exportFile.bind(this)({ json: json }) // json: true only applies to exportSVG
                     .done(function (dataUri) {
+                        logger.info({
+                            message: 'exportFile successful',
+                            method: '_onToolbarSave',
+                            data: { extension: extension }
+                        });
                         // Important: dataUri is actually the result of getImageData for exportImage and it needs to be encoded to make a dataUri
                         // Beware any error here will be caught in the try/catch of kendo.drawing.canvas.Surface.prototype.getImageData defined in kidoju.widgets.vectordrawing.js
                         if (extension === 'jpg') {
@@ -1425,6 +1435,13 @@
                         kendo.saveAs({
                             dataURI: dataUri,
                             fileName: name + '.' + extension
+                        });
+                    })
+                    .fail(function (error) {
+                        logger.error({
+                            message: 'exportFile failed',
+                            method: '_onToolbarSave',
+                            data: { error: error }
                         });
                     });
             },
@@ -1650,7 +1667,7 @@
              * @private
              */
             _openFile: function (file) {
-                assert.instanceof(window.File, file, assert.format(assert.messages.instanceof.default, 'file', 'window.File'));
+                assert.instanceof(window.File, file, assert.format(assert.messages.instanceof.default, 'file', 'File'));
                 var that = this;
                 var dfd = $.Deferred();
                 if ((file.type || '').match(/^image\//)) {
