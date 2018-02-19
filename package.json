@@ -109,7 +109,8 @@
     "cordova-plugin-x-socialsharing": "^5.2.1",
     "cordova-windows": "^5.0.0",
     "es6-promise-plugin": "^4.2.2",
-    "phonegap-plugin-barcodescanner": "^7.0.2"
+    "phonegap-plugin-barcodescanner": "^7.0.2",
+    "cordova-plugin-local-notification": "~0.9.0-beta.3"
   },
   "cordova": {
     "plugins": {
@@ -134,13 +135,14 @@
       "cordova-plugin-network-information": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-inappbrowser": {},
-      "cordova-plugin-tts": {}
+      "cordova-plugin-tts": {},
+      "cordova-plugin-local-notification": {}
     },
     "platforms": [
-      "android",
       "browser",
       "ios",
-      "windows"
+      "windows",
+      "android"
     ]
   }
 }
