@@ -1453,9 +1453,10 @@
                     assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     if (!app.DEBUG) {
-                        // Note: when running unit tests, file is not an instance of window.File
+                        // Note: when running unit tests, file is not an instance of window.Blob
                         // See also https://developer.mozilla.org/en-US/docs/Using_files_from_web_applications
-                        assert.instanceof(window.File, file, assert.format(assert.messages.instanceof.default, 'file', 'File'));
+                        // assert.instanceof(window.File, file, assert.format(assert.messages.instanceof.default, 'file', 'File'));
+                        assert.instanceof(window.Blob, file, assert.format(assert.messages.instanceof.default, 'file', 'Blob'));
                     }
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.upload, language, summaryId);
                     // Log
