@@ -868,7 +868,7 @@
                 assert.isFunction(this.listView.dataSource.transport.upload, assert.format(assert.messages.isFunction.default, 'this.listView.dataSource.transport.upload'));
                 var that = this;
                 var dfd = $.Deferred();
-                logger.info({
+                logger.debug({
                     message: 'Uploading file',
                     method: '_uploadFile'
                 });

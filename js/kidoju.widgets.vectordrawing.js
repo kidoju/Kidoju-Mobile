@@ -1411,17 +1411,17 @@
                     extension = extension.slice(0, -1);
                 }
                 var exportFile = (extension === 'jpg' || extension === 'png') ? this.exportImage : this.exportSVG;
-                logger.info({
+                logger.debug({
                     message: 'Saving file',
                     method: '_onToolbarSave',
-                    data: { name: name, extension: extension }
+                    data: { name: name, ext: extension }
                 });
                 exportFile.bind(this)({ json: json }) // json: true only applies to exportSVG
                     .done(function (dataUri) {
-                        logger.info({
-                            message: 'exportFile successful',
+                        logger.debug({
+                            message: 'exporFile successful',
                             method: '_onToolbarSave',
-                            data: { extension: extension }
+                            data: { name: name, ext: extension }
                         });
                         // Important: dataUri is actually the result of getImageData for exportImage and it needs to be encoded to make a dataUri
                         // Beware any error here will be caught in the try/catch of kendo.drawing.canvas.Surface.prototype.getImageData defined in kidoju.widgets.vectordrawing.js
@@ -1441,7 +1441,8 @@
                         logger.error({
                             message: 'exportFile failed',
                             method: '_onToolbarSave',
-                            data: { error: error }
+                            data: { name: name, ext: extension },
+                            error: error
                         });
                     });
             },
