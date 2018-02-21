@@ -78,7 +78,7 @@
 
             image: {
                 // Open kendo.dataviz.ui.VectorDrawing without New and Open tools
-                template: '<div data-role="vectordrawing" data-bind="events: { command: onCommand, dialog: onDialog }" data-toolbar="' +
+                template: '<div data-' + kendo.ns + 'role="vectordrawing" data-' + kendo.ns + 'bind="events: { command: onCommand, dialog: onDialog }" data-' + kendo.ns + 'toolbar="' +
                     kendo.htmlEncode(JSON.stringify({ resizable: true, tools: kendo.ui.VectorDrawingToolBar.fn.options.tools.slice(2) })) + '"></div>',
                 maximize: true, // Maximize window when opening
                 openImageDialog: function () {
