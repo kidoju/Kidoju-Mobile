@@ -85,7 +85,7 @@ REM Javascript files
 REM ------------------------------------------------------------
 
 REM Copy Kendo UI
-XCOPY ..\Kidoju.WebApp\js\vendor\kendo\*.* .\js\vendor\kendo\ /C /E /I /R /Y
+XCOPY ..\Kidoju.Widgets\src\js\vendor\kendo .\js\vendor\kendo /C /E /I /R /Y
 ATTRIB +R .\js\vendor\kendo\*.* /S
 
 REM Copy localForage
@@ -168,7 +168,7 @@ REM ------------------------------------------------------------
 REM Styles
 REM ------------------------------------------------------------
 
-XCOPY ..\Kidoju.WebApp\styles\vendor\kendo\*.* .\styles\vendor\kendo\ /C /E /I /R /Y
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\kendo .\styles\vendor\kendo /C /E /I /R /Y
 ATTRIB +R .\styles\vendor\kendo\*.* /S
 
 REM Copy Kidoju webfonts
