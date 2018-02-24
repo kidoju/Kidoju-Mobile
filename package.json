@@ -72,7 +72,7 @@
     "nconf": "^0.10.0",
     "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^2.1.0",
-    "sinon": "^4.4.0",
+    "sinon": "^4.4.1",
     "style-loader": "^0.20.2",
     "url-loader": "^0.6.2",
     "wdio-appium-service": "^0.2.3",
@@ -90,7 +90,7 @@
     "msvs_version": "2015"
   },
   "dependencies": {
-    "cordova-android": "^7.0.0",
+    "cordova-android": "^7.1.0",
     "cordova-browser": "^5.0.3",
     "cordova-ios": "^4.5.4",
     "cordova-plugin-badge": "^0.8.7",
@@ -142,8 +142,8 @@
     "platforms": [
       "browser",
       "ios",
-      "android",
-      "windows"
+      "windows",
+      "android"
     ]
   }
 }
