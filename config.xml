@@ -125,6 +125,7 @@
         <preference name="deployment-target" value="8.0" />
         <preference name="iosPersistentFileLocation" value="Library" />
         <preference name="StatusBarOverlaysWebView" value="true" />
+        <hook src="hooks/removeAdFramework.js" type="after_plugin_install" />
     </platform>
     <platform name="windows">
         <preference name="WindowsToastCapable" value="true" />
