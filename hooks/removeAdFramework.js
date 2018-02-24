@@ -1,11 +1,11 @@
 // This Cordova Hook (script) removes "AdSupport.framework" and "libAdIdAccess" references
 // from the cordova-plugin-google-analytics plugin, as well as removes it from
 // references found in the corresponding node_module and .project.pbxproj.
-// The authoritive source is found at: https://gist.github.com/SteveKennedy
+// The authoritive source is found at: https://gist.githubusercontent.com/SteveKennedy/7edbe6e5f54d8582a27acbfd8d704c12/raw/654a2104cb230b97118f18ed273183c61f885401/removeAdFramework.js
 
 module.exports = function (ctx) {
 
-    console.log("Attempting To Remove Ad (IDFA) References from project....")
+    console.log("Attempting To Remove Ad (IDFA) References from project....");
 
     var pluginName = 'cordova-plugin-google-analytics';
 
@@ -47,7 +47,7 @@ module.exports = function (ctx) {
             for (var i = dataArray.length - 1; i >= 0; i--) {
                 if (dataArray[i].indexOf(sourceFileString) !== -1 ||
                     dataArray[i].indexOf(frameworkString) !== -1) {
-                        console.log('Removing line:' + dataArray[i]);
+                    console.log('Removing line:' + dataArray[i]);
                     dataArray.splice(i, 1);
                 }
             }
