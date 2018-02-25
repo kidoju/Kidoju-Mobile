@@ -142,10 +142,7 @@
                                         // @see http://docs.mongodb.org/manual/reference/operator/query/
                                         switch (operator) {
                                             case '$eq':
-                                                // TODO Remove test on type - https://github.com/kidoju/Kidoju-Mobile/issues/154
-                                                // Until AWS is upgraded with latest Kidoju-Server, type downloaded from RAPI is `test` instead of `Test`,
-                                                // match = match && (value === criterion[operator]);
-                                                match = match && ((prop === 'type') ? (String(value).toLowerCase() === String(criterion[operator]).toLowerCase()) : (value === criterion[operator]));
+                                                match = match && (value === criterion[operator]);
                                                 break;
                                             case '$gt':
                                                 match = match && (value > criterion[operator]);

@@ -1041,10 +1041,6 @@
                         var promises = [];
                         function update(index) {
                             var item = result[index];
-                            if (item && $.type(item.type) === STRING && item.type.length) {
-                                // TODO This can be removed after updating Kidoju-Server as this fixes test vs. Test and score vs. Score - https://github.com/kidoju/Kidoju-Mobile/issues/154
-                                item.type = item.type.substr(0, 1).toUpperCase() + item.type.substr(1).toLowerCase();
-                            }
                             return collection.update({ id: item[idField] }, item, { upsert: true })
                                 .always(function () {
                                     dfd.notify({ collection: collection.name(), pass: 2, index: index, total: total });
