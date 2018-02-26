@@ -1713,6 +1713,14 @@
                     type: STRING,
                     editable: false
                 },
+                appScheme: {
+                    type: STRING,
+                    defaultValue: app.constants.appScheme,
+                    editable: false
+                },
+                date: {
+                    type: DATE
+                },
                 updated: {
                     type: DATE
                 },

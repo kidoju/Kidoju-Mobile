@@ -107,15 +107,15 @@
                         }
                     }
                     var update = true;
-                    if ($.type(found) === NUMBER && new Date(version.activities[found].updated) > activity.updated) {
+                    if ($.type(found) === NUMBER && new Date(version.activities[found].date) > activity.date) {
                         // Keep existing version activity which is more recent
                         update = false;
                     } else if ($.type(found) === NUMBER) {
                         // Update version activity
-                        version.activities[found] = { activityId: activity.id, actorId: activity.actor.userId, score: activity.score, updated: activity.updated }; // TODO replace updated with an activity date
+                        version.activities[found] = { activityId: activity.id, actorId: activity.actor.userId, score: activity.score, date: activity.date };
                     } else {
                         // Create new version activity
-                        version.activities.push({ activityId: activity.id, actorId: activity.actor.userId, score: activity.score, updated: activity.updated });
+                        version.activities.push({ activityId: activity.id, actorId: activity.actor.userId, score: activity.score, date: activity.date });
                     }
                     if (update) {
                         app.db.versions.update({ id: versionId }, version, { upsert: true }).done(deferred.resolve).fail(deferred.reject);
