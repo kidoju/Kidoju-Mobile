@@ -563,14 +563,14 @@
              * @param query
              * @param partition
              */
-            filterExtend: function (query, partition) {
+            extendQueryWithPartition: function (query, partition) {
                 /* jshint maxcomplexity: 11 */
                 if (!$.isPlainObject(partition)) {
                     return query;
                 }
                 if (query && Array.isArray(query.filter)) {
                     query.filter = { logic: 'and', filters: query.filter };
-                } else if (query && $.isPlainObject(query.filter) && $.type(query.filter.field) === STRING && $.type(query.filter.operator) === STRING && $.type(query.filter.value) === STRING) {
+                } else if (query && $.isPlainObject(query.filter) && $.type(query.filter.field) === STRING && $.type(query.filter.operator) === STRING/* && $.type(query.filter.value) === STRING*/) {
                     query.filter = { logic: 'and', filters: [query.filter] };
                 } else if (query && $.isPlainObject(query.filter) && query.filter.logic === 'or' && Array.isArray(query.filter.filters)) {
                     query.filter = { logic: 'and', filters: [query.filter] };
@@ -596,6 +596,8 @@
                         }
                     }
                 }
+                delete query.partition; // if any
+                return query;
             }
 
             /* jshint +W074 */
@@ -1763,8 +1765,8 @@
                         // TODO: query aggregates and query.groups
                         // TODO: query.fields from Model???
                         // TODO: query.sort
-                        // Extend filter with partition
-                        rapi.util.filterExtend(query, partition);
+                        // Extend query filter with partition
+                        rapi.util.extendQueryWithPartition(query, partition);
                         if (RX_MONGODB_ID.test(partition['version.summaryId'])) {
                             headers = rapi.util.getHeaders({ trace: true });
                             url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, partition['version.language'], partition['version.summaryId']);

@@ -284,9 +284,8 @@
                     options.success({ total: 0, data: [] });
                 } else {
                     // Fields, filters and default sort order are part of options.data
-                    // Note: parameterMap can be used to merge filter and partition as needed
                     var data = this.parameterMap(options.data, 'read');
-                    data.partition = undefined;
+                    // data.partition = undefined;
                     this._rapi.read(data).done(options.success).fail(options.error);
                 }
             }
@@ -432,7 +431,7 @@
                     options.success({ total: 0, data: [] });
                 } else {
                     var query = this.parameterMap(options.data, 'read');
-                    app.rapi.util.filterExtend(query, partition);
+                    app.rapi.util.extendQueryWithPartition(query, partition);
                     // Filter all records with __state___ === 'destroyed', considering partition is ignored when false
                     query.filter.filters.push({ field: '__state__', operator: 'neq',  value: STATE.DESTROYED });
                     query = pongodb.util.convertFilter(options.data.filter);
@@ -955,6 +954,21 @@
             },
 
             /**
+             * Gets/sets the last synchronization date
+             * @param value
+             * @returns {*|{type, defaultValue}}
+             */
+            lastSync: function (value) {
+                if ($.type(value) === UNDEFINED) {
+                    return this._lastSync;
+                } else if ($.type(value) === DATE) {
+                    this._lastSync = value;
+                } else {
+                    throw new TypeError('`value` should be a `Date`');
+                }
+            },
+
+            /**
              * Upload a created item
              * @param item
              * @private
@@ -1031,9 +1045,8 @@
                 var idField = this.idField;
                 this.remoteTransport.read({
                     data: {
-                        // TODO we certainly have an issue with paging and we could use lastSync to optimize - https://github.com/kidoju/Kidoju-Mobile/issues/161
-                        filter: undefined,
-                        sort: undefined
+                        filter: { field: 'updated', operator: 'gte', value: that._lastSync },
+                        sort: { field: 'updated', dir: 'desc' }
                     },
                     success: function (response) {
                         var result = response.data; // this.remoteTransport.read ensures data is already partitioned
@@ -1054,6 +1067,15 @@
                                 // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
                                 total = total || 1; // Cannot divide by 0;
                                 dfd.notify({ collection: collection.name(), pass: 2, index: total - 1, total: total }); // Make sure we always reach 100%
+                                if (total >= 90) { // Don not wait till we reach 100 to act
+                                    // TODO we certainly have an issue with paging in this case, because we only synced the first 90 items and there are more
+                                    // See https://github.com/kidoju/Kidoju-Mobile/issues/161
+                                    logger.crit({
+                                        message: 'Time to add paging to synchronization',
+                                        method: 'models.SynchronizationStrategy._readSync',
+                                        data: { total: total }
+                                    });
+                                }
                             })
                             .done(dfd.resolve)
                             .fail(dfd.reject);
@@ -1079,7 +1101,7 @@
                 this.remoteTransport.update({
                     data: item,
                     error: function (err) {
-                        if (err.message = '404') { // TODO
+                        if (err.message = '404') { // TODO ----------------------------------------------------------------
                             // If item is not found on the server, remove from local database
                             query[idField] = item[idField];
                             collection.remove(query)
@@ -1846,6 +1868,14 @@
                     this.transport.partition(options.partition);
                 }
                 return this.query(options);
+            },
+
+            /**
+             * Set last synchronization date
+             * @param options
+             */
+            setLastSync: function (date) {
+                this.transport.lastSync(date);
             },
 
             /**
