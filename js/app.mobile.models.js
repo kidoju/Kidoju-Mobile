@@ -1293,7 +1293,7 @@
                 var picture = that instanceof models.MobileUser ? that.get('picture') : that.picture;
                 if ($.type(picture) === STRING && picture.length) {
                     return picture
-                        .replace('/p50x50/', '/p160x160/') // Facebook
+                        // .replace('/p50x50/', '/p160x160/') // Facebook - does not work anymore because of the signature, so it is now set in Kidoju-Server with ?type=large which corresponds to p200x200
                         .replace('/s64-c-mo/', '/s160-c-mo/') // Google
                         .replace('?type=small', '?type=medium') // Live
                         .replace('_normal.', '_400x400.'); // Twitter
