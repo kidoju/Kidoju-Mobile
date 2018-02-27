@@ -202,6 +202,10 @@
             </div>
         </header>
         <div data-role="content" class="km-content km-stretched-view">
+            <a href="#user">
+                <img data-bind="attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="k-icon km-icon">
+                <span data-bind="text: user.fullName$" class="k-text km-text"></span>
+            </a>
             <ul data-role="listview" data-filterable="false" data-click="app.mobile.onDrawerListViewClick">
                 <li data-icon="home" data-command="categories"><a href="#">Explore</a></li>
                 <li data-icon="scan" data-command="scan" data-bind="visible: hasBarCodeScanner$"><a href="#">Scan</a></li>
