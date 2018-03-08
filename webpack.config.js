@@ -7,18 +7,25 @@
 
 'use strict';
 
-// For an introduction to WebPack see
-// https://github.com/petehunt/webpack-howto
-// http://slidedeck.io/unindented/webpack-presentation
-// http://christianalfoni.github.io/javascript/2014/12/13/did-you-know-webpack-and-react-is-awesome.html
+/**
+ * For an introduction to WebPack
+ * @see https://github.com/petehunt/webpack-howto
+ * @see http://slidedeck.io/unindented/webpack-presentation
+ * @see http://christianalfoni.github.io/javascript/2014/12/13/did-you-know-webpack-and-react-is-awesome.html
+ */
 
 var path = require('path');
 var util = require('util');
-
 var deasync = require('deasync');
 var webpack = require('webpack');
-
 var config = require('./webapp/config');
+var cleanPlugin = require('./web_modules/less-plugin');
+var pkg = require('./package.json');
+var environment = config.environment || 'development';
+
+console.log('webpack environment is ' + environment);
+console.log('webpack public path is ' + config.get('uris:webpack:root'));
+console.log('building version ' + pkg.version);
 
 /**
  * This is really ugly but acceptable in devEnvironment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -35,21 +42,17 @@ config.load(function (error /*.store*/) {
 deasync.loopWhile(function () { return !loaded; });
 
 /**
+ * DefinePlugin
  * definePlugin defines a global variable which is only available when running webpack
  * We use it to merge app.config.jsx with the proper
  * @type {webpack.DefinePlugin}
  * @see http://webpack.github.io/docs/list-of-plugins.html#defineplugin
  * @see https://github.com/petehunt/webpack-howto#6-feature-flags
  */
-var pkg = require('./package.json');
-var environment = config.environment || 'development';
 var definePlugin = new webpack.DefinePlugin({
     __NODE_ENV__: JSON.stringify(environment),
     __VERSION__: JSON.stringify(pkg.version)
 });
-console.log('webpack environment is ' + environment);
-console.log('webpack public path is ' + config.get('uris:webpack:root'));
-console.log('building version ' + pkg.version);
 
 /**
  * SourceMapDevToolPlugin builds source maps
@@ -63,6 +66,15 @@ console.log('building version ' + pkg.version);
  * We are not using the source map plugin since webpack -d on the command line
  * produces sourcemaps in our development environment and we do not want sourcemaps in production.
  */
+
+/**
+ * BundleAnalyzerPlugin
+ */
+var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+var bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
+    analyzerMode: 'static'
+    // analyzerPort: 7000 <-- Fatal error: listen EADDRINUSE 127.0.0.1:7000
+});
 
 /**
  * Webpack configuration
@@ -101,27 +113,18 @@ module.exports = {
                 // Do not put a $ at the end of the test regex
                 test: /\.jsx/, // see ./web_modules/jsx-loader
                 use: [
-                    // { loader: './web_modules/jsx-loader', options: { config: 'webapp/config' } }
-                    { loader: './web_modules/jsx-loader?config=webapp/config' }
+                    { loader: './web_modules/jsx-loader', options: { config: 'webapp/config' } }
                 ]
             },
-            /* https://webpack.js.org/guides/migrating/#json-loader-is-not-required-anymore
-            {
-                test: /\.json$/,
-                use: [
-                    { loader: 'json-loader' }
-                ]
-            },
-            */
             {
                 test: /app\.theme\.[a-z0-9\-]+\.less$/,
                 use: [
-                    { loader: 'bundle-loader', options: { name: '[name]', lazy: true } },
+                    { loader: 'bundle-loader', options: { name: '[name]', lazy: true } }, // { loader: 'bundle-loader?name=[name]' },
                     { loader: 'style-loader/useable' },
                     { loader: 'css-loader', options: { importLoaders: 2 } },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
-                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
+                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true, plugins: [cleanPlugin] } }
                 ]
             },
             {
@@ -132,7 +135,7 @@ module.exports = {
                     { loader: 'css-loader', options: { importLoaders: 1 } },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
-                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true } }
+                    { loader: 'less-loader', options: { compress: true, relativeUrls: true, strictMath: true, plugins: [cleanPlugin] } }
                 ]
             },
             {
@@ -165,5 +168,6 @@ module.exports = {
     },
     plugins: [
         definePlugin
+        // bundleAnalyzerPlugin
     ]
 };
