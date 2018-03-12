@@ -77,7 +77,7 @@
     "url-loader": "^1.0.1",
     "wdio-appium-service": "^0.2.3",
     "wdio-mocha-framework": "^0.5.13",
-    "wdio-selenium-standalone-service": "0.0.9",
+    "wdio-selenium-standalone-service": "0.0.10",
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.12.0",
     "webpack": "^3.11.0",
@@ -136,7 +136,8 @@
       "cordova-plugin-x-socialsharing": {},
       "cordova-plugin-safariviewcontroller": {},
       "phonegap-plugin-barcodescanner": {
-        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+        "ANDROID_SUPPORT_V4_VERSION": "27.+",
+        "CAMERA_USAGE_DESCRIPTION": "Scan QR Codes"
       }
     },
     "platforms": [
