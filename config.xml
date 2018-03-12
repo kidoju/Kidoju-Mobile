@@ -156,9 +156,6 @@
         <variable name="ANDROID_HOST" value=" " />
         <variable name="ANDROID_PATHPREFIX" value="/" />
     </plugin>
-    <plugin name="phonegap-plugin-barcodescanner" spec="^7.0.2">
-        <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
-    </plugin>
     <plugin name="cordova-plugin-battery-status" spec="^2.0.1" />
     <plugin name="cordova-plugin-device" spec="^2.0.1" />
     <plugin name="cordova-plugin-dialogs" spec="^2.0.1" />
@@ -173,4 +170,8 @@
     <engine name="browser" spec="^5.0.3" />
     <engine name="ios" spec="^4.5.4" />
     <engine name="windows" spec="^6.0.0" />
+    <plugin name="phonegap-plugin-barcodescanner" spec="^7.0.3">
+        <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.+" />
+        <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
+    </plugin>
 </widget>
