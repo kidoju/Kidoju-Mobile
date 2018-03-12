@@ -23,8 +23,8 @@
 
     // Fix startsWith and https://github.com/kidoju/Kidoju-Mobile/issues/189
     // See https://stackoverflow.com/questions/33106114/cordova-javascript-error-has-no-method-startswith-android
-    if (typeof String.prototype.startsWith != 'function') {
-        String.prototype.startsWith = function (str){
+    if (typeof String.prototype.startsWith !== 'function') {
+        String.prototype.startsWith = function (str) {
             return this.indexOf(str) === 0;
         };
     }

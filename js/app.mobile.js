@@ -2394,7 +2394,7 @@ window.jQuery.holdReady(true);
                 // Note that this does not work in the Android Emulator because the play store app is missing
                 mobile.InAppBrowser.open(app.constants.helpUrl, '_system');
             } else {
-                window.open(app.constants.helpUrl, '_system')
+                window.open(app.constants.helpUrl, '_system');
             }
             if (mobile.support.ga) {
                 mobile.ga.trackEvent(

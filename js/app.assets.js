@@ -106,7 +106,7 @@
                             }
                             // Import image into drawing
                             vectorDrawingWidget.import(url)
-                                .fail(function () {
+                                .fail(function (error) {
                                     if (app.notification && $.isFunction(app.notification.error)) {
                                         app.notification.error('Could not load image ' + url);  // TODO i18n
                                         logger.error({
