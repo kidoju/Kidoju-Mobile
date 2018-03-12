@@ -226,6 +226,24 @@
         "webhook": "https://hooks.slack.com/services/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"
     },
     "uris" : {
+        "amp": {
+            "home": "/amp",
+            "finder": "/amp/%s",
+            "summary": "/amp/%s/s/%s",
+            "user": "/amp/%s/u/%s"
+        },
+        "cdn": {
+            "root":  "https://cdn.kidoju.com",
+            "icons": "/images/o_collection/svg/office/%s.svg",
+            "images": "/kidoju/%s"
+        },
+        "help": {
+            "root":  "https://help.kidoju.com"
+        },
+        "mobile": {
+            "icons": "./img/icons/%s.svg",
+            "pictures": "%susers/%s"
+        },
         "rapi": {
             "blank": "/api/blank",
             "logger": "/api/logger",
@@ -239,18 +257,6 @@
             "web": {
                 "search": "/api/web/search/%s"
             }
-        },
-        "cdn": {
-            "root":  "https://cdn.kidoju.com",
-            "icons": "/images/o_collection/svg/office/%s.svg",
-            "images": "/kidoju/%s"
-        },
-        "help": {
-            "root":  "https://help.kidoju.com"
-        },
-        "mobile": {
-            "icons": "./img/icons/%s.svg",
-            "pictures": "%susers/%s"
         },
         "webapp": {
             "editor": "/%s/e/%s/%s",
