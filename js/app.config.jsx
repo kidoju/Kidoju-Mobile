@@ -132,7 +132,6 @@
         app.uris = {
             rapi: {
                 root: '<%- uris.rapi.root %>',
-                blank: url.join('<%- uris.rapi.root %>', convertFormat('<%- uris.rapi.blank %>')),
                 logger: url.join('<%- uris.rapi.root %>', convertFormat('<%- uris.rapi.logger %>')),
                 web: {
                     search: url.join('<%- uris.rapi.root %>', convertFormat('<%- uris.rapi.web.search %>'))

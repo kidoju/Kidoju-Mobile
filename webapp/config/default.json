@@ -245,7 +245,6 @@
             "pictures": "%susers/%s"
         },
         "rapi": {
-            "blank": "/api/blank",
             "logger": "/api/logger",
             "v1": {
                 "activities": "/api/v1/%s/summaries/%s/activities",

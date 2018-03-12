@@ -93,13 +93,15 @@
 
         /**
          * Location of our api endpoints (contrary to root, we do not care whether they have already been defined)
+         * TODO: Setup in config.jsx
          */
         uris.rapi.ping = '/api/ping';
         uris.rapi.oauth = {
-            signIn: '/api/auth/{0}/signin',
-            signOut: '/api/auth/signout',
+            mobile: '/api/auth/mobile/{0}',
             refresh: '/api/auth/refresh',
-            revoke: '/api/auth/revoke'
+            revoke: '/api/auth/revoke',
+            signIn: '/api/auth/{0}/signin',
+            signOut: '/api/auth/signout'
         };
         uris.rapi.v1 = {
             user: '/api/v1/users/{0}',
