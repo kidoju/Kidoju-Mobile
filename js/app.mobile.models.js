@@ -1735,7 +1735,7 @@
                     type: STRING,
                     editable: false
                 },
-                appScheme: {
+                scheme: {
                     type: STRING,
                     defaultValue: app.constants.appScheme,
                     editable: false

@@ -97,7 +97,7 @@
          */
         uris.rapi.ping = '/api/ping';
         uris.rapi.oauth = {
-            mobile: '/api/auth/mobile/{0}',
+            application: '/api/auth/application/{0}',
             refresh: '/api/auth/refresh',
             revoke: '/api/auth/revoke',
             signIn: '/api/auth/{0}/signin',

@@ -3244,7 +3244,7 @@ window.jQuery.holdReady(true);
             // We can then access this returnUrl in the loadstart and loadstop events of the InAppBrowser.
             // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted access to their data.
             var returnUrl = (mobile.support.safariViewController || mobile.support.inAppBrowser) ?
-                kendo.format(app.uris.rapi.oauth.mobile, app.constants.appId) :
+                kendo.format(app.uris.rapi.root + app.uris.rapi.oauth.application, app.constants.appId) :
                 window.location.protocol + '//' + window.location.host + '/' + HASH + VIEW.SIGNIN;
             // When running in a browser via phonegap serve, the InAppBrowser turns into an iframe but authentication providers prevent running in an iframe by setting 'X-Frame-Options' to 'SAMEORIGIN'
             // So if the device platform is a browser, we need to keep the sameflow as Kidoju-WebApp with a redirectUrl that targets the user view

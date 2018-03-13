@@ -2640,7 +2640,7 @@
                     nullable: true
                 },
                 /*
-                appScheme: {
+                scheme: {
                     type: STRING,
                     editable: false,
                     defaultValue: (app.constants && app.constants.appScheme) ? app.constants.appScheme : 'com.kidoju.default' // undefined
