@@ -47,7 +47,7 @@
          */
         app.constants = {
             // The mobile application id corresponding to the app scheme in mongoDB
-            appId: '5aa6cf3f8cec9d2a082b14fd',
+            appId: '5aa7b81cb706873118ffb5b4',
             // The application name
             appName: 'Kidoju',
             // TODO: logo to display in drawer...
