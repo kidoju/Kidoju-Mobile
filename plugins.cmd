@@ -18,6 +18,9 @@ call phonegap plugins add https://github.com/vilic/cordova-plugin-tts#b25e7ac --
 call phonegap plugins add cordova-plugin-whitelist --save
 call phonegap plugins add cordova-plugin-x-socialsharing --save
 call phonegap plugins add phonegap-plugin-barcodescanner --variable CAMERA_USAGE_DESCRIPTION="Scan QR Codes" --save
+call cordova-check-plugins --update:auto
 
-call phonegap platforms add android
+call phonegap platforms add android@7.1.0
+call phonegap platforms add browser
 call phonegap platforms add ios
+call phonegap platforms add windows@6.0.0

@@ -20,12 +20,6 @@ var deasync = require('deasync');
 var webpack = require('webpack');
 var config = require('./webapp/config');
 var cleanPlugin = require('./web_modules/less-plugin');
-var pkg = require('./package.json');
-var environment = config.environment || 'development';
-
-console.log('webpack environment is ' + environment);
-console.log('webpack public path is ' + config.get('uris:webpack:root'));
-console.log('building version ' + pkg.version);
 
 /**
  * This is really ugly but acceptable in devEnvironment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -40,6 +34,13 @@ config.load(function (error /*.store*/) {
     loaded = true;
 });
 deasync.loopWhile(function () { return !loaded; });
+
+var pkg = require('./package.json');
+var environment = config.environment || 'development';
+
+console.log('webpack environment is ' + environment);
+console.log('webpack public path is ' + config.get('uris:webpack:root'));
+console.log('building version ' + pkg.version);
 
 /**
  * DefinePlugin
@@ -70,11 +71,13 @@ var definePlugin = new webpack.DefinePlugin({
 /**
  * BundleAnalyzerPlugin
  */
+/*
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 var bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
     analyzerMode: 'static'
     // analyzerPort: 7000 <-- Fatal error: listen EADDRINUSE 127.0.0.1:7000
 });
+*/
 
 /**
  * Webpack configuration
