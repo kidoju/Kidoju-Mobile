@@ -1,15 +1,15 @@
 cd /d %~dp0
 
-call phonegap plugins add cordova-plugin-battery-status --save
+call phonegap plugins add cordova-plugin-battery-status@2 --save
 call phonegap plugins add cordova-plugin-console --save
 call phonegap plugins add cordova-plugin-customurlscheme --variable URL_SCHEME=com.kidoju.en00 --save
-call phonegap plugins add cordova-plugin-device --save
-call phonegap plugins add cordova-plugin-dialogs --save
-call phonegap plugins add cordova-plugin-file --save
+call phonegap plugins add cordova-plugin-device@2 --save
+call phonegap plugins add cordova-plugin-dialogs@2 --save
+call phonegap plugins add cordova-plugin-file@6 --save
 call phonegap plugins add cordova-plugin-google-analytics --save
-call phonegap plugins add cordova-plugin-inappbrowser --save
+call phonegap plugins add cordova-plugin-inappbrowser@2 --save
 call phonegap plugins add cordova-plugin-local-notification --save
-call phonegap plugins add cordova-plugin-network-information --save
+call phonegap plugins add cordova-plugin-network-information@2 --save
 call phonegap plugins add cordova-plugin-safariviewcontroller --save
 call phonegap plugins add cordova-plugin-splashscreen --save
 REM call phonegap plugins add cordova-plugin-statusbar --save
