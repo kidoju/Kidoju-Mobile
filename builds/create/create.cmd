@@ -53,14 +53,14 @@ REM install plugs and platforms
 COPY ..\..\Kidoju\Kidoju.Mobile\plugins.cmd .\ /Y
 CALL plugins.cmd
 
-REM Clear www
-RD www /Q /S
-MD www/build
-XCOPY ..\..\Kidoju\Kidoju.Mobile\www\res .\www\res  /C /E /I /R /Y /EXCLUDE:excludelist.txt
-
 REM Copy excludelist.txt for XCOPY
 COPY ..\..\Kidoju\Kidoju.Mobile\builds\create\excludelist.txt .\ /Y
 ATTRIB +R .\excludelist.txt /S
+
+REM Clear www
+RD www /Q /S
+MD www\build
+XCOPY ..\..\Kidoju\Kidoju.Mobile\www\res .\www\res  /C /E /I /R /Y /EXCLUDE:excludelist.txt
 
 REM Copy graphics
 XCOPY ..\..\Kidoju\Kidoju.Mobile\graphics .\graphics  /C /E /I /R /Y /EXCLUDE:excludelist.txt
@@ -76,8 +76,7 @@ COPY ..\..\Kidoju\Kidoju.Mobile\js\app.constants.js .\js /Y
 REM Create git repository
 CALL git init
 CALL git add .
-CALL git commit - m "Initial commit"
+CALL git commit -m "Initial commit"
 
 REM Get back to where we are coming from
 CD..
-
