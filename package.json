@@ -40,7 +40,7 @@
     "autoprefixer": "^8.1.0",
     "bundle-loader": "^0.5.6",
     "chai": "^4.1.2",
-    "css-loader": "^0.28.10",
+    "css-loader": "^0.28.11",
     "deasync": "^0.1.12",
     "deep-extend": "^0.5.0",
     "ejs": "^2.5.7",
@@ -55,7 +55,7 @@
     "grunt-mocha-test": "^0.13.3",
     "grunt-nsp": "^2.3.1",
     "grunt-webdriver": "^2.0.3",
-    "grunt-webpack": "^3.0.2",
+    "grunt-webpack": "^3.1.1",
     "karma": "^2.0.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
@@ -74,7 +74,7 @@
     "nconf": "^0.10.0",
     "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^2.1.1",
-    "sinon": "^4.4.5",
+    "sinon": "^4.4.6",
     "style-loader": "^0.20.3",
     "url-loader": "^1.0.1",
     "wdio-appium-service": "^0.2.3",
@@ -113,7 +113,7 @@
     "cordova-plugin-x-socialsharing": "^5.3.2",
     "cordova-windows": "^6.0.0",
     "es6-promise-plugin": "^4.2.2",
-    "phonegap-plugin-barcodescanner": "^7.0.3"
+    "phonegap-plugin-barcodescanner": "^7.1.0"
   },
   "cordova": {
     "plugins": {
@@ -138,8 +138,7 @@
       "cordova-plugin-x-socialsharing": {},
       "cordova-plugin-safariviewcontroller": {},
       "phonegap-plugin-barcodescanner": {
-        "ANDROID_SUPPORT_V4_VERSION": "27.+",
-        "CAMERA_USAGE_DESCRIPTION": "Scan QR Codes"
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
       }
     },
     "platforms": [
