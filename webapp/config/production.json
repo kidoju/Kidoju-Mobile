@@ -17,16 +17,10 @@
         }
     },
     "debug": false,
-    "express": {
-        "port": 3000
-    },
     "facebook": {
         "clientID": "892459787527630"
     },
     "level": 2,
-    "twitter": {
-        "account": "kidoju"
-    },
     "uris": {
         "rapi": {
             "root": "https://www.kidoju.com"
