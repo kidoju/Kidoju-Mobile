@@ -259,6 +259,7 @@
         "rapi": {
             "logger": "/api/logger",
             "v1": {
+                "categories": "/api/v1/languages/%s/categories",
                 "activities": "/api/v1/%s/summaries/%s/activities",
                 "files": "/api/v1/%s/summaries/%s/files",
                 "summary": "/api/v1/%s/summaries/%s",
