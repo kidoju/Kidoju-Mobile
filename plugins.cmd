@@ -20,9 +20,14 @@ CALL phonegap plugins add cordova-plugin-x-socialsharing --save
 CALL phonegap plugins add phonegap-plugin-barcodescanner --variable CAMERA_USAGE_DESCRIPTION="Scan QR Codes" --save
 
 REM CALL cordova-check-plugins --update=auto --force-update --unconstrain-versions
-CALL cordova-check-plugins --update:auto --force-update
+
+CALL phonegap plugins remove cordova-plugin-camera
+CALL phonegap plugins remove cordova-plugin-geolocation
+CALL phonegap plugins remove cordova-plugin-globalization
+CALL phonegap plugins remove cordova-plugin-media-capture
+CALL phonegap plugins remove cordova-plugin-vibration
 
 CALL phonegap platforms add android@7.1.0
-CALL phonegap platforms add browser
+CALL phonegap platforms add browser@5.0.3
 CALL phonegap platforms add ios
 CALL phonegap platforms add windows@6.0.0

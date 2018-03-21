@@ -19,64 +19,65 @@ IF "%~1"=="" (
 CD /d %~dp0
 
 REM Check directory exists
-IF EXIST %1 GOTO:EOF
+IF EXIST %1 GOTO DIR_EXISTS
 
 REM Create a new phonegap application
-CALL phonegap create %~1 --id "%~1" --name "%~2"
+REM CALL phonegap create %~1 --id "%~1" --name "%~2"
 
-REM Initialize package.json
+REM Create git repository
+git clone https://github.com/kidoju/%~1
+IF ERRORLEVEL 1 GOTO GIT_ERROR
+
+REM Go into new directory
 CD %1
-CALL npm init -y
-
-REM Install build packages
-CALL npm i autoprefixer --save-dev
-CALL npm i bundle-loader --save-dev
-CALL npm i css-loader --save-dev
-CALL npm i deasync --save-dev
-CALL npm i deep-extend --save-dev
-CALL npm i ejs --save-dev
-CALL npm i file-loader --save-dev
-CALL npm i grunt --save-dev
-CALL npm i grunt-contrib-copy --save-dev
-CALL npm i grunt-contrib-uglify --save-dev
-CALL npm i grunt-webpack --save-dev
-CALL npm i less --save-dev
-CALL npm i less-loader --save-dev
-CALL npm i loader-utils --save-dev
-CALL npm i nconf --save-dev
-CALL npm i postcss-loader --save-dev
-CALL npm i style-loader --save-dev
-CALL npm i url-loader --save-dev
-CALL npm i webpack@3 --save-dev
-
-REM install plugs and platforms
-COPY ..\..\Kidoju\Kidoju.Mobile\plugins.cmd .\ /Y
-CALL plugins.cmd
 
 REM Copy excludelist.txt for XCOPY
 COPY ..\..\Kidoju\Kidoju.Mobile\builds\create\excludelist.txt .\ /Y
 ATTRIB +R .\excludelist.txt /S
 
-REM Clear www
-RD www /Q /S
-MD www\build
-XCOPY ..\..\Kidoju\Kidoju.Mobile\www\res .\www\res  /C /E /I /R /Y /EXCLUDE:excludelist.txt
-
 REM Copy graphics
 XCOPY ..\..\Kidoju\Kidoju.Mobile\graphics .\graphics  /C /E /I /R /Y /EXCLUDE:excludelist.txt
-REM ATTRIB +R .\graphics\*.* /S
 
-REM update all files
+REM Create and run update batch
 COPY ..\..\Kidoju\Kidoju.Mobile\builds\create\update.cmd .\ /Y
+sed -i -e "s/__id__/%~1/g" ./update.cmd
+sed -i -e "s/__name__/%~2/g" ./update.cmd
+
+REM Wait for 5 sec and launch an update
+ping 127.0.0.1 -n 6 > nul
 CALL update.cmd
 
-REM Copy app.constants.js
+REM Copy app.constants.js (which should not be readonly)
 COPY ..\..\Kidoju\Kidoju.Mobile\js\app.constants.js .\js /Y
 
-REM Create git repository
-CALL git init
-CALL git add .
-CALL git commit -m "Initial commit"
+REM Add resources (especially icons and splash screens)
+XCOPY ..\..\Kidoju\Kidoju.Mobile\www\res .\www\res  /C /E /I /R /Y /EXCLUDE:excludelist.txt
+
+REM Make build directory
+MD .\www\build
+
+REM Install packages
+CALL npm install --only=prod
+CALL npm install --only=dev
+
+REM Run Phonegap
+CALL phonegap prepare android
+CALL phonegap prepare browser
+CALL phonegap prepare ios
+CALL phonegap prepare windows
+
+REM Add to git
+REM git add .
+REM git commit -m "Initial commit"
 
 REM Get back to where we are coming from
 CD..
+
+GOTO :EOF
+
+:DIR_EXISTS
+ECHO Directory %1 already exists
+GOTO :EOF
+
+:GIT_ERR
+ECHO Cannot clone https://github.com/kidoju/%~1
