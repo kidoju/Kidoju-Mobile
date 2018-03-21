@@ -961,6 +961,8 @@ window.jQuery.holdReady(true);
                 assert.instanceof(models.MobileActivityDataSource, activities, assert.format(assert.messages.instanceof.default, 'activities', 'app.models.MobileActivityDataSource'));
                 activities.transport.partition({
                     'actor.userId': userId,
+                    // Note: Until we introduce bundles, synchronization remains limited to score activities with the same scheme
+                    scheme: app.constants.appScheme,
                     type: 'Score',
                     'version.language': language
                 });
@@ -1057,6 +1059,8 @@ window.jQuery.holdReady(true);
                 } else {
                     activities.transport.partition({
                         'actor.userId': options.userId,
+                        // Note: Until we introduce bundles, synchronization remains limited to score activities with the same scheme
+                        scheme: app.constants.appScheme,
                         type: 'Score',
                         'version.language': options.language
                     });
@@ -3485,6 +3489,7 @@ window.jQuery.holdReady(true);
 
             // Synchronize activities
             viewModel.activities.setLastSync(viewModel.get(VIEW_MODEL.USER.LAST_SYNC));
+            debugger;
             viewModel.activities.remoteSync()
                 .progress(function (status) {
                     message.text(culture.message[status.collection]);
