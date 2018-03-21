@@ -1,6 +1,5 @@
 {
   "name": "Kidoju.Mobile",
-  "filename": "kidoju.mobile",
   "version": "0.3.7",
   "description": "Mobile app for the Kidoju platform.",
   "author": "Memba Sarl",
@@ -21,6 +20,7 @@
     "Game",
     "Learn",
     "Knowledge",
+    "Practice",
     "Quiz",
     "Revision",
     "Teach",
@@ -28,10 +28,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Kidoju/Kidoju-Mobile.git"
+    "url": "https://github.com/kidoju/Kidoju-Mobile.git"
   },
   "bugs": {
-    "url": "https://github.com/Kidoju/Kidoju-Mobile/issues"
+    "url": "https://github.com/kidoju/Kidoju-Mobile/issues"
   },
   "scripts": {
     "test": "grunt test"
@@ -73,7 +73,7 @@
     "mocha": "^5.0.4",
     "nconf": "^0.10.0",
     "phantomjs-prebuilt": "^2.1.16",
-    "postcss-loader": "^2.1.2",
+    "postcss-loader": "^2.1.3",
     "sinon": "^4.4.6",
     "style-loader": "^0.20.3",
     "url-loader": "^1.0.1",
@@ -85,19 +85,12 @@
     "webpack": "^3.11.0",
     "webpack-bundle-analyzer": "^2.11.1"
   },
-  "engines": {
-    "node": ">=4"
-  },
-  "config": {
-    "msvs_version": "2015"
-  },
   "dependencies": {
     "cordova-android": "^7.1.0",
     "cordova-browser": "^5.0.3",
     "cordova-ios": "^4.5.4",
     "cordova-plugin-badge": "^0.8.7",
     "cordova-plugin-battery-status": "^2.0.1",
-    "cordova-plugin-console": "^1.1.0",
     "cordova-plugin-customurlscheme": "^4.3.0",
     "cordova-plugin-device": "^2.0.1",
     "cordova-plugin-dialogs": "^2.0.1",
@@ -118,7 +111,6 @@
   "cordova": {
     "plugins": {
       "cordova-plugin-google-analytics": {},
-      "cordova-plugin-console": {},
       "cordova-plugin-whitelist": {},
       "cordova-plugin-customurlscheme": {
         "URL_SCHEME": "com.kidoju.mobile",
@@ -138,7 +130,8 @@
       "cordova-plugin-x-socialsharing": {},
       "cordova-plugin-safariviewcontroller": {},
       "phonegap-plugin-barcodescanner": {
-        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+        "ANDROID_SUPPORT_V4_VERSION": "27.+",
+        "CAMERA_USAGE_DESCRIPTION": "Scan QR Codes"
       }
     },
     "platforms": [
@@ -147,5 +140,11 @@
       "ios",
       "windows"
     ]
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "config": {
+    "msvs_version": "2015"
   }
 }
