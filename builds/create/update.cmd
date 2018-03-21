@@ -6,6 +6,7 @@ XCOPY ..\..\Kidoju\Kidoju.Mobile\hooks .\hooks  /C /E /I /R /Y /EXCLUDE:excludel
 ATTRIB +R .\hooks\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Mobile\js .\js  /C /E /I /R /Y /EXCLUDE:excludelist.txt
 ATTRIB +R .\js\*.* /S
+ATTRIB -R .\js\app.constants.js
 XCOPY ..\..\Kidoju\Kidoju.Mobile\styles .\styles  /C /E /I /R /Y /EXCLUDE:excludelist.txt
 ATTRIB +R .\styles\*.* /S
 XCOPY ..\..\Kidoju\Kidoju.Mobile\web_modules .\web_modules  /C /E /I /R /Y /EXCLUDE:excludelist.txt
