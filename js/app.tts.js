@@ -32,9 +32,6 @@
         var RX_IOS = /i(phone|pad|pod)/i;
         // var RX_IOS_11 = /i(phone|pad|pod) OS 11_/i;
         var voices = [];
-        var loadVoices = function () {
-            voices = window.speechSynthesis.getVoices();
-        };
 
         /* NOTES
         On Android 5 (Nexus 7), I could not get the sound from W3C Speech APIs to work before changing some Android settings I could not reproduce
@@ -44,13 +41,28 @@
         On the long term, we should be able to remove the Cordova TTS Plugin and only rely on the W3C Speech APIs
         */
 
+        function loadVoices () {
+            voices = window.speechSynthesis.getVoices();
+            window.alert(voices && voices.length);
+        }
+
+        function onDeviceReady () {
+            if ('speechSynthesis' in window) {
+                loadVoices();
+                // Chrome loads voices asynchronously, which means the previous might have returned an empty array
+                window.speechSynthesis.onvoiceschanged = loadVoices;
+            }
+        }
+
         /**
          * Load voices
          */
-        if ('speechSynthesis' in window) {
-            loadVoices();
-            // Chrome loads voices asynchronously, which means the previous might have returned an empty array
-            window.speechSynthesis.onvoiceschanged = loadVoices;
+        if (window.cordova) {
+            // This is for https://github.com/macdonst/SpeechRecognitionPlugin
+            document.addEventListener('deviceready', onDeviceReady, false);
+        } else {
+            // This is for using teh W3C Speech API in any browser
+            onDeviceReady();
         }
 
         /**
@@ -82,6 +94,7 @@
          */
         tts._getVoice = function (language) {
             assert.type(STRING, language, assert.format(assert.messages.type.default, 'language', STRING));
+
             var natives = voices.filter(function (voice) { return voice.lang.toLowerCase().startsWith(language.toLowerCase()); });
             var localDefaults = natives.filter(function (voice) { return voice.default && voice.localService; });
             if (Array.isArray(localDefaults) && localDefaults.length) {
