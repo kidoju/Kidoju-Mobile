@@ -246,7 +246,7 @@
                 // );
             } else if (tts._useSpeechSynthesis()) {
                 // In the browser - https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesisUtterance
-                // window.alert('W3C Speech API');
+                window.alert('W3C Speech API');
                 var chunks = tts._chunk(text, CHUNK_SIZE);
                 var promises = [];
                 $.each(chunks, function (index, chunk) {

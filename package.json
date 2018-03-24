@@ -37,7 +37,7 @@
     "test": "grunt test"
   },
   "devDependencies": {
-    "autoprefixer": "^8.1.0",
+    "autoprefixer": "^8.2.0",
     "bundle-loader": "^0.5.6",
     "chai": "^4.1.2",
     "css-loader": "^0.28.11",
@@ -70,11 +70,11 @@
     "less": "^3.0.1",
     "less-loader": "^4.1.0",
     "loader-utils": "^1.1.0",
-    "mocha": "^5.0.4",
+    "mocha": "^5.0.5",
     "nconf": "^0.10.0",
     "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^2.1.3",
-    "sinon": "^4.4.6",
+    "sinon": "^4.4.8",
     "style-loader": "^0.20.3",
     "url-loader": "^1.0.1",
     "wdio-appium-service": "^0.2.3",
@@ -97,16 +97,16 @@
     "cordova-plugin-file": "^6.0.1",
     "cordova-plugin-google-analytics": "^1.8.3",
     "cordova-plugin-inappbrowser": "^2.0.2",
-    "cordova-plugin-local-notification": "^0.9.0-beta.2",
+    "cordova-plugin-local-notification": "^0.9.0-beta.3",
     "cordova-plugin-network-information": "^2.0.1",
     "cordova-plugin-safariviewcontroller": "^1.5.3",
     "cordova-plugin-splashscreen": "^5.0.2",
-    "cordova-plugin-tts": "https://github.com/vilic/cordova-plugin-tts.git#b25e7ac",
     "cordova-plugin-whitelist": "^1.3.3",
     "cordova-plugin-x-socialsharing": "^5.3.2",
     "cordova-windows": "^6.0.0",
     "es6-promise-plugin": "^4.2.2",
-    "phonegap-plugin-barcodescanner": "^7.1.0"
+    "phonegap-plugin-barcodescanner": "^7.1.0",
+    "phonegap-plugin-speech-synthesis": "git+https://github.com/macdonst/SpeechSynthesisPlugin.git"
   },
   "cordova": {
     "plugins": {
@@ -125,14 +125,14 @@
       "cordova-plugin-network-information": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-inappbrowser": {},
-      "cordova-plugin-tts": {},
-      "cordova-plugin-local-notification": {},
       "cordova-plugin-x-socialsharing": {},
       "cordova-plugin-safariviewcontroller": {},
       "phonegap-plugin-barcodescanner": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+",
         "CAMERA_USAGE_DESCRIPTION": "Scan QR Codes"
-      }
+      },
+      "cordova-plugin-local-notification": {},
+      "phonegap-plugin-speech-synthesis": {}
     },
     "platforms": [
       "android",
