@@ -47,8 +47,8 @@
                 // https://github.com/macdonst/SpeechSynthesisPlugin/issues/7
                 // https://github.com/macdonst/SpeechSynthesisPlugin/blob/master/www/SpeechSynthesisVoiceList.js
                 voices = voices._list;
-                window.alert(JSON.stringify(voices._list));
             }
+            window.alert(JSON.stringify(voices));
         }
 
         function onDeviceReady () {
