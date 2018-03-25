@@ -45,9 +45,15 @@
             voices = window.speechSynthesis.getVoices();
             if ($.type(voices) === UNDEFINED) {
                 voices = []; // reset
-            } else if (!$.isFunction(voices.filter)) {
+            } else if (voices._list) {
                 // https://github.com/macdonst/SpeechSynthesisPlugin/issues/7
-                voices = voices._list || [];
+                // https://github.com/macdonst/SpeechSynthesisPlugin/blob/master/www/SpeechSynthesisVoiceList.js
+                window.alert($.type(voices._list));
+                var ret = [];
+                for (var i = 0, length = voices._list.length; i < length; i++) {
+                    ret.push(voices._list[i]);
+                }
+                voices = ret;
             }
         }
 
