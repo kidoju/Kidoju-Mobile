@@ -58,7 +58,7 @@
                     window.speechSynthesis.onvoiceschanged = loadVoices;
                 } else {
                     // We need to attempt to load twice especially for https://github.com/macdonst/SpeechSynthesisPlugin
-                    setTimeout(loadVoices, 1000);
+                    setTimeout(loadVoices, 2500);
                 }
             }
         }
@@ -122,7 +122,7 @@
         tts._clearMarkdown = function (markdown) {
             assert.type(STRING, markdown, assert.format(assert.messages.type.default, 'markdown', STRING));
             return markdown
-            .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
+                .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
                 .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
         };
 
@@ -285,8 +285,8 @@
                     promises.push(tts._speechSynthesisPromise(chunk, language));
                 });
                 $.when.apply(null, promises)
-                .done(dfd.resolve)
-                .fail(dfd.reject);
+                    .done(dfd.resolve)
+                    .fail(dfd.reject);
                 logger.debug({
                     method: 'tts.doSpeak',
                     message: 'Text spoken with W3C Speech API'
