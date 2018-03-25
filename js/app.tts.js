@@ -53,11 +53,12 @@
 
         function onDeviceReady () {
             if ('speechSynthesis' in window && $.isFunction (window.speechSynthesis.getVoices)) {
+                loadVoices();
                 if ('onvoiceschanged' in window.speechSynthesis) {
                     // Chrome loads voices asynchronously
                     window.speechSynthesis.onvoiceschanged = loadVoices;
                 } else {
-                    setTimeout(loadVoices, 250);
+                    setTimeout(loadVoices, 1000);
                 }
             }
         }
