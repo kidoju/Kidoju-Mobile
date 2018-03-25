@@ -48,18 +48,16 @@
                 // https://github.com/macdonst/SpeechSynthesisPlugin/blob/master/www/SpeechSynthesisVoiceList.js
                 voices = voices._list;
                 window.alert(JSON.stringify(voices._list));
-            } else if (!Array.isArray(voices)) {
-                window.alert('Oops!');
-                voices = [];
             }
         }
 
         function onDeviceReady () {
             if ('speechSynthesis' in window && $.isFunction (window.speechSynthesis.getVoices)) {
-                loadVoices();
-                // Chrome loads voices asynchronously, which means the previous might have returned an empty array
-                if ($.type(window.speechSynthesis.onvoiceschanged) !== UNDEFINED) {
+                if ('onvoiceschanged' in window.speechSynthesis) {
+                    // Chrome loads voices asynchronously
                     window.speechSynthesis.onvoiceschanged = loadVoices;
+                } else {
+                    setTimeout(loadVoices, 250);
                 }
             }
         }
