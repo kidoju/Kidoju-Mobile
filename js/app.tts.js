@@ -42,21 +42,14 @@
         */
 
         function loadVoices () {
-            voices = window.speechSynthesis.getVoices();
-            if ($.type(voices) === UNDEFINED) {
-                voices = []; // reset
-            } else if (voices._list) {
+            voices = window.speechSynthesis.getVoices() || [];
+            if (Array.isArray(voices._list)) {
                 // https://github.com/macdonst/SpeechSynthesisPlugin/issues/7
                 // https://github.com/macdonst/SpeechSynthesisPlugin/blob/master/www/SpeechSynthesisVoiceList.js
-                window.alert($.type(voices._list));
-                var ret = [];
-                for (var i = 0, length = voices._list.length; i < length; i++) {
-                    window.alert(JSON.stringify(voices._list[i] || ''));
-                    voices._list[i].default = voices._list[i]._default;
-                    ret.push(voices._list[i]);
-
-                }
-                voices = ret;
+                voices = voices._list;
+            } else if (!Array.isArray(voices)) {
+                window.alert('Oops!');
+                voices = [];
             }
         }
 
@@ -188,7 +181,13 @@
                 if (voice && voice.lang) {
                     var utterance = new window.SpeechSynthesisUtterance();
                     utterance.text = text; // https://github.com/macdonst/SpeechSynthesisPlugin/issues/6
-                    utterance.voice = voice; // This sets the language
+                    if (voice in utterance) {
+                        // Standard Web Speech API
+                        utterance.voice = voice; // This sets the language
+                    } else {
+                        // For https://github.com/macdonst/SpeechSynthesisPlugin
+                        utterance.voiceURI = voice.voiceURI;
+                    }
                     // Setting an unavailable language in Microsoft Edge breaks the speech,
                     // but hopefully we got a SpeechSynthesisVoice
                     // utterance.lang = language;
