@@ -74,6 +74,12 @@
                     "name": "Cliparts",
                     "collections": [
                         {
+                            "name": "Alphanumeric",
+                            "transport": {
+                                "read": "https://cdn.kidoju.com/images/cliparts/alphanumeric/index.json"
+                            }
+                        },
+                        {
                             "name": "Nature",
                             "transport": {
                                 "read": "https://cdn.kidoju.com/images/cliparts/nature/index.json"
