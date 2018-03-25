@@ -51,7 +51,10 @@
                 window.alert($.type(voices._list));
                 var ret = [];
                 for (var i = 0, length = voices._list.length; i < length; i++) {
+                    window.alert(JSON.stringify(voices._list[i] || ''));
+                    voices._list[i].default = voices._list[i]._default;
                     ret.push(voices._list[i]);
+
                 }
                 voices = ret;
             }
