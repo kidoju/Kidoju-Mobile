@@ -43,11 +43,10 @@
 
         function loadVoices () {
             voices = window.speechSynthesis.getVoices();
-            window.alert(voices && voices.length);
         }
 
         function onDeviceReady () {
-            if ('speechSynthesis' in window) {
+            if ('speechSynthesis' in window && $.isFunction (window.speechSynthesis.getVoices)) {
                 loadVoices();
                 // Chrome loads voices asynchronously, which means the previous might have returned an empty array
                 window.speechSynthesis.onvoiceschanged = loadVoices;
@@ -61,7 +60,7 @@
             // This is for https://github.com/macdonst/SpeechRecognitionPlugin
             document.addEventListener('deviceready', onDeviceReady, false);
         } else {
-            // This is for using teh W3C Speech API in any browser
+            // This is for using the W3C Speech API in any browser
             onDeviceReady();
         }
 
@@ -94,13 +93,18 @@
          */
         tts._getVoice = function (language) {
             assert.type(STRING, language, assert.format(assert.messages.type.default, 'language', STRING));
-
-            var natives = voices.filter(function (voice) { return voice.lang.toLowerCase().startsWith(language.toLowerCase()); });
+            // voices might be undefined as with https://github.com/macdonst/SpeechSynthesisPlugin
+            var v = window.speechSynthesis.getVoices();
+            window.alert('Voices: ' + $.type(voices) + '/' + $.type(v));
+            var natives = (voices || []).filter(function (voice) { return voice.lang.toLowerCase().startsWith(language.toLowerCase()); });
             var localDefaults = natives.filter(function (voice) { return voice.default && voice.localService; });
             if (Array.isArray(localDefaults) && localDefaults.length) {
                 return localDefaults[0];
             } else if (Array.isArray(natives) && natives.length) {
                 return natives[0];
+            } else {
+                return { lang : language }; // for https://github.com/macdonst/SpeechSynthesisPlugin
+                window.alert('Not a SpeechSyntesisVoice')
             }
         };
 
@@ -170,9 +174,16 @@
             if (tts._useSpeechSynthesis()) {
                 var voice = tts._getVoice(language);
                 if (voice && voice.lang) {
-                    var utterance = new window.SpeechSynthesisUtterance(text);
-                    // utterance.lang = language; // Setting an unavailable language in Microsoft Edge breaks the speech
-                    utterance.voice = voice; // This sets the language
+                    var utterance = new window.SpeechSynthesisUtterance();
+                    utterance.text = text; // https://github.com/macdonst/SpeechSynthesisPlugin/issues/6
+                    if (voice instanceof window.SpeechSynthesisVoice) {
+                        utterance.voice = voice; // This sets the language
+                    } else {
+                        // Setting an unavailable language in Microsoft Edge breaks the speech,
+                        // but hopefully we got a SpeechSynthesisVoice and did not reach here
+                        // which is manly for https://github.com/macdonst/SpeechSynthesisPlugin
+                        utterance.lang = language;
+                    }
                     utterance.rate = 1;
                     utterance.onend = function (evt) { // Returns a SpeechSynthesisEvent
                         if (evt.type === 'error') {
