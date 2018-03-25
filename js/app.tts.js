@@ -51,7 +51,7 @@
         }
 
         function onDeviceReady () {
-            if ('speechSynthesis' in window && $.isFunction (window.speechSynthesis.getVoices)) {
+            if ('speechSynthesis' in window && $.isFunction(window.speechSynthesis.getVoices)) {
                 loadVoices();
                 if ('onvoiceschanged' in window.speechSynthesis) {
                     // Chrome loads voices asynchronously
@@ -122,7 +122,7 @@
         tts._clearMarkdown = function (markdown) {
             assert.type(STRING, markdown, assert.format(assert.messages.type.default, 'markdown', STRING));
             return markdown
-                .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
+            .replace(/[#`>_\*]/g, '') // remove headings, code (backticks), emphasis
                 .replace(/!?\[([^\]]+)\]\([^\)]+\)/g, '$1'); // remove web and image links
         };
 
@@ -178,11 +178,10 @@
             var dfd = $.Deferred();
             if (tts._useSpeechSynthesis()) {
                 var voice = tts._getVoice(language);
-                window.alert(JSON.stringify(voice));
                 if (voice && voice.lang) {
                     var utterance = new window.SpeechSynthesisUtterance();
                     utterance.text = text; // https://github.com/macdonst/SpeechSynthesisPlugin/issues/6
-                    if (voice in utterance) {
+                    if ('voice' in utterance) {
                         // Standard Web Speech API
                         utterance.voice = voice; // This sets the language
                         // Setting an unavailable language in Microsoft Edge breaks the speech,
@@ -241,7 +240,7 @@
             if (tts._useCordovaPlugIn()) {
                 // For iOS and Android via TTS plugin
                 // Note: iOS UIWebView supports speechSynthesis but not Chrome 61 on Android 5.1.1 (Nexus 7)
-
+                // window.alert('TTS Plugin');
                 // navigator.notification.prompt(
                 //     'Enter a rate ' + (RX_IOS.test(window.navigator.userAgent) && !window.MSStream ? '(iOS):' : '(Not iOS):'),
                 //     function (result) {
@@ -286,8 +285,8 @@
                     promises.push(tts._speechSynthesisPromise(chunk, language));
                 });
                 $.when.apply(null, promises)
-                    .done(dfd.resolve)
-                    .fail(dfd.reject);
+                .done(dfd.resolve)
+                .fail(dfd.reject);
                 logger.debug({
                     method: 'tts.doSpeak',
                     message: 'Text spoken with W3C Speech API'
