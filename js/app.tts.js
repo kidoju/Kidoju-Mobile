@@ -180,7 +180,8 @@
             if (tts._useSpeechSynthesis()) {
                 var voice = tts._getVoice(language);
                 if (voice && voice.lang) {
-                    var utterance = new window.SpeechSynthesisUtterance(text);
+                    var utterance = new window.SpeechSynthesisUtterance();
+                    utterance.text = text; // https://github.com/macdonst/SpeechSynthesisPlugin/issues/6
                     if ('voice' in utterance) {
                         // Standard Web Speech API
                         utterance.voice = voice; // This sets the language
@@ -188,8 +189,7 @@
                         // but hopefully we got a SpeechSynthesisVoice
                         // utterance.lang = language;
                     } else {
-                        // https://github.com/macdonst/SpeechSynthesisPlugin
-                        utterance.text = text; // https://github.com/macdonst/SpeechSynthesisPlugin/issues/6
+                        // For https://github.com/macdonst/SpeechSynthesisPlugin
                         utterance.voiceURI = voice.voiceURI;
                         utterance.lang = voice.lang;
                     }
