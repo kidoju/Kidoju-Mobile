@@ -2591,7 +2591,7 @@ window.jQuery.holdReady(true);
             contentElement.find('div.heading h2')
                 .off()
                 .on(CLICK + ' ' + TAP, function (e) {
-                    var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
+                    var buttonElement = $(e.currentTarget).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
                         buttonElement.addClass('km-state-active');
@@ -2768,7 +2768,7 @@ window.jQuery.holdReady(true);
                 .off()
                 .on(CLICK + ' ' + TAP, function (e) {
                     e.preventDefault(); // So that a tap does not trigger a click, resulting in this code being executed twice thus cancelling TTS
-                    var buttonElement = $(e.target).find('a[data-role="button"][data-icon="ear"]');
+                    var buttonElement = $(e.currentTarget).find('a[data-role="button"][data-icon="ear"]');
                     var buttonWidget = buttonElement.data('kendoMobileButton');
                     if (buttonWidget instanceof kendo.mobile.ui.Button) {
                         buttonElement.addClass('km-state-active');
