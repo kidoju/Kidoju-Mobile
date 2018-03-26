@@ -133,7 +133,6 @@
         <allow-intent href="itms-apps:*" />
         <preference name="deployment-target" value="8.0" />
         <preference name="iosPersistentFileLocation" value="Library" />
-        <preference name="Orientation" value="all" />
         <preference name="StatusBarOverlaysWebView" value="true" />
         <hook src="hooks/removeAdFramework.js" type="after_plugin_install" />
     </platform>
@@ -157,6 +156,21 @@
     </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" parent="UIRequiresFullScreen">
         <false/>
+    </edit-config>
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" parent="UISupportedInterfaceOrientations">
+        <array>
+            <string>UIInterfaceOrientationPortrait</string>
+            <string>UIInterfaceOrientationLandscapeLeft</string>
+            <string>UIInterfaceOrientationLandscapeRight</string>
+        </array>
+    </edit-config>
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" parent="UISupportedInterfaceOrientations~ipad">
+        <array>
+            <string>UIInterfaceOrientationPortrait</string>
+            <string>UIInterfaceOrientationPortraitUpsideDown</string>
+            <string>UIInterfaceOrientationLandscapeLeft</string>
+            <string>UIInterfaceOrientationLandscapeRight</string>
+        </array>
     </edit-config>
     <engine name="android" spec="^7.1.0" />
     <engine name="browser" spec="^5.0.3" />
