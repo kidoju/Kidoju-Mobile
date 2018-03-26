@@ -149,14 +149,14 @@
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="NSCameraUsageDescription">
         <string>Scan QR Codes</string>
     </edit-config>
+    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIRequiresFullScreen">
+        <false/>
+    </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIStatusBarHidden">
         <true />
     </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIViewControllerBasedStatusBarAppearance">
         <false />
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" parent="UIRequiresFullScreen">
-        <false/>
     </edit-config>
     <engine name="android" spec="^7.1.0" />
     <engine name="browser" spec="^5.0.3" />
