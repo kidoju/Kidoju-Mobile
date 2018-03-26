@@ -55,7 +55,7 @@
         <icon height="29" platform="ios" src="www/res/icon/ios/icon-small.png" width="29" />
         <icon height="58" platform="ios" src="www/res/icon/ios/icon-small@2x.png" width="58" />
         <icon height="87" platform="ios" src="www/res/icon/ios/icon-small@3x.png" width="87" />
-        <splash height="1136" platform="ios" src="www/res/screen/ios/Default-568h@2x~iphone.png" width="640" />
+        <!--splash height="1136" platform="ios" src="www/res/screen/ios/Default-568h@2x~iphone.png" width="640" />
         <splash height="1334" platform="ios" src="www/res/screen/ios/Default-667h.png" width="750" />
         <splash height="2208" platform="ios" src="www/res/screen/ios/Default-736h.png" width="1242" />
         <splash height="1242" platform="ios" src="www/res/screen/ios/Default-Landscape-736h.png" width="2208" />
@@ -66,7 +66,7 @@
         <splash height="960" platform="ios" src="www/res/screen/ios/Default@2x~iphone.png" width="640" />
         <splash height="480" platform="ios" src="www/res/screen/ios/Default~iphone.png" width="320" />
         <splash height="2436" platform="ios" src="www/res/screen/ios/Default-2436h.png" width="1125" />
-        <splash height="1125" platform="ios" src="www/res/screen/ios/Default-Landscape-2436h.png" width="2436" />
+        <splash height="1125" platform="ios" src="www/res/screen/ios/Default-Landscape-2436h.png" width="2436" /-->
         <splash src="www/res/screen/ios/Default@2x~ipad~anyany.png" />
         <splash src="www/res/screen/ios/Default@2x~ipad~anycom.png" />
         <splash src="www/res/screen/ios/Default@2x~ipad~comany.png" />
@@ -133,6 +133,7 @@
         <allow-intent href="itms-apps:*" />
         <preference name="deployment-target" value="8.0" />
         <preference name="iosPersistentFileLocation" value="Library" />
+        <preference name="Orientation" value="all" />
         <preference name="StatusBarOverlaysWebView" value="true" />
         <hook src="hooks/removeAdFramework.js" type="after_plugin_install" />
     </platform>
@@ -156,21 +157,6 @@
     </edit-config>
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" parent="UIRequiresFullScreen">
         <false/>
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" parent="UISupportedInterfaceOrientations">
-        <array>
-            <string>UIInterfaceOrientationPortrait</string>
-            <string>UIInterfaceOrientationLandscapeLeft</string>
-            <string>UIInterfaceOrientationLandscapeRight</string>
-        </array>
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" parent="UISupportedInterfaceOrientations~ipad">
-        <array>
-            <string>UIInterfaceOrientationPortrait</string>
-            <string>UIInterfaceOrientationPortraitUpsideDown</string>
-            <string>UIInterfaceOrientationLandscapeLeft</string>
-            <string>UIInterfaceOrientationLandscapeRight</string>
-        </array>
     </edit-config>
     <engine name="android" spec="^7.1.0" />
     <engine name="browser" spec="^5.0.3" />
