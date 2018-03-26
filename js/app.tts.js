@@ -179,19 +179,16 @@
             var dfd = $.Deferred();
             if (tts._useSpeechSynthesis()) {
                 var voice = tts._getVoice(language);
-                window.alert(voice && voice.lang);
                 if (voice && voice.lang) {
-                    var utterance;
+                    var utterance = new window.SpeechSynthesisUtterance(text);
                     if ('voice' in utterance) {
                         // Standard Web Speech API
-                        utterance = new window.SpeechSynthesisUtterance(text);
                         utterance.voice = voice; // This sets the language
                         // Setting an unavailable language in Microsoft Edge breaks the speech,
                         // but hopefully we got a SpeechSynthesisVoice
                         // utterance.lang = language;
                     } else {
                         // https://github.com/macdonst/SpeechSynthesisPlugin
-                        utterance = new window.SpeechSynthesisUtterance();
                         utterance.text = text; // https://github.com/macdonst/SpeechSynthesisPlugin/issues/6
                         utterance.voiceURI = voice.voiceURI;
                         utterance.lang = voice.lang;
