@@ -48,7 +48,6 @@
                 // https://github.com/macdonst/SpeechSynthesisPlugin/blob/master/www/SpeechSynthesisVoiceList.js
                 voices = voices._list;
             }
-            window.alert(JSON.stringify(voices));
         }
 
         function onDeviceReady () {
@@ -180,18 +179,20 @@
             var dfd = $.Deferred();
             if (tts._useSpeechSynthesis()) {
                 var voice = tts._getVoice(language);
-                window.alert(JSON.stringify(voice));
+                window.alert(voice && voice.lang);
                 if (voice && voice.lang) {
-                    var utterance = new window.SpeechSynthesisUtterance();
-                    utterance.text = text; // https://github.com/macdonst/SpeechSynthesisPlugin/issues/6
+                    var utterance;
                     if ('voice' in utterance) {
                         // Standard Web Speech API
+                        utterance = new window.SpeechSynthesisUtterance(text);
                         utterance.voice = voice; // This sets the language
                         // Setting an unavailable language in Microsoft Edge breaks the speech,
                         // but hopefully we got a SpeechSynthesisVoice
                         // utterance.lang = language;
                     } else {
-                        // For https://github.com/macdonst/SpeechSynthesisPlugin
+                        // https://github.com/macdonst/SpeechSynthesisPlugin
+                        utterance = new window.SpeechSynthesisUtterance();
+                        utterance.text = text; // https://github.com/macdonst/SpeechSynthesisPlugin/issues/6
                         utterance.voiceURI = voice.voiceURI;
                         utterance.lang = voice.lang;
                     }
