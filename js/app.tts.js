@@ -48,6 +48,7 @@
                 // https://github.com/macdonst/SpeechSynthesisPlugin/blob/master/www/SpeechSynthesisVoiceList.js
                 voices = voices._list;
             }
+            window.alert(JSON.stringify(voices));
         }
 
         function onDeviceReady () {
@@ -179,6 +180,7 @@
             var dfd = $.Deferred();
             if (tts._useSpeechSynthesis()) {
                 var voice = tts._getVoice(language);
+                window.alert(JSON.stringify(voice));
                 if (voice && voice.lang) {
                     var utterance = new window.SpeechSynthesisUtterance();
                     utterance.text = text; // https://github.com/macdonst/SpeechSynthesisPlugin/issues/6
