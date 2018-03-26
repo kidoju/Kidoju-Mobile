@@ -58,7 +58,8 @@
                     window.speechSynthesis.onvoiceschanged = loadVoices;
                 } else {
                     // We need to attempt to load twice especially for https://github.com/macdonst/SpeechSynthesisPlugin
-                    setTimeout(loadVoices, 2500);
+                    // Because first time return 1 and second time return a SpeechSynthesisVoiceList
+                    setTimeout(loadVoices, 3000);
                 }
             }
         }
@@ -143,7 +144,7 @@
             // @see http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
             if ('chrome' in window && $.type(window.StyleMedia) === UNDEFINED) {
                 var matches = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
-                var version = $.isArray(matches) && matches.length === 3 && parseInt(matches[2], 10);
+                var version = Array.isArray(matches) && matches.length === 3 && parseInt(matches[2], 10);
                 if ($.type(version) === NUMBER && version < 56) {
                     // Note: This regular expression could be improved:
                     // 1. to exclude native voices which do not fail at ~200-300 characters
