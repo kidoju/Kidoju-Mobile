@@ -47,11 +47,6 @@
                 // https://github.com/macdonst/SpeechSynthesisPlugin/issues/7
                 // https://github.com/macdonst/SpeechSynthesisPlugin/blob/master/www/SpeechSynthesisVoiceList.js
                 voices = voices._list;
-                var ret;
-                for (var i = 0, length = voices.length; i < length; i++) {
-                    ret += (typeof voices[i].default) + ': ' + voices[i].default + ' (' + voices[i]._default + ')';
-                }
-                window.alert(ret);
             }
         }
 
