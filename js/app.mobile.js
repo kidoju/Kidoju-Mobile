@@ -11,8 +11,10 @@ if (typeof(require) === 'function') {
     // Load other CSS
     require('../styles/vendor/khan/katex.less');
     require('../styles/kidoju.widgets.floating.less');
+    require('../styles/kidoju.widgets.highlighter.less');
     require('../styles/kidoju.widgets.markdown.less');
     require('../styles/kidoju.widgets.mathexpression.less');
+    require('../styles/kidoju.widgets.mathinput.less');
     require('../styles/kidoju.widgets.mediaplayer.less');
     require('../styles/kidoju.widgets.messagebox.less');
     require('../styles/kidoju.widgets.multiquiz.less');
@@ -21,6 +23,7 @@ if (typeof(require) === 'function') {
     require('../styles/kidoju.widgets.rating.less');
     require('../styles/kidoju.widgets.stage.less');
     require('../styles/kidoju.widgets.table.less');
+    require('../styles/kidoju.widgets.textgaps.less');
     require('../styles/app.fonts.less');
     require('../styles/app.mobile.less');
 
@@ -90,8 +93,11 @@ window.jQuery.holdReady(true);
         './kidoju.widgets.connector',
         './kidoju.widgets.dropzone',
         './kidoju.widgets.floating',
+        './kidoju.widgets.highlighter',
+        './kidoju.widgets.imageset',
         './kidoju.widgets.markdown',
         './kidoju.widgets.mathexpression',
+        './kidoju.widgets.mathinput',
         './kidoju.widgets.mediaplayer',
         './kidoju.widgets.messagebox',
         './kidoju.widgets.multiquiz',
@@ -102,6 +108,7 @@ window.jQuery.holdReady(true);
         // './kidoju.widgets.social',
         './kidoju.widgets.stage',
         './kidoju.widgets.table',
+        './kidoju.widgets.textgaps',
         './app.constants',
         './app.logger',
         './app.i18n',
@@ -3985,7 +3992,7 @@ window.jQuery.holdReady(true);
             if (!speaking) {
                 e.button.attr(kendo.attr(SPEAKING), 'true');
                 var field = e.button.attr(kendo.attr('tts'));
-                var text = viewModel.get(field);
+                var text = viewModel.get(field) || '';
                 // Speak
                 app.tts.doSpeak(text, i18n.locale(), true)
                     .always(function () {
