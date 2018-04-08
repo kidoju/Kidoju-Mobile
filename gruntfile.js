@@ -3,16 +3,11 @@
  * Sources at https://github.com/Memba/Kidoju-Platform
  */
 
-/* jslint node: true */
-/* jshint node: true */
+/* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
+const webpack = require('webpack');
+const webpackConfig = require('./webpack.config.js');
 
-/* And because of kendo_lint */
-/* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
-
-'use strict';
-
-module.exports = function (grunt) {
-
+module.exports = grunt => {
     /**
      * Unfortunately, we cannot use grunt-env to set the environment
      * - webpack uses a DefinePlugin which reads process.env.NODE_ENV
@@ -23,13 +18,14 @@ module.exports = function (grunt) {
      */
 
     if (process.env.NODE_ENV) {
-        console.log('grunt environment is ' + process.env.NODE_ENV);
+        // eslint-disable-next-line no-console
+        console.log(`grunt environment is ${process.env.NODE_ENV}`);
     } else {
-        console.log('IMPORTANT: grunt environment is undefined. Use the `build.cmd` script');
+        // eslint-disable-next-line no-console
+        console.log(
+            'IMPORTANT: grunt environment is undefined. Use the `build.cmd` script'
+        );
     }
-
-    var webpack = require('webpack');
-    var webpackConfig = require(__dirname + '/webpack.config.js');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -50,29 +46,58 @@ module.exports = function (grunt) {
                 dest: './www/build/workerlib.bundle.js'
             }
         },
+        eslint: {
+            files: ['*.js', './js/**/*.es6'],
+            options: {
+                config: '.eslintrc'
+            }
+        },
         jscs: {
-            files: ['gruntfile.js', 'webpack.config.js', 'js/**/app.*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
+            files: [
+                'js/**/app.*.js',
+                'js/**/*.jsx',
+                'test/**/*.js',
+                'webapp/**/*.js'
+            ],
             options: {
                 config: '.jscsrc',
-                excludeFiles: ['js/kidoju.*.js', 'js/vendor/**/*.js', 'webapp/public/**/*.js', 'test/vendor/**/*.js']
+                excludeFiles: [
+                    '*.js',
+                    'js/kidoju.*.js',
+                    'js/vendor/**/*.js',
+                    'test/vendor/**/*.js',
+                    'webapp/public/**/*.js'
+                ]
             }
         },
         jshint: {
-            all: ['gruntfile.js', 'webpack.config.js', 'js/**/app.*.js', 'js/**/*.jsx', 'webapp/**/*.js', 'test/**/*.js'],
-            ignores: ['js/kidoju.*.js', 'js/vendor/**/*.js', 'webapp/public/**/*.js', 'test/vendor/**/*.js'],
+            files: [
+                'js/**/app.*.js',
+                'js/**/*.jsx',
+                'test/**/*.js',
+                'webapp/**/*.js'
+            ],
             options: {
+                // .jshintignore does ot work with grunt-contrib-jshint
+                ignores: [
+                    '*.js',
+                    'js/kidoju.*.js',
+                    'js/vendor/**/*.js',
+                    'test/vendor/**/*.js',
+                    'webapp/public/**/*.js'
+                ],
                 jshintrc: true
             }
         },
-        // TODO karma
         /*
+        // Kendo Lint is now obsolete
         kendo_lint: {
             files: ['src/js/app*.js']
         },
         */
-        // TODO: lint html too
         mocha: {
-            browser: { // In browser (phantomJS) unit tests
+            // In browser (phantomJS) unit tests
+            browser: {
                 options: {
                     log: true,
                     logErrors: true,
@@ -83,7 +108,8 @@ module.exports = function (grunt) {
                 src: ['test/browser/**/*.html']
             }
         },
-        mochaTest: { // In node (Zombie) unit tests
+        mochaTest: {
+            // In node (Zombie) unit tests
             node: {
                 options: {
                     quiet: false,
@@ -97,20 +123,30 @@ module.exports = function (grunt) {
         nsp: {
             package: grunt.file.readJSON('package.json')
         },
+        stylelint: {
+            options: {
+                configFile: '.stylelintrc'
+            },
+            src: ['styles/**/*.{css,less,scss}']
+        },
         uglify: {
             build: {
                 options: {
-                    banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                    banner:
+                        '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
                     sourceMap: false
                     // sourceMap: true,
                     // sourceMapName: 'webapp/public/build/workerlib.bundle.js.map'
                 },
                 files: {
-                    'webapp/public/build/workerlib.bundle.js': ['js/kidoju.data.workerlib.js']
+                    'webapp/public/build/workerlib.bundle.js': [
+                        'js/kidoju.data.workerlib.js'
+                    ]
                 }
             }
         },
-        webdriver: { // Selenium functional tests
+        webdriver: {
+            // Selenium functional tests
             appium: {
                 configFile: './wdio.appium.conf.js'
             },
@@ -135,7 +171,8 @@ module.exports = function (grunt) {
                         sourceMap: false
                     }),
                     new webpack.BannerPlugin({
-                        banner: '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                        banner:
+                            '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
                         raw: true
                         // entryOnly: true
                     })
@@ -148,20 +185,26 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-eslint');
     grunt.loadNpmTasks('grunt-jscs');
     // grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-nsp');
+    grunt.loadNpmTasks('grunt-stylelint');
     grunt.loadNpmTasks('grunt-webdriver');
     grunt.loadNpmTasks('grunt-webpack');
 
-
     // Commands
-    grunt.registerTask('lint', ['jscs', 'jshint', 'nsp']); // 'kendo_lint']);
+    grunt.registerTask('lint', [
+        'eslint',
+        'jscs',
+        'jshint',
+        'stylelint',
+        'nsp'
+    ]); // , 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'copy']);
     // grunt.registerTask('test', ['mocha', 'mochaTest', 'webdriver']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
-
 };
