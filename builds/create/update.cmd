@@ -24,9 +24,18 @@ REM ATTRIB +R .\www\index.html /S
 
 REM Copy environment files
 ATTRIB -R .\.*
+COPY ..\..\Kidoju\Kidoju.Mobile\.babelrc .\ /Y
 COPY ..\..\Kidoju\Kidoju.Mobile\.editorconfig .\ /Y
+COPY ..\..\Kidoju\Kidoju.Mobile\.eslintignore .\ /Y
+COPY ..\..\Kidoju\Kidoju.Mobile\.eslintrc .\ /Y
 COPY ..\..\Kidoju\Kidoju.Mobile\.gitattributes .\ /Y
 COPY ..\..\Kidoju\Kidoju.Mobile\.gitignore .\ /Y
+COPY ..\..\Kidoju\Kidoju.Mobile\.jscsrc .\ /Y
+COPY ..\..\Kidoju\Kidoju.Mobile\.jshintignore .\ /Y
+COPY ..\..\Kidoju\Kidoju.Mobile\.jshintrc .\ /Y
+COPY ..\..\Kidoju\Kidoju.Mobile\.npmignore .\ /Y
+COPY ..\..\Kidoju\Kidoju.Mobile\.stylelintignore .\ /Y
+COPY ..\..\Kidoju\Kidoju.Mobile\.stylelintrc .\ /Y
 ATTRIB +R .\.*
 
 REM Copy build files
