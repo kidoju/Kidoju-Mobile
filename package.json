@@ -160,7 +160,7 @@
     ]
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
   "config": {
     "msvs_version": "2015"
