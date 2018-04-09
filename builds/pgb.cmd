@@ -1,0 +1,1 @@
+// Check phonegap.cmd
