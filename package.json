@@ -112,7 +112,7 @@
     "cordova-plugin-device": "^2.0.1",
     "cordova-plugin-dialogs": "^2.0.1",
     "cordova-plugin-file": "^6.0.1",
-    "cordova-plugin-google-analytics": "^1.8.3",
+    "cordova-plugin-google-analytics": "https://github.com/jlchereau/google-analytics-plugin",
     "cordova-plugin-inappbrowser": "^2.0.2",
     "cordova-plugin-local-notification": "^0.9.0-beta.3",
     "cordova-plugin-network-information": "^2.0.1",
@@ -145,10 +145,11 @@
       "cordova-plugin-safariviewcontroller": {},
       "cordova-plugin-local-notification": {},
       "phonegap-plugin-speech-synthesis": {},
-      "cordova-plugin-google-analytics": {},
       "phonegap-plugin-barcodescanner": {
-        "ANDROID_SUPPORT_V4_VERSION": "27.+"
-      }
+        "ANDROID_SUPPORT_V4_VERSION": "27.+",
+        "CAMERA_USAGE_DESCRIPTION": "Scan QR Codes"
+      },
+      "cordova-plugin-google-analytics": {}
     },
     "platforms": [
       "android",

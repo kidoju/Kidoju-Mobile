@@ -24,4 +24,9 @@ Cordova Hooks represent special scripts which could be added by application and 
 
 # Phonegap Build
 
-Phonegap Build does not support Cordova Hooks
+## Google Analytics
+
+Phonegap Build does not support Cordova Hooks, so we have forked https://github.com/danwilson/google-analytics-plugin
+at https://github.com/jlchereau/google-analytics-plugin and removed any IDFA reference from plugin.xml in
+https://github.com/danwilson/google-analytics-plugin/commit/b9605b78f182e8781e079d6e3e102dcd6196e14c
+
