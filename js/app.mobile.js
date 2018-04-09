@@ -3496,7 +3496,6 @@ window.jQuery.holdReady(true);
 
             // Synchronize activities
             viewModel.activities.setLastSync(viewModel.get(VIEW_MODEL.USER.LAST_SYNC));
-            debugger;
             viewModel.activities.remoteSync()
                 .progress(function (status) {
                     message.text(culture.message[status.collection]);
