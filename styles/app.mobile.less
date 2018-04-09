@@ -2,7 +2,9 @@
     -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
     -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
 }
-:not(input), :not(textarea) {
+
+:not(input),
+:not(textarea) {
     user-select: none;                          /* prevent copy paste, to allow, change 'none' to 'text' */
 }
 
@@ -13,11 +15,13 @@ img[alt=""], img:not([alt]) {
 }
 */
 
-html, body {
+html,
+body {
     text-size-adjust: none; /* prevent webkit from resizing text to fit */
     height: 100%;
     margin: 0;
     padding: 0;
+
     /**********************************************************
     * Activities view
     **********************************************************/
@@ -30,9 +34,11 @@ html, body {
                     text-overflow: ellipsis;
                     margin-right: 3.5em;
                 }
+
                 .small {
                     font-size: small;
                 }
+
                 .km-badge {
                     font-size: 0.75em;
                     // right: 1.75em;
@@ -40,12 +46,14 @@ html, body {
             }
         }
     }
+
     /**********************************************************
     * Categories view
     **********************************************************/
     #categories {
         .km-list > li {
-            padding: .5em 1em;
+            padding: 0.5em 1em;
+
             .km-listview-link {
                 .km-thumbnail { // TODO should be icon to match others
                     border: none;
@@ -54,6 +62,7 @@ html, body {
                     width: 1.8rem;
                     vertical-align: middle;
                 }
+
                 .km-badge {
                     font-size: 0.75em;
                     // right: 1.75em;
@@ -61,26 +70,32 @@ html, body {
             }
         }
     }
+
     /**********************************************************
     * Correction/Player view
     **********************************************************/
-    #correction, #player {
+    #correction,
+    #player {
         .km-stretched-view {
             // http://docs.telerik.com/kendo-ui/controls/hybrid/how-to/relative-content-size-using-flexboxes
             display: flex;
             flex-wrap: wrap;
+
             .stretched-item.padding {
                 padding: 1em;
+
                 .heading {
                     h2 {
                         margin: 0;
                         font-size: 1rem;
+
                         img {
                             height: 1.5em;
                             width: 1.5em;
                             margin-right: 0.5em;
                             vertical-align: middle;
                         }
+
                         .tts.km-button {
                             font-size: 0.9em;
                             height: 1.8em;
@@ -89,12 +104,14 @@ html, body {
                             margin: 0;
                             border-radius: 50%;
                             float: right;
+
                             span.km-icon.km-notext {
                                 vertical-align: middle;
                             }
                         }
                     }
                 }
+
                 /*
                 .markdown {
                     min-height: 2em; // So as to have a surface for swiping between pages
@@ -103,10 +120,12 @@ html, body {
             }
         }
     }
+
     /**********************************************************
     * Favourites view
     **********************************************************/
     // #favourites {}
+
     /**********************************************************
     * Finder view (search results)
     **********************************************************/
@@ -115,6 +134,7 @@ html, body {
             .km-listview-link {
                 height: 9.5em; // a fixed height is required for endless scrolling
                 line-height: 1.25;
+
                 .km-thumbnail {
                     border: none;
                     border-radius: 0;
@@ -123,28 +143,36 @@ html, body {
                     margin-right: 0;
                     float: left;
                 }
+
                 .summary {
                     margin-left: 4rem;
                     margin-right: 2.5rem;
-                    h4, .tags {
+
+                    h4,
+                    .tags {
                         //http://dropshado.ws/post/1015351370/webkit-line-clamp
-                        overflow : hidden;
+                        overflow: hidden;
                         text-overflow: ellipsis;
                         display: -webkit-box;
                         -webkit-line-clamp: 2;
                         -webkit-box-orient: vertical;
                     }
+
                     h4 {
                         margin: 0;
                         font-weight: bold;
                     }
-                    .tags, .metrics {
+
+                    .tags,
+                    .metrics {
                         font-size: 0.8em;
                     }
+
                     .tags {
                         margin: 0.2em 0;
                     }
                 }
+
                 .km-badge {
                     font-size: 0.75em;
                     // right: 1.75em;
@@ -152,10 +180,12 @@ html, body {
             }
         }
     }
+
     /**********************************************************
      * Network and sync views
      **********************************************************/
-    #network, #sync {
+    #network,
+    #sync {
         .picture {
             width: 10em;
             height: 10em;
@@ -163,67 +193,83 @@ html, body {
             display: block;
             float: none;
         }
-        .title, .message {
+
+        .title,
+        .message {
             text-align: center;
         }
+
         .progress {
             margin: 1em;
+
             .k-progressbar {
-                border-box: content-box;
+                box-sizing: border-box;
                 width: 100%; // calc(100% - 4px);
                 margin: 1em 0;
             }
         }
     }
+
     /**********************************************************
      * Score view
      **********************************************************/
     #score {
+
         .summary {
-            padding: .5em;
+            padding: 0.5em;
             display: flex;
             align-items: flex-start;
+
             .icon {
                 height: 2em;
                 width: 2em;
             }
+
             .title {
                 font-weight: bold;
                 font-size: 1rem;
-                margin: 0.2em .5em 0 .5em;
+                margin: 0.2em 0.5em 0 0.5em;
             }
         }
+
         .km-list > li {
             .km-listview-link {
                 display: flex;
                 align-items: flex-start;
+
                 .icon {
                     flex: 0 0 auto;
                     height: 2em;
                     width: 2em;
                 }
+
                 .score {
                     display: grid; // otherwise margin-right won't work
-                    margin: 0 3.5em 0 .5em;
+                    margin: 0 3.5em 0 0.5em;
+
                     h4 { // question
                         font-weight: normal;
                         margin: 0;
-                        overflow : hidden;
+                        overflow: hidden;
                         text-overflow: ellipsis;
                         white-space: nowrap;
                     }
+
                     .small {
                         font-size: small;
                         line-height: normal;
+
                         div.left {
                             width: 5em;
-                            float:left;
+                            float: left;
                         }
+
                         div.right {
                             margin-left: 5em;
                         }
                     }
                 }
+
                 .km-badge {
                     font-size: 0.75em;
                     // right: 1.75em;
@@ -231,28 +277,34 @@ html, body {
             }
         }
     }
+
     /**********************************************************
      * Settings view
      **********************************************************/
     // #settings {}
+
     /**********************************************************
     * Sign-in view
     **********************************************************/
     #signin {
         .k-scrollview.km-scrollview {
             border: none;
+
             div[data-role="page"] {
                 overflow: hidden;
+
                 div.image {
                     position: absolute;
                     width: 80vmin;
                     top: 10vmin;
                     left: 50%;
                     margin-left: -40vmin;
+
                     img {
                         width: 100%;
                     }
                 }
+
                 div.text {
                     position: absolute;
                     bottom: 0;
@@ -270,64 +322,80 @@ html, body {
                         width: 80%;
                     }
                 }
+
                 .k-notification-wrap {
                     .k-text {
                         margin-right: 3em;
                     }
                 }
+
                 .km-list > li {
-                    padding: .5em 0;
-                    >span.km-icon {
+                    padding: 0.5em 0;
+
+                    > span.km-icon {
                         display: none; // Fix for a useless span that breaks our layout
                     }
+
                     .km-button {
                         box-sizing: border-box;
                         width: 100%;
+
                         .km-icon {
                             margin-left: -0.7em;
                             margin-right: 0.7em;
                         }
                     }
+
                     .km-button[data-provider]:not(.km-state-disabled) {
-                        color: #ffffff;
+                        color: #fff;
                     }
+
                     .km-button[data-provider="google"]:not(.km-state-disabled) {
                         background-color: #d9534f;
                         border-color: #d43f3a;
                     }
+
                     .km-button[data-provider="google"].km-state-active {
                         background-color: #c9302c;
                         border-color: #ac2925;
                     }
+
                     .km-button[data-provider="facebook"]:not(.km-state-disabled) {
                         background-color: #337ab7;
                         border-color: #2e6da4;
                     }
+
                     .km-button[data-provider="facebook"].km-state-active {
                         background-color: #204d74;
                         border-color: #122b40;
                     }
+
                     .km-button[data-provider="twitter"]:not(.km-state-disabled) {
                         background-color: #5bc0de;
                         border-color: #46b8da;
                     }
+
                     .km-button[data-provider="twitter"].km-state-active {
                         background-color: #31b0d5;
                         border-color: #269abc;
                     }
+
                     .km-button[data-provider="live"]:not(.km-state-disabled) {
                         background-color: #5cb85c;
                         border-color: #4cae4c;
                     }
+
                     .km-button[data-provider="live"].km-state-active {
                         background-color: #449d44;
                         border-color: #398439;
                     }
+
                     .km-button[data-provider="dummy"] {
                         color: initial;
                     }
                 }
             }
+
             ol.k-pages.km-pages {
                 // background-color in app.template.less
                 &.no-background {
@@ -337,6 +405,7 @@ html, body {
             }
         }
     }
+
     /**********************************************************
     * Summary view
     **********************************************************/
@@ -348,14 +417,18 @@ html, body {
             display: block;
             float: none;
         }
+
         form {
-            .km-badge-error, .km-badge-success, .km-badge-warning {
+            .km-badge-error,
+            .km-badge-success,
+            .km-badge-warning {
                 border-radius: 50%;
                 float: right;
                 padding: 6px;
                 margin-top: -6px;
                 position: relative;
             }
+
             .kj-markdown {
                 p:first-child {
                     margin-top: 0;
@@ -363,6 +436,7 @@ html, body {
             }
         }
     }
+
     /**********************************************************
      * User view
      **********************************************************/
@@ -377,11 +451,13 @@ html, body {
         }
     }
 }
+
 /**********************************************************
  * @media queries
  **********************************************************/
 @media screen and (min-width: 375px) and (max-width: 411px) { // iPhone 6/7/8 and iPhone X
-    html, body {
+    html,
+    body {
         #finder {
             .km-list > li {
                 .km-listview-link {
@@ -391,8 +467,10 @@ html, body {
         }
     }
 }
+
 @media screen and (min-width: 412px) and (max-width: 699px) { // iPhone 6/7/8 Plus and Nexus 5X/6P
-    html, body {
+    html,
+    body {
         #finder {
             .km-list > li {
                 .km-listview-link {
@@ -402,8 +480,10 @@ html, body {
         }
     }
 }
+
 @media screen and (min-width: 700px) { // iPad Mini+
-    html, body {
+    html,
+    body {
         #finder {
             .km-list > li {
                 .km-listview-link {
