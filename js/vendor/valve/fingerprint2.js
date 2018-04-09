@@ -1,5 +1,5 @@
 /*
-* Fingerprintjs2 1.5.1 - Modern & flexible browser fingerprint library v2
+* Fingerprintjs2 1.7.0 - Modern & flexible browser fingerprint library v2
 * https://github.com/Valve/fingerprintjs2
 * Copyright (c) 2015 Valentin Vasilyev (valentin.vasilyev@outlook.com)
 * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
@@ -35,7 +35,8 @@
       swfPath: 'flash/compiled/FontList.swf',
       detectScreenOrientation: true,
       sortPluginsFor: [/palemoon/i],
-      userDefinedFonts: []
+      userDefinedFonts: [],
+      excludeDoNotTrack: true
     }
     this.options = this.extend(options, defaultOptions)
     this.nativeForEach = Array.prototype.forEach
@@ -329,7 +330,7 @@
           'Andale Mono', 'Arial', 'Arial Black', 'Arial Hebrew', 'Arial MT', 'Arial Narrow', 'Arial Rounded MT Bold', 'Arial Unicode MS',
           'Bitstream Vera Sans Mono', 'Book Antiqua', 'Bookman Old Style',
           'Calibri', 'Cambria', 'Cambria Math', 'Century', 'Century Gothic', 'Century Schoolbook', 'Comic Sans', 'Comic Sans MS', 'Consolas', 'Courier', 'Courier New',
-          'Garamond', 'Geneva', 'Georgia',
+          'Geneva', 'Georgia',
           'Helvetica', 'Helvetica Neue',
           'Impact',
           'Lucida Bright', 'Lucida Calligraphy', 'Lucida Console', 'Lucida Fax', 'LUCIDA GRANDE', 'Lucida Handwriting', 'Lucida Sans', 'Lucida Sans Typewriter', 'Lucida Sans Unicode',
@@ -378,6 +379,11 @@
 
         fontList = fontList.concat(that.options.userDefinedFonts)
 
+        // remove duplicate fonts
+        fontList = fontList.filter(function (font, position) {
+          return fontList.indexOf(font) === position
+        })
+
         // we use m or w because these two characters take up the maximum width.
         // And we use a LLi so that the same matching fonts can get separated
         var testString = 'mmmmmmmmmmlli'
@@ -407,7 +413,21 @@
           s.style.position = 'absolute'
           s.style.left = '-9999px'
           s.style.fontSize = testSize
+
+          // css font reset to reset external styles
+          s.style.fontStyle = 'normal'
+          s.style.fontWeight = 'normal'
+          s.style.letterSpacing = 'normal'
+          s.style.lineBreak = 'auto'
           s.style.lineHeight = 'normal'
+          s.style.texTransform = 'none'
+          s.style.textAlign = 'left'
+          s.style.textDecoration = 'none'
+          s.style.textShadow = 'none'
+          s.style.whiteSpace = 'normal'
+          s.style.wordBreak = 'normal'
+          s.style.wordSpacing = 'normal'
+
           s.innerHTML = testString
           return s
         }
@@ -1336,6 +1356,6 @@
       return ('00000000' + (h1[0] >>> 0).toString(16)).slice(-8) + ('00000000' + (h1[1] >>> 0).toString(16)).slice(-8) + ('00000000' + (h2[0] >>> 0).toString(16)).slice(-8) + ('00000000' + (h2[1] >>> 0).toString(16)).slice(-8)
     }
   }
-  Fingerprint2.VERSION = '1.5.1'
+  Fingerprint2.VERSION = '1.7.0'
   return Fingerprint2
 })
