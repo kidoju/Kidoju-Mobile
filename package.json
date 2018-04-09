@@ -122,12 +122,11 @@
     "cordova-plugin-x-socialsharing": "^5.3.2",
     "cordova-windows": "^6.0.0",
     "es6-promise-plugin": "^4.2.2",
-    "phonegap-plugin-barcodescanner": "^7.1.0",
+    "phonegap-plugin-barcodescanner": "^7.1.1",
     "phonegap-plugin-speech-synthesis": "https://github.com/macdonst/SpeechSynthesisPlugin"
   },
   "cordova": {
     "plugins": {
-      "cordova-plugin-google-analytics": {},
       "cordova-plugin-whitelist": {},
       "cordova-plugin-customurlscheme": {
         "URL_SCHEME": "com.kidoju.mobile",
@@ -144,12 +143,12 @@
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-x-socialsharing": {},
       "cordova-plugin-safariviewcontroller": {},
-      "phonegap-plugin-barcodescanner": {
-        "ANDROID_SUPPORT_V4_VERSION": "27.+",
-        "CAMERA_USAGE_DESCRIPTION": "Scan QR Codes"
-      },
       "cordova-plugin-local-notification": {},
-      "phonegap-plugin-speech-synthesis": {}
+      "phonegap-plugin-speech-synthesis": {},
+      "cordova-plugin-google-analytics": {},
+      "phonegap-plugin-barcodescanner": {
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+      }
     },
     "platforms": [
       "android",
