@@ -3953,6 +3953,7 @@ window.jQuery.holdReady(true);
          */
         mobile.onPageSwipe =  function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            $(document.activeElement).blur(); // Make sure we update the viewModel with current input
             if (e.direction === 'left') {
                 viewModel.nextPage();
             } else if (e.direction === 'right') {
@@ -3966,6 +3967,7 @@ window.jQuery.holdReady(true);
          */
         mobile.onUserSwipe =  function (e) {
             assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            $(document.activeElement).blur(); // Make sure we update the viewModel with current input
             if (e.direction === 'left') {
                 viewModel.nextUser();
             } else if (e.direction === 'right') {
