@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.kidoju.mobile" version="0.3.8" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="com.kidoju.mobile" version="0.3.8" android-versionCode="1" ios-CFBundleVersion="0.3.8.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Kidoju Mobile</name>
     <description>Mobile app for the Kidoju platform.</description>
     <author email="support@memba.com" href="http://www.memba.com">Memba Sarl</author>
@@ -148,6 +148,10 @@
     <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIViewControllerBasedStatusBarAppearance">
         <false />
     </edit-config>
+    <engine name="android" spec="^7.1.0" />
+    <engine name="browser" spec="^5.0.3" />
+    <engine name="ios" spec="^4.5.4" />
+    <engine name="windows" spec="^6.0.0" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
     <plugin name="cordova-plugin-customurlscheme" spec="^4.3.0">
         <variable name="URL_SCHEME" value="com.kidoju.mobile" />
@@ -171,8 +175,4 @@
         <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
     </plugin>
     <plugin name="cordova-plugin-google-analytics" spec="https://github.com/jlchereau/google-analytics-plugin" />
-    <engine name="android" spec="^7.1.0" />
-    <engine name="browser" spec="^5.0.3" />
-    <engine name="ios" spec="^4.5.4" />
-    <engine name="windows" spec="^6.0.0" />
 </widget>
