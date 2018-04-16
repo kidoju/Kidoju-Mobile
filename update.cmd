@@ -89,8 +89,8 @@ XCOPY ..\Kidoju.Widgets\src\js\vendor\kendo .\js\vendor\kendo /C /E /I /R /Y
 ATTRIB +R .\js\vendor\kendo\*.* /S
 
 REM Copy localForage
-XCOPY ..\Kidoju.Widgets\test\vendor\localforage*.* .\js\vendor\localForage\ /C /E /I /R /Y
-ATTRIB +R .\js\vendor\localForage\*.* /S
+REM XCOPY ..\Kidoju.Widgets\test\vendor\localforage*.* .\js\vendor\localForage\ /C /E /I /R /Y
+REM ATTRIB +R .\js\vendor\localForage\*.* /S
 
 REM copy blueimp/md5
 XCOPY ..\Kidoju.Server\client\js\vendor\blueimp .\js\vendor\blueimp /C /E /I /R /Y
