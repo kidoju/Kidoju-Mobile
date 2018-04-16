@@ -82,11 +82,14 @@
             // Feedback url
             feedbackUrl: 'https://www.kidoju.com/support/{0}/contact?about={1}', // TODO use gitter?
             // Help system
-            helpUrl: 'https://help.kidoju.com/mobile-guide/help.html',
+            helpUrl: 'https://help.kidoju.com',
             // The authorId to search summaries from (until we support organizationId)
-            authorId: undefined, // '56d6ee31bc039c1a00062950',
+            authorId: undefined,
+            // authorId: '56d6ee31bc039c1a00062950',
             // The app language
-            language: undefined, // 'fr',
+            language: undefined,
+            // language: 'en',
+            // language: 'fr',
             // The root categoryId
             rootCategoryId: {
                 en: undefined,
