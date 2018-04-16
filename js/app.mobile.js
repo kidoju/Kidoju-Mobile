@@ -1225,7 +1225,9 @@ window.jQuery.holdReady(true);
                         logger.error({
                             message: 'error syncing users',
                             method: 'viewModel.syncUsers',
-                            data:  { status: status, error: error, response: parseResponse(xhr) }
+                            // Note: status and error are undefined because of deferred.reject(response) in _promise method
+                            // at https://github.com/telerik/kendo-ui-core/blob/master/src/kendo.data.js#L3195
+                            data: { status: status, error: error, response: parseResponse(xhr) }
                         });
                     });
             },
