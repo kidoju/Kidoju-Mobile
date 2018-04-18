@@ -1225,8 +1225,8 @@
                     nullable: true
                 },
                 picture: {
-                    type: STRING,
-                    editable: false
+                    type: STRING
+                    // editable: false
                 },
                 // We are keeping the original provider, but we may consider also saving the token
                 provider: {
@@ -1266,6 +1266,7 @@
              * --------
              * Small: https://lh3.googleusercontent.com/-nma3Tmew9CI/AAAAAAAAAAI/AAAAAAAAAAA/AEMOYSCbFzy-DifyDo-I9xTQ6EUh8cQ4Xg/s64-c-mo/photo.jpg
              * Large: https://lh3.googleusercontent.com/-nma3Tmew9CI/AAAAAAAAAAI/AAAAAAAAAAA/AEMOYSCbFzy-DifyDo-I9xTQ6EUh8cQ4Xg/mo/photo.jpg
+             * Default: https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg
              *
              * Live
              * --------
@@ -1278,33 +1279,20 @@
              * --------
              * Small: https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_normal.jpg
              * Large: https://pbs.twimg.com/profile_images/681812478876119042/UQ6KWVL8_400x400.jpg
+             * Default: https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png
              *
              */
             picture$: function () {
-                var picture = this.get('picture');
+                var picture = this instanceof models.MobileUser ? this.get('picture') : this.picture;
                 if ($.type(picture) === STRING && picture.length) {
                     return picture;
                 } else {
                     return kendo.format(uris.mobile.icons, 'user');
                 }
             },
-            largerPicture$: function () {
-                var that = this;
-                var picture = that instanceof models.MobileUser ? that.get('picture') : that.picture;
-                if ($.type(picture) === STRING && picture.length) {
-                    return picture
-                        // .replace('/p50x50/', '/p160x160/') // Facebook - does not work anymore because of the signature, so it is now set in Kidoju-Server with ?type=large which corresponds to p200x200
-                        .replace('/s64-c-mo/', '/s160-c-mo/') // Google
-                        .replace('?type=small', '?type=medium') // Live
-                        .replace('_normal.', '_400x400.'); // Twitter
-                } else {
-                    return kendo.format(uris.mobile.icons, 'user');
-                }
-            },
             mobilePicture$: function () {
-                var that = this;
-                var picture = that instanceof models.MobileUser ? that.get('picture') : that.picture;
-                var sid = that instanceof models.MobileUser ? that.get('sid') : that.sid;
+                var picture = this instanceof models.MobileUser ? this.get('picture') : this.picture;
+                var sid = this instanceof models.MobileUser ? this.get('sid') : this.sid;
                 var persistent = fileSystem._persistent;
                 // To have a mobile picture, there needs to have been a valid picture in the first place and a persistent file system to save it to
                 if ($.type(persistent) !== UNDEFINED && RX_MONGODB_ID.test(sid) && $.type(picture) === STRING && picture.length) {
@@ -1324,7 +1312,7 @@
                     // var rootURL = window.cordova && window.device && window.device.platform !== 'browser' && !(window.webkit && window.webkit.messageHandlers) ?
                     //     persistent.root.toInternalURL() : persistent.root.toURL();
                     // var path = kendo.format(uris.mobile.pictures, persistent.root.toInternalURL(), sid + DOT_JPEG);
-                    var path = kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG);
+                    var path = kendo.format(uris.mobile.pictures, persistent.root.toURL(), sid + DOT_JPEG); // TODO might be a png
                     logger.debug({
                         message: 'binding to mobilePicture$',
                         method: 'MobileUser.mobilePicture$',
@@ -1348,7 +1336,7 @@
                 // The following allows app.models.MobileUser.fn._saveMobilePicture.call(user) in MobileUserDataSource
                 // where user is a plain object with a sid and picture
                 var sid = that instanceof models.MobileUser ? that.get('sid') : that.sid;
-                var remoteUrl = that instanceof models.MobileUser ? that.largerPicture$() : models.MobileUser.fn.largerPicture$.call(that);
+                var remoteUrl = that instanceof models.MobileUser ? that.picture$() : models.MobileUser.fn.picture$.call(that);
                 if (remoteUrl === kendo.format(uris.mobile.icons, 'user')) {
                     dfd.resolve();
                 } else {
@@ -1357,7 +1345,7 @@
                     fileSystem.init()
                         .done(function () {
                             var directoryPath = kendo.format(uris.mobile.pictures, '', '');
-                            var fileName = sid + DOT_JPEG;
+                            var fileName = sid + DOT_JPEG; // TODO beware SVG default
                             fileSystem.getDirectoryEntry(directoryPath, window.PERSISTENT)
                                 .done(function (directoryEntry) {
                                     fileSystem.getFileEntry(directoryEntry, fileName)
@@ -1540,7 +1528,20 @@
                             });
                     })
                     .fail(function (error) {
-                        options.error.apply(this, error2XHR(error));
+                        // Create the user anyway without picture
+                        logger.error({
+                            message: 'Cannot save mobile picture',
+                            method: 'models.MobileUserTransport.create',
+                            error: error
+                        });
+                        user.set('picture', '');
+                        db.users.insert(user)
+                            .done(function () {
+                                options.success({ total: 1, data: [user] });
+                            })
+                            .fail(function (error) {
+                                options.error.apply(this, error2XHR(error));
+                            });
                     });
             },
 

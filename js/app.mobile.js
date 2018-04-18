@@ -1141,27 +1141,28 @@ window.jQuery.holdReady(true);
                         var user = viewModel.users.data().find(function (data) {
                             return data.get('sid') === me.id;
                         });
-                        // If not found, create a new user
-                        if (!(user instanceof models.MobileUser)) {
-                            // Read provider set in mobile.onSigninButtonClick
-                            var provider = localStorage.getItem('provider'); // TODO Manage localStorage errors
-                            user = new models.MobileUser();
-                            // Since we have marked fields as non editable, we cannot use 'user.set'.
-                            // `accept` should raise a change event on the parent viewModel
-                            user.accept({
-                                id: user.defaults.id, // Without default id, 'isNew' and 'sync' won't work
+                        if (user instanceof models.MobileUser) {
+                            // Update user picture (firstName and lastName are currently not editable)
+                            // user.set('firstName', me.firstName);
+                            // user.set('lastName', me.lastName);
+                            user.set('picture', me.picture);
+                        } else {
+                            // If not found, create a new user
+                            user = new models.MobileUser({
+                                // id: user.defaults.id, // Without default id, 'isNew' and 'sync' won't work
                                 sid: me.id,
                                 firstName: me.firstName,
                                 lastName: me.lastName,
-                                lastSync: user.defaults.lastSync,
-                                lastUse: user.defaults.lastUse(),
-                                md5pin: user.defaults.md5pin,
+                                // lastSync: user.defaults.lastSync,
+                                // lastUse: user.defaults.lastUse(),
+                                // md5pin: user.defaults.md5pin,
                                 picture: me.picture,
-                                provider: provider,
-                                rootCategoryId: user.defaults.rootCategoryId()
+                                provider: localStorage.getItem('provider') // Set in mobile.onSigninButtonClick // TODO Manage localStorage errors
+                                // rootCategoryId: user.defaults.rootCategoryId()
                             });
                             viewModel.users.add(user);
                         }
+                        // Set default user
                         viewModel.set(VIEW_MODEL.USER.$, user);
                         // Remove provider from local storage
                         localStorage.removeItem('provider'); // TODO: Manage localStorage errors
@@ -3674,7 +3675,6 @@ window.jQuery.holdReady(true);
             var newPinValue = pinElements.eq(1).val();
             var confirmValue = pinElements.eq(2).val();
             var isNew = user.isNew();
-
             if ((isNew && RX_PIN.test(newPinValue) && confirmValue === newPinValue) ||
                 (!isNew && RX_PIN.test(newPinValue) && confirmValue === newPinValue && user.verifyPin(pinValue))) {
 
