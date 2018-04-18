@@ -17,6 +17,16 @@
 
     'use strict';
 
+    /**
+     * IMPORTANT:
+     * This only works in Chrome - See https://caniuse.com/#feat=filesystem
+     * In Cordova, there is a cordova-file-plugin so this works: https://cordova.apache.org/blog/2017/10/18/from-filetransfer-to-xhr2.html
+     *
+     * On other platforms we need a polyfill like https://raw.githubusercontent.com/ebidel/idb.filesystem.js/master/src/idb.filesystem.js
+     * Check https://docs.microsoft.com/en-us/microsoft-edge/dev-guide/storage/indexeddb/saving-large-files-locally
+     * Note that in Cordova, images can be accessed using file://, which is not possible with blobs stored in indexedDB, so the polyfill is only used in app.fs.test.html
+     */
+
     (function ($, undefined) {
 
         var app = window.app = window.app || {};
@@ -25,7 +35,7 @@
         var STRING = 'string';
         var OBJECT = 'object';
         var UNDEFINED = 'undefined';
-        var DOT_TEMP = '.tmp';
+        // var DOT_TEMP = '.tmp';
         var PERSISTENT_STORAGE_SIZE = 100 * 1024 * 1024; // 100 MB
         var TEMPORARY_STORAGE_SIZE = 10 * 1024 * 1024; // 10 MB
         // The following allows FS_ROOT[window.TEMPORARY] and FS_ROOT[window.PERSISTENT];
@@ -379,6 +389,9 @@
             // Define how you want the XHR data to come back
             xhr.responseType = 'blob';
 
+            // Fails on Facebook and transparent with other providers
+            // xhr.withCredentials = true;
+
             // Set request headers
             if ($.isPlainObject(headers)) {
                 for (var header in headers) {
@@ -388,31 +401,45 @@
                 }
             }
 
+            // Add a referer (does not help downloading live picture)
+            // xhr.setRequestHeader('referer', window.location.href);
+
             // Save file when loaded
             xhr.onload = function (e) {
-                var blob = xhr.response; // Note: not xhr.responseText
-                if (blob) {
-                    fileEntry.createWriter(
-                        function (fileWriter) {
-                            fileWriter.onwriteend = dfd.resolve;
-                            fileWriter.onerror = dfd.reject;
-                            fileWriter.write(blob);
-                        },
-                        dfd.reject
-                    );
+                if (this.readyState === this.DONE && this.status === 200) {
+                    var blob = xhr.response; // not xhr.responseText
+                    if (blob) {
+                        fileEntry.createWriter(
+                            function (fileWriter) {
+                                fileWriter.onwriteend = dfd.resolve;
+                                fileWriter.onerror = dfd.reject;
+                                fileWriter.write(blob);
+                            },
+                            dfd.reject
+                        );
+                    } else {
+                        dfd.reject(new Error('XMLHttpRequest missing body'));
+                    }
                 } else {
-                    dfd.reject(new Error('XMLHttpRequest missing body'));
+                    // Especially errors 400, 401 and 403
+                    dfd.reject(new Error('XMLHttpRequest status ' + this.status));
                 }
             };
 
             // Report download progress
             xhr.onprogress = dfd.notify;
+            // Change state
+            // xhr.onreadystatechange = function (e) {};
             // Report errors
-            xhr.onerror = function (e) {
-                // e is an XMLHttpRequestProgressEvent
+            xhr.onerror = function () {
+                // Especially error 404 ends here: why?
+                // e is an XMLHttpRequestProgressEvent with no error code
                 dfd.reject(new Error('XMLHttpRequest error'));
             };
-
+            xhr.ontimeout = function () {
+                // e is an XMLHttpRequestProgressEvent
+                dfd.reject(new Error('XMLHttpRequest timeout'));
+            };
             // Report cancellation
             xhr.onabort = function () {
                 // e is an XMLHttpRequestProgressEvent
@@ -437,6 +464,7 @@
          * @param fileEntry
          * @param remoteUrl
          */
+        // Beware of Firefox sendAsBinary: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data#Firefox-specific_examples
         // FileSystem.prototype.upload = function (fileEntry, remoteUrl) {};
 
     }(window.jQuery));
