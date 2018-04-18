@@ -11,7 +11,7 @@
     <!-- The following is a permissive CSP that works -->
     <!--meta http-equiv="Content-Security-Policy" content="default-src * blob: data: file: filesystem: gap: ws:; img-src * 'self' data: file: filesystem:; script-src * 'unsafe-inline' 'unsafe-eval' file: filesystem: gap:; style-src 'self' 'unsafe-inline';"-->
     <!-- The following is a restrictive CSP that works - https://github.com/kidoju/Kidoju-Mobile/issues/36 -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data: gap: https://ssl.gstatic.com; connect-src file: filesystem: https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:* https://*.facebook.com https://*.fbcdn.net https://*.googleusercontent.com https://*.live.com https://pbs.twimg.com; img-src 'self' data: file: filesystem: https:; media-src file: filesystem: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: gap: https://www.google-analytics.com; style-src 'self' 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data: gap: https://ssl.gstatic.com; connect-src file: filesystem: https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:* https://*.facebook.com https://*.fbcdn.net https://*.googleusercontent.com https://*.live.com https://*.twimg.com; img-src 'self' data: file: filesystem: https:; media-src file: filesystem: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: gap: https://www.google-analytics.com; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
     <!-- use the permissive CSP with weinre -->
     <!--script defer src="http://10.0.0.105:8080/target/target-script-min.js#anonymous"></script-->
