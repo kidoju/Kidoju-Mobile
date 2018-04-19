@@ -211,7 +211,7 @@
                 <li data-icon="scan" data-command="scan" data-bind="visible: hasBarCodeScanner$"><a href="#">Scan</a></li>
                 <li data-icon="activities" data-command="activities"><a href="#">History</a></li>
                 <li data-icon="settings" data-command="settings"><a href="#">Settings</a></li>
-                <li data-icon="help" data-command="help"><a href="#">Help</a></li>
+                <li data-icon="help" data-command="help" data-bind="visible: hasInternetBrowsing$"><a href="#">Help</a></li>
             </ul>
         </div>
     </div>
@@ -559,7 +559,7 @@
         <ul id="summary-actionsheet" data-role="actionsheet" >
             <li class="km-actionsheet-play"><a data-action="app.mobile.onSummaryActionPlay">Play</a></li>
             <li class="km-actionsheet-share" data-bind="visible: hasSocialSharing$"><a data-action="app.mobile.onSummaryActionShare">Share</a></li>
-            <li class="km-actionsheet-feedback"><a data-action="app.mobile.onSummaryActionFeedback">Feedback</a></li>
+            <li class="km-actionsheet-feedback" data-bind="visible: hasInternetBrowsing$"><a data-action="app.mobile.onSummaryActionFeedback">Feedback</a></li>
         </ul>
     </div>
 

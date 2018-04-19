@@ -781,7 +781,16 @@ window.jQuery.holdReady(true);
              * @returns {protocol|*|SocialSharing}
              */
             hasSocialSharing$: function () {
-                return !!mobile.support.socialsharing;
+                return !!mobile.support.socialsharing && !app.constants.appleKidSafety;
+            },
+
+            /**
+             * Allow browsing the internet
+             * Dissabled only help
+             * @returns {boolean}
+             */
+            hasInternetBrowsing$: function () {
+                return !app.constants.appleKidSafety;
             },
 
             /**
