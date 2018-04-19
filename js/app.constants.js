@@ -85,7 +85,7 @@
             helpUrl: 'https://help.kidoju.com',
             // Guideline 1.3 - Safety - Kids Category
             // Set to false for 13+ years old
-            appleKidSafety: /iphone|ipod|ipad/.test(window.navigator.userAgent),
+            appleKidSafety: /iphone|ipod|ipad/i.test(window.navigator.userAgent),
             // The authorId to search summaries from (until we support organizationId)
             authorId: undefined,
             // authorId: '56d6ee31bc039c1a00062950',
