@@ -193,32 +193,17 @@ module.exports = {
             }
         ]
     },
-    // Webpack 4 optimization
-    // https://github.com/webpack/webpack/issues/6701
-    /*
+    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     optimization: {
-        minimize: true,
-        splitChunks: { // https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693
-            cacheGroups: {
-                common: {
-                    chunks: 'initial',
-                    // enforce: true,
-                    filename: '[name].bundle.js?v=' + pkg.version,
-                    name: 'common',
-                    test: /[\\/]js[\\/]/
-                    // reuseExistingChunk: true
-                }
-            }
-        }
+        minimize: true
     },
-    */
     output: {
         // Unfortunately it is not possible to specialize output directories
         // See https://github.com/webpack/webpack/issues/882
         path: path.join(__dirname, '/www/build'),
         publicPath,
         filename: `[name].bundle.js?v=${pkg.version}`,
-        chunkFilename: `[name].chunk.js?v=${pkg.version}`
+        chunkFilename: `[name].bundle.js?v=${pkg.version}`
     },
     plugins: [
         definePlugin
