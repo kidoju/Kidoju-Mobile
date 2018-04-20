@@ -15,14 +15,14 @@
 @app-layout-navbar-button-background: darken(@android-light-background-color, 7.5%);
 @app-layout-navbar-button-color: @android-light-main-color;
 @app-layout-navbar-button-border: solid 1px darken(@android-light-background-color, 7.5%);
-@app-layout-navbar-button-margin: .2rem .1rem;
-@app-layout-navbar-button-padding: .6em 1em !important;
+@app-layout-navbar-button-margin: 0.2rem 0.1rem;
+@app-layout-navbar-button-padding: 0.6em 1em !important;
 
 // Forms
 @app-form-dropdown-margin-top: -1.2em;
-@app-form-dropdown-padding-left: .2em;
-@app-form-dropdown-text-indent: .2em;
-@app-form-input-padding-left: .4em;
+@app-form-dropdown-padding-left: 0.2em;
+@app-form-dropdown-text-indent: 0.2em;
+@app-form-input-padding-left: 0.4em;
 @app-form-right-margin-left: 50%;
 @app-form-right-margin-top: -2em;
 @app-form-right-width: 45%;
@@ -47,11 +47,13 @@
 
 /* Validation from kendo/mobile/android/template.less */
 @warning: #fdc86b;
+
 .km-android .km-list > li label.km-invalid,
 .km-android .km-list fieldset .km-legend-button.km-invalid,
-.km-android .km-list > li label.km-invalid.km-required:after {
+.km-android .km-list > li label.km-invalid.km-required::after {
     color: @warning;
 }
+
 .km-android .km-invalid-msg {
     color: @android-active-color;
     background: @warning;
@@ -61,19 +63,24 @@
 .km-root {
     .km-android {
         font-size: 1em;
+
         .km-navbar {
             font-size: 1em;
+
             .km-view-title {
                 visibility: visible;
                 display: block;
             }
         }
+
         .km-list > li {
             font-size: 1em;
+
             .km-listview-link {
                 &.offline:not(.error):not(.info):not(.success):not(.warning) {
                     background-color: darken(@android-light-background-color, 7.5%);
                 }
+
                 .km-badge {
                     right: 0.75em !important;
                     // Make text black instead of white (using shadow)
@@ -82,11 +89,13 @@
                 }
             }
         }
+
         .km-buttongroup {
             .km-button {
-                padding: .2em 1em;
+                padding: 0.2em 1em;
             }
         }
+
         .km-button.km-large {
             font-size: 1em;
         }
@@ -98,10 +107,12 @@
             -webkit-flex-direction: column;
             flex-direction: column;
         }
+
         .km-shim.km-actionsheet-root,
         .k-list-container.k-popup {
             // Make text bold in action sheets and dropdown popups
-            .k-item, li>a {
+            .k-item,
+            li > a {
                 font-weight: 700;
             }
         }

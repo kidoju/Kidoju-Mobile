@@ -15,14 +15,14 @@
 @app-layout-navbar-button-background: #44648f;
 @app-layout-navbar-button-color: @ios-widget-color;
 @app-layout-navbar-button-border: none;
-@app-layout-navbar-button-margin: .4rem .1rem;
-@app-layout-navbar-button-padding: .4em .8em;
+@app-layout-navbar-button-margin: 0.4rem 0.1rem;
+@app-layout-navbar-button-padding: 0.4em 0.8em;
 
 // Forms
 @app-form-dropdown-margin-top: -1.2em;
-@app-form-dropdown-padding-left: .2em;
-@app-form-dropdown-text-indent: .2em;
-@app-form-input-padding-left: .4em;
+@app-form-dropdown-padding-left: 0.2em;
+@app-form-dropdown-text-indent: 0.2em;
+@app-form-input-padding-left: 0.4em;
 @app-form-right-margin-left: 50%;
 @app-form-right-margin-top: -1.75em;
 @app-form-right-width: 45%;
@@ -47,11 +47,13 @@
 
 /* Validation from kendo/mobile/android/template.less */
 @warning: #ffbc7b;
+
 .km-ios .km-list > li label.km-invalid,
 .km-ios .km-list fieldset .km-legend-button.km-invalid,
-.km-ios .km-list > li label.km-invalid.km-required:after {
+.km-ios .km-list > li label.km-invalid.km-required::after {
     color: @warning;
 }
+
 .km-ios .km-invalid-msg {
     color: @ios-widget-color;
     background: @warning;
@@ -61,34 +63,43 @@
 .km-root {
     .km-ios {
         // Fix otherwise you'll get plain squares or funny icons in the drawer or navbar
-        li, li.km-state-active,
-        .km-button, .km-button.km-state-active {
+        li,
+        .km-button,
+        li.km-state-active,
+        .km-button.km-state-active {
             .km-home {
-                &:after, &:before {
+                &::after,
+                &::before {
                     content: "\e0dd";
                 }
             }
+
             .km-search {
-                &:after, &:before {
+                &::after,
+                &::before {
                     content: "\e0e9";
                 }
             }
+
             .km-settings {
-                &:after, &:before {
+                &::after,
+                &::before {
                     content: "\e0da";
                 }
             }
         }
         // Buttons
         .km-button {
-            border-bottom: solid 1px rgba(255, 255, 255, .5) !important;
+            border-bottom: solid 1px rgba(255, 255, 255, 0.5) !important;
             font-size: 1em;
             line-height: normal;
         }
+
         .km-button.km-large {
             font-size: 1.2em;
-            padding: .8em;
+            padding: 0.8em;
         }
+
         .km-list > li {
             .km-listview-link {
                 .km-badge {
@@ -96,6 +107,7 @@
                 }
             }
         }
+
         /*
         .km-listinset {
             // TODO: How can we make the last visible item of the inset list with border radius?
@@ -108,20 +120,23 @@
         .km-shim.km-actionsheet-root,
         .k-list-container.k-popup {
             // Make text bold in action sheets and dropdown popups
-            .k-item, li>a {
+            .k-item,
+            li > a {
                 font-weight: 700;
             }
         }
+
         #signin {
             // exception to app.mobile.less
             .k-scrollview.km-scrollview {
                 div[data-role="page"] {
                     .km-list > li {
-                        padding: .5em;
+                        padding: 0.5em;
                     }
                 }
             }
         }
+
         .kj-stage {
             .k-button {
                 // iOS overrides bootstrap values, so we need to restore them

@@ -25,6 +25,33 @@
     }
 
     /**********************************************************
+     * Navbar
+     **********************************************************/
+    .km-navbar {
+        background-color: @app-layout-navbar-background;
+        color: @app-layout-navbar-color;
+        // Navbar view title
+
+        .km-view-title {
+            background-color: transparent;
+        }
+
+        // Navbar buttons
+        .km-button {
+            background-color: @app-layout-navbar-button-background;
+            color: @app-layout-navbar-button-color;
+            border: @app-layout-navbar-button-border;
+            margin: @app-layout-navbar-button-margin;
+            padding: @app-layout-navbar-button-padding;
+
+            .km-icon.km-notext {
+                // font-size: 1em;
+                margin: 0;
+            }
+        }
+    }
+
+    /**********************************************************
      * Drawer
      **********************************************************/
     .km-drawer {
@@ -66,6 +93,7 @@
         .km-scroll-container {
             // Make sure drawer items are aligned to the top especially with nova theme */
             display: initial;
+
             > a[href="#user"] {
                 padding: 0 0.75em;
                 line-height: 4em;
@@ -77,34 +105,6 @@
                     width: 32px;
                     vertical-align: middle;
                 }
-            }
-        }
-    }
-
-    /**********************************************************
-     * Navbar
-     **********************************************************/
-
-    .km-navbar {
-        background-color: @app-layout-navbar-background;
-        color: @app-layout-navbar-color;
-        // Navbar view title
-
-        .km-view-title {
-            background-color: transparent;
-        }
-
-        // Navbar buttons
-        .km-button {
-            background-color: @app-layout-navbar-button-background;
-            color: @app-layout-navbar-button-color;
-            border: @app-layout-navbar-button-border;
-            margin: @app-layout-navbar-button-margin;
-            padding: @app-layout-navbar-button-padding;
-
-            .km-icon.km-notext {
-                // font-size: 1em;
-                margin: 0;
             }
         }
     }

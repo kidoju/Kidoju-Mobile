@@ -15,14 +15,14 @@
 @app-layout-navbar-button-background: @android-background-color;
 @app-layout-navbar-button-color: @android-active-color;
 @app-layout-navbar-button-border: solid 1px @android-background-color;
-@app-layout-navbar-button-margin: .2rem .1rem;
-@app-layout-navbar-button-padding: .6em 1em !important;
+@app-layout-navbar-button-margin: 0.2rem 0.1rem;
+@app-layout-navbar-button-padding: 0.6em 1em !important;
 
 // Forms
 @app-form-dropdown-margin-top: -1.2em;
-@app-form-dropdown-padding-left: .2em;
-@app-form-dropdown-text-indent: .2em;
-@app-form-input-padding-left: .4em;
+@app-form-dropdown-padding-left: 0.2em;
+@app-form-dropdown-text-indent: 0.2em;
+@app-form-input-padding-left: 0.4em;
 @app-form-right-margin-left: 50%;
 @app-form-right-margin-top: -2em;
 @app-form-right-width: 45%;
@@ -45,14 +45,15 @@
 @import "./app.template.less";
 @import (optional) "highlightjs.custom.less";
 
-
 /* Validation from kendo/mobile/android/template.less */
 @warning: #ffa200;
+
 .km-android .km-list > li label.km-invalid,
 .km-android .km-list fieldset .km-legend-button.km-invalid,
-.km-android .km-list > li label.km-invalid.km-required:after {
+.km-android .km-list > li label.km-invalid.km-required::after {
     color: @warning;
 }
+
 .km-android .km-invalid-msg {
     color: @android-active-color;
     background: @warning;
@@ -62,26 +63,32 @@
 .km-root {
     .km-android {
         font-size: 1em;
+
         .km-navbar {
             font-size: 1em;
+
             .km-view-title {
                 visibility: visible;
                 display: block;
             }
         }
+
         .km-list > li {
             font-size: 1em;
+
             .km-listview-link {
                 .km-badge {
                     right: 0.75em !important;
                 }
             }
         }
+
         .km-buttongroup {
             .km-button {
-                padding: .2em 1em;
+                padding: 0.2em 1em;
             }
         }
+
         .km-button.km-large {
             font-size: 1em;
         }
@@ -93,28 +100,34 @@
             -webkit-flex-direction: column;
             flex-direction: column;
         }
+
         .km-shim.km-actionsheet-root,
         .k-list-container.k-popup {
             // Make text bold in action sheets and dropdown popups
-            .k-item, li>a {
+            .k-item,
+            li > a {
                 font-weight: 700;
             }
         }
+
         #categories {
             .km-filter-form {
                 // Narrows the dropdownlist to fix https://github.com/telerik/kendo-ui-core/issues/3907
-                padding: .75em 10%;
+                padding: 0.75em 10%;
             }
         }
+
         #signin {
             .k-scrollview.km-scrollview {
                 // Otherwise the background-color is not consistent with other views
                 background-color: @android-background-color;
+
                 div[data-role="page"] {
                     div.text {
                         background-color: @android-gray;
                     }
                 }
+
                 ol.k-pages.km-pages:not(.no-background) {
                     background-color: @android-gray;
                 }
