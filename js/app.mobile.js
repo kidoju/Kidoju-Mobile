@@ -1882,18 +1882,35 @@ window.jQuery.holdReady(true);
          *******************************************************************************************/
 
         /**
+         * Resize finder listview
+         * @param view
+         * @private
+         */
+        mobile._resizeListView = function (view) {
+            assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
+            var listViewElements = view.content.find(kendo.roleSelector('listview'));
+            listViewElements.each(function (index, element) {
+                var listViewWidget = $(element).data('kendoMobileListView');
+                if (listViewWidget instanceof kendo.mobile.ui.ListView) {
+                    listViewWidget.refresh();
+                }
+            });
+        };
+
+        /**
          * Resize signin page scrollview
          * @param view
          * @private
          */
         mobile._resizeScrollView = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var content = view.content;
-            var scrollViewElement = content.find(kendo.roleSelector('scrollview'));
-            var scrollViewWidget = scrollViewElement.data('kendoMobileScrollView');
-            if (scrollViewWidget instanceof kendo.mobile.ui.ScrollView) {
-                scrollViewWidget.refresh();
-            }
+            var scrollViewElements = view.content.find(kendo.roleSelector('scrollview'));
+            scrollViewElements.each(function (index, element) {
+                var scrollViewWidget = $(element).data('kendoMobileScrollView');
+                if (scrollViewWidget instanceof kendo.mobile.ui.ScrollView) {
+                    scrollViewWidget.refresh();
+                }
+            });
         };
 
         /* This function's cyclomatic complexity is too high. */
@@ -1906,8 +1923,8 @@ window.jQuery.holdReady(true);
          */
         mobile._resizeStage = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var contentElement = view.content;
-            var stageElement = contentElement.find(kendo.roleSelector('stage'));
+            var content = view.content;
+            var stageElement = content.find(kendo.roleSelector('stage'));
             var stageWidget = stageElement.data('kendoStage');
             // If the stage widget has not yet been initialized, we won't get the correct stageWrapper
             if (kendo.ui.Stage && stageWidget instanceof kendo.ui.Stage) {
@@ -1922,8 +1939,8 @@ window.jQuery.holdReady(true);
                 assert.equal(HEIGHT, 768, assert.format(assert.messages.equal.default, 'HEIGHT', '768'));
                 var WIDTH = stageElement.outerWidth();
                 assert.equal(WIDTH, 1024, assert.format(assert.messages.equal.default, 'WIDTH', '1024'));
-                var height = contentElement.height();  // The screen height minus layout header and footer
-                var width = contentElement.width();    // The screen width minus layout header and footer
+                var height = content.height();  // The screen height minus layout header and footer
+                var width = content.width();    // The screen width minus layout header and footer
                 var scale;
                 var infoHeight = 0;
                 var infoWidth = 0;
@@ -1977,7 +1994,7 @@ window.jQuery.holdReady(true);
                 stageContainer.find('.kj-stage')
                     .css({ borderWidth: proportion === 1 ? 0 : 1 });
                 // Resize the markdown container and scroller for instructions/explanations
-                var markdownElement = contentElement.find(kendo.roleSelector('markdown'));
+                var markdownElement = content.find(kendo.roleSelector('markdown'));
                 var markdownScrollerElement = markdownElement.closest(kendo.roleSelector('scroller'));
                 var markdownScroller = markdownScrollerElement.data('kendoMobileScroller');
                 assert.instanceof(kendo.mobile.ui.Scroller, markdownScroller, assert.format(assert.messages.instanceof.default, 'markdownScroller', 'kendo.mobile.ui.Scroller'));
@@ -2008,15 +2025,15 @@ window.jQuery.holdReady(true);
          */
         mobile._resizeChart = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var content = view.content;
-            var chart = content.find(kendo.roleSelector('chart'));
-            if (chart.length) {
-                var buttonGroup = content.find(kendo.roleSelector('buttongroup'));
-                chart.outerHeight(content.height() - buttonGroup.outerHeight(true));
-                chart.outerWidth(content.width());
-                // Resize widget
+            if (view.id === HASH + VIEW.ACTIVITIES) {
+                // This would only work on the activities view anyway
+                var content = view.content;
+                var chart = content.find(kendo.roleSelector('chart'));
                 var chartWidget = chart.data('kendoChart');
                 if (chartWidget instanceof kendo.dataviz.ui.Chart) {
+                    var buttonGroup = content.find(kendo.roleSelector('buttongroup'));
+                    chart.outerHeight(content.height() - buttonGroup.outerHeight(true));
+                    chart.outerWidth(content.width());
                     chartWidget.resize();
                 }
             }
@@ -2034,6 +2051,7 @@ window.jQuery.holdReady(true);
                 mobile.application.pane instanceof kendo.mobile.ui.Pane) {
                 var view = mobile.application.view();
                 mobile._initToastNotifications();
+                mobile._resizeListView(view);
                 mobile._resizeScrollView(view);
                 mobile._resizeStage(view);
                 mobile._resizeChart(view);
