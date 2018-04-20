@@ -2025,7 +2025,7 @@ window.jQuery.holdReady(true);
          */
         mobile._resizeChart = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            if (view.id === HASH + VIEW.ACTIVITIES) {
+            if (view.id === '/' || view.id === HASH + VIEW.ACTIVITIES) {
                 // This would only work on the activities view anyway
                 var content = view.content;
                 var chart = content.find(kendo.roleSelector('chart'));
