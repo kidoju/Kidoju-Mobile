@@ -2,7 +2,9 @@
 
 .kf {
     /* just in case - see https://github.com/kidoju/Kidoju-WebFonts/issues/7 */
-    font-family:"kidoju";
+    /* stylelint-disable font-family-no-missing-generic-family-keyword */
+    font-family: "kidoju";
+    /* stylelint-enable */
 }
 
 /*********************************************************************************************
@@ -14,174 +16,177 @@
 * including km-home, km-search and km-settings
 **********************************************************************************************/
 
-.km-navbar, .km-drawer, .km-button {
-
-    .km-icon
-    {
-        &:after, &:before {
+.km-navbar,
+.km-drawer,
+.km-button {
+    .km-icon {
+        &::after,
+        &::before {
+            /* stylelint-disable font-family-no-missing-generic-family-keyword */
             font: 1.1em/1.1em "kidoju" !important;
+            /* stylelint-enable */
         }
     }
 
-    .km-drawer-icon // We cannot call it km-drawer because there is already a km-drawer class and they would collide
-    {
-        &:after, &:before {
-            content:"\e300";
+    .km-drawer-icon { // We cannot call it km-drawer because there is already a km-drawer class and they would collide
+        &::after,
+        &::before {
+            content: "\e300";
         }
     }
 
-    .km-ear
-    {
-        &:after, &:before {
-            content:"\e360";
+    .km-ear {
+        &::after,
+        &::before {
+            content: "\e360";
         }
     }
 
-    .km-facebook
-    {
-        &:after, &:before {
-            content:"\e510";
+    .km-facebook {
+        &::after,
+        &::before {
+            content: "\e510";
         }
     }
 
-    .km-favourites // This is called star-o in Kidoju-Webfonts
-    {
-        &:after, &:before {
-            content:"\2606";
+    .km-favourites { // This is called star-o in Kidoju-Webfonts
+        &::after,
+        &::before {
+            content: "\2606";
         }
     }
 
-    .km-first
-    {
-        &:after, &:before {
-            content:"\e310";
+    .km-first {
+        &::after,
+        &::before {
+            content: "\e310";
         }
     }
 
-    .km-google
-    {
-        &:after, &:before {
-            content:"\e515";
+    .km-google {
+        &::after,
+        &::before {
+            content: "\e515";
         }
     }
 
-    .km-home
-    {
-        &:after, &:before {
-            content:"\e0dd";
+    .km-home {
+        &::after,
+        &::before {
+            content: "\e0dd";
         }
     }
 
-    .km-help
-    {
-        &:after, &:before {
-            content:"\f10a";
+    .km-help {
+        &::after,
+        &::before {
+            content: "\f10a";
         }
     }
 
-    .km-history, .km-activities
-    {
-        &:after, &:before {
-            content:"\e305";
+    .km-history,
+    .km-activities {
+        &::after,
+        &::before {
+            content: "\e305";
         }
     }
 
-    .km-last
-    {
-        &:after, &:before {
-            content:"\e313";
+    .km-last {
+        &::after,
+        &::before {
+            content: "\e313";
         }
     }
 
-    .km-live
-    {
-        &:after, &:before {
-            content:"\e525";
+    .km-live {
+        &::after,
+        &::before {
+            content: "\e525";
         }
     }
 
-    .km-next
-    {
-        &:after, &:before {
-            content:"\e312";
+    .km-next {
+        &::after,
+        &::before {
+            content: "\e312";
         }
     }
 
-    .km-play
-    {
-        &:after, &:before {
-            content:"\e309";
+    .km-play {
+        &::after,
+        &::before {
+            content: "\e309";
         }
     }
 
-    .km-previous
-    {
-        &:after, &:before {
-            content:"\e311";
+    .km-previous {
+        &::after,
+        &::before {
+            content: "\e311";
         }
     }
 
-    .km-scan
-    {
-        &:after, &:before {
-            content:"\e0db";
+    .km-scan {
+        &::after,
+        &::before {
+            content: "\e0db";
         }
     }
 
-    .km-score
-    {
-        &:after, &:before {
-            content:"\e330";
+    .km-score {
+        &::after,
+        &::before {
+            content: "\e330";
         }
     }
 
-    .km-search
-    {
-        &:after, &:before {
-            content:"\e0e9";
+    .km-search {
+        &::after,
+        &::before {
+            content: "\e0e9";
         }
     }
 
-    .km-settings
-    {
-        &:after, &:before {
-            content:"\e0da";
+    .km-settings {
+        &::after,
+        &::before {
+            content: "\e0da";
         }
     }
 
-    .km-submit
-    {
-        &:after, &:before {
-            content:"\e320";
+    .km-submit {
+        &::after,
+        &::before {
+            content: "\e320";
         }
     }
 
-    .km-summary
-    {
-        &:after, &:before {
-            content:"\e303";
+    .km-summary {
+        &::after,
+        &::before {
+            content: "\e303";
         }
     }
 
-    .km-sync
-    {
-        &:after, &:before {
-            content:"\e340";
+    .km-sync {
+        &::after,
+        &::before {
+            content: "\e340";
         }
     }
 
-    .km-twitter
-    {
-        &:after, &:before {
-            content:"\e550";
+    .km-twitter {
+        &::after,
+        &::before {
+            content: "\e550";
         }
     }
 
-    .km-user
-    {
-        &:after, &:before {
-            content:"\e302";
+    .km-user {
+        &::after,
+        &::before {
+            content: "\e302";
         }
     }
-
 }
