@@ -92,14 +92,14 @@
     <access origin="http://10.0.0.105/*" />
     <access origin="https://*.kidoju.com/*" />
     <access origin="https://s3.amazonaws.com/*" />
-    <access origin="https://graph.facebook.com/*" />
+    <access origin="https://*.facebook.com/*" />
     <access origin="https://*.fbcdn.net/*" />
     <access origin="https://www.googleapis.com/*" />
     <access origin="https://*.googleusercontent.com/*" />
     <access origin="https://*.live.com/*" />
     <access origin="https://apis.live.net/*" />
     <access origin="https://api.twitter.com/*" />
-    <access origin="https://pbs.twimg.com/*" />
+    <access origin="https://*.twimg.com/*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <platform name="android">
