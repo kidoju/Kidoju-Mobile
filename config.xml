@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="30803" id="com.kidoju.mobile" ios-CFBundleVersion="0.3.8.3" version="0.3.8" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget android-versionCode="30804" id="com.kidoju.mobile" ios-CFBundleVersion="0.3.8.4" version="0.3.8" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <name>Kidoju Mobile</name>
     <description>Mobile app for the Kidoju platform.</description>
     <author email="support@memba.com" href="http://www.memba.com">Memba Sarl</author>
