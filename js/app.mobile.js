@@ -1888,13 +1888,17 @@ window.jQuery.holdReady(true);
          */
         mobile._resizeListView = function (view) {
             assert.instanceof(kendo.mobile.ui.View, view, assert.format(assert.messages.instanceof.default, 'view', 'kendo.mobile.ui.View'));
-            var listViewElements = view.content.find(kendo.roleSelector('listview'));
-            listViewElements.each(function (index, element) {
-                var listViewWidget = $(element).data('kendoMobileListView');
-                if (listViewWidget instanceof kendo.mobile.ui.ListView) {
-                    listViewWidget.refresh();
-                }
-            });
+            if (view.id === HASH + VIEW.FINDER) {
+                // Refreshing list views only works in data bound mode
+                // It removes the html markup especially with forms
+                var listViewElements = view.content.find(kendo.roleSelector('listview'));
+                listViewElements.each(function(index, element) {
+                    var listViewWidget = $(element).data('kendoMobileListView');
+                    if (listViewWidget instanceof kendo.mobile.ui.ListView) {
+                        listViewWidget.refresh();
+                    }
+                });
+            }
         };
 
         /**
@@ -2201,7 +2205,7 @@ window.jQuery.holdReady(true);
                         if (mobile.support.splashscreen) {
                             mobile.splashscreen.hide();
                         }
-                    }, 500); // + 500 is default fadeOut time
+                    }, 500); // + 500 for default fadeOut time
                 }
             });
         };
