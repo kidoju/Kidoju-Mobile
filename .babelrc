@@ -2,17 +2,22 @@
     "presets": [
         "env"
     ],
+    // Webpack does not need the plugin section to build, kept for SystemJS
     "plugins": [
         [
             "module-resolver",
             {
-                "extensions": [".es6"],
-                "root": ["."],
+                "extensions": [".es6", ".js"],
+                "root": [
+                    ".",
+                    "./test/vendor/",
+                    "./js/vendor/kendo/",
+                    "./js/vendor/kendo/cultures/",
+                    "./js/vendor/kendo/messages/"
+                ],
                 "alias": {
-                    "jquery": "./src/js/vendor/jquery/jquery-3.3.1.min.js",
-                    "kendo.core": "./src/js/vendor/kendo/kendo.core.js",
-                    "kendo.data": "./src/js/vendor/kendo/kendo.data.js",
-                    "kendo.binder": "./src/js/vendor/kendo/kendo.binder.js"
+                    // This takes over externals in webpack and includes jQuery in the builds
+                    // "jquery": "./js/vendor/jquery/jquery-3.3.1.min.js"
                 }
             }
         ]
