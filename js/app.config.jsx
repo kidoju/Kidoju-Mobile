@@ -23,14 +23,28 @@
 
         var app = window.app = window.app || {};
 
+        function normalize (str) {
+            return str
+            .replace(/[\/]+/g, '/')
+            .replace(/\/\?/g, '?')
+            .replace(/\/\#/g, '#')
+            .replace(/\:\//g, '://')
+            .replace(/[\/\#\?]*$/, '');
+        }
+
         /**
          * Join url bits, adding slashes where required
          * TODO: This could be improved to account for . and ..
+         * TODO use url.resolve, but convertFormat should be alled after otherwise { and } are converted
          */
         var url = {
             join: function () {
                 // Actually we first join with slashes, then we replace double or triple slashes, except when preceded by colons like in http://
                 return Array.prototype.slice.call(arguments).join('/').replace(/([^:])[\/]{2,}/g, '$1/');
+
+                // The following was are nodeJS url join function
+                // var joined = [].slice.call(arguments, 0).join('/');
+                // return normalize(joined);
             }
         };
 

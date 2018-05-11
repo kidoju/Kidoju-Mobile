@@ -82,7 +82,7 @@
             /**
              * Add click event to dialog events
              */
-            events: Dialog.fn.events.push(CLICK),
+            events: Dialog.fn.events.concat([CLICK]),
 
             /**
              * Add buttons
