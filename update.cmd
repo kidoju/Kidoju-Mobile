@@ -131,14 +131,23 @@ ATTRIB +R .\js\vendor\valve\*.* /S
 REM Copy Kidoju Widgets
 ATTRIB -R .\js\kidoju*.js
 ATTRIB -R .\js\window*.js
+ATTRIB -R .\js\window*.es6
+COPY ..\Kidoju.Widgets\src\js\window.constants.es6 .\js /Y
 COPY ..\Kidoju.Widgets\src\js\*.js .\js /Y
 ATTRIB +R .\js\kidoju*.js
 ATTRIB +R .\js\window*.js
+ATTRIB +R .\js\window*.es6
 ATTRIB -R .\js\window.pongodb.js
 
-ATTRIB -R .\js\messages\kidoju*.js
-COPY ..\Kidoju.Widgets\src\js\messages\kidoju*.js .\js\messages /Y
-ATTRIB +R .\js\messages\kidoju*.js
+ATTRIB -R .\js\dialogs\kidoju.*.es6
+COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.dialogs.alert.es6 .\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.dialogs.assetmanager.es6 .\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.widgets.basedialog.es6 .\js\dialogs /Y
+ATTRIB +R .\js\dialogs\kidoju.*.es6
+
+ATTRIB -R .\js\messages\kidoju.messages.*.es6
+COPY ..\Kidoju.Widgets\src\js\messages\kidoju.messages.*.es6 .\js\messages /Y
+ATTRIB +R .\js\messages\kidoju.messages.*.es6
 
 REM Kidoju server client API
 ATTRIB -R .\js\app*.js
@@ -198,6 +207,10 @@ REM Copy Kidoju Widgets
 ATTRIB -R .\styles\kidoju*.less
 COPY ..\Kidoju.Widgets\src\styles\kidoju*.less .\styles /Y
 ATTRIB +R .\styles\kidoju*.less
+
+ATTRIB -R .\styles\dialogs\kidoju*.less
+COPY ..\Kidoju.Widgets\src\styles\dialogs\kidoju*.less .\styles\dialogs /Y
+ATTRIB +R .\styles\dialogs\kidoju*.less
 
 
 REM ------------------------------------------------------------

@@ -16,7 +16,6 @@ if (typeof(require) === 'function') {
     require('../styles/kidoju.widgets.mathexpression.less');
     require('../styles/kidoju.widgets.mathinput.less');
     require('../styles/kidoju.widgets.mediaplayer.less');
-    require('../styles/kidoju.widgets.messagebox.less');
     require('../styles/kidoju.widgets.multiquiz.less');
     // require('../styles/kidoju.widgets.playbar.less');
     require('../styles/kidoju.widgets.quiz.less');
@@ -24,6 +23,7 @@ if (typeof(require) === 'function') {
     require('../styles/kidoju.widgets.stage.less');
     require('../styles/kidoju.widgets.table.less');
     require('../styles/kidoju.widgets.textgaps.less');
+    require('../styles/dialogs/kidoju.widgets.basedialog.less');
     require('../styles/app.fonts.less');
     require('../styles/app.mobile.less');
 
@@ -99,7 +99,6 @@ window.jQuery.holdReady(true);
         './kidoju.widgets.mathexpression',
         './kidoju.widgets.mathinput',
         './kidoju.widgets.mediaplayer',
-        './kidoju.widgets.messagebox',
         './kidoju.widgets.multiquiz',
         // './kidoju.widgets.playbar',
         './kidoju.widgets.quiz',
@@ -109,6 +108,7 @@ window.jQuery.holdReady(true);
         './kidoju.widgets.stage',
         './kidoju.widgets.table',
         './kidoju.widgets.textgaps',
+        './dialogs/kidoju.dialogs.alert.es6',
         './app.constants',
         './app.logger',
         './app.i18n',
@@ -500,7 +500,7 @@ window.jQuery.holdReady(true);
                     if (mobile.support.dialogs) {
                         window.navigator.notification.confirm(message, callback, title || i18n.culture.dialogs.confirm, Array.isArray(buttons) ? buttons : [i18n.culture.dialogs.buttons.ok.text, i18n.culture.dialogs.buttons.cancel.text]);
                     } else {
-                        kendo.alertEx({
+                        kidoju.dialogs.openAlert({
                             type: 'info',
                             title: title || i18n.culture.dialogs.confirm,
                             message: message,
@@ -533,7 +533,7 @@ window.jQuery.holdReady(true);
                         // window.navigator.notification.beep(1);
                         window.navigator.notification.alert(message, callback, i18n.culture.dialogs.error, i18n.culture.dialogs.buttons.ok.text);
                     } else {
-                        kendo.alertEx({
+                        kidoju.dialogs.openAlert({
                             type: 'error',
                             title: i18n.culture.dialogs.error,
                             message: message,
@@ -551,7 +551,7 @@ window.jQuery.holdReady(true);
                     if (mobile.support.dialogs) {
                         window.navigator.notification.alert(message, callback, i18n.culture.dialogs.info, i18n.culture.dialogs.buttons.ok.text);
                     } else {
-                        kendo.alertEx({
+                        kidoju.dialogs.openAlert({
                             type: 'info',
                             title: i18n.culture.dialogs.info,
                             message: message,
@@ -569,7 +569,7 @@ window.jQuery.holdReady(true);
                     if (mobile.support.dialogs) {
                         window.navigator.notification.alert(message, callback, i18n.culture.dialogs.success, i18n.culture.dialogs.buttons.ok.text);
                     } else {
-                        kendo.alertEx({
+                        kidoju.dialogs.openAlert({
                             type: 'success',
                             title: i18n.culture.dialogs.success,
                             message: message,
@@ -587,7 +587,7 @@ window.jQuery.holdReady(true);
                     if (mobile.support.dialogs) {
                         window.navigator.notification.alert(message, callback, i18n.culture.dialogs.warning, i18n.culture.dialogs.buttons.ok.text);
                     } else {
-                        kendo.alertEx({
+                        kidoju.dialogs.openAlert({
                             type: 'warning',
                             title: i18n.culture.dialogs.warning,
                             message: message,

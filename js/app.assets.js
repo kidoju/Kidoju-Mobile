@@ -13,8 +13,8 @@
         './window.logger',
         './kidoju.tools',
         './kidoju.image',
-        './kidoju.dialogs',
         './kidoju.widgets.vectordrawing.toolbar', // For the image editor template
+        './dialogs/kidoju.dialogs.assetmanager.es6',
         './app.logger',
         './app.i18n',
         './app.rapi'
@@ -90,35 +90,39 @@
                         return tool !== 'create' && tool !== 'edit';
                     });
                     // Show a nested asset manager dialog without creating and editing
-                    kidoju.dialogs.showAssetManager(
-                        kidoju.assets.image,
-                        '', // We are not replacing an existing image but adding a new image, so the url is blank
-                        { title: 'Insert image' }, // TODO i18n
-                        // Event handler when clicking the OK button
-                        function (e) {
-                            // Restore assets tools
-                            kidoju.assets.image.collections[0].tools = tools;
-                            var url = e.sender.viewModel.get('url');
-                            // Replace scheme
-                            var schemes = kidoju.assets.image.schemes;
-                            for (var scheme in kidoju.assets.image.schemes) {
-                                url = url.replace(scheme + '://', schemes[scheme]);
-                            }
-                            // Import image into drawing
-                            vectorDrawingWidget.import(url)
-                                .fail(function (error) {
+                    kidoju.dialogs.openAssetManager({
+                        title: 'Insert image', // TODO i18n
+                        assets: kidoju.assets.image
+                    })
+                        .then(function (result) {
+                            if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action &&
+                                $.type(result.data.url) === STRING
+                            ) {
+                                // Restore assets tools
+                                kidoju.assets.image.collections[0].tools = tools;
+                                var url = result.data.url;
+                                // Replace scheme
+                                var schemes = kidoju.assets.image.schemes;
+                                for (var scheme in schemes) {
+                                    if (Object.prototype.hasOwnProperty.call(schemes, scheme)) {
+                                        url = url.replace(scheme + '://', schemes[scheme]);
+                                    }
+                                }
+                                // Import image into drawing
+                                vectorDrawingWidget.import(url).fail(function(error) {
                                     if (app.notification && $.isFunction(app.notification.error)) {
                                         app.notification.error('Could not load image ' + url);  // TODO i18n
                                         logger.error({
                                             message: 'vectorDrawingWidget.import failed',
                                             method: 'editors.image.openImageDialog',
-                                            data: { url: url },
+                                            data: {url: url},
                                             error: error
                                         });
                                     }
                                 });
-                        }
-                    );
+                            }
+                        });
+                        // TODO fail
                 },
                 // Note: onCommand is defined in the viewModel set in _editSelected of kidoju.widgets.assetmanager and onCommand calls openUrl and saveAs
                 openUrl: function (url) {

@@ -12,7 +12,7 @@
         '../vendor/kendo/cultures/kendo.culture.fr-FR.js',
         '../vendor/kendo/messages/kendo.messages.fr-FR.js',
         '../messages/kendo.mobile.fr.js',
-        '../messages/kidoju.messages.fr.js'
+        '../messages/kidoju.messages.fr.es6'
     ], f);
 })(function () {
 
