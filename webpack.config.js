@@ -195,7 +195,7 @@ module.exports = {
     },
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     optimization: {
-        minimize: true
+        minimize: process.env.NODE_ENV === 'production'
     },
     output: {
         // Unfortunately it is not possible to specialize output directories
