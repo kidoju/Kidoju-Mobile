@@ -95,12 +95,10 @@
                         assets: kidoju.assets.image
                     })
                         .then(function (result) {
-                            if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action &&
-                                $.type(result.data.url) === STRING
-                            ) {
+                            if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
                                 // Restore assets tools
                                 kidoju.assets.image.collections[0].tools = tools;
-                                var url = result.data.url;
+                                var url = result.data.value;
                                 // Replace scheme
                                 var schemes = kidoju.assets.image.schemes;
                                 for (var scheme in schemes) {
@@ -109,20 +107,20 @@
                                     }
                                 }
                                 // Import image into drawing
-                                vectorDrawingWidget.import(url).fail(function(error) {
+                                vectorDrawingWidget.import(url).fail(function (error) {
                                     if (app.notification && $.isFunction(app.notification.error)) {
                                         app.notification.error('Could not load image ' + url);  // TODO i18n
                                         logger.error({
                                             message: 'vectorDrawingWidget.import failed',
                                             method: 'editors.image.openImageDialog',
-                                            data: {url: url},
+                                            data: { url: url },
                                             error: error
                                         });
                                     }
                                 });
                             }
                         });
-                        // TODO fail
+                    // TODO fail
                 },
                 // Note: onCommand is defined in the viewModel set in _editSelected of kidoju.widgets.assetmanager and onCommand calls openUrl and saveAs
                 openUrl: function (url) {

@@ -730,7 +730,7 @@
                     }
                 }
                 if (found.length) {
-                    kidoju.dialogs.openAlert({
+                    window.kidoju.dialogs.openAlert({
                         type: kendo.ui.BaseDialog.fn.type.warning,
                         title: options.messages.dialogs.confirm,
                         message: kendo.format(options.messages.dialogs.warningOverwrite, found.join('`, `'))

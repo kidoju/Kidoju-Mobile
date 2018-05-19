@@ -864,40 +864,6 @@
                 this.attributes = options.attributes;
             },
 
-            /**
-             * Get a dialog window
-             */
-            getDialog: function (options) {
-                var that = this;
-                var dialogWidget = $(DIALOG_SELECTOR).data('kendoDialog');
-                assert.ok(kendo.ui.Dialog, '`kendo.dialog.js` is expected to be loaded');
-                // Find or create dialog frame
-                if (!(dialogWidget instanceof kendo.ui.Dialog)) {
-                    // Create dialog
-                    dialogWidget = $(kendo.format(DIALOG_DIV, DIALOG_SELECTOR.substr(1)))
-                        .appendTo(document.body)
-                        .kendoDialog({
-                            actions: [
-                                { text: Tool.fn.i18n.dialogs.ok.text, primary: true, action: $.proxy(that.onOkAction, that, options) },
-                                { text: Tool.fn.i18n.dialogs.cancel.text }
-                            ],
-                            buttonLayout: 'normal',
-                            modal: true,
-                            visible: false,
-                            width: 860,
-                            close: function (e) {
-                                // This is a reusable dialog, so we need to make sure it is ready for the next content
-                                dialogWidget.element.removeClass(NO_PADDING_CLASS);
-                                // The content method destroys widgets and unbinds data
-                                dialogWidget.content('');
-                                dialogWidget.viewModel = undefined;
-                            }
-                        })
-                        .data('kendoDialog');
-                }
-                return dialogWidget;
-            },
-
             /* This function's cyclomatic complexity is too high. */
             /* jshint -W074 */
 
@@ -1014,21 +980,22 @@
             showDialog: function (options/*, e*/) {
                 assert.instanceof(PageComponent, options.model, assert.format(assert.messages.instanceof.default, 'options.model', 'kidoju.data.PageComponent'));
                 assert.instanceof(ToolAssets, assets[options.model.tool], assert.format(assert.messages.instanceof.default, 'assets[options.model.tool]', 'kidoju.ToolAssets'));
+                // TODO wrap in import('./dialogs/kidoju.dialogs.assetmanager.es6').then(function () {...});
                 kidoju.dialogs.openAssetManager({
                     title: options.title,
                     data: {
-                        url: options.model.get(options.field)
+                        value: options.model.get(options.field)
                     },
                     assets: assets[options.model.tool]
                 })
-                    .done(function(result) {
-                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action &&
-                            $.type(result.data.url) === STRING
-                        ) {
-                            options.model.set(options.field, result.data.url);
+                    .done(function (result) {
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            options.model.set(options.field, result.data.value);
                         }
+                    })
+                    .fail(function (err) {
+                        // TODO
                     });
-                    // TODO fail
             }
         });
 
@@ -1072,7 +1039,6 @@
             },
             showDialog: function (options, evt) {
                 var that = this;
-                var dialogWidget = that.getDialog(options);
                 var model = options.model;
                 // Build data (resize array especially after changing rows and columns)
                 var columns = model.get('attributes.columns');
@@ -1080,47 +1046,49 @@
                 var whitelist = model.get('attributes.whitelist');
                 var layout = model.get('attributes.layout');
                 var data = model.get(options.field);
-                // Create viewModel (Cancel shall not save changes to main model)
-                dialogWidget.viewModel = kendo.observable({
-                    chargrid: kendo.ui.CharGrid._getCharGridArray(rows, columns, whitelist, layout, data)
-                });
-                // Prepare UI
-                dialogWidget.title(options.title);
-                dialogWidget.content('<div style="display:flex;flex-direction:row">' +
-                    // character grid
-                    '<div ' +
-                    'data-' + kendo.ns + 'role="chargrid" ' +
-                    'data-' + kendo.ns + 'bind="value: chargrid" ' +
-                    'data-' + kendo.ns + 'scaler=".k-content" ' +
-                    'data-' + kendo.ns + 'container=".k-content" ' +
-                    'data-' + kendo.ns + 'columns="' + model.get('attributes.columns') + '" ' +
-                    'data-' + kendo.ns + 'rows="' + model.get('attributes.rows') + '" ' +
-                    'data-' + kendo.ns + 'blank="' + model.get('attributes.blank') + '" ' +
-                    'data-' + kendo.ns + 'whitelist="' + (options.field === 'properties.solution' ? model.get('attributes.whitelist') : '\\S') + '" ' +
-                    (options.field === 'properties.solution' ? 'data-' + kendo.ns + 'locked="' + kendo.htmlEncode(JSON.stringify(layout)) + '" ' : '') +
-                    'data-' + kendo.ns + 'grid-fill="' + model.get('attributes.gridFill') + '" ' +
-                    'data-' + kendo.ns + 'grid-stroke="' + model.get('attributes.gridStroke') + '" ' +
-                    'data-' + kendo.ns + 'blank-fill="' + model.get('attributes.gridStroke') + '" ' +
-                    'data-' + kendo.ns + 'selected-fill="' + model.get('attributes.selectedFill') + '" ' +
-                    'data-' + kendo.ns + 'locked-fill="' + model.get('attributes.lockedFill') + '" ' +
-                    'data-' + kendo.ns + 'locked-color="' + model.get('attributes.fontColor') + '" ' +
-                    'data-' + kendo.ns + 'value-color="' + model.get('attributes.fontColor') + '" ' +
-                    'style="height:' + 0.7 * options.model.get('height') + 'px;width:' + 0.7 * options.model.get('width') + 'px;flex-shrink:0;padding:20px;"></div>' +
-                    // Explanations
-                    '<div style="padding:20px 0;">' +
-                    (options.field === 'properties.solution' ? kendo.format(this.messages.solution, model.get('attributes.whitelist')) : kendo.format(this.messages.layout, model.get('attributes.blank'))) +
-                    '</div>' +
-                    // Close parent div
-                    '</div>');
-                kendo.bind(dialogWidget.element, dialogWidget.viewModel);
-                dialogWidget.element.addClass(NO_PADDING_CLASS);
-                // Show dialog
-                dialogWidget.open();
-            },
-            onOkAction: function (options, e) {
-                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
-                assert.instanceof(kendo.ui.Dialog, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.ui.Dialog'));
-                options.model.set(options.field, e.sender.viewModel.get('chargrid'));
+                var value = kendo.ui.CharGrid._getCharGridArray(rows, columns, whitelist, layout, data);
+                // TODO wrap in import('./dialogs/kidoju.dialogs.chargrid.es6').then(function () {...});
+                kidoju.dialogs.openCharGrid({
+                    title: options.title,
+                    message: options.field === 'properties.solution' ?
+                        kendo.format(this.messages.solution, model.get('attributes.whitelist')) :
+                        kendo.format(this.messages.layout, model.get('attributes.blank')),
+                    charGrid: {
+                        container: '.kj-dialog',
+                        scaler: '.kj-dialog',
+                        height: model.get('height'),
+                        width: model.get('width'),
+                        columns: columns,
+                        rows: rows,
+                        blank: model.get('attributes.blank'),
+                        locked: options.field === 'properties.solution' ?
+                            layout :
+                            [],// Do not lock when designing layout, but lock when designing solution
+                        whitelist: options.field === 'properties.solution' ?
+                            model.get('attributes.whitelist') :
+                            '\\S',// Do not whitelist when designing layout, but whitelist when designing solution
+                        blankFill: model.get('attributes.blankFill'),
+                        gridFill: model.get('attributes.gridFill'),
+                        gridStroke: model.get('attributes.gridStroke'),
+                        lockedFill: model.get('attributes.lockedFill'),
+                        lockedColor: model.get('attributes.lockedColor'),
+                        selectedFill: model.get('attributes.selectedFill'),
+                        valueColor: model.get('attributes.valueColor')
+                    },
+                    data: {
+                        value: value
+                    }
+                })
+                    .done(function (result) {
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action
+                            // $.type(result.data.url) === STRING
+                        ) {
+                            options.model.set(options.field, result.data.value);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
+                    });
             },
             library: [
                 {
@@ -1158,6 +1126,7 @@
                 var columns = model.get('attributes.categories') + 1;
                 var rows = model.get('attributes.values') + 1;
                 var data = util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns);
+                // TODO wrap in import('./dialogs/kidoju.dialogs.spreadsheet.es6').then(function () {...});
                 kidoju.dialogs.openSpreadsheet({
                     title: options.title,
                     data: Object.assign(data, {
@@ -1169,8 +1138,12 @@
                 })
                     .done(function (result) {
                         if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            // TODO test result.data???
                             options.model.set(options.field, result.data);
                         }
+                    })
+                    .fail(function (err) {
+                        // TODO
                     });
 
             }
@@ -1431,17 +1404,22 @@
             showDialog: function (options, e) {
                 // Note should return a promise to be used with app.notification?
                 if (e.action === 'image') {
+                    // TODO wrap in import('./dialogs/kidoju.dialogs.assetmanager.es6').then(function () {...});
                     kidoju.dialogs.openAssetManager({
                         title: options.title,
                         data: {
-                            url: e.item.get('image')
+                            value: e.item.get('image')
                         },
                         assets: assets.image
                     })
-                        .done(function(result) {
-                            e.item.set('image', result.data.url);
+                        .done(function (result) {
+                            if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                                e.item.set('image', result.data.value);
+                            }
+                        })
+                        .fail(function (err) {
+                            // TODO
                         });
-                        // TODO Fail
                 }
             }
         });
@@ -1851,17 +1829,22 @@
                 };
             },
             showDialog: function (options/*, e*/) {
-                // TODO import('./dialogs/kidoju.dialogs.codeedtor.es6').then(function() {...});
+                // TODO wrap in import('./dialogs/kidoju.dialogs.styleedtor.es6').then(function () {...});
                 kidoju.dialogs.openStyleEditor({
                     title: options.title,
                     data: {
-                        style: options.model.get(options.field)
+                        value: options.model.get(options.field)
                     }
                 })
                     .then(function (result) {
-                        options.model.set(options.field, result.data.style);
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            options.model.set(options.field, result.data.value);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
                     });
-            },
+            }
         });
 
         /**
@@ -1886,9 +1869,8 @@
                 var model = options.model;
                 var columns = model.get('attributes.columns');
                 var rows = model.get('attributes.rows');
-                debugger;
                 var data = util.resizeSpreadsheetData(model.get('attributes.data'), rows, columns);
-                debugger;
+                // TODO wrap in import('./dialogs/kidoju.dialogs.spreadsheet.es6').then(function () {...});
                 kidoju.dialogs.openSpreadsheet({
                     title: options.title,
                     data: Object.assign({
@@ -1916,11 +1898,14 @@
                         }
                     }, data)
                 })
-                .done(function(result) {
-                    if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
-                        options.model.set(options.field, result.data);
-                    }
-                });
+                    .done(function (result) {
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            options.model.set(options.field, result.data);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
+                    });
             }
         });
 
@@ -1992,16 +1977,20 @@
                 kidoju.dialogs.openCodeEditor({
                     title: options.title,
                     data: {
-                        code: options.model.get(options.field),
+                        value: options.model.get(options.field),
                         library: [CUSTOM].concat(that.library),
                         defaultValue: that.defaultValue, // ????????????????????????
                         solution: kendo.htmlEncode(JSON.stringify(options.model.get('properties.solution')))
                     }
                 })
                     .then(function (result) {
-                        options.model.set(options.field, result.data.code);
+                        if (result.action === kendo.ui.BaseDialog.fn.options.messages.actions.ok.action) {
+                            options.model.set(options.field, result.data.value);
+                        }
+                    })
+                    .fail(function (err) {
+                        // TODO
                     });
-                    // TODO: fail
             }
         });
 
@@ -4186,7 +4175,7 @@
          */
         var Textarea = Tool.extend({
             id: 'textarea',
-            icon: 'document_orientation_landscape',
+            icon: 'text_area',
             description: i18n.textarea.description,
             cursor: CURSOR_CROSSHAIR,
             weight: 2,
@@ -4395,7 +4384,7 @@
          */
         var TextGaps = Tool.extend({
             id: 'textgaps',
-            icon: 'form',
+            icon: 'text_gaps',
             description: i18n.textgaps.description,
             cursor: CURSOR_CROSSHAIR,
             weight: 1,

@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 // import 'kendo.core';
 
@@ -86,6 +88,20 @@ if (BaseDialog) {
                 imageUrl:
                     'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
                 text: 'Cancel'
+            },
+            close: {
+                action: 'close',
+                imageUrl:
+                    'https://cdn.kidoju.com/images/o_collection/svg/office/close.svg',
+                primary: true,
+                text: 'Close'
+            },
+            create: {
+                action: 'create',
+                imageUrl:
+                    'https://cdn.kidoju.com/images/o_collection/svg/office/plus.svg',
+                primary: true,
+                text: 'Create'
             },
             no: {
                 action: 'no',
