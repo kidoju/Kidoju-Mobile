@@ -3369,9 +3369,9 @@ window.jQuery.holdReady(true);
                     // This cannot be done via bindings because the view and vien.content cannot be bound
                     var summary = viewModel.get(VIEW_MODEL.SUMMARY.$);
                     view.content
-                        .toggleClass('error', summary.error$())
-                        .toggleClass('success', summary.success$())
-                        .toggleClass('warning', summary.warning$());
+                        .toggleClass('error', summary.isError$())
+                        .toggleClass('success', summary.isSuccess$())
+                        .toggleClass('warning', summary.isWarning$());
                     app.notification.info(i18n.culture.notifications.summaryViewInfo);
                 });
         };

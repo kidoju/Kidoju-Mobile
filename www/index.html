@@ -232,7 +232,7 @@
         <!-- list -->
         <ul data-role="listview" data-bind="source: activities" data-filterable="false" data-template="activities-template" data-header-template="activities-header-template" data-fixed-headers="true" data-type="group"></ul>
         <script type="text/x-kendo-template" id="activities-template">
-            <a href="\#score#: queryString$() #" data-bind="css: { error: error$, success: success$, warning: warning$ }">
+            <a href="\#score#: queryString$() #" data-bind="css: { error: isError$, success: isSuccess$, warning: isWarning$ }">
                 <div class="title">#: title$() #</div>
                 <div class="small">#: updated$() #</div>
                 <span class="km-badge km-badge-info">#: score$() #</span>
@@ -315,7 +315,7 @@
         <!--ul data-role="listview" data-bind="source: summaries" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-load-more="true" data-template="finder-template"></ul-->
         <ul data-role="listview" data-bind="source: summaries" data-filterable="false" data-load-more="true" data-template="finder-template"></ul>
         <script type="text/x-kendo-template" id="finder-template">
-            <a href="\#summary?language=#: language #&summaryId=#: id #" data-bind="css: { offline: offline, error: error$, success: success$, warning: warning$ }">
+            <a href="\#summary?language=#: language #&summaryId=#: id #" data-bind="css: { offline: offline, error: isError$, success: isSuccess$, warning: isWarning$ }">
                 <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
                 <div class="summary">
                     <h4>#: title #</h4>
@@ -517,7 +517,7 @@
                             <span class="kf"><input data-role="rating" data-bind="value: summary.metrics.ratings.average" readonly></span>
                             <i class="kf kf-view"></i><span data-bind="text: summary.metrics.views.count"></span>
                             <i class="kf kf-score"></i><span data-bind="text: summary.metrics.scores.average, visible: summary.metrics.scores.average" data-format="n0"></span>%
-                            <span data-bind="text: summary.userScore$, css: { km-badge-error: error$, km-badge-success: summary.success$, km-badge-warning: summary.warning$ }, visible: summary.hasUserScore$"></span>
+                            <span data-bind="text: summary.userScore$, css: { km-badge-error: isError$, km-badge-success: summary.isSuccess$, km-badge-warning: summary.isWarning$ }, visible: summary.hasUserScore$"></span>
                         </div>
                     </label>
                 </li>

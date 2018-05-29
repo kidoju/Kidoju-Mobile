@@ -1865,20 +1865,24 @@
             authorUri$: function () {
                 return kendo.format(uris.webapp.user, this.get('language'), this.get('userId'));
             },
-            error$: function () { // Used in Kidoju-Mobile only
-                var userScore = this.get('userScore');
-                // Note: we need to test the value type because comparing a null to a number is always true
-                return ($.type(userScore) === NUMBER) && userScore < 50;
-            },
             hasUserScore$: function () { // Used in Kidoju-Mobile only
                 return $.type(this.get('userScore')) === NUMBER;
             },
             icon$: function () {
                 return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
             },
-            success$: function () { // Used in Kidoju-Mobile only
+            isError$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                // Note: we need to test the value type because comparing a null to a number is always true
+                return ($.type(userScore) === NUMBER) && userScore < 50;
+            },
+            isSuccess$: function () { // Used in Kidoju-Mobile only
                 var userScore = this.get('userScore');
                 return ($.type(userScore) === NUMBER) && userScore >= 75;
+            },
+            isWarning$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                return ($.type(userScore) === NUMBER) && userScore >= 50 && userScore < 75;
             },
             summaryUri$: function () {
                 // TODO test window.cordova or uris.webapp to build a mobile URI
@@ -1902,10 +1906,6 @@
             },
             userScore$: function () { // Used in Kidoju-Mobile only
                 return kendo.toString(this.get('userScore') / 100, 'p0');
-            },
-            warning$: function () { // Used in Kidoju-Mobile only
-                var userScore = this.get('userScore');
-                return ($.type(userScore) === NUMBER) && userScore >= 50 && userScore < 75;
             },
             createDraft: function () {
                 return rapi.v1.content.executeCommand(this.get('language'), this.get('id'), { command: 'draft' });
@@ -2176,20 +2176,24 @@
                     }
                 }
             },
-            error$: function () { // Used in Kidoju-Mobile only
-                var userScore = this.get('userScore');
-                // Note: we need to test the value type because comparing a null to a number is always true
-                return ($.type(userScore) === NUMBER) && userScore < 50;
-            },
             hasUserScore$: function () { // Used in Kidoju-Mobile only
                 return $.type(this.get('userScore')) === NUMBER;
             },
             icon$: function () {
                 return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
             },
-            success$: function () { // Used in Kidoju-Mobile only
+            isError$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                // Note: we need to test the value type because comparing a null to a number is always true
+                return ($.type(userScore) === NUMBER) && userScore < 50;
+            },
+            isSuccess$: function () { // Used in Kidoju-Mobile only
                 var userScore = this.get('userScore');
                 return ($.type(userScore) === NUMBER) && userScore >= 75;
+            },
+            isWarning$: function () { // Used in Kidoju-Mobile only
+                var userScore = this.get('userScore');
+                return ($.type(userScore) === NUMBER) && userScore >= 50 && userScore < 75;
             },
             summaryUri$: function () {
                 return kendo.format(uris.webapp.summary, this.get('language'), this.get('id'));
@@ -2199,10 +2203,6 @@
             },
             userScore$: function () { // Used in Kidoju-Mobile only
                 return kendo.toString(this.get('userScore') / 100, 'p0');
-            },
-            warning$: function () { // Used in Kidoju-Mobile only
-                var userScore = this.get('userScore');
-                return ($.type(userScore) === NUMBER) && userScore >= 50 && userScore < 75;
             },
             init: function (data) {
                 var that = this;

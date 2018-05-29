@@ -1764,8 +1764,14 @@
                 return this.get('version.categoryId')
             },
             */
-            error$: function () {
+            isError$: function () {
                 return this.get('score') >= 0 && this.get('score') < 50;
+            },
+            isSuccess$: function () {
+                return this.get('score') >= 75;
+            },
+            isWarning$: function () {
+                return this.get('score') >= 50 && this.get('score') < 75;
             },
             period$: function () {
                 // Time zones ????
@@ -1796,17 +1802,11 @@
             score$: function () {
                 return kendo.toString(this.get('score') / 100, 'p0');
             },
-            success$: function () {
-                return this.get('score') >= 75;
-            },
             title$: function () {
                 return this.get('version.title'); // Flattens data depth
             },
             updated$: function () {
                 return kendo.toString(this.get('updated'), 'dd MMM yyyy');
-            },
-            warning$: function () {
-                return this.get('score') >= 50 && this.get('score') < 75;
             }
         });
 
