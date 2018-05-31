@@ -132,12 +132,16 @@ REM Copy Kidoju Widgets
 ATTRIB -R .\js\kidoju*.js
 ATTRIB -R .\js\window*.js
 ATTRIB -R .\js\window*.es6
-COPY ..\Kidoju.Widgets\src\js\window.constants.es6 .\js /Y
+COPY ..\Kidoju.Widgets\src\js\*.es6 .\js /Y
 COPY ..\Kidoju.Widgets\src\js\*.js .\js /Y
 ATTRIB +R .\js\kidoju*.js
 ATTRIB +R .\js\window*.js
 ATTRIB +R .\js\window*.es6
 ATTRIB -R .\js\window.pongodb.js
+
+ATTRIB -R .\js\common\kidoju.*.es6
+COPY ..\Kidoju.Widgets\src\js\common\*.es6 .\js\common /Y
+ATTRIB +R .\js\common\kidoju.*.es6
 
 ATTRIB -R .\js\dialogs\kidoju.*.es6
 COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.dialogs.alert.es6 .\js\dialogs /Y
