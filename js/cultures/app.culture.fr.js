@@ -11,7 +11,7 @@
     define([
         '../vendor/kendo/cultures/kendo.culture.fr-FR.js',
         '../vendor/kendo/messages/kendo.messages.fr-FR.js',
-        '../messages/kendo.mobile.fr.js',
+        '../messages/kendo.mobile.fr.es6',
         '../messages/kidoju.messages.fr.es6'
     ], f);
 })(function () {
