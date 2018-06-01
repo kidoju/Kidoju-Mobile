@@ -10,8 +10,8 @@
     'use strict';
     define([
         './vendor/valve/fingerprint',
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         // './app.constants', // <-- optional
         './app.logger'
     ], f);

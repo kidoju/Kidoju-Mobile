@@ -9,8 +9,8 @@
 (function (f, define) {
     'use strict';
     define([
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         './vendor/kendo/kendo.popup',
         './vendor/kendo/kendo.list',
         './vendor/kendo/kendo.toolbar'

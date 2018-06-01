@@ -9,9 +9,9 @@
 (function (f, define) {
     'use strict';
     define([
-        './window.assert',
-        './window.logger',
-        './common/kidoju.util.es6',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
+        './common/window.util.es6',
         './vendor/kendo/kendo.binder'
         // './kidoju.tools'
     ], f);

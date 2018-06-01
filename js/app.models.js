@@ -12,8 +12,8 @@
         './vendor/blueimp/md5', // <-- keep first or adapt function (md5)
         './vendor/kendo/kendo.core',
         './vendor/kendo/kendo.data',
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         './app.logger',
         './app.rapi',
         './app.cache',

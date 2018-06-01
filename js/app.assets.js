@@ -9,8 +9,8 @@
 (function (f, define) {
     'use strict';
     define([
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         './kidoju.tools',
         './kidoju.image',
         './kidoju.widgets.vectordrawing.toolbar', // For the image editor template

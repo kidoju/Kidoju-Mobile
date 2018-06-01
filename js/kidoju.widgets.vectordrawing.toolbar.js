@@ -19,8 +19,8 @@
         './vendor/kendo/kendo.toolbar',
         './vendor/kendo/kendo.window',
         './vendor/kendo/kendo.dataviz.diagram',
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         './kidoju.image'
     ], f);
 })(function () {

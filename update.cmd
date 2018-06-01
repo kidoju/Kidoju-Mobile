@@ -139,15 +139,15 @@ ATTRIB +R .\js\window*.js
 ATTRIB +R .\js\window*.es6
 ATTRIB -R .\js\window.pongodb.js
 
-ATTRIB -R .\js\common\kidoju.*.es6
+ATTRIB -R .\js\common\*.es6
 COPY ..\Kidoju.Widgets\src\js\common\*.es6 .\js\common /Y
-ATTRIB +R .\js\common\kidoju.*.es6
+ATTRIB +R .\js\common\*.es6
 
-ATTRIB -R .\js\dialogs\kidoju.*.es6
+ATTRIB -R .\js\dialogs\*.es6
 COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.dialogs.alert.es6 .\js\dialogs /Y
 COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.dialogs.assetmanager.es6 .\js\dialogs /Y
 COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.widgets.basedialog.es6 .\js\dialogs /Y
-ATTRIB +R .\js\dialogs\kidoju.*.es6
+ATTRIB +R .\js\dialogs\*.es6
 
 ATTRIB -R .\js\messages\kidoju.messages.*.es6
 COPY ..\Kidoju.Widgets\src\js\messages\kidoju.messages.*.es6 .\js\messages /Y

@@ -10,8 +10,8 @@
     'use strict';
     define([
         './vendor/nodeca/pako_deflate.js', // Keep first or change variables below
-        './window.assert',
-        './window.logger'
+        './common/window.assert.es6',
+        './common/window.logger.es6'
     ], f);
 })(function (pako) {
 

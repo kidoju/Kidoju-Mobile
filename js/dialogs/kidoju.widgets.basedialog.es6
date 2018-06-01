@@ -8,8 +8,8 @@
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.dialog';
-import CONSTANTS from '../window.constants.es6';
-// import assert from '../window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+// import assert from '../common/window.assert.es6';
 // const logger = new window.Logger('kidoju.widgets.messagebox');
 // const logger = { debug: $.noop }; // TODO Review
 

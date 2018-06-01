@@ -12,8 +12,8 @@
         './vendor/blueimp/md5', // Keep at the top considering function arguments
         './vendor/kendo/kendo.core',
         './vendor/kendo/kendo.data',
-        './window.assert',
-        './window.logger',
+        './common/window.assert.es6',
+        './common/window.logger.es6',
         './window.pongodb',
         './kidoju.data',
         './kidoju.tools',
