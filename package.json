@@ -89,7 +89,7 @@
     "pgb-api": "^1.0.4",
     "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^2.1.5",
-    "prettier": "^1.13.3",
+    "prettier": "^1.13.4",
     "sinon": "^5.0.10",
     "style-loader": "^0.21.0",
     "stylelint": "^9.2.1",
