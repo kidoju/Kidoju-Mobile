@@ -94,6 +94,7 @@
     "style-loader": "^0.21.0",
     "stylelint": "^9.2.1",
     "stylelint-config-standard": "^18.2.0",
+    "systemjs-plugin-babel": "0.0.25",
     "url-loader": "^1.0.1",
     "wdio-appium-service": "^0.2.3",
     "wdio-mocha-framework": "^0.5.13",
