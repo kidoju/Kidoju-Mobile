@@ -13,7 +13,7 @@
 const path = require('path');
 const deasync = require('deasync');
 const webpack = require('webpack');
-const cleanPlugin = require('./web_modules/less-plugin');
+const cleanPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config');
 const pkg = require('./package.json');
 
