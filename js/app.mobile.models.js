@@ -14,6 +14,7 @@
         './vendor/kendo/kendo.data',
         './common/window.assert.es6',
         './common/window.logger.es6',
+        './common/window.fs.es6',
         './window.pongodb',
         './kidoju.data',
         './kidoju.tools',
@@ -23,7 +24,6 @@
         './app.rapi',
         './app.cache',
         './app.db',
-        './app.fs',
         './app.models'
     ], f);
 })(function (md5H) {

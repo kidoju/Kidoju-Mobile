@@ -87,6 +87,7 @@ window.jQuery.holdReady(true);
         './vendor/kendo/kendo.touch',
         './common/window.assert.es6',
         './common/window.logger.es6',
+        './common/window.tts.es6',
         './kidoju.data',
         './kidoju.tools',
         './kidoju.widgets.chargrid',
@@ -116,8 +117,7 @@ window.jQuery.holdReady(true);
         './app.utils',
         './app.assets',
         './app.models',
-        './app.mobile.models',
-        './app.tts'
+        './app.mobile.models'
     ], f);
 })(function () {
 
