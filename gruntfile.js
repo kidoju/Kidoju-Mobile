@@ -140,6 +140,8 @@ module.exports = grunt => {
                 },
                 files: {
                     'webapp/public/build/workerlib.bundle.js': [
+                        'js/vendor/jashkenas/underscore.js',
+                        'js/vendor/khan/kas.js',
                         'js/kidoju.data.workerlib.js'
                     ]
                 }

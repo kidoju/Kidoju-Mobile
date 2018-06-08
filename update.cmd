@@ -104,6 +104,10 @@ REM Copy HighlightJS
 XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\js\vendor\highlight /C /E /I /R /Y
 ATTRIB +R .\js\vendor\highlight\*.* /S
 
+REM Copy Underscore
+XCOPY ..\Kidoju.Widgets\src\js\vendor\jashkenas .\js\vendor\jashkenas /C /E /I /R /Y
+ATTRIB +R .\js\vendor\jashkenas\*.* /S
+
 REM Copy jQuery
 XCOPY ..\Kidoju.Widgets\src\js\vendor\jquery .\js\vendor\jquery /C /E /I /R /Y
 ATTRIB +R .\js\vendor\jquery\*.* /S
