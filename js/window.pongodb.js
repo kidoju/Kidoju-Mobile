@@ -888,9 +888,6 @@
                 .done(function (version) {
                     // Sort migrations by version number
                     var migrations = that._migrations.sort(pongodb.util.compareVersions);
-                    var execute = function (migration) {
-
-                    };
                     // Find the next migration
                     var found = false;
                     for (var i = 0, length = migrations.length; i < length; i++) {
