@@ -168,7 +168,7 @@
         };
 
         /**
-         * Get a speach synthesis promise
+         * Get a speech synthesis promise
          * @param text
          * @param language
          * @private
