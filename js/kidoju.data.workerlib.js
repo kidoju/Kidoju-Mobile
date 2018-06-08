@@ -65,6 +65,7 @@
         // true in IE where typeof global.ActiveXObject === 'undefined'
         global.ActiveXObject = undefined;
     }
+    global.Blob = undefined;
     global.clearInterval = undefined;
     global.clearTimeout = undefined;
     global.eval = undefined;
@@ -540,6 +541,44 @@
     };
     // Hide method from for-in loops
     Object.defineProperty(Array.prototype, 'equals', { enumerable: false });
+
+    /**
+     * Formula (abstracting Khan KAS)
+     */
+    global.Formula = function (expression) {
+        if (!(this instanceof global.Formula)) {
+            return new global.Formula(expression);
+        }
+        try {
+            this._expression = expression;
+            this._ast = global.KAS.parse(expression).expr;
+        } catch (ex) {
+            var error = new Error('Error parsing `' + expression + '`');
+            error.originalError = ex;
+            throw error;
+        }
+    };
+
+    /**
+     * equals (compares formula)
+     * @param expression
+     * @returns {boolean}
+     */
+    global.Formula.prototype.equals = function (expression) {
+        var ret = false;
+        var ast;
+        try {
+            ast = global.KAS.parse(expression).expr;
+        } catch (ex) {
+            var error = new Error('Error parsing `' + expression + '`');
+            error.originalError = ex;
+            throw error;
+        }
+        try {
+            ret = global.KAS.compare(this._ast, ast).equal;
+        } catch (ex) {}
+        return ret;
+    };
 
 }(this)); // this is WorkerGlobalScope
 
