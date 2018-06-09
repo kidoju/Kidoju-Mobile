@@ -6,9 +6,9 @@
 // eslint-disable-next-line import/extensions
 import $ from 'jquery';
 import assert from './window.assert.es6';
-import Database from './window.pongodb.database.es6';
-import Migration from './window.pongodb.migration.es6';
-import { compareVersions } from './window.pongodb.util.es6';
+import Database from './pongodb.database.es6';
+import Migration from './pongodb.migration.es6';
+import { compareVersions } from './pongodb.util.es6';
 
 /**
  * Upgrade

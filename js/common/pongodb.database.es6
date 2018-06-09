@@ -8,12 +8,12 @@ import $ from 'jquery';
 import assert from './window.assert.es6';
 import Logger from './window.logger.es6';
 import CONSTANTS from './window.constants.es6';
-import { compareVersions } from './window.pongodb.util.es6';
-import Collection from './window.pongodb.collection.es6';
-import Migration from './window.pongodb.migration.es6';
+import { compareVersions } from './pongodb.util.es6';
+import Collection from './pongodb.collection.es6';
+import Migration from './pongodb.migration.es6';
 import localForage from '../vendor/localforage/localforage.nopromises';
 
-const logger = new Logger('window.pongodb.Database');
+const logger = new Logger('pongodb.database');
 const META = '__meta__';
 const VERSION = 'version';
 const VERSION_000 = '0.0.0';
