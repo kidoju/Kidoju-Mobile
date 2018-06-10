@@ -109,7 +109,7 @@ window.jQuery.holdReady(true);
         './kidoju.widgets.stage',
         './kidoju.widgets.table',
         './kidoju.widgets.textgaps',
-        './dialogs/kidoju.dialogs.alert.es6',
+        './dialogs/dialogs.alert.es6',
         './app.constants',
         './app.logger',
         './app.i18n',

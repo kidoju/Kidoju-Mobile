@@ -148,9 +148,9 @@ COPY ..\Kidoju.Widgets\src\js\common\*.es6 .\js\common /Y
 ATTRIB +R .\js\common\*.es6
 
 ATTRIB -R .\js\dialogs\*.es6
-COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.dialogs.alert.es6 .\js\dialogs /Y
-COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.dialogs.assetmanager.es6 .\js\dialogs /Y
-COPY ..\Kidoju.Widgets\src\js\dialogs\kidoju.widgets.basedialog.es6 .\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.alert.es6 .\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.assetmanager.es6 .\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\widgets.basedialog.es6 .\js\dialogs /Y
 ATTRIB +R .\js\dialogs\*.es6
 
 ATTRIB -R .\js\messages\kidoju.messages.*.es6

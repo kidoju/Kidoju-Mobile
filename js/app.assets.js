@@ -14,7 +14,7 @@
         './kidoju.tools',
         './kidoju.image',
         './kidoju.widgets.vectordrawing.toolbar', // For the image editor template
-        './dialogs/kidoju.dialogs.assetmanager.es6',
+        './dialogs/dialogs.assetmanager.es6',
         './app.logger',
         './app.i18n',
         './app.rapi'
