@@ -154,7 +154,7 @@ COPY ..\Kidoju.Widgets\src\js\dialogs\widgets.basedialog.es6 .\js\dialogs /Y
 ATTRIB +R .\js\dialogs\*.es6
 
 ATTRIB -R .\js\messages\kidoju.messages.*.es6
-COPY ..\Kidoju.Widgets\src\js\messages\kidoju.messages.*.es6 .\js\messages /Y
+COPY ..\Kidoju.Widgets\src\js\messages\widgets.*.es6 .\js\messages /Y
 ATTRIB +R .\js\messages\kidoju.messages.*.es6
 
 REM Kidoju server client API

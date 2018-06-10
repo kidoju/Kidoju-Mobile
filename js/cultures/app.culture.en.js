@@ -11,8 +11,8 @@
     define([
         '../vendor/kendo/cultures/kendo.culture.en-GB.js',
         '../vendor/kendo/messages/kendo.messages.en-GB.js',
-        '../messages/kendo.mobile.en.es6',
-        '../messages/kidoju.messages.en.es6'
+        '../messages/mobile.en.es6',
+        '../messages/widgets.en.es6'
     ], f);
 })(function () {
 
