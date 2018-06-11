@@ -23,7 +23,7 @@ if (typeof(require) === 'function') {
     require('../styles/kidoju.widgets.stage.less');
     require('../styles/kidoju.widgets.table.less');
     require('../styles/kidoju.widgets.textgaps.less');
-    require('../styles/dialogs/kidoju.widgets.basedialog.less');
+    require('../styles/dialogs/widgets.basedialog.less');
     require('../styles/app.fonts.less');
     require('../styles/app.mobile.less');
 

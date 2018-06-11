@@ -212,9 +212,9 @@ ATTRIB -R .\styles\kidoju*.less
 COPY ..\Kidoju.Widgets\src\styles\kidoju*.less .\styles /Y
 ATTRIB +R .\styles\kidoju*.less
 
-ATTRIB -R .\styles\dialogs\kidoju*.less
-COPY ..\Kidoju.Widgets\src\styles\dialogs\kidoju*.less .\styles\dialogs /Y
-ATTRIB +R .\styles\dialogs\kidoju*.less
+ATTRIB -R .\styles\dialogs\*.less
+COPY ..\Kidoju.Widgets\src\styles\dialogs\*.less .\styles\dialogs /Y
+ATTRIB +R .\styles\dialogs\*.less
 
 
 REM ------------------------------------------------------------
