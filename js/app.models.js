@@ -59,6 +59,7 @@
         var DataSource = kidoju.data.DataSource;
         var Stream = kidoju.data.Stream;
         var Node = kendo.data.Node;
+        var ObservableArray = kendo.data.ObservableArray;
         var HierarchicalDataSource = kendo.data.HierarchicalDataSource;
         var assert = window.assert;
         var logger = new window.Logger('app.models');
@@ -436,6 +437,49 @@
             }
         });
 
+        /**
+         * LazyCategoryHierarchyCalDataSource
+         * A readonly datasource of hierarchical categories
+         * @type {kendo.data.DataSource}
+         */
+        models.LazyCategoryHierarchicalDataSource = HierarchicalDataSource.extend({
+            init: function (options) {
+
+                var that = this;
+
+                HierarchicalDataSource.fn.init.call(that, $.extend(true, {}, {
+                    transport: {
+                        read: $.proxy(that._transport._read, that)
+                    },
+                    schema: {
+                        modelBase: models.Rummage, // LazyCategory is not a node
+                        model: models.Rummage
+                    }
+                }, options));
+
+            },
+            /*
+             * Setting _transport._read here with a reference above is a trick
+             * so as to be able to replace this function in mockup scenarios
+             */
+            _transport: {
+                _read: function (options) {
+                    logger.debug({
+                        message: 'dataSource.read',
+                        method: 'app.models.LazyCategoryHierarchicalDataSource.transport.read'
+                        // data: options
+                    });
+                    app.cache.getCategoryHierarchy(i18n.locale())
+                        .done(function (response) {
+                            options.success(response);
+                        })
+                        .fail(function (xhr, status, error) {
+                            options.error(xhr, status, error);
+                        });
+                }
+            }
+        });
+
         /*******************************************************************************
          * Searches and Rummages
          *******************************************************************************/
@@ -662,22 +706,52 @@
                     editable: false,
                     nullable: true
                 },
-                name: {
+                ageGroup: {
+                    type: NUMBER,
+                    editable: false,
+                    parse: function (value) {
+                        // defaultValue: 0 does not work as we get null
+                        // default parse function is return kendo.parseFloat(value);
+                        return window.parseInt(value, 10) || 255;
+                    }
+                },
+                count: {
+                    type: NUMBER,
+                    editable: false,
+                    parse: function (value) {
+                        // defaultValue: 0 does not work as we get null
+                        // default parse function is return kendo.parseFloat(value);
+                        return window.parseInt(value, 10) || 0;
+                    }
+                },
+                /*
+                description: {
                     type: STRING,
                     editable: false
                 },
+                */
                 icon: {
                     type: STRING,
                     editable: false
                 },
-                path: {
+                /*
+                language: {
                     type: STRING,
-                    nullable: true,
                     editable: false
                 },
-                type: { // 0 = groups/folders, 1 = home, 2 = categories, 3 = favourites
-                    type: NUMBER,
+                */
+                name: {
+                    type: STRING,
                     editable: false
+                },
+                path: { // Different from the path in LazyCategory, this is for favourites/bookmarks
+                    type: STRING,
+                    editable: false
+                },
+                type: { // 0 = groups/folders, 1 = home, 2 = categories, 3 = favourites/bookmarks
+                    type: NUMBER,
+                    editable: false,
+                    defaultValue: 2 // categories
                 }
             },
 
@@ -685,10 +759,10 @@
             /* jshint -W074 */
 
             /**
-             * Return a complete path
+             * Return the href the category or bookmark points at
              * @returns {*}
              */
-            path$: function () {
+            href$: function () {
                 var root = window.location.protocol + '//' + window.location.host;
                 var finder = kendo.format(uris.webapp.finder, i18n.locale());
                 finder = finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
@@ -720,6 +794,25 @@
              */
             icon$: function () {
                 return kendo.format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
+            },
+
+            /**
+             * An array of parent categories up the the root of the hierarchy
+             * Note: does not contains the current category
+             */
+            path$: function () {
+                var ret = [];
+                var item = this;
+                while(
+                    $.isFunction(item.parent) &&
+                    item.parent() instanceof ObservableArray &&
+                    $.isFunction(item.parent().parent) &&
+                    item.parent().parent() instanceof models.Rummage
+                    ) {
+                    item = item.parent().parent();
+                    ret.push(item);
+                }
+                return ret.reverse();
             }
         });
 
@@ -1697,11 +1790,9 @@
                         return value instanceof models.UserReference ? value : new models.UserReference(value);
                     }
                 },
-                category: {
-                    nullable: true,
-                    parse: function (value) {
-                        return (value instanceof models.LazyCategory || value === null) ? value : new models.LazyCategory(value);
-                    }
+                categoryId: {
+                    type: STRING,
+                    nullable: true
                 },
                 language: {
                     type: STRING,
@@ -1749,7 +1840,7 @@
             },
             reset: function () {
                 var that = this;
-                that.set('category', this.defaults.category);
+                that.set('categoryId', this.defaults.category);
                 that.set('title', this.defaults.title);
                 // that.set('type', this.defaults.type);
             },
@@ -1761,7 +1852,7 @@
                         userId: that.get('author.userId')
                         // Let the server feed the authenticated user firstName and lastName from author.userId
                     },
-                    categoryId: that.get('category.id'), // sets the icon and age group
+                    categoryId: that.get('categoryId'), // sets the icon and age group
                     language: that.get('language'),
                     title: that.get('title'),
                     type: that.get('type.value')
