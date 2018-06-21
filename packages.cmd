@@ -4,8 +4,8 @@ CALL phonegap platform remove android
 CALL phonegap platform remove browser
 CALL phonegap platform remove ios
 CALL phonegap platform remove windows
-REM CALL phonegap plugin remove phonegap-plugin-barcodescanner
-REM CALL phonegap plugin add phonegap-plugin-barcodescanner --variable CAMERA_USAGE_DESCRIPTION="Scan QR Codes" --save
+CALL phonegap plugin remove cordova-plugin-safariviewcontroller
+CALL phonegap plugin add cordova-plugin-safariviewcontroller --save
 CALL npm update
 sed -i -E "s/git\+(https:[^+]*).git/\1/g" ./package.json
 sed -i -E "s/git\+(https:[^+]*).git/\1/g" ./package-lock.json
