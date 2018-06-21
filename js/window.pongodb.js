@@ -14,7 +14,7 @@
         // localforage without promises performs better
         // also promises in localforage display strange behaviours with jQuery deferred
         // and deferreds are better because they can notify progress callbacks for long operations like sync
-        './vendor/localForage/localforage.nopromises.js',
+        './vendor/localforage/localforage.nopromises.js',
         './common/window.assert.es6',
         './common/window.logger.es6'
     ], f);
