@@ -84,7 +84,7 @@ module.exports = {
     context: path.join(__dirname, '/'),
     devtool: 'sourcemap',
     entry: {
-        app: './js/app.mobile.js' // ,
+        app: ['babel-polyfill', './js/app.mobile.js'] // ,
         // Worker library
         // workerlib: './js/kidoju.data.workerlib.js'
     },
@@ -96,7 +96,13 @@ module.exports = {
         rules: [
             {
                 test: /\.es6$/,
-                use: [{ loader: 'babel-loader' }]
+                exclude: /node_modules/,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: { babelrc: true }
+                    }
+                ]
             },
             {
                 // Do not put a $ at the end of the test regex

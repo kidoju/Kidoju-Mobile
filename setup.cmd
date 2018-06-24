@@ -1,5 +1,7 @@
 cd /d %~dp0
 call "%ProgramFiles%\nodejs\nodevars.bat"
+REM required to build fibers (for wdio-mocha-framework)
+set PYTHON="C:\Python27\python.exe"
 REM update npm, which is a requirement for some modules
 npm install -g npm
 REM grunt command in terminal mode

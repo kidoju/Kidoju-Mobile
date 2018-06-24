@@ -33,10 +33,6 @@ module.exports = grunt => {
             options: {
                 processContentExclude: ['**/*.js']
             },
-            bluebird: {
-                src: './js/vendor/bluebird/bluebird.core.min.js',
-                dest: './www/build/bluebird.core.min.js'
-            },
             jquery: {
                 src: './js/vendor/jquery/jquery-3.3.1.min.js',
                 dest: './www/build/jquery.min.js'

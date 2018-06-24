@@ -1,4 +1,6 @@
 CD /d %~dp0
+REM required to build fibers (for wdio-mocha-framework)
+REM set PYTHON="C:\Python27\python.exe"
 CALL npm outdated
 CALL phonegap platform remove android
 CALL phonegap platform remove browser
