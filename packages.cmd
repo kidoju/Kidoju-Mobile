@@ -6,8 +6,10 @@ CALL phonegap platform remove android
 CALL phonegap platform remove browser
 CALL phonegap platform remove ios
 CALL phonegap platform remove windows
-CALL phonegap plugin remove cordova-plugin-safariviewcontroller
-CALL phonegap plugin add cordova-plugin-safariviewcontroller --save
+REM CALL phonegap plugin remove cordova-plugin-safariviewcontroller
+REM CALL phonegap plugin add cordova-plugin-safariviewcontroller --save
+CALL phonegap plugin remove ordova-plugin-x-socialsharing
+CALL phonegap plugin add ordova-plugin-x-socialsharing --save
 CALL npm update
 sed -i -E "s/git\+(https:[^+]*).git/\1/g" ./package.json
 sed -i -E "s/git\+(https:[^+]*).git/\1/g" ./package-lock.json
