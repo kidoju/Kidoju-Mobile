@@ -170,8 +170,8 @@
         <variable name="CAMERA_USAGE_DESCRIPTION" value="Scan QR Codes" />
     </plugin>
     <plugin name="cordova-plugin-safariviewcontroller" spec="^1.5.4" />
-    <engine name="android" spec="~7.1.0" />
     <engine name="browser" spec="~5.0.3" />
     <engine name="ios" spec="~4.5.4" />
     <engine name="windows" spec="~6.0.0" />
+    <engine name="android" spec="~7.1.1" />
 </widget>
