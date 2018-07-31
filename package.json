@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "async": "^2.6.1",
-    "autoprefixer": "^9.0.1",
+    "autoprefixer": "^9.0.2",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^8.2.6",
     "babel-loader": "^7.1.5",
@@ -65,7 +65,7 @@
     "grunt": "^1.0.3",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-jshint": "^1.1.0",
-    "grunt-contrib-uglify": "^3.3.0",
+    "grunt-contrib-uglify": "^3.4.0",
     "grunt-eslint": "^21.0.0",
     "grunt-jscs": "^3.0.1",
     "grunt-karma": "^2.0.0",
@@ -75,7 +75,7 @@
     "grunt-stylelint": "^0.10.0",
     "grunt-webdriver": "^2.0.3",
     "grunt-webpack": "^3.1.2",
-    "karma": "^2.0.4",
+    "karma": "^2.0.5",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.2",
@@ -94,10 +94,10 @@
     "pgb-api": "^1.0.4",
     "phantomjs-prebuilt": "^2.1.16",
     "postcss-loader": "^2.1.6",
-    "prettier": "^1.13.7",
+    "prettier": "^1.14.0",
     "sinon": "^6.1.4",
     "style-loader": "^0.21.0",
-    "stylelint": "^9.3.0",
+    "stylelint": "^9.4.0",
     "stylelint-config-standard": "^18.2.0",
     "systemjs-plugin-babel": "0.0.25",
     "url-loader": "^1.0.1",
@@ -106,14 +106,14 @@
     "wdio-selenium-standalone-service": "0.0.10",
     "wdio-static-server-service": "^1.0.1",
     "webdriverio": "^4.13.1",
-    "webpack": "^4.16.1",
+    "webpack": "^4.16.3",
     "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.1.0"
   },
   "dependencies": {
     "cordova-android": "^7.1.1",
     "cordova-browser": "^5.0.3",
-    "cordova-ios": "^4.5.4",
+    "cordova-ios": "^4.5.5",
     "cordova-plugin-badge": "^0.8.7",
     "cordova-plugin-battery-status": "^2.0.2",
     "cordova-plugin-customurlscheme": "^4.3.0",
@@ -160,9 +160,9 @@
     },
     "platforms": [
       "browser",
-      "ios",
       "windows",
-      "android"
+      "android",
+      "ios"
     ]
   },
   "engines": {
