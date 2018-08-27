@@ -27,8 +27,14 @@ module.exports = grunt => {
         );
     }
 
+    const pkg = grunt.file.readJSON('package.json');
+    const banner = `/*! ${pkg.copyright} - Version ${
+        pkg.version
+    } dated ${grunt.template.today('dd-mmm-yyyy')} */`;
+    // console.log(banner);
+
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+        pkg,
         copy: {
             options: {
                 processContentExclude: ['**/*.js']
@@ -117,7 +123,7 @@ module.exports = grunt => {
             }
         },
         nsp: {
-            package: grunt.file.readJSON('package.json')
+            package: pkg
         },
         stylelint: {
             options: {
@@ -128,8 +134,7 @@ module.exports = grunt => {
         uglify: {
             build: {
                 options: {
-                    banner:
-                        '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                    banner,
                     sourceMap: false
                     // sourceMap: true,
                     // sourceMapName: 'webapp/public/build/workerlib.bundle.js.map'
@@ -160,8 +165,7 @@ module.exports = grunt => {
                 devtool: false,
                 plugins: webpackConfig.plugins.concat(
                     new webpack.BannerPlugin({
-                        banner:
-                            '/*! <%= pkg.copyright %> - Version <%= pkg.version %> dated <%= grunt.template.today() %> */',
+                        banner,
                         raw: true
                         // entryOnly: true
                     })
