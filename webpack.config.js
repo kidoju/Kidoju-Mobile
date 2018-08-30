@@ -84,7 +84,7 @@ module.exports = {
     context: path.join(__dirname, '/'),
     devtool: 'sourcemap',
     entry: {
-        app: ['babel-polyfill', './js/app.mobile.js'] // ,
+        app: ['@babel/polyfill', './js/app.mobile.js'] // ,
         // Worker library
         // workerlib: './js/kidoju.data.workerlib.js'
     },
