@@ -6,8 +6,8 @@
     <content src="index.html" />
     <icon height="1024" src="www/res/icon/default.png" width="1024" />
     <preference name="android-minSdkVersion" value="19" />
-    <preference name="android-targetSdkVersion" value="23" />
-    <preference name="android-compileSdkVersion" value="26" />
+    <preference name="android-targetSdkVersion" value="26" />
+    <preference name="android-compileSdkVersion" value="27" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="LoadUrlTimeoutValue" value="60000" />
     <preference name="AutoHideSplashScreen" value="false" />
