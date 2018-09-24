@@ -1534,7 +1534,8 @@
                             method: 'models.MobileUserTransport.create',
                             error: error
                         });
-                        user.set('picture', '');
+                        // user.set('picture', '');
+                        user.picture = '';
                         db.users.insert(user)
                             .done(function () {
                                 options.success({ total: 1, data: [user] });
