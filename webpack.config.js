@@ -217,8 +217,7 @@ module.exports = {
     ],
     resolve: {
         modules: [
-            path.resolve('.'),
-            path.resolve('./js/vendor/kendo'), // required since Kendo UI 2016.1.112
+            path.resolve(__dirname, 'js/vendor/kendo'), // required since Kendo UI 2016.1.112
             'node_modules'
         ]
     }
