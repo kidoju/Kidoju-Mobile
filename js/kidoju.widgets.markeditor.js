@@ -69,8 +69,8 @@
         var MarkEditor = Widget.extend({
 
             /**
-             * Initializes the widget
-             * @method init
+             * Init
+             * @constructor init
              * @param element
              * @param options
              */
@@ -88,7 +88,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -217,7 +217,7 @@
             },
 
             /**
-             * Refresh the toolbar when the selection has changed
+             * Refresh
              * @param selected
              * @param deselected
              * @private
@@ -236,7 +236,7 @@
              * @private
              */
             _onToolBarDialog: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
                 if (!this.trigger('dialog', { name: e.name, options: e.options })) {
                     this._openDialog(e.name, e.options);
                 }
@@ -250,8 +250,8 @@
              * @private
              */
             _openDialog: function (name, options) {
-                // assert.type(STRING, name, kendo.format(assert.messages.type.default, 'name', STRING));
-                // assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                // assert.type(STRING, name, assert.format(assert.messages.type.default, 'name', STRING));
+                // assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
                 var dialog = kendo.markeditor.dialogs.create(name, options);
                 if (!$.isArray(this._dialogs)) {
                     this._dialogs = [];
@@ -283,7 +283,7 @@
              * @private
              */
             _onToolBarAction: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
                 if (!this.trigger('command', { command: e.command, params: e.params })) {
                     var options = this.options;
                     // Note: as long as it is not too complex, we can use a dispatcher as below
@@ -464,7 +464,7 @@
             },
 
             /**
-             * Destroys the widget
+             * Destroy
              * @method destroy
              */
             destroy: function () {

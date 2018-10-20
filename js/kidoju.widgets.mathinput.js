@@ -82,7 +82,7 @@
         var MathInput = Widget.extend({
 
             /**
-             * Initializes the widget
+             * Init
              * @param element
              * @param options
              */
@@ -103,7 +103,7 @@
             },
 
             /**
-             * Widget options
+             * Options
              * @property options
              */
             options: {
@@ -135,7 +135,7 @@
             },
 
             /**
-             * Widget events
+             * Events
              * @property events
              */
             events: [
@@ -556,7 +556,7 @@
              * @private
              */
             _onToolBarDialog: function (e) {
-                assert.isPlainObject(e, kendo.format(assert.messages.isPlainObject.default, 'e'));
+                assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
                 this._openDialog(e.name, e.options);
             },
 
@@ -607,7 +607,7 @@
             },
 
             /**
-             * Refresh the widget
+             * Refresh
              */
             refresh: function () {
                 logger.debug({ method: 'refresh', message: 'Widget refreshed' });
@@ -626,7 +626,7 @@
             },
 
             /**
-             * Destroys the widget including all DOM modifications
+             * Destroy
              * @method destroy
              */
             destroy: function () {

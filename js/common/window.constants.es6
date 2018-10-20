@@ -21,16 +21,28 @@ const CONSTANTS = {
     CHANGE: 'change',
     CLICK: 'click',
     CLOSE: 'close',
+    DATABINDING: 'dataBinding',
+    DATABOUND: 'dataBound',
     ERROR: 'error',
     KEYDOWN: 'keydown',
     KEYPRESS: 'keypress',
     KEYUP: 'keyup',
+    LOAD: 'load',
     MOUSEDOWN: 'mousedown',
     MOUSEENTER: 'mouseenter',
     MOUSELEAVE: 'mouseleave',
     MOUSEMOVE: 'mousemove',
     MOUSEOUT: 'mouseout',
+    MOUSEOVER: 'mouseover',
     MOUSEUP: 'mouseup',
+    POINTERDOWN: 'pointerdown',
+    POINTERENTER: 'pointerenter',
+    POINTERLEAVE: 'pointerleave',
+    POINTERMOVE: 'pointermove',
+    POINTEROUT: 'pointerout',
+    POINTEROVER: 'pointerover',
+    POINTERUP: 'pointerup',
+    TAP: 'tap',
     TOUCHEND: 'touchend',
     TOUCHLEAVE: 'touchleave',
     TOUCHMOVE: 'touchmove',
@@ -68,16 +80,27 @@ const CONSTANTS = {
     RX_URL: /^https?:\/\//,
     // Characters
     DOT: '.',
+    EMPTY: '',
     HASH: '#',
     HYPHEN: '-',
     UNDERSCORE: '_',
     // Miscellaneous
     ID: 'id',
     ME: 'me',
-    POINTER: 'pointer'
+    POINTER: 'pointer',
+    STAGE_MODES: {
+        DESIGN: 'design',
+        PLAY: 'play',
+        REVIEW: 'review'
+    },
+    // HTML tags
+    DIV: 'div',
+    INPUT: 'input',
+    SELECT: 'select',
+    SPAN: 'span'
 };
 
 /**
- * ES6 Default export
+ * Default export
  */
 export default CONSTANTS;

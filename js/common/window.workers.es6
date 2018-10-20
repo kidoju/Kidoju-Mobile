@@ -11,7 +11,15 @@ import CONSTANTS from './window.constants.es6';
 import Logger from './window.logger.es6';
 
 const logger = new Logger('window.workers');
-const { Blob, console, cordova, navigator, URL, Worker } = window;
+const {
+    __karma__,
+    Blob,
+    console,
+    cordova,
+    navigator: { hardwareConcurrency },
+    URL,
+    Worker
+} = window;
 
 /**
  * Check whether chrome devtools is opened
@@ -39,8 +47,8 @@ function workerTimeout() {
         Math.floor(100 * Math.random());
     }
     const end = Date.now();
-    const k = devtools.opened ? 4 : 1;
-    // A minimum of 250ms is required in browsers and 400ms in Phonegap
+    const k = devtools.opened || __karma__ ? 4 : 1;
+    // A minimum of 250ms is required in browsers and 400ms in Phonegap and Karma tests
     const timeout = k * Math.max(cordova ? 400 : 250, 10 * (end - start));
     logger.info({
         method: 'workerTimeout',
@@ -48,7 +56,7 @@ function workerTimeout() {
     });
     return timeout;
 }
-const CONCURRENCY = Math.max(1, (navigator.hardwareConcurrency || 4) - 1);
+const CONCURRENCY = Math.max(1, (hardwareConcurrency || 4) - 1);
 const TTL = workerTimeout();
 
 /**
@@ -129,7 +137,7 @@ export default class WorkerPool {
          * We have implemented the later because it makes one common blob with the library and all other blobs are very small which makes a smaller memory footprint.
          * If the library were merged, each worker blob would contain the library, potentially making a much larger memory footprint.
          */
-        return $.when(...promises).done((...responses) => {
+        return $.when(...promises).then((...responses) => {
             // Here library is loaded so as to be merged with script (see exec)
             // this._library = concat(responses);
 
