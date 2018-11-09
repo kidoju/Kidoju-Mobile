@@ -1,7 +1,6 @@
 /graphics/*
-/js/*
 /node_modules/*
-/styles/*
+/src/*
 /temp/*
 /test/*
 .*

@@ -1,0 +1,92 @@
+@import "vendor/kendo/web/kendo.common.less";
+@import "vendor/kendo/web/kendo.flat.less";
+@import "vendor/kendo/mobile/kendo.mobile.flat.less";
+
+// Drawer
+@app-drawer-content-background: darken(@flat-active-background, 8%);
+@app-drawer-content-color: @flat-active-color;
+@app-drawer-logo-color: #fff;
+@app-drawer-navbar-background: @flat-main-color;
+@app-drawer-navbar-color: @flat-active-color;
+
+// Navbar
+@app-layout-navbar-background: @flat-active-background;
+@app-layout-navbar-color: @flat-active-color;
+@app-layout-navbar-button-background: @flat-active-background;
+@app-layout-navbar-button-color: @flat-active-color;
+@app-layout-navbar-button-border: solid 1px @flat-active-background;
+@app-layout-navbar-button-margin: .4rem .1rem;
+@app-layout-navbar-button-padding: .4em .7em;
+
+// Forms
+@app-form-dropdown-margin-top: -1.2em;
+@app-form-dropdown-padding-left: .2em;
+@app-form-dropdown-text-indent: .2em;
+@app-form-input-padding-left: .4em;
+@app-form-right-margin-left: 50%;
+@app-form-right-margin-top: -1.75em;
+@app-form-right-width: 45%;
+
+// ListViews
+@app-form-filter-font-size: 1em;
+
+// Tour ScrollView
+@app-tour-background-color: #FFFFFF;
+@app-tour-border-color: #FFFFFF;
+
+// Primary buttons
+@app-primary-background: @flat-active-background;
+@app-primary-border-color: @flat-active-background;
+@app-primary-text-color: @flat-active-color;
+
+// Animation containers
+@app-list-container-font-size: 1em;
+
+@import "app.template.less";
+@import (optional) "highlightjs.custom.less";
+
+/* Validation from kendo/mobile/flat/template.less */
+@warning: #ff8f2f;
+.km-flat .km-list > li label.km-invalid,
+.km-flat .km-list fieldset .km-legend-button.km-invalid,
+.km-flat .km-list > li label.km-invalid.km-required:after {
+    color: @warning;
+}
+.km-flat .km-invalid-msg {
+    color: @flat-active-color;
+    background: @warning;
+}
+
+// Style fixes
+.km-root {
+    .km-flat {
+        .km-list > li {
+            .km-listview-link {
+                .km-badge {
+                    right: 2.75em !important;
+                }
+            }
+        }
+        .km-filter-form {
+            // So that the #finder search box matches the #categories dropdown
+            .km-filter-wrap {
+                margin: 0;
+                padding: 0;
+                input {
+                    font-size: 1em;
+                    padding: .4em 2.5em;
+                }
+            }
+        }
+        #signin {
+            // exception to app.mobile.less
+            .k-scrollview.km-scrollview {
+                div[data-role="page"] {
+                    .km-list > li {
+                        padding: .5em;
+                    }
+                }
+            }
+        }
+    }
+}

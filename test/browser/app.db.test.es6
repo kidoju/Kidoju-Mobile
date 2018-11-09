@@ -9,7 +9,7 @@ import $ from 'jquery';
 import chai from 'chai';
 import sinon from 'sinon';
 import 'sinon-chai';
-import '../../js/window.pongodb';
+import '../../src/js/window.pongodb';
 
 const { afterEach, beforeEach, describe, it, pongodb } = window;
 const { expect } = chai;

@@ -9,37 +9,37 @@
     <script src="../vendor/sinon-chai.js"></script>
     <!--script src="../vendor/blanket.js" data-cover-adapter="../vendor/blanket_mocha.js"></script-->
     <!--script src="../vendor/blanket.min.js" data-cover-flags="debug" data-cover-adapter="../vendor/blanket_mocha.min.js"></script-->
-    <script src="../../js/vendor/jquery/jquery-3.3.1.min.js"></script>
+    <script src="../../src/js/vendor/jquery/jquery-3.3.1.min.js"></script>
     <script src="../vendor/lokijs.js"></script>
     <script src="../vendor/jquery.mockjax.js"></script>
-    <script src="../../js/vendor/blueimp/md5.js"></script>
-    <script src="../../js/vendor/valve/fingerprint.js"></script>
+    <script src="../../src/js/vendor/blueimp/md5.js"></script>
+    <script src="../../src/js/vendor/valve/fingerprint.js"></script>
     <!-- We need the version with promises otherwise `npm test` fails - https://github.com/localForage/localForage/issues/562 -->
-    <script src="../../js/vendor/localforage/localforage.js"></script>
-    <script src="../../js/vendor/kendo/kendo.core.js"></script>
-    <script src="../../js/vendor/kendo/kendo.data.js"></script>
+    <script src="../../src/js/vendor/localforage/localforage.js"></script>
+    <script src="../../src/js/vendor/kendo/kendo.core.js"></script>
+    <script src="../../src/js/vendor/kendo/kendo.data.js"></script>
     <script>
         mocha.setup('bdd');
         mocha.timeout(10000);
     </script>
-    <script src="../../js/common/window.assert.js"></script>
-    <script src="../../js/common/window.logger.es6"></script>
+    <script src="../../src/js/common/window.assert.js"></script>
+    <script src="../../src/js/common/window.logger.es6"></script>
     <!--script src="window.fs.mock.es6"></script-->
-    <script src="../../js/common/window.fs.es6"></script>
-    <script src="../../js/window.pongodb.js"></script>
-    <script src="../../js/kidoju.data.js"></script>
-    <script src="../../js/app.constants.js"></script>
-    <script src="../../js/app.rapi.js"></script>
-    <script src="../../js/app.cache.js"></script>
-    <script src="../../js/app.db.js"></script>
-    <script src="../../js/app.models.js"></script>
-    <script src="../../js/app.mobile.models.js" data-cover></script>
+    <script src="../../src/js/common/window.fs.es6"></script>
+    <script src="../../src/js/window.pongodb.js"></script>
+    <script src="../../src/js/kidoju.data.js"></script>
+    <script src="../../src/js/app.constants.js"></script>
+    <script src="../../src/js/app.rapi.js"></script>
+    <script src="../../src/js/app.cache.js"></script>
+    <script src="../../src/js/app.db.js"></script>
+    <script src="../../src/js/app.models.js"></script>
+    <script src="../../src/js/app.mobile.models.js" data-cover></script>
 </head>
 <body>
 
 <div id="mocha"></div>
 
-<script src="../../js/app.rapi.mock.js"></script>
+<script src="../../src/js/app.rapi.mock.js"></script>
 <script src="../data/testData.js"></script>
 <script src="app.mobile.models.test.js"></script>
 <script>

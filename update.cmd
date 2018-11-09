@@ -85,136 +85,170 @@ REM Javascript files
 REM ------------------------------------------------------------
 
 REM Copy Kendo UI
-XCOPY ..\Kidoju.Widgets\src\js\vendor\kendo .\js\vendor\kendo /C /E /I /R /Y
-ATTRIB +R .\js\vendor\kendo\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\kendo .\src\js\vendor\kendo /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\kendo\*.* /S
 
 REM Copy localForage
-XCOPY ..\Kidoju.Widgets\src\js\vendor\localforage .\js\vendor\localforage\ /C /E /I /R /Y
-ATTRIB +R .\js\vendor\localforage\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\localforage .\src\js\vendor\localforage\ /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\localforage\*.* /S
 
 REM copy blueimp/md5
-XCOPY ..\Kidoju.Server\client\js\vendor\blueimp .\js\vendor\blueimp /C /E /I /R /Y
-ATTRIB +R .\js\vendor\blueimp\*.* /S
+XCOPY ..\Kidoju.Server\client\js\vendor\blueimp .\src\js\vendor\blueimp /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\blueimp\*.* /S
 
 REM Copy CodeMirror
-REM XCOPY ..\Kidoju.Widgets\src\js\vendor\codemirror .\js\vendor\codemirror /C /E /I /R /Y
-REM ATTRIB +R .\js\vendor\codemirror\*.* /S
+REM XCOPY ..\Kidoju.Widgets\src\js\vendor\codemirror .\src\js\vendor\codemirror /C /E /I /R /Y
+REM ATTRIB +R .\src\js\vendor\codemirror\*.* /S
 
 REM Copy HighlightJS
-XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\js\vendor\highlight /C /E /I /R /Y
-ATTRIB +R .\js\vendor\highlight\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\src\js\vendor\highlight /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\highlight\*.* /S
 
 REM Copy Underscore
-XCOPY ..\Kidoju.Widgets\src\js\vendor\jashkenas .\js\vendor\jashkenas /C /E /I /R /Y
-ATTRIB +R .\js\vendor\jashkenas\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\jashkenas .\src\js\vendor\jashkenas /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\jashkenas\*.* /S
 
 REM Copy jQuery
-XCOPY ..\Kidoju.Widgets\src\js\vendor\jquery .\js\vendor\jquery /C /E /I /R /Y
-ATTRIB +R .\js\vendor\jquery\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\jquery .\src\js\vendor\jquery /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\jquery\*.* /S
 
 REM copy KateX
-XCOPY ..\Kidoju.Widgets\src\js\vendor\khan .\js\vendor\khan /C /E /I /R /Y
-ATTRIB +R .\js\vendor\khan\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\khan .\src\js\vendor\khan /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\khan\*.* /S
 
 REM Copy Markdown-It
-XCOPY ..\Kidoju.Widgets\src\js\vendor\markdown-it .\js\vendor\markdown-it /C /E /I /R /Y
-ATTRIB +R .\js\vendor\markdown-it\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\markdown-it .\src\js\vendor\markdown-it /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\markdown-it\*.* /S
 
-REM copy MathQUill
-XCOPY ..\Kidoju.Widgets\src\js\vendor\mathquill .\js\vendor\mathquill /C /E /I /R /Y
-ATTRIB +R .\js\vendor\mathquill\*.* /S
+REM copy MathQuill
+XCOPY ..\Kidoju.Widgets\src\js\vendor\mathquill .\src\js\vendor\mathquill /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\mathquill\*.* /S
 
 REM copy Pako
-XCOPY ..\Kidoju.Widgets\src\js\vendor\nodeca .\js\vendor\nodeca /C /E /I /R /Y
-ATTRIB +R .\js\vendor\nodeca\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\nodeca .\src\js\vendor\nodeca /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\nodeca\*.* /S
 
 REM copy valve/fingerprintjs
-XCOPY ..\Kidoju.Server\client\js\vendor\valve .\js\vendor\valve /C /E /I /R /Y
-ATTRIB +R .\js\vendor\valve\*.* /S
+XCOPY ..\Kidoju.Server\client\js\vendor\valve .\src\js\vendor\valve /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\valve\*.* /S
 
 REM Copy Kidoju Widgets
-ATTRIB -R .\js\kidoju*.js
-ATTRIB -R .\js\window*.js
-ATTRIB -R .\js\window*.es6
-COPY ..\Kidoju.Widgets\src\js\*.es6 .\js /Y
-COPY ..\Kidoju.Widgets\src\js\*.js .\js /Y
-ATTRIB +R .\js\kidoju*.js
-ATTRIB +R .\js\window*.js
-ATTRIB +R .\js\window*.es6
-ATTRIB -R .\js\window.pongodb.js
-
-ATTRIB -R .\js\common\*.es6
-COPY ..\Kidoju.Widgets\src\js\common\*.es6 .\js\common /Y
-ATTRIB +R .\js\common\*.es6
-
-ATTRIB -R .\js\dialogs\*.es6
-COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.alert.es6 .\js\dialogs /Y
-COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.assetmanager.es6 .\js\dialogs /Y
-COPY ..\Kidoju.Widgets\src\js\dialogs\widgets.basedialog.es6 .\js\dialogs /Y
-ATTRIB +R .\js\dialogs\*.es6
-
-ATTRIB -R .\js\messages\kidoju.messages.*.es6
-COPY ..\Kidoju.Widgets\src\js\messages\widgets.*.es6 .\js\messages /Y
-ATTRIB +R .\js\messages\kidoju.messages.*.es6
+ATTRIB -R .\src\js\kidoju*.js
+ATTRIB -R .\src\js\window*.js
+ATTRIB -R .\src\js\window*.es6
+COPY ..\Kidoju.Widgets\src\js\*.es6 .\src\js /Y
+COPY ..\Kidoju.Widgets\src\js\*.js .\src\js /Y
+ATTRIB +R .\src\js\kidoju*.js
+ATTRIB +R .\src\js\window*.js
+ATTRIB +R .\src\js\window*.es6
+ATTRIB -R .\src\js\window.pongodb.js
 
 REM Kidoju server client API
-ATTRIB -R .\js\app*.js
-COPY ..\Kidoju.Server\client\js\app.logger.js .\js /Y
-ATTRIB +R .\js\app.logger.js
-COPY ..\Kidoju.Server\client\js\app.rapi.js .\js /Y
-ATTRIB +R .\js\app.rapi.js
-COPY ..\Kidoju.Server\client\js\app.rapi.mock.js .\js /Y
-ATTRIB +R .\js\app.rapi.mock.js
-COPY ..\Kidoju.Server\client\js\app.cache.js .\js /Y
-ATTRIB +R .\js\app.cache.js
-COPY ..\Kidoju.Server\client\js\app.models.js .\js /Y
-ATTRIB +R .\js\app.models.js
-COPY ..\Kidoju.Server\client\js\app.models.mock.js .\js /Y
-ATTRIB +R .\js\app.models.mock.js
+ATTRIB -R .\src\js\app*.js
+COPY ..\Kidoju.Server\client\js\app.logger.js .\src\js /Y
+ATTRIB +R .\src\js\app.logger.js
+COPY ..\Kidoju.Server\client\js\app.rapi.js .\src\js /Y
+ATTRIB +R .\src\js\app.rapi.js
+COPY ..\Kidoju.Server\client\js\app.rapi.mock.js .\src\js /Y
+ATTRIB +R .\src\js\app.rapi.mock.js
+COPY ..\Kidoju.Server\client\js\app.cache.js .\src\js /Y
+ATTRIB +R .\src\js\app.cache.js
+COPY ..\Kidoju.Server\client\js\app.models.js .\src\js /Y
+ATTRIB +R .\src\js\app.models.js
+COPY ..\Kidoju.Server\client\js\app.models.mock.js .\src\js /Y
+ATTRIB +R .\src\js\app.models.mock.js
+
+REM Copy .\src\js\app\*
+REM ATTRIB -R .\src\js\app\*.es6
+REM COPY ..\Kidoju.WebApp\src\js\app\*.es6 .\src\js\app /Y
+REM ATTRIB +R .\src\js\app\*.es6
+
+REM Copy .\src\js\common\*
+ATTRIB -R .\src\js\common\*.es6
+COPY ..\Kidoju.Widgets\src\js\common\*.es6 .\src\js\common /Y
+ATTRIB +R .\src\js\common\*.es6
+
+REM Copy .\src\js\cultures\*
+ATTRIB -R .\src\js\cultures\*.es6
+COPY ..\Kidoju.Widgets\src\js\messages\widgets.*.es6 .\src\js\messages /Y
+ATTRIB +R .\src\js\messages\widgets.*.es6
+
+REM Copy .\src\js\data\*
+ATTRIB -R .\src\js\data\*.es6
+COPY ..\Kidoju.Widgets\src\js\data\*.es6 .\src\js\data /Y
+COPY ..\Kidoju.Server\src\js\data\*.es6 .\src\js\data /Y
+ATTRIB +R .\src\js\data\*.es6
+
+REM Copy .\src\js\dialogs\*
+ATTRIB -R .\src\js\dialogs\*.es6
+COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.alert.es6 .\src\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.assetmanager.es6 .\src\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\widgets.basedialog.es6 .\src\js\dialogs /Y
+ATTRIB +R .\src\js\dialogs\*.es6
+
+REM Copy .\src\js\rapi\*
+ATTRIB -R .\src\js\rapi\*.es6
+COPY ..\Kidoju.Server\src\js\rapi\*.es6 .\src\js\data /Y
+ATTRIB +R .\src\js\rapi\*.es6
+
+REM Copy .\src\js\common\*
+ATTRIB -R .\src\js\common\*.es6
+COPY ..\Kidoju.Widgets\src\js\common\*.es6 .\src\js\common /Y
+ATTRIB +R .\src\js\common\*.es6
+
+REM Copy .\src\js\tools\*
+ATTRIB -R .\src\js\tools\*.es6
+COPY ..\Kidoju.Widgets\src\js\tools\*.es6 .\src\js\tools /Y
+ATTRIB +R .\src\js\tools\*.es6
+
+REM Copy .\src\js\widgets\*
+ATTRIB -R .\src\js\widgets\*.es6
+COPY ..\Kidoju.Widgets\src\js\widgets\*.es6 .\src\js\widgets /Y
+ATTRIB +R .\src\js\widgets\*.es6
 
 REM Copy .jshintrc
-ATTRIB -R .\js\.jshintrc
-COPY ..\Kidoju.WebApp\js\.jshintrc .\js /Y
-ATTRIB +R .\js\.jshintrc
+ATTRIB -R .\src\js\.jshintrc
+COPY ..\Kidoju.WebApp\js\.jshintrc .\src\js /Y
+ATTRIB +R .\src\js\.jshintrc
 
 REM ------------------------------------------------------------
 REM Styles
 REM ------------------------------------------------------------
 
-XCOPY ..\Kidoju.Widgets\src\styles\vendor\kendo .\styles\vendor\kendo /C /E /I /R /Y
-ATTRIB +R .\styles\vendor\kendo\*.* /S
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\kendo .\src\styles\vendor\kendo /C /E /I /R /Y
+ATTRIB +R .\src\styles\vendor\kendo\*.* /S
 
 REM Copy Kidoju webfonts
-XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\styles\fonts\ /C /E /I /R /Y
-ATTRIB +R .\styles\fonts\*.* /S
+XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\src\styles\fonts\ /C /E /I /R /Y
+ATTRIB +R .\src\styles\fonts\*.* /S
 
 REM Copy CodeMirror - Not used in mobile app
-REM XCOPY ..\Kidoju.Widgets\src\styles\vendor\codemirror .\styles\vendor\codemirror /C /E /I /R /Y
-REM ATTRIB +R .\styles\vendor\codemirror\*.* /S
+REM XCOPY ..\Kidoju.Widgets\src\styles\vendor\codemirror .\src\styles\vendor\codemirror /C /E /I /R /Y
+REM ATTRIB +R .\src\styles\vendor\codemirror\*.* /S
 
 REM Copy KaTex
-XCOPY ..\Kidoju.Widgets\src\styles\vendor\khan .\styles\vendor\khan /C /E /I /R /Y
-ATTRIB +R .\styles\vendor\khan\*.* /S
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\khan .\src\styles\vendor\khan /C /E /I /R /Y
+ATTRIB +R .\src\styles\vendor\khan\*.* /S
 
 REM Copy HighlightJS
-XCOPY ..\Kidoju.Widgets\src\styles\vendor\highlight .\styles\vendor\highlight /C /E /I /R /Y
-ATTRIB +R .\styles\vendor\highlight\*.* /S
-ATTRIB -R .\styles\highlightjs.custom.less
-COPY ..\Kidoju.WebApp\styles\highlightjs.custom.less .\styles /Y
-ATTRIB +R .\styles\highlightjs.custom.less
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\highlight .\src\styles\vendor\highlight /C /E /I /R /Y
+ATTRIB +R .\src\styles\vendor\highlight\*.* /S
+ATTRIB -R .\src\styles\highlightjs.custom.less
+COPY ..\Kidoju.WebApp\styles\highlightjs.custom.less .\src\styles /Y
+ATTRIB +R .\src\styles\highlightjs.custom.less
 
 REM Copy MathQuill
-XCOPY ..\Kidoju.Widgets\src\styles\vendor\mathquill .\styles\vendor\mathquill /C /E /I /R /Y
-ATTRIB +R .\styles\vendor\mathquill\*.* /S
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\mathquill .\src\styles\vendor\mathquill /C /E /I /R /Y
+ATTRIB +R .\src\styles\vendor\mathquill\*.* /S
 
 REM Copy Kidoju Widgets
-ATTRIB -R .\styles\kidoju*.less
-COPY ..\Kidoju.Widgets\src\styles\kidoju*.less .\styles /Y
-ATTRIB +R .\styles\kidoju*.less
+ATTRIB -R .\src\styles\kidoju*.less
+COPY ..\Kidoju.Widgets\src\styles\kidoju*.less .\src\styles /Y
+ATTRIB +R .\src\styles\kidoju*.less
 
-ATTRIB -R .\styles\dialogs\*.less
-COPY ..\Kidoju.Widgets\src\styles\dialogs\*.less .\styles\dialogs /Y
-ATTRIB +R .\styles\dialogs\*.less
+ATTRIB -R .\src\styles\dialogs\*.less
+COPY ..\Kidoju.Widgets\src\styles\dialogs\*.less .\src\styles\dialogs /Y
+ATTRIB +R .\src\styles\dialogs\*.less
 
 
 REM ------------------------------------------------------------
@@ -222,9 +256,9 @@ REM Images
 REM ------------------------------------------------------------
 
 REM Copy Kidoju Widgets
-ATTRIB -R .\styles\images\*.png
-COPY ..\Kidoju.WebApp\src\styles\images\handler.png .\styles\images\handler.png /Y
-ATTRIB +R .\styles\images\*.png
+ATTRIB -R .\src\styles\images\*.png
+COPY ..\Kidoju.WebApp\src\styles\images\handler.png .\src\styles\images\handler.png /Y
+ATTRIB +R .\src\styles\images\*.png
 
 REM ------------------------------------------------------------
 REM Tests
@@ -259,29 +293,29 @@ REM Web Application (webapp)
 REM ------------------------------------------------------------
 
 REM ./js/app.assets.js
-ATTRIB -R .\js\app.assets.js
-COPY ..\Kidoju.WebApp\js\app.assets.js .\js /Y
-ATTRIB +R .\js\app.assets.js
+ATTRIB -R .\src\js\app.assets.js
+COPY ..\Kidoju.WebApp\js\app.assets.js .\src\js /Y
+ATTRIB +R .\src\js\app.assets.js
 
 REM ./js/config,jsx
-ATTRIB -R .\js\app*.jsx
-COPY ..\Kidoju.WebApp\js\app.config.jsx .\js /Y
-ATTRIB +R .\js\app.config.jsx
+ATTRIB -R .\src\js\app*.jsx
+COPY ..\Kidoju.WebApp\js\app.config.jsx .\src\js /Y
+ATTRIB +R .\src\js\app.config.jsx
 
 REM ./js/app.i18n
-ATTRIB -R .\js\app.i18n.js
-COPY ..\Kidoju.WebApp\js\app.i18n.js .\js /Y
-ATTRIB +R .\js\app.i18n.js
+ATTRIB -R .\src\js\app.i18n.js
+COPY ..\Kidoju.WebApp\js\app.i18n.js .\src\js /Y
+ATTRIB +R .\src\js\app.i18n.js
 
 REM ./js/app.theme
-ATTRIB -R .\js\app.theme.js
-COPY ..\Kidoju.WebApp\js\app.theme.js .\js /Y
-ATTRIB +R .\js\app.theme.js
+ATTRIB -R .\src\js\app.theme.js
+COPY ..\Kidoju.WebApp\js\app.theme.js .\src\js /Y
+ATTRIB +R .\src\js\app.theme.js
 
 REM ./js/app.utils
-ATTRIB -R .\js\app.utils.js
-COPY ..\Kidoju.WebApp\js\app.utils.js .\js /Y
-ATTRIB +R .\js\app.utils.js
+ATTRIB -R .\src\js\app.utils.js
+COPY ..\Kidoju.WebApp\js\app.utils.js .\src\js /Y
+ATTRIB +R .\src\js\app.utils.js
 
 REM ./webapp/config
 REM ATTRIB -R .\webapp\config\*.*
