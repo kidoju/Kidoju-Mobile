@@ -188,7 +188,7 @@ ATTRIB +R .\src\js\dialogs\*.es6
 
 REM Copy .\src\js\rapi\*
 ATTRIB -R .\src\js\rapi\*.es6
-COPY ..\Kidoju.Server\src\js\rapi\*.es6 .\src\js\data /Y
+COPY ..\Kidoju.Server\src\js\rapi\*.es6 .\src\js\rapi /Y
 ATTRIB +R .\src\js\rapi\*.es6
 
 REM Copy .\src\js\common\*

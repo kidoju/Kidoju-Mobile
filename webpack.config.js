@@ -84,9 +84,9 @@ module.exports = {
     context: path.join(__dirname, '/'),
     devtool: 'sourcemap',
     entry: {
-        app: ['@babel/polyfill', './js/app.mobile.js'] // ,
+        app: ['@babel/polyfill', './src/js//app.mobile.js'] // ,
         // Worker library
-        // workerlib: './js/kidoju.data.workerlib.js'
+        // workerlib: './src/js//kidoju.data.workerlib.js'
     },
     externals: {
         // CDN modules
@@ -217,7 +217,7 @@ module.exports = {
     ],
     resolve: {
         modules: [
-            path.resolve(__dirname, 'js/vendor/kendo'), // required since Kendo UI 2016.1.112
+            path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
             'node_modules'
         ]
     }
