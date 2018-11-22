@@ -11,6 +11,7 @@ import './widgets.basedialog.es6';
 import CONSTANTS from '../common/window.constants.es6';
 
 const {
+    deepExtend,
     template,
     ui: { BaseDialog }
 } = window.kendo;
@@ -20,7 +21,7 @@ const {
  * @param options (Same as kendo.ui.Dialog, expect `title` and `content` should be replaced by `type` and `message`)
  * @returns {*}
  */
-export default function openAlert(options = {}) {
+export function openAlert(options = {}) {
     const ALERT_TEMPLATE =
         '<div class="k-widget k-notification k-notification-#: type #"><div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div></div>';
 
@@ -32,7 +33,8 @@ export default function openAlert(options = {}) {
     // Create the dialog
     const dialog = $dialog
         .kendoBaseDialog(
-            Object.assign(
+            deepExtend(
+                {},
                 {
                     title:
                         BaseDialog.fn.options.messages.title[
@@ -68,7 +70,7 @@ export default function openAlert(options = {}) {
  * @param options
  */
 export function openOKCancelAlert(options = {}) {
-    openAlert(
+    return openAlert(
         Object.assign(options, {
             actions: [
                 BaseDialog.fn.options.messages.actions.ok,
@@ -83,7 +85,7 @@ export function openOKCancelAlert(options = {}) {
  * @param options
  */
 export function openYesNoAlert(options = {}) {
-    openAlert(
+    return openAlert(
         Object.assign(options, {
             actions: [
                 BaseDialog.fn.options.messages.actions.yes,

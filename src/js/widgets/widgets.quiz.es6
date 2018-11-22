@@ -4,6 +4,8 @@
  */
 
 // TODO Use ImageDataSource and DataBoundWidget
+// TODO Check html encoding and XSS
+// TODO Check with all widgets that setOptions uses this.options after calling Widget.fn.setOptions.call and not options, otherwise default values are missing
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -71,7 +73,7 @@ const Quiz = DataBoundWidget.extend({
         this.setOptions(this.options);
         this._render();
         this._dataSource();
-        this.enable(this.options.enable);
+        this.enable(this.options.enabled);
     },
 
     /**
@@ -96,7 +98,7 @@ const Quiz = DataBoundWidget.extend({
         mode: MODES.BUTTON,
         shuffle: false,
         textField: 'text',
-        imageField: 'image',
+        imageField: 'url',
         buttonTemplate: BUTTON_TMPL,
         dropDownTemplate: DROPDOWN_TMPL,
         imageTemplate: IMAGE_TMPL,
@@ -107,7 +109,7 @@ const Quiz = DataBoundWidget.extend({
         scaler: 'div.kj-stage',
         stageElement: 'div.kj-element',
         value: null,
-        enable: true,
+        enabled: true,
         messages: {
             optionLabel: 'Select...'
         }
@@ -124,34 +126,37 @@ const Quiz = DataBoundWidget.extend({
             assert.format(assert.messages.isPlainObject.default, 'options')
         );
         DataBoundWidget.fn.setOptions.call(this, options);
-        this._groupStyle = new Style(options.groupStyle || ''); // TODO where is it used?
-        this._itemStyle = new Style(options.itemStyle || '');
-        this._selectedStyle = new Style(options.selectedStyle || '');
+        const {
+            buttonTemplate,
+            dropDownTemplate,
+            groupStyle,
+            imageField,
+            itemStyle,
+            imageTemplate,
+            linkTemplate,
+            radioTemplate,
+            selectedStyle,
+            textField
+        } = this.options;
+        this._groupStyle = new Style(groupStyle || ''); // TODO where is it used?
+        this._itemStyle = new Style(itemStyle || '');
+        this._selectedStyle = new Style(selectedStyle || '');
         this._buttonTemplate = template(
-            format(
-                options.buttonTemplate,
-                options.textField,
-                options.imageField
-            )
+            format(buttonTemplate, textField, imageField)
         );
         this._dropDownTemplate = format(
-            options.dropDownTemplate,
-            options.textField,
-            options.imageField
+            dropDownTemplate,
+            textField,
+            imageField
         ); // ! not a compiled template
         this._imageTemplate = template(
-            format(options.imageTemplate, options.textField, options.imageField)
+            format(imageTemplate, textField, imageField)
         );
         this._linkTemplate = template(
-            format(options.linkTemplate, options.textField, options.imageField)
+            format(linkTemplate, textField, imageField)
         );
         this._radioTemplate = template(
-            format(
-                options.radioTemplate,
-                options.textField,
-                options.imageField,
-                randomId()
-            )
+            format(radioTemplate, textField, imageField, randomId())
         );
     },
 
@@ -452,7 +457,7 @@ const Quiz = DataBoundWidget.extend({
                 .attr('style', '')
                 .css(
                     $.extend(
-                        {},
+                        {}, // TODO Check remove
                         this._itemStyle.toJSON(),
                         this._selectedStyle.toJSON()
                     )

@@ -136,7 +136,7 @@ const CharGridTool = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + charGridLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${charGridLibrary.defaultKey}`,
             library: charGridLibrary.library,
             title: i18n().properties.validation.title
         }),
@@ -214,7 +214,7 @@ const CharGridTool = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const content = stageElement.children('div.kj-chargrid');

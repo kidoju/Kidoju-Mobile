@@ -12,7 +12,7 @@ import './widgets.vectordrawing.toolbar.es6';
 
 var kidoju = window.kidoju;
 var assert = window.assert;
-var logger = new window.Logger('widgets.vectordrawing');
+var logger = new Logger('widgets.vectordrawing');
 var kendo = window.kendo;
 var deepExtend = kendo.deepExtend;
 var getDataUriAndSize = kidoju.image.getDataUriAndSize;

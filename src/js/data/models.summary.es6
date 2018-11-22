@@ -1,12 +1,28 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseModel from './models.base.es6';
+import UserReference from './models.user.reference.es6';
+import SummaryMetricsReference from './models.summary.metrics.reference.es6';
 
-
+const {
+    app: { uris },
+    cordova,
+    kendo: { format }
+} = window;
 
 /**
  * Summary model
  * @type {kidoju.data.Model}
  */
-models.Summary = Model.define({
+const Summary = BaseModel.define({
     id: CONSTANTS.ID, // the identifier of the model, which is required for isNew() to work
     fields: {
         id: {
@@ -27,7 +43,9 @@ models.Summary = Model.define({
             editable: false,
             serializable: false,
             parse(value) {
-                return (value instanceof models.UserReference || value === null) ? value : new models.UserReference(value);
+                return value instanceof UserReference || value === null
+                    ? value
+                    : new UserReference(value);
             }
         },
         categoryId: {
@@ -55,7 +73,10 @@ models.Summary = Model.define({
             editable: false,
             serializable: false,
             parse(value) {
-                return value instanceof models.SummaryMetricsReference ? value : new models.SummaryMetricsReference(value);
+                return value instanceof SummaryMetricsReference ||
+                    value === null
+                    ? value
+                    : new SummaryMetricsReference(value);
             }
         },
         published: {
@@ -80,17 +101,25 @@ models.Summary = Model.define({
             editable: false,
             serializable: false
         },
-        userScore: { // Used in Kidoju-Mobile only
+        userScore: {
+            // Used in Kidoju-Mobile only
             from: 'activities',
             type: CONSTANTS.NUMBER,
             editable: false,
             nullable: true,
             serializable: false,
-            parse: function (activities) {
+            parse(activities) {
                 // We need a userId but `this` is undefined, so we cannot find it in this object or in its parents
                 // so we are assigning app._userId in app.mobile.viewModel._reset but this is really crap
-                if (Array.isArray(activities) && RX_MONGODB_ID.test(app._userId)) {
-                    for (var i = 0, length = activities.length; i < length; i++) {
+                if (
+                    Array.isArray(activities) &&
+                    RX_MONGODB_ID.test(app._userId)
+                ) {
+                    for (
+                        let i = 0, length = activities.length;
+                        i < length;
+                        i++
+                    ) {
                         if (activities[i].actorId === app._userId) {
                             return activities[i].score;
                         }
@@ -99,40 +128,54 @@ models.Summary = Model.define({
             }
         }
     },
-    hasUserScore$: function () { // Used in Kidoju-Mobile only
+    hasUserScore$() {
+        // Used in Kidoju-Mobile only
         return $.type(this.get('userScore')) === NUMBER;
     },
-    icon$: function () {
-        return format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
+    icon$() {
+        return format(
+            window.cordova ? uris.mobile.icons : uris.cdn.icons,
+            this.get('icon')
+        );
     },
-    isError$: function () { // Used in Kidoju-Mobile only
-        var userScore = this.get('userScore');
+    isError$() {
+        // Used in Kidoju-Mobile only
+        const userScore = this.get('userScore');
         // Note: we need to test the value type because comparing a null to a number is always true
-        return ($.type(userScore) === NUMBER) && userScore < 50;
+        return $.type(userScore) === NUMBER && userScore < 50;
     },
-    isSuccess$: function () { // Used in Kidoju-Mobile only
-        var userScore = this.get('userScore');
-        return ($.type(userScore) === NUMBER) && userScore >= 75;
+    isSuccess$() {
+        // Used in Kidoju-Mobile only
+        const userScore = this.get('userScore');
+        return $.type(userScore) === NUMBER && userScore >= 75;
     },
-    isWarning$: function () { // Used in Kidoju-Mobile only
-        var userScore = this.get('userScore');
-        return ($.type(userScore) === NUMBER) && userScore >= 50 && userScore < 75;
+    isWarning$() {
+        // Used in Kidoju-Mobile only
+        const userScore = this.get('userScore');
+        return (
+            $.type(userScore) === NUMBER && userScore >= 50 && userScore < 75
+        );
     },
-    summaryUri$: function () {
-        return format(uris.webapp.summary, this.get('language'), this.get('id'));
+    summaryUri$() {
+        return format(
+            uris.webapp.summary,
+            this.get('language'),
+            this.get('id')
+        );
     },
-    tags$: function () {
+    tags$() {
         return this.get('tags').join(', ');
     },
-    userScore$: function () { // Used in Kidoju-Mobile only
+    userScore$() {
+        // Used in Kidoju-Mobile only
         return kendo.toString(this.get('userScore') / 100, 'p0');
     },
-    init: function (data) {
-        var that = this;
+    init(data) {
+        const that = this;
         Model.fn.init.call(that, data);
         that.bind(CHANGE, $.proxy(that._onChange, that));
     },
-    _onChange: function (e) {
+    _onChange(e) {
         // call the base function
         Model.fn._notifyChange.call(this, e);
         // kendo only handles add/remove on arrays of child elements
@@ -142,17 +185,18 @@ models.Summary = Model.define({
             this.dirty = true;
         }
     },
-    load: function (data) {
-        var that = this;
-        var dfd = $.Deferred();
+    load(data) {
+        const that = this;
+        const dfd = $.Deferred();
         if (RX_MONGODB_ID.test(data)) {
             // data is a summary id and we fetch a full summary
-            rapi.v1.content.getSummary(i18n.locale(), data)
-            .then(function (summary) {
-                that.accept(summary);
-                dfd.resolve(summary);
-            })
-            .catch(dfd.reject);
+            rapi.v1.content
+                .getSummary(i18n.locale(), data)
+                .then(summary => {
+                    that.accept(summary);
+                    dfd.resolve(summary);
+                })
+                .catch(dfd.reject);
         } else if ($.isPlainObject(data) && RX_MONGODB_ID.test(data.id)) {
             if (data.published instanceof Date) {
                 // data is a published summary and we use model.accept to load data
@@ -163,61 +207,123 @@ models.Summary = Model.define({
                 // because the webapp could not fetch the summary without authentication
                 // We therefore need to fetch a full summary
                 // data is a summary id and we fetch a full summary
-                rapi.v1.content.getSummary(i18n.locale(), data.id)
-                .then(function (summary) {
-                    that.accept(summary);
-                    dfd.resolve(summary);
-                })
-                .catch(dfd.reject);
+                rapi.v1.content
+                    .getSummary(i18n.locale(), data.id)
+                    .then(summary => {
+                        that.accept(summary);
+                        dfd.resolve(summary);
+                    })
+                    .catch(dfd.reject);
             }
         } else {
-            var xhr = new ErrorXHR(400, 'Neither data nor data.id is a MongoDB ObjectId');
+            const xhr = new ErrorXHR(
+                400,
+                'Neither data nor data.id is a MongoDB ObjectId'
+            );
             // dfd.reject(xhr, status, error);
             dfd.reject(xhr, ERROR, xhr.statusText);
         }
         return dfd.promise();
     },
-    save: function (fields) {
-        var that = this;
-        var dfd = $.Deferred();
-        if (that.dirty) { // TODO Validate
-            var data = filter(that.toJSON(), fields);
-            assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
+    save(fields) {
+        const that = this;
+        const dfd = $.Deferred();
+        if (that.dirty) {
+            // TODO Validate
+            const data = filter(that.toJSON(), fields);
+            assert.isPlainObject(
+                data,
+                assert.format(assert.messages.isPlainObject.default, 'data')
+            );
             // Check that all model fields marked as serializable === false won't be sent
-            assert.isUndefined(data.author, assert.format(assert.messages.isUndefined.default, 'data.author'));
-            assert.isUndefined(data.created, assert.format(assert.messages.isUndefined.default, 'data.created'));
-            assert.isUndefined(data.id, assert.format(assert.messages.isUndefined.default, 'data.id'));
-            assert.isUndefined(data.language, assert.format(assert.messages.isUndefined.default, 'data.language'));
-            assert.isUndefined(data.metrics, assert.format(assert.messages.isUndefined.default, 'data.metrics'));
-            assert.isUndefined(data.type, assert.format(assert.messages.isUndefined.default, 'data.type'));
-            assert.isUndefined(data.updated, assert.format(assert.messages.isUndefined.default, 'data.updated'));
-            var language = that.get('language');
-            var id = that.get('id');
-            rapi.v1.content.updateSummary(language, id, data)
-            .then(function (data) {
-                // Note: data is not parsed, so dates are string
-                that.accept(data); // this updates dirty and updated
-                dfd.resolve(data);
-            })
-            .catch(function (xhr, status, error) {
-                dfd.reject(xhr, status, error);
-            });
+            assert.isUndefined(
+                data.author,
+                assert.format(
+                    assert.messages.isUndefined.default,
+                    'data.author'
+                )
+            );
+            assert.isUndefined(
+                data.created,
+                assert.format(
+                    assert.messages.isUndefined.default,
+                    'data.created'
+                )
+            );
+            assert.isUndefined(
+                data.id,
+                assert.format(assert.messages.isUndefined.default, 'data.id')
+            );
+            assert.isUndefined(
+                data.language,
+                assert.format(
+                    assert.messages.isUndefined.default,
+                    'data.language'
+                )
+            );
+            assert.isUndefined(
+                data.metrics,
+                assert.format(
+                    assert.messages.isUndefined.default,
+                    'data.metrics'
+                )
+            );
+            assert.isUndefined(
+                data.type,
+                assert.format(assert.messages.isUndefined.default, 'data.type')
+            );
+            assert.isUndefined(
+                data.updated,
+                assert.format(
+                    assert.messages.isUndefined.default,
+                    'data.updated'
+                )
+            );
+            const language = that.get('language');
+            const id = that.get('id');
+            rapi.v1.content
+                .updateSummary(language, id, data)
+                .then(data => {
+                    // Note: data is not parsed, so dates are string
+                    that.accept(data); // this updates dirty and updated
+                    dfd.resolve(data);
+                })
+                .catch((xhr, status, error) => {
+                    dfd.reject(xhr, status, error);
+                });
         } else {
-            setTimeout(function () {
+            setTimeout(() => {
                 dfd.resolve(); // nothing to save
             }, 0);
         }
         return dfd.promise();
     },
-    createDraft: function () {
-        return rapi.v1.content.executeCommand(this.get('language'), this.get('id'), { command: 'draft' });
+    createDraft() {
+        return rapi.v1.content.executeCommand(
+            this.get('language'),
+            this.get('id'),
+            { command: 'draft' }
+        );
     },
-    publish: function () {
-        return rapi.v1.content.executeCommand(this.get('language'), this.get('id'), { command: 'publish' });
+    publish() {
+        return rapi.v1.content.executeCommand(
+            this.get('language'),
+            this.get('id'),
+            { command: 'publish' }
+        );
     },
-    rate: function (value) {
+    rate(value) {
         // TODO: what if already rated?????
         // TODO: check that an author cannot rate his own summaries
-        return rapi.v1.content.createSummaryActivity(this.get('language'), this.get('id'), { type: 'rating', value: value });
+        return rapi.v1.content.createSummaryActivity(
+            this.get('language'),
+            this.get('id'),
+            { type: 'rating', value }
+        );
     }
 });
+
+/**
+ * Default export
+ */
+export default Summary;

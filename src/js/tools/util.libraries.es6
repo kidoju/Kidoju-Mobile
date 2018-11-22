@@ -3,20 +3,14 @@
  * Sources at https://github.com/Memba
  */
 
-import 'kendo.core';
-
-const { format } = window.kendo;
-
-export const LIB_COMMENT = '// ';
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
-
-// TODO: Add name/value to localize algorithm names
+// TODO: Add name to localize algorithm names
 // TODO  Add alternate solutions (array of solutions)
+// TODO consider replacer and reviver to singify and parse library item
 
 /**
  * IMPORTANT
  * Add params as in:
- *      name: 'oneOf',
+ *      key: 'oneOf',
  *      params: new StringArrayAdapter(), <-- note the use of an adapter
  *      formula: 'function (value, params, all) { return params.indexOf(value) }'
  * Then SolutionAdapter possibly selects one of params in ComboBox
@@ -25,38 +19,182 @@ const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
  * Check how this could work with randomization and solution formulas
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import regexpEditor from '../editors/editors.input.es6';
+
+const { format } = window.kendo;
+
+export const LIB_COMMENT = '// ';
+const LIB_PARAMS = ' [{0}]';
+const RX_VALIDATION_LIBRARY = /^\/\/ ([^\s[\n]+)( \[([^\n]+)])?$/;
+const RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*{[\s\S]*}$/;
+
+export const VALIDATION_CUSTOM =
+    'function validate(value, solution, all) {\n\t{0}\n}';
+const VALIDATION_LIBRARY_SOLUTION =
+    'function validate(value, solution) {\n\t{0}\n}';
+const VALIDATION_LIBRARY_PARAMS =
+    'function validate(value, params) {\n\t{0}\n}';
+// Note: Library functions cannot use page field values and random numbers gathered in `all`
+
+/**
+ * Check that value refers to a custom function and not a library item
+ * i.e. function (value, solution, all) { ... }
+ * @function isCustomFormula
+ * @param value
+ * @returns {boolean}
+ */
+export function isCustomFormula(value) {
+    /*
+    assert.type(
+        CONSTANTS.STRING,
+        value,
+        assert.format(assert.messages.type.default, 'value', CONSTANTS.STRING)
+    );
+    const matches = value.match(RX_VALIDATION_CUSTOM);
+    return Array.isArray(matches) && matches.length === 2;
+    */
+    return RX_VALIDATION_CUSTOM.test(value);
+}
+
+/**
+ * Check that value refers to a library item and params
+ * i.e. // ... [...]
+ * @param value
+ * @returns {boolean}
+ */
+export function isLibraryFormula(value) {
+    /*
+    assert.type(
+        CONSTANTS.STRING,
+        value,
+        assert.format(assert.messages.type.default, 'value', CONSTANTS.STRING)
+    );
+    const matches = value.match(RX_VALIDATION_LIBRARY);
+    return Array.isArray(matches) && matches.length === 4;
+    */
+    return RX_VALIDATION_LIBRARY.test(value);
+}
+
+/**
+ * Serialize a library item
+ * @function serializeLibraryItem
+ * @param item
+ * @param params
+ * @returns {string}
+ */
+export function stringifyLibraryItem(item, params) {
+    assert.type(
+        CONSTANTS.OBJECT,
+        item,
+        assert.format(assert.messages.type.default, 'item', CONSTANTS.OBJECT)
+    );
+    let options = '';
+    if ($.type(params) !== CONSTANTS.UNDEFINED && $.isFunction(item.editor)) {
+        options = format(LIB_PARAMS, JSON.stringify(params));
+    }
+    return `${LIB_COMMENT}${item.key}${options}`;
+}
+
+/**
+ * Returns the library item and parsed params from value
+ * i.e. parsing `// <name> (<params>)`) return { item, item.parse(params) }
+ * @param value
+ * @returns {*}
+ */
+export function parseLibraryItem(value, library) {
+    assert.type(
+        CONSTANTS.STRING,
+        value,
+        assert.format(assert.messages.type.default, 'value', CONSTANTS.STRING)
+    );
+    assert.isDefined(
+        library,
+        assert.format(assert.messages.isDefined.default, 'library')
+    );
+    assert.isFunction(
+        library.filter,
+        assert.format(assert.messages.isFunction.default, 'library.filter')
+    );
+    const ret = {};
+    const libraryMatches = value.match(RX_VALIDATION_LIBRARY);
+    if (Array.isArray(libraryMatches) && libraryMatches.length === 4) {
+        const params = libraryMatches[3];
+        // Add ret.item
+        const found = library.filter(
+            // Array.find is not available in Internet Explorer
+            item => item.key === libraryMatches[1]
+        );
+        if (Array.isArray(found) && found.length) {
+            [ret.item] = found;
+        }
+        // Add ret.params
+        if (
+            ret.item &&
+            $.isFunction(ret.item.editor) &&
+            $.type(params) === CONSTANTS.STRING &&
+            params.length
+        ) {
+            ret.params = JSON.parse(params);
+        }
+    }
+    return ret;
+}
+
+/**
+ * Custom entry
+ * @type {{name: string, key: string, formula: *}}
+ */
+export const CUSTOM = {
+    key: 'custom',
+    name: 'Custom',
+    formula: format(
+        VALIDATION_CUSTOM,
+        '// Your code should return true when value is validated against solution.\n\treturn true;'
+    )
+};
+
 /**
  * String array library (compares string arrays)
- * @type {{defaultValue: string, library: *[]}}
+ * @type {{defaultKey: string, library: *[]}}
  */
 export const arrayLibrary = {
     // TODO: Cannot we make sure the data is formatted properly to simplify these formulas???
-    defaultValue: 'equal',
+    // TODO: Add sorted versus unsorted
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
+            key: 'equal',
+            name: 'Equal',
             // formula: format(VALIDATION_CUSTOM, 'return String(value.sort()) === String(solution.trim().split("\\n").sort());')
             // With the formula here above, each string in the array cannot be trimmed properly
             // because String(arr) is the same as join(',') and each value might contain commas
             // So we use }-{ because there is little chance any value would contain this sequence
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 '// Note: value is an array and solution is a multiline string\n\t' +
                     'return (value || []).sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{") === String(solution).trim().split("\\n").sort().join("}-{").replace(/\\s*}-{\\s*/g, "}-{");'
             )
         },
         {
-            name: 'ignoreCaseEqual',
+            key: 'ignoreCaseEqual', // TODO <--- This is useless becuase we generally know the arrays
+            name: 'Equal (ignore case)',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 '// Note: value is an array and solution is a multiline string\n\t' +
                     'return (value || []).sort().join("}-{").trim().replace(/\\s*}-{\\s*/g, "}-{").toLowerCase() === String(solution).trim().split("\\n").sort().join("}-{").replace(/\\s*}-{\\s*/g, "}-{").toLowerCase();'
             )
         },
         {
-            name: 'sumEqual',
+            key: 'sumEqual',
+            name: 'Equal (compare sums)',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 '// Note: value is an array and solution is a multiline string\n\t' +
                     'var ret = 0;\t' +
                     '(value || []).forEach(function(val){ ret += parseFloat((val || "").trim() || 0); });\t' +
@@ -68,16 +206,25 @@ export const arrayLibrary = {
 
 /**
  * Boolean library (compares booleans)
- * @type {{defaultValue: string, library: {name: string, formula: *}[]}}
+ * @type {{defaultKey: string, library: {key: string, formula: *}[]}}
  */
 export const booleanLibrary = {
-    defaultValue: 'equal',
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
+            key: 'equal',
+            name: 'Equal',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).toLowerCase() === String(solution).toLowerCase();'
+            )
+        },
+        {
+            key: 'notEqual',
+            name: 'Not equal',
+            formula: format(
+                VALIDATION_LIBRARY_SOLUTION,
+                'return String(value).toLowerCase() !== String(solution).toLowerCase();'
             )
         }
     ]
@@ -85,15 +232,16 @@ export const booleanLibrary = {
 
 /**
  * Character grid library
- * @type {{defaultValue: string, library: {name: string, formula: *}[]}}
+ * @type {{defaultKey: string, library: {key: string, formula: *}[]}}
  */
 export const charGridLibrary = {
-    defaultValue: 'equal',
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
+            key: 'equal',
+            name: 'Equal',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return value && typeof value.equals === "function" && value.equals(solution);'
             )
         }
@@ -105,13 +253,14 @@ export const charGridLibrary = {
  */
 export const dateLibrary = {
     // TODO: parsing raises a culture issue with MM/DD/YYYY in english and DD/MM/YYYY in french
-    defaultValue: 'equal',
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
+            key: 'equal',
+            name: 'Equal',
             // Note: new Date(1994,1,1) !== new Date(1994,1,1) as they are two different objects
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return new Date(value) - new Date(solution) === 0;'
             )
         }
@@ -120,15 +269,16 @@ export const dateLibrary = {
 
 /**
  * Generic library
- * @type {{defaultValue: string, library: {name: string, formula: *}[]}}
+ * @type {{defaultKey: string, library: {key: string, formula: *}[]}}
  */
 export const genericLibrary = {
-    defaultValue: 'equal',
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
+            key: 'equal',
+            name: 'Equal',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim() === String(solution).trim();'
             )
         }
@@ -137,22 +287,23 @@ export const genericLibrary = {
 
 /**
  * Math library (compares formulas)
- * @type {{defaultValue: string, library: {name: string, formula: *}[]}}
+ * @type {{defaultKey: string, library: {key: string, formula: *}[]}}
  */
 export const mathLibrary = {
-    defaultValue: 'equal',
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
+            key: 'equal',
+            name: 'Equal',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim() === String(solution).trim();'
             ) // TODO several MathQuillMathField
         } /* ,
                 {
                     // TODO permutations
-                    name: 'anyCommutations',
-                    formula: format(VALIDATION_CUSTOM, 'return shuntingYard(value).equals(solution);')
+                    key: 'anyCommutations',
+                    formula: format(VALIDATION_LIBRARY_SOLUTION, 'return shuntingYard(value).equals(solution);')
                 }
                 */
     ]
@@ -160,15 +311,15 @@ export const mathLibrary = {
 
 /**
  * Multiquiz Library
- * @type {{defaultValue: string, library: {name: string, formula: *}[]}}
+ * @type {{defaultKey: string, library: {key: string, formula: *}[]}}
  */
 export const multiQuizLibrary = {
-    defaultValue: 'equal',
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
+            key: 'equal',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 '// Note: both value and solution are arrays of strings\n\t' +
                     'return String(value.sort()) === String(solution.sort());'
             )
@@ -178,45 +329,50 @@ export const multiQuizLibrary = {
 
 /**
  * Number library (compares numbers)
- * @type {{defaultValue: string, library: *[]}}
+ * @type {{defaultKey: string, library: *[]}}
  */
 export const numberLibrary = {
     // IMPORTANT TODO: localization parsing
-    defaultValue: 'equal',
+    // TODO: parsing raises a culture issue with 5.3 in english and 5,3 in french
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
-            // TODO: parsing raises a culture issue with 5.3 in english and 5,3 in french
+            key: 'equal',
+            name: '=',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) === Number(solution);'
             )
         },
         {
-            name: 'greaterThan',
+            key: 'greaterThan',
+            name: '>',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) > Number(solution);'
             )
         },
         {
-            name: 'greaterThanOrEqual',
+            key: 'greaterThanOrEqual',
+            name: '>=',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) >= Number(solution);'
             )
         },
         {
-            name: 'lowerThan',
+            key: 'lowerThan',
+            name: '<',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) < Number(solution);'
             )
         },
         {
-            name: 'lowerThanOrEqual',
+            key: 'lowerThanOrEqual',
+            name: '<=',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return Number(value) <= Number(solution);'
             )
         }
@@ -225,62 +381,68 @@ export const numberLibrary = {
 
 /**
  * String library (compares strings)
- * @type {{defaultValue: string, library: *[]}}
+ * @type {{defaultKey: string, library: *[]}}
  */
 export const stringLibrary = {
-    defaultValue: 'equal',
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
+            key: 'equal',
+            name: 'Equal',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim() === String(solution).trim();'
             )
         },
         {
-            name: 'ignoreCaseEqual',
+            key: 'ignoreCaseEqual',
+            name: 'Equal (ignore case)',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim().toUpperCase() === String(solution).trim().toUpperCase();'
             )
         },
         {
-            name: 'ignoreCaseMatch',
+            key: 'ignoreCaseMatch',
+            name: 'Match (ignore case)',
             // Do not use RegExp constructor because escaping backslashes is a nightmare
             formula: format(
-                VALIDATION_CUSTOM,
-                'return /{0}/i.test(String(value).trim());'
+                VALIDATION_LIBRARY_PARAMS,
+                'return new RegExp(params, "i").test(String(value).trim());'
             ),
-            // TODO IMPORTANT! The parameter {0} should be named
-            param: 'Regular Expression'
+            editor: regexpEditor
         },
         {
-            name: 'ignoreDiacriticsEqual',
+            key: 'ignoreDiacriticsEqual',
+            name: 'Equal (ignore diacritics)',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return removeDiacritics(String(value).trim().toUpperCase()) === removeDiacritics(String(solution).trim().toUpperCase());'
             )
         },
         {
-            name: 'match',
+            key: 'match',
+            name: 'Match',
             // Do not use RegExp constructor because escaping backslashes is a nightmare
             formula: format(
-                VALIDATION_CUSTOM,
-                'return /{0}/.test(String(value).trim());'
+                VALIDATION_LIBRARY_PARAMS,
+                'return new RegExp(params, "i").test(String(value).trim());'
             ),
-            param: 'Regular Expression'
+            editor: regexpEditor
         },
         {
-            name: 'metaphone',
+            key: 'metaphone',
+            name: 'Metaphone',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return metaphone(removeDiacritics(String(value).trim().toUpperCase())) === metaphone(removeDiacritics(String(solution).trim().toUpperCase()));'
             )
         },
         {
-            name: 'soundex',
+            key: 'soundex',
+            name: 'Soundex',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return soundex(removeDiacritics(String(value).trim().toUpperCase())) === soundex(removeDiacritics(String(solution).trim().toUpperCase()));'
             )
         }
@@ -289,31 +451,51 @@ export const stringLibrary = {
 
 /**
  * Text Library (compares long text entered in text areas)
- * @type {{defaultValue: string, library: *[]}}
+ * @type {{defaultKey: string, library: *[]}}
  */
 export const textLibrary = {
-    defaultValue: 'equal',
+    defaultKey: 'equal',
     library: [
         {
-            name: 'equal',
+            key: 'equal',
+            name: 'Equal',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).trim() === String(solution).trim();'
             )
         },
         {
-            name: 'ignoreSpacesEqual',
+            key: 'ignoreSpacesEqual',
+            name: 'Equal (ignore spaces)',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).replace(/\\s+/g, " ").trim() === String(solution).replace(/\\s+/g, " ").trim();'
             )
         },
         {
-            name: 'ignorePunctuationEqual',
+            key: 'ignorePunctuationEqual',
+            name: 'Equal (ignore punctuation)',
             formula: format(
-                VALIDATION_CUSTOM,
+                VALIDATION_LIBRARY_SOLUTION,
                 'return String(value).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim() === String(solution).replace(/[\\.,;:\\?!\'"\\(\\)\\s]+/g, " ").trim();'
             )
         }
     ]
 };
+
+/**
+ * Global references for i18n
+ * Note: Cannot extend to make copies, these are to be the same objects
+ */
+window.kendo.ex = window.kendo.ex || {};
+window.kendo.ex.libraries = window.kendo.ex.libraries || {};
+window.kendo.ex.libraries.CUSTOM = CUSTOM;
+window.kendo.ex.libraries.arrayLibrary = arrayLibrary;
+window.kendo.ex.libraries.booleanLibrary = booleanLibrary;
+window.kendo.ex.libraries.charGridLibrary = charGridLibrary;
+window.kendo.ex.libraries.dateLibrary = dateLibrary;
+window.kendo.ex.libraries.genericLibrary = genericLibrary;
+window.kendo.ex.libraries.mathLibrary = mathLibrary;
+window.kendo.ex.libraries.multiQuizLibrary = multiQuizLibrary;
+window.kendo.ex.libraries.stringLibrary = stringLibrary;
+window.kendo.ex.libraries.textLibrary = textLibrary;

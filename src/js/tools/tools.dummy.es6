@@ -13,24 +13,42 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
 /**
- * Dummy square tool for testing
- * @class Square
+ * i18n
+ * @returns {*|{}}
+ */
+function i18n() {
+    return (
+        (((window.app || {}).i18n || {}).tools || {}).label || {
+            description: 'Square',
+            name: 'Square',
+            help: null
+        }
+    );
+}
+
+/**
+ * Dummy square tool without adapters for testing
+ * @class SquareTool
  * @extends BaseTool
  */
-const Square = BaseTool.extend({
+const SquareTool = BaseTool.extend({
     id: 'square',
-    cursor: 'progress',
-    description: 'Square',
-    icon: 'shapes',
-    // menu
-    name: 'Square',
-    templates: {
-        play: '<div style="background-color:#00FF00;">PLAY</div>',
-        design: '<div style="background-color:#0000FF;">DESIGN</div>',
-        review: '<div style="background-color:#FF0000;">REVIEW</div>'
-    },
+    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    description: i18n().description,
     height: 300,
+    help: i18n().help,
+    icon: 'shapes',
+    // menu: [],
+    name: i18n().name,
     width: 300,
+    templates: {
+        play:
+            '<div style="background-color:#0f0; padding: 10px; border: solid 1px #000;">PLAY</div>',
+        design:
+            '<div style="background-color:#00f; padding: 10px; border: solid 1px #000;">DESIGN</div>',
+        review:
+            '<div style="background-color:#f00; padding: 10px; border: solid 1px #000;">REVIEW</div>'
+    },
     // attributes: {},
     // properties: {},
 
@@ -42,11 +60,6 @@ const Square = BaseTool.extend({
      * @returns {jQuery|HTMLElement}
      */
     getHtmlContent(component, mode) {
-        assert.instanceof(
-            Square,
-            this,
-            assert.format(assert.messages.instanceof.default, 'this', 'Square')
-        );
         assert.instanceof(
             PageComponent,
             component,
@@ -76,13 +89,25 @@ const Square = BaseTool.extend({
      * @param enabled
      */
     onEnable(e, component, enabled) {
+        assert.type(
+            CONSTANTS.OBJECT,
+            e,
+            // Note: we are not asserting that e is a $.Event
+            // to call onEnable({ currentTarget: el[0] }, component )
+            assert.format(assert.messages.type.default, 'e', CONSTANTS.OBJECT)
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
         const stageElement = $(e.currentTarget);
         if (stageElement.is(CONSTANTS.ELEMENT_CLASS)) {
-            const content = stageElement.children('div');
-            assert.ok(
-                content.length === 1,
-                'Square elements are expected to be constituted of a single div'
-            );
+            const content = stageElement.children(CONSTANTS.DIV);
             content.off('click');
             if (enabled) {
                 content.on('click', () => {
@@ -99,6 +124,22 @@ const Square = BaseTool.extend({
      * @param component
      */
     onResize(e, component) {
+        assert.type(
+            CONSTANTS.OBJECT,
+            e,
+            // Note: we are not asserting that e is a $.Event
+            // to call onEnable({ currentTarget: el[0] }, component )
+            assert.format(assert.messages.type.default, 'e', CONSTANTS.OBJECT)
+        );
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
         const stageElement = $(e.currentTarget);
         if (
             stageElement.is(CONSTANTS.ELEMENT_CLASS) &&
@@ -106,10 +147,18 @@ const Square = BaseTool.extend({
         ) {
             const content = stageElement.children(CONSTANTS.DIV);
             if ($.type(component.width) === CONSTANTS.NUMBER) {
-                content.width(component.width);
+                content.outerWidth(
+                    component.get('width') -
+                        content.outerWidth(true) +
+                        content.outerWidth()
+                );
             }
             if ($.type(component.height) === CONSTANTS.NUMBER) {
-                content.height(component.height);
+                content.outerHeight(
+                    component.get('height') -
+                        content.outerHeight(true) +
+                        content.outerHeight()
+                );
             }
             // prevent any side effect
             e.preventDefault();
@@ -122,4 +171,4 @@ const Square = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Square);
+tools.register(SquareTool);

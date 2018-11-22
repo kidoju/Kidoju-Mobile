@@ -38,10 +38,10 @@ function i18n() {
 
 var SELECTOR = '<div data-#= ns #role="selector" data-#= ns #id="#: properties.name #" data-#= ns #shape="#: attributes.shape #" data-#= ns #stroke="{ color: \'#: attributes.color #\', dashType: \'solid\', opacity: 1, width: \'#: attributes.strokeWidth #\' }" data-#= ns #empty="#: attributes.empty #" data-#= ns #hit-radius="#: attributes.hitRadius #" {0}></div>';
 /**
- * @class Selector tool
+ * @class SelectorTool tool
  * @type {void|*}
  */
-var Selector = BaseTool.extend({
+var SelectorTool = BaseTool.extend({
     id: 'selector',
     icon: 'selector',
     description: i18n.selector.description,
@@ -70,7 +70,7 @@ var Selector = BaseTool.extend({
         question: new QuestionAdapter({ title: i18n.selector.properties.question.title }),
         solution: new StringArrayAdapter({ title: i18n.selector.properties.solution.title }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + arrayLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${arrayLibrary.defaultKey}`,
             library: arrayLibrary.library,
             title: i18n.selector.properties.validation.title
         }),
@@ -89,7 +89,7 @@ var Selector = BaseTool.extend({
     onResize: function (e, component) {
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
-        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'kidoju.data.PageComponent'));
+        assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
         var content = stageElement.children('div[' + attr('role') + '="selector"]');
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
@@ -99,7 +99,7 @@ var Selector = BaseTool.extend({
         }
         // Redraw the selector widget
         // var selectorWidget = content.data('kendoSelector');
-        // assert.instanceof(kendo.ui.Selector, selectorWidget, assert.format(assert.messages.instanceof.default, 'selectorWidget', 'kendo.ui.Selector'));
+        // assert.instanceof(kendo.ui.SelectorTool, selectorWidget, assert.format(assert.messages.instanceof.default, 'selectorWidget', 'kendo.ui.SelectorTool'));
         // selectorWidget._drawPlaceholder();
 
         // prevent any side effect
@@ -164,4 +164,4 @@ var Selector = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Selector);
+tools.register(SelectorTool);

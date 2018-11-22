@@ -38,8 +38,9 @@ const RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).textbox || {
-            name: 'TextBox',
             description: 'TextBox',
+            help: null,
+            name: 'TextBox',
             attributes: {
                 mask: { title: 'Mask' },
                 style: { title: 'Style' }
@@ -62,15 +63,16 @@ const TEXTBOX =
     '<input type="text" id="#: properties.name #" class="kj-interactive" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
 
 /**
- * @class Textbox tool
+ * @class TextBoxTool tool
  * @type {void|*}
  */
-const Textbox = BaseTool.extend({
+const TextBoxTool = BaseTool.extend({
     id: 'textbox',
-    icon: 'text_field',
-    name: i18n().name,
-    description: i18n().description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    description: i18n().description,
+    height: 80,
+    help: i18n().help,
+    icon: 'text_field',
     menu: [
         'attributes.style',
         '', // separator
@@ -78,7 +80,9 @@ const Textbox = BaseTool.extend({
         'properties.solution',
         'properties.validation'
     ],
+    name: i18n().name,
     weight: 1,
+    width: 300,
     templates: {
         design: format(TEXTBOX, ''),
         play: format(
@@ -91,8 +95,6 @@ const Textbox = BaseTool.extend({
                 'data-#= ns #bind="value: #: properties.name #.value"'
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
-    height: 80,
-    width: 300,
     attributes: {
         mask: new TextBoxAdapter({ title: i18n().attributes.mask.title }),
         style: new StyleAdapter({ title: i18n().attributes.style.title })
@@ -108,7 +110,7 @@ const Textbox = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: LIB_COMMENT + stringLibrary.defaultValue,
+            defaultValue: `${LIB_COMMENT}${stringLibrary.defaultKey}`,
             library: stringLibrary.library,
             title: i18n().properties.validation.title
         }),
@@ -128,7 +130,7 @@ const Textbox = BaseTool.extend({
 
     /**
      * onEnable event handler
-     * @class Textbox
+     * @class TextBoxTool
      * @method onEnable
      * @param e
      * @param component
@@ -165,7 +167,7 @@ const Textbox = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const content = stageElement.find('input'); // span > input
@@ -237,4 +239,4 @@ const Textbox = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Textbox);
+tools.register(TextBoxTool);

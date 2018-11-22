@@ -32,8 +32,9 @@ const RX_TEXT = /\S+/i;
 function i18n() {
     return (
         (((window.app || {}).i18n || {}).tools || {}).image || {
-            name: 'Image',
             description: 'Image',
+            help: null,
+            name: 'Image',
             attributes: {
                 alt: { title: 'Text', defaultValue: 'Image' },
                 src: {
@@ -52,23 +53,24 @@ function i18n() {
 }
 
 /**
- * Image
- * @class Image
+ * ImageTool
+ * @class ImageTool
  * @extends BaseTool
  */
-const Image = BaseTool.extend({
+const ImageTool = BaseTool.extend({
     id: 'image',
-    icon: 'painting_landscape',
-    name: i18n().name,
-    description: i18n().description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    description: i18n().description,
+    height: 250,
+    help: i18n().help,
+    icon: 'painting_landscape',
     menu: ['attributes.src', 'attributes.alt', 'attributes.style'],
+    name: i18n().name,
+    width: 250,
     templates: {
         default:
             '<img src="#: src$() #" alt="#: attributes.alt #" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #">'
     },
-    height: 250,
-    width: 250,
     attributes: {
         alt: new TextBoxAdapter({
             title: i18n().attributes.alt.title,
@@ -109,7 +111,7 @@ const Image = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         return {
@@ -129,17 +131,12 @@ const Image = BaseTool.extend({
     getHtmlContent(component, mode) {
         const that = this;
         assert.instanceof(
-            Image,
-            that,
-            assert.format(assert.messages.instanceof.default, 'this', 'Image')
-        );
-        assert.instanceof(
             PageComponent,
             component,
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         assert.enum(
@@ -157,7 +154,7 @@ const Image = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'assets.image',
-                'kidoju.ToolAssets'
+                'ToolAssets'
             )
         );
         const tmpl = template(that.templates.default);
@@ -208,7 +205,7 @@ const Image = BaseTool.extend({
             assert.format(
                 assert.messages.instanceof.default,
                 'component',
-                'kidoju.data.PageComponent'
+                'PageComponent'
             )
         );
         const content = stageElement.children('img');
@@ -336,4 +333,4 @@ const Image = BaseTool.extend({
 /**
  * Registration
  */
-tools.register(Image);
+tools.register(ImageTool);

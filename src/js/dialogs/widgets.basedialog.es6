@@ -3,36 +3,38 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: replace `imageUrl` by `icon` + add CDN path to options + build path when using icons
+// TODO unbind in destroy
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.dialog';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-// import assert from '../common/window.assert.es6';
-// const logger = new window.Logger('widgets.messagebox');
-// const logger = { debug: $.noop }; // TODO Review
-
-// TODO Review styles including the button container at the bottom consider suggestions to Telerik
+import Logger from '../common/window.logger.es6';
 
 const {
     bind,
+    destroy,
+    htmlEncode,
     observable,
     template,
     ui: { Dialog, plugin }
 } = window.kendo;
-// const NS = '.kendoBaseDialog';
 
-const templates = {
+// const NS = '.kendoBaseDialog';
+const logger = new Logger('widgets.basedialog');
+const WIDGET_CLASS = 'kj-dialog';
+const tmpl = {
     action: template(
         '<button type="button" class="k-button# if (data.primary) { # k-primary# } #" role="button"></button>'
     ),
-    text: template(
+    image: template(
         '<img alt="#: data.text #" class="k-image" src="#: data.imageUrl #">#: data.text #'
     )
 };
-
-const WIDGET_CLASS = 'kj-dialog';
 
 /** *******************************************************************************
  * BaseDialog Widget
@@ -44,6 +46,7 @@ const WIDGET_CLASS = 'kj-dialog';
  * - a click event handler on button clicks
  * - A viewModel to bind form controls to
  * - buttons with icon images
+ *
  */
 const BaseDialog = Dialog.extend({
     /**
@@ -52,7 +55,9 @@ const BaseDialog = Dialog.extend({
      * @param options
      */
     init(element, options) {
+        this._fixKarma(element);
         Dialog.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'widget initialized' });
         this.element.addClass(WIDGET_CLASS);
         this._initViewModel();
     },
@@ -79,7 +84,6 @@ const BaseDialog = Dialog.extend({
                 warning: 'Warning'
             },
             actions: {
-                // TODO: replace imageUrl by icon with CDN path and buil path when using icons
                 cancel: {
                     action: 'cancel',
                     imageUrl:
@@ -136,6 +140,22 @@ const BaseDialog = Dialog.extend({
     },
 
     /**
+     * Fix a Karma issue
+     * @param element
+     * @private
+     */
+    _fixKarma(element) {
+        if (window.__karma__) {
+            // The following fixes a bug in Karma where the title is not replaced
+            // but appended to the previous title
+            $(element)
+                .closest('.k-dialog')
+                .find('.k-dialog-titlebar > .k-dialog-title')
+                .html('');
+        }
+    },
+
+    /**
      * Initialize view model
      * @private
      */
@@ -163,6 +183,13 @@ const BaseDialog = Dialog.extend({
      * @private
      */
     _addButtons(actionbar) {
+        assert.instanceof(
+            $,
+            actionbar,
+            assert.messages.instanceof.default,
+            'actionbar',
+            'jQuery'
+        );
         /*
         Originally
         var that = this;
@@ -178,7 +205,7 @@ const BaseDialog = Dialog.extend({
         for (var i = 0; i < length; i++) {
             action = actions[i];
             text = that._mergeTextWithOptions(action);
-            var btn = $(templates.action(action))
+            var btn = $(tmpl.action(action))
                 .autoApplyNS(NS)
                 .html(text)
                 .appendTo(actionbar)
@@ -196,16 +223,22 @@ const BaseDialog = Dialog.extend({
         const { actions, buttonLayout } = this.options;
         const actionClick = this._actionClick.bind(this);
         const actionKeyHandler = this._actionKeyHandler.bind(this);
-        let action;
+        let options;
         let text;
         for (let i = 0, { length } = actions; i < length; i++) {
-            action = actions[i];
-            text = this._mergeTextWithOptions(action);
-            const btn = $(templates.action(action))
+            options = {
+                action: actions[i].action,
+                imageUrl: actions[i].imageUrl,
+                primary: actions[i].primary,
+                // Make sure text does not mess with template
+                text: (actions[i].text || '').replace('#', '\\#')
+            };
+            text = this._mergeTextWithOptions(options);
+            const btn = $(tmpl.action(options))
                 // .autoApplyNS(NS)
                 .html(text)
                 .appendTo(actionbar)
-                .data(CONSTANTS.ACTION, action.action)
+                .data(CONSTANTS.ACTION, options.action)
                 .on(CONSTANTS.CLICK, actionClick)
                 .on(CONSTANTS.KEYDOWN, actionKeyHandler);
             if (buttonLayout === 'stretched') {
@@ -226,9 +259,13 @@ const BaseDialog = Dialog.extend({
         var text = action.text;
         return text ? template(text)(this.options) : '';
         */
+        /* eslint-disable prettier/prettier */
         return action.imageUrl
-            ? templates.text(action)
-            : template(action.text || '')(this.options);
+            ? tmpl.image(action)
+            : template(htmlEncode(action.text || '').replace('#', '\\#'))(
+                this.options
+            );
+        /* eslint-enable prettier/prettier */
     },
 
     /**
@@ -273,33 +310,57 @@ const BaseDialog = Dialog.extend({
 
     /**
      * Destroy method
+     * @method destroy
      */
     destroy() {
         this.viewModel = undefined;
         Dialog.fn.destroy.call(this);
+        destroy(this.wrapper);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
     }
 });
 
 /**
  * Static getter for the dialog DOM element
+ * @method getElement
+ * @param cssClass
+ * @returns {jQuery|HTMLElement}
  */
 BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
     // If a dialog already exists, remove it
-    let element = $(`.${WIDGET_CLASS}.${cssClass}`);
-    if (element.length > 0) {
+    let element = $(
+        `${CONSTANTS.DOT}${WIDGET_CLASS}${CONSTANTS.DOT}${cssClass}`
+    );
+    if (element.length) {
         const dialog = element.data('kendoBaseDialog');
         if (dialog instanceof BaseDialog) {
+            dialog.title('');
+            dialog.content('');
             dialog.destroy();
         }
-        // element.empty(); We replace the content anyway
     } else {
         // Add a div to the html document for the dialog
         // cssClass ensures we do not mess with other dialogs
         // when opening several depths of dialogs
-        element = $(`<div class="${cssClass}"></div>`).appendTo(document.body);
+        element = $(`<${CONSTANTS.DIV}/>`)
+            .addClass(cssClass)
+            .appendTo(document.body);
     }
     return element;
 };
 
-// Register BaseDialog
+/**
+ * Static getter the message namespace (see ../cultures/dialogs.*)
+ * @method getMessageNameSpace
+ */
+BaseDialog.getMessageNameSpace = () => {
+    window.kendo.ex = window.kendo.ex || {};
+    window.kendo.ex.dialogs = window.kendo.ex.dialogs || {};
+    window.kendo.ex.dialogs.messages = window.kendo.ex.dialogs.messages || {};
+    return window.kendo.ex.dialogs.messages;
+};
+
+/**
+ * Registration
+ */
 plugin(BaseDialog);
