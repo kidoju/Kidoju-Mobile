@@ -14,7 +14,7 @@
         './vendor/kendo/kendo.data',
         './common/window.assert.es6',
         './common/window.logger.es6',
-        './app.logger',
+        './app/app.logger',
         './app.rapi',
         './app.cache',
         './kidoju.data',

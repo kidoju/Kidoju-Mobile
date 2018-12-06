@@ -10,22 +10,22 @@ if (typeof(require) === 'function') {
 
     // Load other CSS
     require('../styles/vendor/khan/katex.less');
-    require('../styles/kidoju.widgets.floating.less');
-    require('../styles/kidoju.widgets.highlighter.less');
-    require('../styles/kidoju.widgets.markdown.less');
-    require('../styles/kidoju.widgets.mathexpression.less');
-    require('../styles/kidoju.widgets.mathinput.less');
-    require('../styles/kidoju.widgets.mediaplayer.less');
-    require('../styles/kidoju.widgets.multiquiz.less');
+    require('../styles/widgets/kidoju.widgets.floating.less');
+    require('../styles/widgets/kidoju.widgets.highlighter.less');
+    require('../styles/widgets/kidoju.widgets.markdown.less');
+    require('../styles/widgets/kidoju.widgets.mathexpression.less');
+    require('../styles/widgets/kidoju.widgets.mathinput.less');
+    require('../styles/widgets/kidoju.widgets.mediaplayer.less');
+    require('../styles/widgets/kidoju.widgets.multiquiz.less');
     // require('../styles/kidoju.widgets.playbar.less');
-    require('../styles/kidoju.widgets.quiz.less');
-    require('../styles/kidoju.widgets.rating.less');
-    require('../styles/kidoju.widgets.stage.less');
-    require('../styles/kidoju.widgets.table.less');
-    require('../styles/kidoju.widgets.textgaps.less');
+    require('../styles/widgets/kidoju.widgets.quiz.less');
+    require('../styles/widgets/kidoju.widgets.rating.less');
+    require('../styles/widgets/kidoju.widgets.stage.less');
+    require('../styles/widgets/kidoju.widgets.table.less');
+    require('../styles/widgets/kidoju.widgets.textgaps.less');
     require('../styles/dialogs/widgets.basedialog.less');
-    require('../styles/app.fonts.less');
-    require('../styles/app.mobile.less');
+    require('../styles/ui/app.fonts.less');
+    require('../styles/ui/app.mobile.less');
 
     // Load config
     require('./app.config.jsx?env=' + __NODE_ENV__);
@@ -90,30 +90,30 @@ window.jQuery.holdReady(true);
         './common/window.tts.es6',
         './kidoju.data',
         './kidoju.tools',
-        './kidoju.widgets.chargrid',
-        './kidoju.widgets.connector',
-        './kidoju.widgets.dropzone',
-        './kidoju.widgets.floating',
-        './kidoju.widgets.highlighter',
-        './kidoju.widgets.imageset',
-        './kidoju.widgets.markdown',
-        './kidoju.widgets.mathexpression',
-        './kidoju.widgets.mathinput',
-        './kidoju.widgets.mediaplayer',
-        './kidoju.widgets.multiquiz',
+        './widgets/widgets.chargrid',
+        './widgets/widgets.connector',
+        './widgets/widgets.dropzone',
+        './widgets/widgets.floating',
+        './widgets/widgets.highlighter',
+        './widgets/widgets.imageset',
+        './widgets/widgets.markdown',
+        './widgets/widgets.mathexpression',
+        './widgets/widgets.mathinput',
+        './widgets/widgets.mediaplayer',
+        './widgets/widgets.multiquiz',
         // './kidoju.widgets.playbar',
-        './kidoju.widgets.quiz',
-        './kidoju.widgets.rating',
-        './kidoju.widgets.selector',
+        './widgets/widgets.quiz',
+        './widgets/widgets.rating',
+        './widgets/widgets.selector',
         // './kidoju.widgets.social',
-        './kidoju.widgets.stage',
-        './kidoju.widgets.table',
-        './kidoju.widgets.textgaps',
+        './widgets/widgets.stage',
+        './widgets/widgets.table',
+        './widgets/widgets.textgaps',
         './dialogs/dialogs.alert.es6',
         './app.constants',
-        './app.logger',
-        './app.i18n',
-        './app.theme',
+        './app/app.logger',
+        './app/app.i18n',
+        './app/app.theme',
         './app.utils',
         './app.assets',
         './app.models',

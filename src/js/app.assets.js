@@ -13,10 +13,10 @@
         './common/window.logger.es6',
         './kidoju.tools',
         './kidoju.image',
-        './kidoju.widgets.vectordrawing.toolbar', // For the image editor template
+        './widgets/widgets.vectordrawing.toolbar', // For the image editor template
         './dialogs/dialogs.assetmanager.es6',
-        './app.logger',
-        './app.i18n',
+        './app/app.logger',
+        './app/app.i18n',
         './app.rapi'
     ], f);
 })(function () {

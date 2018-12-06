@@ -11,7 +11,7 @@
     define([
         './common/window.assert.es6',
         './common/window.logger.es6',
-        './app.logger',
+        './app/app.logger',
         './app.rapi'
     ], f);
 })(function () {
