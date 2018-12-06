@@ -15,7 +15,7 @@
         './vendor/kendo/kendo.sortable',
         './kidoju.data',
         './kidoju.tools',
-        './kidoju.widgets.stage'
+        './widgets.stage'
     ], f);
 })(function () {
 

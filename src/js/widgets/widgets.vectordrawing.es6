@@ -15,7 +15,7 @@
         './vendor/kendo/kendo.drawing',
         './vendor/kendo/kendo.dataviz.diagram',
         './kidoju.image',
-        './kidoju.widgets.vectordrawing.toolbar'
+        './widgets.vectordrawing.toolbar'
     ], f);
 })(function () {
 

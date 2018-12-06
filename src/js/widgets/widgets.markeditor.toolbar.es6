@@ -18,9 +18,9 @@
         // './vendor/kendo/kendo.validator',
         './vendor/kendo/kendo.popup',
         './vendor/kendo/kendo.window',
-        './kidoju.widgets.markdown',
+        './widgets.markdown',
         // './kidoju.widgets.markeditor', <-- cyclical dependency
-        './kidoju.widgets.mathinput'
+        './widgets.mathinput'
     ], f);
 })(function () {
 

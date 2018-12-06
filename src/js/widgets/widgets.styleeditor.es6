@@ -17,7 +17,7 @@
         './vendor/kendo/kendo.colorpicker',
         './vendor/kendo/kendo.grid',
         './vendor/kendo/kendo.combobox',
-        './kidoju.widgets.unitinput'
+        './widgets.unitinput'
     ], f);
 })(function () {
 

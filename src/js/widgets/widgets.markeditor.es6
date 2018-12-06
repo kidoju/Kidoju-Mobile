@@ -15,7 +15,7 @@
         './common/window.logger.es6',
         './vendor/kendo/kendo.binder',
         './vendor/kendo/kendo.window',
-        './kidoju.widgets.markeditor.toolbar'
+        './widgets.markeditor.toolbar'
     ], f);
 })(function (CodeMirror) {
 
