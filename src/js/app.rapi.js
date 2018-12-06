@@ -13,7 +13,7 @@
         './common/window.assert.es6',
         './common/window.logger.es6',
         // './app.constants', // <-- optional
-        './app/app.logger'
+        './app/app.logger.es6'
     ], f);
 })(function () {
 

@@ -10,19 +10,19 @@ if (typeof(require) === 'function') {
 
     // Load other CSS
     require('../styles/vendor/khan/katex.less');
-    require('../styles/widgets/kidoju.widgets.floating.less');
-    require('../styles/widgets/kidoju.widgets.highlighter.less');
-    require('../styles/widgets/kidoju.widgets.markdown.less');
-    require('../styles/widgets/kidoju.widgets.mathexpression.less');
-    require('../styles/widgets/kidoju.widgets.mathinput.less');
-    require('../styles/widgets/kidoju.widgets.mediaplayer.less');
-    require('../styles/widgets/kidoju.widgets.multiquiz.less');
+    require('../styles/widgets/widgets.floating.less');
+    require('../styles/widgets/widgets.highlighter.less');
+    require('../styles/widgets/widgets.markdown.less');
+    require('../styles/widgets/widgets.mathexpression.less');
+    require('../styles/widgets/widgets.mathinput.less');
+    require('../styles/widgets/widgets.mediaplayer.less');
+    require('../styles/widgets/widgets.multiquiz.less');
     // require('../styles/kidoju.widgets.playbar.less');
-    require('../styles/widgets/kidoju.widgets.quiz.less');
-    require('../styles/widgets/kidoju.widgets.rating.less');
-    require('../styles/widgets/kidoju.widgets.stage.less');
-    require('../styles/widgets/kidoju.widgets.table.less');
-    require('../styles/widgets/kidoju.widgets.textgaps.less');
+    require('../styles/widgets/widgets.quiz.less');
+    require('../styles/widgets/widgets.rating.less');
+    require('../styles/widgets/widgets.stage.less');
+    require('../styles/widgets/widgets.table.less');
+    require('../styles/widgets/widgets.textgaps.less');
     require('../styles/dialogs/widgets.basedialog.less');
     require('../styles/ui/app.fonts.less');
     require('../styles/ui/app.mobile.less');
@@ -110,10 +110,10 @@ window.jQuery.holdReady(true);
         './widgets/widgets.table',
         './widgets/widgets.textgaps',
         './dialogs/dialogs.alert.es6',
-        './app.constants',
-        './app/app.logger',
-        './app/app.i18n',
-        './app/app.theme',
+        './app/app.constants.es6',
+        './app/app.logger.es6',
+        './app/app.i18n.es6',
+        './app/app.theme.es6',
         './app.utils',
         './app.assets',
         './app.models',

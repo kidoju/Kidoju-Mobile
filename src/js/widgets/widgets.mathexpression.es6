@@ -3,140 +3,123 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true */
-/* globals define: false */
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import katex from '../vendor/khan/katex';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 
-(function (f, define) {
-    'use strict';
-    define([
-        '../vendor/khan/katex', // Keep at the top considering function parameter below
-        './common/window.assert.es6',
-        './common/window.logger.es6',
-        './vendor/kendo/kendo.binder'
-    ], f);
-})(function (katX) {
+const {
+    destroy,
+    htmlEncode,
+    ui: { plugin, Widget }
+} = window.kendo;
+const logger = new Logger('widgets.mathexpression');
+const WIDGET_CLASS = 'kj-mathexpression'; // 'k-widget kj-mathexpression';
 
-    'use strict';
+/**
+ * MathExpression
+ * @class MathExpression
+ * @extends Widget
+ */
+const MathExpression = Widget.extend({
+    /**
+     * Constructor
+     * @constructor init
+     * @param element
+     * @param options
+     */
+    init(element, options) {
+        Widget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'widget initialized' });
+        this._render();
+        this.value(this.options.value);
+    },
 
-    var katex = window.katex || katX;
+    /**
+     * Options
+     * @property options
+     */
+    options: {
+        name: 'MathExpression',
+        value: null,
+        errorColor: '#cc0000',
+        inline: false
+    },
 
-    (function ($, undefined) {
+    /**
+     * Value for MVVM binding
+     * @method value
+     * @param value
+     */
+    value(value) {
+        assert.nullableTypeOrUndef(
+            CONSTANTS.STRING,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                value,
+                CONSTANTS.STRING
+            )
+        );
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._value;
+        } else if (this._value !== value) {
+            this._value = value;
+            this.refresh();
+        }
+        return ret;
+    },
 
-        var kendo = window.kendo;
-        var Widget = kendo.ui.Widget;
-        var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.mathexpression');
-        var FUNCTION = 'function';
-        var STRING = 'string';
-        var NULL = 'null';
-        var UNDEFINED = 'undefined';
-        var WIDGET_CLASS = 'kj-mathexpression'; // 'k-widget kj-mathexpression';
+    /**
+     * Builds the widget layout
+     * @method _render
+     * @private
+     */
+    _render() {
+        this.wrapper = this.element;
+        this.element.addClass(WIDGET_CLASS);
+    },
 
-        /*********************************************************************************
-         * Widget
-         *********************************************************************************/
+    /**
+     * Refresh
+     * @method refresh
+     */
+    refresh() {
+        assert.isFunction(
+            katex && katex.render,
+            assert.format(assert.messages.isFunction.default, 'katex.render')
+        );
+        const { element, options } = this;
+        // KaTeX option { throwOnError: false } is not equivalent to the following which is required to display an error
+        try {
+            katex.render(this.value() || '', element[0], {
+                displayMode: !options.inline
+            });
+        } catch (ex) {
+            element.html(
+                `<span style="color:${options.errorColor}">${htmlEncode(
+                    ex.message
+                )}</span>`
+            );
+        }
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
+    },
 
-        /**
-         * MathExpression
-         * @class MathExpression Widget (kendoMathExpression)
-         */
-        var MathExpression = Widget.extend({
+    /**
+     * Destroy
+     * @method destroy
+     */
+    destroy() {
+        Widget.fn.destroy.call(this);
+        destroy(this.element);
+    }
+});
 
-            /**
-             * Initializes the widget
-             * @param element
-             * @param options
-             */
-            init: function (element, options) {
-                var that = this;
-                options = options || {};
-                Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'widget initialized' });
-                that._layout();
-                that.value(that.options.value);
-                // see http://www.telerik.com/forums/kendo-notify()
-                kendo.notify(that);
-            },
-
-            /**
-             * Widget options
-             * @property options
-             */
-            options: {
-                name: 'MathExpression',
-                value: null,
-                errorColor: '#cc0000',
-                inline: false
-            },
-
-            /**
-             * Value for MVVM binding
-             * @param value
-             */
-            value: function (value) {
-                var that = this;
-                if ($.type(value) === STRING || $.type(value) === NULL) {
-                    if (that._value !== value) {
-                        that._value = value;
-                        that.refresh();
-                    }
-                } else if ($.type(value) === UNDEFINED) {
-                    return that._value;
-                } else {
-                    throw new TypeError('`value` is expected to be a string if not undefined');
-                }
-            },
-
-            /**
-             * Builds the widget layout
-             * @private
-             */
-            _layout: function () {
-                var that = this;
-                that.wrapper = that.element;
-                that.element.addClass(WIDGET_CLASS);
-            },
-
-            /**
-             * Refresh the widget
-             */
-            refresh: function () {
-                assert.type(FUNCTION, katex && katex.render, 'Make sure KaTeX is available.');
-                var that = this;
-                var element = that.element;
-                var options = that.options;
-                // KaTeX option { throwOnError: false } is not equivalent to the following which is required to display an error
-                try {
-                    katex.render(that.value() || '', element[0], { displayMode: !options.inline });
-                } catch (ex) {
-                    element.html('<span style="color:' + options.errorColor + '">' + kendo.htmlEncode(ex.message) + '</span>');
-                }
-                logger.debug({ method: 'refresh', message: 'widget refreshed' });
-            },
-
-            /**
-             * Destroys the widget including all DOM modifications
-             * @method destroy
-             */
-            destroy: function () {
-                var that = this;
-                var wrapper = that.wrapper;
-                // Unbind events
-                kendo.unbind(wrapper);
-                // Release references
-                // Destroy kendo
-                Widget.fn.destroy.call(that);
-                kendo.destroy(wrapper);
-                // Remove widget class
-                // wrapper.removeClass(WIDGET_CLASS);
-            }
-
-        });
-
-        kendo.ui.plugin(MathExpression);
-
-    }(window.jQuery));
-
-    return window.kendo;
-
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
+/**
+ * Registration
+ */
+plugin(MathExpression);

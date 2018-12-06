@@ -16,14 +16,15 @@
         "indent": ["error", 4, { "SwitchCase": 1 }],
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
         "no-underscore-dangle": 0,
-        "prettier/prettier": ["error", {
-            "singleQuote": true,
-            "tabWidth": 4
-        }]
+        "prettier/prettier": "error"
     },
     "settings": {
+        "import/ignore": ["\\.(scss|less|css)$"],
         "import/resolver": {
-            "babel-module": {}
+            // Look in webpack.config.js for resolution paths
+            "webpack": {
+                "config": "./webpack.config.js"
+            }
         }
     }
 }

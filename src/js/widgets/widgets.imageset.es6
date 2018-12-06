@@ -3,272 +3,327 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true */
-/* globals define: false */
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
+import ImageDataSource from '../data/datasources.image.es6';
 
-(function (f, define) {
-    'use strict';
-    define([
-        '../common/window.assert.es6',
-        './common/window.logger.es6',
-        './vendor/kendo/kendo.binder'
-    ], f);
-})(function () {
-    'use strict';
+const {
+    destroy,
+    htmlEncode,
+    keys,
+    ui: { plugin, DataBoundWidget }
+} = window.kendo;
+const logger = new Logger('widgets.imageset');
+const NS = '.kendoImageSet';
+const WIDGET_CLASS = 'kj-imageset kj-interactive';
 
-    (function ($, undefined) {
+/**
+ * ImageSet
+ * @class ImageSet
+ * @extends DataBoundWidget
+ */
+const ImageSet = DataBoundWidget.extend({
+    /**
+     * Init
+     * @constructor init
+     * @param element
+     * @param options
+     */
+    init(element, options) {
+        DataBoundWidget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'Widget initialized' });
+        this._render();
+        this._dataSource();
+        this.value(this.options.value);
+        this.enable(
+            this.element.prop('disabled') ? false : this.options.enabled
+        );
+    },
 
-        var kendo = window.kendo;
-        var ui = kendo.ui;
-        var Widget = ui.Widget;
-        var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.imageset');
-        // var NUMBER = 'number';
-        var STRING = 'string';
-        var NULL = 'null';
-        var UNDEFINED = 'undefined';
-        var NS = '.kendoImageSet';
-        var CLICK = 'click';
-        var KEYDOWN = 'keydown';
-        var CHANGE = 'change';
-        var WIDGET_CLASS = 'kj-imageset kj-interactive';
-        var KEYSTROKES = {
-            ARROW_DOWN: 40,
-            ARROW_LEFT: 37,
-            ARROW_RIGHT: 39,
-            ARROW_UP: 38,
-            END: 35,
-            HOME: 36,
-            PAGE_DOWN: 34,
-            PAGE_UP: 33,
-            SPACE: 32
-        };
+    /**
+     * Options
+     * @property options
+     */
+    options: {
+        name: 'ImageSet',
+        autoBind: true,
+        dataSource: [],
+        enabled: true,
+        height: 100,
+        value: null,
+        width: 100
+    },
 
-        /*******************************************************************************************
-         * ImageSet Widget
-         *******************************************************************************************/
+    /**
+     * Events
+     * @property events
+     */
+    events: [CONSTANTS.CHANGE],
 
-        /**
-         * ImageSet (kendoImageSet)
-         * @class ImageSet
-         * @extends Widget
-         */
-        var ImageSet = Widget.extend({
+    /**
+     * Value
+     * @method value
+     * @param value
+     */
+    value(value) {
+        assert.nullableTypeOrUndef(
+            CONSTANTS.STRING,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'value',
+                CONSTANTS.STRING
+            )
+        );
+        const { element } = this;
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = element.val();
+        } else if (
+            this.dataSource instanceof ImageDataSource &&
+            this.dataSource.total() > 0 &&
+            value !== element.val()
+        ) {
+            // text is models.image id, so we can use get
+            if (this.dataSource.get(value)) {
+                element.val(value);
+            } else {
+                // By default, show the first image
+                element.val(this.dataSource.at(0).text);
+            }
+            this.refresh();
+        }
+        return ret;
+    },
 
-            /**
-             * Initializes the widget
-             * @method init
-             * @param element
-             * @param options
-             */
-            init: function (element, options) {
-                var that = this;
-                Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'Widget initialized' });
-                that._preload();
-                that._layout();
-                that.value(that.options.value || '');
-                that.enable(that.element.prop('disabled') ? false : that.options.enabled);
-                kendo.notify(that);
-            },
+    /**
+     * Items
+     * @returns {Array}
+     */
+    items() {
+        return [];
+    },
 
-            /**
-             * Widget options
-             * @property options
-             */
-            options: {
-                name: 'ImageSet',
-                value: null,
-                images: [],
-                enabled: true
-            },
-
-            /**
-             * Events
-             */
-            events: [
-                CHANGE
-            ],
-
-            /**
-             * Value
-             * @method value
-             * @param value
-             * @return {*}
-             */
-            value: function (value) {
-                var that = this;
-                var images = that.options.images;
-                if ($.type(value) === UNDEFINED) {
-                    if ($.isArray(images) && images[that._index]) {
-                        return images[that._index].text;
-                    }
-                } else if ($.type(value) === STRING || $.type(value) === NULL) {
-                    that._index = 0;
-                    for (var i = 0, length = images.length; i < length; i++) {
-                        if (value === images[i].text) {
-                            that._index = i;
-                            break;
-                        }
-                    }
-                    that.refresh();
-                } else {
-                    throw new TypeError('`value` should be a nullable string or undefined.');
-                }
-            },
-
-            /**
-             * Preload images
-             * @private
-             */
-            _preload: function () {
-                var images = this.options.images;
-                for (var i = 0, length = images.length; i < length; i++) {
-                    $('<img>')
-                        .attr('src', window.encodeURI(images[i].image));
-                    /*
-                    .on('load', function () {
-                        debugger; // Yippy! they load
-                    });
-                    */
-                }
-            },
-
-            /**
-             * Builds the widget layout
-             * @method _layout
-             * @private
-             */
-            _layout: function () {
-                var that = this;
-                var element = that.element;
-                if (!element.is('div')) {
-                    throw new Error('Use a div tag to instantiate an ImageSet widget.');
-                }
-                that.wrapper = element
+    /**
+     * Builds the widget layout
+     * @method _render
+     * @private
+     */
+    _render() {
+        const { element, options } = this;
+        assert.ok(
+            element.is(CONSTANTS.INPUT),
+            'Please use an input tag to instantiate an ImageSet widget.'
+        );
+        this.wrapper = this.element
+            .wrap(
+                $(`<${CONSTANTS.DIV}/>`)
+                    .height(options.height)
+                    .width(options.width)
                     .css({
                         cursor: 'pointer',
-                        outline: 0,
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
-                        backgroundSize: 'cover'
+                        backgroundSize: 'cover',
+                        display: 'inline-block',
+                        outline: 0
                     })
                     .attr({
-                        role: 'button',
-                        tabindex: 0 // This is required for the element to get the focus and support keydown events
+                        role: 'button'
                     })
-                    .addClass(WIDGET_CLASS);
-            },
+                    .addClass(WIDGET_CLASS)
+            )
+            .parent();
+        this.element.hide();
+    },
 
-            /**
-             * Enable user interactivity
-             * @param enabled
-             */
-            enable: function (enabled) {
-                var that = this;
-                var element = that.element;
-                element.off(NS);
-                if ($.type(enabled) === UNDEFINED || !!enabled) {
-                    element.on(CLICK + NS, $.proxy(that._onClick, that));
-                    element.on(KEYDOWN + NS, $.proxy(that._onKeyDown, that));
-                }
-            },
+    /**
+     * _dataSource
+     * @method _dataSource
+     * @private
+     */
+    _dataSource() {
+        // if the DataSource is defined and the _refreshHandler is wired up, unbind because
+        // we need to rebuild the DataSource
 
-            /**
-             * Event handler for the click event
-             * @private
-             */
-            _onClick: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                var images = this.options.images;
-                if (e.altKey || e.ctrlKey || e.shiftKey) {
-                    this._index = (this._index === 0 ? images.length - 1 : this._index - 1);
-                } else {
-                    this._index = (this._index === images.length - 1 ? 0 : this._index + 1);
-                }
-                this.refresh();
-                this.trigger(CHANGE);
-            },
+        // There is no reason why, in its current state, it would not work with any dataSource
+        // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
+        if (
+            this.dataSource instanceof ImageDataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
+        }
 
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
+        if (this.options.dataSource !== CONSTANTS.NULL) {
+            // use null to explicitly destroy the dataSource bindings
+            // returns the datasource OR creates one if using array or configuration object
+            this.dataSource = ImageDataSource.create(this.options.dataSource);
 
-            /**
-             * Event handler for the keydown event (which is enabled by tabindex=0)
-             * @param e
-             * @private
-             */
-            _onKeyDown: function (e) {
-                assert.instanceof($.Event, e, kendo.format(assert.messages.instanceof.default, 'e', 'jQuery.Event'));
-                var images = this.options.images;
-                switch (e.which) {
-                    // TODO Consider handling numbers to display an image
-                    case KEYSTROKES.ARROW_DOWN:
-                    case KEYSTROKES.ARROW_LEFT:
-                        this._index = (this._index === 0 ? images.length - 1 : this._index - 1);
-                        break;
-                    case KEYSTROKES.ARROW_RIGHT:
-                    case KEYSTROKES.ARROW_UP:
-                    case KEYSTROKES.SPACE:
-                        this._index = (this._index === images.length - 1 ? 0 : this._index + 1);
-                        break;
-                    case KEYSTROKES.END:
-                    case KEYSTROKES.PAGE_UP:
-                        this._index = images.length - 1;
-                        break;
-                    case KEYSTROKES.HOME:
-                    case KEYSTROKES.PAGE_DOWN:
-                        this._index = 0;
-                        break;
-                }
-                this.refresh();
-                this.trigger(CHANGE);
-            },
+            // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
 
-            /* jshint +W074 */
-
-            /**
-             * Refresh the widget
-             * @method refresh
-             */
-            refresh: function () {
-                var element = this.element;
-                var images = this.options.images;
-                this._index = (Math.round(Math.abs(this._index)) % images.length) || 0;
-                if ($.isArray(images) && images[this._index]) {
-                    // element.attr('alt', kendo.htmlEncode(images[this._index].text));
-                    // element.attr('src', kendo.htmlEncode(images[this._index].image));
-                    element.css({
-                        backgroundImage: 'url(' + window.encodeURI(images[this._index].image) + ')'
-                    });
-                }
-                logger.debug({ method: 'refresh', message: 'Widget refreshed' });
-            },
-
-            /**
-             * Destroy the widget
-             * @method destroy
-             */
-            destroy: function () {
-                var that = this;
-                var wrapper = that.wrapper;
-                // Unbind events
-                that.element.off(NS);
-                kendo.unbind(wrapper);
-                // Clear references
-                // Destroy widget
-                Widget.fn.destroy.call(that);
-                kendo.destroy(wrapper);
-                // Remove widget class
-                // wrapper.removeClass(WIDGET_CLASS);
+            if (this.options.autoBind) {
+                this.dataSource.fetch();
             }
+        }
+    },
 
-        });
+    /**
+     * Set a new data source
+     * @method setDataSource
+     * @param dataSource
+     */
+    setDataSource(dataSource) {
+        // set the internal datasource equal to the one passed in by MVVM
+        this.options.dataSource = dataSource;
+        // rebuild the datasource if necessary, or just reassign
+        this._dataSource();
+    },
 
-        ui.plugin(ImageSet);
+    /**
+     * Enable/Disable
+     * @method enable
+     * @param enable
+     */
+    enable(enable) {
+        const { wrapper } = this;
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        wrapper.attr({ tabindex: -1 }).off(NS);
+        if (enabled) {
+            wrapper
+                .attr({ tabindex: 0 }) // This is required for the element to get the focus and support keydown events
+                .on(
+                    `${CONSTANTS.CLICK}${NS}${CONSTANTS.TOUCHEND}${NS}`,
+                    this._onClick.bind(this)
+                )
+                .on(`${CONSTANTS.KEYDOWN}${NS}`, this._onKeyDown.bind(this));
+        }
+    },
 
-    }(window.jQuery));
+    /**
+     * Event handler for the click event
+     * @method _onClick
+     * @param e
+     * @private
+     */
+    _onClick(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        const { dataSource, element } = this;
+        let image = dataSource.get(this.value());
+        const oldIndex = dataSource.indexOf(image);
+        let newIndex = oldIndex;
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+            newIndex = oldIndex === 0 ? dataSource.total() - 1 : oldIndex - 1;
+        } else {
+            newIndex = oldIndex === dataSource.total() - 1 ? 0 : oldIndex + 1;
+        }
+        if (oldIndex !== newIndex) {
+            image = dataSource.at(newIndex);
+            element.val(image.text);
+            this.refresh();
+            this.trigger(CONSTANTS.CHANGE);
+        }
+    },
 
-    return window.kendo;
+    /**
+     * Event handler for the keydown event (which is enabled by tabindex=0)
+     * @method _onKeyDown
+     * @param e
+     * @private
+     */
+    _onKeyDown(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        const { dataSource, element } = this;
+        let image = dataSource.get(this.value());
+        const oldIndex = dataSource.indexOf(image);
+        let newIndex = oldIndex;
+        switch (e.which) {
+            case keys.DOWN:
+            case keys.LEFT:
+                newIndex =
+                    oldIndex === 0 ? dataSource.total() - 1 : oldIndex - 1;
+                break;
+            case keys.RIGHT:
+            case keys.UP:
+            case keys.SPACEBAR:
+                newIndex =
+                    oldIndex === dataSource.total() - 1 ? 0 : oldIndex + 1;
+                break;
+            case keys.END:
+            case keys.PAGEUP:
+                newIndex = dataSource.total() - 1;
+                break;
+            case keys.HOME:
+            case keys.PAGEDOWN:
+                newIndex = 0;
+                break;
+            default:
+                break;
+        }
+        if (newIndex !== oldIndex) {
+            image = dataSource.at(newIndex);
+            element.val(image.text);
+            this.refresh();
+            this.trigger(CONSTANTS.CHANGE);
+        }
+    },
 
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
+    /**
+     * Refresh
+     * @method refresh
+     */
+    refresh() {
+        const { dataSource, wrapper } = this;
+        const image = dataSource.get(this.value());
+        if (image) {
+            wrapper.attr({ title: htmlEncode(image.text) }).css({
+                backgroundImage: `url(${window.encodeURI(image.url)})`
+            });
+        }
+        logger.debug({ method: 'refresh', message: 'Widget refreshed' });
+    },
+
+    /**
+     * Destroy
+     * @method destroy
+     */
+    destroy() {
+        const { wrapper } = this;
+        // Unbind events
+        this.setDataSource(null);
+        wrapper.off(NS);
+        // Destroy widget
+        DataBoundWidget.fn.destroy.call(this);
+        destroy(wrapper);
+        logger.debug({ method: 'destroy', message: 'Widget destroyed' });
+    }
+});
+
+/**
+ * Registration
+ */
+plugin(ImageSet);

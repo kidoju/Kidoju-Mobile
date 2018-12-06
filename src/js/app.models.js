@@ -14,7 +14,7 @@
         './vendor/kendo/kendo.data',
         './common/window.assert.es6',
         './common/window.logger.es6',
-        './app/app.logger',
+        './app/app.logger.es6',
         './app.rapi',
         './app.cache',
         './kidoju.data',
@@ -673,7 +673,7 @@
              */
             save: function () {
                 // We need a userId to save a search as a user favourite
-                assert.match(RX_MONGODB_ID, this.userId, kendo.format(assert.messages.match.default, 'this.userId', RX_MONGODB_ID));
+                assert.match(RX_MONGODB_ID, this.userId, assert.format(assert.messages.match.default, 'this.userId', RX_MONGODB_ID));
                 var root = window.location.protocol + '//' + window.location.host;
                 var finder = kendo.format(uris.webapp.finder, i18n.locale());
                 finder = finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
@@ -803,7 +803,7 @@
             path$: function () {
                 var ret = [];
                 var item = this;
-                while(
+                while (
                     $.isFunction(item.parent) &&
                     item.parent() instanceof ObservableArray &&
                     $.isFunction(item.parent().parent) &&
@@ -877,9 +877,9 @@
                         method: 'app.models.RummageHierarchicalDataSource.transport.destroy',
                         data: options.data
                     });
-                    // assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                    assert.match(RX_MONGODB_ID, options.data.id, kendo.format(assert.messages.match.default, 'options.data.id', RX_MONGODB_ID));
+                    // assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                    assert.isPlainObject(options.data, assert.format(assert.messages.isPlainObject.default, 'options.data'));
+                    assert.match(RX_MONGODB_ID, options.data.id, assert.format(assert.messages.match.default, 'options.data.id', RX_MONGODB_ID));
                     return app.rapi.v1.user.deleteMyFavourite(i18n.locale(), options.data.id)
                         .done(function () {
                             app.cache.removeMyFavourites(i18n.locale())
@@ -1740,14 +1740,14 @@
                 if (that.dirty) {  // TODO Validate
                     var data = filter(that.toJSON(), fields);
                     // serializable === false in User model field properies (see above) discards the following data
-                    assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
-                    assert.isUndefined(data.created, kendo.format(assert.messages.isUndefined.default, 'data.created'));
-                    assert.isUndefined(data.facebook, kendo.format(assert.messages.isUndefined.default, 'data.facebook'));
-                    assert.isUndefined(data.google, kendo.format(assert.messages.isUndefined.default, 'data.google'));
-                    assert.isUndefined(data.id, kendo.format(assert.messages.isUndefined.default, 'data.id'));
-                    assert.isUndefined(data.live, kendo.format(assert.messages.isUndefined.default, 'data.live'));
-                    assert.isUndefined(data.twitter, kendo.format(assert.messages.isUndefined.default, 'data.twitter'));
-                    assert.isUndefined(data.updated, kendo.format(assert.messages.isUndefined.default, 'data.updated'));
+                    assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
+                    assert.isUndefined(data.created, assert.format(assert.messages.isUndefined.default, 'data.created'));
+                    assert.isUndefined(data.facebook, assert.format(assert.messages.isUndefined.default, 'data.facebook'));
+                    assert.isUndefined(data.google, assert.format(assert.messages.isUndefined.default, 'data.google'));
+                    assert.isUndefined(data.id, assert.format(assert.messages.isUndefined.default, 'data.id'));
+                    assert.isUndefined(data.live, assert.format(assert.messages.isUndefined.default, 'data.live'));
+                    assert.isUndefined(data.twitter, assert.format(assert.messages.isUndefined.default, 'data.twitter'));
+                    assert.isUndefined(data.updated, assert.format(assert.messages.isUndefined.default, 'data.updated'));
                     rapi.v1.user.updateMe(data)
                         .done(function (data) {
                             // Note: data is not parsed, so dates are string
@@ -2137,7 +2137,7 @@
                                 $.each(response.data, function (index, summary) {
                                     // We need to flatten author and metrics in case we need to represent data in a kendo.ui.Grid
                                     // Flatten author
-                                    assert.isPlainObject(summary.author, kendo.format(assert.messages.isPlainObject.default, 'summary.author'));
+                                    assert.isPlainObject(summary.author, assert.format(assert.messages.isPlainObject.default, 'summary.author'));
                                     summary.userId = summary.author.userId;
                                     summary.firstName = summary.author.firstName;
                                     summary.lastName = summary.author.lastName;
@@ -2350,15 +2350,15 @@
                 var dfd = $.Deferred();
                 if (that.dirty) { // TODO Validate
                     var data = filter(that.toJSON(), fields);
-                    assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
+                    assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
                     // Check that all model fields marked as serializable === false won't be sent
-                    assert.isUndefined(data.author, kendo.format(assert.messages.isUndefined.default, 'data.author'));
-                    assert.isUndefined(data.created, kendo.format(assert.messages.isUndefined.default, 'data.created'));
-                    assert.isUndefined(data.id, kendo.format(assert.messages.isUndefined.default, 'data.id'));
-                    assert.isUndefined(data.language, kendo.format(assert.messages.isUndefined.default, 'data.language'));
-                    assert.isUndefined(data.metrics, kendo.format(assert.messages.isUndefined.default, 'data.metrics'));
-                    assert.isUndefined(data.type, kendo.format(assert.messages.isUndefined.default, 'data.type'));
-                    assert.isUndefined(data.updated, kendo.format(assert.messages.isUndefined.default, 'data.updated'));
+                    assert.isUndefined(data.author, assert.format(assert.messages.isUndefined.default, 'data.author'));
+                    assert.isUndefined(data.created, assert.format(assert.messages.isUndefined.default, 'data.created'));
+                    assert.isUndefined(data.id, assert.format(assert.messages.isUndefined.default, 'data.id'));
+                    assert.isUndefined(data.language, assert.format(assert.messages.isUndefined.default, 'data.language'));
+                    assert.isUndefined(data.metrics, assert.format(assert.messages.isUndefined.default, 'data.metrics'));
+                    assert.isUndefined(data.type, assert.format(assert.messages.isUndefined.default, 'data.type'));
+                    assert.isUndefined(data.updated, assert.format(assert.messages.isUndefined.default, 'data.updated'));
                     var language = that.get('language');
                     var id = that.get('id');
                     rapi.v1.content.updateSummary(language, id, data)
@@ -2453,10 +2453,10 @@
              */
             read: function (options) {
 
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
-                // assert.type(STRING, options.data.summaryId, kendo.format(assert.messages.type.default, 'options.data.summaryId', STRING));
-                // assert.equal(this.summaryId, options.data.summaryId, kendo.format(assert.messages.equal.default, options.data.summaryId, this.summaryId ));
+                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, assert.format(assert.messages.isPlainObject.default, 'options.data'));
+                // assert.type(STRING, options.data.summaryId, assert.format(assert.messages.type.default, 'options.data.summaryId', STRING));
+                // assert.equal(this.summaryId, options.data.summaryId, assert.format(assert.messages.equal.default, options.data.summaryId, this.summaryId ));
 
                 var partition = this.partition();
 
@@ -2492,12 +2492,12 @@
              */
             destroy: function (options) {
 
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isPlainObject(options.data, assert.format(assert.messages.isPlainObject.default, 'options.data'));
                 // TODO: review considering partition (use this._validation)
-                assert.type(STRING, options.data.id, kendo.format(assert.messages.type.default, 'options.data.id', STRING));
-                assert.type(STRING, options.data.summaryId, kendo.format(assert.messages.type.default, 'options.data.summaryId', STRING));
-                // assert.equal(this.summaryId, options.data.summaryId, kendo.format(assert.messages.equal.default, options.data.summaryId, this.summaryId));
+                assert.type(STRING, options.data.id, assert.format(assert.messages.type.default, 'options.data.id', STRING));
+                assert.type(STRING, options.data.summaryId, assert.format(assert.messages.type.default, 'options.data.summaryId', STRING));
+                // assert.equal(this.summaryId, options.data.summaryId, assert.format(assert.messages.equal.default, options.data.summaryId, this.summaryId));
 
                 var partition = this.partition();
 
@@ -2649,7 +2649,7 @@
                 return rapi.v1.content.getSummaryVersion(i18n.locale(), summaryId, versionId)
                     .done(function (version) {
                         that.accept(version);
-                        assert.equal(MD5_A, md5('a'), kendo.format(assert.messages.equal.default, 'md5("a")', MD5_A));
+                        assert.equal(MD5_A, md5('a'), assert.format(assert.messages.equal.default, 'md5("a")', MD5_A));
                         that._md5 = md5(JSON.stringify(that.toJSON()));
                     });
             },
@@ -2660,16 +2660,16 @@
                 // like we have done elsewhere
                 var _md5 = that._md5;
                 var data = that.toJSON(true); // true means with hierarchy of data sources
-                assert.isPlainObject(data, kendo.format(assert.messages.isPlainObject.default, 'data'));
-                assert.isUndefined(data.created, kendo.format(assert.messages.isUndefined.default, 'data.created'));
-                assert.isUndefined(data.id, kendo.format(assert.messages.isUndefined.default, 'data.id'));
-                assert.isUndefined(data.language, kendo.format(assert.messages.isUndefined.default, 'data.language'));
-                assert.isUndefined(data.state, kendo.format(assert.messages.isUndefined.default, 'data.state'));
-                assert.isUndefined(data.summaryId, kendo.format(assert.messages.isUndefined.default, 'data.summaryId'));
-                assert.isUndefined(data.type, kendo.format(assert.messages.isUndefined.default, 'data.type'));
-                assert.isUndefined(data.updated, kendo.format(assert.messages.isUndefined.default, 'data.updated'));
-                assert.isUndefined(data.userId, kendo.format(assert.messages.isUndefined.default, 'data.userId'));
-                assert.equal(MD5_A, md5('a'), kendo.format(assert.messages.equal.default, 'md5("a")', MD5_A));
+                assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
+                assert.isUndefined(data.created, assert.format(assert.messages.isUndefined.default, 'data.created'));
+                assert.isUndefined(data.id, assert.format(assert.messages.isUndefined.default, 'data.id'));
+                assert.isUndefined(data.language, assert.format(assert.messages.isUndefined.default, 'data.language'));
+                assert.isUndefined(data.state, assert.format(assert.messages.isUndefined.default, 'data.state'));
+                assert.isUndefined(data.summaryId, assert.format(assert.messages.isUndefined.default, 'data.summaryId'));
+                assert.isUndefined(data.type, assert.format(assert.messages.isUndefined.default, 'data.type'));
+                assert.isUndefined(data.updated, assert.format(assert.messages.isUndefined.default, 'data.updated'));
+                assert.isUndefined(data.userId, assert.format(assert.messages.isUndefined.default, 'data.userId'));
+                assert.equal(MD5_A, md5('a'), assert.format(assert.messages.equal.default, 'md5("a")', MD5_A));
                 that._md5 = md5(JSON.stringify(data));
                 if (that._md5 !== _md5) { // if (that.dirty) { // TODO Validate
                     var language = that.get('language');
@@ -3168,7 +3168,7 @@
                 _read: function (options) {
                     var that = this;
                     // We cannot fetch activities without a summary Id
-                    assert.match(RX_MONGODB_ID, that.summaryId, kendo.format(assert.messages.match.default, 'this.summaryId', RX_MONGODB_ID));
+                    assert.match(RX_MONGODB_ID, that.summaryId, assert.format(assert.messages.match.default, 'this.summaryId', RX_MONGODB_ID));
                     options.data.fields = 'actor,date,text,version';
                     options.data.filter = { field: 'type', operator: 'eq', value: 'Comment' };
                     options.data.sort = [{ field: 'id', dir: 'desc' }];
@@ -3307,9 +3307,9 @@
                 _read: function (options) {
                     var that = this;
                     // We cannot fetch scores without a summary Id, version Id and user Id
-                    assert.match(RX_MONGODB_ID, that.summaryId, kendo.format(assert.messages.match.default, 'this.summaryId', RX_MONGODB_ID));
-                    // assert.match(RX_MONGODB_ID, that.userId, kendo.format(assert.messages.match.default, 'this.userId', RX_MONGODB_ID));
-                    assert.match(RX_MONGODB_ID, that.versionId, kendo.format(assert.messages.match.default, 'this.versionId', RX_MONGODB_ID));
+                    assert.match(RX_MONGODB_ID, that.summaryId, assert.format(assert.messages.match.default, 'this.summaryId', RX_MONGODB_ID));
+                    // assert.match(RX_MONGODB_ID, that.userId, assert.format(assert.messages.match.default, 'this.userId', RX_MONGODB_ID));
+                    assert.match(RX_MONGODB_ID, that.versionId, assert.format(assert.messages.match.default, 'this.versionId', RX_MONGODB_ID));
                     options.data.fields = 'date,score,test';
                     options.data.filter = [
                         { field: 'type', operator: 'eq', value: 'Score' },

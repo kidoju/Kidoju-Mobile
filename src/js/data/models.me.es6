@@ -1,12 +1,24 @@
+/**
+ * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+// import $ from 'jquery';
+import 'kendo.core';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseModel from './models.base.es6';
+
+const { i18n, uris } = window.app;
+const { format } = window.kendo;
 
 /**
- * CurrentUser model
- * Minimal non-editable user to display in the navbar
- *
- * @type {kidoju.data.Model}
+ * Me (current user)
+ * @class Me
+ * @extends BaseModel
  */
-models.CurrentUser = Model.define({
+const Me = BaseModel.define({
     id: CONSTANTS.ID, // the identifier of the model, which is required for isNew() to work
     fields: {
         id: {
@@ -27,21 +39,23 @@ models.CurrentUser = Model.define({
             editable: false,
             nullable: true
         }
-        // timezone (for display of dates), born (for searches)
+        // TODO timezone (for display of dates), born (for searches)
+        // TODO subscription
+        // TODO User Group (sysadmin, ...)
     },
-    fullName$: function () {
-        return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
+    fullName$() {
+        return `${(this.get('firstName') || '').trim()} ${(this.get('lastName') || '').trim()}`.trim();
     },
-    picture$: function () {
+    picture$() {
         return this.get('picture') || format(uris.cdn.icons, 'user');
     },
-    isAuthenticated$: function () {
-        return RX_MONGODB_ID.test(this.get('id'));
+    isAuthenticated$() {
+        return CONSTANTS.RX_MONGODB_ID.test(this.get('id'));
     },
-    userUri$: function () {
+    userUri$() {
         return format(uris.webapp.user, i18n.locale(), this.get('id'));
     },
-    reset: function () {
+    reset() {
         // Since we have marked fields as non editable, we cannot use 'that.set'
         this.accept({
             id: this.defaults.id,
@@ -49,12 +63,13 @@ models.CurrentUser = Model.define({
             lastName: this.defaults.lastName,
             picture: this.defaults.picture
         });
-    },
-    load: function () {
-        var that = this;
-        return app.cache.getMe()
-        .then(function (data) {
-            if ($.isPlainObject(data) && RX_MONGODB_ID.test(data.id)) {
+    }
+    /*
+    // TODO Use transport mixin
+    load() {
+        const that = this;
+        return app.cache.getMe().then(data => {
+            if ($.isPlainObject(data) && CONSTANTS.RX_MONGODB_ID.test(data.id)) {
                 // Since we have marked fields as non editable, we cannot use 'that.set',
                 // This should raise a change event on the parent viewModel
                 that.accept({
@@ -68,4 +83,10 @@ models.CurrentUser = Model.define({
             }
         });
     }
+    */
 });
+
+/**
+ * Default export
+ */
+export default Me;

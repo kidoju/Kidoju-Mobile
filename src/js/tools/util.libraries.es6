@@ -30,8 +30,9 @@ import regexpEditor from '../editors/editors.input.es6';
 const { format } = window.kendo;
 
 export const LIB_COMMENT = '// ';
-const LIB_PARAMS = ' [{0}]';
+export const LIB_PARAMS = ' [{0}]';
 const RX_VALIDATION_LIBRARY = /^\/\/ ([^\s[\n]+)( \[([^\n]+)])?$/;
+export const RX_VALIDATION_FORMULA = /^function[\s]+validate[\s]*\([\s]*value[\s]*,/;
 const RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*{[\s\S]*}$/;
 
 export const VALIDATION_CUSTOM =
@@ -497,5 +498,6 @@ window.kendo.ex.libraries.dateLibrary = dateLibrary;
 window.kendo.ex.libraries.genericLibrary = genericLibrary;
 window.kendo.ex.libraries.mathLibrary = mathLibrary;
 window.kendo.ex.libraries.multiQuizLibrary = multiQuizLibrary;
+window.kendo.ex.libraries.numberLibrary = numberLibrary;
 window.kendo.ex.libraries.stringLibrary = stringLibrary;
 window.kendo.ex.libraries.textLibrary = textLibrary;

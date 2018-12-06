@@ -3,630 +3,708 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true */
-/* globals define: false */
+// TODO: Display vertical or horizontal - https://github.com/kidoju/Kidoju-Widgets/issues/7
+// TODO: Add timer (play/pause) - https://github.com/kidoju/Kidoju-Widgets/issues/3
+// TODO: Add progress bar - https://github.com/kidoju/Kidoju-Widgets/issues/4
+// TODO: Add tooltips with thumbnails - https://github.com/kidoju/Kidoju-Widgets/issues/18
 
-(function (f, define) {
-    'use strict';
-    define([
-        '../common/window.assert.es6',
-        './common/window.logger.es6',
-        './vendor/kendo/kendo.binder',
-        './kidoju.data',
-        './kidoju.tools'
-    ], f);
-})(function () {
+// TODO issue in toolbar when opening dropdownlist of numbers
 
-    'use strict';
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.data';
+import 'kendo.tooltip';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
+import Page from '../data/models.page.es6';
+import PageDataSource from '../data/datasources.page.es6';
+import './widgets.stage.es6';
 
-    /* This function has too many statements. */
-    /* jshint -W071 */
+const {
+    attr,
+    destroy,
+    format,
+    keys,
+    ns,
+    // roleSelector,
+    template,
+    ui: { DataBoundWidget, plugin }
+    // unbind
+} = window.kendo;
+const logger = new Logger('widgets.playbar');
+const NS = '.kendoPlayBar';
+const WIDGET_CLASS = 'k-widget k-pager-wrap k-floatwrap kj-playbar';
+const FIRST = '.k-i-seek-w';
+const LAST = '.k-i-seek-e';
+const PREV = '.k-i-arrow-w';
+const NEXT = '.k-i-arrow-e';
 
-    (function ($, undefined) {
+/** *******************************************************************************
+ * Helpers
+ ******************************************************************************** */
 
-        var kendo = window.kendo;
-        var data = kendo.data;
-        var Widget = kendo.ui.Widget;
-        var kidoju = window.kidoju;
-        var Page = kidoju.data.Page;
-        var PageCollectionDataSource = kidoju.data.PageCollectionDataSource;
-        // var assert = window.assert;
-        var logger = new window.Logger('kidoju.widgets.playbar');
-        var STRING = 'string';
-        var NUMBER = 'number';
-        var NULL = null;
-        var CHANGE = 'change';
-        var CLICK = 'click';
-        var DATABINDING = 'dataBinding';
-        var DATABOUND = 'dataBound';
-        var KEYDOWN = 'keydown';
-        var NS = '.kendoPlayBar';
-        var WIDGET_CLASS = 'k-widget k-pager-wrap k-floatwrap kj-playbar';
-        var FIRST = '.k-i-seek-w';
-        var LAST = '.k-i-seek-e';
-        var PREV = '.k-i-arrow-w';
-        var NEXT = '.k-i-arrow-e';
+function button(tmpl, idx, text, numeric, title) {
+    return tmpl({
+        idx,
+        text,
+        ns,
+        numeric,
+        title: title || ''
+    });
+}
 
-        /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
+function icon(tmpl, className, text, wrapClassName) {
+    return tmpl({
+        className: className.substring(1),
+        text,
+        wrapClassName: wrapClassName || ''
+    });
+}
 
-        function isGuid(value) {
-            // http://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
-            return ($.type(value) === STRING) && (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value));
+function update(element, selector, index, disabled) {
+    element
+        .find(selector)
+        .parent()
+        .attr(attr('index'), index)
+        .attr('tabindex', -1)
+        .toggleClass(CONSTANTS.DISABLED_CLASS, disabled);
+}
+
+function first(element, index) {
+    // update(element, FIRST, 1, index <= 1);
+    update(element, FIRST, 0, index <= 0);
+}
+
+function prev(element, index) {
+    // update(element, PREV, Math.max(1, index - 1), index <= 1);
+    update(element, PREV, Math.max(0, index - 1), index <= 0);
+}
+
+function next(element, index, length) {
+    // update(element, NEXT, Math.min(length, index + 1), index >= length);
+    update(element, NEXT, Math.min(length - 1, index + 1), index >= length - 1);
+}
+
+function last(element, index, length) {
+    // update(element, LAST, length, index >= length);
+    update(element, LAST, length - 1, index >= length - 1);
+}
+
+/** *******************************************************************************
+ * Widget
+ ******************************************************************************** */
+
+/**
+ * PlayBar
+ * @class PlayBar
+ * @extends DataBoundWidget
+ */
+const PlayBar = DataBoundWidget.extend({
+    /**
+     * Init
+     * @constructor init
+     * @param element
+     * @param options
+     */
+    init(element, options) {
+        DataBoundWidget.fn.init.call(this, element, options);
+        logger.debug({ method: 'init', message: 'widget initialized' });
+        // TODO: review how index is set - probably use this.value()
+        this._selectedIndex = this.options.index || 0;
+        this._templates();
+        this._render();
+        this._initTooltip();
+        this._dataSource();
+    },
+
+    /**
+     * Options
+     * @property options
+     */
+    options: {
+        name: 'PlayBar',
+        // dataSource: undefined, // Important undefined is required for _setDataSource to initialize a dataSource
+        // value: undefined
+        iconTemplate:
+            '<a href="\\#" aria-label="#:text#" title="#:text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #"></span></a>',
+        selectTemplate:
+            '<li><span class="k-state-selected">#: text #</span></li>',
+        currentPageTemplate:
+            '<li class="k-current-page"><span class="k-link k-pager-nav">#=text#</span></li>',
+        linkTemplate:
+            '<li><a tabindex="-1" href="\\#" class="k-link" data-#=ns#index="#=idx#" #if (title !== "") {# title="#=title#" #}#>#:text#</a></li>',
+        buttonCount: 10,
+        autoBind: true,
+        index: 0, // do we need id too?
+        numeric: true,
+        info: true,
+        input: false,
+        previousNext: true,
+        refresh: true,
+        messages: {
+            empty: 'No page to display',
+            page: 'Page',
+            of: 'of {0}',
+            first: 'Go to the first page',
+            previous: 'Go to the previous page',
+            next: 'Go to the next page',
+            last: 'Go to the last page',
+            refresh: 'Refresh',
+            morePages: 'More pages'
         }
+    },
 
-        function button(template, idx, text, numeric, title) {
-            return template({
-                idx: idx,
-                text: text,
-                ns: kendo.ns,
-                numeric: numeric,
-                title: title || ''
-            });
-        }
+    /**
+     * @method setOptions
+     * @param options
+     */
+    // setOptions: function (options) {
+    //    DataBoundWidget.fn.setOptions.call(this, options);
+    // },
 
-        function icon(template, className, text, wrapClassName) {
-            return template({
-                className: className.substring(1),
-                text: text,
-                wrapClassName: wrapClassName || ''
-            });
-        }
+    /**
+     * Events
+     * @property events
+     */
+    events: [
+        CONSTANTS.CHANGE,
+        CONSTANTS.CLICK,
+        CONSTANTS.DATABINDING,
+        CONSTANTS.DATABOUND
+    ],
 
-        function update(element, selector, index, disabled) {
-            element.find(selector)
-                .parent()
-                .attr(kendo.attr('index'), index)
-                .attr('tabindex', -1)
-                .toggleClass('k-state-disabled', disabled);
-        }
-
-        function first(element, index) {
-            // update(element, FIRST, 1, index <= 1);
-            update(element, FIRST, 0, index <= 0);
-        }
-
-        function prev(element, index) {
-            // update(element, PREV, Math.max(1, index - 1), index <= 1);
-            update(element, PREV, Math.max(0, index - 1), index <= 0);
-        }
-
-        function next(element, index, length) {
-            // update(element, NEXT, Math.min(length, index + 1), index >= length);
-            update(element, NEXT, Math.min(length - 1, index + 1), index >= length - 1);
-        }
-
-        function last(element, index, length) {
-            // update(element, LAST, length, index >= length);
-            update(element, LAST, length - 1, index >= length - 1);
-        }
-
-        /*********************************************************************************
-         * Widget
-         *********************************************************************************/
-
-        /**
-         * Toolbar widget
-         * @class PlayBar
-         * @type {*}
-         */
-        var PlayBar = Widget.extend({
-
-            /**
-             * Widget constructor
-             * @constructor init
-             * @param element
-             * @param options
-             */
-            init: function (element, options) {
-                var that = this;
-                options = options || {};
-                // base call to widget initialization
-                Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'widget initialized' });
-                // TODO: review how index is set
-                that._selectedIndex = that.options.index || 0;
-                that._templates();
-                that._layout();
-                that._dataSource();
-            },
-
-            /**
-             * @property options
-             */
-            options: {
-                name: 'PlayBar',
-                // dataSource: undefined, // Important undefined is required for _setDataSource to initialize a dataSource
-                // value: undefined
-                iconTemplate: '<a href="\\#" aria-label="#:text#" title="#:text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #"></span></a>',
-                selectTemplate: '<li><span class="k-state-selected">#: text #</span></li>',
-                currentPageTemplate: '<li class="k-current-page"><span class="k-link k-pager-nav">#=text#</span></li>',
-                linkTemplate: '<li><a tabindex="-1" href="\\#" class="k-link" data-#=ns#index="#=idx#" #if (title !== "") {# title="#=title#" #}#>#:text#</a></li>',
-                buttonCount: 10,
-                autoBind: true,
-                index: 0, // do we need id too?
-                numeric: true,
-                info: true,
-                input: false,
-                previousNext: true,
-                refresh: true,
-                messages: {
-                    empty: 'No page to display',
-                    page: 'Page',
-                    of: 'of {0}',
-                    first: 'Go to the first page',
-                    previous: 'Go to the previous page',
-                    next: 'Go to the next page',
-                    last: 'Go to the last page',
-                    refresh: 'Refresh',
-                    morePages: 'More pages'
+    /**
+     * Gets/Sets the index of the selected page in the playbar
+     * Note: index is 0 based, whereas playbar page numbers are 1 based
+     * @method index
+     * @param index
+     * @returns {*}
+     */
+    index(index) {
+        const that = this;
+        if (index !== undefined) {
+            if ($.type(index) !== CONSTANTS.NUMBER || index % 1 !== 0) {
+                throw new TypeError();
+            } else if (index < 0 || (index > 0 && index >= that.length())) {
+                throw new RangeError();
+            } else if (index !== that._selectedIndex) {
+                const page = that.dataSource.at(index);
+                if (page instanceof Page) {
+                    that._selectedIndex = index;
+                    logger.debug(`selected index set to ${index}`);
+                    that.refresh();
+                    that.trigger(CONSTANTS.CHANGE, {
+                        index,
+                        value: page
+                    });
                 }
-            },
-
-            /**
-             * @method setOptions
-             * @param options
-             */
-            // setOptions: function (options) {
-            //    Widget.fn.setOptions.call(this, options);
-            // },
-
-            /**
-             * @property events
-             */
-            events: [
-                CHANGE,
-                CLICK,
-                DATABINDING,
-                DATABOUND
-            ],
-
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
-            /**
-             * Gets/Sets the index of the selected page in the playbar
-             * Note: index is 0 based, whereas playbar page numbers are 1 based
-             * @method index
-             * @param index
-             * @returns {*}
-             */
-            index: function (index) {
-                var that = this;
-                if (index !== undefined) {
-                    if ($.type(index) !== NUMBER || index % 1 !== 0) {
-                        throw new TypeError();
-                    } else if (index < 0 || (index > 0 && index >= that.length())) {
-                        throw new RangeError();
-                    } else if (index !== that._selectedIndex) {
-                        var page = that.dataSource.at(index);
-                        if (page instanceof Page) {
-                            that._selectedIndex = index;
-                            logger.debug('selected index set to ' + index);
-                            that.refresh();
-                            that.trigger(CHANGE, {
-                                index: index,
-                                value: page
-                            });
-                        }
-                    }
-                } else {
-                    return that._selectedIndex;
-                }
-            },
-
-            /* jshint +W074 */
-
-            /**
-             * Gets/Sets the id of the selected page in the playbar
-             * @method id
-             * @param id
-             * @returns {*}
-             */
-            id: function (id) {
-                var that = this;
-                var page;
-                if (id !== undefined) {
-                    if ($.type(id) !== STRING && $.type(id) !== NUMBER) {
-                        throw new TypeError();
-                    }
-                    page = that.dataSource.get(id);
-                    if (page !== undefined) {
-                        var index = that.dataSource.indexOf(page);
-                        if (index >= 0) { // index = -1 if not found
-                            that.index(index);
-                        }
-                        // if page not found, we do nothing
-                    }
-                } else {
-                    page = that.dataSource.at(that._selectedIndex);
-                    if (page instanceof Page) {
-                        return page[page.idField];
-                    }
-                }
-            },
-
-            /**
-             * Gets/Sets the value of the selected page in the playbar
-             * @method value
-             * @param value
-             * @returns {*}
-             */
-            value: function (page) {
-                var that = this;
-                if (page === NULL) {
-                    $.noop(); // TODO
-                } else if (page !== undefined) {
-                    if (!(page instanceof Page)) {
-                        throw new TypeError();
-                    }
-                    var index = that.dataSource.indexOf(page);
-                    if (index > -1) {
-                        that.index(index);
-                    }
-                } else {
-                    return that.dataSource.at(that._selectedIndex); // This returns undefined if not found
-                }
-            },
-
-            /**
-             * @method length()
-             * @returns {*}
-             */
-            length: function () {
-                return (this.dataSource instanceof PageCollectionDataSource) ? this.dataSource.total() : -1;
-            },
-
-            /**
-             * return number items
-             * @returns {*}
-             */
-            items: function () {
-                return this.element.find('ul.k-pager-numbers').children('li:not(.k-current-page)').get();
-            },
-
-
-            /**
-             * Initialize templates
-             * @private
-             */
-            _templates: function () {
-                var that = this;
-                that.iconTemplate = kendo.template(that.options.iconTemplate);
-                that.linkTemplate = kendo.template(that.options.linkTemplate);
-                that.selectTemplate = kendo.template(that.options.selectTemplate);
-                that.currentPageTemplate = kendo.template(that.options.currentPageTemplate);
-            },
-
-            /**
-             * Changes the dataSource
-             * @method setDataSource
-             * @param dataSource
-             */
-            setDataSource: function (dataSource) {
-                // set the internal datasource equal to the one passed in by MVVM
-                this.options.dataSource = dataSource;
-                // rebuild the datasource if necessary, or just reassign
-                this._dataSource();
-            },
-
-            /**
-             * Binds the widget to the change event of the dataSource
-             * See http://docs.telerik.com/kendo-ui/howto/create-custom-kendo-widget
-             * @method _dataSource
-             * @private
-             */
-            _dataSource: function () {
-                var that = this;
-                // if the DataSource is defined and the _refreshHandler is wired up, unbind because
-                // we need to rebuild the DataSource
-
-                // There is no reason why, in its current state, it would not work with any dataSource
-                // if ( that.dataSource instanceof data.DataSource && that._refreshHandler ) {
-                if (that.dataSource instanceof PageCollectionDataSource && that._refreshHandler) {
-                    that.dataSource.unbind(CHANGE, that._refreshHandler);
-                }
-
-                if (that.options.dataSource !== NULL) {  // use null to explicitly destroy the dataSource bindings
-                    // returns the datasource OR creates one if using array or configuration object
-                    that.dataSource = PageCollectionDataSource.create(that.options.dataSource);
-
-                    that._refreshHandler = $.proxy(that.refresh, that);
-
-                    // bind to the change event to refresh the widget
-                    that.dataSource.bind(CHANGE, that._refreshHandler);
-
-                    if (that.options.autoBind) {
-                        that.dataSource.fetch();
-                    }
-                }
-            },
-
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
-            /**
-             * Builds the widget layout
-             * @method _layout
-             * @private
-             */
-            _layout: function () {
-                /* TODO: Display vertical or horizontal
-                 * TODO: Add timer (play/pause)
-                 * TODO: Add progress bar
-                 * TODO: Add tooltips with thumbnails
-                 */
-                var that = this;
-                var playbar = that.element;
-                var options = that.options;
-                var index = that.index();
-                var length = that.length();
-
-                // Add first and previous buttons
-                if (options.previousNext) {
-                    if (!playbar.find(FIRST).length) {
-                        playbar.append(icon(that.iconTemplate, FIRST, options.messages.first, 'k-pager-first'));
-                        first(playbar, index, length);
-                    }
-                    if (!playbar.find(PREV).length) {
-                        playbar.append(icon(that.iconTemplate, PREV, options.messages.previous, 'k-pager-previous'));
-                        prev(playbar, index, length);
-                    }
-                }
-
-                // Add numeric buttons
-                if (options.numeric) {
-                    that.list = playbar.find('.k-pager-numbers');
-                    if (!that.list.length) {
-                        that.list = $('<ul class="k-pager-numbers k-reset" />').appendTo(playbar);
-                    }
-                }
-
-                // Add input
-                if (options.input) {
-                    if (!playbar.find('.k-pager-input').length) {
-                        playbar.append('<span class="k-pager-input k-label">' +
-                        '<span>' + options.messages.page + '</span>' +
-                        '<input class="k-textbox">' +
-                        '<span>' + kendo.format(options.messages.of, length) + '</span>' +
-                        '</span>');
-                    }
-                    playbar.on(KEYDOWN + NS, '.k-pager-input input', $.proxy(that._keydown, that));
-                }
-
-                // Add next and last buttons
-                if (options.previousNext) {
-                    if (!playbar.find(NEXT).length) {
-                        playbar.append(icon(that.iconTemplate, NEXT, options.messages.next, 'k-pager-next'));
-                        next(playbar, index, length);
-                    }
-                    if (!playbar.find(LAST).length) {
-                        playbar.append(icon(that.iconTemplate, LAST, options.messages.last, 'k-pager-last'));
-                        last(playbar, index, length);
-                    }
-                }
-
-                // Add refresh button
-                if (options.refresh) {
-                    if (!playbar.find('.k-pager-refresh').length) {
-                        playbar.append('<a href="#" class="k-pager-refresh k-link" aria-label="' + options.messages.refresh + '" title="' + options.messages.refresh +
-                        '"><span class="k-icon k-i-refresh"></span></a>');
-                    }
-                    playbar.on(CLICK + NS, '.k-pager-refresh', $.proxy(that._refreshClick, that));
-                }
-
-                // Add info
-                if (options.info) {
-                    if (!playbar.find('.k-pager-info').length) {
-                        playbar.append('<span class="k-pager-info k-label" />');
-                    }
-                }
-
-                // Add click handler
-                playbar
-                    .addClass(WIDGET_CLASS)
-                    .on(CLICK + NS, 'a', $.proxy(that._navClick, that))
-                    .on(CLICK + NS, '.k-current-page', $.proxy(that._toggleDropDown, that));
-
-
-                // if (options.autoBind) {
-                //    that.refresh();
-                // }
-
-                // Required for visible binding
-                that.wrapper = that.element;
-
-                kendo.notify(that);
-            },
-
-            /* jshint +W074 */
-
-            /* This function's cyclomatic complexity is too high. */
-            /* jshint -W074 */
-
-            /**
-             * Refresh
-             * @method refresh
-             * @param e
-             */
-            refresh: function (e) {
-                var that = this;
-                // var playbar = that.element;
-                var options = that.options;
-                var index = that.index();
-                var length = that.length();
-                var idx;
-                var start = 0;
-                var end;
-                var html = '';
-                // var position;
-
-                if (e && e.action === 'itemchange') {
-                    return; // we only update the playbar on loading, 'add' and 'remove'
-                }
-
-                if (e && e.action === undefined) {
-                    that.trigger(DATABINDING);
-                }
-
-                // Update numeric buttons
-                if (options.numeric) {
-                    // start is the index of the first numeric button
-                    // end is the index of the last numeric button
-                    if (index > options.buttonCount - 1) {
-                        start = index - index % options.buttonCount;
-                    }
-                    end = Math.min(start + options.buttonCount - 1, length - 1);
-                    if (start > 0) {
-                        html += button(that.linkTemplate, start - 1, '...', false, options.messages.morePages);
-                    }
-                    for (idx = start; idx <= end; idx++) {
-                        html += button(idx === index ? that.selectTemplate : that.linkTemplate, idx, idx + 1, true);
-                    }
-                    if (end < length - 1) { // idx = end + 1 here
-                        html += button(that.linkTemplate, idx, '...', false, options.messages.morePages);
-                    }
-                    if (html === '') {
-                        html = that.selectTemplate({ text: 0 });
-                    }
-                    // Add drop down when there is not enough space to display numeric button
-                    html = that.currentPageTemplate({ text: index + 1 }) + html;
-                    that.list.removeClass('k-state-expanded').html(html);
-                }
-
-                // Update info
-                if (options.info) {
-                    if (length > 0) {
-                        html = '<span>' + options.messages.page + ' ' + '</span>' +
-                            '<span>' + (index + 1) + ' ' + kendo.format(options.messages.of, length) + '</span>';
-                    } else {
-                        html = options.messages.empty;
-                    }
-                    that.element.find('.k-pager-info').html(html);
-                }
-
-                // Update input
-                if (options.input) {
-                    that.element.find('.k-pager-input')
-                        .html(options.messages.page +
-                        '<input class="k-textbox">' +
-                        kendo.format(options.messages.of, length))
-                        .find('input')
-                        .val(index + 1)
-                        .attr('disabled', length < 1)
-                        .toggleClass('k-state-disabled', length < 1);
-                }
-
-                // Update first, pervious, next, last buttons
-                if (options.previousNext) {
-                    first(that.element, index, length);
-                    prev(that.element, index, length);
-                    next(that.element, index, length);
-                    last(that.element, index, length);
-                }
-
-                if (e && e.action === undefined) {
-                    // TODO: we are cheating here: we should have in addedDataItems the pages displayed as numbers
-                    // Without addedDataItems, it fails because all data items are not displayed
-                    that.trigger(DATABOUND, { addedDataItems: [] });
-                }
-            },
-
-            /* jshint +W074 */
-
-            /**
-             * Event handler triggered
-             * @param e
-             * @private
-             */
-            _keydown: function (e) {
-                if (e instanceof $.Event && e.keyCode === kendo.keys.ENTER) {
-                    var input = this.element.find('.k-pager-input').find('input');
-                    var pageNum = parseInt(input.val(), 10);
-                    if (isNaN(pageNum) || pageNum < 1 || pageNum > this.length()) {
-                        pageNum = this.index() + 1;
-                    }
-                    input.val(pageNum);
-                    this.index(pageNum - 1);
-                }
-            },
-
-            /**
-             * Event handler triggered when clicking the refresh button
-             * @method _refreshClick
-             * @param e
-             * @private
-             */
-            _refreshClick: function (e) {
-                if (e instanceof $.Event) {
-                    e.preventDefault();
-                    this.dataSource.read();
-                }
-            },
-
-            /**
-             * Toggle the drop down list of numeric buttons
-             * @private
-             */
-            _toggleDropDown: function () {
-                this.list.toggleClass('k-state-expanded');
-            },
-
-            /**
-             *
-             * @method _indexClick
-             * @param e
-             * @private
-             */
-            _navClick: function (e) {
-                if (e instanceof $.Event) {
-                    e.preventDefault();
-                    var target = $(e.currentTarget);
-                    if (!target.is('.k-state-disabled')) {
-                        var index = parseInt(target.attr(kendo.attr('index')), 10);
-                        if (!isNaN(index)) {
-                            this.index(index);
-                        }
-                    }
-                }
-            },
-
-            /**
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                // unbind kendo
-                // kendo.unbind($(that.element));
-                // unbind all other events
-                $(that.element).find('*').off();
-                $(that.element)
-                    .off()
-                    .empty()
-                    .removeClass(WIDGET_CLASS);
-            },
-
-            /**
-             * Destroy
-             */
-            destroy: function () {
-                var that = this;
-                Widget.fn.destroy.call(that);
-                that._clear();
-                that.setDataSource(NULL);
-                kendo.destroy(that.element);
             }
+        } else {
+            return that._selectedIndex;
+        }
+    },
 
-        });
+    /**
+     * Gets/Sets the id of the selected page in the playbar
+     * @method id
+     * @param id
+     * @returns {*}
+     */
+    id(id) {
+        const that = this;
+        let page;
+        if (id !== undefined) {
+            if (
+                $.type(id) !== CONSTANTS.STRING &&
+                $.type(id) !== CONSTANTS.NUMBER
+            ) {
+                throw new TypeError();
+            }
+            page = that.dataSource.get(id);
+            if (page !== undefined) {
+                const index = that.dataSource.indexOf(page);
+                if (index >= 0) {
+                    // index = -1 if not found
+                    that.index(index);
+                }
+                // if page not found, we do nothing
+            }
+        } else {
+            page = that.dataSource.at(that._selectedIndex);
+            if (page instanceof Page) {
+                return page[page.idField];
+            }
+        }
+    },
 
-        kendo.ui.plugin(PlayBar);
+    /**
+     * Gets/Sets the value of the selected page in the playbar
+     * @method value
+     * @param value
+     * @returns {*}
+     */
+    value(page) {
+        const that = this;
+        if (page === null) {
+            $.noop(); // TODO
+        } else if (page !== undefined) {
+            if (!(page instanceof Page)) {
+                throw new TypeError();
+            }
+            const index = that.dataSource.indexOf(page);
+            if (index > -1) {
+                that.index(index);
+            }
+        } else {
+            return that.dataSource.at(that._selectedIndex); // This returns undefined if not found
+        }
+    },
 
-    }(window.jQuery));
+    /**
+     * @method length()
+     * @returns {*}
+     */
+    length() {
+        return this.dataSource instanceof PageDataSource
+            ? this.dataSource.total()
+            : -1;
+    },
 
-    /* jshint +W071 */
+    /**
+     * return number items
+     * @returns {*}
+     */
+    items() {
+        return this.element
+            .find('ul.k-pager-numbers')
+            .children('li:not(.k-current-page)')
+            .get();
+    },
 
-    return window.kendo;
+    /**
+     * Initialize templates
+     * @private
+     */
+    _templates() {
+        const that = this;
+        that.iconTemplate = template(that.options.iconTemplate);
+        that.linkTemplate = template(that.options.linkTemplate);
+        that.selectTemplate = template(that.options.selectTemplate);
+        that.currentPageTemplate = template(that.options.currentPageTemplate);
+    },
 
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
+    /**
+     * Sets the data source
+     * @method setDataSource
+     * @param dataSource
+     */
+    setDataSource(dataSource) {
+        // set the internal datasource equal to the one passed in by MVVM
+        this.options.dataSource = dataSource;
+        // rebuild the datasource if necessary, or just reassign
+        this._dataSource();
+    },
+
+    /**
+     * Initializes the data source
+     * @method _dataSource
+     * @private
+     */
+    _dataSource() {
+        if (
+            this.dataSource instanceof PageDataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
+            // if the DataSource is defined and the _refreshHandler is wired up, unbind because
+            // we need to rebuild the DataSource
+            this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
+            this._refreshHandler = undefined;
+        }
+
+        if ($.type(this.options.dataSource) !== CONSTANTS.NULL) {
+            // use null to explicitly destroy the dataSource bindings
+            // returns the datasource OR creates one if using array or configuration object
+            this.dataSource = PageDataSource.create(this.options.dataSource);
+
+            // bind to the change event to refresh the widget
+            this._refreshHandler = this.refresh.bind(this);
+            this.dataSource.bind(CONSTANTS.CHANGE, this._refreshHandler);
+
+            if (this.options.autoBind) {
+                this.dataSource.fetch();
+            }
+        }
+    },
+
+    /**
+     * Builds the widget layout
+     * @method _render
+     * @private
+     */
+    _render() {
+        const { element, iconTemplate, options } = this;
+        const index = this.index();
+        const length = this.length();
+
+        // Required for visible binding
+        this.wrapper = element;
+
+        // Add first and previous buttons
+        if (options.previousNext) {
+            if (!element.find(FIRST).length) {
+                element.append(
+                    icon(
+                        iconTemplate,
+                        FIRST,
+                        options.messages.first,
+                        'k-pager-first'
+                    )
+                );
+                first(element, index, length);
+            }
+            if (!element.find(PREV).length) {
+                element.append(
+                    icon(
+                        iconTemplate,
+                        PREV,
+                        options.messages.previous,
+                        'k-pager-previous'
+                    )
+                );
+                prev(element, index, length);
+            }
+        }
+
+        // Add numeric buttons
+        if (options.numeric) {
+            this.ul = element.find('.k-pager-numbers');
+            if (!this.ul.length) {
+                this.ul = $('<ul class="k-pager-numbers k-reset" />').appendTo(
+                    element
+                );
+            }
+        }
+
+        // Add input
+        if (options.input) {
+            if (!element.find('.k-pager-input').length) {
+                element.append(
+                    `<span class="k-pager-input k-label"><span>${
+                        options.messages.page
+                    }</span><input class="k-textbox"><span>${format(
+                        options.messages.of,
+                        length
+                    )}</span></span>`
+                );
+            }
+            element.on(
+                CONSTANTS.KEYDOWN + NS,
+                '.k-pager-input input',
+                this._keydown.bind(this)
+            );
+        }
+
+        // Add next and last buttons
+        if (options.previousNext) {
+            if (!element.find(NEXT).length) {
+                element.append(
+                    icon(
+                        iconTemplate,
+                        NEXT,
+                        options.messages.next,
+                        'k-pager-next'
+                    )
+                );
+                next(element, index, length);
+            }
+            if (!element.find(LAST).length) {
+                element.append(
+                    icon(
+                        iconTemplate,
+                        LAST,
+                        options.messages.last,
+                        'k-pager-last'
+                    )
+                );
+                last(element, index, length);
+            }
+        }
+
+        // Add refresh button
+        if (options.refresh) {
+            if (!element.find('.k-pager-refresh').length) {
+                element.append(
+                    `<a href="#" class="k-pager-refresh k-link" aria-label="${
+                        options.messages.refresh
+                    }" title="${
+                        options.messages.refresh
+                    }"><span class="k-icon k-i-refresh"></span></a>`
+                );
+            }
+            element.on(
+                CONSTANTS.CLICK + NS,
+                '.k-pager-refresh',
+                this._refreshClick.bind(this)
+            );
+        }
+
+        // Add info
+        if (options.info) {
+            if (!element.find('.k-pager-info').length) {
+                element.append('<span class="k-pager-info k-label" />');
+            }
+        }
+
+        // Add click handler
+        element
+            .addClass(WIDGET_CLASS)
+            .on(CONSTANTS.CLICK + NS, 'a', this._navClick.bind(this))
+            .on(
+                CONSTANTS.CLICK + NS,
+                '.k-current-page',
+                this._toggleDropDown.bind(this)
+            );
+    },
+
+    _initTooltip() {
+        const that = this;
+        this.tooltip = this.ul
+            .kendoTooltip({
+                filter: 'span.k-state-selected, a[data-index]',
+                width: 256, // 1024 * 0.25
+                height: 192, // 768 * 0.25
+                position: 'bottom',
+                content(e) {
+                    const { target } = e;
+                    const index =
+                        target.attr(attr('index')) ||
+                        parseInt(target.text(), 10) - 1;
+                    return $(`<${CONSTANTS.DIV}/>`).attr(attr('index'), index);
+                },
+                show(e) {
+                    const element = e.sender.content
+                        .children(CONSTANTS.DIV)
+                        .first();
+                    const index = parseInt(element.attr(attr('index')), 10);
+                    element.kendoStage({
+                        dataSource: that.dataSource.at(index).components,
+                        enabled: false,
+                        mode: 'play',
+                        scale: 0.25
+                    });
+                },
+                hide(e) {
+                    destroy(e.sender.content);
+                },
+                animation: {
+                    open: {
+                        effects: 'zoom',
+                        duration: 150
+                    }
+                }
+            })
+            .data('kendoTooltip');
+    },
+
+    /**
+     * Refresh
+     * @method refresh
+     * @param e
+     */
+    refresh(e) {
+        const {
+            currentPageTemplate,
+            element,
+            linkTemplate,
+            options,
+            selectTemplate
+        } = this;
+        const index = this.index();
+        const length = this.length();
+        let idx;
+        let start = 0;
+        let end;
+        let html = '';
+        // var position;
+
+        if (e && e.action === 'itemchange') {
+            return; // we only update the playbar on loading, 'add' and 'remove'
+        }
+
+        if (e && e.action === undefined) {
+            this.trigger(CONSTANTS.DATABINDING);
+        }
+
+        // Update numeric buttons
+        if (options.numeric) {
+            // start is the index of the first numeric button
+            // end is the index of the last numeric button
+            if (index > options.buttonCount - 1) {
+                start = index - (index % options.buttonCount);
+            }
+            end = Math.min(start + options.buttonCount - 1, length - 1);
+            if (start > 0) {
+                html += button(
+                    linkTemplate,
+                    start - 1,
+                    '...',
+                    false,
+                    options.messages.morePages
+                );
+            }
+            for (idx = start; idx <= end; idx++) {
+                html += button(
+                    idx === index ? selectTemplate : linkTemplate,
+                    idx,
+                    idx + 1,
+                    true
+                );
+            }
+            if (end < length - 1) {
+                // idx = end + 1 here
+                html += button(
+                    linkTemplate,
+                    idx,
+                    '...',
+                    false,
+                    options.messages.morePages
+                );
+            }
+            if (html === '') {
+                html = selectTemplate({ text: 0 });
+            }
+            // Add drop down when there is not enough space to display numeric button
+            html = currentPageTemplate({ text: index + 1 }) + html;
+            this.ul.removeClass('k-state-expanded').html(html);
+        }
+
+        // Update info
+        if (options.info) {
+            if (length > 0) {
+                html =
+                    `<span>${options.messages.page} ` +
+                    `</span>` +
+                    `<span>${index + 1} ${format(
+                        options.messages.of,
+                        length
+                    )}</span>`;
+            } else {
+                html = options.messages.empty;
+            }
+            element.find('.k-pager-info').html(html);
+        }
+
+        // Update input
+        if (options.input) {
+            element
+                .find('.k-pager-input')
+                .html(
+                    `${options.messages.page}<input class="k-textbox">${format(
+                        options.messages.of,
+                        length
+                    )}`
+                )
+                .find('input')
+                .val(index + 1)
+                .attr('disabled', length < 1)
+                .toggleClass(CONSTANTS.DISABLED_CLASS, length < 1);
+        }
+
+        // Update first, pervious, next, last buttons
+        if (options.previousNext) {
+            first(element, index, length);
+            prev(element, index, length);
+            next(element, index, length);
+            last(element, index, length);
+        }
+
+        if (e && e.action === undefined) {
+            // TODO: we are cheating here: we should have in addedDataItems the pages displayed as numbers
+            // Without addedDataItems, it fails because all data items are not displayed
+            this.trigger(CONSTANTS.DATABOUND, { addedDataItems: [] });
+        }
+    },
+
+    /**
+     * Event handler triggered
+     * @param e
+     * @private
+     */
+    _keydown(e) {
+        if (e instanceof $.Event && e.keyCode === keys.ENTER) {
+            const input = this.element.find('.k-pager-input').find('input');
+            let pageNum = parseInt(input.val(), 10);
+            if (
+                Number.isNaN(pageNum) ||
+                pageNum < 1 ||
+                pageNum > this.length()
+            ) {
+                pageNum = this.index() + 1;
+            }
+            input.val(pageNum);
+            this.index(pageNum - 1);
+        }
+    },
+
+    /**
+     * Event handler triggered when clicking the refresh button
+     * @method _refreshClick
+     * @param e
+     * @private
+     */
+    _refreshClick(e) {
+        if (e instanceof $.Event) {
+            e.preventDefault();
+            this.dataSource.read();
+        }
+    },
+
+    /**
+     * Toggle the drop down list of numeric buttons
+     * @private
+     */
+    _toggleDropDown() {
+        this.ul.toggleClass('k-state-expanded');
+    },
+
+    /**
+     *
+     * @method _indexClick
+     * @param e
+     * @private
+     */
+    _navClick(e) {
+        if (e instanceof $.Event) {
+            e.preventDefault();
+            const target = $(e.currentTarget);
+            if (!target.is('.k-state-disabled')) {
+                const index = parseInt(target.attr(attr('index')), 10);
+                if (!Number.isNaN(index)) {
+                    this.index(index);
+                }
+            }
+        }
+    },
+
+    /**
+     * Destroy
+     */
+    destroy() {
+        this.element.find('*').off();
+        this.element
+            .off()
+            .empty()
+            .removeClass(WIDGET_CLASS);
+        this.setDataSource(null);
+        DataBoundWidget.fn.destroy.call(this);
+        destroy(this.element);
+        logger.debug({ method: 'destroy', message: 'widget destroyed' });
+    }
+});
+
+/**
+ * Registration
+ */
+plugin(PlayBar);

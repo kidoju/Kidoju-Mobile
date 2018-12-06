@@ -6,9 +6,8 @@
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './models.base.es6';
-// TODO i18n
-// TODO uris
 
+const { i18n, uris } = window.app;
 const { format } = window.kendo;
 
 /**
@@ -22,7 +21,7 @@ const UserReference = BaseModel.define({
         userId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true // TODO Are we sure because this is nnote the way to create ansd isNew is not required
+            nullable: true // TODO Are we sure because this is not the way to create and isNew is not required
         },
         firstName: {
             type: CONSTANTS.STRING,

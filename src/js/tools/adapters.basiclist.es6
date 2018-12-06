@@ -11,11 +11,11 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseAdapter from './adapters.base.es6';
 
 /**
- * TextAreaAdapter (multiline)
- * @class TextAreaAdapter
+ * StringArrayAdapter
+ * @class StringArrayAdapter
  * @extends BaseAdapter
  */
-const TextAreaAdapter = BaseAdapter.extend({
+const StringArrayAdapter = BaseAdapter.extend({
     /**
      * Init
      * @constructor init
@@ -27,13 +27,11 @@ const TextAreaAdapter = BaseAdapter.extend({
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         this.editor = 'textarea';
-        this.attributes = $.extend({}, this.attributes, attributes, {
-            class: 'k-textbox'
-        });
+        this.attributes = $.extend({}, this.attributes, attributes);
     }
 });
 
 /**
  * Default export
  */
-export default TextAreaAdapter;
+export default StringArrayAdapter;

@@ -11,7 +11,7 @@
     define([
         './vendor/kendo/kendo.core',
         './vendor/kendo/kendo.data',
-        './app/app.logger',
+        './app/app.logger.es6',
         './app.rapi',
         './app.cache'
 ], f);

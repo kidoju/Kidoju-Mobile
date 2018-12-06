@@ -3,322 +3,320 @@
  * Sources at https://github.com/Memba
  */
 
-/* jshint browser: true, jquery: true */
-/* globals define: false */
+// TODO: check touch interfaces
+// TODO: Add tooltip with value and/or description
+// TODO: Should we bind to the DOM change event to be notified when input value changes?
+// TODO: https://developers.google.com/structured-data/rich-snippets/reviews
 
-(function (f, define) {
-    'use strict';
-    define([
-        '../common/window.assert.es6',
-        './common/window.logger.es6',
-        './vendor/kendo/kendo.binder'
-    ], f);
-})(function () {
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.core';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
+import { round } from '../common/window.util.es6';
 
-    'use strict';
+const {
+    attr,
+    destroy,
+    format,
+    ui: { plugin, Widget }
+} = window.kendo;
+const logger = new Logger('widgets.rating');
 
-    // TODO: check touch interfaces
-    // TODO: Add tooltip with value and/or description
-    // TODO: Display half stars
-    // TODO: Should we bind to the DOM change event to be notified when input value changes?????
-    // TODO: https://developers.google.com/structured-data/rich-snippets/reviews
+const NS = '.kendoRating';
+const WIDGET_CLASS = 'kj-rating'; // 'k-widget kj-rating';
+const STAR = 'star';
+const STAR_P = '&#x2605;';
+const STAR_O = '&#x2606;';
+const STAR_SELECTOR = 'span.kj-rating-star';
+const RATING_MIN = 0;
+const RATING_MAX = 5;
+const RATING_STEP = 1;
 
-    (function ($, undefined) {
+/** *****************************************************************************************
+ * Rating
+ * SEE: http://css-tricks.com/star-ratings/
+ * SEE: http://www.fyneworks.com/jquery/star-rating/
+ * SEE: http://www.enfew.com/5-best-jquery-star-rating-plugins-tutorials/
+ ****************************************************************************************** */
 
-        // shorten references to variables for uglification
-        // var fn = Function;
-        // var global = fn('return this')();
-        var kendo = window.kendo;
-        var ui = kendo.ui;
-        var Widget = ui.Widget;
-        // var assert = window.assert,
-        var logger = new window.Logger('kidoju.widgets.rating');
-        var NUMBER = 'number';
-        var STAR = 'star';
-        var STAR_P = '&#x2605;';
-        var STAR_O = '&#x2606;';
-        var STAR_SELECTOR = 'span.kj-rating-star';
-        var STATE_HOVER = 'k-state-hover';
-        var STATE_SELECTED = 'k-state-selected';
-        var STATE_DISABLED = 'k-state-disabled';
-        var RATING_MIN = 0;
-        var RATING_MAX = 5;
-        var RATING_STEP = 1;
-        var PRECISION = 3;
-        var NS = '.kendoRating';
-        var CLICK = 'click' + NS;
-        var MOUSEENTER = 'mouseenter';
-        var MOUSELEAVE = 'mouseleave';
-        var HOVEREVENTS = MOUSEENTER + NS + ' ' + MOUSELEAVE + NS;
-        var CHANGE = 'change';
+/**
+ * Rating
+ * @class Rating
+ * @extends Widget
+ */
+const Rating = Widget.extend({
+    /**
+     * Constructor
+     * @constructor init
+     * @param element
+     * @param options
+     */
+    init(element, options = {}) {
+        assert.instanceof(
+            HTMLElement,
+            element,
+            assert.format(
+                assert.messages.instanceof.default,
+                'element',
+                'HTMLElement'
+            )
+        );
+        assert.isPlainOrEmptyObject(
+            options,
+            assert.format(assert.messages.isPlainObject.default, 'options')
+        );
+        const input = $(element);
+        assert.ok(
+            input.is(CONSTANTS.INPUT),
+            '`element` should be an html input field'
+        );
+        const opts = $.extend(
+            {
+                enabled: !(
+                    input.prop('readonly') ||
+                    input.prop('disabled') ||
+                    false
+                ),
+                max: parseFloat(input.attr('max') || RATING_MAX),
+                min: parseFloat(input.attr('min') || RATING_MIN),
+                step: parseFloat(input.attr('step') || RATING_STEP),
+                value: parseFloat(input.attr('value') || RATING_MIN)
+            },
+            options
+        );
+        // See https://www.w3schools.com/tags/att_input_type_number.asp
+        input.attr({
+            max: opts.max,
+            min: opts.min,
+            step: opts.step,
+            type: CONSTANTS.NUMBER
+        });
+        Widget.fn.init.call(this, element, opts);
+        logger.debug({ method: 'init', message: 'widget initialized' });
+        this._render();
+        this.value(this.options.value);
+        // value won't trigger refresh because it is already stored in element, so do it now
+        this.refresh();
+        this.enable(this.options.enabled);
+    },
 
-        /*********************************************************************************
-         * Helpers
-         *********************************************************************************/
+    /**
+     * Events
+     * @property events
+     */
+    events: [
+        CONSTANTS.CHANGE // Changing the rating value by clicking a star raises the change event
+    ],
 
-        /**
-         * rounding numbers for the star rating widget
-         * @method round
-         * @param value {Number}
-         * @return {Number}
-         */
-        function round(value) {
-            value = parseFloat(value);
-            var power = Math.pow(10, PRECISION || 0);
-            return Math.round(value * power) / power;
+    /**
+     * Options
+     * @property options
+     */
+    options: {
+        name: 'Rating',
+        enabled: true,
+        min: RATING_MIN,
+        max: RATING_MAX,
+        step: RATING_STEP,
+        value: RATING_MIN
+    },
+
+    /**
+     * Gets or sets the rating value
+     * @method value
+     * @param value
+     * @return {number}
+     */
+    value(value) {
+        assert.nullableTypeOrUndef(
+            CONSTANTS.NUMBER,
+            value,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'value',
+                CONSTANTS.NUMBER
+            )
+        );
+        let ret;
+        const { element, options } = this;
+        const val = parseFloat(value);
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = parseFloat(element.val());
+        } else if (val >= options.min && val <= options.max) {
+            if (parseFloat(element.val()) !== val) {
+                // store value with element
+                element.val(val);
+                // refresh
+                this.refresh();
+            }
+        } else {
+            throw new RangeError(
+                format(
+                    'Expecting a number between {0} and {1}',
+                    options.min,
+                    options.max
+                )
+            );
         }
+        return ret;
+    },
 
-        /*******************************************************************************************
-         * Rating
-         * SEE: http://css-tricks.com/star-ratings/
-         * SEE: http://www.fyneworks.com/jquery/star-rating/
-         * SEE: http://www.enfew.com/5-best-jquery-star-rating-plugins-tutorials/
-         *******************************************************************************************/
+    /**
+     * Builds the widget layout
+     * @method _render
+     * @private
+     */
+    _render() {
+        const { element, options } = this;
+        element.wrap(`<${CONSTANTS.SPAN}/>`);
+        // Hide the input
+        element.hide();
+        // Wrapper for visible/invisible bindings
+        this.wrapper = element.parent().addClass(WIDGET_CLASS);
+        // Number of stars to display
+        const n = round((options.max - options.min) / options.step); // number of stars
+        // Add stars to the DOM
+        for (let i = 1; i <= n; i++) {
+            this.wrapper.append(
+                format(
+                    '<span class="kj-rating-star" data-star="{0}">{1}</span>',
+                    i,
+                    STAR_O
+                )
+            );
+        }
+    },
 
-        /**
-         * Rating (kendoRating)
-         * @class Rating
-         * @extends Widget
-         */
-        var Rating = Widget.extend({
+    /**
+     * Function called by the enabled/disabled bindings
+     * @method enable
+     * @param enable
+     */
+    enable(enable) {
+        const enabled =
+            $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
+        const { element, wrapper } = this;
+        wrapper.off(NS);
+        element.prop({ disabled: !enabled });
+        if (enabled) {
+            wrapper.removeClass(CONSTANTS.DISABLED_CLASS);
+            wrapper
+                .on(
+                    `${CONSTANTS.MOUSEENTER}${NS} ${CONSTANTS.MOUSELEAVE}${NS}`,
+                    STAR_SELECTOR,
+                    this._onStarHover.bind(this)
+                )
+                .on(
+                    `${CONSTANTS.CLICK}${NS} ${CONSTANTS.TAP}${NS}`,
+                    STAR_SELECTOR,
+                    this._onStarClick.bind(this)
+                );
+        } else {
+            wrapper.addClass(CONSTANTS.DISABLED_CLASS);
+        }
+    },
 
-            /**
-             * Initializes the widget
-             * @method init
-             * @param element
-             * @param options
-             */
-            init: function (element, options) {
-                var that = this;
-                var input = $(element);
-                input.type = NUMBER;
-                that.ns = NS;
-                options = $.extend({
-                    value: parseFloat(input.attr('value') || RATING_MIN),
-                    min: parseFloat(input.attr('min') || RATING_MIN),
-                    max: parseFloat(input.attr('max') || RATING_MAX),
-                    step: parseFloat(input.attr('step') || RATING_STEP),
-                    disabled: input.prop('disabled'),
-                    readonly: input.prop('readonly')
-                }, options);
-                Widget.fn.init.call(that, element, options);
-                logger.debug({ method: 'init', message: 'widget initialized' });
-                that._layout();
-                that.value(options.value);
-                // that.refresh();
-                kendo.notify(that);
-            },
-
-            /**
-             * Widget events
-             * @property events
-             */
-            events: [
-                CHANGE // Changing the rating value by clicking a star raises the change event
-            ],
-
-            /**
-             * Widget options
-             * @property options
-             */
-            options: {
-                name: 'Rating',
-                value: RATING_MIN,
-                min: RATING_MIN,
-                max: RATING_MAX,
-                step: RATING_STEP
-            },
-
-            /**
-             * Gets a sets the rating value
-             * @method value
-             * @param value
-             * @return {*}
-             */
-            value: function (value) {
-                var that = this;
-                var input = that.element;
-                var options = that.options;
-                value = parseFloat(value);
-                if (isNaN(value)) {
-                    return parseFloat(input.val());
-                } else if (value >= options.min && value <= options.max) {
-                    if (parseFloat(input.val()) !== value) {
-                        // update input element
-                        input.val(value);
-                        // refresh
-                        that.refresh();
-                        // also trigger the DOM change event so any subscriber gets notified
-                        // http://stackoverflow.com/questions/4672505/why-does-the-jquery-change-event-not-trigger-when-i-set-the-value-of-a-select-us
-                        // input.trigger(CHANGE + NS);
-                    }
-                } else {
-                    throw new RangeError(kendo.format('Expecting a number between {0} and {1}', options.min, options.max));
-                }
-            },
-
-            /**
-             * Builds the widget layout
-             * @method _layout
-             * @private
-             */
-            _layout: function () {
-                var that = this;
-                var input = that.element;
-                var options = that.options;
-                that._clear();
-                input.wrap('<span class="kj-rating"/>');
-                input.hide();
-                /*
-                input.on(CHANGE + NS, function () {
-                    // update widget
-                    that.refresh();
-                    that.trigger(CHANGE, { value: parseFloat(input.val()) });
-                });
-                */
-                // We need that.wrapper for visible/invisible bindings
-                that.wrapper = input.parent();
-                // Calculate the number of stars
-                var n = round((options.max - options.min) / options.step);  // number of stars
-                // Add stars to the DOM
-                for (var i = 1; i <= n; i++) {
-                    that.wrapper.append(kendo.format('<span class="kj-rating-star" data-star="{0}">{1}</span>', i, STAR_O));
-                }
-                // Make (non)editable
-                that._editable(options);
-            },
-
-            /**
-             * Toggles between enabled and readonly modes
-             * @private
-             */
-            _editable: function (options) {
-                var that = this;
-                var disabled = options.disabled;
-                var readonly = options.readonly;
-                var wrapper = that.wrapper;
-                wrapper.find(STAR_SELECTOR).off(NS);
-                if (!readonly && !disabled) {
-                    wrapper.removeClass(STATE_DISABLED);
-                    wrapper.find(STAR_SELECTOR)
-                        .on(HOVEREVENTS, $.proxy(that._toggleHover, that))
-                        .on(CLICK, $.proxy(that._onStarClick, that));
-                } else {
-                    wrapper.addClass(STATE_DISABLED);
-                }
-            },
-
-            /**
-             * Function called by the enabled/disabled bindings
-             * @param enable
-             */
-            enable: function (enable) {
-                this._editable({
-                    readonly: false,
-                    disabled: !(enable = enable === undefined ? true : enable)
-                });
-            },
-
-            /**
-             * Make the widget readonly
-             * @param readonly
-             */
-            /*
-            readonly: function (readonly) {
-                this._editable({
-                    readonly: readonly === undefined ? true : readonly,
-                    disable: false
-                });
-            },
-            */
-
-            /**
-             * Refreshes the widget
-             * @method refresh
-             */
-            refresh: function () {
-                var that = this;
-                var options = that.options;
-                if (that.wrapper) {
-                    var i = round((that.value() - options.min) / options.step);
-                    $.each(that.wrapper.find(STAR_SELECTOR), function (index, element) {
-                        var star = $(element);
-                        if (parseFloat(star.attr(kendo.attr(STAR))) <= i) {
-                            star.html(STAR_P).addClass(STATE_SELECTED);
-                        } else {
-                            star.html(STAR_O).removeClass(STATE_SELECTED);
-                        }
-                    });
-                }
-            },
-
-            /**
-             * Event handler for clicking/tapping a star
-             * @param e
-             * @private
-             */
-            _onStarClick: function (e) {
-                var that = this;
-                var options = that.options;
-                var i = parseFloat($(e.currentTarget).attr(kendo.attr(STAR)));
-                var value = options.min + i * options.step;
-                e.preventDefault();
-                if (!that.trigger(CHANGE, { value: value })) {
-                    that.value(value);
-                }
-            },
-
-            /**
-             * EVent handler for hovering stars
-             * @param e
-             * @private
-             */
-            _toggleHover: function (e) {
-                var that = this;
-                var i = parseFloat($(e.currentTarget).attr(kendo.attr(STAR)));
-                $.each(that.wrapper.find(STAR_SELECTOR), function (index, element) {
-                    var star = $(element);
-                    if (e.type === MOUSEENTER && parseFloat(star.attr(kendo.attr(STAR))) <= i) {
-                        star.html(STAR_P).addClass(STATE_HOVER);
-                    } else {
-                        star.html(star.hasClass(STATE_SELECTED) ? STAR_P : STAR_O).removeClass(STATE_HOVER);
-                    }
-                });
-            },
-
-            /**
-             * Clears the DOM from modifications made by the widget
-             * @method _clear
-             * @private
-             */
-            _clear: function () {
-                var that = this;
-                var input = that.element;
-                // remove wrapper and stars
-                if (that.wrapper) {
-                    that.wrapper.find(STAR_SELECTOR).off(NS).remove();
-                    input.unwrap();
-                    input.off(NS);
-                    delete that.wrapper;
-                    input.show();
-                }
-            },
-
-            /**
-             * Destroys the widget
-             * @method destroy
-             */
-            destroy: function () {
-                var that = this;
-                that._clear();
-                Widget.fn.destroy.call(this);
+    /**
+     * Refresh
+     * @method refresh
+     */
+    refresh() {
+        const { options, wrapper } = this;
+        const i = round((this.value() - options.min) / options.step);
+        wrapper.find(STAR_SELECTOR).each((index, element) => {
+            const star = $(element);
+            if (parseFloat(star.attr(attr(STAR))) <= i) {
+                star.html(STAR_P).addClass(CONSTANTS.SELECTED_CLASS);
+            } else {
+                star.html(STAR_O).removeClass(CONSTANTS.SELECTED_CLASS);
             }
         });
+        logger.debug({ method: 'refresh', message: 'widget refreshed' });
+    },
 
-        ui.plugin(Rating);
+    /**
+     * Event handler for clicking/tapping a star
+     * @method _onStarClick
+     * @param e
+     * @private
+     */
+    _onStarClick(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        const { options } = this;
+        const idx = parseFloat($(e.currentTarget).attr(attr(STAR)));
+        const value = options.min + idx * options.step;
+        e.preventDefault();
+        this.value(value);
+        // The change event needs to be triggered once the value has been modified
+        this.trigger(CONSTANTS.CHANGE);
+    },
 
-    } (window.jQuery));
+    /**
+     * Event handler for hovering stars
+     * @method _onStarHover
+     * @param e
+     * @private
+     */
+    _onStarHover(e) {
+        assert.instanceof(
+            $.Event,
+            e,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e',
+                'jQuery.Event'
+            )
+        );
+        const { wrapper } = this;
+        const idx = parseFloat($(e.currentTarget).attr(attr(STAR)));
+        wrapper.find(STAR_SELECTOR).each((index, element) => {
+            const star = $(element);
+            if (
+                e.type === CONSTANTS.MOUSEENTER &&
+                parseFloat(star.attr(attr(STAR))) <= idx
+            ) {
+                star.html(STAR_P).addClass(CONSTANTS.HOVER_CLASS);
+            } else {
+                star.html(
+                    star.hasClass(CONSTANTS.SELECTED_CLASS) ? STAR_P : STAR_O
+                ).removeClass(CONSTANTS.HOVER_CLASS);
+            }
+        });
+    },
 
-    return window.kendo;
+    /**
+     * Destroy
+     * @method destroy
+     */
+    destroy() {
+        // remove wrapper and stars
+        if (this.wrapper) {
+            this.wrapper
+                .off(NS)
+                .find(STAR_SELECTOR)
+                .remove();
+            this.element.unwrap();
+            delete this.wrapper;
+            this.element.show();
+        }
+        // Destroy
+        Widget.fn.destroy.call(this);
+        destroy(this.element);
+    }
+});
 
-}, typeof define === 'function' && define.amd ? define : function (_, f) { 'use strict'; f(); });
+/**
+ * Registration
+ */
+plugin(Rating);
