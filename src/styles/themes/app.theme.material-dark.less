@@ -1,10 +1,10 @@
-@import "vendor/kendo/web/kendo.common-material.less";
-@import "vendor/kendo/web/kendo.material.less";
-@import "vendor/kendo/mobile/kendo.mobile.material.less";
+@import "../vendor/kendo/web/kendo.common-material.less";
+@import "../vendor/kendo/web/kendo.materialblack.less";
+@import "../vendor/kendo/mobile/kendo.mobile.material.less";
 
 // Drawer
-@app-drawer-content-background: @material-selected-background;
-@app-drawer-content-color: @material-main-color;
+@app-drawer-content-background: darken(@material-dark-background, 10%);
+@app-drawer-content-color: @material-primary-inverse-color;
 @app-drawer-logo-color: @material-primary-inverse-color;
 @app-drawer-navbar-background: @material-primary-color;
 @app-drawer-navbar-color: @material-primary-inverse-color;
@@ -42,12 +42,12 @@
 // Animation containers
 @app-list-container-font-size: 1em;
 
-@import "app.template.less";
-@import (optional) "highlightjs.custom.less";
+@import "ui/app.template.less";
+@import (optional) "ui/highlightjs.custom.less";
 
 // Style fixes
 .km-root {
-    .km-material-light {
+    .km-material-dark {
         font-size: 1em;
         .km-navbar {
             font-size: 1em;
@@ -74,7 +74,6 @@
         }
         .km-filter-form {
             .km-filter-wrap {
-                background: @material-selected-background;
                 margin: 0;
                 input {
                     background: transparent;
@@ -83,21 +82,12 @@
                     // also remove the outline
                     outline-style: unset;
                 }
-            }
-            .k-dropdown {
-                background: @material-selected-background;
-                .k-dropdown-wrap {
-                    background: transparent;
-                    border-color: transparent;
-                }
-            }
-        }
-        .k-dropdown {
-            .k-input {
-                color: @material-light-color; //@material-main-color;
-            }
-            .k-state-default {
-                border-color: @material-light-color; //@material-main-color;
+                // Make the #finder search box the same color as the #categories dropdown
+                .composite-background(@widget-gradient);
+                background-position: 50% 50%;
+                color: @primary-active-text-color;
+                background-color: @drop-down-background;
+                border-color: @drop-down-border-color;
             }
         }
         .km-button.km-large {
@@ -136,3 +126,4 @@
         }
     }
 }
+
