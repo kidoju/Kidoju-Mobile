@@ -162,6 +162,11 @@ COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.assetmanager.es6 .\src\js\dialogs 
 COPY ..\Kidoju.Widgets\src\js\dialogs\widgets.basedialog.es6 .\src\js\dialogs /Y
 ATTRIB +R .\src\js\dialogs\*.es6
 
+REM Copy .\src\js\data\*
+ATTRIB -R .\src\js\editors\*.es6
+COPY ..\Kidoju.Widgets\src\js\editors\*.es6 .\src\js\editors /Y
+ATTRIB +R .\src\js\editors\*.es6
+
 REM Copy .\src\js\rapi\*
 ATTRIB -R .\src\js\rapi\*.es6
 COPY ..\Kidoju.Server\src\js\rapi\*.es6 .\src\js\rapi /Y
@@ -173,7 +178,7 @@ COPY ..\Kidoju.Widgets\src\js\tools\*.es6 .\src\js\tools /Y
 ATTRIB +R .\src\js\tools\*.es6
 
 REM Copy .\src\js\vendor\*
-XCOPY ..\Kidoju.Server\src\js\vendor\blueimp .\src\js\vendor\blueimp /C /E /I /R /Y
+XCOPY ..\Kidoju.Widgets\src\js\vendor\blueimp .\src\js\vendor\blueimp /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\blueimp\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\src\js\vendor\highlight /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\highlight\*.* /S
@@ -193,7 +198,7 @@ XCOPY ..\Kidoju.Widgets\src\js\vendor\mathquill .\src\js\vendor\mathquill /C /E 
 ATTRIB +R .\src\js\vendor\mathquill\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\nodeca .\src\js\vendor\nodeca /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\nodeca\*.* /S
-XCOPY ..\Kidoju.Server\src\js\vendor\valve .\src\js\vendor\valve /C /E /I /R /Y
+XCOPY ..\Kidoju.Widgets\src\js\vendor\valve .\src\js\vendor\valve /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\valve\*.* /S
 
 REM Copy .\src\js\tools\*
