@@ -201,10 +201,15 @@ ATTRIB +R .\src\js\vendor\nodeca\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\valve .\src\js\vendor\valve /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\valve\*.* /S
 
-REM Copy .\src\js\tools\*
+REM Copy .\src\js\widgets\*
 ATTRIB -R .\src\js\widgets\*.es6
 COPY ..\Kidoju.Widgets\src\js\widgets\*.es6 .\src\js\widgets /Y
 ATTRIB +R .\src\js\widgets\*.es6
+
+REM Copy .\src\js\workers\*
+ATTRIB -R .\src\js\workers\*.es6
+COPY ..\Kidoju.Widgets\src\js\workers\*.es6 .\src\js\workers /Y
+ATTRIB +R .\src\js\workers\*.es6
 
 REM ------------------------------------------------------------
 REM Styles
