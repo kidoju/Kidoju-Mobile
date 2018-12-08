@@ -9,14 +9,14 @@
 (function (f, define) {
     'use strict';
     define([
-        './common/window.assert.es6',
+        '../common/window.assert.es6',
         './common/window.logger.es6',
         './kidoju.tools',
         './kidoju.image',
         './widgets/widgets.vectordrawing.toolbar', // For the image editor template
         './dialogs/dialogs.assetmanager.es6',
         './app/app.logger.es6',
-        './app/app.i18n',
+        './app/app.i18n.es6',
         './app.rapi'
     ], f);
 })(function () {
