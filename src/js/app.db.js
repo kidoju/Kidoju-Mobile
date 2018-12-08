@@ -13,7 +13,7 @@
         './common/window.assert.es6',
         './common/window.logger.es6',
         './window.pongodb',
-        './app/app.constants'
+        './app/app.constants.es6'
     ], f);
 })(function () {
 

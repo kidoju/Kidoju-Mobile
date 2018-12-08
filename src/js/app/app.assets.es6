@@ -3,6 +3,19 @@
  * Sources at https://github.com/Memba
  */
 
+/*
+import ToolAssets from '../tools/util.assets.es6';
+const assets = {
+    // Assets for the audio tool
+    audio: new ToolAssets(),
+    // Assets for the image tool
+    image: new ToolAssets(),
+    // Assets for the video tool
+    video: new ToolAssets()
+};
+export default assets;
+ */
+
 /* jshint browser: true, jquery: true */
 /* globals define: false, require: false */
 
@@ -10,14 +23,14 @@
     'use strict';
     define([
         '../common/window.assert.es6',
-        './common/window.logger.es6',
-        './kidoju.tools',
-        './kidoju.image',
-        './widgets/widgets.vectordrawing.toolbar', // For the image editor template
-        './dialogs/dialogs.assetmanager.es6',
-        './app/app.logger.es6',
-        './app/app.i18n.es6',
-        './app.rapi'
+        '../common/window.logger.es6',
+        '../kidoju.tools',
+        '../kidoju.image',
+        '../widgets/widgets.vectordrawing.toolbar.es6', // For the image editor template
+        '../dialogs/dialogs.assetmanager.es6',
+        './app.logger.es6',
+        './app.i18n.es6',
+        '../app.rapi'
     ], f);
 })(function () {
 

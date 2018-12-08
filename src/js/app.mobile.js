@@ -28,7 +28,7 @@ if (typeof(require) === 'function') {
     require('../styles/ui/app.mobile.less');
 
     // Load config
-    require('./app.config.jsx?env=' + __NODE_ENV__);
+    require('./app/app.config.jsx?env=' + __NODE_ENV__);
     // require('./app.support.js');
 }
 
@@ -90,32 +90,32 @@ window.jQuery.holdReady(true);
         './common/window.tts.es6',
         './kidoju.data',
         './kidoju.tools',
-        './widgets/widgets.chargrid',
-        './widgets/widgets.connector',
-        './widgets/widgets.dropzone',
-        './widgets/widgets.floating',
-        './widgets/widgets.highlighter',
-        './widgets/widgets.imageset',
-        './widgets/widgets.markdown',
-        './widgets/widgets.mathexpression',
-        './widgets/widgets.mathinput',
-        './widgets/widgets.mediaplayer',
-        './widgets/widgets.multiquiz',
-        // './kidoju.widgets.playbar',
-        './widgets/widgets.quiz',
-        './widgets/widgets.rating',
-        './widgets/widgets.selector',
-        // './kidoju.widgets.social',
-        './widgets/widgets.stage',
-        './widgets/widgets.table',
-        './widgets/widgets.textgaps',
+        './widgets/widgets.chargrid.es6',
+        './widgets/widgets.connector.es6',
+        './widgets/widgets.dropzone.es6',
+        './widgets/widgets.floating.es6',
+        './widgets/widgets.highlighter.es6',
+        './widgets/widgets.imageset.es6',
+        './widgets/widgets.markdown.es6',
+        './widgets/widgets.mathexpression.es6',
+        './widgets/widgets.mathinput.es6',
+        './widgets/widgets.mediaplayer.es6',
+        './widgets/widgets.multiquiz.es6',
+        // './kidoju.widgets.playbar.es6',
+        './widgets/widgets.quiz.es6',
+        './widgets/widgets.rating.es6',
+        './widgets/widgets.selector.es6',
+        // './kidoju.widgets.social.es6',
+        './widgets/widgets.stage.es6',
+        './widgets/widgets.table.es6',
+        './widgets/widgets.textgaps.es6',
         './dialogs/dialogs.alert.es6',
         './app/app.constants.es6',
         './app/app.logger.es6',
         './app/app.i18n.es6',
         './app/app.theme.es6',
         './app.utils',
-        './app.assets',
+        './app/app.assets.es6',
         './app.models',
         './app.mobile.models'
     ], f);
