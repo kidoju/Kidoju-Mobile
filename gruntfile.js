@@ -183,7 +183,7 @@ module.exports = grunt => {
     // grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
-    grunt.loadNpmTasks('grunt-nsp');
+    // grunt.loadNpmTasks('grunt-nsp');
     grunt.loadNpmTasks('grunt-stylelint');
     grunt.loadNpmTasks('grunt-webdriver');
     grunt.loadNpmTasks('grunt-webpack');
