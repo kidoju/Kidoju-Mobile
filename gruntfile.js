@@ -120,9 +120,11 @@ module.exports = grunt => {
                 src: ['test/node/**/*.js']
             }
         },
+        /*
         nsp: {
             package: pkg
         },
+        */
         stylelint: {
             options: {
                 configFile: '.stylelintrc'
@@ -191,8 +193,8 @@ module.exports = grunt => {
         'eslint',
         'jscs',
         'jshint',
-        'stylelint',
-        'nsp'
+        'stylelint'
+        // 'nsp'
     ]); // , 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'copy']);
     // grunt.registerTask('test', ['mocha', 'mochaTest', 'webdriver']);
