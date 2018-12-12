@@ -6,6 +6,8 @@
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
+import { root, uris } from './rapi.uris.es6';
+import { format } from './rapi.util.es6';
 
 /**
  * AjaxSummaries
@@ -52,13 +54,14 @@ export default class AjaxSummaries extends AjaxBase {
             method === AjaxBase.METHOD.CREATE ||
             method === AjaxBase.METHOD.READ
         ) {
-            ret = assert.format(
-                'http://localhost:3001/api/v1/{0}/summaries',
+            ret = format(
+                // TODO root() + uris().rapi.v1.mySummaries,
+                root() + uris().rapi.v1.summaries,
                 this._partition.language
             );
         } else {
-            ret = assert.format(
-                'http://localhost:3001/api/v1/{0}/summaries/{1}',
+            ret = format(
+                root() + uris().rapi.v1.summary,
                 this._partition.language,
                 id
             );

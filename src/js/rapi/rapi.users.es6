@@ -6,6 +6,8 @@
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
+import { root, uris } from './rapi.uris.es6';
+import { format } from './rapi.util.es6';
 
 /**
  * AjaxUsers
@@ -22,22 +24,6 @@ export default class AjaxUsers extends AjaxBase {
             collection: 'users'
         });
         super(options);
-        assert.isPlainObject(
-            this._partition,
-            assert.format(
-                assert.messages.isPlainObject.default,
-                'options.partition'
-            )
-        );
-        assert.match(
-            CONSTANTS.RX_LANGUAGE,
-            this._partition.language,
-            assert.format(
-                assert.messages.match.default,
-                'options.partition.language',
-                CONSTANTS.RX_LANGUAGE
-            )
-        );
     }
 
     /**
@@ -47,23 +33,13 @@ export default class AjaxUsers extends AjaxBase {
      * @private
      */
     _getUrl(method, id) {
-        let ret;
         if (
-            method === AjaxBase.METHOD.CREATE ||
-            method === AjaxBase.METHOD.READ
+            method === AjaxBase.METHOD.GET ||
+            method === AjaxBase.METHOD.UPDATE
         ) {
-            ret = assert.format(
-                'http://localhost:3001/api/v1/{0}/users',
-                this._partition.language
-            );
-        } else {
-            ret = assert.format(
-                'http://localhost:3001/api/v1/{0}/users/{1}',
-                this._partition.language,
-                id
-            );
+            return format(root() + uris().rapi.v1.user, id);
         }
-        return ret;
+        return super._getUrl(method);
     }
 
     /**

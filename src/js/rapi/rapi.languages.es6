@@ -6,6 +6,7 @@
 import assert from '../common/window.assert.es6';
 import AjaxBase from './rapi.base.es6';
 import { root, uris } from './rapi.uris.es6';
+import { format } from './rapi.util.es6';
 
 /**
  * AjaxCategories

@@ -6,6 +6,7 @@
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
+import { root, uris } from './rapi.uris.es6';
 
 /**
  * AjaxVersions
@@ -38,6 +39,15 @@ export default class AjaxVersions extends AjaxBase {
                 CONSTANTS.RX_LANGUAGE
             )
         );
+        assert.match(
+            CONSTANTS.RX_MONGODB_ID,
+            this._partition.summaryId,
+            assert.format(
+                assert.messages.match.default,
+                'options.partition.summaryId',
+                CONSTANTS.RX_MONGODB_ID
+            )
+        );
     }
 
     /**
@@ -53,13 +63,15 @@ export default class AjaxVersions extends AjaxBase {
             method === AjaxBase.METHOD.READ
         ) {
             ret = assert.format(
-                'http://localhost:3001/api/v1/{0}/versions',
-                this._partition.language
+                root() + uris().rapi.v1.versions,
+                this._partition.language,
+                this._partition.summaryId
             );
         } else {
             ret = assert.format(
-                'http://localhost:3001/api/v1/{0}/versions/{1}',
+                root() + uris().rapi.v1.version,
                 this._partition.language,
+                this._partition.summaryId,
                 id
             );
         }

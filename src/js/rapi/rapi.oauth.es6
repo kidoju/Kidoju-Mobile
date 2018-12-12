@@ -7,83 +7,145 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import assert from '../common/window.assert.es6';
-import { localCache } from '../common/window.cache.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
+import AjaxBase from './rapi.base.es6';
+import {
+    cleanUrl,
+    clearToken,
+    format,
+    getFingerPrint,
+    getHeaders,
+    setState,
+    setToken,
+    uuid
+} from './rapi.util.es6';
 
 const logger = new Logger('rapi.oauth');
-const { app, localStorage } = window;
-const TOKEN = 'token';
-const ACCESS_TOKEN = 'access_token';
+const PROVIDERS = ['facebook', 'google', 'live', 'twitter'];
 
 /**
- * Read an access token from storage
+ * Returns the authentication provider URL to call for signing in
+ * @param provider
+ * @param returnUrl
  * @returns {*}
  */
-function getAccessToken() {
-    // TODO use window.cache
-    if ('localStorage' in window) {
-        const token = JSON.parse(localStorage.getItem(TOKEN));
-        if (
-            !token ||
-            (token.ts &&
-                token.expires &&
-                token.ts + 1000 * token.expires < Date.now())
-        ) {
-            if (token) {
-                localStorage.removeItem(TOKEN);
-                logger.debug({
-                    message: 'access token read from localStorage has expired',
-                    method: 'util.getAccessToken',
-                    data: { token }
-                });
-            }
-            return null;
-        }
-        logger.debug({
-            message: 'access token read from localStorage is still valid',
-            method: 'util.getAccessToken',
-            data: { token }
-        });
-        return token[ACCESS_TOKEN];
-    }
-    logger.error({
-        message: 'without localStorage support, signing in cannot work',
-        method: 'util.getAccessToken'
-    });
-    return null;
-}
-
-/**
- * Get headers for $.ajax calls
- * @param options
- * @returns {*}
- */
-export function getHeaders(options = { security: true, trace: true }) {
-    assert.isPlainObject(
-        options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+export function getSignInUrl(provider, returnUrl) {
+    assert.enum(
+        PROVIDERS,
+        provider,
+        assert.format(assert.messages.enum.default, 'provider', PROVIDERS)
     );
-    const headers = {};
-    if (options.security === true) {
-        const accessToken = getAccessToken();
-        // eslint-disable-next-line valid-typeof
-        if ($.type(accessToken) === CONSTANTS.STRING) {
-            headers.Authorization = `Bearer ${accessToken}`;
+    assert.match(
+        CONSTANTS.RX_URL,
+        returnUrl,
+        assert.format(
+            assert.messages.match.default,
+            'returnUrl',
+            CONSTANTS.RX_URL
+        )
+    );
+    logger.info({
+        message: '$.ajax',
+        method: 'auth.getSignInUrl',
+        data: { provider, returnUrl }
+    });
+    const ajax = $.Deferred();
+    const logout = $.Deferred();
+    if (provider === 'live' && $.type(window.cordova) === CONSTANTS.UNDEFINED) {
+        // chrome apps?
+        // logout from Live to force a login screen (no need to clean up because there should be a redirection)
+        const iframe = $('#live-logout');
+        if (iframe.length) {
+            iframe.attr('src', 'https://login.live.com/oauth20_logout.srf');
+        } else {
+            $(
+                '<iframe id="live-logout" src="https://login.live.com/oauth20_logout.srf" style="position: absolute; left: -1000px; visibility: hidden;"></iframe>'
+            ).appendTo('body');
         }
+        $('#live-logout').on('load', () => {
+            logout.resolve();
+        });
+    } else {
+        logout.resolve();
     }
-    // TODO review app.constants
-    if (app && app.constants && app.constants.appScheme) {
-        headers['X-App-Scheme'] = app.constants.appScheme;
-    }
-    if (options.trace === true) {
-        const trace = $('#trace').val();
-        if ($.type(trace) === CONSTANTS.STRING) {
-            headers['X-Trace-ID'] = trace.substr(0, 36); // should be long enough for a guid = 32 hex + 4 dashes
-        }
-    }
-    return headers;
+    logout.promise().always(() => {
+        const state = `${getFingerPrint()}-${uuid()}`;
+        setState(state);
+        $.ajax({
+            cache: false,
+            data: {
+                returnUrl: cleanUrl(returnUrl),
+                state
+            },
+            headers: getHeaders({ trace: true }),
+            type: AjaxBase.HTTP.GET,
+            url: format(uris.rapi.root + uris.rapi.oauth.signIn, provider)
+        })
+            .done(ajax.resolve)
+            .fail(ajax.reject);
+    });
+    return ajax;
 }
 
-// To please ES6 until we have more functions
-export function noop() {}
+/**
+ * Sign out
+ * @returns {*}
+ */
+export function signOut() {
+    logger.info({
+        message: '$.ajax',
+        method: 'auth.signout'
+    });
+    return $.ajax({
+        contentType: CONSTANTS.FORM_CONTENT_TYPE,
+        headers: getHeaders({ security: true, trace: true }),
+        type: AjaxBase.HTTP.POST,
+        url: root() + uris.rapi.oauth.signOut
+    }).always(() => {
+        clearToken();
+    });
+}
+
+/**
+ * Refresh token
+ * @returns {*}
+ */
+export function refresh() {
+    logger.info({
+        message: '$.ajax',
+        method: 'refresh'
+    });
+    return $.ajax({
+        cache: false,
+        headers: getHeaders({ security: true, trace: true }),
+        type: AjaxBase.HTTP.GET,
+        url: uris.rapi.root + uris.rapi.oauth.refresh
+    })
+        .done(token => {
+            debugger;
+            setToken(token);
+        })
+        .fail(() => {
+            clearToken();
+        });
+}
+
+/**
+ * Revoke toekn
+ * @returns {*}
+ */
+export function revoke() {
+    logger.info({
+        message: '$.ajax',
+        method: 'revoke'
+    });
+    return $.ajax({
+        contentType: CONSTANTS.FORM_CONTENT_TYPE,
+        headers: getHeaders({ security: true, trace: true }),
+        type: AjaxBase.HTTP.POST,
+        url: uris.rapi.root + uris.rapi.oauth.revoke
+    }).always(() => {
+        clearToken();
+    });
+}

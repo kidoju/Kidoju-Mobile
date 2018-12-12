@@ -9,10 +9,9 @@ import $ from 'jquery';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import { getHeaders } from './rapi.oauth.es6';
+import { getHeaders } from './rapi.util.es6';
 
 const logger = new Logger('rapi.base');
-const JSON_CONTENT_TYPE = 'application/json';
 const HTTP = {
     DELETE: 'DELETE',
     GET: 'GET',
@@ -143,7 +142,7 @@ export default class AjaxBase {
             data: { url, doc }
         });
         return $.ajax({
-            contentType: JSON_CONTENT_TYPE,
+            contentType: CONSTANTS.JSON_CONTENT_TYPE,
             data: JSON.stringify(doc),
             headers: this._getHeaders(METHOD.CREATE),
             type: HTTP.POST,
@@ -266,7 +265,7 @@ export default class AjaxBase {
             data: { url, doc }
         });
         return $.ajax({
-            contentType: JSON_CONTENT_TYPE,
+            contentType: CONSTANTS.JSON_CONTENT_TYPE,
             data: JSON.stringify(doc),
             headers: this._getHeaders(METHOD.UPDATE),
             type: HTTP.PUT,

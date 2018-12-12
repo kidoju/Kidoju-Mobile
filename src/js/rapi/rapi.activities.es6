@@ -6,6 +6,8 @@
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
+import { root, uris } from './rapi.uris.es6';
+import { format } from './rapi.util.es6';
 
 /**
  * AjaxActivities
@@ -38,6 +40,15 @@ export default class AjaxActivities extends AjaxBase {
                 CONSTANTS.RX_LANGUAGE
             )
         );
+        assert.match(
+            CONSTANTS.RX_MONGODB_ID,
+            this._partition.summaryId,
+            assert.format(
+                assert.messages.match.default,
+                'options.partition.summaryId',
+                CONSTANTS.RX_MONGODB_ID
+            )
+        );
     }
 
     /**
@@ -52,14 +63,17 @@ export default class AjaxActivities extends AjaxBase {
             method === AjaxBase.METHOD.CREATE ||
             method === AjaxBase.METHOD.READ
         ) {
-            ret = assert.format(
-                'http://localhost:3001/api/v1/{0}/activities',
-                this._partition.language
+            ret = format(
+                // TODO root() + uris().rapi.v1.myActivities,
+                root() + uris().rapi.v1.activities,
+                this._partition.language,
+                this._partition.summaryId
             );
         } else {
             ret = assert.format(
-                'http://localhost:3001/api/v1/{0}/activities/{1}',
+                root() + uris().rapi.v1.activity,
                 this._partition.language,
+                this._partition.summaryId,
                 id
             );
         }
