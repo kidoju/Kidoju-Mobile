@@ -194,9 +194,12 @@ export default class AjaxBase {
                 )
             );
         }
-        assert.isOptionalObject(
+        assert.isNonEmptyPlainObjectOrUndef(
             query,
-            assert.format(assert.messages.isOptionalObject.default, 'query')
+            assert.format(
+                assert.messages.isNonEmptyPlainObjectOrUndef.default,
+                'query'
+            )
         );
         const url = this._getUrl(METHOD.GET, id);
         const q = this._extendQuery(query);
@@ -219,10 +222,12 @@ export default class AjaxBase {
      * @param query
      */
     read(query) {
-        debugger;
-        assert.isOptionalObject(
+        assert.isNonEmptyPlainObjectOrUndef(
             query,
-            assert.format(assert.messages.isOptionalObject.default, 'query')
+            assert.format(
+                assert.messages.isNonEmptyPlainObjectOrUndef.default,
+                'query'
+            )
         );
         const url = this._getUrl(METHOD.READ);
         const q = this._extendQuery(query);
