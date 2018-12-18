@@ -145,7 +145,8 @@ ATTRIB +R .\src\js\app\app.theme.es6
 
 REM Copy .\src\js\common\*
 ATTRIB -R .\src\js\common\*.es6
-COPY ..\Kidoju.Widgets\src\js\common\*.es6 .\src\js\common /Y
+COPY ..\Kidoju.Widgets\src\js\common\window.*.es6 .\src\js\common /Y
+COPY ..\Kidoju.Server\src\js\common\pongodb.*.es6 .\src\js\common /Y
 ATTRIB +R .\src\js\common\*.es6
 
 REM Copy .\src\js\cultures\*

@@ -317,9 +317,9 @@ export function normalizeFilter(filter) {
             filters: ret
         };
     }
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         ret,
-        assert.format(assert.messages.isPlainObject.default, 'filter')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'filter')
     );
     if (ret.field && ret.operator) {
         ret = {

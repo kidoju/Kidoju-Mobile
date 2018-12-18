@@ -31,9 +31,9 @@ export default class Database {
      * @param options
      */
     constructor(options) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isPlainObject.default, 'options')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
         );
         assert.type(
             CONSTANTS.STRING,
