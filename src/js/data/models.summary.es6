@@ -231,9 +231,9 @@ const Summary = BaseModel.define({
         if (that.dirty) {
             // TODO Validate
             const data = filter(that.toJSON(), fields);
-            assert.isPlainObject(
+            assert.isNonEmptyPlainObject(
                 data,
-                assert.format(assert.messages.isPlainObject.default, 'data')
+                assert.format(assert.messages.isNonEmptyPlainObject.default, 'data')
             );
             // Check that all model fields marked as serializable === false won't be sent
             assert.isUndefined(

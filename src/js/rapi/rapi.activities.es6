@@ -24,10 +24,10 @@ export default class AjaxActivities extends AjaxBase {
             collection: 'activities'
         });
         super(options);
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             this._partition,
             assert.format(
-                assert.messages.isPlainObject.default,
+                assert.messages.isNonEmptyPlainObject.default,
                 'options.partition'
             )
         );

@@ -877,8 +877,8 @@
                         method: 'app.models.RummageHierarchicalDataSource.transport.destroy',
                         data: options.data
                     });
-                    // assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
-                    assert.isPlainObject(options.data, assert.format(assert.messages.isPlainObject.default, 'options.data'));
+                    // assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                    assert.isNonEmptyPlainObject(options.data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                     assert.match(RX_MONGODB_ID, options.data.id, assert.format(assert.messages.match.default, 'options.data.id', RX_MONGODB_ID));
                     return app.rapi.v1.user.deleteMyFavourite(i18n.locale(), options.data.id)
                         .done(function () {
@@ -1740,7 +1740,7 @@
                 if (that.dirty) {  // TODO Validate
                     var data = filter(that.toJSON(), fields);
                     // serializable === false in User model field properies (see above) discards the following data
-                    assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
+                    assert.isNonEmptyPlainObject(data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'data'));
                     assert.isUndefined(data.created, assert.format(assert.messages.isUndefined.default, 'data.created'));
                     assert.isUndefined(data.facebook, assert.format(assert.messages.isUndefined.default, 'data.facebook'));
                     assert.isUndefined(data.google, assert.format(assert.messages.isUndefined.default, 'data.google'));
@@ -2137,7 +2137,7 @@
                                 $.each(response.data, function (index, summary) {
                                     // We need to flatten author and metrics in case we need to represent data in a kendo.ui.Grid
                                     // Flatten author
-                                    assert.isPlainObject(summary.author, assert.format(assert.messages.isPlainObject.default, 'summary.author'));
+                                    assert.isNonEmptyPlainObject(summary.author, assert.format(assert.messages.isNonEmptyPlainObject.default, 'summary.author'));
                                     summary.userId = summary.author.userId;
                                     summary.firstName = summary.author.firstName;
                                     summary.lastName = summary.author.lastName;
@@ -2350,7 +2350,7 @@
                 var dfd = $.Deferred();
                 if (that.dirty) { // TODO Validate
                     var data = filter(that.toJSON(), fields);
-                    assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
+                    assert.isNonEmptyPlainObject(data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'data'));
                     // Check that all model fields marked as serializable === false won't be sent
                     assert.isUndefined(data.author, assert.format(assert.messages.isUndefined.default, 'data.author'));
                     assert.isUndefined(data.created, assert.format(assert.messages.isUndefined.default, 'data.created'));
@@ -2453,8 +2453,8 @@
              */
             read: function (options) {
 
-                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, assert.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 // assert.type(STRING, options.data.summaryId, assert.format(assert.messages.type.default, 'options.data.summaryId', STRING));
                 // assert.equal(this.summaryId, options.data.summaryId, assert.format(assert.messages.equal.default, options.data.summaryId, this.summaryId ));
 
@@ -2492,8 +2492,8 @@
              */
             destroy: function (options) {
 
-                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, assert.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 // TODO: review considering partition (use this._validation)
                 assert.type(STRING, options.data.id, assert.format(assert.messages.type.default, 'options.data.id', STRING));
                 assert.type(STRING, options.data.summaryId, assert.format(assert.messages.type.default, 'options.data.summaryId', STRING));
@@ -2660,7 +2660,7 @@
                 // like we have done elsewhere
                 var _md5 = that._md5;
                 var data = that.toJSON(true); // true means with hierarchy of data sources
-                assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
+                assert.isNonEmptyPlainObject(data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'data'));
                 assert.isUndefined(data.created, assert.format(assert.messages.isUndefined.default, 'data.created'));
                 assert.isUndefined(data.id, assert.format(assert.messages.isUndefined.default, 'data.id'));
                 assert.isUndefined(data.language, assert.format(assert.messages.isUndefined.default, 'data.language'));

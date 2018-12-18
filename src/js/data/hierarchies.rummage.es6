@@ -68,8 +68,8 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
                 method: 'app.models.RummageHierarchicalDataSource.transport.destroy',
                 data: options.data
             });
-            // assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
-            assert.isPlainObject(options.data, assert.format(assert.messages.isPlainObject.default, 'options.data'));
+            // assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+            assert.isNonEmptyPlainObject(options.data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
             assert.match(RX_MONGODB_ID, options.data.id, assert.format(assert.messages.match.default, 'options.data.id', RX_MONGODB_ID));
             return app.rapi.v1.user.deleteMyFavourite(i18n.locale(), options.data.id)
             .then(function () {

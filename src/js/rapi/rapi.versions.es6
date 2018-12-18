@@ -23,10 +23,10 @@ export default class AjaxVersions extends AjaxBase {
             collection: 'versions'
         });
         super(options);
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             this._partition,
             assert.format(
-                assert.messages.isPlainObject.default,
+                assert.messages.isNonEmptyPlainObject.default,
                 'options.partition'
             )
         );

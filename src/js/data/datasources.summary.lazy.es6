@@ -48,7 +48,7 @@ models.LazySummaryDataSource = DataSource.extend({
                         $.each(response.data, function (index, summary) {
                             // We need to flatten author and metrics in case we need to represent data in a kendo.ui.Grid
                             // Flatten author
-                            assert.isPlainObject(summary.author, assert.format(assert.messages.isPlainObject.default, 'summary.author'));
+                            assert.isNonEmptyPlainObject(summary.author, assert.format(assert.messages.isNonEmptyPlainObject.default, 'summary.author'));
                             summary.userId = summary.author.userId;
                             summary.firstName = summary.author.firstName;
                             summary.lastName = summary.author.lastName;

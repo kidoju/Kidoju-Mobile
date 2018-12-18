@@ -141,7 +141,7 @@
 
             // Implement load function
             DataModel.fn.load = function (options) {
-                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
                 assert.match(RX_MONGODB_ID, options[this.idField], assert.format(assert.messages.match.default, 'options[this.idField]', RX_MONGODB_ID));
                 var that = this;
                 var dfd = $.Deferred();
@@ -231,7 +231,7 @@
              * @param options
              */
             init: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
                 assert.isFunction(options.collection, kendo.format(assert.messages.isFunction.default, 'options.collection'));
                 this._collection = options.collection; // Something like app.rapi.v2.activities
                 models.BaseTransport.fn.init.call(this, options);
@@ -260,8 +260,8 @@
              * @param options
              */
             get: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 // Fields are part of options.data, filter and sort order are not applicable
@@ -274,8 +274,8 @@
              * @param options
              */
             read: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 var partition = this.partition();
@@ -302,8 +302,8 @@
              * @param options
              */
             create: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 var data = this.parameterMap(options.data, 'create');
@@ -325,8 +325,8 @@
              * @param options
              */
             destroy: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 var data = this.parameterMap(options.data, 'destroy');
@@ -348,8 +348,8 @@
              * @param options
              */
             update: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 var data = this.parameterMap(options.data, 'update');
@@ -379,7 +379,7 @@
              * @param options
              */
             init: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
                 assert.instanceof(pongodb.Collection, options.collection, kendo.format(assert.messages.instanceof.default, 'options.collection', 'pongodb.Collection'));
                 this._collection = options.collection;
                 models.BaseTransport.fn.init.call(this, options);
@@ -390,8 +390,8 @@
              * @param options
              */
             get: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 logger.debug({
@@ -416,7 +416,7 @@
              * @param options
              */
             read: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
                 // assert.isOptionalObject(options.data, kendo.format(assert.messages.isOptionalObject.default, 'options.data')); // because of option.data === {}
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
@@ -460,8 +460,8 @@
              * @param options
              */
             create: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 logger.debug({
@@ -501,8 +501,8 @@
              * @param options
              */
             destroy: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 logger.debug({
@@ -570,8 +570,8 @@
              * @param options
              */
             update: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 assert.isFunction(options.error, kendo.format(assert.messages.isFunction.default, 'options.error'));
                 assert.isFunction(options.success, kendo.format(assert.messages.isFunction.default, 'options.success'));
                 logger.debug({
@@ -974,7 +974,7 @@
              * @private
              */
             _createSync: function (item) {
-                assert.isPlainObject(item, kendo.format(assert.messages.isPlainObject.default, 'item'));
+                assert.isNonEmptyPlainObject(item, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'item'));
                 assert.equal(STATE.CREATED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'created'));
                 var dfd = $.Deferred();
                 var collection = this._collection;
@@ -1007,7 +1007,7 @@
              * @private
              */
             _destroySync: function (item) {
-                assert.isPlainObject(item, kendo.format(assert.messages.isPlainObject.default, 'item'));
+                assert.isNonEmptyPlainObject(item, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'item'));
                 assert.equal(STATE.DESTROYED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'destroyed'));
                 var dfd = $.Deferred();
                 var collection = this._collection;
@@ -1091,7 +1091,7 @@
              * @private
              */
             _updateSync: function (item) {
-                assert.isPlainObject(item, kendo.format(assert.messages.isPlainObject.default, 'item'));
+                assert.isNonEmptyPlainObject(item, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'item'));
                 assert.equal(STATE.UPDATED, item.__state__, kendo.format(assert.messages.equal.default, 'item.__state__', 'updated'));
                 var dfd = $.Deferred();
                 var collection = this._collection;
@@ -1498,8 +1498,8 @@
              * @private
              */
             create: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 logger.debug({
                     message: 'User data creation',
                     method: 'app.models.MobileUserDataSource.transport.create'
@@ -1552,8 +1552,8 @@
              * @private
              */
             destroy: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 logger.debug({
                     message: 'User data deletion',
                     method: 'app.models.MobileUserDataSource.transport.destroy'
@@ -1619,8 +1619,8 @@
              * @private
              */
             update: function (options) {
-                assert.isPlainObject(options, kendo.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.data, kendo.format(assert.messages.isPlainObject.default, 'options.data'));
+                assert.isNonEmptyPlainObject(options, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.data, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
                 logger.debug({
                     message: 'User data update',
                     method: 'app.models.MobileUserDataSource.transport.update'
@@ -1930,7 +1930,7 @@
                                 $.each(response.data, function (index, summary) {
                                     // We need to flatten author and metrics in case we need to represent data in a kendo.ui.Grid
                                     // Flatten author
-                                    assert.isPlainObject(summary.author, kendo.format(assert.messages.isPlainObject.default, 'summary.author'));
+                                    assert.isNonEmptyPlainObject(summary.author, kendo.format(assert.messages.isNonEmptyPlainObject.default, 'summary.author'));
                                     summary.userId = summary.author.userId;
                                     summary.firstName = summary.author.firstName;
                                     summary.lastName = summary.author.lastName;

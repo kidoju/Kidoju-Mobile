@@ -60,8 +60,8 @@
                 rnd = Math.floor (100 * Math.random());
             }
             var end = Date.now();
-            // In fact app.DEBUG is not the right test: we need to detect when dev tools are opened because they slow things down
-            var k = (window.app || {}).DEBUG ? 4 : 1;
+            // In fact window.DEBUG is not the right test: we need to detect when dev tools are opened because they slow things down
+            var k = window.DEBUG ? 4 : 1;
             // A minimum of 250ms is required in browsers and 400ms in Phonegap
             var timeout = k * Math.max(kendo.support.mobileOS.cordova ? 400 : 250, 10 * (end - start));
             logger.info({
@@ -974,7 +974,7 @@
          * createTextBoxPage
          */
         Page.createTextBoxPage = function (options) {
-            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
             assert.type(STRING, options.solution, assert.format(assert.messages.type.default, options.solution, STRING));
             var solutions = options.solution.split('\n')
@@ -1029,7 +1029,7 @@
          * createQuizPage
          */
         Page.createQuizPage = function (options) {
-            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
             assert.isArray(options.data, assert.format(assert.messages.isArray.default, options.data));
             assert.type(STRING, options.solution, assert.format(assert.messages.type.default, options.solution, STRING));
@@ -1083,7 +1083,7 @@
          * createMultiQuizPage
          */
         Page.createMultiQuizPage = function (options) {
-            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.type(STRING, options.question, assert.format(assert.messages.type.default, options.question, STRING));
             assert.isArray(options.data, assert.format(assert.messages.isArray.default, options.data));
             // TODO Check that options.data has text and image
@@ -1468,7 +1468,7 @@
                                         assert.isArray(found, assert.format(assert.messages.isArray.default, 'found'));
                                         assert.hasLength(found, assert.format(assert.messages.hasLength.default, 'found'));
                                         found = found[0];
-                                        assert.isPlainObject(found, assert.format(assert.messages.isPlainObject.default, 'found'));
+                                        assert.isNonEmptyPlainObject(found, assert.format(assert.messages.isNonEmptyPlainObject.default, 'found'));
                                         assert.type(STRING, found.formula, assert.format(assert.messages.type.default, 'found.formula', STRING));
                                         // libraryMatches[3] is the param value beginning with ` ["` and ending with `"]`
                                         var paramValue = libraryMatches[3];

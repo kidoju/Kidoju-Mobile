@@ -3,12 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO review app.constants
-// TODO Add $.deparam?????
-
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
 import { localCache, sessionCache } from '../common/window.cache.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -17,7 +15,7 @@ import Logger from '../common/window.logger.es6';
 import Fingerprint2 from '../vendor/valve/fingerprint2';
 
 const logger = new Logger('rapi.util');
-const { app, navigator } = window;
+const { navigator } = window;
 const TOKEN = 'token';
 const ACCESS_TOKEN = 'access_token';
 const TOKEN_TYPE = 'token_type';
@@ -181,9 +179,9 @@ export function getFingerPrint() {
  * @returns {*}
  */
 export function getHeaders(options = { security: true, trace: true }) {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     const headers = {};
     // Authorization header
@@ -194,13 +192,13 @@ export function getHeaders(options = { security: true, trace: true }) {
         }
     }
     // X-App-Scheme header
-    // app.constants.appScheme allows an authorized redirection to authenticate mobile apps
+    // config.constants.appScheme allows an authorized redirection to authenticate mobile apps
     if (
-        app &&
-        app.constants &&
-        $.type(app.constants.appScheme) === CONSTANTS.STRING
+        config &&
+        config.constants &&
+        $.type(config.constants.appScheme) === CONSTANTS.STRING
     ) {
-        headers['X-App-Scheme'] = app.constants.appScheme;
+        headers['X-App-Scheme'] = config.constants.appScheme;
     }
     // X-Trace-ID header
     if (options.trace) {
@@ -261,9 +259,9 @@ export function setState(state) {
  * @param token
  */
 export function setToken(token) {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         token,
-        assert.format(assert.messages.isPlainObject.default, 'token')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'token')
     );
     assert.type(
         CONSTANTS.STRING,

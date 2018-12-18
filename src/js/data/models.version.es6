@@ -126,9 +126,9 @@ const Version = BaseModel.define({
         // like we have done elsewhere
         const _md5 = that._md5;
         const data = that.toJSON(true); // true means with hierarchy of data sources
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             data,
-            assert.format(assert.messages.isPlainObject.default, 'data')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'data')
         );
         assert.isUndefined(
             data.created,

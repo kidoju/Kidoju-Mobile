@@ -397,7 +397,7 @@
              * @param accessToken
              */
             setToken: function (token) {
-                assert.isPlainObject(token, assert.format(assert.messages.isPlainObject.default, 'token'));
+                assert.isNonEmptyPlainObject(token, assert.format(assert.messages.isNonEmptyPlainObject.default, 'token'));
                 assert.type(STRING, token.access_token, assert.format(assert.messages.type.default, 'token.access_token', STRING));
                 assert.type(NUMBER, token.expires, assert.format(assert.messages.type.default, 'token.expires', STRING));
                 assert.type(NUMBER, token.ts, assert.format(assert.messages.type.default, 'token.ts', STRING));
@@ -534,7 +534,7 @@
              * @returns {*}
              */
             getHeaders: function (options) {
-                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
                 var headers = {};
                 if (options.security === true) {
                     var accessToken = rapi.util.getAccessToken();
@@ -836,7 +836,7 @@
                  * @returns {*}
                  */
                 updateMe: function (user) {
-                    assert.isPlainObject(user, assert.format(assert.messages.isPlainObject.default, 'user'));
+                    assert.isNonEmptyPlainObject(user, assert.format(assert.messages.isNonEmptyPlainObject.default, 'user'));
                     // Note: considering we allow partial updates, we cannot check user properties here
                     logger.info({
                         message: '$.ajax',
@@ -879,7 +879,7 @@
                  */
                 createMyFavourite: function (language, favourite) {
                     assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
-                    assert.isPlainObject(favourite, assert.format(assert.messages.isPlainObject.default, 'favourite'));
+                    assert.isNonEmptyPlainObject(favourite, assert.format(assert.messages.isNonEmptyPlainObject.default, 'favourite'));
                     assert.type(STRING, favourite.name, assert.format(assert.messages.type.default, 'favourite.name', STRING));
                     assert.type(STRING, favourite.path, assert.format(assert.messages.type.default, 'favourite.path', STRING));
                     logger.info({
@@ -1043,7 +1043,7 @@
                  */
                 createSummary: function (language, summary) {
                     assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
-                    assert.isPlainObject(summary, assert.format(assert.messages.isPlainObject.default, 'summary'));
+                    assert.isNonEmptyPlainObject(summary, assert.format(assert.messages.isNonEmptyPlainObject.default, 'summary'));
                     // Note: we might want to check that this summary object has the required properties for a creation
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summaries, language);
                     logger.info({
@@ -1119,7 +1119,7 @@
                 updateSummary: function (language, summaryId, summary) {
                     assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
-                    assert.isPlainObject(summary, assert.format(assert.messages.isPlainObject.default, 'summary'));
+                    assert.isNonEmptyPlainObject(summary, assert.format(assert.messages.isNonEmptyPlainObject.default, 'summary'));
                     // Note: considering we allow partial updates, we cannot check summary properties here
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, language, summaryId);
                     logger.info({
@@ -1169,7 +1169,7 @@
                 executeCommand: function (language, summaryId, exec) {
                     assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
-                    assert.isPlainObject(exec, assert.format(assert.messages.isPlainObject.default, 'exec'));
+                    assert.isNonEmptyPlainObject(exec, assert.format(assert.messages.isNonEmptyPlainObject.default, 'exec'));
                     assert.enum(COMMANDS, exec.command, assert.format(assert.messages.enum.default, 'exec.command', COMMANDS));
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.versions, language, summaryId);
                     logger.info({
@@ -1274,7 +1274,7 @@
                     assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.match(RX_MONGODB_ID, versionId, assert.format(assert.messages.match.default, 'versionId', RX_MONGODB_ID));
-                    assert.isPlainObject(version, assert.format(assert.messages.isPlainObject.default, 'version'));
+                    assert.isNonEmptyPlainObject(version, assert.format(assert.messages.isNonEmptyPlainObject.default, 'version'));
                     // Note: considering we allow partial updates, we cannot check version properties here
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.version, language, summaryId, versionId);
                     logger.info({
@@ -1324,7 +1324,7 @@
                 createSummaryActivity: function (language, summaryId, activity) {
                     assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
-                    assert.isPlainObject(activity, assert.format(assert.messages.isPlainObject.default, 'activity'));
+                    assert.isNonEmptyPlainObject(activity, assert.format(assert.messages.isNonEmptyPlainObject.default, 'activity'));
                     // Note: we might want to check that this activity object has the required properties for a creation
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activities, language, summaryId);
                     logger.info({
@@ -1406,7 +1406,7 @@
                     assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
                     assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
                     assert.match(RX_MONGODB_ID, activityId, assert.format(assert.messages.match.default, 'activityId', RX_MONGODB_ID));
-                    assert.isPlainObject(activity, assert.format(assert.messages.isPlainObject.default, 'activity'));
+                    assert.isNonEmptyPlainObject(activity, assert.format(assert.messages.isNonEmptyPlainObject.default, 'activity'));
                     // Note: considering we allow partial updates, we cannot check activity properties here
                     var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, language, summaryId, activityId);
                     logger.info({
@@ -1677,7 +1677,7 @@
                      * @returns {*}
                      */
                     create: function (doc) {
-                        assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
+                        assert.isNonEmptyPlainObject(doc, assert.format(assert.messages.isNonEmptyPlainObject.default, 'doc'));
                         assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition["version.language"]', RX_LANGUAGE));
                         // assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition["version.summaryId"]', RX_MONGODB_ID));
                         var url;
@@ -1799,7 +1799,7 @@
                      */
                     update: function (id, doc) {
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
-                        assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
+                        assert.isNonEmptyPlainObject(doc, assert.format(assert.messages.isNonEmptyPlainObject.default, 'doc'));
                         assert.match(RX_LANGUAGE, partition['version.language'], assert.format(assert.messages.match.default, 'partition["version.language"]', RX_LANGUAGE));
                         assert.match(RX_MONGODB_ID, partition['version.summaryId'], assert.format(assert.messages.match.default, 'partition["version.summaryId"]', RX_MONGODB_ID));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.activity, partition['version.language'], partition['version.summaryId'], id);
@@ -1865,7 +1865,7 @@
                      * @returns {*}
                      */
                     create: function (doc) {
-                        assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
+                        assert.isNonEmptyPlainObject(doc, assert.format(assert.messages.isNonEmptyPlainObject.default, 'doc'));
                         assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summaries, partition.language);
                         logger.info({
@@ -1959,7 +1959,7 @@
                      */
                     update: function (id, doc) {
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
-                        assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
+                        assert.isNonEmptyPlainObject(doc, assert.format(assert.messages.isNonEmptyPlainObject.default, 'doc'));
                         assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.summary, partition.language, id);
                         logger.info({
@@ -2072,7 +2072,7 @@
                      */
                     update: function (id, doc) {
                         assert.match(RX_MONGODB_ID, id, assert.format(assert.messages.match.default, 'id', RX_MONGODB_ID));
-                        assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'summary'));
+                        assert.isNonEmptyPlainObject(doc, assert.format(assert.messages.isNonEmptyPlainObject.default, 'summary'));
                         assert.match(RX_LANGUAGE, partition.language, assert.format(assert.messages.match.default, 'partition.language', RX_LANGUAGE));
                         assert.match(RX_MONGODB_ID, partition.summaryId, assert.format(assert.messages.match.default, 'partition.summaryId', RX_MONGODB_ID));
                         var url = uris.rapi.root + rapi.util.format(uris.rapi.v1.version, partition.language, partition.summaryId, id);

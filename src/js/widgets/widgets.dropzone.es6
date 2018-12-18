@@ -58,9 +58,9 @@ const DropZoneEvents = Class.extend({
      * @param options
      */
     init(options) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isPlainObject.default, 'options')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
         );
         assert(
             CONSTANTS.STRING,
@@ -364,9 +364,9 @@ const DropZoneEvents = Class.extend({
             stageElement,
             assert.format(assert.messages.hasLength.default, 'stageElement')
         );
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             position,
-            assert.format(assert.messages.isPlainObject.default, 'position')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'position')
         );
         assert.type(
             CONSTANTS.NUMBER,
@@ -482,9 +482,9 @@ const DropZoneEvents = Class.extend({
  * @returns {DropZoneEvents}
  */
 DropZoneEvents.getSingleton = function(options) {
-    assert.isPlainObject(
+    assert.isNonEmptyPlainObject(
         options,
-        assert.format(assert.messages.isPlainObject.default, 'options')
+        assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     assert(
         CONSTANTS.STRING,
@@ -665,7 +665,7 @@ var DropZone = DataBoundWidget.extend({
             // One of the difficulties with this Kendo UI widget, is the fact that it needs to sit below draggables for draggables to move above it
             // This means it is instantiated before draggable elements, so we need to bind drop zones to the stage CONSTANTS.DATABOUND event
             stageWidget.bind(CONSTANTS.DATABOUND, this._dataBoundHandler);
-        } else if (window.app && window.app.DEBUG) {
+        } else if (window.DEBUG) {
             // This is essentially for running/testing without a stage widget
             setTimeout(this._dataBoundHandler, 100);
         }

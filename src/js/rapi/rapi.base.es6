@@ -131,9 +131,9 @@ export default class AjaxBase {
      * @param doc
      */
     create(doc) {
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             doc,
-            assert.format(assert.messages.isPlainObject.default, 'doc')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'doc')
         );
         const url = this._getUrl(METHOD.CREATE);
         logger.info({
@@ -219,6 +219,7 @@ export default class AjaxBase {
      * @param query
      */
     read(query) {
+        debugger;
         assert.isOptionalObject(
             query,
             assert.format(assert.messages.isOptionalObject.default, 'query')
@@ -254,9 +255,9 @@ export default class AjaxBase {
                 CONSTANTS.RX_MONGODB_ID
             )
         );
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             doc,
-            assert.format(assert.messages.isPlainObject.default, 'doc')
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'doc')
         );
         const url = this._getUrl(METHOD.UPDATE, id);
         logger.info({

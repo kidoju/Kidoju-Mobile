@@ -196,7 +196,7 @@
              */
             search: function (str, doc, textFields) {
                 assert.type(STRING, str, assert.format(assert.messages.type.default, 'str', STRING));
-                assert.isPlainObject(doc, assert.format(assert.messages.isPlainObject.default, 'doc'));
+                assert.isNonEmptyPlainObject(doc, assert.format(assert.messages.isNonEmptyPlainObject.default, 'doc'));
                 assert.isArray(textFields, assert.format(assert.messages.isArray.default, 'textFields'));
                 if (str.length < 1) {
                     return true;
@@ -382,9 +382,9 @@
          * @constructor
          */
         var Collection = pongodb.Collection = function (options) {
-            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+            assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.instanceof(Database, options.db, assert.format(assert.messages.instanceof.default, 'options.db', 'pongodb.Database'));
-            assert.type(STRING, options.name, assert.format(assert.messages.isPlainObject.default, 'options.name', STRING));
+            assert.type(STRING, options.name, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.name', STRING));
             this._db = options.db;
             this._name = options.name;
             this._localForage = localForage.createInstance({
@@ -972,8 +972,8 @@
          * @constructor
          */
         var Database = pongodb.Database = function (options) {
-            assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
-            assert.type(STRING, options.name, assert.format(assert.messages.isPlainObject.default, 'options.name', STRING));
+            assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+            assert.type(STRING, options.name, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.name', STRING));
             assert.hasLength(options.name, assert.format(assert.messages.hasLength.default, 'options.name'));
             options.collections = options.collections || [];
             assert.isArray(options.collections, assert.format(assert.messages.isArray.default, 'db', 'options.collections'));

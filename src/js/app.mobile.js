@@ -966,7 +966,7 @@ window.jQuery.holdReady(true);
              */
             reset: function () {
                 // i18n.culture must be loaded
-                assert.isPlainObject(i18n.culture, assert.format(assert.messages.isPlainObject.default, 'app.i18n.culture'));
+                assert.isNonEmptyPlainObject(i18n.culture, assert.format(assert.messages.isNonEmptyPlainObject.default, 'app.i18n.culture'));
                 var language = i18n.locale();
                 // Note: we are  assigning app._userId so that app.models.Summary.fields['userScore'].parse can find the userId
                 var userId = app._userId = this.get(VIEW_MODEL.USER.SID);
@@ -1059,7 +1059,7 @@ window.jQuery.holdReady(true);
              * @param options
              */
             loadActivities: function (options) {
-                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
                 assert.match(RX_LANGUAGE, options.language, assert.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
                 assert.match(RX_MONGODB_ID, options.userId, assert.format(assert.messages.match.default, 'options.userId', RX_MONGODB_ID));
                 var activities = this.get(VIEW_MODEL.ACTIVITIES);
@@ -1101,8 +1101,8 @@ window.jQuery.holdReady(true);
              * @param options
              */
             loadLazySummaries: function (options) {
-                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.partition, assert.format(assert.messages.isPlainObject.default, 'options.partition'));
+                assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.partition, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.partition'));
                 assert.match(RX_LANGUAGE, options.partition.language, assert.format(assert.messages.match.default, 'options.partition.language', RX_LANGUAGE));
                 return viewModel.summaries.load(options)
                     .fail(function (xhr, status, error) {
@@ -1120,7 +1120,7 @@ window.jQuery.holdReady(true);
              * @param options
              */
             loadSummary: function (options) {
-                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
                 assert.match(RX_LANGUAGE, options.language, assert.format(assert.messages.match.default, 'options.language', RX_LANGUAGE));
                 assert.match(RX_MONGODB_ID, options.id, assert.format(assert.messages.match.default, 'options.id', RX_MONGODB_ID));
                 return viewModel.summary.load(options)
@@ -1144,7 +1144,7 @@ window.jQuery.holdReady(true);
                 app.cache.removeMe();
                 app.cache.getMe()
                     .done(function (me) {
-                        assert.isPlainObject(me, assert.format(assert.messages.isPlainObject.default, 'me'));
+                        assert.isNonEmptyPlainObject(me, assert.format(assert.messages.isNonEmptyPlainObject.default, 'me'));
                         assert.match(RX_MONGODB_ID, me.id, assert.format(assert.messages.match.default, 'me.id', RX_MONGODB_ID));
                         // Search for me in the users data source
                         var user = viewModel.users.data().find(function (data) {
@@ -1260,7 +1260,7 @@ window.jQuery.holdReady(true);
                 }
 
                 // Load version and pages
-                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
                 assert.match(RX_LANGUAGE, options.language, assert.messages.match.default, 'options.language', RX_LANGUAGE);
                 assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
                 assert.match(RX_MONGODB_ID, options.id, assert.messages.match.default, 'options.id', RX_MONGODB_ID);
@@ -1289,8 +1289,8 @@ window.jQuery.holdReady(true);
              * @param options
              */
             loadLazyVersions: function (options) {
-                assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
-                assert.isPlainObject(options.partition, assert.format(assert.messages.isPlainObject.default, 'options.partition'));
+                assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+                assert.isNonEmptyPlainObject(options.partition, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.partition'));
                 assert.match(RX_LANGUAGE, options.partition.language, assert.messages.match.default, 'options.partition.language', RX_LANGUAGE);
                 assert.match(RX_MONGODB_ID, options.partition.summaryId, assert.messages.match.default, 'options.partition.summaryId', RX_MONGODB_ID);
                 return viewModel.versions.load(options)
@@ -1437,7 +1437,7 @@ window.jQuery.holdReady(true);
                 return pageCollectionDataSource.validateTestFromProperties(viewModel.get(VIEW_MODEL.CURRENT.TEST))
                     .done(function (result) {
                         // Note: result has methods including percent and getScoreArray
-                        assert.isPlainObject(result, assert.format(assert.messages.isPlainObject.default, 'result'));
+                        assert.isNonEmptyPlainObject(result, assert.format(assert.messages.isNonEmptyPlainObject.default, 'result'));
                         assert.type(FUNCTION, result.percent, assert.format(assert.messages.type.default, 'result.percent', FUNCTION));
                         assert.type(FUNCTION, result.getScoreArray, assert.format(assert.messages.type.default, 'result.getScoreArray', FUNCTION));
                         viewModel.set(VIEW_MODEL.CURRENT.TEST, result);
@@ -1500,7 +1500,7 @@ window.jQuery.holdReady(true);
          * Event handler for the viewModel change event
          */
         viewModel.bind(CHANGE, function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isOptionalObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isOptionalObject.default, 'e'));
             assert.type(STRING, e.field, assert.format(assert.messages.type.default, 'e.field', STRING));
             assert.instanceof(kendo.Observable, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.Observable'));
             switch (e.field) {
@@ -2104,7 +2104,7 @@ window.jQuery.holdReady(true);
          * Initialize the user interface now that cordova plugins and i18n resources are loaded
          */
         mobile.oni18nLoaded = function () {
-            assert.isPlainObject(i18n.culture, assert.format(assert.messages.isPlainObject.default, 'i18n.culture'));
+            assert.isNonEmptyPlainObject(i18n.culture, assert.format(assert.messages.isNonEmptyPlainObject.default, 'i18n.culture'));
             logger.debug({
                 message: 'i18n culture is loaded',
                 method: 'mobile.oni18nLoaded'
@@ -2474,7 +2474,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onRouterChange = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.type(STRING, e.url, assert.format(assert.messages.type.default, 'e.url', STRING));
             // if (mobile.application instanceof kendo.mobile.Application) {
             mobile.application.showLoading();
@@ -2496,7 +2496,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onLayoutViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // Reset view scroller
             if (e.view.scroller instanceof kendo.mobile.ui.Scroller) {
@@ -2517,7 +2517,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onDrawerListViewClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.item, assert.format(assert.messages.instanceof.default, 'e.item', 'jQuery'));
             e.preventDefault();
             var command = e.item.attr(kendo.attr('command'));
@@ -2547,7 +2547,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onGenericViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var view = e.view;
             var id = view.id === '/' ? VIEW.DEFAULT : view.id.substr(1); // Remove #
@@ -2571,12 +2571,12 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onActivitiesViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // If e.view.params is empty, so we most probably clicked the back button to the default view (/)
             // Note that this is now fixed in mobile.onRouterBack - https://github.com/kidoju/Kidoju-Mobile/issues/181
             // if (!$.isEmptyObject(e.view.params)) {
-            assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.isNonEmptyPlainObject(e.view.params, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e.view.params'));
             var language = e.view.params.language;
             assert.equal(language, i18n.locale(), assert.format(assert.messages.equal.default, 'i18n.locale()', language));
             assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
@@ -2595,7 +2595,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onActivitiesButtonGroupSelect = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.type(NUMBER, e.index, assert.format(assert.messages.type.default, 'e.index', NUMBER));
             var view = app.mobile.application.view();
             if (!e.index) { // ListView
@@ -2621,7 +2621,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onCorrectionViewInit = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var contentElement = e.view.content;
 
@@ -2650,9 +2650,9 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onCorrectionViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.isNonEmptyPlainObject(e.view.params, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e.view.params'));
 
             // Scan params
             var language = e.view.params.language;
@@ -2708,7 +2708,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onCorrectionViewHide = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
 
             // Destroy the stage (necessary to hide the floating toolbar and avoid initializing widgets simultaneously in correction and player modes)
@@ -2748,9 +2748,9 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onFinderViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.isNonEmptyPlainObject(e.view.params, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e.view.params'));
             // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
             var language = e.view.params.language;
             // Launch the query
@@ -2797,7 +2797,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onPlayerViewInit = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var contentElement = e.view.content;
 
@@ -2827,9 +2827,9 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onPlayerViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
-            assert.isPlainObject(e.view.params, assert.format(assert.messages.isPlainObject.default, 'e.view.params'));
+            assert.isNonEmptyPlainObject(e.view.params, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e.view.params'));
 
             // Scan params
             var language = e.view.params.language;
@@ -2877,7 +2877,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onPlayerViewHide = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
 
             // Destroy the stage (necessary to hide the floating toolbar and avoid initializing widgets simultaneously in correction and player modes)
@@ -2940,7 +2940,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onScoreViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // Get the activity id from params
             var activityId = e.view.params.activityId; // Note: activityId is a local id (not a sid)
@@ -2986,7 +2986,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSettingsSwitchClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             // Navigate to the user view
             mobile.application.navigate(HASH + VIEW.USER);
@@ -3044,7 +3044,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSigninViewInit = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var view = e.view;
             var scrollViewElement = view.content.find(kendo.roleSelector('scrollview'));
@@ -3054,7 +3054,7 @@ window.jQuery.holdReady(true);
                 scrollViewWidget.bind('changing', function (e) {
                     // Note: The user needs to scroll through pages for this event to be triggered
                     // Especially, it is not triggered when showing the initial page, so page 0 has default values
-                    assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+                    assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
                     assert.type(NUMBER, e.nextPage, assert.format(assert.messages.type.default, 'e.nextPage', NUMBER));
                     if (e.nextPage === SIGNIN_PAGE) {
                         mobile._setNavBarTitle(view, i18n.culture.signin.viewTitle2);
@@ -3072,7 +3072,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSigninViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
 
             // Parse token (in browser)
@@ -3274,7 +3274,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSigninButtonClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // Disable buttons to avoid double clicks
@@ -3355,7 +3355,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSummaryViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var view = e.view;
             // load the summary
@@ -3380,7 +3380,7 @@ window.jQuery.holdReady(true);
          * Event handler triggered when clicking the play option in the action sheet displayed from the GO button of summaries
          */
         mobile.onSummaryActionPlay = function () {
-            // assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            // assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             var language = i18n.locale();
             assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
             assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
@@ -3482,7 +3482,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSyncViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
 
             var language = i18n.locale();
@@ -3592,7 +3592,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onSyncViewHide = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             var message = e.view.content.find('p.message');
             var passProgressBar = e.view.content.find('#sync-pass').data('kendoProgressBar');
@@ -3611,7 +3611,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserViewInit = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             // Init pin textboxes if not already initialized
             // We have removed kendo.ui.MaskedTextBox because the experience was not great
@@ -3668,7 +3668,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserViewShow = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof(kendo.mobile.ui.View, e.view, assert.format(assert.messages.instanceof.default, 'e.view', 'kendo.mobile.ui.View'));
             mobile.onGenericViewShow(e);
             // Display a notification
@@ -3687,7 +3687,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserSaveClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // Disable buttons to avoid double clicks
@@ -3754,7 +3754,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserSignInClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // Disable buttons to avoid double clicks
@@ -3798,7 +3798,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserNewClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             mobile.application.navigate(HASH + VIEW.SIGNIN + '?page=' + encodeURIComponent(SIGNIN_PAGE));
         };
@@ -3808,7 +3808,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserChangePin = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             // Simply change a property to show the Save button considering declarative bindings based on viewModel.isSavedUser$()
             viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
@@ -3833,7 +3833,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarPreviousUserClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var viewElement = e.button.closest('.km-view');
             assert.hasLength(viewElement, assert.format(assert.messages.hasLength.default, 'viewElement'));
@@ -3848,7 +3848,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarNextUserClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var viewElement = e.button.closest('.km-view');
             assert.hasLength(viewElement, assert.format(assert.messages.hasLength.default, 'viewElement'));
@@ -3891,7 +3891,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarScoreClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var language = viewModel.get(VIEW_MODEL.CURRENT.VERSION.LANGUAGE);
             assert.match(RX_LANGUAGE, language, assert.format(assert.messages.match.default, 'language', RX_LANGUAGE));
@@ -3914,7 +3914,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarSubmitClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             mobile.dialogs.confirm(
                 i18n.culture.notifications.confirmSubmit,
@@ -3945,7 +3945,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onNavBarSummaryClick = function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
             var language = i18n.locale();
             assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
@@ -3985,7 +3985,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onPageSwipe =  function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             $(document.activeElement).blur(); // Make sure we update the viewModel with current input
             if (e.direction === 'left') {
                 viewModel.nextPage();
@@ -3999,7 +3999,7 @@ window.jQuery.holdReady(true);
          * @param e
          */
         mobile.onUserSwipe =  function (e) {
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             $(document.activeElement).blur(); // Make sure we update the viewModel with current input
             if (e.direction === 'left') {
                 viewModel.nextUser();
@@ -4015,7 +4015,7 @@ window.jQuery.holdReady(true);
          */
         mobile.onTTSClick = function (e) {
             var SPEAKING = 'speaking';
-            assert.isPlainObject(e, assert.format(assert.messages.isPlainObject.default, 'e'));
+            assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
             assert.instanceof($, e.button, assert.format(assert.messages.instanceof.default, 'e.button', 'jQuery'));
 
             // IMPORTANT: prevent bubbling considering parent element might have triggered the click

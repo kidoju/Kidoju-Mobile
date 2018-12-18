@@ -12,8 +12,8 @@ models.LazyVersionTransport = BaseTransport.extend({
      */
     read: function (options) {
 
-        assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
-        assert.isPlainObject(options.data, assert.format(assert.messages.isPlainObject.default, 'options.data'));
+        assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+        assert.isNonEmptyPlainObject(options.data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
         // assert.type(STRING, options.data.summaryId, assert.format(assert.messages.type.default, 'options.data.summaryId', STRING));
         // assert.equal(this.summaryId, options.data.summaryId, assert.format(assert.messages.equal.default, options.data.summaryId, this.summaryId ));
 
@@ -51,8 +51,8 @@ models.LazyVersionTransport = BaseTransport.extend({
      */
     destroy: function (options) {
 
-        assert.isPlainObject(options, assert.format(assert.messages.isPlainObject.default, 'options'));
-        assert.isPlainObject(options.data, assert.format(assert.messages.isPlainObject.default, 'options.data'));
+        assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
+        assert.isNonEmptyPlainObject(options.data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
         // TODO: review considering partition (use this._validation)
         assert.type(STRING, options.data.id, assert.format(assert.messages.type.default, 'options.data.id', STRING));
         assert.type(STRING, options.data.summaryId, assert.format(assert.messages.type.default, 'options.data.summaryId', STRING));

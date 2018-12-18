@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './models.base.es6';
-import uris from '../app/app.uris.es6';
+import uris from '../app/app.config.jsx';
 
 const {
     data: { ObservableArray },

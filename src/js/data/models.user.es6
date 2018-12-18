@@ -292,7 +292,7 @@ models.User = Model.define({
         if (that.dirty) {  // TODO Validate
             var data = filter(that.toJSON(), fields);
             // serializable === false in User model field properies (see above) discards the following data
-            assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
+            assert.isNonEmptyPlainObject(data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'data'));
             assert.isUndefined(data.created, assert.format(assert.messages.isUndefined.default, 'data.created'));
             assert.isUndefined(data.facebook, assert.format(assert.messages.isUndefined.default, 'data.facebook'));
             assert.isUndefined(data.google, assert.format(assert.messages.isUndefined.default, 'data.google'));

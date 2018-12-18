@@ -62,7 +62,7 @@ export default assets;
         var i18n = app.i18n;
         var rapi = app.rapi;
         var assert = window.assert;
-        var logger = new window.Logger('app.assets');
+        var logger = new window.Logger('app.assets'); // TODO remove window.
         var deepExtend = kendo.deepExtend;
         var STRING = 'string';
         var NUMBER = 'number';
@@ -75,11 +75,11 @@ export default assets;
         var RX_URL = /^https?\:\/\//;
 
         // Ensure app.assets have been loaded from app.config.jsx
-        assert.isPlainObject(app.assets, assert.format(assert.messages.isPlainObject.default, 'app.assets'));
-        assert.isPlainObject(app.assets.audio, assert.format(assert.messages.isPlainObject.default, 'app.assets.audio'));
-        assert.isPlainObject(app.assets.icon, assert.format(assert.messages.isPlainObject.default, 'app.assets.icon'));
-        assert.isPlainObject(app.assets.image, assert.format(assert.messages.isPlainObject.default, 'app.assets.image'));
-        assert.isPlainObject(app.assets.video, assert.format(assert.messages.isPlainObject.default, 'app.assets.video'));
+        assert.isNonEmptyPlainObject(app.assets, assert.format(assert.messages.isNonEmptyPlainObject.default, 'app.assets'));
+        assert.isNonEmptyPlainObject(app.assets.audio, assert.format(assert.messages.isNonEmptyPlainObject.default, 'app.assets.audio'));
+        assert.isNonEmptyPlainObject(app.assets.icon, assert.format(assert.messages.isNonEmptyPlainObject.default, 'app.assets.icon'));
+        assert.isNonEmptyPlainObject(app.assets.image, assert.format(assert.messages.isNonEmptyPlainObject.default, 'app.assets.image'));
+        assert.isNonEmptyPlainObject(app.assets.video, assert.format(assert.messages.isNonEmptyPlainObject.default, 'app.assets.video'));
 
         /**
          * Editor configurations
@@ -244,7 +244,7 @@ export default assets;
              */
             websearch: function (type, params) {
                 assert.type(STRING, 'type', assert.format(assert.messages.type.default, 'type', STRING));
-                assert.isPlainObject(params, assert.format(assert.messages.isPlainObject.default, 'params'));
+                assert.isNonEmptyPlainObject(params, assert.format(assert.messages.isNonEmptyPlainObject.default, 'params'));
                 return deepExtend({
                     name: 'Google', // unfortunately i18n.culture is not yet available
                     pageSize: params.pageSize, // Google returns a maximum of 10 items
@@ -306,7 +306,7 @@ export default assets;
                             var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
                             var data = options.data;
 
-                            assert.isPlainObject(data, assert.format(assert.messages.isPlainObject.default, 'data'));
+                            assert.isNonEmptyPlainObject(data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'data'));
                             assert.type(STRING, data.url, assert.format(assert.messages.type.default, 'data.url', STRING));
                             var matches = data.url.match(RX_DATA_URL);
                             assert.equal(4, matches.length, assert.format(assert.messages.equal.default, 'matches.length', 4));
@@ -349,7 +349,7 @@ export default assets;
 
                             // Get all project files
                             rapi.v1.content.getAllSummaryFiles(locale, params.summaryId).done(function (response) {
-                                assert.isPlainObject(response, assert.format(assert.messages.isPlainObject.default, 'response'));
+                                assert.isNonEmptyPlainObject(response, assert.format(assert.messages.isNonEmptyPlainObject.default, 'response'));
                                 assert.isArray(response.data, assert.format(assert.messages.isArray.default, 'response.data'));
                                 assert.type(NUMBER, response.total, assert.format(assert.messages.type.default, 'response.total', NUMBER));
 
@@ -415,7 +415,7 @@ export default assets;
                                             }
                                         })
                                         .done(function (response) {
-                                            assert.isPlainObject(response, assert.format(assert.messages.isPlainObject.default, 'response'));
+                                            assert.isNonEmptyPlainObject(response, assert.format(assert.messages.isNonEmptyPlainObject.default, 'response'));
                                             assert.type(STRING, response.name, assert.format(assert.messages.type.default, 'response.name', STRING));
                                             assert.type(NUMBER, response.size, assert.format(assert.messages.type.default, 'response.size', NUMBER));
                                             assert.type(STRING, response.type, assert.format(assert.messages.type.default, 'response.type', STRING));
@@ -471,7 +471,7 @@ export default assets;
 
                             window.app.rapi.v1.content.importFile(locale, params.summaryId, data.url)
                                 .done(function (response) {
-                                    assert.isPlainObject(response, assert.format(assert.messages.isPlainObject.default, 'response'));
+                                    assert.isNonEmptyPlainObject(response, assert.format(assert.messages.isNonEmptyPlainObject.default, 'response'));
                                     assert.type(STRING, response.name, assert.format(assert.messages.type.default, 'response.name', STRING));
                                     assert.type(NUMBER, response.size, assert.format(assert.messages.type.default, 'response.size', NUMBER));
                                     assert.type(STRING, response.type, assert.format(assert.messages.type.default, 'response.type', STRING));
@@ -514,7 +514,7 @@ export default assets;
          */
         function parseConfiguration(type) {
             assert.type(STRING, type, assert.format(assert.messages.type.default, 'type', STRING));
-            assert.isPlainObject(app.assets[type], assert.format(assert.messages.isPlainObject.default, 'app.assets.' + type));
+            assert.isNonEmptyPlainObject(app.assets[type], assert.format(assert.messages.isNonEmptyPlainObject.default, 'app.assets.' + type));
             var clone = JSON.parse(JSON.stringify(app.assets[type]));
             for (var i = 0, length = clone.collections.length; i < length; i++) {
                 var collection = clone.collections[i];

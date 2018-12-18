@@ -37,7 +37,7 @@ const LazyCategoryTransport = Class.extend({
             method: 'read'
             // data: options
         });
-        // TODO: Replace with Cache Strategy
+        // TODO: Replace with Local Strategy
         cache
             .getAllCategories(i18n.locale())
             .then(options.success)

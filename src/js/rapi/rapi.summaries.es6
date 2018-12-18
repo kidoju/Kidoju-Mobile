@@ -24,10 +24,10 @@ export default class AjaxSummaries extends AjaxBase {
             collection: 'summaries'
         });
         super(options);
-        assert.isPlainObject(
+        assert.isNonEmptyPlainObject(
             this._partition,
             assert.format(
-                assert.messages.isPlainObject.default,
+                assert.messages.isNonEmptyPlainObject.default,
                 'options.partition'
             )
         );

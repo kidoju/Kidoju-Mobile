@@ -5,14 +5,16 @@
 
 /* globals __VERSION__: false */
 
-/**
+/*
  * Note: This file is built with webpack using ./web_modules/jsx-loader.
  * Values are read from any of the JSON config files in ./webapp/config
  * depending on NODE_ENV: development, test or production (by default).
  */
 
-window.app = window.app || {};
-const { app } = window;
+/**
+ * application DEBUG mode
+ */
+window.DEBUG = window.DEBUG || '<%- debug %>'.toLowerCase() === 'true';
 
 /**
  * Join url bits, adding slashes where required
@@ -26,41 +28,6 @@ const url = {
             .join('/')
             .replace(/([^:])[/]{2,}/g, '$1/');
     }
-};
-
-/**
- * application DEBUG mode
- * @type {boolean}
- */
-app.DEBUG = '<%- debug %>'.toLowerCase() === 'true';
-
-/**
- * application version
- * Note: this is the only way to do it because version does not exist in configuration files loaded by ./web_modules/jsx_loader
- */
-app.version = __VERSION__;
-
-/**
- * application locales
- */
-app.locales = JSON.parse('<%- JSON.stringify(locales) %>');
-
-/**
- * Constants
- * Note: This is replaced by app.constants.js in Kidoju-Mobile
- * @type {}
- */
-app.constants = app.constants || {
-    // Makes sure Kidoju-Mobile wins
-
-    // Application scheme
-    appScheme: '<%- application.scheme %>',
-
-    // Facebook clientID
-    facebookAppId: '<%- facebook.clientID %>',
-
-    // Twitter account
-    twitterAccount: '<%- twitter.account %>'
 };
 
 /**
@@ -83,156 +50,360 @@ function convertFormat(value) {
 }
 
 /**
- * Assets for Asset Manager
- * @type {{audio: {collections, extensions, schemes, transport}, image: {collections, extensions, schemes, transport}, video: {collections, extensions, schemes, transport}}}
+ * The config object
  */
-app.assets = {
-    audio: {
-        collections: JSON.parse(
-            '<%- JSON.stringify(assets.audio.collections) %>'
-        ),
-        extensions: JSON.parse(
-            '<%- JSON.stringify(assets.audio.extensions) %>'
-        ),
-        schemes: JSON.parse('<%- JSON.stringify(assets.audio.schemes) %>')
-        // transport: JSON.parse('<%- JSON.stringify(assets.audio.transport) %>')
-    },
+const config = {};
 
-    icon: {
-        collections: JSON.parse(
-            '<%- JSON.stringify(assets.icon.collections) %>'
-        ),
-        extensions: JSON.parse('<%- JSON.stringify(assets.icon.extensions) %>'),
-        schemes: JSON.parse('<%- JSON.stringify(assets.icon.schemes) %>')
-        // transport: JSON.parse('<%- JSON.stringify(assets.icon.transport) %>')
-    },
+try {
+    // Code is packaged via WebPack
 
-    image: {
-        collections: JSON.parse(
-            '<%- JSON.stringify(assets.image.collections) %>'
-        ),
-        extensions: JSON.parse(
-            '<%- JSON.stringify(assets.image.extensions) %>'
-        ),
-        schemes: JSON.parse('<%- JSON.stringify(assets.image.schemes) %>')
-        // transport: JSON.parse('<%- JSON.stringify(assets.image.transport) %>')
-    },
+    /**
+     * Version
+     * Note: this is the only way to do it
+     * because version does not exist in configuration files loaded by ./web_modules/jsx_loader
+     */
+    config.version = __VERSION__;
 
-    video: {
-        collections: JSON.parse(
-            '<%- JSON.stringify(assets.video.collections) %>'
-        ),
-        extensions: JSON.parse(
-            '<%- JSON.stringify(assets.video.extensions) %>'
-        ),
-        schemes: JSON.parse('<%- JSON.stringify(assets.video.schemes) %>')
-        // transport: JSON.parse('<%- JSON.stringify(assets.video.transport) %>')
-    }
-};
+    /**
+     * Locales
+     */
+    config.locales = JSON.parse('<%- JSON.stringify(locales) %>');
 
-/**
- * Application URIs
- * See /wepapp/middleware/locals.js
- * ATTENTION, contrary to server-side uris client-side uris are all concatenated with root expect for rapi
- */
-app.uris = {
-    rapi: {
-        root: '<%- uris.rapi.root %>',
-        logger: url.resolve(
-            '<%- uris.rapi.root %>',
-            convertFormat('<%- uris.rapi.logger %>')
-        ),
-        web: {
-            search: url.resolve(
+    /**
+     * Constants
+     * Note: This is replaced by app.constants.js in Kidoju-Mobile
+     */
+    config.constants = {
+        // Makes sure Kidoju-Mobile wins
+
+        // Application scheme
+        appScheme: '<%- application.scheme %>',
+
+        // Facebook clientID
+        facebookAppId: '<%- facebook.clientID %>',
+
+        // Twitter account
+        twitterAccount: '<%- twitter.account %>'
+    };
+
+    /**
+     * Assets
+     */
+    config.assets = {
+        audio: {
+            collections: JSON.parse(
+                '<%- JSON.stringify(assets.audio.collections) %>'
+            ),
+            extensions: JSON.parse(
+                '<%- JSON.stringify(assets.audio.extensions) %>'
+            ),
+            schemes: JSON.parse('<%- JSON.stringify(assets.audio.schemes) %>')
+            // transport: JSON.parse('<%- JSON.stringify(assets.audio.transport) %>')
+        },
+
+        icon: {
+            collections: JSON.parse(
+                '<%- JSON.stringify(assets.icon.collections) %>'
+            ),
+            extensions: JSON.parse(
+                '<%- JSON.stringify(assets.icon.extensions) %>'
+            ),
+            schemes: JSON.parse('<%- JSON.stringify(assets.icon.schemes) %>')
+            // transport: JSON.parse('<%- JSON.stringify(assets.icon.transport) %>')
+        },
+
+        image: {
+            collections: JSON.parse(
+                '<%- JSON.stringify(assets.image.collections) %>'
+            ),
+            extensions: JSON.parse(
+                '<%- JSON.stringify(assets.image.extensions) %>'
+            ),
+            schemes: JSON.parse('<%- JSON.stringify(assets.image.schemes) %>')
+            // transport: JSON.parse('<%- JSON.stringify(assets.image.transport) %>')
+        },
+
+        video: {
+            collections: JSON.parse(
+                '<%- JSON.stringify(assets.video.collections) %>'
+            ),
+            extensions: JSON.parse(
+                '<%- JSON.stringify(assets.video.extensions) %>'
+            ),
+            schemes: JSON.parse('<%- JSON.stringify(assets.video.schemes) %>')
+            // transport: JSON.parse('<%- JSON.stringify(assets.video.transport) %>')
+        }
+    };
+
+    /**
+     * URIs - See /wepapp/middleware/locals.js
+     * ATTENTION, contrary to server-side uris,
+     * client-side uris are all concatenated with root
+     */
+    config.uris = {
+        cdn: {
+            icons: url.resolve(
+                '<%- uris.cdn.root %>',
+                convertFormat('<%- uris.cdn.icons %>')
+            )
+        },
+        help: {
+            root: '<%- uris.help.root %>'
+        },
+        mobile: {
+            icons: convertFormat('<%- uris.mobile.icons %>'),
+            pictures: convertFormat('<%- uris.mobile.pictures %>')
+        },
+        rapi: {
+            root: '<%- uris.rapi.root %>',
+            logger: url.resolve(
                 '<%- uris.rapi.root %>',
-                convertFormat('<%- uris.rapi.web.search %>')
+                convertFormat('<%- uris.rapi.logger %>')
+            ),
+            web: {
+                search: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.web.search %>')
+                )
+            }
+        },
+        webapp: {
+            editor: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.editor %>')
+            ),
+            error: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.error %>')
+            ),
+            finder: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.finder %>')
+            ),
+            home: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.home %>')
+            ),
+            locale: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.locale %>')
+            ), // redirection when changing locale
+            logger: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.logger %>')
+            ),
+            ping: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.ping %>')
+            ),
+            player: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.player %>')
+            ),
+            proxy: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.proxy %>')
+            ),
+            public: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.public %>')
+            ),
+            rss: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.rss %>')
+            ),
+            sitemap: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.sitemap %>')
+            ),
+            summary: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.summary %>')
+            ),
+            support: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.support %>')
+            ),
+            user: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.user %>')
+            ),
+            workerlib: url.resolve(
+                '<%- uris.webpack.root %>',
+                convertFormat('<%- uris.webapp.workerlib %>')
             )
         }
-    },
-    cdn: {
-        icons: url.resolve(
-            '<%- uris.cdn.root %>',
-            convertFormat('<%- uris.cdn.icons %>')
-        )
-    },
-    help: {
-        root: '<%- uris.help.root %>'
-    },
-    mobile: {
-        icons: convertFormat('<%- uris.mobile.icons %>'),
-        pictures: convertFormat('<%- uris.mobile.pictures %>')
-    },
-    webapp: {
-        editor: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.editor %>')
-        ),
-        error: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.error %>')
-        ),
-        finder: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.finder %>')
-        ),
-        home: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.home %>')
-        ),
-        locale: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.locale %>')
-        ), // redirection when changing locale
-        logger: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.logger %>')
-        ),
-        ping: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.ping %>')
-        ),
-        player: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.player %>')
-        ),
-        proxy: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.proxy %>')
-        ),
-        public: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.public %>')
-        ),
-        rss: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.rss %>')
-        ),
-        sitemap: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.sitemap %>')
-        ),
-        summary: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.summary %>')
-        ),
-        support: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.support %>')
-        ),
-        user: url.resolve(
-            '<%- uris.webapp.root %>',
-            convertFormat('<%- uris.webapp.user %>')
-        ),
-        workerlib: url.resolve(
-            '<%- uris.webpack.root %>',
-            convertFormat('<%- uris.webapp.workerlib %>')
-        )
-    }
+    };
+} catch (ex) {
+    // __VERSION__ is undefined and JSON.parse fails
+    // Code is not packaged (i.e. unit tests)
+
+    /**
+     * Version
+     */
+    config.version = false;
+
+    /**
+     * Locales
+     */
+    config.locales = config.version
+        ? JSON.parse('<%- JSON.stringify(locales) %>')
+        : ['en', 'fr'];
+
+    /**
+     * Constants
+     */
+    config.constants = {
+        // Makes sure Kidoju-Mobile wins
+
+        // Application scheme
+        appScheme: '<%- application.scheme %>',
+
+        // Facebook clientID
+        facebookAppId: '<%- facebook.clientID %>',
+
+        // Twitter account
+        twitterAccount: '<%- twitter.account %>'
+    };
+
+    /**
+     * Assets
+     */
+    config.assets = {
+        audio: {
+            collections: [],
+            extensions: [],
+            schemes: {}
+        },
+
+        icon: {
+            collections: [],
+            extensions: [],
+            schemes: {}
+        },
+
+        image: {
+            collections: [],
+            extensions: [],
+            schemes: {}
+        },
+
+        video: {
+            collections: [],
+            extensions: [],
+            schemes: {}
+        }
+    };
+
+    /**
+     * URIs
+     */
+    config.uris = {
+        cdn: {
+            icons: url.resolve(
+                '<%- uris.cdn.root %>',
+                convertFormat('<%- uris.cdn.icons %>')
+            )
+        },
+        help: {
+            root: '<%- uris.help.root %>'
+        },
+        mobile: {
+            icons: convertFormat('<%- uris.mobile.icons %>'),
+            pictures: convertFormat('<%- uris.mobile.pictures %>')
+        },
+        rapi: {
+            root: '<%- uris.rapi.root %>',
+            logger: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.logger %>')
+            ),
+            web: {
+                search: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.web.search %>')
+                )
+            }
+        },
+        webapp: {
+            editor: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.editor %>')
+            ),
+            error: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.error %>')
+            ),
+            finder: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.finder %>')
+            ),
+            home: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.home %>')
+            ),
+            locale: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.locale %>')
+            ), // redirection when changing locale
+            logger: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.logger %>')
+            ),
+            ping: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.ping %>')
+            ),
+            player: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.player %>')
+            ),
+            proxy: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.proxy %>')
+            ),
+            public: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.public %>')
+            ),
+            rss: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.rss %>')
+            ),
+            sitemap: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.sitemap %>')
+            ),
+            summary: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.summary %>')
+            ),
+            support: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.support %>')
+            ),
+            user: url.resolve(
+                '<%- uris.webapp.root %>',
+                convertFormat('<%- uris.webapp.user %>')
+            ),
+            workerlib: url.resolve(
+                '<%- uris.webpack.root %>',
+                convertFormat('<%- uris.webapp.workerlib %>')
+            )
+        }
+    };
+}
+
+/**
+ * Logger
+ * @type {{}}
+ */
+config.logger = {
+    level: parseInt('<%- level %>', 10) || 0,
+    endPoint: config.uris.rapi.logger
 };
 
 /**
- * Logger configuration
+ * Default export
  */
-app.logger = app.logger || {};
-app.logger.level = parseInt('<%- level %>', 10) || 0;
-app.logger.endPoint = app.uris.webapp.logger;
+export default config;
