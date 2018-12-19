@@ -24,7 +24,10 @@ const LazyRemoteTransport = BaseTransport.extend({
     init(options) {
         assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         assert.instanceof(
             AjaxBase,
@@ -37,6 +40,29 @@ const LazyRemoteTransport = BaseTransport.extend({
         );
         // This calls this.partition(value)
         BaseTransport.fn.init.call(this, options);
+    },
+
+    /**
+     * partition getter/setter (filter on table rows)
+     * Note: This is read from AjaxBase
+     */
+    partition(value) {
+        assert.typeOrUndef(
+            CONSTANTS.OBJECT,
+            value,
+            assert.format(
+                assert.messages.typeOrUndef.default,
+                'partition',
+                CONSTANTS.OBJECT
+            )
+        );
+        let ret;
+        if ($.type(value) === CONSTANTS.UNDEFINED) {
+            ret = this._collection.partition();
+        } else {
+            this._collection.partition(value);
+        }
+        return ret;
     },
 
     /**

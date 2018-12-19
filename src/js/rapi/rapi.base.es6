@@ -222,12 +222,9 @@ export default class AjaxBase {
      * @param query
      */
     read(query) {
-        assert.isNonEmptyPlainObjectOrUndef(
+        assert.isPlainObjectOrUndef(
             query,
-            assert.format(
-                assert.messages.isNonEmptyPlainObjectOrUndef.default,
-                'query'
-            )
+            assert.format(assert.messages.isPlainObjectOrUndef.default, 'query')
         );
         const url = this._getUrl(METHOD.READ);
         const q = this._extendQuery(query);

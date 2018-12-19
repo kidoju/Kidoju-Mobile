@@ -3,9 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
+import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
 import AjaxBase from './rapi.base.es6';
-import { root, uris } from './rapi.uris.es6';
 import { format } from './rapi.util.es6';
 
 /**
@@ -41,7 +41,7 @@ export default class AjaxLanguages extends AjaxBase {
      */
     _getUrl(method, id) {
         if (method === AjaxBase.METHOD.READ) {
-            return root() + uris().rapi.v1.languages;
+            return config.uris.rapi.v1.languages;
         }
         if (method === AjaxBase.METHOD.GET) {
             return root() + assert.format(uris().rapi.v1.language, id);

@@ -33,7 +33,10 @@ export default class Database {
     constructor(options) {
         assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         assert.type(
             CONSTANTS.STRING,

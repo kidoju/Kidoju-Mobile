@@ -3,10 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
+import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
-import { root, uris } from './rapi.uris.es6';
 import { format } from './rapi.util.es6';
 
 /**
@@ -37,7 +37,7 @@ export default class AjaxUsers extends AjaxBase {
             method === AjaxBase.METHOD.GET ||
             method === AjaxBase.METHOD.UPDATE
         ) {
-            return format(root() + uris().rapi.v1.user, id);
+            return format(config.uris.rapi.v1.user, id);
         }
         return super._getUrl(method);
     }

@@ -5,8 +5,8 @@
 
 // eslint-disable-next-line import/extensions, import/no-unresolved
 
+import config from '../app/app.config.jsx';
 import AjaxBase from './rapi.base.es6';
-import { root, uris } from './rapi.uris.es6';
 
 /**
  * AjaxCategories
@@ -41,7 +41,7 @@ export default class AjaxPing extends AjaxBase {
      */
     _getUrl(method) {
         if (method === AjaxBase.METHOD.GET) {
-            return root() + uris().rapi.ping;
+            return config.uris.rapi.ping;
         }
         return super._getUrl(method);
     }

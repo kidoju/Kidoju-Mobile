@@ -32,7 +32,10 @@ const LazyLocalTransport = BaseTransport.extend({
     init(options) {
         assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         assert.instanceof(
             Collection,

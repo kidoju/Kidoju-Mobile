@@ -67,7 +67,10 @@ export default class Collection {
     constructor(options) {
         assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         /*
         // We would need a circular reference to test an instanceof Database
@@ -375,8 +378,9 @@ export default class Collection {
         if (!doc[idField]) {
             // Insertion without an id requires that we create one
             const docWithId = {};
-            docWithId[idField] = new ObjectId().toString();
             Object.assign(docWithId, doc);
+            // Beware! doc[idField] may be null when set from Kendo UI
+            docWithId[idField] = new ObjectId().toString();
             // https://localforage.github.io/localForage/#data-api-setitem
             that._store.setItem(docWithId[idField], docWithId, (err, item) => {
                 if (err) {

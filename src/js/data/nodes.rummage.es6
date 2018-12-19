@@ -8,7 +8,7 @@
 import $ from 'jquery';
 import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
-import BaseModel from './models.base.es6';
+import BaseModel from './data.base.es6';
 
 const { } = window.kendo;
 

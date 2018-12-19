@@ -46,7 +46,13 @@ const RemoteTransport = LazyRemoteTransport.extend({
             // Execute request
             this._collection
                 .destroy(data[this.idField()])
-                .then(options.success)
+                .then(result => {
+                    if (result.nRemoved === 1) {
+                        options.success();
+                    } else {
+                        options.error('TODO');
+                    }
+                })
                 .catch(options.error);
         }
     },
@@ -66,7 +72,13 @@ const RemoteTransport = LazyRemoteTransport.extend({
             // Execute request
             this._collection
                 .update(data[this.idField()], data)
-                .then(options.success)
+                .then(result => {
+                    if (result.n === 1) {
+                        options.success();
+                    } else {
+                        options.error('TODO');
+                    }
+                })
                 .catch(options.error);
         }
     }

@@ -3,10 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
+import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
-import { root, uris } from './rapi.uris.es6';
 import { format } from './rapi.util.es6';
 
 /**
@@ -55,13 +55,13 @@ export default class AjaxSummaries extends AjaxBase {
             method === AjaxBase.METHOD.READ
         ) {
             ret = format(
-                // TODO root() + uris().rapi.v1.mySummaries,
-                root() + uris().rapi.v1.summaries,
+                // TODO config.uris.rapi.v1.mySummaries,
+                config.uris.rapi.v1.summaries,
                 this._partition.language
             );
         } else {
             ret = format(
-                root() + uris().rapi.v1.summary,
+                config.uris.rapi.v1.summary,
                 this._partition.language,
                 id
             );

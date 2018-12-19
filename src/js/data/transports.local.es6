@@ -82,8 +82,10 @@ const LocalTransport = LazyLocalTransport.extend({
         if (item[SYNC_STATE.FIELD] === SYNC_STATE.CREATED) {
             // Items with __state__ === 'created' can be safely removed because they do not exist on the remote server
             if (CONSTANTS.RX_MONGODB_ID.test(id)) {
+                const query = {};
+                query[idField] = id;
                 this._collection
-                    .remove({ id })
+                    .remove(query)
                     .then(response => {
                         if (response && response.nRemoved === 1) {
                             options.success(response);
@@ -110,8 +112,10 @@ const LocalTransport = LazyLocalTransport.extend({
             if (err) {
                 options.error(...error2xhr(err));
             } else if (CONSTANTS.RX_MONGODB_ID.test(id)) {
+                const query = {};
+                query[idField] = id;
                 this._collection
-                    .update({ id }, item)
+                    .update(query, item)
                     .then(response => {
                         if (
                             response &&
@@ -165,9 +169,11 @@ const LocalTransport = LazyLocalTransport.extend({
         if (err) {
             options.error(...error2xhr(err));
         } else if (CONSTANTS.RX_MONGODB_ID.test(id)) {
+            const query = {};
+            query[idField] = id;
             delete item[idField];
             this._collection
-                .update({ id }, item, { upsert: true })
+                .update(query, item, { upsert: true })
                 .then(response => {
                     if (
                         response &&

@@ -83,7 +83,7 @@ const BaseTransport = Class.extend({
     },
 
     /**
-     * partition getter/setter (list of table rows)
+     * partition getter/setter (filter on table rows)
      * Note: some partition fields impact the endpoint (url), other partition fields impact the query (filter)
      */
     partition(value) {

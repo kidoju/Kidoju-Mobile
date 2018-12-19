@@ -3,11 +3,10 @@
  * Sources at https://github.com/Memba
  */
 
+import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
-import { root, uris } from './rapi.uris.es6';
-import { format } from './rapi.util.es6';
 
 /**
  * AjaxCategories
@@ -58,7 +57,7 @@ export default class AjaxCategories extends AjaxBase {
     _getUrl(method) {
         if (method === AjaxBase.METHOD.READ) {
             return assert.format(
-                root() + uris().rapi.v1.categories,
+                config.uris.rapi.v1.categories,
                 this._partition.language
             );
         }

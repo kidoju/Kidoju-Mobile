@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO apply projection in get/read
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -90,15 +92,18 @@ const ArrayTransport = BaseTransport.extend({
                 `options.data['${idField}']`
             )
         );
+        let result;
         const found = this.data().some((item, index) => {
             if (item[idField] === options.data[idField]) {
+                result = item;
                 this.data().splice(index, 1);
-                options.success();
                 return true;
             }
             return false;
         });
-        if (!found) {
+        if (found) {
+            options.success(result);
+        } else {
             const error = Object.assign(new Error(CONSTANTS.NOT_FOUND_ERR), {
                 status: 404
             });
@@ -120,15 +125,17 @@ const ArrayTransport = BaseTransport.extend({
                 `options.data['${idField}']`
             )
         );
-        // TODO apply projection
+        let result;
         const found = this.data().some(item => {
             if (item[idField] === options.data[idField]) {
-                options.success(item);
+                result = item;
                 return true;
             }
             return false;
         });
-        if (!found) {
+        if (found) {
+            options.success(result);
+        } else {
             const error = Object.assign(new Error(CONSTANTS.NOT_FOUND_ERR), {
                 status: 404
             });
@@ -146,7 +153,6 @@ const ArrayTransport = BaseTransport.extend({
             this.data(),
             $.extend({ filter: {} }, options.data) // otherwise total is undefined when filter is undefined
         );
-        // TODO apply projection
         options.success(query);
     },
 
@@ -164,15 +170,18 @@ const ArrayTransport = BaseTransport.extend({
                 `options.data['${idField}']`
             )
         );
+        let result;
         const found = this.data().some((item, index) => {
             if (item[idField] === options.data[idField]) {
-                this.data()[index] = $.extend(this.data()[index], options.data);
-                options.success();
+                result = $.extend(this.data()[index], options.data);
+                this.data()[index] = result;
                 return true;
             }
             return false;
         });
-        if (!found) {
+        if (found) {
+            options.success(result);
+        } else {
             const error = Object.assign(new Error(CONSTANTS.NOT_FOUND_ERR), {
                 status: 404
             });
