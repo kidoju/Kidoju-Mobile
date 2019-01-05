@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -7,10 +7,11 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.core';
+import config from '../app/app.config.jsx';
+import i18n from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 
-const { i18n, uris } = window.app;
 const { format } = window.kendo;
 
 /**
@@ -44,16 +45,18 @@ const Me = BaseModel.define({
         // TODO User Group (sysadmin, ...)
     },
     fullName$() {
-        return `${(this.get('firstName') || '').trim()} ${(this.get('lastName') || '').trim()}`.trim();
+        return `${(this.get('firstName') || '').trim()} ${(
+            this.get('lastName') || ''
+        ).trim()}`.trim();
     },
     picture$() {
-        return this.get('picture') || format(uris.cdn.icons, 'user');
+        return this.get('picture') || format(config.uris.cdn.icons, 'user');
     },
     isAuthenticated$() {
         return CONSTANTS.RX_MONGODB_ID.test(this.get('id'));
     },
     userUri$() {
-        return format(uris.webapp.user, i18n.locale(), this.get('id'));
+        return format(config.uris.webapp.user, i18n.locale(), this.get('id'));
     },
     reset() {
         // Since we have marked fields as non editable, we cannot use 'that.set'

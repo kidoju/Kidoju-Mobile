@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
 import config from '../app/app.config.jsx';
-import assert from '../common/window.assert.es6';
+// import assert from '../common/window.assert.es6';
 import AjaxBase from './rapi.base.es6';
 import { format } from './rapi.util.es6';
 
@@ -44,7 +44,7 @@ export default class AjaxLanguages extends AjaxBase {
             return config.uris.rapi.v1.languages;
         }
         if (method === AjaxBase.METHOD.GET) {
-            return root() + assert.format(uris().rapi.v1.language, id);
+            return format(config.uris.rapi.v1.language, id);
         }
         return super._getUrl(method);
     }

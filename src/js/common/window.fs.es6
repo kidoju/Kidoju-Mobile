@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -413,7 +413,10 @@ export default class FileSystem {
         );
         assert.isNonEmptyPlainObjectOrUndef(
             headers,
-            assert.format(assert.messages.isNonEmptyPlainObjectOrUndef.default, 'headers')
+            assert.format(
+                assert.messages.isNonEmptyPlainObjectOrUndef.default,
+                'headers'
+            )
         );
 
         const dfd = $.Deferred();

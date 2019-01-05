@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -8,6 +8,7 @@
 import $ from 'jquery';
 import deparam from '../common/jquery.deparam.es6';
 import assert from '../common/window.assert.es6';
+import localCache from '../common/window.cache.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import {
@@ -24,13 +25,11 @@ const logger = new Logger('rapi.core');
 
 const TOKEN = 'token';
 const ACCESS_TOKEN = 'access_token';
-const TOKEN_TYPE = 'token_type';
+// const TOKEN_TYPE = 'token_type';
 const EXPIRES_IN = 'expires_in';
 const STATE = 'state';
 const AUTHENTICATION_SUCCESS = 'auth.success';
 const AUTHENTICATION_FAILURE = 'auth.failure';
-
-
 
 /**
  * Clean the history from token information
@@ -165,8 +164,8 @@ export function parseToken(url) {
                         // as stated in https://github.com/Memba/Kidoju-Server/issues/29
                         const token = {
                             value: qs[ACCESS_TOKEN],
-                            ttl: qs[EXPIRES_IN],                // TODO Or expires?
-                            ts: qs.ts                           // TODO where do we get it from?
+                            ttl: qs[EXPIRES_IN], // TODO Or expires?
+                            ts: qs.ts // TODO where do we get it from?
                         };
                         dfd.resolve(token);
                         logger.debug({

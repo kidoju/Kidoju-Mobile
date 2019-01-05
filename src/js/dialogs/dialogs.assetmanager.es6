@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -155,10 +155,3 @@ export default function openAssetManager(options = {}) {
 
     return dfd.promise();
 }
-
-/**
- * Global access to change i18n values with locale
- */
-window.kendo.ex = window.kendo.ex || {};
-window.kendo.ex.dialogs = window.kendo.ex.dialogs || {};
-window.kendo.ex.dialogs.openAssetManager = openAssetManager;

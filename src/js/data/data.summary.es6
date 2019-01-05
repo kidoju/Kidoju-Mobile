@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -20,7 +20,7 @@ import {
 } from './reference.metrics.es6';
 import UserReference from './reference.user.es6';
 import RemoteTransport from './transports.remote.es6';
-import extendModelWithTransport from './mixins.transport';
+import extendModelWithTransport from './mixins.transport.es6';
 
 const { format, toString } = window.kendo;
 
@@ -123,7 +123,7 @@ export const NewSummary = BaseModel.define({
     },
     language$() {
         const locale = this.get('language');
-        const languages = i18n.culture.languages;
+        const { languages } = i18n.culture;
         for (let i = 0; i < languages.length; i++) {
             if (languages[i].value === locale) {
                 return languages[i].name;
@@ -187,7 +187,7 @@ export const Summary = BaseModel.define({
             serializable: false
         },
         ageGroup: {
-            type: CONSTANTS.CONSTANTS.NUMBER,
+            type: CONSTANTS.NUMBER,
             defaultValue: 255
         },
         author: {
@@ -259,7 +259,7 @@ export const Summary = BaseModel.define({
         userScore: {
             // Used in Kidoju-Mobile only
             from: 'activities',
-            type: CONSTANTS.CONSTANTS.NUMBER,
+            type: CONSTANTS.NUMBER,
             editable: false,
             nullable: true,
             serializable: false,
@@ -486,7 +486,7 @@ export const Summary = BaseModel.define({
  */
 const summaryTransport = new RemoteTransport({
     collection: new AjaxSummaries({
-        partition: i18n.locale()
+        partition: { language: i18n.locale() }
     })
 });
 extendModelWithTransport(NewSummary, summaryTransport);

@@ -100,15 +100,15 @@ REM ./src/js/*
 ATTRIB -R .\src\js\*.js
 COPY ..\Kidoju.WebApp\src\js\app.assets.js .\src\js /Y
 ATTRIB +R .\src\js\app.assets.js
-COPY ..\Kidoju.Server\js\app.cache.js .\src\js /Y
+COPY ..\Kidoju.Server\src\js\app.cache.js .\src\js /Y
 ATTRIB +R .\src\js\app.cache.js
 COPY ..\Kidoju.Server\src\js\app.models.js .\src\js /Y
 ATTRIB +R .\src\js\app.models.js
 COPY ..\Kidoju.Server\src\js\app.models.mock.js .\src\js /Y
 ATTRIB +R .\src\js\app.models.mock.js
-COPY ..\Kidoju.WebApp\src\js\app.rapi.js .\src\js /Y
+COPY ..\Kidoju.Server\src\js\app.rapi.js .\src\js /Y
 ATTRIB +R .\src\js\app.rapi.js
-COPY ..\Kidoju.WebApp\src\js\app.rapi.mock.js .\src\js /Y
+COPY ..\Kidoju.Server\src\js\app.rapi.mock.js .\src\js /Y
 ATTRIB +R .\src\js\app.rapi.mock.js
 COPY ..\Kidoju.WebApp\src\js\app.utils.js .\src\js /Y
 ATTRIB +R .\src\js\app.utils.js
@@ -140,11 +140,12 @@ COPY ..\Kidoju.WebApp\src\js\app\app.logger.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.logger.es6
 COPY ..\Kidoju.WebApp\src\js\app\app.notification.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.notification.es6
-COPY ..\Kidoju.WebApp\src\js\app\app.theme.es6 .\src\js\app /Y
-ATTRIB +R .\src\js\app\app.theme.es6
+COPY ..\Kidoju.WebApp\src\js\app\app.themer.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.themer.es6
 
 REM Copy .\src\js\common\*
 ATTRIB -R .\src\js\common\*.es6
+COPY ..\Kidoju.Widgets\src\js\common\jquery.*.es6 .\src\js\common /Y
 COPY ..\Kidoju.Widgets\src\js\common\window.*.es6 .\src\js\common /Y
 COPY ..\Kidoju.Server\src\js\common\pongodb.*.es6 .\src\js\common /Y
 ATTRIB +R .\src\js\common\*.es6
@@ -190,7 +191,7 @@ ATTRIB +R .\src\js\vendor\highlight\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\jashkenas .\src\js\vendor\jashkenas /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\jashkenas\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\jquery .\src\js\vendor\jquery /C /E /I /R /Y
-ATTRIB +R .\src\js\vendor\jquery\*.* /S
+ATTRIB +R .\src\js\vendor\jquery\*.*
 XCOPY ..\Kidoju.Widgets\src\js\vendor\kendo .\src\js\vendor\kendo /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\kendo\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\khan .\src\js\vendor\khan /C /E /I /R /Y
@@ -264,9 +265,9 @@ REM COPY ..\Kidoju.Webapp\test\browser\* .\test\browser /Y
 REM ATTRIB +R .\test\browser\*
 
 REM Copy ./test/selenium files
-ATTRIB -R .\test\selenium\selenium.js
-COPY ..\Kidoju.Webapp\test\selenium\selenium.js .\test\selenium /Y
-ATTRIB +R .\test\selenium\selenium.js
+ATTRIB -R .\test\selenium\selenium.es6
+COPY ..\Kidoju.Webapp\test\selenium\selenium.es6 .\test\selenium /Y
+ATTRIB +R .\test\selenium\selenium.es6
 
 REM Copy Vendor files
 XCOPY ..\Kidoju.Widgets\test\vendor .\test\vendor /C /E /I /R /Y

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -7,15 +7,19 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
+import config from '../app/app.config.jsx';
+import i18n from '../app/app.i18n.es6';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 
-const { } = window.kendo;
+const { format } = window.kendo;
 
 /**
- * Search model
+ * Search
  * Note: Search is more about content than taxonomy, but saving a search adds to rummages
- * @type {kidoju.data.Model}
+ * @class Search
+ * @extends BaseModel
  */
 const Search = BaseModel.define({
     id: 'userId', // the identifier of the model, which is required for isNew() to work
@@ -35,10 +39,12 @@ const Search = BaseModel.define({
         categoryId: {
             type: CONSTANTS.STRING
         },
-        favourite: { // name of favourite when saveChecked
+        favourite: {
+            // name of favourite when saveChecked
             type: CONSTANTS.STRING
         },
-        navbar: { // text search in navbar
+        navbar: {
+            // text search in navbar
             type: CONSTANTS.STRING
         },
         saveChecked: {
@@ -49,7 +55,8 @@ const Search = BaseModel.define({
             type: CONSTANTS.STRING,
             defaultValue: 'd' // other possible values are 'r' and 'v' for dates, rates and views
         },
-        text: { // text search
+        text: {
+            // text search
             type: CONSTANTS.STRING
         }
     },
@@ -58,19 +65,23 @@ const Search = BaseModel.define({
      * Contructor
      * @param data
      */
-    init: function (data) {
-        var that = this;
-        Model.fn.init.call(that, data);
-        this.bind(CHANGE, $.proxy(that._onChange, that));
+    init(data) {
+        BaseModel.fn.init.call(this, data);
+        this.bind(CONSTANTS.CHANGE, this._onChange.bind(this));
     },
 
     /**
      * Whether there is enough data to save a favourite
      * @returns {boolean}
      */
-    isSavable$: function () {
-        return RX_MONGODB_ID.test(this.get('userId')) &&
-            (this.get('age') !== this.defaults.age || this.get('author') !== this.defaults.author || this.get('category') !== this.defaults.category || this.get('text') !== this.defaults.text);
+    isSavable$() {
+        return (
+            CONSTANTS.RX_MONGODB_ID.test(this.get('userId')) &&
+            (this.get('age') !== this.defaults.age ||
+                this.get('author') !== this.defaults.author ||
+                this.get('category') !== this.defaults.category ||
+                this.get('text') !== this.defaults.text)
+        );
     },
 
     /**
@@ -78,7 +89,7 @@ const Search = BaseModel.define({
      * @param e
      * @private
      */
-    _onChange: function (e) {
+    _onChange(e) {
         if (e.field === 'saveChecked' && !this.get('saveChecked')) {
             this.set('favourite', this.defaults.favourite);
         } else if (!this.isSavable$() && this.get('saveChecked')) {
@@ -95,96 +106,122 @@ const Search = BaseModel.define({
      * @param advanced
      * @returns {string}
      */
-    getHash: function (advanced) {
-        if (advanced) { // build hash from search panel
-            var options = {
+    getHash(advanced) {
+        if (advanced) {
+            // build hash from search panel
+            const options = {
                 filter: {
-                    logic : 'and',
+                    logic: 'and',
                     filters: []
                 },
                 sort: []
             };
 
             // Filter
-            var ageGroup = this.get('ageGroup');
-            if ($.type(ageGroup) === NUMBER && ageGroup > 0 && ageGroup < 255) {
-                options.filter.filters.push({ field: 'ageGroup', operator: 'flags', value: ageGroup });
+            const ageGroup = this.get('ageGroup');
+            if (
+                $.type(ageGroup) === CONSTANTS.NUMBER &&
+                ageGroup > 0 &&
+                ageGroup < 255
+            ) {
+                options.filter.filters.push({
+                    field: 'ageGroup',
+                    operator: 'flags',
+                    value: ageGroup
+                });
             }
-            var author = this.get('author');
-            if ($.type(author) === STRING && author.trim().length) {
-                options.filter.filters.push({ field: 'author.lastName', operator: 'startswith', value: author.trim() });
+            const author = this.get('author');
+            if ($.type(author) === CONSTANTS.STRING && author.trim().length) {
+                options.filter.filters.push({
+                    field: 'author.lastName',
+                    operator: 'startswith',
+                    value: author.trim()
+                });
             }
-            var categoryId = this.get('categoryId');
-            if (RX_MONGODB_ID.test(categoryId)) {
-                options.filter.filters.push({ field: 'categoryId', operator: 'eq', value: categoryId });
+            const categoryId = this.get('categoryId');
+            if (CONSTANTS.RX_MONGODB_ID.test(categoryId)) {
+                options.filter.filters.push({
+                    field: 'categoryId',
+                    operator: 'eq',
+                    value: categoryId
+                });
             }
-            var text = this.get('text');
-            if ($.type(text) === STRING && text.trim().length) {
-                options.filter.filters.push({ field: '$text', operator: 'eq', value: text.trim() });
+            const text = this.get('text');
+            if ($.type(text) === CONSTANTS.STRING && text.trim().length) {
+                options.filter.filters.push({
+                    field: '$text',
+                    operator: 'eq',
+                    value: text.trim()
+                });
                 // Note: the language is added server side based on the url, so do not bother here
             }
 
-            var length = options.filter.filters.length;
+            const { length } = options.filter.filters;
 
             if (length === 0) {
-                return HASHBANG; // '';
-            } else if (length === 1) {
-                options.filter = options.filter.filters[0];
+                return CONSTANTS.HASHBANG; // '';
+            }
+            if (length === 1) {
+                [options.filter] = options.filter.filters;
             }
 
             // Sort
-            var sort = this.get('sort');
+            const sort = this.get('sort');
             switch (sort) {
                 case 'd': // sort by dates
                     options.sort = [{ field: 'updated', dir: 'desc' }];
                     break;
                 case 'r': // sort by ratings
-                    options.sort = [{ field: 'metrics.ratings.average', dir: 'desc' }];
+                    options.sort = [
+                        { field: 'metrics.ratings.average', dir: 'desc' }
+                    ];
                     break;
                 case 'v': // sort by number of views
-                    options.sort = [{ field: 'metrics.views.count', dir: 'desc' }];
+                    options.sort = [
+                        { field: 'metrics.views.count', dir: 'desc' }
+                    ];
                     break;
             }
 
             // Return hash
-            return HASHBANG + $.param(options);
-
-        } else { // build hash from navbar
-
-            var navbar = this.get('navbar').trim();
-
-            // Return hash - this is a different format that can be used for sitelink search snippet
-            // https://developers.google.com/webmasters/richsnippets/sitelinkssearch
-            return HASHBANG + (navbar ? 'q=' + encodeURIComponent(navbar) : '');
-
+            return CONSTANTS.HASHBANG + $.param(options);
         }
-    },
+        // build hash from navbar
 
-    /* jshint +W074 */
+        const navbar = this.get('navbar').trim();
+
+        // Return hash - this is a different format that can be used for sitelink search snippet
+        // https://developers.google.com/webmasters/richsnippets/sitelinkssearch
+        return (
+            CONSTANTS.HASHBANG +
+            (navbar ? `q=${encodeURIComponent(navbar)}` : '')
+        );
+    },
 
     /**
      * Load search
      * @returns {*}
      */
-    load: function () {
-        var that = this;
-        return app.cache.getMe()
-        .then(function (me) {
+    load() {
+        // TODO IMPORTANT
+        /*
+        return app.cache.getMe().then(me => {
             // TODO in order to set a default age, we would need the date of birth
-            if ($.isPlainObject(me) && RX_MONGODB_ID.test(me.id)) {
+            if ($.isPlainObject(me) && CONSTANTS.RX_MONGODB_ID.test(me.id)) {
                 // Since we have marked fields as non editable, we cannot use 'that.set',
                 // This should raise a change event on the parent viewModel
-                that.accept({ userId: me.id });
+                this.accept({ userId: me.id });
             } else {
-                that.accept({ userId: null });
+                this.accept({ userId: null });
             }
         });
+        */
     },
 
     /**
      * Reset search
      */
-    reset: function () {
+    reset() {
         this.set('ageGroup', this.defaults.ageGroup);
         this.set('author', this.defaults.author);
         this.set('categoryId', this.defaults.categoryId);
@@ -199,13 +236,22 @@ const Search = BaseModel.define({
      * Save search as favourite
      * @returns {*}
      */
-    save: function () {
+    save() {
         // We need a userId to save a search as a user favourite
-        assert.match(RX_MONGODB_ID, this.userId, assert.format(assert.messages.match.default, 'this.userId', RX_MONGODB_ID));
-        var root = window.location.protocol + '//' + window.location.host;
-        var finder = format(uris.webapp.finder, i18n.locale());
-        finder = finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
-        var favourite = {
+        assert.match(
+            CONSTANTS.RX_MONGODB_ID,
+            this.userId,
+            assert.format(
+                assert.messages.match.default,
+                'this.userId',
+                CONSTANTS.RX_MONGODB_ID
+            )
+        );
+        const root = `${window.location.protocol}//${window.location.host}`;
+        let finder = format(config.uris.webapp.finder, i18n.locale());
+        finder =
+            finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
+        const favourite = {
             name: this.get('favourite').trim(),
             path: finder + this.getHash(true)
         };

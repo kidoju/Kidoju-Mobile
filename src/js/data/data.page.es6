@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -163,9 +163,7 @@ export const Page = BaseModel.define({
             */
 
             // Add parent function
-            components.parent = function() {
-                return that;
-            };
+            components.parent = () => that;
 
             // Bind the change to bubble up
             // DO NOT UNCOMMENT, otherwise change will be raised twice

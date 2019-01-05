@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2018 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -314,14 +314,14 @@ export function uuid() {
     ) {
         // Note: $.isFunction(Uint8Array) is false in Safari for Windows
         // which is good because crypto.getRandomValues(new Uint8Array(32)) returns undefined
-        const Seed = function() {
+        const Seed = function Seed() {
             let b = [];
             Array.apply([], crypto.getRandomValues(new Uint8Array(32))).forEach(
                 c => {
                     b = b.concat(c.toString(16).split(''));
                 }
             );
-            return function(i) {
+            return function seed(i) {
                 let t = '';
                 switch (i) {
                     case 8:
