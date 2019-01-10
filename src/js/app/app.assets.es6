@@ -329,7 +329,7 @@ export default assets;
                                     logger.error({
                                         message: 'file deletion error',
                                         method: 'summary.transport.destroy',
-                                        data: { status: status, error: error, reponse: xhr.responseText }
+                                        error: xhr2error(xhr, status, errorThrown)
                                     });
                                     options.error(xhr, status, error);
                                     assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
@@ -360,7 +360,7 @@ export default assets;
                                 logger.error({
                                     message: 'file list read error',
                                     method: 'summary.transport.read',
-                                    data: { status: status, error: error, reponse: xhr.responseText }
+                                    error: xhr2error(xhr, status, errorThrown)
                                 });
                                 options.error(xhr, status, error);
                                 assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
@@ -434,7 +434,7 @@ export default assets;
                                             logger.error({
                                                 message: 'file/blob upload error',
                                                 method: 'summary.transport.upload',
-                                                data: { status: status, error: error, response: xhr.responseText }
+                                                error: xhr2error(xhr, status, errorThrown)
                                             });
                                             options.error(xhr, status, error);
                                             assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
@@ -445,7 +445,7 @@ export default assets;
                                     logger.error({
                                         message: 'erro getting a signed upload url',
                                         method: 'summary.transport.create',
-                                        data: { status: status, error: error, reponse: xhr.responseText }
+                                        error: xhr2error(xhr, status, errorThrown)
                                     });
                                     options.error(xhr, status, error);
                                     assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
@@ -489,7 +489,7 @@ export default assets;
                                     logger.error({
                                         message: 'url import error',
                                         method: 'summary.transport.import',
-                                        data: { status: status, error: error, response: xhr.responseText }
+                                        error: xhr2error(xhr, status, errorThrown)
                                     });
                                     options.error(xhr, status, error);
                                     assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));

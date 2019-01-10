@@ -160,6 +160,24 @@ try {
                 '<%- uris.rapi.root %>',
                 convertFormat('<%- uris.rapi.logger %>')
             ),
+            oauth: {
+                refresh: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.oauth.refresh %>')
+                ),
+                revoke: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.oauth.revoke %>')
+                ),
+                signIn: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.oauth.signIn %>')
+                ),
+                signOut: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.oauth.signOut %>')
+                )
+            },
             web: {
                 search: url.resolve(
                     '<%- uris.rapi.root %>',

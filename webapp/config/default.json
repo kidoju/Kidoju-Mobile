@@ -270,6 +270,12 @@
         },
         "rapi": {
             "logger": "/api/logger",
+            "oauth": {
+                "refresh": "/api/auth/refresh",
+                "revoke": "/api/auth/revoke",
+                "signIn": "/api/auth/%s/signin",
+                "signOut": "/api/auth/signout"
+            },
             "v1": {
                 "categories": "/api/v1/languages/%s/categories",
                 "activities": "/api/v1/%s/summaries/%s/activities",
