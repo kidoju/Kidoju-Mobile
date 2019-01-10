@@ -312,8 +312,8 @@
                         });
                         dfd.resolve(hash.root);
                     })
-                    .fail(function (xhr, status, error) {
-                        dfd.reject(xhr, status, error);
+                    .fail(function (xhr, status, errorThrown) {
+                        dfd.reject(xhr, status, errorThrown);
                     });
                 return dfd.promise();
             },
@@ -1235,8 +1235,8 @@
                     }
                     dfd.resolve();
                 })
-                .fail(function (xhr, status, error) {
-                    dfd.reject(xhr, status, error);
+                .fail(function (xhr, status, errorThrown) {
+                    dfd.reject(xhr, status, errorThrown);
                 });
             return dfd.promise();
         };

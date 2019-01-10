@@ -375,7 +375,7 @@ export const Summary = BaseModel.define({
                 400,
                 'Neither data nor data.id is a MongoDB ObjectId'
             );
-            // dfd.reject(xhr, status, error);
+            // dfd.reject(xhr, status, errorThrown);
             dfd.reject(xhr, ERROR, xhr.statusText);
         }
         return dfd.promise();
@@ -447,7 +447,7 @@ export const Summary = BaseModel.define({
                     dfd.resolve(data);
                 })
                 .catch((xhr, status, error) => {
-                    dfd.reject(xhr, status, error);
+                    dfd.reject(xhr, status, errorThrown);
                 });
         } else {
             setTimeout(() => {

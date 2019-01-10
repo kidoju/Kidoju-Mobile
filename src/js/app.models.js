@@ -430,8 +430,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 }
             }
@@ -473,8 +473,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 }
             }
@@ -863,8 +863,8 @@
                             ];
                             options.success(rummages);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 },
                 _update: function (options) {
@@ -1723,7 +1723,7 @@
                         .fail(dfd.reject);
                 } else {
                     var xhr = new ErrorXHR(400, 'Neither data nor data.id is a MongoDB ObjectId');
-                    // dfd.reject(xhr, status, error);
+                    // dfd.reject(xhr, status, errorThrown);
                     dfd.reject(xhr, ERROR, xhr.statusText);
                 }
                 return dfd.promise();
@@ -1754,8 +1754,8 @@
                             that.accept(data); // this updates dirty and updated
                             dfd.resolve(data);
                         })
-                        .fail(function (xhr, status, error) {
-                            dfd.reject(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            dfd.reject(xhr, status, errorThrown);
                         });
                 } else {
                     setTimeout(function () {
@@ -2046,8 +2046,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
 
                 } else {
@@ -2063,8 +2063,8 @@
                                     .done(function (response) {
                                         options.success(response);
                                     })
-                                    .fail(function (xhr, status, error) {
-                                        options.error(xhr, status, error);
+                                    .fail(function (xhr, status, errorThrown) {
+                                        options.error(xhr, status, errorThrown);
                                     });
 
                             } else {
@@ -2091,14 +2091,14 @@
                                     .done(function (response) {
                                         options.success(response);
                                     })
-                                    .fail(function (xhr, status, error) {
-                                        options.error(xhr, status, error);
+                                    .fail(function (xhr, status, errorThrown) {
+                                        options.error(xhr, status, errorThrown);
                                     });
                             }
 
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 }
             }
@@ -2340,7 +2340,7 @@
                     }
                 } else {
                     var xhr = new ErrorXHR(400, 'Neither data nor data.id is a MongoDB ObjectId');
-                    // dfd.reject(xhr, status, error);
+                    // dfd.reject(xhr, status, errorThrown);
                     dfd.reject(xhr, ERROR, xhr.statusText);
                 }
                 return dfd.promise();
@@ -2367,8 +2367,8 @@
                             that.accept(data); // this updates dirty and updated
                             dfd.resolve(data);
                         })
-                        .fail(function (xhr, status, error) {
-                            dfd.reject(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            dfd.reject(xhr, status, errorThrown);
                         });
                 } else {
                     setTimeout(function () {
@@ -2480,8 +2480,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, error, status) {
-                            options.error(xhr, error, status);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 }
             },
@@ -2512,8 +2512,8 @@
                     .done(function (response) {
                         options.success(response);
                     })
-                    .fail(function (xhr, error, status) {
-                        options.error(xhr, error, status);
+                    .fail(function (xhr, status, errorThrown) {
+                        options.error(xhr, status, errorThrown);
                     });
             }
 
@@ -2859,8 +2859,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
 
                 } else { // Without a summaryId, we need an authenticated user to fetch user activities
@@ -2873,8 +2873,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 }
             }
@@ -3147,8 +3147,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 },
                 _destroy: function (options) {
@@ -3161,8 +3161,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 },
                 _read: function (options) {
@@ -3180,8 +3180,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 },
                 _update: function (options) {
@@ -3194,8 +3194,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 }
             }
@@ -3327,8 +3327,8 @@
                         .done(function (response) {
                             options.success(response);
                         })
-                        .fail(function (xhr, status, error) {
-                            options.error(xhr, status, error);
+                        .fail(function (xhr, status, errorThrown) {
+                            options.error(xhr, status, errorThrown);
                         });
                 }
             }

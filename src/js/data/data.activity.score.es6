@@ -160,8 +160,8 @@ models.ScoreDataSource = DataSource.extend({
             .then(function (response) {
                 options.success(response);
             })
-            .catch(function (xhr, status, error) {
-                options.error(xhr, status, error);
+            .catch(function (xhr, status, errorThrown) {
+                options.error(xhr, status, errorThrown);
             });
         }
     }

@@ -11,6 +11,7 @@ import $ from 'jquery';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
+import Me from './data.me.es6';
 
 /**
  * Extend model with transport
@@ -39,38 +40,56 @@ export default function extendModelWithTransport(DataModel, transport) {
      * @returns {*|jQuery}
      */
     DataModel.fn.load = function load(options) {
-        assert.isNonEmptyPlainObject(
-            options,
-            assert.format(
-                assert.messages.isNonEmptyPlainObject.default,
-                'options'
-            )
-        );
-        assert.match(
-            CONSTANTS.RX_MONGODB_ID,
-            options[this.idField],
-            assert.format(
-                assert.messages.match.default,
-                'options[this.idField]',
-                CONSTANTS.RX_MONGODB_ID
-            )
-        );
-        const that = this;
+        // bare designates an endpoint to load an object without designating an id
+        const bare = this instanceof Me;
+        if (bare) {
+            assert.isUndefined(
+                options,
+                assert.format(assert.messages.isUndefined.default, 'options')
+            );
+        } else {
+            assert.isNonEmptyPlainObject(
+                options,
+                assert.format(
+                    assert.messages.isNonEmptyPlainObject.default,
+                    'options'
+                )
+            );
+            assert.match(
+                CONSTANTS.RX_MONGODB_ID,
+                options[this.idField],
+                assert.format(
+                    assert.messages.match.default,
+                    'options[this.idField]',
+                    CONSTANTS.RX_MONGODB_ID
+                )
+            );
+        }
+        const accept = this.accept.bind(this);
         const dfd = $.Deferred();
-        if (!that.dirty && that.get(that.idField) === options[that.idField]) {
+        const { dirty, idField } = this;
+        if (
+            !this.isNew() &&
+            !dirty &&
+            (bare || this.get(idField) === options[idField])
+        ) {
             // Already loaded and not modified
-            dfd.resolve(that.toJSON());
+            dfd.resolve(this.toJSON());
         } else {
             const data = {};
-            data[that.idField] = options[that.idField];
-            // delete options[that.idField];
-            that.transport.partition(options);
-            that.transport.get({
-                data: that.transport.parameterMap(data, 'get'),
+            if (!bare) {
+                data[idField] = options[idField];
+            }
+            // delete options[idField];
+            this.transport.partition(options || {});
+            this.transport.get({
+                // TODO parameterMap is called when calling this.transport.get
+                // Check remote transport, not array transport
+                data: this.transport.parameterMap(data, 'get'),
                 error: dfd.reject,
                 success(response) {
                     // Not found is sent to error/dfd.reject with status 404
-                    that.accept(response);
+                    accept(response);
                     dfd.resolve(response);
                 }
             });
@@ -98,39 +117,42 @@ export default function extendModelWithTransport(DataModel, transport) {
      * @returns {*|jQuery}
      */
     DataModel.fn.save = function save() {
-        const that = this;
+        const accept = this.accept.bind(this);
         const dfd = $.Deferred();
-        if (that.isNew()) {
-            // that.transport.partition() must have been called when loading
-            that.transport.create({
-                data: that.transport.parameterMap(that.toJSON(), 'create'),
+        const { dirty, dirtyFields, idField } = this;
+        if (this.isNew()) {
+            // this.transport.partition() must have been called when loading
+            // TODO parameterMap is called when calling this.transport.create
+            this.transport.create({
+                data: this.transport.parameterMap(this.toJSON(), 'create'),
                 error: dfd.reject,
                 success(response) {
-                    that.accept(response);
+                    accept(response);
                     dfd.resolve(response);
                 }
             });
-        } else if (that.dirty) {
-            const json = that.transport.parameterMap(that.toJSON(), 'update');
+        } else if (dirty) {
+            // TODO parameterMap is called when calling this.transport.update
+            const json = this.transport.parameterMap(this.toJSON(), 'update');
             const data = {};
             // Only send dirty fields with id for update
-            data[that.idField] = json[that.idField];
-            Object.keys(that.dirtyFields).forEach(key => {
-                if (that.dirtyFields[key]) {
+            data[idField] = json[idField];
+            Object.keys(dirtyFields).forEach(key => {
+                if (dirtyFields[key]) {
                     data[key] = json[key];
                 }
             });
-            that.transport.update({
+            this.transport.update({
                 data,
                 error: dfd.reject,
                 success(response) {
                     // Not found is sent to error/dfd.reject with status 404
-                    that.accept(response);
+                    accept(response);
                     dfd.resolve(response);
                 }
             });
         } else {
-            dfd.resolve(that.toJSON());
+            dfd.resolve(this.toJSON());
         }
         return dfd.promise();
     };

@@ -158,7 +158,7 @@ export const CommentDataSource = DataSource.extend({
                     options.success(response);
                 })
                 .catch((xhr, status, error) => {
-                    options.error(xhr, status, error);
+                    options.error(xhr, status, errorThrown);
                 });
         },
         _destroy(options) {
@@ -173,7 +173,7 @@ export const CommentDataSource = DataSource.extend({
                     options.success(response);
                 })
                 .catch((xhr, status, error) => {
-                    options.error(xhr, status, error);
+                    options.error(xhr, status, errorThrown);
                 });
         },
         _read(options) {
@@ -205,7 +205,7 @@ export const CommentDataSource = DataSource.extend({
                     options.success(response);
                 })
                 .catch((xhr, status, error) => {
-                    options.error(xhr, status, error);
+                    options.error(xhr, status, errorThrown);
                 });
         },
         _update(options) {
@@ -220,7 +220,7 @@ export const CommentDataSource = DataSource.extend({
                     options.success(response);
                 })
                 .catch((xhr, status, error) => {
-                    options.error(xhr, status, error);
+                    options.error(xhr, status, errorThrown);
                 });
         }
     }

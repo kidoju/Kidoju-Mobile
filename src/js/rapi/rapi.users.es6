@@ -33,11 +33,12 @@ export default class AjaxUsers extends AjaxBase {
      * @private
      */
     _getUrl(method, id) {
-        if (
-            method === AjaxBase.METHOD.GET ||
-            method === AjaxBase.METHOD.UPDATE
-        ) {
+        console.log('------------------> AjaxUsers._getUrl');
+        debugger;
+        if (method === AjaxBase.METHOD.GET) {
             return format(config.uris.rapi.v1.user, id);
+        } else if (id === 'me') {
+            return config.uris.rapi.v1.me;
         }
         return super._getUrl(method);
     }

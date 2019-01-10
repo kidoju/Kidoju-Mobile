@@ -246,7 +246,7 @@
                         cache._setSessionItem(ME, response);
                         dfd.resolve(response);
                     })
-                    .fail(function (xhr, status, error) {
+                    .fail(function (xhr, status, errorThrown) {
                         if (xhr.status === 401) { // Unauthorised = not authenticated
                             var response =  { id: NULL };
                             cache.removeMyFavourites();
@@ -254,7 +254,7 @@
                             cache._setSessionItem(ME, response);
                             dfd.resolve(response);
                         } else { // any other error
-                            dfd.reject(xhr, status, error); // be consistent with $.ajax in case of error
+                            dfd.reject(xhr, status, errorThrown); // be consistent with $.ajax in case of error
                         }
                     });
             }
@@ -327,13 +327,13 @@
                         cache._setLocalItem(CATEGORIES + locale, cache._processCategories(response.data)); // response = { total: ..., data: [...] }
                         dfd.resolve(response);
                     })
-                    .fail(function (xhr, status, error) {
+                    .fail(function (xhr, status, errorThrown) {
                         // Ensure that without network connection expired cache is nevertheless used
                         var categories = cache._getLocalItem(CATEGORIES + locale, true);
                         if ($.isArray(categories)) {
                             dfd.resolve({ total: categories.length, data: categories });
                         } else {
-                            dfd.reject(xhr, status, error);
+                            dfd.reject(xhr, status, errorThrown);
                         }
                     });
             }
@@ -425,11 +425,11 @@
                     });
                     dfd.resolve(favourites);
                 })
-                .fail(function (xhr, status, error) {
+                .fail(function (xhr, status, errorThrown) {
                     if (xhr && xhr.status === 401) {
                         dfd.resolve([]);
                     } else {
-                        dfd.reject(xhr, status, error);
+                        dfd.reject(xhr, status, errorThrown);
                     }
                 });
             return dfd.promise();

@@ -54,8 +54,8 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
                 ];
                 options.success(rummages);
             })
-            .catch(function (xhr, status, error) {
-                options.error(xhr, status, error);
+            .catch(function (xhr, status, errorThrown) {
+                options.error(xhr, status, errorThrown);
             });
         },
         _update: function (options) {

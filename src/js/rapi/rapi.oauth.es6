@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// Note: rapi.oauth.es6 has $.ajax methods corresponding to the json API endpoints of Kidoju.Server
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -27,6 +29,7 @@ const PROVIDERS = ['facebook', 'google', 'live', 'twitter'];
 
 /**
  * Returns the authentication provider URL to call for signing in
+ * @method getSignInUrl
  * @param provider
  * @param returnUrl
  * @returns {*}
@@ -48,7 +51,7 @@ export function getSignInUrl(provider, returnUrl) {
     );
     logger.info({
         message: '$.ajax',
-        method: 'auth.getSignInUrl',
+        method: 'getSignInUrl',
         data: { provider, returnUrl }
     });
     const ajax = $.Deferred();
@@ -64,45 +67,49 @@ export function getSignInUrl(provider, returnUrl) {
                 '<iframe id="live-logout" src="https://login.live.com/oauth20_logout.srf" style="position: absolute; left: -1000px; visibility: hidden;"></iframe>'
             ).appendTo('body');
         }
+        // Note: we need to duplicate the jQuery selector since we might have just added the iframe
         $('#live-logout').on('load', () => {
             logout.resolve();
         });
     } else {
         logout.resolve();
     }
-    logout.promise().always(() => {
-        const state = `${getFingerPrint()}-${uuid()}`;
-        setState(state);
-        $.ajax({
-            cache: false,
-            data: {
-                returnUrl: cleanUrl(returnUrl),
-                state
-            },
-            headers: getHeaders({ trace: true }),
-            type: AjaxBase.HTTP.GET,
-            url: format(uris.rapi.root + uris.rapi.oauth.signIn, provider)
+    $.when(getFingerPrint(), logout.promise())
+        .then(fp => {
+            const state = `${fp}-${uuid()}`;
+            setState(state);
+            $.ajax({
+                cache: false,
+                data: {
+                    returnUrl: cleanUrl(returnUrl),
+                    state
+                },
+                headers: getHeaders({ trace: true }),
+                type: AjaxBase.HTTP.GET,
+                url: format(config.uris.rapi.oauth.signIn, provider)
+            })
+                .then(ajax.resolve)
+                .catch(ajax.reject);
         })
-            .done(ajax.resolve)
-            .fail(ajax.reject);
-    });
+        .catch(ajax.reject);
     return ajax;
 }
 
 /**
  * Sign out
+ * @method signOut
  * @returns {*}
  */
 export function signOut() {
     logger.info({
         message: '$.ajax',
-        method: 'auth.signout'
+        method: 'signOut'
     });
     return $.ajax({
         contentType: CONSTANTS.FORM_CONTENT_TYPE,
         headers: getHeaders({ security: true, trace: true }),
         type: AjaxBase.HTTP.POST,
-        url: root() + uris.rapi.oauth.signOut
+        url: config.uris.rapi.oauth.signOut
     }).always(() => {
         clearToken();
     });
@@ -110,6 +117,7 @@ export function signOut() {
 
 /**
  * Refresh token
+ * @method.refresh
  * @returns {*}
  */
 export function refresh() {
@@ -121,13 +129,12 @@ export function refresh() {
         cache: false,
         headers: getHeaders({ security: true, trace: true }),
         type: AjaxBase.HTTP.GET,
-        url: uris.rapi.root + uris.rapi.oauth.refresh
+        url: config.uris.rapi.oauth.refresh
     })
-        .done(token => {
-            debugger;
+        .then(token => {
             setToken(token);
         })
-        .fail(() => {
+        .catch(() => {
             clearToken();
         });
 }
@@ -145,7 +152,7 @@ export function revoke() {
         contentType: CONSTANTS.FORM_CONTENT_TYPE,
         headers: getHeaders({ security: true, trace: true }),
         type: AjaxBase.HTTP.POST,
-        url: uris.rapi.root + uris.rapi.oauth.revoke
+        url: config.uris.rapi.oauth.revoke
     }).always(() => {
         clearToken();
     });

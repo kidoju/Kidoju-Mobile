@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// eslint-disable-next-line import/extensions, import/no-unresolved
-
 import config from '../app/app.config.jsx';
 import AjaxBase from './rapi.base.es6';
 

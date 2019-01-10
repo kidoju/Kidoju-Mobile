@@ -183,7 +183,8 @@ export default class AjaxBase {
      * @param query
      */
     get(id, query) {
-        if (['languages', 'ping'].indexOf(this._collection) === -1) {
+        if ($.type(id) !== CONSTANTS.UNDEFINED) {
+            // ping or me designate no id
             assert.match(
                 CONSTANTS.RX_MONGODB_ID,
                 id,

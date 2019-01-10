@@ -10,7 +10,11 @@ import 'kendo.core';
 import config from '../app/app.config.jsx';
 import i18n from '../app/app.i18n.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import AjaxUsers from '../rapi/rapi.users.es6';
 import BaseModel from './data.base.es6';
+import extendModelWithTransport from './mixins.transport.es6';
+import CacheItemStrategy from './strategy.cache.item.es6';
+import LazyRemoteTransport from './transports.remote.lazy.es6';
 
 const { format } = window.kendo;
 
@@ -36,6 +40,11 @@ const Me = BaseModel.define({
             editable: false
         },
         picture: {
+            type: CONSTANTS.STRING,
+            editable: false,
+            nullable: true
+        },
+        provider: {
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true
@@ -88,6 +97,29 @@ const Me = BaseModel.define({
     }
     */
 });
+
+/**
+ * Me transport
+ */
+const meTransport = new CacheItemStrategy({
+    cache: 'session',
+    key: 'me',
+    singleton: true,
+    transport: new LazyRemoteTransport({
+        collection: new AjaxUsers({
+            partition: {
+                id: 'me'
+            }
+            // TODO Add field projection
+        })
+    })
+    // ttl: 24 * 60 * 60
+});
+
+/**
+ * Extend model with transport
+ */
+extendModelWithTransport(Me, meTransport);
 
 /**
  * Default export

@@ -3,13 +3,22 @@
  * Sources at https://github.com/Memba
  */
 
-import 'kendo.core';
+// Items seem to magically persist althouth transports are created with each test
+// transports.array.es6 loads a map of collections in memory and each transport accesses this same map
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.data';
 import assert from '../common/window.assert.es6';
-import { localCache } from '../common/window.cache.es6';
+import { localCache, sessionCache } from '../common/window.cache.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseTransport from './transports.base.es6';
 
-const { Class } = window.kendo;
+const {
+    Class,
+    data: { Query }
+} = window.kendo;
 
 /**
  * CacheCollectionStrategy
@@ -52,7 +61,25 @@ const CacheCollectionStrategy = Class.extend({
         // Class.fn.init.call(this, options);
         this._key = options.key;
         this._transport = options.transport;
-        this._ttl = options.ttl; // Optional
+        // Optional
+        this._cache = options.cache === 'session' ? sessionCache : localCache;
+        this._ttl = options.ttl;
+    },
+
+    /**
+     * key
+     * @returns {*}
+     */
+    key() {
+        return this._key;
+    },
+
+    /**
+     * transport
+     * @returns {*}
+     */
+    transport() {
+        return this._transport;
     },
 
     /**
@@ -61,20 +88,20 @@ const CacheCollectionStrategy = Class.extend({
      */
     read(options) {
         assert.crud(options);
-        assert.isEmptyObject(
-            options.data,
-            assert.format(assert.messages.isEmptyObject.default, 'options.data')
-        );
-        const key = this._key;
-        const ttl = this._ttl;
-        const data = localCache.getItem(key);
-        if (Array.isArray(data)) {
-            options.success({ data, total: data.length });
+        const { _cache, _key, _ttl } = this;
+        const data = this._cache.getItem(_key);
+        if (Array.isArray(data) && data.length) {
+            const query = Query.process(
+                data,
+                // total is undefined when filter is undefined
+                $.extend({ filter: {} }, options.data)
+            );
+            options.success(query);
         } else {
             this._transport.read({
                 data: options.data,
                 success(...args) {
-                    localCache.setItem(key, args[0].data, ttl);
+                    _cache.setItem(_key, args[0].data, _ttl);
                     options.success(...args);
                 },
                 error: options.error

@@ -19,7 +19,7 @@ const {
     data: { Query }
 } = window.kendo;
 
-// The in-memory database
+// The in-memory database with one entry per collection
 const db = new Map();
 
 /**
