@@ -113,7 +113,7 @@ window.jQuery.holdReady(true);
         './app/app.constants.es6',
         './app/app.logger.es6',
         './app/app.i18n.es6',
-        './app/app.theme.es6',
+        './app/app.themer.es6',
         './app.utils',
         './app/app.assets.es6',
         './app.models',
