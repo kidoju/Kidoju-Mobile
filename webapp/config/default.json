@@ -277,12 +277,17 @@
                 "signOut": "/api/auth/signout"
             },
             "v1": {
-                "categories": "/api/v1/languages/%s/categories",
                 "activities": "/api/v1/%s/summaries/%s/activities",
+                "categories": "/api/v1/languages/%s/categories",
+                "draft": "/api/v1/%s/summaries/draft",
                 "files": "/api/v1/%s/summaries/%s/files",
-                "summary": "/api/v1/%s/summaries/%s",
+                "me": "/api/v1/users/me",
+                "mySummaries": "/api/v1/users/me/%s/summaries",
                 "summaries": "/api/v1/%s/summaries",
-                "user": "/api/v1/users/%s"
+                "summary": "/api/v1/%s/summaries/%s",
+                "user": "/api/v1/users/%s",
+                "versions": "/api/v1/%s/summaries/%s/versions",
+                "version": "/api/v1/%s/summaries/%s/versions/%s"
             },
             "web": {
                 "search": "/api/web/search/%s"
