@@ -9,15 +9,12 @@ import $ from 'jquery';
 import 'kendo.core';
 import config from '../app/app.config.jsx';
 import i18n from '../app/app.i18n.es6';
-import assert from '../common/window.assert.es6';
+import { getLanguageReference } from '../app/app.partitions.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxSummaries from '../rapi/rapi.summaries.es6';
 import BaseModel from './data.base.es6';
-import {
-    CountReference,
-    RatingCountReference,
-    ScoreCountReference
-} from './reference.metrics.es6';
+import { SummaryMetricsReference } from './reference.metrics.es6';
 import UserReference from './reference.user.es6';
 import RemoteTransport from './transports.remote.es6';
 import extendModelWithTransport from './mixins.transport.es6';
@@ -25,61 +22,11 @@ import extendModelWithTransport from './mixins.transport.es6';
 const { format, toString } = window.kendo;
 
 /**
- * SummaryMetricsReference
- * @class SummaryMetricsReference
- * @extends BaseModel
- */
-const SummaryMetricsReference = BaseModel.define({
-    fields: {
-        comments: {
-            defaultValue: {},
-            editable: false,
-            parse(value) {
-                return value instanceof CountReference
-                    ? value
-                    : new CountReference(value);
-            },
-            serializable: false
-        },
-        ratings: {
-            defaultValue: {},
-            editable: false,
-            parse(value) {
-                return value instanceof RatingCountReference
-                    ? value
-                    : new RatingCountReference(value);
-            },
-            serializable: false
-        },
-        scores: {
-            defaultValue: {},
-            editable: false,
-            parse(value) {
-                return value instanceof ScoreCountReference
-                    ? value
-                    : new ScoreCountReference(value);
-            },
-            serializable: false
-        },
-        views: {
-            defaultValue: {},
-            editable: false,
-            parse(value) {
-                return value instanceof CountReference
-                    ? value
-                    : new CountReference(value);
-            },
-            serializable: false
-        }
-    }
-});
-
-/**
  * NewSummary
  * @class NewSummary
  * @extends BaseModel
  */
-export const NewSummary = BaseModel.define({
+const NewSummary = BaseModel.define({
     id: CONSTANTS.ID, // the identifier of the model, which is required for isNew() to work
     fields: {
         id: {
@@ -177,7 +124,7 @@ export const NewSummary = BaseModel.define({
  * @class Summary
  * @extends BaseModel
  */
-export const Summary = BaseModel.define({
+const Summary = BaseModel.define({
     id: CONSTANTS.ID, // the identifier of the model, which is required for isNew() to work
     fields: {
         id: {
@@ -194,7 +141,7 @@ export const Summary = BaseModel.define({
             // For complex types, the recommendation is to leave the type undefined and set a default value
             // See: http://www.telerik.com/forums/model---complex-model-with-nested-objects-or-list-of-objects
             // See: http://demos.telerik.com/kendo-ui/grid/editing-custom
-            defaultValue: null,
+            defaultValue: {},
             editable: false,
             serializable: false,
             parse(value) {
@@ -283,6 +230,11 @@ export const Summary = BaseModel.define({
             }
         }
     },
+    init(data) {
+        const that = this;
+        BaseModel.fn.init.call(that, data);
+        that.bind(CONSTANTS.CHANGE, $.proxy(that._onChange, that));
+    },
     hasUserScore$() {
         // Used in Kidoju-Mobile only
         return $.type(this.get('userScore')) === CONSTANTS.NUMBER;
@@ -308,7 +260,9 @@ export const Summary = BaseModel.define({
         // Used in Kidoju-Mobile only
         const userScore = this.get('userScore');
         return (
-            $.type(userScore) === CONSTANTS.NUMBER && userScore >= 50 && userScore < 75
+            $.type(userScore) === CONSTANTS.NUMBER &&
+            userScore >= 50 &&
+            userScore < 75
         );
     },
     summaryUri$() {
@@ -325,21 +279,17 @@ export const Summary = BaseModel.define({
         // Used in Kidoju-Mobile only
         return toString(this.get('userScore') / 100, 'p0');
     },
-    init(data) {
-        const that = this;
-        Model.fn.init.call(that, data);
-        that.bind(CHANGE, $.proxy(that._onChange, that));
-    },
     _onChange(e) {
         // call the base function
-        Model.fn._notifyChange.call(this, e);
+        BaseModel.fn._notifyChange.call(this, e);
         // kendo only handles add/remove on arrays of child elements
         // set dirty when an itemchange occurs in an array, e.g. versions
         // See: http://blog.falafel.com/Blogs/JoshEastburn/josh-eastburn/2014/04/25/dirty-children-and-kendo-ui
-        if (e.action === ITEMCHANGE) {
+        if (e.action === CONSTANTS.ITEMCHANGE) {
             this.dirty = true;
         }
     },
+    /*
     load(data) {
         const that = this;
         const dfd = $.Deferred();
@@ -352,7 +302,10 @@ export const Summary = BaseModel.define({
                     dfd.resolve(summary);
                 })
                 .catch(dfd.reject);
-        } else if ($.isPlainObject(data) && CONSTANTS.RX_MONGODB_ID.test(data.id)) {
+        } else if (
+            $.isPlainObject(data) &&
+            CONSTANTS.RX_MONGODB_ID.test(data.id)
+        ) {
             if (data.published instanceof Date) {
                 // data is a published summary and we use model.accept to load data
                 that.accept(data);
@@ -456,7 +409,9 @@ export const Summary = BaseModel.define({
         }
         return dfd.promise();
     },
+    */
     createDraft() {
+        // TODO use rpc call
         return rapi.v1.content.executeCommand(
             this.get('language'),
             this.get('id'),
@@ -464,6 +419,7 @@ export const Summary = BaseModel.define({
         );
     },
     publish() {
+        // TODO use rpc call
         return rapi.v1.content.executeCommand(
             this.get('language'),
             this.get('id'),
@@ -471,6 +427,7 @@ export const Summary = BaseModel.define({
         );
     },
     rate(value) {
+        // TODO use rpc call
         // TODO: what if already rated?????
         // TODO: check that an author cannot rate his own summaries
         return rapi.v1.content.createSummaryActivity(
@@ -482,12 +439,22 @@ export const Summary = BaseModel.define({
 });
 
 /**
- * Transport
+ * summaryTransport
  */
 const summaryTransport = new RemoteTransport({
     collection: new AjaxSummaries({
-        partition: { language: i18n.locale() }
+        partition: getLanguageReference(),
+        projection: BaseModel.projection(Summary)
     })
 });
+
+/**
+ * Extend Summary with transport
+ */
 extendModelWithTransport(NewSummary, summaryTransport);
 extendModelWithTransport(Summary, summaryTransport);
+
+/**
+ * Export
+ */
+export { NewSummary, Summary };

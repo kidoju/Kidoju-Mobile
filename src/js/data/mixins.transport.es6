@@ -8,10 +8,13 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 import Me from './data.me.es6';
+
+const { Observable } = window.kendo;
 
 /**
  * Extend model with transport
@@ -40,7 +43,7 @@ export default function extendModelWithTransport(DataModel, transport) {
      * @returns {*|jQuery}
      */
     DataModel.fn.load = function load(options) {
-        // bare designates an endpoint to load an object without designating an id
+        // bare designates an endpoint that loads an object without designating an id
         const bare = this instanceof Me;
         if (bare) {
             assert.isUndefined(
@@ -65,7 +68,6 @@ export default function extendModelWithTransport(DataModel, transport) {
                 )
             );
         }
-        const accept = this.accept.bind(this);
         const dfd = $.Deferred();
         const { dirty, idField } = this;
         if (
@@ -76,20 +78,35 @@ export default function extendModelWithTransport(DataModel, transport) {
             // Already loaded and not modified
             dfd.resolve(this.toJSON());
         } else {
+            const that = this;
             const data = {};
             if (!bare) {
                 data[idField] = options[idField];
             }
             // delete options[idField];
-            this.transport.partition(options || {});
-            this.transport.get({
-                // TODO parameterMap is called when calling this.transport.get
-                // Check remote transport, not array transport
-                data: this.transport.parameterMap(data, 'get'),
+            that.transport.get({
+                // Note: parameterMap is called when calling this.transport.get
+                data,
                 error: dfd.reject,
                 success(response) {
                     // Not found is sent to error/dfd.reject with status 404
-                    accept(response);
+                    that.accept(response);
+                    // accept does not trigger a change event
+                    if (
+                        $.isFunction(that.parent) &&
+                        that.parent() instanceof Observable
+                    ) {
+                        const viewModel = that.parent();
+                        Object.keys(viewModel).some(field => {
+                            const ret = viewModel[field] === that;
+                            if (ret) {
+                                viewModel.trigger(CONSTANTS.CHANGE, { field });
+                            }
+                            return ret;
+                        });
+                    } else {
+                        that.trigger(CONSTANTS.CHANGE);
+                    }
                     dfd.resolve(response);
                 }
             });
@@ -98,9 +115,14 @@ export default function extendModelWithTransport(DataModel, transport) {
     };
 
     /**
-     * Reset (maybe reset should be part of BaseModel since there is no transport involved)
+     * Reset
      */
     DataModel.fn.reset = function reset() {
+        if (this instanceof Me) {
+            // Note: maybe we should consider a more generic way of removing the item
+            // that involves the transport and/or cache strategy
+            sessionStorage.removeItem(CONSTANTS.ME);
+        }
         const data = {};
         Object.keys(this.defaults).forEach(key => {
             data[key] = $.isFunction(this.defaults[key])
@@ -109,6 +131,20 @@ export default function extendModelWithTransport(DataModel, transport) {
         });
         // Note: accept calls field parse functions
         this.accept(data);
+        // accept does not trigger a change event
+        if ($.isFunction(this.parent) && this.parent() instanceof Observable) {
+            const that = this;
+            const viewModel = that.parent();
+            Object.keys(viewModel).some(field => {
+                const ret = viewModel[field] === that;
+                if (ret) {
+                    viewModel.trigger(CONSTANTS.CHANGE, { field });
+                }
+                return ret;
+            });
+        } else {
+            this.trigger(CONSTANTS.CHANGE);
+        }
     };
 
     /**
@@ -121,10 +157,9 @@ export default function extendModelWithTransport(DataModel, transport) {
         const dfd = $.Deferred();
         const { dirty, dirtyFields, idField } = this;
         if (this.isNew()) {
-            // this.transport.partition() must have been called when loading
-            // TODO parameterMap is called when calling this.transport.create
+            // Note: parameterMap is called when calling this.transport.create
             this.transport.create({
-                data: this.transport.parameterMap(this.toJSON(), 'create'),
+                data: this.toJSON(),
                 error: dfd.reject,
                 success(response) {
                     accept(response);
@@ -132,16 +167,19 @@ export default function extendModelWithTransport(DataModel, transport) {
                 }
             });
         } else if (dirty) {
-            // TODO parameterMap is called when calling this.transport.update
-            const json = this.transport.parameterMap(this.toJSON(), 'update');
+            const json = this.toJSON();
             const data = {};
+            // Note: json[idField] might not be available if
+            // idField is accidently marked as not serializable
+            // data[idField] = json[idField];
+            data[idField] = this[idField];
             // Only send dirty fields with id for update
-            data[idField] = json[idField];
             Object.keys(dirtyFields).forEach(key => {
                 if (dirtyFields[key]) {
                     data[key] = json[key];
                 }
             });
+            // Note: parameterMap is called when calling this.transport.update
             this.transport.update({
                 data,
                 error: dfd.reject,

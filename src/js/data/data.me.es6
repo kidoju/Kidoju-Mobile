@@ -45,6 +45,7 @@ const Me = BaseModel.define({
             nullable: true
         },
         provider: {
+            // TODO Review
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true
@@ -66,36 +67,7 @@ const Me = BaseModel.define({
     },
     userUri$() {
         return format(config.uris.webapp.user, i18n.locale(), this.get('id'));
-    },
-    reset() {
-        // Since we have marked fields as non editable, we cannot use 'that.set'
-        this.accept({
-            id: this.defaults.id,
-            firstName: this.defaults.firstName,
-            lastName: this.defaults.lastName,
-            picture: this.defaults.picture
-        });
     }
-    /*
-    // TODO Use transport mixin
-    load() {
-        const that = this;
-        return app.cache.getMe().then(data => {
-            if ($.isPlainObject(data) && CONSTANTS.RX_MONGODB_ID.test(data.id)) {
-                // Since we have marked fields as non editable, we cannot use 'that.set',
-                // This should raise a change event on the parent viewModel
-                that.accept({
-                    id: data.id,
-                    firstName: data.firstName,
-                    lastName: data.lastName,
-                    picture: data.picture
-                });
-            } else {
-                that.reset();
-            }
-        });
-    }
-    */
 });
 
 /**
@@ -103,14 +75,11 @@ const Me = BaseModel.define({
  */
 const meTransport = new CacheItemStrategy({
     cache: 'session',
-    key: 'me',
+    key: CONSTANTS.ME,
     singleton: true,
     transport: new LazyRemoteTransport({
         collection: new AjaxUsers({
-            partition: {
-                id: 'me'
-            }
-            // TODO Add field projection
+            projection: BaseModel.projection(Me)
         })
     })
     // ttl: 24 * 60 * 60

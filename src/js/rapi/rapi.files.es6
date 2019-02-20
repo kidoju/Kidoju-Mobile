@@ -3,15 +3,25 @@
  * Sources at https://github.com/Memba
  */
 
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
 import config from '../app/app.config.jsx';
+import i18n from '../app/app.i18n.es6';
+import assert from '../common/window.assert.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 import AjaxBase from './rapi.base.es6';
+import { format } from './rapi.util.es6';
+
+const logger = new Logger('rapi.files');
 
 /**
- * AjaxPing
- * @class AjaxPing
+ * AjaxFiles
+ * @class AjaxFiles
  * @extends AjaxBase
  */
-class AjaxPing extends AjaxBase {
+class AjaxFiles extends AjaxBase {
     /**
      * Constructor
      * @constructor
@@ -19,18 +29,10 @@ class AjaxPing extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'ping'
+            collection: 'files'
         });
         super(options);
     }
-
-    /**
-     * Get headers
-     * @param method
-     * @private
-     */
-    // eslint-disable-next-line class-methods-use-this
-    _getHeaders(/* method */) {}
 
     /**
      * Get method endpoint
@@ -39,9 +41,6 @@ class AjaxPing extends AjaxBase {
      * @private
      */
     _getUrl(method) {
-        if (method === AjaxBase.METHOD.GET) {
-            return config.uris.rapi.ping;
-        }
         return super._getUrl(method);
     }
 }
@@ -49,4 +48,4 @@ class AjaxPing extends AjaxBase {
 /**
  * Default export
  */
-export default AjaxPing;
+export default AjaxFiles;

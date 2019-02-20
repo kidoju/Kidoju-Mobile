@@ -19,7 +19,7 @@ const {
  * Comment model
  * @type {kidoju.data.Model}
  */
-export const Comment = Activity.define({
+const Comment = Activity.define({
     fields: {
         text: {
             type: CONSTANTS.STRING
@@ -64,7 +64,7 @@ export const Comment = Activity.define({
  * Datasource of comments
  * @type {kendo.Observable}
  */
-export const CommentDataSource = DataSource.extend({
+const CommentDataSource = DataSource.extend({
     /**
      * Init
      * @constructor
@@ -225,3 +225,8 @@ export const CommentDataSource = DataSource.extend({
         }
     }
 });
+
+/**
+ * Export
+ */
+export { Comment, CommentDataSource };

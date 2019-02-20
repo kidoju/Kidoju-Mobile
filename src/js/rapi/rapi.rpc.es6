@@ -15,11 +15,13 @@ import { getHeaders } from './rapi.util.es6';
 const logger = new Logger('app.rpc');
 const HTTP = { POST: 'POST' };
 
+// TODO Derive from AjaxBase ??????????????????
+
 /**
  * AjaxRpc
- * @class
+ * @class AjaxRpc
  */
-export default class AjaxRpc {
+class AjaxRpc {
     /**
      * Call
      * @method call
@@ -78,3 +80,8 @@ export default class AjaxRpc {
         });
     }
 }
+
+/**
+ * Default export
+ */
+export default AjaxRpc;

@@ -33,7 +33,7 @@ let fpromise; // Cache fingerprint promise
  * Clear (delete) an access token from storage
  * @function clearToken
  */
-export function clearToken() {
+function clearToken() {
     localCache.removeItem(TOKEN);
     logger.debug({
         message: 'Access token removed from storage',
@@ -48,7 +48,7 @@ export function clearToken() {
  * @param args
  * @returns {*}
  */
-export function format(message, ...args) {
+function format(message, ...args) {
     let ret = message;
     args.forEach((arg, idx) => {
         // Note: we definitely need \\ in the following regular expression
@@ -67,7 +67,7 @@ export function format(message, ...args) {
  * @param url
  * @returns {number}
  */
-export function getAccessTokenHashPos(url) {
+function getAccessTokenHashPos(url) {
     // When running tests with grunt.mochaTest, the url is a file url
     // i.e. file:///C:/Users/Jacques-Louis/Creative Cloud Files/Kidoju/Kidoju.Server/test/browser/app.cache.test.html
     // Also this assert fails in Phonegap InAppBrowser
@@ -91,7 +91,7 @@ export function getAccessTokenHashPos(url) {
  * Clean the history from token information
  * @function cleanHistory
  */
-export function cleanHistory() {
+function cleanHistory() {
     const pos = getAccessTokenHashPos(location.hash);
     if (pos >= 0) {
         if (history) {
@@ -115,7 +115,7 @@ export function cleanHistory() {
  * @param url
  * @returns {*}
  */
-export function cleanUrl(url) {
+function cleanUrl(url) {
     // This assert fails in Phonegap InAppBrowser
     // assert.match(RX_URL, url, assert.format(assert.messages.match.default, 'url', RX_URL));
     assert.type(
@@ -145,7 +145,7 @@ export function cleanUrl(url) {
  * @params raw
  * @returns {*}
  */
-export function getToken(raw = false) {
+function getToken(raw = false) {
     return localCache.getItem(TOKEN, raw);
     /*
     // We already get logs from cache
@@ -162,7 +162,7 @@ export function getToken(raw = false) {
  * @function getFingerPrint
  * @returns {*}
  */
-export function getFingerPrint() {
+function getFingerPrint() {
     if ($.type(fpromise) === CONSTANTS.UNDEFINED) {
         const dfd = $.Deferred();
         // if ($.isFunction(Fingerprint2)) {
@@ -211,7 +211,7 @@ export function getFingerPrint() {
  * @param options
  * @returns {*}
  */
-export function getHeaders(options = { security: true, trace: true }) {
+function getHeaders(options = { security: true, trace: true }) {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
@@ -235,7 +235,7 @@ export function getHeaders(options = { security: true, trace: true }) {
     }
     // X-Trace-ID header
     if (options.trace) {
-        const trace = $('#trace').val();
+        const trace = $('input[type="hidden"][name="trace"]').val();
         if ($.type(trace) === CONSTANTS.STRING) {
             headers['X-Trace-ID'] = trace.substr(0, 36); // should be long enough for a guid = 32 hex + 4 dashes
         }
@@ -247,7 +247,7 @@ export function getHeaders(options = { security: true, trace: true }) {
  * Reads and clears the oAuth state from session storage
  * @function getState
  */
-export function getState() {
+function getState() {
     // use localStorage in Android and IE
     const cache =
         RX_IEXPLORE.test(navigator.userAgent) ||
@@ -272,7 +272,7 @@ export function getState() {
  * @function setState
  * @param state
  */
-export function setState(state) {
+function setState(state) {
     assert.type(
         CONSTANTS.STRING,
         state,
@@ -300,7 +300,7 @@ export function setState(state) {
  * @function setToken
  * @param token
  */
-export function setToken(token) {
+function setToken(token) {
     assert.isNonEmptyPlainObject(
         token,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'token')
@@ -349,7 +349,7 @@ export function setToken(token) {
  * @function uuid
  * @returns {string}
  */
-export function uuid() {
+function uuid() {
     let uid = '';
     const crypto = window.crypto || window.msCrypto;
     if (
@@ -415,7 +415,7 @@ export function uuid() {
  * @param url
  * @returns {*|jQuery}
  */
-export function parseToken(url) {
+function parseToken(url) {
     // When running tests with grunt.mochaTest, the url is a file url
     // i.e. file:///C:/Users/Jacques-Louis/Creative Cloud Files/Kidoju/Kidoju.Server/test/browser/app.cache.test.html
     // Also this assert fails in Phonegap InAppBrowser
@@ -514,3 +514,22 @@ export function parseToken(url) {
     }
     return dfd.promise();
 }
+
+/**
+ * Export
+ */
+export {
+    clearToken,
+    format,
+    getAccessTokenHashPos,
+    cleanHistory,
+    cleanUrl,
+    getToken,
+    getFingerPrint,
+    getHeaders,
+    getState,
+    setState,
+    setToken,
+    uuid,
+    parseToken
+};

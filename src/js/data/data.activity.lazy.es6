@@ -1,9 +1,31 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// https://github.com/benmosher/eslint-plugin-import/issues/1097
+// eslint-disable-next-line import/extensions, import/no-unresolved
+import $ from 'jquery';
+import 'kendo.data';
+import config from '../app/app.config.jsx';
+import { getActorReference } from '../app/app.partitions.es6';
+import CONSTANTS from '../common/window.constants.es6';
+import BaseModel from './data.base.es6';
+import LazyRemoteTransport from './transports.remote.lazy.es6';
+import AjaxActivities from '../rapi/rapi.activities.es6';
+import { normalizeSchema } from './data.util.es6';
+
+const {
+    data: { DataSource },
+    format
+} = window.kendo;
 
 /**
- * Activity model
- * @type {kidoju.data.Model}
+ * LazyActivity
+ * @class LazyActivity
+ * @extends BaseModel
  */
-models.LazyActivity = Model.define({
+const LazyActivity = BaseModel.define({
     id: CONSTANTS.ID, // the identifier of the model, which is required for isNew() to work
     fields: {
         id: {
@@ -11,12 +33,13 @@ models.LazyActivity = Model.define({
             editable: false,
             nullable: true
         },
-        /*
-        scheme: {
+        actorId: {
             type: CONSTANTS.STRING,
             editable: false,
-            defaultValue: (app.constants && app.constants.appScheme) ? app.constants.appScheme : 'com.kidoju.default' // undefined
+            nullable: true
         },
+        /*
+        // Not needed in lists
         categoryId: {
             type: CONSTANTS.STRING,
             editable: false
@@ -29,32 +52,25 @@ models.LazyActivity = Model.define({
         date: {
             type: CONSTANTS.DATE,
             editable: false,
-            defaultValue: function () { return new Date(); }
+            defaultValue() {
+                return new Date();
+            }
         },
+        /*
+        // TODO review
         firstName: {
             type: CONSTANTS.STRING,
             editable: false
         },
+        */
         language: {
             type: CONSTANTS.STRING,
             editable: false
         },
+        /*
+        // TODO Review
         lastName: {
             type: CONSTANTS.STRING,
-            editable: false
-        },
-        /*text: {
-         type: CONSTANTS.STRING,
-         nullable: true,
-         editable: false
-         },*/
-        type: {
-            type: CONSTANTS.STRING,
-            editable: false
-        },
-        /*
-        updated: {
-            type: CONSTANTS.DATE,
             editable: false
         },
         */
@@ -68,96 +84,178 @@ models.LazyActivity = Model.define({
             editable: false,
             nullable: true
         },
+        /*
+        text: {
+            type: CONSTANTS.STRING,
+            nullable: true,
+            editable: false
+        },
+        */
         title: {
             type: CONSTANTS.STRING,
             editable: false
         },
-        userId: {
+        type: {
             type: CONSTANTS.STRING,
-            editable: false,
-            nullable: true
+            editable: false
         },
+        /*
+        updated: {
+            type: CONSTANTS.DATE,
+            editable: false
+        },
+        */
         versionId: {
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true
-        }/*,
-                 value: {
-                 type: CONSTANTS.NUMBER,
-                 nullable: true,
-                 editable: false
-                 }*/
+        }
+        /*
+        value: {
+            type: CONSTANTS.NUMBER,
+            nullable: true,
+            editable: false
+        }
+        */
     },
-    actorName$: function () {
-        return ((this.get('firstName') || '').trim() + ' ' + (this.get('lastName') || '').trim()).trim();
+    actorName$() {
+        // TODO review with firstName and lastName
+        // return `${(this.get('firstName') || '').trim()} ${(
+        //         (this.get('lastName') || '').trim()}`
+        // ).trim();
     },
-    actorUri$: function () {
-        return format(uris.webapp.user, this.get('language'), this.get('userId'));
+    actorUri$() {
+        return format(
+            config.uris.webapp.user,
+            this.get('language'),
+            this.get('userId')
+        );
     },
-    scoreUri$: function () {
-        return format(uris.webapp.player, this.get('language'), this.get('summaryId'), this.get('versionId')) +
-            format('#/report/{0}', this.get('id')); // TODO: add to config files
+    date$() {
+        // TODO timezones
+        return this.get('date');
     },
-    summaryUri$: function () {
+    scoreUri$() {
+        return (
+            format(
+                config.uris.webapp.player,
+                this.get('language'),
+                this.get('summaryId'),
+                this.get('versionId')
+            ) + format('#/report/{0}', this.get('id'))
+        ); // TODO: add to config files
+    },
+    summaryUri$() {
         // Some activities like `creation` may refer to unpublished summaries and we do not know whether the summary is published or not
         // Therefore, we should always bypass server-side data requests to display such summaries
         // This is not an issue regarding SEO because activities are only displayed to authenticated user
-        return format(uris.webapp.summary, this.get('language'), this.get('summaryId'));
+        return format(
+            config.uris.webapp.summary,
+            this.get('language'),
+            this.get('summaryId')
+        );
     }
 });
 
 /**
- * Datasource of user activities
- * @type {kendo.Observable}
+ * lazyActivityTransport
  */
-models.LazyActivityDataSource = DataSource.extend({
+const lazyActivityTransport = new LazyRemoteTransport({
+    collection: new AjaxActivities({
+        partition: getActorReference(),
+        projection: BaseModel.projection(LazyActivity)
+    })
+});
 
+/**
+ * LazyActivityDataSource
+ * @class LazyActivityDataSource
+ * @extends DataSource
+ */
+const LazyActivityDataSource = DataSource.extend({
     /**
      * Init
      * @constructor
      * @param options
      */
+    init(options = {}) {
+        DataSource.fn.init.call(
+            this,
+            $.extend(
+                true,
+                { pageSize: CONSTANTS.DATA_PAGE_SIZE.SMALL },
+                options,
+                {
+                    transport: lazyActivityTransport,
+                    schema: normalizeSchema({
+                        modelBase: LazyActivity,
+                        model: LazyActivity
+                    }),
+                    serverFiltering: true,
+                    serverSorting: true,
+                    serverPaging: true
+                }
+            )
+        );
+    }
+
+    /**
+     * Sets the partition and queries the data source
+     * @param options
+     */
+    /*
+    load(options) {
+        if (options && $.isPlainObject(options.partition)) {
+            this.transport.partition(options.partition);
+        }
+        return this.query(options);
+    }
+    */
+});
+
+/**
+ * Datasource of summary scores
+ * This is used both for the leaderboard on the summary page and in the player, accordingly, userId is optional
+ * @type {kendo.Observable}
+ */
+/*
+const ScoreDataSource = DataSource.extend({
     init: function (options) {
-        DataSource.fn.init.call(this, $.extend(true, { pageSize: 5 }, options, {
-            transport: new models.LazyActivityTransport({
-                partition: options && options.partition
-            }),
+        var that = this;
+        that.summaryId = options && options.summaryId;
+        that.userId = options && options.userId; // optional authenticated user
+        that.versionId = options && options.versionId;
+        DataSource.fn.init.call(that, $.extend(true, { pageSize: 100 }, options, {
+            transport: {
+                read: $.proxy(that._transport._read, that)
+            },
             serverFiltering: true,
             serverSorting: true,
-            // pageSize: 5
+            // pageSize: 100,
             serverPaging: true,
             schema: {
-                data: 'data',
+                data: function (response) {
+                    // See: http://www.telerik.com/forums/transport-methods-and-ids-created-on-the-server
+                    if (response && $.type(response.total) === NUMBER && $.isArray(response.data)) { // read list
+                        return response.data;
+                    } else { // create, update, delete
+                        return response;
+                    }
+                },
                 total: 'total',
                 errors: 'error',
-                modelBase: models.LazyActivity,
-                model: models.LazyActivity,
+                modelBase: models.Score,
+                model: models.Score,
                 parse: function (response) {
-                    // we parse the response to flatten data for our LazyActivity model (instead of using field.from and field.defaultValue definitions)
-                    if (response && $.type(response.total === NUMBER && $.isArray(response.data))) {
-
-                        /* This function's cyclomatic complexity is too high. */
-                        /* jshint -W074 */
-
-                        $.each(response.data, function (index, activity) {
-                            // Flatten actor
-                            activity.userId = activity.actor && activity.actor.userId || null;
-                            activity.firstName = activity.actor && activity.actor.firstName || '';
-                            activity.lastName = activity.actor && activity.actor.lastName || '';
-                            if (activity.actor) {
-                                activity.actor = undefined; // delete activity.actor;
-                            }
-                            // Flatten version
-                            activity.language = activity.version && activity.version.language || i18n.locale();
-                            activity.summaryId = activity.version && activity.version.summaryId || null;
-                            activity.title = activity.version && activity.version.title || '';
-                            activity.versionId = activity.version && activity.version.versionId || null;
-                            if (activity.version) {
-                                activity.version = undefined; // delete activity.version;
-                            }
-                        });
-
-                        /* jshint +W074 */
+                    // add userId of authenticated user
+                    if (response) {
+                        if ($.type(response.total) === NUMBER && $.isArray(response.data)) { // a read
+                            $.each(response.data, function (index, comment) {
+                                comment.userId = that.userId;
+                            });
+                        } else { // a create or update
+                            response.userId = that.userId;
+                        }
                     }
                     return response;
                 }
@@ -165,14 +263,47 @@ models.LazyActivityDataSource = DataSource.extend({
         }));
     },
 
-    /**
-     * Sets the partition and queries the data source
-     * @param options
-     */
     load: function (options) {
-        if (options && $.isPlainObject(options.partition)) {
-            this.transport.partition(options.partition);
+        var that = this;
+        that.summaryId = options && options.summaryId;
+        that.userId = options && options.userId;
+        that.versionId = options && options.versionId;
+        return that.query(options);
+    },
+
+    _transport: {
+        _read: function (options) {
+            var that = this;
+            // We cannot fetch scores without a summary Id, version Id and user Id
+            assert.match(RX_MONGODB_ID, that.summaryId, assert.format(assert.messages.match.default, 'this.summaryId', RX_MONGODB_ID));
+            // assert.match(RX_MONGODB_ID, that.userId, assert.format(assert.messages.match.default, 'this.userId', RX_MONGODB_ID));
+            assert.match(RX_MONGODB_ID, that.versionId, assert.format(assert.messages.match.default, 'this.versionId', RX_MONGODB_ID));
+            options.data.fields = 'date,score,test';
+            options.data.filter = [
+                { field: 'type', operator: 'eq', value: 'Score' },
+                { field: 'version.versionId', operator: 'eq', value: that.versionId }
+            ];
+            if (RX_MONGODB_ID.test(that.userId)) {
+                options.data.filter.push({ field: 'actor.userId', operator: 'eq', value: that.userId });
+            }
+            options.data.sort = [{ field: 'id', dir: 'desc' }];
+            rapi.v1.content.findSummaryActivities(
+                i18n.locale(),
+                that.summaryId,
+                options.data
+            )
+            .then(function (response) {
+                options.success(response);
+            })
+            .catch(function (xhr, status, errorThrown) {
+                options.error(xhr, status, errorThrown);
+            });
         }
-        return this.query(options);
     }
 });
+*/
+
+/**
+ * Export
+ */
+export { LazyActivity, LazyActivityDataSource };

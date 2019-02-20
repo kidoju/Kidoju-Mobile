@@ -30,9 +30,9 @@ const METHOD = {
 
 /**
  * AjaxBase
- * @class
+ * @class AjaxBase
  */
-export default class AjaxBase {
+class AjaxBase {
     /**
      * Constructor
      * @constructor
@@ -82,7 +82,7 @@ export default class AjaxBase {
     // eslint-disable-next-line class-methods-use-this
     _getUrl(method /* , id */) {
         throw new Error(
-            `This is an abstract class. \`${method}\` has no end point`
+            `This is the base abstract class. \`${method}\` has no end point`
         );
     }
 
@@ -91,9 +91,17 @@ export default class AjaxBase {
      * @param query
      * @private
      */
-    // eslint-disable-next-line class-methods-use-this
     _extendQuery(query) {
-        return query; // By default simply return query
+        // TODO _partition
+        const { _projection } = this;
+        let fields = [];
+        Object.keys(_projection || {}).forEach(key => {
+            if (_projection[key]) {
+                fields.push(key);
+            }
+        });
+        fields = fields.join(CONSTANTS.COMMA) || undefined;
+        return Object.assign(query || {}, { fields });
     }
 
     /**
@@ -104,7 +112,7 @@ export default class AjaxBase {
     partition(value) {
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            ret = this._partition;
+            ret = this._partition || {};
         } else {
             this._partition = value;
         }
@@ -277,3 +285,8 @@ export default class AjaxBase {
         });
     }
 }
+
+/**
+ * Default export
+ */
+export default AjaxBase;

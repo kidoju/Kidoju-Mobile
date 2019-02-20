@@ -4,18 +4,22 @@
  */
 
 // TODO Implement patch rfc 6902
-// TODO implemenet uris
 // TODO implement timezones
-// TODO implement i18n
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
+// import $ from 'jquery';
 import 'kendo.core';
-import assert from '../common/window.assert.es6';
+import config from '../app/app.config.jsx';
+import i18n from '../app/app.i18n.es6';
+import { getSummaryReference } from '../app/app.partitions.es6';
+// import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import AjaxVersions from '../rapi/rapi.versions.es6';
 import BaseModel from './data.base.es6';
 import Stream from './data.stream.es6';
+import RemoteTransport from './transports.remote.es6';
+import extendModelWithTransport from './mixins.transport.es6';
 
 const { format } = window.kendo;
 
@@ -30,6 +34,11 @@ const Version = BaseModel.define({
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true,
+            serializable: false
+        },
+        authorId: {
+            type: CONSTANTS.STRING,
+            editable: false,
             serializable: false
         },
         categoryId: {
@@ -53,7 +62,7 @@ const Version = BaseModel.define({
             serializable: false
         },
         stream: {
-            defaultValue: new Stream(),
+            defaultValue: {}, // new Stream(),
             nullable: false,
             parse(value) {
                 return value instanceof Stream ? value : new Stream(value);
@@ -62,7 +71,6 @@ const Version = BaseModel.define({
         summaryId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true,
             serializable: false
         },
         type: {
@@ -74,33 +82,36 @@ const Version = BaseModel.define({
             type: CONSTANTS.DATE,
             editable: false,
             serializable: false
-        },
-        userId: {
-            type: CONSTANTS.STRING,
-            editable: false,
-            nullable: true,
-            serializable: false
         }
     },
-    versionPlayUri$() {
-        return kendo
-            .format(
-                uris.webapp.player,
-                i18n.locale(),
-                this.get('summaryId'),
-                this.get('id'),
-                ''
-            )
-            .slice(0, -1);
+    created$() {
+        // TODO timezone
+        return this.get('created');
     },
-    versionEditUri$() {
+    updated$() {
+        // TODO timezone
+        return this.get('updated');
+    },
+    playUri$() {
+        // TODO window.cordova?
         return format(
-            uris.webapp.editor,
+            config.uris.webapp.player,
+            i18n.locale(),
+            this.get('summaryId'),
+            this.get('id'),
+            ''
+        ).slice(0, -1);
+    },
+    editUri$() {
+        // TODO window.cordova?
+        return format(
+            config.uris.webapp.editor,
             i18n.locale(),
             this.get('summaryId'),
             this.get('id')
         );
-    },
+    }
+    /*
     load(summaryId, versionId) {
         const that = this;
         return rapi.v1.content
@@ -184,9 +195,25 @@ const Version = BaseModel.define({
             .resolve()
             .promise();
     }
+    */
 });
 
 /**
- * Default export
+ * versionTransport
+ */
+const versionTransport = new RemoteTransport({
+    collection: new AjaxVersions({
+        partition: getSummaryReference(),
+        projection: BaseModel.projection(Version)
+    })
+});
+
+/**
+ * Extend Version with transport
+ */
+extendModelWithTransport(Version, versionTransport);
+
+/**
+ * Export
  */
 export default Version;

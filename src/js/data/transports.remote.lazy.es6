@@ -38,8 +38,8 @@ const LazyRemoteTransport = BaseTransport.extend({
                 AjaxBase
             )
         );
-        // debugger;
-        // This calls this.partition(value)
+        // BaseTransport.init calls this.partition(options.partition)
+        // and this.projection(options.projection)
         BaseTransport.fn.init.call(this, options);
     },
 

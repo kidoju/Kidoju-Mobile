@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: force if network error (especially for mobile app) !!!!!
+
 // Items seem to magically persist althouth transports are created with each test
 // transports.array.es6 loads a map of collections in memory and each transport accesses this same map
 

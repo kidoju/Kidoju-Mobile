@@ -5,13 +5,18 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
-import 'kendo.data';
-import { BaseModel, BaseDataSource } from './kidoju.data.core.es6';
-import CONSTANTS from '../window.constants.es6';
-import Page from './kidoju.data.page';
+// import $ from 'jquery';
+// import 'kendo.data';
+// import { getVersionReference } from '../app/app.partitions.es6';
+import CONSTANTS from '../common/window.constants.es6';
+// import AjaxActivities from '../rapi/rapi.activities.es6';
+import BaseModel from './data.base.es6';
+// import extendModelWithTransport from './mixins.transport';
+import UserReference from './reference.user.es6';
+import VersionReference from './reference.version.es6';
+// import RemoteTransport from './transports.remote';
 
-const { kendo } = window;
+// const { format } = window.kendo;
 
 /**
  * @class Activity
@@ -24,13 +29,16 @@ const Activity = BaseModel.define({
             editable: false,
             nullable: true
         },
-        actor: { // <--- models.UserReference
+        actor: {
+            // <--- models.UserReference
             // For complex types, the recommendation is to leave the type undefined and set a default value
             // See: http://www.telerik.com/forums/model---complex-model-with-nested-objects-or-list-of-objects
             // See: http://demos.telerik.com/kendo-ui/grid/editing-custom
             defaultValue: null,
             parse(value) {
-                return (value instanceof models.UserReference || value === null) ? value : new models.UserReference(value);
+                return value instanceof UserReference || value === null
+                    ? value
+                    : new UserReference(value);
             }
         },
         categoryId: {
@@ -50,16 +58,20 @@ const Activity = BaseModel.define({
             type: CONSTANTS.DATE,
             editable: false
         },
-        version: { // <--- models.VersionReference
+        version: {
+            // <--- models.VersionReference
             // For complex types, the recommendation is to leave the type undefined and set a default value
             // See: http://www.telerik.com/forums/model---complex-model-with-nested-objects-or-list-of-objects
             // See: http://demos.telerik.com/kendo-ui/grid/editing-custom
             defaultValue: null,
             parse(value) {
-                return (value instanceof models.VersionReference || value === null) ? value : new models.VersionReference(value);
+                return value instanceof VersionReference || value === null
+                    ? value
+                    : new VersionReference(value);
             }
         }
-    },
+    }
+    /* ,
     load: function (summaryId, activityId) {
         var that = this;
         return rapi.v1.content.getSummaryActivity(i18n.locale(), summaryId, activityId)
@@ -86,7 +98,7 @@ const Activity = BaseModel.define({
                 that.accept(data); // this updates dirty and updated
             });
         }
-    }
+    } */
 });
 
 /**

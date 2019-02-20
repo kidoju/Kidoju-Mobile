@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO
+
 import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -10,10 +12,11 @@ import AjaxBase from './rapi.base.es6';
 import { format } from './rapi.util.es6';
 
 /**
- * AjaxActivities
- * @class
+ * AjaxOrganizations
+ * @class AjaxOrganizations
+ * @extends AjaxBase
  */
-class AjaxActivities extends AjaxBase {
+class AjaxOrganizations extends AjaxBase {
     /**
      * Constructor
      * @constructor
@@ -21,7 +24,7 @@ class AjaxActivities extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'activities'
+            collection: 'organizations'
         });
         super(options);
         assert.isNonEmptyPlainObject(
@@ -40,15 +43,6 @@ class AjaxActivities extends AjaxBase {
                 CONSTANTS.RX_LANGUAGE
             )
         );
-        assert.match(
-            CONSTANTS.RX_MONGODB_ID,
-            this._partition.summaryId,
-            assert.format(
-                assert.messages.match.default,
-                'options.partition.summaryId',
-                CONSTANTS.RX_MONGODB_ID
-            )
-        );
     }
 
     /**
@@ -64,16 +58,14 @@ class AjaxActivities extends AjaxBase {
             method === AjaxBase.METHOD.READ
         ) {
             ret = format(
-                // TODO config.uris.rapi.v1.myActivities,
-                config.uris.rapi.v1.activities,
-                this._partition.language,
-                this._partition.summaryId
+                // TODO config.uris.rapi.v1.mySummaries,
+                config.uris.rapi.v1.summaries,
+                this._partition.language
             );
         } else {
-            ret = assert.format(
-                config.uris.rapi.v1.activity,
+            ret = format(
+                config.uris.rapi.v1.summary,
                 this._partition.language,
-                this._partition.summaryId,
                 id
             );
         }
@@ -93,4 +85,4 @@ class AjaxActivities extends AjaxBase {
 /**
  * Default export
  */
-export default AjaxActivities;
+export default AjaxOrganizations;

@@ -34,7 +34,7 @@ const PROVIDERS = ['facebook', 'google', 'live', 'twitter'];
  * @param returnUrl
  * @returns {*}
  */
-export function getSignInUrl(provider, returnUrl) {
+function getSignInUrl(provider, returnUrl) {
     assert.enum(
         PROVIDERS,
         provider,
@@ -100,7 +100,7 @@ export function getSignInUrl(provider, returnUrl) {
  * @method signOut
  * @returns {*}
  */
-export function signOut() {
+function signOut() {
     logger.info({
         message: '$.ajax',
         method: 'signOut'
@@ -120,7 +120,7 @@ export function signOut() {
  * @method.refresh
  * @returns {*}
  */
-export function refresh() {
+function refresh() {
     logger.info({
         message: '$.ajax',
         method: 'refresh'
@@ -143,7 +143,7 @@ export function refresh() {
  * Revoke toekn
  * @returns {*}
  */
-export function revoke() {
+function revoke() {
     logger.info({
         message: '$.ajax',
         method: 'revoke'
@@ -157,3 +157,8 @@ export function revoke() {
         clearToken();
     });
 }
+
+/**
+ * Export
+ */
+export { getSignInUrl, signOut, refresh, revoke };

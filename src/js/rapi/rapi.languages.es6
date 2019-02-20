@@ -9,10 +9,11 @@ import AjaxBase from './rapi.base.es6';
 import { format } from './rapi.util.es6';
 
 /**
- * AjaxCategories
- * @class
+ * AjaxLanguages
+ * @class AjaxLanguages
+ * @extends AjaxBase
  */
-export default class AjaxLanguages extends AjaxBase {
+class AjaxLanguages extends AjaxBase {
     /**
      * Constructor
      * @constructor
@@ -49,3 +50,8 @@ export default class AjaxLanguages extends AjaxBase {
         return super._getUrl(method);
     }
 }
+
+/**
+ * Default export
+ */
+export default AjaxLanguages;

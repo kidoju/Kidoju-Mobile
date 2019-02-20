@@ -178,6 +178,41 @@ try {
                     convertFormat('<%- uris.rapi.oauth.signOut %>')
                 )
             },
+            v1: {
+                categories: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.categories %>')
+                ),
+                me: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.me %>')
+                ),
+                mySummaries: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.mySummaries %>')
+                ),
+                summaries: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.summaries %>')
+                ),
+                summary: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.summary %>')
+                ),
+                user: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.user %>')
+                ),
+                versions: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.versions %>')
+                ),
+                version: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.version %>')
+                )
+                // TODO draft
+            },
             web: {
                 search: url.resolve(
                     '<%- uris.rapi.root %>',

@@ -11,9 +11,10 @@ import { format } from './rapi.util.es6';
 
 /**
  * AjaxCategories
- * @class
+ * @class AjaxCategories
+ * @extends AjaxBase
  */
-export default class AjaxCategories extends AjaxBase {
+class AjaxCategories extends AjaxBase {
     /**
      * Constructor
      * @constructor
@@ -65,3 +66,8 @@ export default class AjaxCategories extends AjaxBase {
         return super._getUrl(method);
     }
 }
+
+/**
+ * Default export
+ */
+export default AjaxCategories;

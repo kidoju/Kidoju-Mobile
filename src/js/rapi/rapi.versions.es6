@@ -10,9 +10,10 @@ import AjaxBase from './rapi.base.es6';
 
 /**
  * AjaxVersions
- * @class
+ * @class AjaxVersions
+ * @extends AjaxBase
  */
-export default class AjaxVersions extends AjaxBase {
+class AjaxVersions extends AjaxBase {
     /**
      * Constructor
      * @constructor
@@ -87,3 +88,8 @@ export default class AjaxVersions extends AjaxBase {
         return super._extendQuery(query);
     }
 }
+
+/**
+ * Default export
+ */
+export default AjaxVersions;

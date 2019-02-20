@@ -3,14 +3,16 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO UserScore$ for Kidoju-WebApp and colors
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import config from '../app/app.config.jsx';
+import { getAuthorReference } from '../app/app.partitions.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
-import i18n from '../app/app.i18n.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
 import AjaxSummaries from '../rapi/rapi.summaries.es6';
 import { normalizeSchema } from './data.util.es6';
@@ -26,13 +28,21 @@ const {
  * @class LazySummary
  * @extends BaseModel
  */
-export const LazySummary = BaseModel.define({
+const LazySummary = BaseModel.define({
     id: CONSTANTS.ID, // the identifier of the model, which is required for isNew() to work
     fields: {
         id: {
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true
+        },
+        authorId: {
+            type: CONSTANTS.STRING,
+            editable: false
+        },
+        authorName: {
+            type: CONSTANTS.STRING,
+            editable: false
         },
         comments: {
             from: 'metrics.comments.count',
@@ -44,17 +54,7 @@ export const LazySummary = BaseModel.define({
             type: CONSTANTS.DATE,
             editable: false
         },
-        firstName: {
-            from: 'author.firstName',
-            type: CONSTANTS.STRING,
-            editable: false
-        },
         language: {
-            type: CONSTANTS.STRING,
-            editable: false
-        },
-        lastName: {
-            from: 'author.lastName',
             type: CONSTANTS.STRING,
             editable: false
         },
@@ -65,6 +65,11 @@ export const LazySummary = BaseModel.define({
         offline: {
             // Used in Kidoju-Mobile only
             type: CONSTANTS.BOOLEAN,
+            editable: false
+        },
+        publicationId: {
+            type: CONSTANTS.STRING,
+            nullable: true,
             editable: false
         },
         published: {
@@ -101,12 +106,6 @@ export const LazySummary = BaseModel.define({
             type: CONSTANTS.DATE,
             editable: false
         },
-        userId: {
-            from: 'author.userId',
-            type: CONSTANTS.STRING,
-            editable: false,
-            nullable: true
-        },
         userScore: {
             // Used in Kidoju-Mobile only
             type: CONSTANTS.NUMBER,
@@ -120,17 +119,16 @@ export const LazySummary = BaseModel.define({
             editable: false
         }
     },
-    authorName$() {
-        return `${(this.get('firstName') || '').trim()} ${(
-            this.get('lastName') || ''
-        ).trim()}`.trim();
-    },
     authorUri$() {
         return format(
             config.uris.webapp.user,
             this.get('language'),
-            this.get('userId')
+            this.get('authorId')
         );
+    },
+    created$() {
+        // TODO Add timezone
+        return this.get('created');
     },
     hasUserScore$() {
         // Used in Kidoju-Mobile only
@@ -162,6 +160,19 @@ export const LazySummary = BaseModel.define({
             userScore < 75
         );
     },
+    playerUri$() {
+        // TODO test window.cordova or config.uris.webapp to build a mobile URI
+        return format(
+            config.uris.webapp.player,
+            this.get('language'),
+            this.get('id'),
+            this.get('publicationId')
+        );
+    },
+    published$() {
+        // TODO Add timezone
+        return this.get('published');
+    },
     summaryUri$() {
         // TODO test window.cordova or config.uris.webapp to build a mobile URI
         return format(
@@ -187,6 +198,10 @@ export const LazySummary = BaseModel.define({
             }));
         }
         return ret;
+    },
+    updated$() {
+        // TODO Add timezone
+        return this.get('updated');
     },
     userScore$() {
         // Used in Kidoju-Mobile only
@@ -214,11 +229,10 @@ export const LazySummary = BaseModel.define({
 /**
  * lazySummaryTransport
  */
-export const lazySummaryTransport = new LazyRemoteTransport({
+const lazySummaryTransport = new LazyRemoteTransport({
     collection: new AjaxSummaries({
-        partition: {
-            language: i18n.locale()
-        }
+        partition: getAuthorReference(),
+        projection: BaseModel.projection(LazySummary)
     })
 });
 
@@ -227,33 +241,30 @@ export const lazySummaryTransport = new LazyRemoteTransport({
  * @class LazySummaryDataSource
  * @extends DataSource
  */
-export const LazySummaryDataSource = DataSource.extend({
+const LazySummaryDataSource = DataSource.extend({
     init(options = {}) {
         DataSource.fn.init.call(
             this,
-            $.extend(true, { pageSize: 5 }, options, {
-                transport: lazySummaryTransport,
-                schema: normalizeSchema({
-                    modelBase: LazySummary,
-                    model: LazySummary
-                }),
-                serverFiltering: true,
-                serverSorting: true,
-                serverPaging: true
-            })
+            $.extend(
+                true,
+                { pageSize: CONSTANTS.DATA_PAGE_SIZE.SMALL },
+                options,
+                {
+                    transport: lazySummaryTransport,
+                    schema: normalizeSchema({
+                        modelBase: LazySummary,
+                        model: LazySummary
+                    }),
+                    serverFiltering: true,
+                    serverSorting: true,
+                    serverPaging: true
+                }
+            )
         );
     }
-
-    /**
-     * Sets the partition and queries the data source
-     * @param options
-     */
-    /*
-    load: function (options) {
-        if (options && $.isPlainObject(options.partition)) {
-            this.transport.partition(options.partition);
-        }
-        return this.query(options);
-    }
-    */
 });
+
+/**
+ * Export
+ */
+export { LazySummary, LazySummaryDataSource };

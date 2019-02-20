@@ -59,8 +59,12 @@ const BaseTransport = Class.extend({
                 CONSTANTS.STRING
             )
         );
-        this.partition(options.partition);
-        this.projection(options.projection);
+        if ($.isPlainObject(options.partition)) {
+            this.partition(options.partition);
+        }
+        if ($.isPlainObject(options.projection)) {
+            this.projection(options.projection);
+        }
         if ($.isFunction(options.parameterMap)) {
             this.parameterMap = options.parameterMap.bind(this);
         }
@@ -98,7 +102,7 @@ const BaseTransport = Class.extend({
         );
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            ret = this._partition;
+            ret = this._partition || {};
         } else {
             this._partition = value;
         }
