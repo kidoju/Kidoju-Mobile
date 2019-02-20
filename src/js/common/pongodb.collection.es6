@@ -33,7 +33,7 @@ function deepClone(obj) {
             let key = _key;
             if (key !== '__v') {
                 // Strip _id from _
-                if (CONSTANTS.RX_MONGODB_KEY.test(key)) {
+                if (CONSTANTS.RX_MONGODB_IDKEY.test(key)) {
                     key = key.substr(1);
                 }
                 // Flatten $oid

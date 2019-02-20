@@ -47,7 +47,11 @@ const CONSTANTS = {
     POINTEROVER: 'pointerover',
     POINTERUP: 'pointerup',
     PROGRESS: 'progress',
+    REFRESH: 'refresh',
+    REQUESTEND: 'requestEnd',
+    RESIZE: 'resize',
     SELECT: 'select',
+    SIGNOUT: 'signout',
     TAP: 'tap',
     TOUCHEND: 'touchend',
     // TOUCHLEAVE: 'touchleave', // <-- See https://developer.mozilla.org/en-US/docs/Web/Events/touchleave
@@ -94,9 +98,11 @@ const CONSTANTS = {
     // Regular Expressions
     RX_GUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     RX_ISODATE: /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|[+|-]([\d|:]*))?$/,
+    RX_KEYWORD: /^[^\s<>{}][^<>{}]{0,23}[^\s<>{}]$/,
     RX_LANGUAGE: /^[a-z]{2}$/,
     RX_MONGODB_ID: /^[a-f0-9]{24}$/,
-    RX_MONGODB_KEY: /^_(i|[a-z]*I)d$/,
+    RX_MONGODB_IDKEY: /^_(i|[a-z]*I)d$/,
+    RX_NAME_OR_TITLE: /^[^\s<>{}][^<>{}]{0,58}[^\s<>{}]$/, // matches the regular expression in schemaValidators.nameOrTitle
     RX_URL: /^https?:\/\//,
     RX_TEST_FIELD_NAME: /^val_[a-z0-9]{6}$/,
     // Characters
@@ -107,14 +113,26 @@ const CONSTANTS = {
     EMPTY: '',
     EQUAL: '=',
     HASH: '#',
+    HASHBANG: '#', // '#!',
     HYPHEN: '-',
     SEMICOLON: ';',
+    SLASH: '/',
     UNDERSCORE: '_',
     // Miscellaneous
     ACTION: 'action',
     ACTIVE: 'active',
+    DATA_PAGE_SIZE: {
+        SMALL: 5,
+        MEDIUM: 10,
+        MAX: 100
+    },
     ID: 'id',
     ME: 'me',
+    PANEL_STATE: {
+        CLOSED: 0,
+        READ: 1,
+        EDIT: 2
+    },
     POINTER: 'pointer',
     STAGE_MODES: {
         DESIGN: 'design',
@@ -122,6 +140,10 @@ const CONSTANTS = {
         REVIEW: 'review'
     },
     UID: 'uid',
+    WORKFLOW: {
+        DRAFT: 0,
+        PUBLISHED: 5
+    },
     // HTML tags
     A: 'a',
     BODY: 'body',
