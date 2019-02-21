@@ -10,7 +10,7 @@ const { expect } = require('chai');
 const logger = require('@wdio/logger').default('test');
 
 // Enhance browser with our Ex functions
-require('../_misc/selenium.util.es6');
+require('./_misc/selenium.util.es6');
 
 // const WAIT = 2000;
 const SCREEN = {

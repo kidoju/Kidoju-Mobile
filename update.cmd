@@ -264,10 +264,10 @@ REM ATTRIB -R .\test\browser\*
 REM COPY ..\Kidoju.Webapp\test\browser\* .\test\browser /Y
 REM ATTRIB +R .\test\browser\*
 
-REM Copy ./test/_misc files
-ATTRIB -R .\test\_misc\selenium.util.es6
-COPY ..\Kidoju.Webapp\test\_misc\selenium.util.es6 .\test\_misc /Y
-ATTRIB +R .\test\_misc\selenium.util.es6
+REM Copy ./test/selenium/_misc files
+ATTRIB -R .\test\selenium\_misc\selenium.util.es6
+COPY ..\Kidoju.Webapp\test\selenium\_misc\selenium.util.es6 .\test\selenium\_misc /Y
+ATTRIB +R .\test\selenium\_misc\selenium.util.es6
 
 REM Copy Vendor files
 XCOPY ..\Kidoju.Widgets\test\vendor .\test\vendor /C /E /I /R /Y
