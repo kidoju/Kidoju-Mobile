@@ -53,10 +53,7 @@ function format(message, ...args) {
     args.forEach((arg, idx) => {
         // Note: we definitely need \\ in the following regular expression
         const rx = new RegExp(`\\{${idx.toString()}\\}`, 'g');
-        ret = ret.replace(
-            rx,
-            $.isFunction((arg || {}).toString) ? arg.toString() : ''
-        );
+        ret = ret.replace(rx, String(arg));
     });
     return ret;
 }

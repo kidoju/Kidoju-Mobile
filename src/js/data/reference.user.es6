@@ -6,11 +6,10 @@
 import 'kendo.core';
 import config from '../app/app.config.jsx';
 import i18n from '../app/app.i18n.es6';
+import { userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 import { UserMetricsReference } from './reference.metrics';
-
-const { format } = window.kendo;
 
 /**
  * UserReference
@@ -63,7 +62,7 @@ const UserReference = BaseModel.define({
         ).trim()}`.trim();
     },
     userUri$() {
-        return format(config.uris.webapp.user, i18n.locale(), this.get('id'));
+        return userUri(i18n.locale, this.get('id'));
     }
 });
 

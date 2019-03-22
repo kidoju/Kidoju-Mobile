@@ -7,16 +7,14 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.core';
-import config from '../app/app.config.jsx';
 import i18n from '../app/app.i18n.es6';
+import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxUsers from '../rapi/rapi.users.es6';
 import BaseModel from './data.base.es6';
 import extendModelWithTransport from './mixins.transport.es6';
 import CacheItemStrategy from './strategy.cache.item.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
-
-const { format } = window.kendo;
 
 /**
  * Me (current user)
@@ -60,13 +58,13 @@ const Me = BaseModel.define({
         ).trim()}`.trim();
     },
     picture$() {
-        return this.get('picture') || format(config.uris.cdn.icons, 'user');
+        return this.get('picture') || iconUri('user');
     },
     isAuthenticated$() {
         return CONSTANTS.RX_MONGODB_ID.test(this.get('id'));
     },
     userUri$() {
-        return format(config.uris.webapp.user, i18n.locale(), this.get('id'));
+        return userUri(i18n.locale, this.get('id'));
     }
 });
 

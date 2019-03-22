@@ -7,9 +7,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import config from '../app/app.config.jsx';
 import i18n from '../app/app.i18n.es6';
 import { getLanguageReference } from '../app/app.partitions.es6';
+import { iconUri, summaryUri } from '../app/app.uris.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxSummaries from '../rapi/rapi.summaries.es6';
@@ -48,7 +48,7 @@ const NewSummary = BaseModel.define({
         },
         language: {
             type: CONSTANTS.STRING,
-            defaultValue: i18n.locale(),
+            defaultValue: i18n.locale,
             editable: false,
             validation: {
                 required: true
@@ -87,7 +87,7 @@ const NewSummary = BaseModel.define({
                 me.userId = me.id;
                 // delete me.picture;
                 that.set('author', new models.UserReference(me));
-                // that.set('language', i18n.locale());
+                // that.set('language', i18n.locale);
             }
         });
     },
@@ -114,7 +114,7 @@ const NewSummary = BaseModel.define({
             type: that.get('type.value')
         };
         // Call server to create a new summary and return a promise
-        return rapi.v1.content.createSummary(i18n.locale(), newSummary);
+        return rapi.v1.content.createSummary(i18n.locale, newSummary);
     }
     */
 });
@@ -217,11 +217,7 @@ const Summary = BaseModel.define({
                     Array.isArray(activities) &&
                     CONSTANTS.RX_MONGODB_ID.test(app._userId)
                 ) {
-                    for (
-                        let i = 0, length = activities.length;
-                        i < length;
-                        i++
-                    ) {
+                    for (let i = 0, { length } = activities; i < length; i++) {
                         if (activities[i].actorId === app._userId) {
                             return activities[i].score;
                         }
@@ -240,8 +236,7 @@ const Summary = BaseModel.define({
         return $.type(this.get('userScore')) === CONSTANTS.NUMBER;
     },
     icon$() {
-        return format(
-            window.cordova ? config.uris.mobile.icons : config.uris.cdn.icons,
+        return iconUri(
             this.get('icon')
         );
     },
@@ -266,11 +261,7 @@ const Summary = BaseModel.define({
         );
     },
     summaryUri$() {
-        return format(
-            config.uris.webapp.summary,
-            this.get('language'),
-            this.get('id')
-        );
+        return summaryUri(this.get('language'), this.get('id'));
     },
     tags$() {
         return this.get('tags').join(', ');
@@ -296,7 +287,7 @@ const Summary = BaseModel.define({
         if (CONSTANTS.RX_MONGODB_ID.test(data)) {
             // data is a summary id and we fetch a full summary
             rapi.v1.content
-                .getSummary(i18n.locale(), data)
+                .getSummary(i18n.locale, data)
                 .then(summary => {
                     that.accept(summary);
                     dfd.resolve(summary);
@@ -316,7 +307,7 @@ const Summary = BaseModel.define({
                 // We therefore need to fetch a full summary
                 // data is a summary id and we fetch a full summary
                 rapi.v1.content
-                    .getSummary(i18n.locale(), data.id)
+                    .getSummary(i18n.locale, data.id)
                     .then(summary => {
                         that.accept(summary);
                         dfd.resolve(summary);

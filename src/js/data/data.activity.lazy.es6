@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.data';
 import config from '../app/app.config.jsx';
 import { getActorReference } from '../app/app.partitions.es6';
+import { summaryUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
@@ -125,17 +126,14 @@ const LazyActivity = BaseModel.define({
         // ).trim();
     },
     actorUri$() {
-        return format(
-            config.uris.webapp.user,
-            this.get('language'),
-            this.get('userId')
-        );
+        return userUri(this.get('language'), this.get('userId'));
     },
     date$() {
         // TODO timezones
         return this.get('date');
     },
     scoreUri$() {
+        // TODO use app.uris.es6
         return (
             format(
                 config.uris.webapp.player,
@@ -149,11 +147,7 @@ const LazyActivity = BaseModel.define({
         // Some activities like `creation` may refer to unpublished summaries and we do not know whether the summary is published or not
         // Therefore, we should always bypass server-side data requests to display such summaries
         // This is not an issue regarding SEO because activities are only displayed to authenticated user
-        return format(
-            config.uris.webapp.summary,
-            this.get('language'),
-            this.get('summaryId')
-        );
+        return summaryUri(this.get('language'), this.get('summaryId'));
     }
 });
 
@@ -288,7 +282,7 @@ const ScoreDataSource = DataSource.extend({
             }
             options.data.sort = [{ field: 'id', dir: 'desc' }];
             rapi.v1.content.findSummaryActivities(
-                i18n.locale(),
+                i18n.locale,
                 that.summaryId,
                 options.data
             )

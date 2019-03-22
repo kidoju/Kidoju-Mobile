@@ -92,7 +92,8 @@ const CacheCollectionStrategy = Class.extend({
         assert.crud(options);
         const { _cache, _key, _ttl } = this;
         const data = this._cache.getItem(_key);
-        if (Array.isArray(data) && data.length) {
+        // if ($.type(data) !== CONSTANTS.NULL) {
+        if (Array.isArray(data)) {
             const query = Query.process(
                 data,
                 // total is undefined when filter is undefined

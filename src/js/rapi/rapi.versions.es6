@@ -73,7 +73,7 @@ class AjaxVersions extends AjaxBase {
                 config.uris.rapi.v1.version,
                 this._partition.language,
                 this._partition.summaryId,
-                id
+                id || 'draft'
             );
         }
         return ret;
@@ -86,6 +86,10 @@ class AjaxVersions extends AjaxBase {
      */
     _extendQuery(query) {
         return super._extendQuery(query);
+    }
+
+    draft(query) {
+        return super.get(undefined, query);
     }
 }
 

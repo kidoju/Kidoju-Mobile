@@ -245,11 +245,22 @@ export function xhr2error(xhr, status, errorThrown) {
     if (xhr instanceof Error) {
         // When there is an error thrown in the promise
         error = xhr;
-    } else {
+    } else if (xhr.responseJSON) {
         // When the promise (based on $.ajax) completes
-        error = new Error(errorThrown);
+        const jsonError = xhr.responseJSON.error || {};
+        error = new Error(jsonError.message || errorThrown || 'Unknown error');
         error.code = xhr.status;
-        error.originalError = xhr.responseJSON;
+        const { originalError } = jsonError;
+        if (originalError) {
+            error.originalError = new Error(
+                originalError.message || 'Unknown error'
+            );
+            error.originalError.stack = originalError.stack;
+        }
+    } else {
+        // When api server is unavailable errorThrown is '' (and xhr.status === 0)
+        error = new Error(errorThrown || 'Unknown error');
+        error.code = xhr.status;
     }
     return error;
 }

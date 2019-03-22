@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import config from '../app/app.config.jsx';
+import { editUri, playUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 import i18n from '../app/app.i18n.es6';
@@ -57,20 +57,16 @@ const LazyVersion = BaseModel.define({
         // userId
     },
     playUri$() {
-        return format(
-            config.uris.webapp.player,
-            i18n.locale(),
-            this.get('summaryId'),
-            this.get('id'),
-            ''
-        ).slice(0, -1);
-    },
-    editUri$() {
-        return format(
-            config.uris.webapp.editor,
-            i18n.locale(),
+        return playUri(
+            i18n.locale,
             this.get('summaryId'),
             this.get('id')
+        );
+    },
+    editUri$() {
+        return editUri(
+            i18n.locale,
+            this.get('summaryId')
         );
     },
     iframe$() {

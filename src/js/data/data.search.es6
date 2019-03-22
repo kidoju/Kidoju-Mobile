@@ -7,12 +7,14 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
+import { finderUri } from '../app/app.uris.es6';
 import config from '../app/app.config.jsx';
 import i18n from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 
+const { location } = window;
 const { format } = window.kendo;
 
 /**
@@ -247,18 +249,18 @@ const Search = BaseModel.define({
                 CONSTANTS.RX_MONGODB_ID
             )
         );
-        const root = `${window.location.protocol}//${window.location.host}`;
-        let finder = format(config.uris.webapp.finder, i18n.locale());
-        finder =
-            finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
+        const root = `${location.protocol}//${location.host}`;
+        let href = finderUri(i18n.locale);
+        href =
+            href.indexOf(root) === 0 ? href.substr(root.length) : href;
         const favourite = {
             name: this.get('favourite').trim(),
-            path: finder + this.getHash(true)
+            path: href + this.getHash(true)
         };
         // TODO: we should rather update the cache
-        app.cache.removeMyFavourites(i18n.locale());
+        app.cache.removeMyFavourites(i18n.locale);
         // Save a favourite on the current user
-        return rapi.v1.user.createMyFavourite(i18n.locale(), favourite);
+        return rapi.v1.user.createMyFavourite(i18n.locale, favourite);
     }
 });
 

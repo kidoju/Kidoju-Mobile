@@ -79,7 +79,7 @@ class AjaxWebSearch extends AjaxBase {
                 ret.q = query.filter.filters[1].value || '';
             }
             ret.type = this._searchType;
-            ret.language = i18n.locale();
+            ret.language = i18n.locale;
             return ret;
         }
         return super._extendQuery(query);

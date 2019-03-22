@@ -9,8 +9,14 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import config from '../app/app.config.jsx';
 import { getAuthorReference } from '../app/app.partitions.es6';
+import {
+    editUri,
+    iconUri,
+    playUri,
+    summaryUri,
+    userUri
+} from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
@@ -19,7 +25,6 @@ import { normalizeSchema } from './data.util.es6';
 
 const {
     data: { DataSource, ObservableArray },
-    format,
     toString
 } = window.kendo;
 
@@ -120,25 +125,21 @@ const LazySummary = BaseModel.define({
         }
     },
     authorUri$() {
-        return format(
-            config.uris.webapp.user,
-            this.get('language'),
-            this.get('authorId')
-        );
+        return userUri(this.get('language'), this.get('authorId'));
     },
     created$() {
         // TODO Add timezone
         return this.get('created');
+    },
+    editUri$() {
+        return editUri(this.get('language'), this.get('id'));
     },
     hasUserScore$() {
         // Used in Kidoju-Mobile only
         return $.type(this.get('userScore')) === CONSTANTS.NUMBER;
     },
     icon$() {
-        return format(
-            window.cordova ? config.uris.mobile.icons : config.uris.cdn.icons,
-            this.get('icon')
-        );
+        return iconUri(this.get('icon'));
     },
     isError$() {
         // Used in Kidoju-Mobile only
@@ -160,10 +161,8 @@ const LazySummary = BaseModel.define({
             userScore < 75
         );
     },
-    playerUri$() {
-        // TODO test window.cordova or config.uris.webapp to build a mobile URI
-        return format(
-            config.uris.webapp.player,
+    playUri$() {
+        return playUri(
             this.get('language'),
             this.get('id'),
             this.get('publicationId')
@@ -174,12 +173,7 @@ const LazySummary = BaseModel.define({
         return this.get('published');
     },
     summaryUri$() {
-        // TODO test window.cordova or config.uris.webapp to build a mobile URI
-        return format(
-            config.uris.webapp.summary,
-            this.get('language'),
-            this.get('id')
-        );
+        return summaryUri(this.get('language'), this.get('id'));
     },
     tags$() {
         let ret = [];

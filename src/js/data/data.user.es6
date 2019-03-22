@@ -3,8 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-import config from '../app/app.config.jsx';
 import i18n from '../app/app.i18n.es6';
+import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxUsers from '../rapi/rapi.users.es6';
 import BaseModel from './data.base.es6';
@@ -13,8 +13,6 @@ import { UserMetricsReference } from './reference.metrics.es6';
 // import Me from './data.me.es6';
 // import LocalFirstStrategy from './strategy.local.first.es6';
 import RemoteTransport from './transports.remote.es6';
-
-const { format } = window.kendo;
 
 /**
  * Account
@@ -286,7 +284,7 @@ const User = BaseModel.define({
      * @returns {*}
      */
     picture$() {
-        return this.get('picture') || format(config.uris.cdn.icons, 'user');
+        return this.get('picture') || iconUri('user');
     },
 
     /**
@@ -294,7 +292,7 @@ const User = BaseModel.define({
      * @returns {*}
      */
     userUri$() {
-        return format(config.uris.webapp.user, i18n.locale(), this.get('id'));
+        return userUri(i18n.locale, this.get('id'));
     },
 
     /**
@@ -314,7 +312,7 @@ const User = BaseModel.define({
             'black'
         ];
         const index = Math.min(Math.floor(points / 10), 7);
-        return format(config.uris.cdn.icons, `medal_${medals[index]}`);
+        return iconUri(`medal_${medals[index]}`);
     },
 
     /**
@@ -334,7 +332,7 @@ const User = BaseModel.define({
             'black'
         ];
         const index = Math.min(Math.floor(points / 10), 7);
-        return format(config.uris.cdn.icons, `medal2_${medals[index]}`);
+        return iconUri(`medal2_${medals[index]}`);
     }
 
     /**

@@ -36,13 +36,13 @@ const BaseController = Observable.extend({
      */
     init() {
         Observable.fn.init.call(this);
-        this.readAccessToken();
+        this.initializers = [this.readAccessToken()];
     },
 
     /**
      * readAccessToken
      * Detect and parse #access_token form window.location (see oAuth callback)
-     * CAREFUL: getHeaders({ security: true, trace: true }) is therefore not available until the HTML page is fully loaded!
+     * CAREFUL: getHeaders({ security: true, trace: true }) is therefore not available until this is executed
      * @function readAccessToken
      */
     readAccessToken() {
@@ -52,6 +52,7 @@ const BaseController = Observable.extend({
         //     // In chrome apps, the following throws an error
         //     !(chrome && $.isEmptyObject(chrome.app))
         // ) {
+        const dfd = $.Deferred();
         parseToken(location.href)
             .then(token => {
                 if ($.type(token) !== CONSTANTS.NULL) {
@@ -66,11 +67,11 @@ const BaseController = Observable.extend({
                     // Clean history (to avoid parsing the token again when clicking back)
                     cleanHistory();
                 }
-                // Raise success event
-                this.trigger(BaseController.fn.events.success, { token });
                 // With or without a token in window.location,
                 // we need to periodically renew the token before it expires
-                // TODO this.renewAccessToken();
+                this.renewAccessToken();
+
+                dfd.resolve({ token });
             })
             .catch(error => {
                 logger.error({
@@ -80,10 +81,11 @@ const BaseController = Observable.extend({
                 });
                 // Let's simply discard any attempt to set a token that does not pass the checks here above
                 clearToken();
-                // Notify page (we may have qs.error)
-                this.trigger(BaseController.fn.events.failure);
+                // Pass error
+                dfd.reject(error);
             });
         // }
+        return dfd.promise();
     },
 
     /**
@@ -93,9 +95,9 @@ const BaseController = Observable.extend({
      */
     renewAccessToken() {
         let token = getToken();
-        console.log('-----------------------------------------> RENEW!');
         if ($.isPlainObject(token) && token.expires <= 24 * 60 * 60) {
-            // if we have a short life token (Google and Live), i.e. expires === 3600, read token every minute and refresh no later than 15 minutes before expiration
+            // if we have a short life token (Google and Live), i.e. expires === 3600,
+            // read token every minute and refresh no later than 15 minutes before expiration
             setInterval(() => {
                 // we need to read the token again because if we remain a couple of hours on the same page (e.g. test designer), the token might have already been refreshed
                 token = getToken();
@@ -103,10 +105,12 @@ const BaseController = Observable.extend({
                     $.isPlainObject(token) &&
                     Date.now() > token.ts + (token.expires - 10 * 60) * 1000
                 ) {
+                    console.log('-----------------------------------------> RENEW TOKEN!');
                     refresh();
                 }
-            }, 60 * 1000);
+            }, 60 * 1000); // every minute
         }
+        // TODO Remove session ME when required
         /*
          } else if ($.isPlainObject(token) &&  token.expires > 24 * 60 * 60) {
             // if we have a long life token (Facebook and Twitter), refresh is not available and we need to reset the token upon page load
@@ -118,15 +122,6 @@ const BaseController = Observable.extend({
          */
     }
 });
-
-/**
- * BaseController events
- * @type {{failure: string, success: string}}
- */
-BaseController.fn.events = {
-    failure: 'authFailure',
-    success: 'authSuccess'
-};
 
 /**
  * Default export

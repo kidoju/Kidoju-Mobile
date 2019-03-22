@@ -179,13 +179,26 @@ try {
                 )
             },
             v1: {
+                activities: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.activities %>')
+                ),
+                activity: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.activity %>')
+                ),
                 categories: url.resolve(
                     '<%- uris.rapi.root %>',
                     convertFormat('<%- uris.rapi.v1.categories %>')
                 ),
+                // TODO files
                 me: url.resolve(
                     '<%- uris.rapi.root %>',
                     convertFormat('<%- uris.rapi.v1.me %>')
+                ),
+                myActivities: url.resolve(
+                    '<%- uris.rapi.root %>',
+                    convertFormat('<%- uris.rapi.v1.myActivities %>')
                 ),
                 mySummaries: url.resolve(
                     '<%- uris.rapi.root %>',
@@ -199,6 +212,7 @@ try {
                     '<%- uris.rapi.root %>',
                     convertFormat('<%- uris.rapi.v1.summary %>')
                 ),
+                // TODO organizations and organization
                 user: url.resolve(
                     '<%- uris.rapi.root %>',
                     convertFormat('<%- uris.rapi.v1.user %>')

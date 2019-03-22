@@ -17,7 +17,7 @@ transport: {
      * @param options
      */
     destroy: function (options) {
-        var locale = i18n.locale();
+        var locale = i18n.locale;
         var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
         var data = options.data;
 
@@ -57,7 +57,7 @@ transport: {
      * @param options
      */
     read: function (options) {
-        var locale = i18n.locale();
+        var locale = i18n.locale;
         var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
         assert.match(RX_LANGUAGE, locale, assert.format(assert.messages.match.default, 'locale', RX_LANGUAGE));
         assert.match(RX_MONGODB_ID, params.summaryId, assert.format(assert.messages.match.default, params.summaryId, RX_MONGODB_ID));
@@ -98,7 +98,7 @@ transport: {
      * @param options
      */
     upload: function (options) {
-        var locale = i18n.locale();
+        var locale = i18n.locale;
         var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
         var data = options.data;
 
@@ -176,7 +176,7 @@ transport: {
      * @param options
      */
 import: function (options) {
-        var locale = i18n.locale();
+        var locale = i18n.locale;
         var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
         var data = options.data;
 

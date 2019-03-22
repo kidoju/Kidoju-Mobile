@@ -42,8 +42,8 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
                 // data: options.data
             });
             $.when(
-                app.cache.getFavouriteHierarchy(i18n.locale()),
-                app.cache.getCategoryHierarchy(i18n.locale())
+                app.cache.getFavouriteHierarchy(i18n.locale),
+                app.cache.getCategoryHierarchy(i18n.locale)
             )
             .then(function (favourites, categories) {
                 var rootNodes = i18n.culture.finder.treeview.rootNodes;
@@ -71,9 +71,9 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
             // assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.isNonEmptyPlainObject(options.data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
             assert.match(RX_MONGODB_ID, options.data.id, assert.format(assert.messages.match.default, 'options.data.id', RX_MONGODB_ID));
-            return app.rapi.v1.user.deleteMyFavourite(i18n.locale(), options.data.id)
+            return app.rapi.v1.user.deleteMyFavourite(i18n.locale, options.data.id)
             .then(function () {
-                app.cache.removeMyFavourites(i18n.locale())
+                app.cache.removeMyFavourites(i18n.locale)
                 .always(function () {
                     options.success(options.data);
                 });

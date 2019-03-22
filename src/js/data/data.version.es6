@@ -10,9 +10,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.core';
-import config from '../app/app.config.jsx';
 import i18n from '../app/app.i18n.es6';
 import { getSummaryReference } from '../app/app.partitions.es6';
+import { editUri, playUri } from '../app/app.uris.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxVersions from '../rapi/rapi.versions.es6';
@@ -20,8 +20,6 @@ import BaseModel from './data.base.es6';
 import Stream from './data.stream.es6';
 import RemoteTransport from './transports.remote.es6';
 import extendModelWithTransport from './mixins.transport.es6';
-
-const { format } = window.kendo;
 
 /**
  * Version
@@ -93,29 +91,16 @@ const Version = BaseModel.define({
         return this.get('updated');
     },
     playUri$() {
-        // TODO window.cordova?
-        return format(
-            config.uris.webapp.player,
-            i18n.locale(),
-            this.get('summaryId'),
-            this.get('id'),
-            ''
-        ).slice(0, -1);
+        return playUri(i18n.locale, this.get('summaryId'), this.get('id'));
     },
     editUri$() {
-        // TODO window.cordova?
-        return format(
-            config.uris.webapp.editor,
-            i18n.locale(),
-            this.get('summaryId'),
-            this.get('id')
-        );
+        return editUri(i18n.locale, this.get('summaryId'));
     }
     /*
     load(summaryId, versionId) {
         const that = this;
         return rapi.v1.content
-            .getSummaryVersion(i18n.locale(), summaryId, versionId)
+            .getSummaryVersion(i18n.locale, summaryId, versionId)
             .then(version => {
                 that.accept(version);
                 assert.equal(

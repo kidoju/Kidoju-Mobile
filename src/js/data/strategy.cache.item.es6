@@ -5,6 +5,7 @@
 
 // TODO: we need to clear cache from old entries in init
 // TODO page/pageSize
+// TODO Maybe should inherit from BaseTransport ???????????????
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -26,7 +27,6 @@ const {
  * @class CacheItemStrategy
  * extends Class
  */
-// TODO Maybe should inherit from BaseTransport ???????????????
 const CacheItemStrategy = Class.extend({
     /**
      * Init

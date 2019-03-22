@@ -193,6 +193,7 @@ class AjaxBase {
     get(id, query) {
         if ($.type(id) !== CONSTANTS.UNDEFINED) {
             // ping or me designate no id
+            // draft version designates no id
             assert.match(
                 CONSTANTS.RX_MONGODB_ID,
                 id,

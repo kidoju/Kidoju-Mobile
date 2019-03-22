@@ -7,8 +7,8 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import config from '../app/app.config.jsx';
 import i18n from '../app/app.i18n.es6';
+import { finderUri, iconUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxCategories from '../rapi/rapi.categories.es6';
 import BaseModel from './data.base.es6';
@@ -16,13 +16,14 @@ import { normalizeSchema } from './data.util.es6';
 import CacheCollectionStrategy from './strategy.cache.collection.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
 
+const { location } = window;
 const {
-    data: { DataSource, HierarchicalDataSource, Node, ObservableArray },
-    format
+    data: { DataSource, HierarchicalDataSource, Node, ObservableArray }
 } = window.kendo;
 const LEVEL_CHARS = 4;
 const TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
-const RX_TRIM_LEVEL = new RegExp(`(0{${LEVEL_CHARS}})+$`, 'g');
+const RX_TRIM = new RegExp(`(0{${LEVEL_CHARS}})+$`);
+const RX_O4 = new RegExp(`(0{${LEVEL_CHARS}})`, 'g');
 const F4 = new Array(LEVEL_CHARS).fill('f').join(CONSTANTS.EMPTY);
 const O16 = new Array(24 - TOP_LEVEL_CHARS).fill('0').join(CONSTANTS.EMPTY);
 
@@ -73,10 +74,6 @@ const LazyCategory = BaseModel.define({
         name: {
             type: CONSTANTS.STRING,
             editable: false
-        },
-        path: {
-            defaultValue: [],
-            editable: false
         }
     },
     /**
@@ -85,34 +82,11 @@ const LazyCategory = BaseModel.define({
      * We use `depth` because `level` is used in kendo.ui.TreeView
      */
     depth$() {
-        // return (this.get(this.idField).replace(RX_TRIM_LEVEL, '').length - TOP_LEVEL_CHARS) / LEVEL_CHARS;
-        return (this.get('path') || []).length;
-    },
-    /**
-     * The icon representing the category
-     */
-    icon$() {
-        return format(
-            window.cordova ? config.uris.mobile.icons : config.uris.cdn.icons,
-            this.get('icon')
+        return (
+            (this.get(this.idField).replace(RX_TRIM, CONSTANTS.EMPTY).length -
+                TOP_LEVEL_CHARS) /
+            LEVEL_CHARS
         );
-    },
-    /**
-     * The id of the parent category
-     * @returns {string}
-     */
-    parentId$() {
-        // Top categories have a parentId$ which is undefined
-        // var trimmedId = this.get(this.idField).replace(RX_TRIM_LEVEL, '');
-        // if (trimmedId.length >= TOP_LEVEL_CHARS + LEVEL_CHARS) {
-        //     return (trimmedId.substr(0, trimmedId.length - LEVEL_CHARS) + O16).substr(0, 24);
-        // }
-        const path = this.get('path') || [];
-        let ret;
-        if (path.length) {
-            ret = path[path.length - 1].id;
-        }
-        return ret;
     },
     /**
      * The filter to list all summaries belonging to a category
@@ -131,11 +105,63 @@ const LazyCategory = BaseModel.define({
                     {
                         field: 'categoryId',
                         operator: 'lte',
-                        value: this.get('id').replace(RX_TRIM_LEVEL, F4)
+                        value: this.get('id').replace(RX_O4, F4)
                     }
                 ]
             }
         });
+    },
+    /**
+     * The icon representing the category
+     */
+    icon$() {
+        return iconUri(this.get('icon'));
+    },
+    /**
+     * The id of the parent category
+     * @returns {string}
+     */
+    parentId$() {
+        // Top categories have a parentId$ which is undefined
+        let ret;
+        const trimmedId = this.get(this.idField).replace(
+            RX_TRIM,
+            CONSTANTS.EMPTY
+        );
+        if (trimmedId.length >= TOP_LEVEL_CHARS + LEVEL_CHARS) {
+            ret = (
+                trimmedId.substr(0, trimmedId.length - LEVEL_CHARS) + O16
+            ).substr(0, 24);
+        }
+        return ret;
+    },
+    /**
+     * The path to the parent categories up to the root
+     * Note: this does not include the item itself
+     * @returns {Array}
+     */
+    path$() {
+        const ret = [];
+        const data = this.parent();
+        function finder(id) {
+            return r => r.get(r.idField) === id;
+        }
+        if (data instanceof ObservableArray) {
+            let item = this;
+            let id = $.isFunction(item.parentId$)
+                ? item.parentId$()
+                : undefined;
+            while (id) {
+                item = data.find(finder(id));
+                if (item) {
+                    ret.unshift(item);
+                }
+                id = item && $.isFunction(item.parentId$)
+                    ? item.parentId$()
+                    : undefined;
+            }
+        }
+        return ret;
     }
 });
 
@@ -143,11 +169,11 @@ const LazyCategory = BaseModel.define({
  * lazyCategoryTransport
  */
 const lazyCategoryTransport = new CacheCollectionStrategy({
-    key: `categories.${i18n.locale()}`,
+    key: `categories.${i18n.locale}`,
     transport: new LazyRemoteTransport({
         collection: new AjaxCategories({
             partition: {
-                language: i18n.locale()
+                language: i18n.locale
             }
         })
     })
@@ -252,17 +278,16 @@ const LazyRummage = Node.define({
      * @returns {*}
      */
     href$() {
-        const root = `${window.location.protocol}//${window.location.host}`;
-        let finder = format(config.uris.webapp.finder, i18n.locale());
-        finder =
-            finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
+        const root = `${location.protocol}//${location.host}`;
+        let href = finderUri(i18n.locale);
+        href = href.indexOf(root) === 0 ? href.substr(root.length) : href;
         switch (this.get('type')) {
             case 1: // home
                 // Note: without hashbang, the page is reloaded
-                return finder + CONSTANTS.HASHBANG;
+                return href + CONSTANTS.HASHBANG;
             case 2: // categories
                 return (
-                    finder +
+                    href +
                     CONSTANTS.HASHBANG +
                     $.param({
                         filter: {
@@ -277,7 +302,7 @@ const LazyRummage = Node.define({
                                     field: 'categoryId',
                                     operator: 'lte',
                                     value: this.get('id').replace(
-                                        RX_TRIM_LEVEL,
+                                        RX_O4,
                                         F4
                                     )
                                 }
@@ -298,10 +323,7 @@ const LazyRummage = Node.define({
      * @returns {*}
      */
     icon$() {
-        return format(
-            window.cordova ? config.uris.mobile.icons : config.uris.cdn.icons,
-            this.get('icon')
-        );
+        return iconUri(this.get('icon'));
     },
 
     /**
@@ -316,11 +338,11 @@ const LazyRummage = Node.define({
             item.parent() instanceof ObservableArray &&
             $.isFunction(item.parent().parent) &&
             item.parent().parent() instanceof LazyRummage
-        ) {
+            ) {
             item = item.parent().parent();
-            ret.push(item);
+            ret.unshift(item);
         }
-        return ret.reverse();
+        return ret;
     }
 });
 
@@ -364,7 +386,7 @@ function parse(response) {
             name: item.name,
             type: 2
         };
-        const trimmedId = id.replace(RX_TRIM_LEVEL, CONSTANTS.EMPTY);
+        const trimmedId = id.replace(RX_TRIM, CONSTANTS.EMPTY);
         let parentId = 'root';
         if (trimmedId.length >= TOP_LEVEL_CHARS + LEVEL_CHARS) {
             parentId = `${trimmedId.substr(
@@ -409,6 +431,16 @@ const LazyCategoryHierarchicalDataSource = HierarchicalDataSource.extend({
         );
     }
 });
+
+// TODO COnsider affing change event handler
+// @see https://docs.telerik.com/kendo-ui/api/javascript/data/hierarchicaldatasource/methods/filter
+/*
+change: function(e) {
+    for (var i = 0; i < e.items.length; i++) {
+        e.items[i].load();
+    }
+}
+*/
 
 /**
  * LazyRummageHierarchicalDataSource

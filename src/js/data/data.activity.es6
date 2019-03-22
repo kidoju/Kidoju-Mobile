@@ -74,14 +74,14 @@ const Activity = BaseModel.define({
     /* ,
     load: function (summaryId, activityId) {
         var that = this;
-        return rapi.v1.content.getSummaryActivity(i18n.locale(), summaryId, activityId)
+        return rapi.v1.content.getSummaryActivity(i18n.locale, summaryId, activityId)
         .then(function (activity) {
             that.accept(activity);
         });
     },
     save: function () {
         var that = this;
-        var language = that.get('version.language') || i18n.locale();
+        var language = that.get('version.language') || i18n.locale;
         var summaryId = that.get('version.summaryId');
         var activity = that.toJSON(true); // true means with hierarchy of data sources
         if (that.isNew()) {
