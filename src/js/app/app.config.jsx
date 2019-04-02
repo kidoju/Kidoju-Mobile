@@ -54,41 +54,48 @@ function convertFormat(value) {
  */
 const config = {};
 
+/**
+ * Version
+ * Note: this is the only way to do it
+ * because version does not exist in configuration files loaded by ./web_modules/jsx_loader
+ */
 try {
     // Code is packaged via WebPack
-
-    /**
-     * Version
-     * Note: this is the only way to do it
-     * because version does not exist in configuration files loaded by ./web_modules/jsx_loader
-     */
     config.version = __VERSION__;
+} catch (ex) {
+    // __VERSION__ is undefined and JSON.parse fails
+    // Code is not packaged (i.e. unit tests)
+    config.version = false;
+}
 
-    /**
-     * Locales
-     */
-    config.locales = JSON.parse('<%- JSON.stringify(locales) %>');
+/**
+ * Locales
+ */
+config.locales = config.version
+    ? JSON.parse('<%- JSON.stringify(locales) %>')
+    : ['en', 'fr'];
 
-    /**
-     * Constants
-     * Note: This is replaced by app.constants.js in Kidoju-Mobile
-     */
-    config.constants = {
-        // Makes sure Kidoju-Mobile wins
+/**
+ * Constants
+ * Note: This is replaced by app.constants.js in Kidoju-Mobile
+ */
+config.constants = {
+    // Makes sure Kidoju-Mobile wins
 
-        // Application scheme
-        appScheme: '<%- application.scheme %>',
+    // Application scheme
+    appScheme: '<%- application.scheme %>',
 
-        // Facebook clientID
-        facebookAppId: '<%- facebook.clientID %>',
+    // Facebook clientID
+    facebookAppId: '<%- facebook.clientID %>',
 
-        // Twitter account
-        twitterAccount: '<%- twitter.account %>'
-    };
+    // Twitter account
+    twitterAccount: '<%- twitter.account %>'
+};
 
-    /**
-     * Assets
-     */
+/**
+ * Assets
+ */
+try {
     config.assets = {
         audio: {
             collections: JSON.parse(
@@ -134,208 +141,8 @@ try {
             // transport: JSON.parse('<%- JSON.stringify(assets.video.transport) %>')
         }
     };
-
-    /**
-     * URIs - See /wepapp/middleware/locals.js
-     * ATTENTION, contrary to server-side uris,
-     * client-side uris are all concatenated with root
-     */
-    config.uris = {
-        cdn: {
-            icons: url.resolve(
-                '<%- uris.cdn.root %>',
-                convertFormat('<%- uris.cdn.icons %>')
-            )
-        },
-        help: {
-            root: '<%- uris.help.root %>'
-        },
-        mobile: {
-            icons: convertFormat('<%- uris.mobile.icons %>'),
-            pictures: convertFormat('<%- uris.mobile.pictures %>')
-        },
-        rapi: {
-            root: '<%- uris.rapi.root %>',
-            logger: url.resolve(
-                '<%- uris.rapi.root %>',
-                convertFormat('<%- uris.rapi.logger %>')
-            ),
-            oauth: {
-                refresh: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.oauth.refresh %>')
-                ),
-                revoke: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.oauth.revoke %>')
-                ),
-                signIn: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.oauth.signIn %>')
-                ),
-                signOut: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.oauth.signOut %>')
-                )
-            },
-            v1: {
-                activities: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.activities %>')
-                ),
-                activity: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.activity %>')
-                ),
-                categories: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.categories %>')
-                ),
-                // TODO files
-                me: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.me %>')
-                ),
-                myActivities: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.myActivities %>')
-                ),
-                mySummaries: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.mySummaries %>')
-                ),
-                summaries: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.summaries %>')
-                ),
-                summary: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.summary %>')
-                ),
-                // TODO organizations and organization
-                user: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.user %>')
-                ),
-                versions: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.versions %>')
-                ),
-                version: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.v1.version %>')
-                )
-                // TODO draft
-            },
-            web: {
-                search: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.web.search %>')
-                )
-            }
-        },
-        webapp: {
-            editor: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.editor %>')
-            ),
-            error: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.error %>')
-            ),
-            finder: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.finder %>')
-            ),
-            home: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.home %>')
-            ),
-            locale: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.locale %>')
-            ), // redirection when changing locale
-            logger: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.logger %>')
-            ),
-            ping: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.ping %>')
-            ),
-            player: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.player %>')
-            ),
-            proxy: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.proxy %>')
-            ),
-            public: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.public %>')
-            ),
-            rss: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.rss %>')
-            ),
-            sitemap: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.sitemap %>')
-            ),
-            summary: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.summary %>')
-            ),
-            support: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.support %>')
-            ),
-            user: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.user %>')
-            ),
-            workerlib: url.resolve(
-                '<%- uris.webpack.root %>',
-                convertFormat('<%- uris.webapp.workerlib %>')
-            )
-        }
-    };
 } catch (ex) {
-    // __VERSION__ is undefined and JSON.parse fails
-    // Code is not packaged (i.e. unit tests)
-
-    /**
-     * Version
-     */
-    config.version = false;
-
-    /**
-     * Locales
-     */
-    config.locales = config.version
-        ? JSON.parse('<%- JSON.stringify(locales) %>')
-        : ['en', 'fr'];
-
-    /**
-     * Constants
-     */
-    config.constants = {
-        // Makes sure Kidoju-Mobile wins
-
-        // Application scheme
-        appScheme: '<%- application.scheme %>',
-
-        // Facebook clientID
-        facebookAppId: '<%- facebook.clientID %>',
-
-        // Twitter account
-        twitterAccount: '<%- twitter.account %>'
-    };
-
-    /**
-     * Assets
-     */
+    // Without WebPack JSON.parse fails
     config.assets = {
         audio: {
             collections: [],
@@ -361,105 +168,174 @@ try {
             schemes: {}
         }
     };
+}
 
-    /**
-     * URIs
-     */
-    config.uris = {
-        cdn: {
-            icons: url.resolve(
-                '<%- uris.cdn.root %>',
-                convertFormat('<%- uris.cdn.icons %>')
+/**
+ * URIs - See /wepapp/middleware/locals.js
+ * ATTENTION, contrary to server-side uris,
+ * client-side uris are all concatenated with root
+ */
+config.uris = {
+    cdn: {
+        icons: url.resolve(
+            '<%- uris.cdn.root %>',
+            convertFormat('<%- uris.cdn.icons %>')
+        )
+    },
+    help: {
+        root: '<%- uris.help.root %>'
+    },
+    mobile: {
+        icons: convertFormat('<%- uris.mobile.icons %>'),
+        pictures: convertFormat('<%- uris.mobile.pictures %>')
+    },
+    rapi: {
+        root: '<%- uris.rapi.root %>',
+        logger: url.resolve(
+            '<%- uris.rapi.root %>',
+            convertFormat('<%- uris.rapi.logger %>')
+        ),
+        oauth: {
+            refresh: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.oauth.refresh %>')
+            ),
+            revoke: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.oauth.revoke %>')
+            ),
+            signIn: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.oauth.signIn %>')
+            ),
+            signOut: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.oauth.signOut %>')
             )
         },
-        help: {
-            root: '<%- uris.help.root %>'
-        },
-        mobile: {
-            icons: convertFormat('<%- uris.mobile.icons %>'),
-            pictures: convertFormat('<%- uris.mobile.pictures %>')
-        },
-        rapi: {
-            root: '<%- uris.rapi.root %>',
-            logger: url.resolve(
+        v1: {
+            activities: url.resolve(
                 '<%- uris.rapi.root %>',
-                convertFormat('<%- uris.rapi.logger %>')
+                convertFormat('<%- uris.rapi.v1.activities %>')
             ),
-            web: {
-                search: url.resolve(
-                    '<%- uris.rapi.root %>',
-                    convertFormat('<%- uris.rapi.web.search %>')
-                )
-            }
-        },
-        webapp: {
-            editor: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.editor %>')
+            activity: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.activity %>')
             ),
-            error: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.error %>')
+            categories: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.categories %>')
             ),
-            finder: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.finder %>')
+            // TODO files
+            me: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.me %>')
             ),
-            home: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.home %>')
+            myActivities: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.myActivities %>')
             ),
-            locale: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.locale %>')
-            ), // redirection when changing locale
-            logger: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.logger %>')
+            mySummaries: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.mySummaries %>')
             ),
-            ping: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.ping %>')
-            ),
-            player: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.player %>')
-            ),
-            proxy: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.proxy %>')
-            ),
-            public: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.public %>')
-            ),
-            rss: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.rss %>')
-            ),
-            sitemap: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.sitemap %>')
+            summaries: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.summaries %>')
             ),
             summary: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.summary %>')
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.summary %>')
             ),
-            support: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.support %>')
-            ),
+            // TODO organizations and organization
             user: url.resolve(
-                '<%- uris.webapp.root %>',
-                convertFormat('<%- uris.webapp.user %>')
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.user %>')
             ),
-            workerlib: url.resolve(
-                '<%- uris.webpack.root %>',
-                convertFormat('<%- uris.webapp.workerlib %>')
+            versions: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.versions %>')
+            ),
+            version: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.v1.version %>')
+            )
+            // TODO draft
+        },
+        web: {
+            search: url.resolve(
+                '<%- uris.rapi.root %>',
+                convertFormat('<%- uris.rapi.web.search %>')
             )
         }
-    };
-}
+    },
+    webapp: {
+        editor: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.editor %>')
+        ),
+        error: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.error %>')
+        ),
+        finder: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.finder %>')
+        ),
+        home: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.home %>')
+        ),
+        locale: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.locale %>')
+        ), // redirection when changing locale
+        logger: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.logger %>')
+        ),
+        ping: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.ping %>')
+        ),
+        player: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.player %>')
+        ),
+        proxy: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.proxy %>')
+        ),
+        public: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.public %>')
+        ),
+        rss: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.rss %>')
+        ),
+        sitemap: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.sitemap %>')
+        ),
+        summary: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.summary %>')
+        ),
+        support: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.support %>')
+        ),
+        user: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.user %>')
+        ),
+        workerlib: url.resolve(
+            '<%- uris.webpack.root %>',
+            convertFormat('<%- uris.webapp.workerlib %>')
+        )
+    }
+};
 
 /**
  * Logger
