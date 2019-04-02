@@ -52,6 +52,7 @@ const CONSTANTS = {
     REQUESTEND: 'requestEnd',
     RESIZE: 'resize',
     SELECT: 'select',
+    SET: 'set',
     SIGNOUT: 'signout',
     TAP: 'tap',
     TOUCHEND: 'touchend',
@@ -125,6 +126,7 @@ const CONSTANTS = {
         MEDIUM: 10,
         MAX: 100
     },
+    DRAFT: 'draft',
     ID: 'id',
     ME: 'me',
     PANEL_STATE: {
@@ -156,6 +158,7 @@ const CONSTANTS = {
     // SELECT: 'select',
     SPAN: 'span',
     TABLE: 'table',
+    TEXTAREA: 'textarea',
     TBODY: 'tbody',
     UL: 'ul'
 };
