@@ -12,7 +12,7 @@
 import 'kendo.core';
 import i18n from '../app/app.i18n.es6';
 import { getSummaryReference } from '../app/app.partitions.es6';
-import { editUri, playUri } from '../app/app.uris.es6';
+import { editUri, playUri, summaryUri } from '../app/app.uris.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxVersions from '../rapi/rapi.versions.es6';
@@ -68,8 +68,9 @@ const Version = BaseModel.define({
         },
         summaryId: {
             type: CONSTANTS.STRING,
-            editable: false,
-            serializable: false
+            editable: false
+            // We need to serialize summaryId so that partition validation passes
+            // serializable: false
         },
         type: {
             type: CONSTANTS.STRING,
@@ -95,6 +96,9 @@ const Version = BaseModel.define({
     },
     editUri$() {
         return editUri(i18n.locale, this.get('summaryId'));
+    },
+    summaryUri$() {
+        return summaryUri(i18n.locale, this.get('summaryId'));
     }
     /*
     load(summaryId, versionId) {

@@ -44,7 +44,8 @@ export default function extendModelWithTransport(DataModel, transport) {
      * @returns {*|jQuery}
      */
     DataModel.fn.load = function load(options) {
-        // bare designates an endpoint that loads an object without designating an id
+        // bare designates an endpoint that loads an object without options
+        // especially without specifying an id
         const bare = this instanceof Me;
         if (bare) {
             assert.isUndefined(
@@ -59,15 +60,19 @@ export default function extendModelWithTransport(DataModel, transport) {
                     'options'
                 )
             );
-            assert.match(
-                CONSTANTS.RX_MONGODB_ID,
-                options[this.idField],
-                assert.format(
-                    assert.messages.match.default,
-                    'options[this.idField]',
-                    CONSTANTS.RX_MONGODB_ID
-                )
-            );
+            // At this level options[this.idField] is not required
+            // especially when calling a draft version
+            if ($.type(options[this.idField]) !== CONSTANTS.UNDEFINED) {
+                assert.match(
+                    CONSTANTS.RX_MONGODB_ID,
+                    options[this.idField],
+                    assert.format(
+                        assert.messages.match.default,
+                        'options[this.idField]',
+                        CONSTANTS.RX_MONGODB_ID
+                    )
+                );
+            }
         }
         const dfd = $.Deferred();
         const { dirty, idField } = this;
@@ -75,6 +80,8 @@ export default function extendModelWithTransport(DataModel, transport) {
             !this.isNew() &&
             !dirty &&
             (bare || this.get(idField) === options[idField])
+            // But this might be an issue with draft versions
+            // because this.get(idField) !== undefined
         ) {
             // Already loaded and not modified
             dfd.resolve(this.toJSON());
