@@ -20,7 +20,9 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, genericLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { genericLibrary } from './util.libraries.es6';
+import {scoreValidator} from './util.validators';
 
 const { attr, format, ns, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -39,7 +41,7 @@ function i18n() {
 }
 
 const HIGHLIGHTER =
-    '<div class="kj-interactive" data-#= ns #role="highlighter" data-#= ns #text="#: attributes.text #" data-#= ns #split="#: attributes.split #"  data-#= ns #highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>';
+    `<div class="kj-interactive" data-${ns}role="highlighter" data-${ns}text="#: attributes.text #" data-${ns}split="#: attributes.split #"  data-${ns}highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>`;
 /**
  * @class HighLighterTool tool
  * @type {void|*}
@@ -51,15 +53,15 @@ const HighLighterTool = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: format(HIGHLIGHTER, 'data-#= ns #enable="false"'),
+        design: format(HIGHLIGHTER, `data-${ns}enable="false"`),
         play: format(
             HIGHLIGHTER,
-            'data-#= ns #bind="value: #: properties.name #.value, source: interactions"'
+            `data-${ns}bind="value: #: properties.name #.value, source: interactions"`
         ),
         review:
             format(
                 HIGHLIGHTER,
-                'data-#= ns #bind="value: #: properties.name #.value, source: interactions" data-#= ns #enable="false"'
+                `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 250,
@@ -92,21 +94,24 @@ const HighLighterTool = BaseTool.extend({
             title: i18n.highlighter.properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${genericLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
             title: i18n.highlighter.properties.validation.title
         }),
         success: new ScoreAdapter({
             title: i18n.highlighter.properties.success.title,
-            defaultValue: 1
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
             title: i18n.highlighter.properties.failure.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
             title: i18n.highlighter.properties.omit.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -147,7 +152,7 @@ const HighLighterTool = BaseTool.extend({
             )
         );
         const tmpl = template(that.templates[mode]);
-        return tmpl($.extend(component, { ns }));
+        return tmpl(component);
     },
 
     /**
@@ -206,7 +211,7 @@ const HighLighterTool = BaseTool.extend({
             !component.attributes.text ||
             component.attributes.text ===
                 i18n.highlighter.attributes.text.defaultValue ||
-            !RX_TEXT.test(component.attributes.text)
+            !TOOLS.RX_TEXT.test(component.attributes.text)
         ) {
             ret.push({
                 type: CONSTANTS.WARNING,
@@ -218,7 +223,7 @@ const HighLighterTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.highlightStyle &&
-                !RX_STYLE.test(component.attributes.highlightStyle))
+                !TOOLS.RX_STYLE.test(component.attributes.highlightStyle))
         ) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({
@@ -231,7 +236,7 @@ const HighLighterTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             // TODO: test small font-size incompatible with mobile devices
             ret.push({

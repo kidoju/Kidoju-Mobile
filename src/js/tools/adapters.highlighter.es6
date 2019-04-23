@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: there is a refresh problem
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -11,10 +13,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
-// TODO: there is a refresh problem
-
 const { attr, format } = window.kendo;
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}'; // TODO remove
 
 /**
  * HighLighterAdapter
@@ -35,15 +34,23 @@ const HighLighterAdapter = BaseAdapter.extend({
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         // TODO: Not Disabled when setting teh Disabled switch
         // And not reset when changing teh value of split => might require a window like chargrid
-        this.editor = function(container, settings) {
-            const highLighter = $('<div/>')
+        this.editor = (container, settings) => {
+            const highLighter = $(`<${CONSTANTS.DIV}/>`)
                 .css({
                     width: '100%',
                     fontSize: '1em',
                     minHeight: '4.6em'
                 })
                 // .attr($.extend(binding, attributes))
-                .attr($.extend({}, settings.attributes, getValueBinding(settings.field)))
+                .attr(
+                    $.extend(
+                        true,
+                        {},
+                        settings.attributes,
+                        getValueBinding(settings.field),
+                        attributes
+                    )
+                )
                 .appendTo(container);
             const highLighterWidget = highLighter.kendoHighLighter({
                 text: settings.model.get('attributes.text'),

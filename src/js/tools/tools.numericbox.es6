@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO NummericBox can use Random tools to calculate solutions using simple MathJS scripting
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -15,21 +17,20 @@ import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
 import QuestionAdapter from './adapters.question.es6';
 import StyleAdapter from './adapters.style.es6';
-import NumericBoxAdapter from './adapters.textbox.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, stringLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { stringLibrary } from './util.libraries.es6';
+import {scoreValidator} from './util.validators';
 
 const {
     format,
+    ns,
     ui: { NumericTextBox }
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
-
-// TODO Review RX constants
-const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
-const RX_FONT_SIZE = /font(-size)?:[^;]*[0-9]+px/;
 
 /**
  * i18n
@@ -59,8 +60,7 @@ function i18n() {
 }
 
 // Masks cannot be properly set via data attributes. An error is raised when masks only contain digits. See the workaround in onResize for more information
-const TEXTBOX =
-    '<input type="text" id="#: properties.name #" class="kj-interactive" data-#= ns #role="maskedtextbox" data-#= ns #prompt-char="\u25CA" style="#: attributes.style #" {0}>';
+const TEXTBOX = `<input type="text" id="#: properties.name #" class="kj-interactive" data-${ns}role="maskedtextbox" data-${ns}prompt-char="\u25CA" style="#: attributes.style #" {0}>`;
 
 /**
  * @class NumericBoxTool tool
@@ -87,16 +87,16 @@ const NumericBoxTool = BaseTool.extend({
         design: format(TEXTBOX, ''),
         play: format(
             TEXTBOX,
-            'data-#= ns #bind="value: #: properties.name #.value"'
+            `data-${ns}bind="value: #: properties.name #.value"`
         ),
         review:
             format(
                 TEXTBOX,
-                'data-#= ns #bind="value: #: properties.name #.value"'
+                `data-${ns}bind="value: #: properties.name #.value"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
-        mask: new NumericBoxAdapter({ title: i18n().attributes.mask.title }),
+        mask: new TextBoxAdapter({ title: i18n().attributes.mask.title }),
         style: new StyleAdapter({ title: i18n().attributes.style.title })
     },
     properties: {
@@ -107,25 +107,28 @@ const NumericBoxTool = BaseTool.extend({
             title: i18n().properties.question.title
         }),
         // TODO ExpressionAdapter (switch with NumericBox)
-        solution: new NumericBoxAdapter({
+        solution: new TextBoxAdapter({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${stringLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${stringLibrary.defaultKey}`,
             library: stringLibrary.library,
             title: i18n().properties.validation.title
         }),
         success: new ScoreAdapter({
             title: i18n().properties.success.title,
-            defaultValue: 1
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
             title: i18n().properties.failure.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
             title: i18n().properties.omit.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -175,19 +178,19 @@ const NumericBoxTool = BaseTool.extend({
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(
                 component.get('width') -
-                content.outerWidth(true) +
-                content.outerWidth()
+                    content.outerWidth(true) +
+                    content.outerWidth()
             );
         }
         if ($.type(component.height) === CONSTANTS.NUMBER) {
             content.outerHeight(
                 component.get('height') -
-                content.outerHeight(true) +
-                content.outerHeight()
+                    content.outerHeight(true) +
+                    content.outerHeight()
             );
             if (
                 component.attributes &&
-                !RX_FONT_SIZE.test(component.attributes.style)
+                !TOOLS.RX_FONT_SIZE.test(component.attributes.style)
             ) {
                 content.css('font-size', Math.floor(0.65 * content.height()));
             }
@@ -201,7 +204,9 @@ const NumericBoxTool = BaseTool.extend({
             maskedNumericBoxWidget instanceof MaskedNumericBox &&
             maskedNumericBoxWidget.options.mask !== component.attributes.mask
         ) {
-            maskedNumericBoxWidget.setOptions({ mask: component.attributes.mask });
+            maskedNumericBoxWidget.setOptions({
+                mask: component.attributes.mask
+            });
         }
         // prevent any side effect
         e.preventDefault();
@@ -225,7 +230,7 @@ const NumericBoxTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

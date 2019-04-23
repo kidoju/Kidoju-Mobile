@@ -12,6 +12,8 @@ import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import BaseTool from './tools.base.es6';
 
+const { format, ns, roleSelector } = window.kendo;
+
 /**
  * i18n
  * @returns {*|{}}
@@ -34,7 +36,7 @@ var TableTool = BaseTool.extend({
     description: i18n.table.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default: '<div data-#= ns #role="table" style="#: attributes.style #" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #value="#: JSON.stringify(attributes.data) #"></div>'
+        default: `<div data-${ns}role="table" style="#: attributes.style #" data-${ns}columns="#: attributes.columns #" data-${ns}rows="#: attributes.rows #" data-${ns}value="#: JSON.stringify(attributes.data) #"></div>`
     },
     height: 350,
     width: 600,
@@ -54,7 +56,7 @@ var TableTool = BaseTool.extend({
         var stageElement = $(e.currentTarget);
         assert.ok(stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`), format('e.currentTarget is expected to be a stage element'));
         assert.instanceof(PageComponent, component, assert.format(assert.messages.instanceof.default, 'component', 'PageComponent'));
-        var content = stageElement.children(kendo.roleSelector('table'));
+        var content = stageElement.children(roleSelector('table'));
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(component.get('width') - content.outerWidth(true) + content.outerWidth());
         }
@@ -78,7 +80,7 @@ var TableTool = BaseTool.extend({
         var messages = this.i18n.messages;
         if (!component.attributes ||
             // Styles are only checked if there is any (optional)
-            (component.attributes.style && !RX_STYLE.test(component.attributes.style))) {
+            (component.attributes.style && !TOOLS.RX_STYLE.test(component.attributes.style))) {
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,

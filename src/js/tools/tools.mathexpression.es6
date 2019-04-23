@@ -18,11 +18,7 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 
-const {
-    format,
-    ns,
-    template
-} = window.kendo;
+const { format, ns, template } = window.kendo;
 
 /**
  * i18n
@@ -46,8 +42,7 @@ const MathExpressionTool = BaseTool.extend({
     description: i18n.mathexpression.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default:
-            '<div data-#= ns #role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-#= ns #id="#: id$() #" data-#= ns #behavior="#: properties.behavior #" data-#= ns #constant="#: properties.constant #" data-#= ns #inline="#: attributes.inline #" data-#= ns #value="#: attributes.formula #" ></div>'
+        default: `<div data-${ns}role="mathexpression" class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #" data-${ns}inline="#: attributes.inline #" data-${ns}value="#: attributes.formula #" ></div>`
     },
     height: 180,
     width: 370,
@@ -132,7 +127,7 @@ const MathExpressionTool = BaseTool.extend({
                 ? component.id
                 : '';
         };
-        return tmpl($.extend(component, { ns }));
+        return tmpl(component);
     },
 
     /**
@@ -193,9 +188,9 @@ const MathExpressionTool = BaseTool.extend({
             !component.attributes.formula ||
             component.attributes.formula ===
                 i18n.mathexpression.attributes.formula.defaultValue ||
-            !RX_FORMULA.test(component.attributes.formula)
+            !TOOLS.RX_FORMULA.test(component.attributes.formula)
         ) {
-            // TODO: replace RX_FORMULA with a LaTeX synthax checker
+            // TODO: replace TOOLS.RX_FORMULA with a LaTeX synthax checker
             ret.push({
                 type: CONSTANTS.WARNING,
                 index: pageIdx,
@@ -210,7 +205,7 @@ const MathExpressionTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

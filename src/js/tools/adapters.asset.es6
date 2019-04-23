@@ -15,7 +15,7 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
-// TODO import openAssetManager from '../dialogs/dialogs.assetmanager.es6';
+import openAssetManager from '../dialogs/dialogs.assetmanager.es6';
 import '../dialogs/widgets.basedialog.es6';
 import BaseAdapter from './adapters.base.es6';
 import ToolAssets from './util.assets.es6';
@@ -23,11 +23,6 @@ import ToolAssets from './util.assets.es6';
 const {
     ui: { BaseDialog }
 } = window.kendo;
-
-const openAssetManager = () =>
-    $.Deferred()
-        .resolve({ action: 'cancel' })
-        .promise();
 
 /**
  * AssetAdapter
@@ -39,19 +34,20 @@ const AssetAdapter = BaseAdapter.extend({
      * Init
      * @constructor init
      * @param options
+     * @param attributes
      */
-    init(options /* , attributes */) {
+    init(options, attributes) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = CONSTANTS.STRING;
         that.defaultValue = that.defaultValue || (that.nullable ? null : '');
         // that.editor is the inline editor with a [...] button which triggers this.showDialog
-        that.editor = function(container, settings) {
+        that.editor = (container, settings) => {
             // We need a wrapper because container has { display: table-cell; }
-            const wrapper = $('<div/>')
-                .css({ display: 'flex' })
+            const wrapper = $(`<${CONSTANTS.DIV}/>`)
+                .css({ display: 'flex', alignItems: 'center' })
                 .appendTo(container);
-            $('<input/>')
+            $(`<${CONSTANTS.INPUT}>`)
                 .addClass('k-textbox')
                 .css({
                     flex: 'auto',
@@ -60,14 +56,16 @@ const AssetAdapter = BaseAdapter.extend({
                 .prop({ readonly: true })
                 .attr(
                     $.extend(
+                        true,
                         {},
                         settings.attributes,
-                        getValueBinding(settings.field)
+                        getValueBinding(settings.field),
+                        attributes
                     )
                 )
                 .appendTo(wrapper);
-            $('<button/>')
-                .text('...')
+            $(`<${CONSTANTS.BUTTON}/>`)
+                .text(CONSTANTS.ELLIPSIS)
                 .addClass('k-button')
                 .css({
                     flex: 'none',

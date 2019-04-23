@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO: This is another case of open dialog adapter
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -13,20 +15,9 @@ import { getValueBinding } from '../data/data.util.es6';
 import openCodeEditor from '../dialogs/dialogs.codeeditor.es6';
 import '../widgets/widgets.codeinput.es6';
 import BaseAdapter from './adapters.base.es6';
+import { CUSTOM } from './util.libraries.es6';
 
-const { attr, format, htmlEncode, ns, ui } = window.kendo;
-
-// TODO: This is another case of open dialog adapter
-
-// TODO Review where to store that
-const VALIDATION_CUSTOM = 'function validate(value, solution, all) {\n\t{0}\n}';
-const CUSTOM = {
-    name: 'custom', // TODO i18n
-    formula: format(
-        VALIDATION_CUSTOM, // BaseAdapter.validationDeclaration,
-        '// Your code should return true when value is validated against solution.'
-    )
-};
+const { htmlEncode, ns, ui } = window.kendo;
 
 /**
  * ValidationAdapter
@@ -40,39 +31,50 @@ const ValidationAdapter = BaseAdapter.extend({
      * @param options
      * @param attributes
      */
-    init(options /* , attributes */) {
+    init(options, attributes) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
-        that.library = options.library;
+        that.library = options.library; // For showDialog
         that.type = CONSTANTS.STRING;
         // this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        that.editor = function(container, settings) {
-            const binding = {}; // TODO use getValueBinding
-            // Note: _library is added to the data bound PageComponent in its init method
-            binding[attr('bind')] = `value: ${
-                settings.field
-            }, source: _library`;
+        that.editor = (container, settings) => {
+            const { field, model } = settings;
+            // Add library to model for MVVM bindings
+            model._library = that.library;
+            // Add code input
             // We need a wrapper because container has { display: table-cell; }
-            const wrapper = $('<div/>')
-                .css({ display: 'flex' })
+            const wrapper = $(`<${CONSTANTS.DIV}/>`)
+                .css({ display: 'flex', alignItems: 'center' })
                 .appendTo(container);
             $(
                 `<div data-${ns}role="codeinput" data-${ns}default="${
-                    settings.model.properties.defaults.validation
+                    model.properties.defaults.validation
                 }" />`
             )
-                .attr($.extend({}, settings.attributes, binding)) // TODO use attributes (from init)?
+                .attr(
+                    $.extend(
+                        true,
+                        {},
+                        settings.attributes,
+                        getValueBinding(field, '_library'),
+                        attributes
+                    )
+                )
                 .css({ flex: 'auto' })
                 .appendTo(wrapper);
-            $('<button/>')
-                .text('...')
+            // Add button to open code editor
+            $(`<${CONSTANTS.BUTTON}/>`)
+                .text(CONSTANTS.ELLIPSIS)
                 .addClass('k-button')
                 .css({
+                    alignSelf: 'stretch',
                     flex: 'none',
-                    marginRight: 0
+                    marginBottom: 0,
+                    marginRight: 0,
+                    marginTop: 0
                 })
                 .appendTo(wrapper)
-                .on(CONSTANTS.CLICK, $.proxy(that.showDialog, that, settings));
+                .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
         };
     },
 
@@ -85,13 +87,14 @@ const ValidationAdapter = BaseAdapter.extend({
         // TODO import('./dialogs/dialogs.codeeditor.es6').then(function () {...});
         openCodeEditor({
             title: options.title,
+            // defaultValue: that.defaultValue,
+            default: that.defaultValue,
+            solution: htmlEncode(
+                JSON.stringify(options.model.get('properties.solution'))
+            ),
             data: {
                 value: options.model.get(options.field),
-                library: [CUSTOM].concat(that.library),
-                defaultValue: that.defaultValue, // ????????????????????????
-                solution: htmlEncode(
-                    JSON.stringify(options.model.get('properties.solution'))
-                )
+                library: [CUSTOM].concat(that.library)
             }
         })
             .then(result => {

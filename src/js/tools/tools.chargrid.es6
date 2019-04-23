@@ -10,6 +10,7 @@ import 'kendo.core';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 // TODO import '../widgets/widgets.chargrid.es6';
 import CharGridAdapter from './adapters.chargrid.es6';
@@ -21,33 +22,44 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, charGridLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { charGridLibrary } from './util.libraries.es6';
+import { scoreValidator } from './util.validators';
 
 const {
     data: { ObservableArray },
     format,
     htmlEncode,
+    ns,
     ui: { CharGrid }
 } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
- * i18n
- * @returns {*|{}}
+ * i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).chargrid ||
-        {
-            // TODO
+if (!(i18n().tools && i18n().tools.chargrid)) {
+    $.extend(true, i18n(), {
+        tools: {
+            chargrid: {
+                description: 'Audio Player',
+                help: null,
+                name: 'Audio',
+                attributes: {},
+                properties: {}
+            }
         }
-    );
+    });
 }
 
-const CHARGRID =
-    '<div data-#= ns #role="chargrid" data-#= ns #columns="#: attributes.columns #" data-#= ns #rows="#: attributes.rows #" data-#= ns #blank="#: attributes.blank #" data-#= ns #whitelist="#: attributes.whitelist #" data-#= ns #grid-fill="#: attributes.gridFill #" data-#= ns #grid-stroke="#: attributes.gridStroke #" data-#= ns #blank-fill="#: attributes.gridStroke #" data-#= ns #selected-fill="#: attributes.selectedFill #" data-#= ns #locked-fill="#: attributes.lockedFill #" data-#= ns #locked-color="#: attributes.fontColor #" data-#= ns #value-color="#: attributes.fontColor #" {0}></div>';
+/**
+ * Template
+ * @type {string}
+ */
+const TEMPLATE = `<div data-${ns}role="chargrid" data-${ns}columns="#: attributes.columns #" data-${ns}rows="#: attributes.rows #" data-${ns}blank="#: attributes.blank #" data-${ns}whitelist="#: attributes.whitelist #" data-${ns}grid-fill="#: attributes.gridFill #" data-${ns}grid-stroke="#: attributes.gridStroke #" data-${ns}blank-fill="#: attributes.gridStroke #" data-${ns}selected-fill="#: attributes.selectedFill #" data-${ns}locked-fill="#: attributes.lockedFill #" data-${ns}locked-color="#: attributes.fontColor #" data-${ns}value-color="#: attributes.fontColor #" {0}></div>`;
 
 /**
+ * CharGridTool
  * @class CharGridTool
  */
 const CharGridTool = BaseTool.extend({
@@ -58,17 +70,17 @@ const CharGridTool = BaseTool.extend({
     weight: 8,
     templates: {
         design: format(
-            CHARGRID,
-            'data-#= ns #value="#: JSON.stringify(attributes.layout) #" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'
+            TEMPLATE,
+            `data-${ns}value="#: JSON.stringify(attributes.layout) #" data-${ns}locked="#: JSON.stringify(attributes.layout) #" data-${ns}enable="false"`
         ),
         play: format(
-            CHARGRID,
-            'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #"'
+            TEMPLATE,
+            `data-${ns}bind="value: #: properties.name #.value" data-${ns}locked="#: JSON.stringify(attributes.layout) #"`
         ),
         review:
             format(
-                CHARGRID,
-                'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #locked="#: JSON.stringify(attributes.layout) #" data-#= ns #enable="false"'
+                TEMPLATE,
+                `data-${ns}bind="value: #: properties.name #.value" data-${ns}locked="#: JSON.stringify(attributes.layout) #" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 400,
@@ -136,21 +148,24 @@ const CharGridTool = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${charGridLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${charGridLibrary.defaultKey}`,
             library: charGridLibrary.library,
             title: i18n().properties.validation.title
         }),
         success: new ScoreAdapter({
             title: i18n().properties.success.title,
-            defaultValue: 1
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
             title: i18n().properties.failure.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
             title: i18n().properties.omit.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 

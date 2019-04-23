@@ -10,7 +10,7 @@ import 'kendo.core';
 import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-// import { getValueBinding } from '../data/data.util.es6';
+import { getValueBinding } from '../data/data.util.es6';
 import openAssetManager from '../dialogs/dialogs.assetmanager.es6';
 import '../dialogs/widgets.basedialog.es6';
 import '../widgets/widgets.imagelist.es6';
@@ -35,24 +35,28 @@ const ImageListAdapter = BaseAdapter.extend({
      * @param options
      * @param attributes
      */
-    init(options /* , attributes */) {
+    init(options, attributes) {
         const that = this;
         BaseAdapter.fn.init.call(that, options);
         that.type = undefined;
         that.defaultValue = that.defaultValue || [];
         // that.editor is the list editor where the insert image button triggers this.showDialog
-        that.editor = function(container, settings) {
-            // TODO Why is there no value binding ????
-            // TODO: use getValueBinding
-            const binding = {};
-            binding[attr('bind')] = `source: ${settings.field}`;
-            const element = $('<div/>')
-                .attr(binding)
+        that.editor = (container, settings) => {
+            const element = $(`<${CONSTANTS.DIV}/>`)
+                .attr(
+                    $.extend(
+                        true,
+                        {},
+                        settings.attributes,
+                        getValueBinding(undefined, settings.field),
+                        attributes
+                    )
+                )
                 .appendTo(container);
             const widget = element
                 .kendoImageList({
                     schemes: assets.image.schemes,
-                    click: $.proxy(that.showDialog, that, settings)
+                    click: that.showDialog.bind(that, settings)
                 })
                 .data('kendoImageList');
             assert.instanceof(

@@ -13,38 +13,63 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { randomVal } from '../common/window.util.es6';
 import BaseModel from '../data/data.base.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import poolExec from '../workers/workers.exec.es6';
 import BaseAdapter from './adapters.base.es6';
 import NumberAdapter from './adapters.number.es6';
+import TOOLS from './util.constants.es6';
 import {
+    isCustomFormula,
     isLibraryFormula,
-    parseLibraryItem,
-    RX_VALIDATION_FORMULA
+    parseLibraryItem
 } from './util.libraries.es6';
 
 const { attr, Class, format, getter, htmlEncode, ns, template } = window.kendo;
 
 /**
- * Incors images
+ * i18n messages
  */
+if (!i18n().basetool) {
+    $.extend(true, i18n(), {
+        basetool: {
+            top: { title: 'Top' },
+            left: { title: 'Left' },
+            height: { title: 'Height' },
+            width: { title: 'Width' },
+            rotate: { title: 'Rotate' },
+            icons: {
+                // Incors O-Collection check.svg
+                // const SVG_SUCCESS = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#76A797" d="M3840 5760l3934 -3934c124,-124 328,-124 452,0l1148 1148c124,124 124,328 0,452l-5308 5308c-124,124 -328,124 -452,0l-2748 -2748c-124,-124 -124,-328 0,-452l1148 -1148c124,-124 328,-124 452,0l1374 1374z"/></svg>';
+                SVG_SUCCESS:
+                    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iIzc2QTc5NyIgZD0iTTM4NDAgNTc2MGwzOTM0IC0zOTM0YzEyNCwtMTI0IDMyOCwtMTI0IDQ1MiwwbDExNDggMTE0OGMxMjQsMTI0IDEyNCwzMjggMCw0NTJsLTUzMDggNTMwOGMtMTI0LDEyNCAtMzI4LDEyNCAtNDUyLDBsLTI3NDggLTI3NDhjLTEyNCwtMTI0IC0xMjQsLTMyOCAwLC00NTJsMTE0OCAtMTE0OGMxMjQsLTEyNCAzMjgsLTEyNCA0NTIsMGwxMzc0IDEzNzR6Ii8+PC9zdmc+',
 
-// Incors O-Collection check.svg
-// const SVG_SUCCESS = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#76A797" d="M3840 5760l3934 -3934c124,-124 328,-124 452,0l1148 1148c124,124 124,328 0,452l-5308 5308c-124,124 -328,124 -452,0l-2748 -2748c-124,-124 -124,-328 0,-452l1148 -1148c124,-124 328,-124 452,0l1374 1374z"/></svg>';
-const SVG_SUCCESS =
-    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iIzc2QTc5NyIgZD0iTTM4NDAgNTc2MGwzOTM0IC0zOTM0YzEyNCwtMTI0IDMyOCwtMTI0IDQ1MiwwbDExNDggMTE0OGMxMjQsMTI0IDEyNCwzMjggMCw0NTJsLTUzMDggNTMwOGMtMTI0LDEyNCAtMzI4LDEyNCAtNDUyLDBsLTI3NDggLTI3NDhjLTEyNCwtMTI0IC0xMjQsLTMyOCAwLC00NTJsMTE0OCAtMTE0OGMxMjQsLTEyNCAzMjgsLTEyNCA0NTIsMGwxMzc0IDEzNzR6Ii8+PC9zdmc+';
+                // Incors O-Collection delete.svg
+                // const SVG_FAILURE = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#E68497" d="M1273 7156l2037 -2036 -2037 -2036c-124,-125 -124,-328 0,-453l1358 -1358c125,-124 328,-124 453,0l2036 2037 2036 -2037c125,-124 328,-124 453,0l1358 1358c124,125 124,328 0,453l-2037 2036 2037 2036c124,125 124,328 0,453l-1358 1358c-125,124 -328,124 -453,0l-2036 -2037 -2036 2037c-125,124 -328,124 -453,0l-1358 -1358c-124,-125 -124,-328 0,-453z"/></svg>',
+                SVG_FAILURE:
+                    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iI0U2ODQ5NyIgZD0iTTEyNzMgNzE1NmwyMDM3IC0yMDM2IC0yMDM3IC0yMDM2Yy0xMjQsLTEyNSAtMTI0LC0zMjggMCwtNDUzbDEzNTggLTEzNThjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMjAzNiAyMDM3IDIwMzYgLTIwMzdjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMTM1OCAxMzU4YzEyNCwxMjUgMTI0LDMyOCAwLDQ1M2wtMjAzNyAyMDM2IDIwMzcgMjAzNmMxMjQsMTI1IDEyNCwzMjggMCw0NTNsLTEzNTggMTM1OGMtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTIwMzYgLTIwMzcgLTIwMzYgMjAzN2MtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTEzNTggLTEzNThjLTEyNCwtMTI1IC0xMjQsLTMyOCAwLC00NTN6Ii8+PC9zdmc+',
 
-// Incors O-Collection delete.svg
-// const SVG_FAILURE = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1024px" height="1024px" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="nonzero" clip-rule="evenodd" viewBox="0 0 10240 10240" xmlns:xlink="http://www.w3.org/1999/xlink"><path id="curve0" fill="#E68497" d="M1273 7156l2037 -2036 -2037 -2036c-124,-125 -124,-328 0,-453l1358 -1358c125,-124 328,-124 453,0l2036 2037 2036 -2037c125,-124 328,-124 453,0l1358 1358c124,125 124,328 0,453l-2037 2036 2037 2036c124,125 124,328 0,453l-1358 1358c-125,124 -328,124 -453,0l-2036 -2037 -2036 2037c-125,124 -328,124 -453,0l-1358 -1358c-124,-125 -124,-328 0,-453z"/></svg>';
-const SVG_FAILURE =
-    'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMTAyNHB4IiBoZWlnaHQ9IjEwMjRweCIgc2hhcGUtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBmaWxsLXJ1bGU9Im5vbnplcm8iIGNsaXAtcnVsZT0iZXZlbm9kZCIgdmlld0JveD0iMCAwIDEwMjQwIDEwMjQwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggaWQ9ImN1cnZlMCIgZmlsbD0iI0U2ODQ5NyIgZD0iTTEyNzMgNzE1NmwyMDM3IC0yMDM2IC0yMDM3IC0yMDM2Yy0xMjQsLTEyNSAtMTI0LC0zMjggMCwtNDUzbDEzNTggLTEzNThjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMjAzNiAyMDM3IDIwMzYgLTIwMzdjMTI1LC0xMjQgMzI4LC0xMjQgNDUzLDBsMTM1OCAxMzU4YzEyNCwxMjUgMTI0LDMyOCAwLDQ1M2wtMjAzNyAyMDM2IDIwMzcgMjAzNmMxMjQsMTI1IDEyNCwzMjggMCw0NTNsLTEzNTggMTM1OGMtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTIwMzYgLTIwMzcgLTIwMzYgMjAzN2MtMTI1LDEyNCAtMzI4LDEyNCAtNDUzLDBsLTEzNTggLTEzNThjLTEyNCwtMTI1IC0xMjQsLTMyOCAwLC00NTN6Ii8+PC9zdmc+';
-
-// Incors O-Collection sign_warning.svg
-// const SVG_WARNING = '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" clip-rule="evenodd" viewBox="0 0 10240 10240"><path fill="#EDC87E" d="M5680 1282l3846 6712c117 205 117 439 0 644s-319 322-554 322H1281c-234 0-436-117-553-322s-117-439 0-644l3846-6712c117-205 318-322 553-322s436 117 553 322zm-560 318L1280 8320h7680L5120 1600z"/><path fill="gray" d="M5120 6720c353 0 640 287 640 640s-287 640-640 640-640-287-640-640 287-640 640-640zm-320-2880h640c176 0 320 144 320 320v802c0 110-12 204-38 311l-252 1006c-18 72-81 121-155 121h-390c-74 0-137-49-155-121l-252-1006c-26-107-38-201-38-311v-802c0-176 144-320 320-320z"/></svg>';
-const SVG_WARNING =
-    'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4=';
+                // Incors O-Collection sign_warning.svg
+                // SVG_WARNING: '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" clip-rule="evenodd" viewBox="0 0 10240 10240"><path fill="#EDC87E" d="M5680 1282l3846 6712c117 205 117 439 0 644s-319 322-554 322H1281c-234 0-436-117-553-322s-117-439 0-644l3846-6712c117-205 318-322 553-322s436 117 553 322zm-560 318L1280 8320h7680L5120 1600z"/><path fill="gray" d="M5120 6720c353 0 640 287 640 640s-287 640-640 640-640-287-640-640 287-640 640-640zm-320-2880h640c176 0 320 144 320 320v802c0 110-12 204-38 311l-252 1006c-18 72-81 121-155 121h-390c-74 0-137-49-155-121l-252-1006c-26-107-38-201-38-311v-802c0-176 144-320 320-320z"/></svg>',
+                SVG_WARNING:
+                    'PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEwMjQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY2xpcC1ydWxlPSJldmVub2RkIiB2aWV3Qm94PSIwIDAgMTAyNDAgMTAyNDAiPjxwYXRoIGZpbGw9IiNFREM4N0UiIGQ9Ik01NjgwIDEyODJsMzg0NiA2NzEyYzExNyAyMDUgMTE3IDQzOSAwIDY0NHMtMzE5IDMyMi01NTQgMzIySDEyODFjLTIzNCAwLTQzNi0xMTctNTUzLTMyMnMtMTE3LTQzOSAwLTY0NGwzODQ2LTY3MTJjMTE3LTIwNSAzMTgtMzIyIDU1My0zMjJzNDM2IDExNyA1NTMgMzIyem0tNTYwIDMxOEwxMjgwIDgzMjBoNzY4MEw1MTIwIDE2MDB6Ii8+PHBhdGggZmlsbD0iZ3JheSIgZD0iTTUxMjAgNjcyMGMzNTMgMCA2NDAgMjg3IDY0MCA2NDBzLTI4NyA2NDAtNjQwIDY0MC02NDAtMjg3LTY0MC02NDAgMjg3LTY0MCA2NDAtNjQwem0tMzIwLTI4ODBoNjQwYzE3NiAwIDMyMCAxNDQgMzIwIDMyMHY4MDJjMCAxMTAtMTIgMjA0LTM4IDMxMWwtMjUyIDEwMDZjLTE4IDcyLTgxIDEyMS0xNTUgMTIxaC0zOTBjLTc0IDAtMTM3LTQ5LTE1NS0xMjFsLTI1Mi0xMDA2Yy0yNi0xMDctMzgtMjAxLTM4LTMxMXYtODAyYzAtMTc2IDE0NC0zMjAgMzIwLTMyMHoiLz48L3N2Zz4='
+            }
+        },
+        validation: {
+            messages: {
+                invalidConstant: '',
+                invalidFailure: '',
+                invalidName: '',
+                invalidQuestion: '',
+                invalidSolution: '',
+                invalidSuccess: '',
+                invalidValidation: ''
+            }
+        }
+    });
+}
 
 /**
  * BaseTool
@@ -73,9 +98,9 @@ const BaseTool = Class.extend({
     weight: 0,
     width: 250,
     svg: {
-        success: SVG_SUCCESS, // --> TODO Move to i18n
-        failure: SVG_FAILURE,
-        warning: SVG_WARNING
+        success: i18n().basetool.icons.SVG_SUCCESS,
+        failure: i18n().basetool.icons.SVG_FAILURE,
+        warning: i18n().basetool.icons.SVG_WARNING
     },
 
     /**
@@ -111,42 +136,38 @@ const BaseTool = Class.extend({
      * @private
      */
     getAttributeRows() {
-        const i18n = BaseTool.getMessageNameSpace();
         const rows = [];
         const data = {};
         data[attr('decimals')] = 0;
         data[attr('format')] = 'n0';
         // Add top, left, height, width, rotation
         rows.push(
-            new NumberAdapter({ title: i18n.base.tool.top.title }, data).getRow(
-                'top'
-            )
+            new NumberAdapter(
+                { title: i18n().basetool.top.title },
+                data
+            ).getRow('top')
         );
         rows.push(
             new NumberAdapter(
-                { title: i18n.base.tool.left.title },
+                { title: i18n().basetool.left.title },
                 data
             ).getRow('left')
         );
         rows.push(
             new NumberAdapter(
-                {
-                    title: i18n.base.tool.height.title
-                },
+                { title: i18n().basetool.height.title },
                 data
             ).getRow('height')
         );
         rows.push(
             new NumberAdapter(
-                { title: i18n.base.tool.width.title },
+                { title: i18n().basetool.width.title },
                 data
             ).getRow('width')
         );
         rows.push(
             new NumberAdapter(
-                {
-                    title: i18n.base.tool.rotate.title
-                },
+                { title: i18n().basetool.rotate.title },
                 data
             ).getRow('rotate')
         );
@@ -236,7 +257,7 @@ const BaseTool = Class.extend({
                 'PageComponent'
             )
         );
-        return template(this.description)($.extend(component, { ns }));
+        return template(this.description || CONSTANTS.EMPTY)(component);
     },
 
     /**
@@ -255,7 +276,7 @@ const BaseTool = Class.extend({
                 'PageComponent'
             )
         );
-        return template(this.help)($.extend(component, { ns }));
+        return template(this.help || CONSTANTS.EMPTY)(component);
     },
 
     /**
@@ -378,7 +399,7 @@ const BaseTool = Class.extend({
                     // This is a library item
                     validation = validation.item.formula;
                 }
-                if (!RX_VALIDATION_FORMULA.test(validation)) {
+                if (!TOOLS.RX_VALIDATION_FORMULA.test(validation)) {
                     // debugger;
                     // The library item is missing
                     return dfd
@@ -478,18 +499,9 @@ const BaseTool = Class.extend({
                 Object.values(CONSTANTS.STAGE_MODES)
             )
         );
-        const templates = this.templates || {};
-        const t = templates[mode] || templates.default;
-        assert.type(
-            CONSTANTS.STRING,
-            t,
-            assert.format(
-                assert.messages.type.default,
-                `this.templates.${mode}`,
-                CONSTANTS.STRING
-            )
-        );
-        return template(t)($.extend(component, { ns }));
+        const templates = this.templates || { default: CONSTANTS.EMPTY };
+        const tmpl = template(templates[mode] || templates.default);
+        return tmpl(component);
     },
 
     /**
@@ -499,16 +511,12 @@ const BaseTool = Class.extend({
      */
     getHtmlCheckMarks() {
         // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
-        return (
-            `${'<div class=".kj-element-result" data-#= ns #bind="visible: #: properties.name #">' +
-                '<div data-#= ns #bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,'}${
-                BaseTool.fn.svg.success
-            }); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>` +
-            `<div data-#= ns #bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${
-                BaseTool.fn.svg.failure
-            }); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>` +
-            `</div>`
-        );
+        /* eslint-disable prettier/prettier */
+        return `<div class=".kj-element-result" data-${ns}bind="visible: #: properties.name #">
+                    <div data-${ns}bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,'${BaseTool.fn.svg.success}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                    <div data-${ns}bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${BaseTool.fn.svg.failure}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                </div>`;
+        /* eslint-ensable prettier/prettier */
     },
 
     /**
@@ -662,42 +670,32 @@ const BaseTool = Class.extend({
         );
         const ret = [];
         const { properties } = component;
-        const {
-            description,
-            i18n: { messages }
-        } = this;
+        const { description } = this;
         if (properties && !properties.disabled) {
-            const RX_DESCRIPTION = /\S+/i; // question
-            const RX_CONSTANT = /\S+/i;
-            const RX_NAME = /val_[0-9a-f]{6}/;
-            const RX_SOLUTION = /\S+/i;
-            const RX_VALIDATION_LIBRARY = /^\/\/ ([^\s\[\n]+)( (\[[^\n]+\]))?$/;
-            const RX_VALIDATION_CUSTOM = /^function[\s]+validate[\s]*\([\s]*value[\s]*,[\s]*solution[\s]*(,[\s]*all[\s]*)?\)[\s]*\{[\s\S]*\}$/;
-
             if (
                 $.type(properties.behavior) === CONSTANTS.STRING &&
                 properties.behavior !== 'none'
             ) {
                 // Note: This test might be better suited to inherited tools (labels, images and math expressions)
-                if (!RX_CONSTANT.test(properties.constant)) {
+                if (!TOOLS.RX_CONSTANT.test(properties.constant)) {
                     ret.push({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            messages.invalidConstant,
+                            i18n().validation.messages.invalidConstant,
                             description,
                             /* name, */ pageIdx + 1
                         )
                     });
                 }
             } else if ($.type(component.properties.name) === CONSTANTS.STRING) {
-                const name = properties.name;
-                if (!RX_NAME.test(name)) {
+                const { name } = properties;
+                if (!TOOLS.RX_NAME.test(name)) {
                     ret.push({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            messages.invalidName,
+                            i18n().validation.messages.invalidName,
                             description,
                             name,
                             pageIdx + 1
@@ -706,13 +704,13 @@ const BaseTool = Class.extend({
                 }
                 if (
                     !properties.question ||
-                    !RX_DESCRIPTION.test(properties.question)
+                    !TOOLS.RX_QUESTION.test(properties.question)
                 ) {
                     ret.push({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            messages.invalidDescription,
+                            i18n().validation.messages.invalidQuestion,
                             description,
                             name,
                             pageIdx + 1
@@ -721,14 +719,14 @@ const BaseTool = Class.extend({
                 }
                 if (
                     !properties.solution ||
-                    !RX_SOLUTION.test(properties.solution)
+                    !TOOLS.RX_SOLUTION.test(properties.solution)
                 ) {
                     // What if properties.solution is a number or a date?
                     ret.push({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            messages.invalidSolution,
+                            i18n().validation.messages.invalidSolution,
                             description,
                             name,
                             pageIdx + 1
@@ -736,14 +734,14 @@ const BaseTool = Class.extend({
                     });
                 }
                 if (
-                    !RX_VALIDATION_LIBRARY.test(properties.validation) &&
-                    !RX_VALIDATION_CUSTOM.test(properties.validation)
+                    !isLibraryFormula(properties.validation) &&
+                    !isCustomFormula(properties.validation)
                 ) {
                     ret.push({
                         type: CONSTANTS.ERROR,
                         index: pageIdx,
                         message: format(
-                            messages.invalidValidation,
+                            i18n().validation.messages.invalidValidation,
                             description,
                             name,
                             pageIdx + 1
@@ -759,7 +757,7 @@ const BaseTool = Class.extend({
                         type: CONSTANTS.WARNING,
                         index: pageIdx,
                         message: format(
-                            messages.invalidFailure,
+                            i18n().validation.messages.invalidFailure,
                             description,
                             name,
                             pageIdx + 1
@@ -775,7 +773,7 @@ const BaseTool = Class.extend({
                         type: CONSTANTS.WARNING,
                         index: pageIdx,
                         message: format(
-                            messages.invalidSuccess,
+                            i18n().validation.messages.invalidSuccess,
                             description,
                             name,
                             pageIdx + 1
@@ -787,79 +785,6 @@ const BaseTool = Class.extend({
         return ret;
     }
 });
-
-/**
- * Global references for i18n
- * Static getter the message namespace (see ../cultures/tools.*)
- * @method getMessageNameSpace
- */
-BaseTool.getMessageNameSpace = () => {
-    window.kendo.ex = window.kendo.ex || {};
-    window.kendo.ex.tools = window.kendo.ex.tools || {};
-    window.kendo.ex.tools.messages = window.kendo.ex.tools.messages || {};
-    return window.kendo.ex.tools.messages;
-};
-
-/**
- * Init i18n messages
- */
-const i18n = BaseTool.getMessageNameSpace();
-i18n.base = i18n.base || {
-    tool: {
-        top: { title: 'Top' },
-        left: { title: 'Left' },
-        height: { title: 'Height' },
-        width: { title: 'Width' },
-        rotate: { title: 'Rotate' }
-    },
-
-    dialogs: {
-        ok: {
-            text:
-                '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK'
-        },
-        cancel: {
-            text:
-                '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel'
-        }
-    },
-
-    messages: {
-        invalidAltText:
-            'A(n) {0} on page {1} requires some alternate text in display attributes.',
-        invalidAudioFile:
-            'A(n) {0} on page {1} requires an mp3 file in display attributes.',
-        invalidColor:
-            'A(n) {0} on page {1} has an invalid color in display attributes.',
-        invalidData:
-            'A(n) {0} on page {1} requires values in display attributes.',
-        invalidDescription:
-            'A(n) {0} named `{1}` on page {2} requires a question in test logic.',
-        invalidConstant:
-            'A(n) {0} on page {1} requires a constant in test logic.',
-        invalidFailure:
-            'A(n) {0} named `{1}` on page {2} has a failure score higher than the omit score or zero in test logic.',
-        invalidFormula:
-            'A(n) {0} on page {1} requires a formula in display attributes.',
-        invalidImageFile:
-            'A(n) {0} on page {1} requires an image file in display attributes.',
-        invalidName: 'A(n) {0} named `{1}` on page {2} has an invalid name.',
-        invalidShape:
-            'A(n) {0} named `{1}` on page {2} requires a shape in display attributes.',
-        invalidSolution:
-            'A(n) {0} named `{1}` on page {2} requires a solution in test logic.',
-        invalidStyle:
-            'A(n) {0} on page {1} has an invalid style in display attributes.',
-        invalidSuccess:
-            'A(n) {0} named `{1}` on page {2} has a success score lower than the omit score or zero in test logic.',
-        invalidText:
-            'A(n) {0} on page {1} requires some text in display attributes.',
-        invalidValidation:
-            'A(n) {0} named `{1}` on page {2} requires a validation formula in test logic.',
-        invalidVideoFile:
-            'A(n) {0} on page {1} requires an mp4 file in display attributes.'
-    }
-};
 
 /**
  * Default export

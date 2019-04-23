@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ImageListAdapter from './adapters.imagelist.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -19,47 +20,69 @@ import StyleAdapter from './adapters.style.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, genericLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { genericLibrary } from './util.libraries.es6';
+import {scoreValidator} from './util.validators';
 
-const { attr, format } = window.kendo;
+const { format, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-/**
- * i18n
- * @returns {*|{}}
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).imageset ||
-        {
-            // TODO
+if (!(i18n().tools && i18n().tools.imageset)) {
+    $.extend(true, i18n(), {
+        tools: {
+            imageset: {
+                description: 'Image Set',
+                help: null,
+                name: 'Image Set',
+                attributes: {
+                    style: {
+                        title: 'Title'
+                    },
+                    data: {
+                        defaultValue: [],
+                        title: 'Data'
+                    }
+                },
+                properties: {
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' },
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    success: { title: 'Success' },
+                    validation: { title: 'Validation' }
+                }
+            }
         }
-    );
+    });
 }
 
-const IMAGESET =
-    '<div data-#= ns #role="imageset" data-#= ns #images="#: data$() #" style="#: attributes.style #" {0}></div>';
+/**
+ * ImageSet Template
+ * @type {string}
+ */
+const IMAGESET = `<div data-${ns}role="imageset" data-${ns}images="#: data$() #" style="#: attributes.style #" {0}></div>`;
 
 /**
  * @class ImageSetTool tool
  * @type {void|*}
  */
-var ImageSetTool = BaseTool.extend({
+const ImageSetTool = BaseTool.extend({
     id: 'imageset',
     icon: 'photos',
-    description: i18n.imageset.description,
+    description: i18n().tools.imageset.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: format(IMAGESET, 'data-#= ns #enabled="false"'),
+        design: format(IMAGESET, `data-${ns}enabled="false"`),
         play: format(
             IMAGESET,
-            'data-#= ns #bind="value: #: properties.name #.value"'
+            `data-${ns}bind="value: #: properties.name #.value"`
         ),
         review:
             format(
                 IMAGESET,
-                'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enabled="false"'
+                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enabled="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 250,
@@ -67,39 +90,42 @@ var ImageSetTool = BaseTool.extend({
     attributes: {
         // shuffle: new BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
         style: new StyleAdapter({
-            title: i18n.imageset.attributes.style.title
+            title: i18n().tools.imageset.attributes.style.title
         }),
         data: new ImageListAdapter({
-            title: i18n.imageset.attributes.data.title,
-            defaultValue: i18n.imageset.attributes.data.defaultValue
+            title: i18n().tools.imageset.attributes.data.title,
+            defaultValue: i18n().tools.imageset.attributes.data.defaultValue
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n.imageset.properties.name.title
+            title: i18n().tools.imageset.properties.name.title
         }),
         question: new QuestionAdapter({
-            title: i18n.imageset.properties.question.title
+            title: i18n().tools.imageset.properties.question.title
         }),
         solution: new QuizAdapter({
-            title: i18n.imageset.properties.solution.title
+            title: i18n().tools.imageset.properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${genericLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${genericLibrary.defaultKey}`,
             library: genericLibrary.library,
-            title: i18n.imageset.properties.validation.title
+            title: i18n().tools.imageset.properties.validation.title
         }),
         success: new ScoreAdapter({
-            title: i18n.imageset.properties.success.title,
-            defaultValue: 1
+            title: i18n().tools.imageset.properties.success.title,
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n.imageset.properties.failure.title,
-            defaultValue: 0
+            title: i18n().tools.imageset.properties.failure.title,
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n.imageset.properties.omit.title,
-            defaultValue: 0
+            title: i18n().tools.imageset.properties.omit.title,
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -148,13 +174,13 @@ var ImageSetTool = BaseTool.extend({
                 'ToolAssets'
             )
         );
-        const template = kendo.template(that.templates[mode]);
+        const tmpl = template(that.templates[mode]);
         // The data$ function resolves urls with schemes like cdn://sample.jpg
         component.data$ = function() {
             const data = component.attributes.get('data');
             const clone = [];
-            const schemes = assets.image.schemes;
-            for (let i = 0, length = data.length; i < length; i++) {
+            const { schemes } = assets.image;
+            for (let i = 0, { length } = data; i < length; i++) {
                 const item = {
                     text: data[i].text,
                     image: ''
@@ -176,7 +202,7 @@ var ImageSetTool = BaseTool.extend({
             // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
             return ` ${JSON.stringify(clone)}`;
         };
-        return template($.extend(component, { ns: kendo.ns }));
+        return tmpl(component);
     },
 
     /**
@@ -200,9 +226,7 @@ var ImageSetTool = BaseTool.extend({
                 'PageComponent'
             )
         );
-        const content = stageElement.children(
-            `div${kendo.roleSelector('imageset')}`
-        );
+        const content = stageElement.children(`div${roleSelector('imageset')}`);
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(
                 component.get('width') -
@@ -230,13 +254,13 @@ var ImageSetTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const { description } = this; // tool description
+        const { messages } = this.i18n;
         if (
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,
@@ -247,7 +271,7 @@ var ImageSetTool = BaseTool.extend({
         if (
             !component.attributes ||
             !component.attributes.data ||
-            !RX_DATA.test(component.attributes.data)
+            !TOOLS.RX_DATA.test(component.attributes.data)
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

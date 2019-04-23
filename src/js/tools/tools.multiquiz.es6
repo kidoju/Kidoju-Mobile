@@ -10,7 +10,9 @@ import 'kendo.core';
 import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.multiquiz.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import ImageListAdapter from './adapters.imagelist.es6';
@@ -23,62 +25,70 @@ import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
-import { LIB_COMMENT, multiQuizLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { multiQuizLibrary } from './util.libraries.es6';
+import {scoreValidator} from './util.validators';
 
 const { format, htmlEncode, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-// TODO review location
-const RX_DATA = /\S+/i;
-const RX_STYLE = /^(([\w-]+)\s*:([^;<>]+);\s*)+$/i;
-
 /**
- * i18n
- * @returns {*|{}}
+ * i18n messages
  */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).multiquiz || {
-            description: 'MultiQuiz',
-            name: 'MultiQuiz',
-            help: null,
-            attributes: {
-                data: {
-                    title: 'Values',
-                    defaultValue: [
-                        {
-                            text: 'True',
-                            image: 'cdn://images/o_collection/svg/office/ok.svg'
-                        },
-                        {
-                            text: 'False',
-                            image:
-                                'cdn://images/o_collection/svg/office/error.svg'
-                        }
-                    ]
+if (!(i18n().tools && i18n().tools.multiquiz)) {
+    $.extend(true, i18n(), {
+        tools: {
+            multiquiz: {
+                description: 'MultiQuiz',
+                help: null,
+                name: 'MultiQuiz',
+                attributes: {
+                    data: {
+                        title: 'Values',
+                        defaultValue: [
+                            {
+                                text: 'True',
+                                image:
+                                    'cdn://images/o_collection/svg/office/ok.svg'
+                            },
+                            {
+                                text: 'False',
+                                image:
+                                    'cdn://images/o_collection/svg/office/error.svg'
+                            }
+                        ]
+                    },
+                    groupStyle: { title: 'Group Style' },
+                    itemStyle: { title: 'Item Style' },
+                    mode: {
+                        source: [
+                            { text: 'Button', value: 'button' },
+                            { text: 'CheckBox', value: 'checkbox' },
+                            { text: 'Image', value: 'image' },
+                            { text: 'Link', value: 'link' },
+                            { text: 'MultiSelect', value: 'multiselect' }
+                        ],
+                        title: 'Mode'
+                    },
+                    selectedStyle: { title: 'Select. Style' },
+                    shuffle: { title: 'Shuffle' }
                 },
-                groupStyle: { title: 'Group Style' },
-                itemStyle: { title: 'Item Style' },
-                mode: { title: 'Mode' },
-                selectedStyle: { title: 'Select. Style' },
-                shuffle: { title: 'Shuffle' }
-            },
-            // Properties
-            properties: {
-                failure: { title: 'Failure' },
-                omit: { title: 'Omit' },
-                name: { title: 'Name' },
-                question: { title: 'Question' },
-                solution: { title: 'Solution' },
-                success: { title: 'Success' },
-                validation: { title: 'Validation' }
+                properties: {
+                    failure: { title: 'Failure' },
+                    omit: { title: 'Omit' },
+                    name: { title: 'Name' },
+                    question: { title: 'Question' },
+                    solution: { title: 'Solution' },
+                    success: { title: 'Success' },
+                    validation: { title: 'Validation' }
+                }
             }
         }
-    );
+    });
 }
 
-const MULTIQUIZ =
-    '<div data-#= ns #role="multiquiz" data-#= ns #mode="#: attributes.mode #" data-#= ns #source="#: data$() #" style="#: attributes.groupStyle #" data-#= ns #item-style="#: attributes.itemStyle #" data-#= ns #selected-style="#: attributes.selectedStyle #" {0}></div>';
+const MULTIQUIZ = `<div data-${ns}role="multiquiz" data-${ns}mode="#: attributes.mode #" data-${ns}source="#: data$() #" style="#: attributes.groupStyle #" data-${ns}item-style="#: attributes.itemStyle #" data-${ns}selected-style="#: attributes.selectedStyle #" {0}></div>`;
+
 /**
  * MultiQuizTool tool
  * @class MultiQuizTool
@@ -87,79 +97,82 @@ const MULTIQUIZ =
 const MultiQuizTool = BaseTool.extend({
     id: 'multiquiz',
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().description,
+    description: i18n().tools.multiquiz.description,
     height: 150,
     help: null,
     icon: 'checkbox_group',
-    name: i18n().name,
+    name: i18n().tools.multiquiz.name,
     weight: 1,
     width: 420,
     templates: {
-        design: format(MULTIQUIZ, 'data-#= ns #enable="false"'),
+        design: format(MULTIQUIZ, `data-${ns}enable="false"`),
         play: format(
             MULTIQUIZ,
-            'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #shuffle="#: attributes.shuffle #"'
+            `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
         ),
         review:
             format(
                 MULTIQUIZ,
-                'data-#= ns #bind="value: #: properties.name #.value" data-#= ns #enable="false"'
+                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         mode: new DropDownListAdapter(
             {
-                title: i18n().attributes.mode.title,
                 defaultValue: 'checkbox',
-                enum: ['button', 'checkbox', 'image', 'link', 'multiselect']
+                source: i18n().tools.multiquiz.attributes.mode.source,
+                title: i18n().tools.multiquiz.attributes.mode.title
             },
             { style: 'width: 100%;' }
         ),
         shuffle: new BooleanAdapter({
-            title: i18n().attributes.shuffle.title
+            title: i18n().tools.multiquiz.attributes.shuffle.title
         }),
         groupStyle: new StyleAdapter({
-            title: i18n().attributes.groupStyle.title,
+            title: i18n().tools.multiquiz.attributes.groupStyle.title,
             defaultValue: 'font-size:60px;'
         }),
         itemStyle: new StyleAdapter({
-            title: i18n().attributes.itemStyle.title
+            title: i18n().tools.multiquiz.attributes.itemStyle.title
         }),
         selectedStyle: new StyleAdapter({
-            title: i18n().attributes.selectedStyle.title
+            title: i18n().tools.multiquiz.attributes.selectedStyle.title
         }),
         data: new ImageListAdapter({
-            title: i18n().attributes.data.title,
-            defaultValue: i18n().attributes.data.defaultValue
+            title: i18n().tools.multiquiz.attributes.data.title,
+            defaultValue: i18n().tools.multiquiz.attributes.data.defaultValue
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n().properties.name.title
+            title: i18n().tools.multiquiz.properties.name.title
         }),
         question: new QuestionAdapter({
-            title: i18n().properties.question.title
+            title: i18n().tools.multiquiz.properties.question.title
         }),
         solution: new MultiQuizAdapter({
-            title: i18n().properties.solution.title,
+            title: i18n().tools.multiquiz.properties.solution.title,
             defaultValue: []
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${multiQuizLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${multiQuizLibrary.defaultKey}`,
             library: multiQuizLibrary.library,
-            title: i18n().properties.validation.title
+            title: i18n().tools.multiquiz.properties.validation.title
         }),
         success: new ScoreAdapter({
-            title: i18n().properties.success.title,
-            defaultValue: 1
+            title: i18n().tools.multiquiz.properties.success.title,
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n().properties.failure.title,
-            defaultValue: 0
+            title: i18n().tools.multiquiz.properties.failure.title,
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n().properties.omit.title,
-            defaultValue: 0
+            title: i18n().tools.multiquiz.properties.omit.title,
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -215,7 +228,7 @@ const MultiQuizTool = BaseTool.extend({
             const data = component.attributes.get('data');
             const clone = [];
             const { schemes } = assets.image;
-            for (let i = 0, length = data.length; i < length; i++) {
+            for (let i = 0, { length } = data; i < length; i++) {
                 const item = {
                     text: data[i].text,
                     image: ''
@@ -238,7 +251,7 @@ const MultiQuizTool = BaseTool.extend({
             // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
             return ` ${JSON.stringify(clone)}`;
         };
-        return tmpl($.extend(component, { ns }));
+        return tmpl(component);
     },
 
     /**
@@ -334,17 +347,17 @@ const MultiQuizTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const description = this.description; // tool description
-        const messages = this.i18n.messages;
+        const { description } = this; // tool description
+        const { messages } = this.i18n;
         if (
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.groupStyle &&
-                !RX_STYLE.test(component.attributes.groupStyle)) ||
+                !TOOLS.RX_STYLE.test(component.attributes.groupStyle)) ||
             (component.attributes.itemStyle &&
-                !RX_STYLE.test(component.attributes.itemStyle)) ||
+                !TOOLS.RX_STYLE.test(component.attributes.itemStyle)) ||
             (component.attributes.selectedStyle &&
-                !RX_STYLE.test(component.attributes.selectedStyle))
+                !TOOLS.RX_STYLE.test(component.attributes.selectedStyle))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,
@@ -355,7 +368,7 @@ const MultiQuizTool = BaseTool.extend({
         if (
             !component.attributes ||
             !component.attributes.data ||
-            !RX_DATA.test(component.attributes.data)
+            !TOOLS.RX_DATA.test(component.attributes.data)
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

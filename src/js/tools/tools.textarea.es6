@@ -18,9 +18,11 @@ import TextAreaAdapter from './adapters.textarea.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
-import { LIB_COMMENT, textLibrary } from './util.libraries.es6';
+import TOOLS from './util.constants.es6';
+import { textLibrary } from './util.libraries.es6';
+import {scoreValidator} from './util.validators';
 
-const { format } = window.kendo;
+const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
 /**
@@ -52,12 +54,12 @@ const TextAreaTool = BaseTool.extend({
         design: format(TEXTAREA, ''),
         play: format(
             TEXTAREA,
-            'data-#= ns #bind="value: #: properties.name #.value"'
+            `data-${ns}bind="value: #: properties.name #.value"`
         ),
         review:
             format(
                 TEXTAREA,
-                'data-#= ns #bind="value: #: properties.name #.value"'
+                `data-${ns}bind="value: #: properties.name #.value"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
     height: 300,
@@ -79,21 +81,24 @@ const TextAreaTool = BaseTool.extend({
             title: i18n().properties.solution.title
         }),
         validation: new ValidationAdapter({
-            defaultValue: `${LIB_COMMENT}${textLibrary.defaultKey}`,
+            defaultValue: `${TOOLS.LIB_COMMENT}${textLibrary.defaultKey}`,
             library: textLibrary.library,
             title: i18n().properties.validation.title
         }),
         success: new ScoreAdapter({
             title: i18n().properties.success.title,
-            defaultValue: 1
+            defaultValue: 1,
+            validation: scoreValidator
         }),
         failure: new ScoreAdapter({
             title: i18n().properties.failure.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         }),
         omit: new ScoreAdapter({
             title: i18n().properties.omit.title,
-            defaultValue: 0
+            defaultValue: 0,
+            validation: scoreValidator
         })
     },
 
@@ -173,7 +178,7 @@ const TextAreaTool = BaseTool.extend({
             !component.attributes ||
             // Styles are only checked if there is any (optional)
             (component.attributes.style &&
-                !RX_STYLE.test(component.attributes.style))
+                !TOOLS.RX_STYLE.test(component.attributes.style))
         ) {
             ret.push({
                 type: CONSTANTS.ERROR,

@@ -3,11 +3,17 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO Review
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.combobox';
+import 'kendo.numerictextbox';
+import 'kendo.switch';
 import CONSTANTS from '../common/window.constants.es6';
+import '../widgets/widgets.codeinput.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
@@ -36,98 +42,21 @@ const DisabledAdapter = BaseAdapter.extend({
         // this.editor = 'input';
         // this.attributes = $.extend({}, this.attributes, attributes);
         // this.attributes[attr('role')] = 'switch';
-        this.editor = function(container, settings) {
-            const input = $('<div/>')
-                .attr(getValueBinding(settings.field))
+        this.editor = (container, settings = {}) => {
+            const input = $(`<${CONSTANTS.INPUT}>`)
+                .attr(
+                    $.extend(
+                        {},
+                        settings.attributes,
+                        getValueBinding(settings.field)
+                    )
+                )
                 .appendTo(container);
             const switchWidget = input
-                .kendoMobileSwitch({
-                    change(e) {
-                        const tbody = e.sender.element.closest('tbody');
-                        // Question
-                        const questionWidget = tbody
-                            .find(
-                                format(
-                                    ATTR_CONTAIN_SELECTOR,
-                                    attr('bind'),
-                                    'properties.question'
-                                )
-                            )
-                            .data('kendoComboBox');
-                        if (questionWidget instanceof ComboBox) {
-                            questionWidget.enable(!e.checked);
-                        }
-                        // Solution - Note: cannot predict what solutionWidget is
-                        /*
-                        var solutionElement = tbody.find(format(ATTR_CONTAIN_SELECTOR, attr('bind'), 'properties.solution'));
-                        var solutionWidget = kendo.widgetInstance(solutionElement);
-                        if ($.isFunction(solutionWidget.enable)) {
-                             solutionWidget.enable(!e.checked);
-                        }
-                        */
-                        // Validation
-                        const validationWidget = tbody
-                            .find(
-                                format(
-                                    ATTR_CONTAIN_SELECTOR,
-                                    attr('bind'),
-                                    'properties.validation'
-                                )
-                            )
-                            .data('kendoCodeInput');
-                        if (validationWidget instanceof CodeInput) {
-                            validationWidget.enable(!e.checked);
-                            validationWidget.element
-                                .closest('td[role="gridcell"]')
-                                .find('button.k-button')
-                                .prop('disabled', e.checked)
-                                .toggleClass(
-                                    CONSTANTS.DISABLED_CLASS,
-                                    e.checked
-                                );
-                        }
-                        // Success
-                        const successWidget = tbody
-                            .find(
-                                format(
-                                    ATTR_CONTAIN_SELECTOR,
-                                    attr('bind'),
-                                    'properties.success'
-                                )
-                            )
-                            .data('kendoNumericTextBox');
-                        if (successWidget instanceof NumericTextBox) {
-                            successWidget.enable(!e.checked);
-                        }
-                        // Failure
-                        const failureWidget = tbody
-                            .find(
-                                format(
-                                    ATTR_CONTAIN_SELECTOR,
-                                    attr('bind'),
-                                    'properties.failure'
-                                )
-                            )
-                            .data('kendoNumericTextBox');
-                        if (failureWidget instanceof NumericTextBox) {
-                            failureWidget.enable(!e.checked);
-                        }
-                        // Omit
-                        const omitWidget = tbody
-                            .find(
-                                format(
-                                    ATTR_CONTAIN_SELECTOR,
-                                    attr('bind'),
-                                    'properties.omit'
-                                )
-                            )
-                            .data('kendoNumericTextBox');
-                        if (omitWidget instanceof NumericTextBox) {
-                            omitWidget.enable(!e.checked);
-                        }
-                    }
+                .kendoSwitch({
+                    change: this.onChange.bind(this)
                 })
-                .data('kendoMobileSwitch');
+                .data('kendoSwitch');
             setTimeout(() => {
                 // Note: switchWidget.check() before data bindings so we need to yield some time
                 switchWidget.trigger(CONSTANTS.CHANGE, {
@@ -135,6 +64,88 @@ const DisabledAdapter = BaseAdapter.extend({
                 });
             }, 0);
         };
+    },
+
+    /**
+     * Event handler triggered when the value of the switch is changed
+     * @param e
+     */
+    onChange(e) {
+        const tbody = e.sender.element.closest('tbody');
+        // Question
+        const question = tbody
+            .find(
+                format(
+                    ATTR_CONTAIN_SELECTOR,
+                    attr('bind'),
+                    'properties.question'
+                )
+            )
+            .data('kendoComboBox');
+        if (question instanceof ComboBox) {
+            question.enable(!e.checked);
+        }
+        // Solution - Note: cannot predict what solutionWidget is
+        /*
+        var solutionElement = tbody.find(format(ATTR_CONTAIN_SELECTOR, attr('bind'), 'properties.solution'));
+        var solutionWidget = kendo.widgetInstance(solutionElement);
+        if ($.isFunction(solutionWidget.enable)) {
+             solutionWidget.enable(!e.checked);
+        }
+        */
+        // Validation
+        const validation = tbody
+            .find(
+                format(
+                    ATTR_CONTAIN_SELECTOR,
+                    attr('bind'),
+                    'properties.validation'
+                )
+            )
+            .data('kendoCodeInput');
+        if (validation instanceof CodeInput) {
+            validation.enable(!e.checked);
+            validation.element
+                .closest('td[role="gridcell"]')
+                .find('button.k-button')
+                .prop('disabled', e.checked)
+                .toggleClass(CONSTANTS.DISABLED_CLASS, e.checked);
+        }
+        // Success
+        const success = tbody
+            .find(
+                format(
+                    ATTR_CONTAIN_SELECTOR,
+                    attr('bind'),
+                    'properties.success'
+                )
+            )
+            .data('kendoNumericTextBox');
+        if (success instanceof NumericTextBox) {
+            success.enable(!e.checked);
+        }
+        // Failure
+        const failure = tbody
+            .find(
+                format(
+                    ATTR_CONTAIN_SELECTOR,
+                    attr('bind'),
+                    'properties.failure'
+                )
+            )
+            .data('kendoNumericTextBox');
+        if (failure instanceof NumericTextBox) {
+            failure.enable(!e.checked);
+        }
+        // Omit
+        const omit = tbody
+            .find(
+                format(ATTR_CONTAIN_SELECTOR, attr('bind'), 'properties.omit')
+            )
+            .data('kendoNumericTextBox');
+        if (omit instanceof NumericTextBox) {
+            omit.enable(!e.checked);
+        }
     }
 });
 

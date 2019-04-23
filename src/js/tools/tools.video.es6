@@ -17,8 +17,9 @@ import NumberAdapter from './adapters.number.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
+import TOOLS from './util.constants';
 
-const { ns, template } = window.kendo;
+const { format, ns, roleSelector, template } = window.kendo;
 
 /**
  * i18n
@@ -49,8 +50,7 @@ var VideoTool = BaseTool.extend({
     description: i18n.video.description,
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     templates: {
-        default:
-            '<div data-#= ns #role="mediaplayer" data-#= ns #mode="video" data-#= ns #autoplay="#: attributes.autoplay #" data-#= ns #files="#: files$() #" data-#= ns #toolbar-height="#: attributes.toolbarHeight #"></div>'
+        default: `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`
     },
     height: 300,
     width: 600,
@@ -80,7 +80,11 @@ var VideoTool = BaseTool.extend({
         assert.instanceof(
             VideoTool,
             that,
-            assert.format(assert.messages.instanceof.default, 'this', 'VideoTool')
+            assert.format(
+                assert.messages.instanceof.default,
+                'this',
+                'VideoTool'
+            )
         );
         assert.instanceof(
             PageComponent,
@@ -119,24 +123,22 @@ var VideoTool = BaseTool.extend({
                 let wbem = component.attributes.get('wbem');
                 const files = [];
                 mp4 = assets.video.scheme2http(mp4);
-                if (RX_HTTP_S.test(mp4)) {
+                if (TOOLS.RX_HTTP_S.test(mp4)) {
                     files.push(mp4);
                 }
                 ogv = assets.video.scheme2http(ogv);
-                if (RX_HTTP_S.test(ogv)) {
+                if (TOOLS.RX_HTTP_S.test(ogv)) {
                     files.push(ogv);
                 }
                 wbem = assets.video.scheme2http(wbem);
-                if (RX_HTTP_S.test(wbem)) {
+                if (TOOLS.RX_HTTP_S.test(wbem)) {
                     files.push(wbem);
                 }
 
                 // Adding a space is a workaround to https://github.com/telerik/kendo-ui-core/issues/2849
                 // return ` ${JSON.stringify(files)}`;
                 return JSON.stringify(files);
-            },
-            // ns is required for data-* declarations
-            ns
+            }
         });
 
         return tmpl(component);
@@ -164,7 +166,7 @@ var VideoTool = BaseTool.extend({
             )
         );
         const content = stageElement.children(
-            `div${kendo.roleSelector('mediaplayer')}`
+            `div${roleSelector('mediaplayer')}`
         );
         if ($.type(component.width) === CONSTANTS.NUMBER) {
             content.outerWidth(
@@ -201,7 +203,10 @@ var VideoTool = BaseTool.extend({
             description,
             i18n: { messages }
         } = this; // tool description
-        if (!component.attributes || !RX_VIDEO.test(component.attributes.mp4)) {
+        if (
+            !component.attributes ||
+            !TOOLS.RX_VIDEO.test(component.attributes.mp4)
+        ) {
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
