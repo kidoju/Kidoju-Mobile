@@ -9,6 +9,7 @@ import $ from 'jquery';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
+import TOOLS from '../tools/util.constants.es6';
 import BaseModel from './data.base.es6';
 
 const logger = new Logger('models.basetest');
@@ -25,9 +26,55 @@ const BaseTest = BaseModel.define({
         interactions: {
             defaultValue: []
         }
-        // TODO store for random/calculated constants
-
+        // Variables need a default value which is defined in Stream.getTestModel
+        /*
+        variables: {
+            defaultValue: []
+        }
+        */
         // TODO time ....
+    },
+
+    /**
+     * Init
+     * @constructor
+     * @param options
+     */
+    /*
+    init(options) {
+        BaseModel.fn.init.call(this, options);
+    },
+     */
+
+    /**
+     * Get the parent viewModel
+     * @returns {Observable}
+     */
+    getViewModel() {
+        let viewModel = this;
+        while (
+            $.isFunction(viewModel.parent) &&
+            $.type(viewModel.parent()) !== CONSTANTS.UNDEFINED
+        ) {
+            viewModel = viewModel.parent();
+        }
+        return viewModel;
+    },
+
+    /**
+     * Get current page index
+     */
+    getCurrentPageIdx() {
+        const { stream, selectedPage } = this.getViewModel();
+        return stream.pages.indexOf(selectedPage);
+    },
+
+    /**
+     * Current page variables for label tool bindings
+     */
+    variables$() {
+        const { variables } = this;
+        return variables[this.getCurrentPageIdx()] || {};
     },
 
     /**
@@ -39,16 +86,16 @@ const BaseTest = BaseModel.define({
         const that = this;
         const scoreArray = [];
         Object.keys(that.fields).forEach(key => {
-            if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+            if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 const field = that.get(key);
                 const component = field.component();
                 if (!component.get('properties.disabled')) {
                     const scoreLine = field.toJSON();
                     // Add name, pageIdx and question
                     scoreLine.name = key;
-                    scoreLine.pageIdx = component.page().index();
-                    scoreLine.question = component.get('properties.question');
-                    // Improved display of values in score grids
+                    scoreLine.pageIdx = field.pageIdx();
+                    // Encoded/computed display of values in score grids
+                    scoreLine.question = field.question$();
                     scoreLine.value = field.value$();
                     scoreLine.solution = field.solution$();
                     // TODO result, score and values for icon success/failure/omit
@@ -79,7 +126,7 @@ const BaseTest = BaseModel.define({
         // Iterate through test fields
         Object.keys(this.fields).forEach(key => {
             // Filter test value fields
-            if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+            if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 const field = that.get(key);
                 const component = field.component();
                 // Filter page non-disabled fields
@@ -111,7 +158,7 @@ const BaseTest = BaseModel.define({
         let max = 0;
         // Note: this.fields has less properties than this
         Object.keys(that.fields).forEach(key => {
-            if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+            if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 const component = that.get(key).component();
                 if (!component.get('properties.disabled')) {
                     max += component.get('properties.success') || 0;
@@ -141,7 +188,7 @@ const BaseTest = BaseModel.define({
         const that = this;
         let score = 0;
         Object.keys(that.fields).forEach(key => {
-            if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+            if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 const component = that.get(key).component();
                 if (!component.get('properties.disabled')) {
                     // debugger;
@@ -162,7 +209,7 @@ const BaseTest = BaseModel.define({
         const that = this;
         const json = {};
         Object.keys(that.fields).forEach(key => {
-            if (CONSTANTS.RX_TEST_FIELD_NAME.test(key)) {
+            if (TOOLS.RX_TEST_FIELD_NAME.test(key)) {
                 // TODO use field.toJSON()
                 json[key] = {
                     result: this.get(`${key}.result`),

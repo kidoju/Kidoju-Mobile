@@ -18,7 +18,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { mathLibrary } from './util.libraries.es6';
-import {scoreValidator} from './util.validators';
+import {scoreValidator} from './util.validators.es6';
 
 const { attr, format, ns, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -163,12 +163,12 @@ var MathInputTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(CONSTANTS.STAGE_MODES)
+                Object.keys(TOOLS.STAGE_MODES)
             )
         );
         const tmpl = template(that.templates[mode]);

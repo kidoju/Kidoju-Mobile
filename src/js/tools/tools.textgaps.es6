@@ -10,15 +10,17 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
-import ReadOnlyAdapter from './adapters.readonly.es6';
 import NumberAdapter from './adapters.number.es6';
+import ReadOnlyAdapter from './adapters.readonly.es6';
+import StyleAdapter from './adapters.style.es6';
+import TextBoxAdapter from './adapters.textbox.es6';
 import QuestionAdapter from './adapters.question.es6';
 import ValidationAdapter from './adapters.validation.es6';
 import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
-import {scoreValidator} from './util.validators';
+import { scoreValidator } from './util.validators.es6';
 
 const { attr, format, htmlEncode, ns, roleSelector, template } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -52,10 +54,15 @@ function i18n() {
     );
 }
 
-const TEXTGAPS = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.text #" data-${ns}input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>`;
 /**
- * TextGapsTool tool
- * @class MultiQuiz
+ * Template
+ * @type {string}
+ */
+const TEMPLATE = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.text #" data-${ns}input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>`;
+
+/**
+ * TextGapsTool
+ * @class TextGapsTool
  * @type {void|*}
  */
 const TextGapsTool = BaseTool.extend({
@@ -65,14 +72,14 @@ const TextGapsTool = BaseTool.extend({
     cursor: CONSTANTS.CROSSHAIR_CURSOR,
     weight: 1,
     templates: {
-        design: format(TEXTGAPS, `data-${ns}enable="false"`),
+        design: format(TEMPLATE, `data-${ns}enable="false"`),
         play: format(
-            TEXTGAPS,
+            TEMPLATE,
             `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
         ),
         review:
             format(
-                TEXTGAPS,
+                TEMPLATE,
                 `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
             ) + BaseTool.fn.getHtmlCheckMarks()
     },
@@ -152,12 +159,12 @@ const TextGapsTool = BaseTool.extend({
             )
         );
         assert.enum(
-            Object.values(CONSTANTS.STAGE_MODES),
+            Object.values(TOOLS.STAGE_MODES),
             mode,
             assert.format(
                 assert.messages.enum.default,
                 'mode',
-                Object.keys(CONSTANTS.STAGE_MODES)
+                Object.keys(TOOLS.STAGE_MODES)
             )
         );
         const tmpl = template(that.templates[mode]);

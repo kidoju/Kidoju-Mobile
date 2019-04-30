@@ -24,7 +24,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { charGridLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators';
+import { scoreValidator } from './util.validators.es6';
 
 const {
     data: { ObservableArray },

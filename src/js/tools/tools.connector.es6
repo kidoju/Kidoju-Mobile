@@ -21,7 +21,7 @@ import tools from './tools.es6';
 import BaseTool from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators';
+import { scoreValidator } from './util.validators.es6';
 import i18n from '../common/window.i18n';
 
 const { attr, format, ns } = window.kendo;
