@@ -27,17 +27,18 @@ const Score = Activity.define({
         test: {
             defaultValue: null
             /*
-             A test is a hash object of
+             // A test is a hash object of
              val_abcdef: {
                 result: true/false,
                 score: n,
                 value: 'user answer'
              },
-             And an array of
-             interactions: []
+             // An array of
+             interactions: [],
+             // An array of variables
+             variables: []
              */
         },
-        // TODO value: {
         value: {
             type: CONSTANTS.NUMBER,
             editable: false
