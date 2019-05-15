@@ -73,8 +73,8 @@ function openAssetManager(options = {}) {
         .data('kendoBaseDialog');
 
     // Rebind the initOpen event considering the kendo.ui.AssetManager widget requires assets which cannot be bound via a viewModel
-    dialog.unbind('initOpen');
-    dialog.one('initOpen', e => {
+    dialog.unbind(CONSTANTS.INITOPEN);
+    dialog.one(CONSTANTS.INITOPEN, e => {
         // Designate assets
         e.sender.element
             .find(roleSelector('assetmanager'))
@@ -84,7 +84,7 @@ function openAssetManager(options = {}) {
     });
 
     // Bind the show event to resize once opened
-    dialog.one('show', e => {
+    dialog.one(CONSTANTS.SHOW, e => {
         resize(e.sender.element);
     });
 
