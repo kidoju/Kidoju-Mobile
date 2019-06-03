@@ -39,7 +39,11 @@ if (!(i18n().tools && i18n().tools.label)) {
                 name: 'Label',
                 attributes: {
                     style: { title: 'Style' },
-                    text: { title: 'Text', defaultValue: 'Label' }
+                    text: {
+                        title: 'Text',
+                        help: 'Enter the label text',
+                        defaultValue: 'Label'
+                    }
                 },
                 properties: {
                     behavior: {
@@ -80,7 +84,7 @@ const LabelTool = BaseTool.extend({
     height: 80,
     help: i18n().tools.label.help,
     icon: 'font',
-    menu: ['attributes.text', 'attributes.style'],
+    menu: ['attributes.text'],
     name: i18n().tools.label.name,
     width: 300,
     templates: {
@@ -92,6 +96,7 @@ const LabelTool = BaseTool.extend({
         text: new TextAreaAdapter(
             {
                 title: i18n().tools.label.attributes.text.title,
+                help: i18n().tools.label.attributes.text.help,
                 defaultValue: i18n().tools.label.attributes.text.defaultValue,
                 validation: textValidator
             },

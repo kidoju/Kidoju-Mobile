@@ -10,10 +10,13 @@ import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import openPropertyDialog from '../dialogs/dialogs.property.es6';
-import BaseDialog from '../dialogs/widgets.basedialog.es6';
-import editors from './util.editors.es6';
+import '../dialogs/widgets.basedialog.es6';
 
-const { Class } = window.kendo;
+const {
+    Class,
+    getter,
+    ui: { BaseDialog }
+} = window.kendo;
 
 /**
  * BaseAdapter
@@ -49,6 +52,9 @@ const BaseAdapter = Class.extend({
         this.template = options.template;
         this.editor = options.editor;
         this.attributes = options.attributes;
+
+        // And our own little twist, that is help tooltips
+        this.help = options.help;
     },
 
     /**
@@ -129,13 +135,15 @@ const BaseAdapter = Class.extend({
         }
         if (
             $.isFunction(this.editor) ||
-            ($.type(this.editor) === CONSTANTS.STRING &&
-                $.isFunction(editors[this.editor]))
+            $.type(this.editor) === CONSTANTS.STRING
         ) {
             row.editor = this.editor;
         }
         if ($.isPlainObject(this.attributes)) {
             row.attributes = this.attributes;
+        }
+        if ($.type(this.help) === CONSTANTS.STRING) {
+            row.help = this.help;
         }
         return row;
     },
@@ -159,7 +167,8 @@ const BaseAdapter = Class.extend({
                 result.action ===
                 BaseDialog.fn.options.messages.actions.ok.action
             ) {
-                // options.model.set(options.field, result.data.value);
+                const value = getter(options.field)(result.data);
+                options.model.set(options.field, value);
             }
         });
     }
