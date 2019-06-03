@@ -222,9 +222,8 @@ REM Styles
 REM ------------------------------------------------------------
 
 REM Copy ./src/styles/dialogs/*
-ATTRIB -R .\src\styles\dialogs\*.less
-COPY ..\Kidoju.Widgets\src\styles\dialogs\*.less .\src\styles\dialogs /Y
-ATTRIB +R .\src\styles\dialogs\*.less
+XCOPY ..\Kidoju.Widgets\src\styles\dialogs\*.scss .\src\styles\dialogs /C /E /I /R /Y
+ATTRIB +R .\src\styles\dialogs\*.scss /S
 
 REM Copy ./src/styles/fonts/*
 XCOPY ..\Kidoju.WebFonts\dist\fonts\*.* .\src\styles\fonts /C /E /I /R /Y
@@ -239,6 +238,8 @@ REM Copy ./src/styles/themes/*
 ATTRIB -R .\src\styles\themes\highlightjs.custom.less
 COPY ..\Kidoju.WebApp\styles\themes\highlightjs.custom.less .\src\styles\themes /Y
 ATTRIB +R .\src\styles\themes\highlightjs.custom.less
+REM XCOPY ..\Kidoju.Widgets\src\styles\dialogs\*.* .\src\styles\dialogs /C /E /I /R /Y
+REM ATTRIB +R .\src\styles\dialogs\*.* /S
 
 REM Copy ./src/styles/vendor/*
 XCOPY ..\Kidoju.Widgets\src\styles\vendor\highlight .\src\styles\vendor\highlight /C /E /I /R /Y
@@ -251,9 +252,9 @@ XCOPY ..\Kidoju.Widgets\src\styles\vendor\mathquill .\src\styles\vendor\mathquil
 ATTRIB +R .\src\styles\vendor\mathquill\*.* /S
 
 REM Copy ./src/styles/widgets/*
-ATTRIB -R .\src\styles\widgets\*.less
-COPY ..\Kidoju.Widgets\src\styles\widgets\*.less .\src\styles\widgets /Y
-ATTRIB +R .\src\styles\widgets\*.less
+XCOPY ..\Kidoju.Widgets\src\styles\widgets\*.less .\src\styles\widgets /C /E /I /R /Y
+XCOPY ..\Kidoju.Widgets\src\styles\widgets\*.scss .\src\styles\widgets /C /E /I /R /Y
+ATTRIB +R .\src\styles\widgets\*.* /S
 
 REM ------------------------------------------------------------
 REM Tests
