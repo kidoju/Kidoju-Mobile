@@ -11,9 +11,9 @@ import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.numerictextbox';
 import math from '../vendor/josdejong/math';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ExpressionAdapter from './adapters.expression.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -21,8 +21,7 @@ import QuestionAdapter from './adapters.question.es6';
 import ReadOnlyAdapter from './adapters.readonly.es6';
 import StyleAdapter from './adapters.style.es6';
 import ValidationAdapter from './adapters.validation.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { numberLibrary } from './util.libraries.es6';
 import {
@@ -31,44 +30,8 @@ import {
     styleValidator
 } from './util.validators.es6';
 
-const { format, htmlEncode, ns, template } = window.kendo;
+const { format, htmlEncode, ns, template, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.numericbox)) {
-    $.extend(true, i18n(), {
-        tools: {
-            numericbox: {
-                description: 'NumericBox: <em>#: properties.name #</em>',
-                help: null,
-                name: 'NumericBox',
-                attributes: {
-                    decimals: { title: 'Decimals' },
-                    min: { title: 'Minimum' },
-                    max: { title: 'Maximum' },
-                    style: { title: 'Style' }
-                },
-                properties: {
-                    name: { title: 'Name' },
-                    question: {
-                        help: 'Enter the question shown in score reports',
-                        title: 'Question'
-                    },
-                    solution: {
-                        help: 'Enter the solution shown in score reports',
-                        title: 'Solution'
-                    },
-                    validation: { title: 'Validation' },
-                    success: { title: 'Success' },
-                    failure: { title: 'Failure' },
-                    omit: { title: 'Omit' }
-                }
-            }
-        }
-    });
-}
 
 /**
  * Template
@@ -83,15 +46,11 @@ const TEMPLATE = `<input type="number" id="#: properties.name #" class="kj-inter
  */
 const NumericBoxTool = BaseTool.extend({
     id: 'numericbox',
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().tools.numericbox.description,
+    childSelector: `${CONSTANTS.INPUT}${roleSelector('numerictextbox')}`,
     height: 80,
-    help: i18n().tools.numericbox.help,
-    icon: 'odometer',
-    menu: ['properties.question', 'properties.solution'],
-    name: i18n().tools.numericbox.name,
-    weight: 1,
     width: 300,
+    weight: 1,
+    menu: ['properties.question', 'properties.solution'],
     templates: {
         design: format(TEMPLATE, ''),
         play: format(
@@ -107,7 +66,7 @@ const NumericBoxTool = BaseTool.extend({
     attributes: {
         decimals: new NumberAdapter(
             {
-                title: i18n().tools.numericbox.attributes.decimals.title,
+                title: __('tools.numericbox.attributes.decimals.title'),
                 defaultValue: 0
             },
             {
@@ -118,7 +77,7 @@ const NumericBoxTool = BaseTool.extend({
         ),
         min: new NumberAdapter(
             {
-                title: i18n().tools.numericbox.attributes.min.title,
+                title: __('tools.numericbox.attributes.min.title'),
                 defaultValue: Number.MIN_SAFE_INTEGER
             },
             {
@@ -128,7 +87,7 @@ const NumericBoxTool = BaseTool.extend({
         ),
         max: new NumberAdapter(
             {
-                title: i18n().tools.numericbox.attributes.max.title,
+                title: __('tools.numericbox.attributes.max.title'),
                 defaultValue: Number.MAX_SAFE_INTEGER
             },
             {
@@ -137,40 +96,40 @@ const NumericBoxTool = BaseTool.extend({
             }
         ),
         style: new StyleAdapter({
-            title: i18n().tools.numericbox.attributes.style.title,
+            title: __('tools.numericbox.attributes.style.title'),
             validation: styleValidator
         })
     },
     properties: {
         name: new ReadOnlyAdapter({
-            title: i18n().tools.numericbox.properties.name.title
+            title: __('tools.numericbox.properties.name.title')
         }),
         question: new QuestionAdapter({
-            help: i18n().tools.numericbox.properties.question.help,
-            title: i18n().tools.numericbox.properties.question.title,
+            help: __('tools.numericbox.properties.question.help'),
+            title: __('tools.numericbox.properties.question.title'),
             validation: questionValidator
         }),
         solution: new ExpressionAdapter({
-            help: i18n().tools.numericbox.properties.solution.help,
-            title: i18n().tools.numericbox.properties.solution.title
+            help: __('tools.numericbox.properties.solution.help'),
+            title: __('tools.numericbox.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${numberLibrary.defaultKey}`,
             library: numberLibrary.library,
-            title: i18n().tools.numericbox.properties.validation.title
+            title: __('tools.numericbox.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: i18n().tools.numericbox.properties.success.title,
+            title: __('tools.numericbox.properties.success.title'),
             defaultValue: 1,
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: i18n().tools.numericbox.properties.failure.title,
+            title: __('tools.numericbox.properties.failure.title'),
             defaultValue: 0,
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: i18n().tools.numericbox.properties.omit.title,
+            title: __('tools.numericbox.properties.omit.title'),
             defaultValue: 0,
             validation: scoreValidator
         })
@@ -265,7 +224,7 @@ const NumericBoxTool = BaseTool.extend({
             stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`) &&
             component instanceof PageComponent
         ) {
-            stageElement.find('input').prop({
+            stageElement.find(this.childSelector).prop({
                 // disabled: !enabled, // disabled elements do not receive mousedown events in Edge and cannot be selected in design mode
                 readonly: !enabled
             });
@@ -279,45 +238,15 @@ const NumericBoxTool = BaseTool.extend({
      * @param component
      */
     onResize(e, component) {
+        BaseTool.fn.onResize.call(this, e, component);
         const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.find(CONSTANTS.INPUT); // span > input
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
+        const content = stageElement.find(this.childSelector);
+        if (
+            component.attributes &&
+            !TOOLS.RX_FONT_SIZE.test(component.get('attributes.style'))
+        ) {
+            content.css('font-size', Math.floor(0.65 * content.height()));
         }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-            if (
-                component.attributes &&
-                !TOOLS.RX_FONT_SIZE.test(component.get('attributes.style'))
-            ) {
-                content.css('font-size', Math.floor(0.65 * content.height()));
-            }
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
     },
 
     /**
@@ -349,6 +278,6 @@ const NumericBoxTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(NumericBoxTool);
+export default NumericBoxTool;

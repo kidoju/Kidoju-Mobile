@@ -88,7 +88,7 @@ models.Rummage = Node.define({
      */
     href$: function () {
         var root = window.location.protocol + '//' + window.location.host;
-        var finder = format(uris.webapp.finder, i18n.locale);
+        var finder = format(uris.webapp.finder, __.locale);
         finder = finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
         switch (this.get('type')) {
             case 1: // home

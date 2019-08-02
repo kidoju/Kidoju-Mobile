@@ -42,11 +42,11 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
                 // data: options.data
             });
             $.when(
-                app.cache.getFavouriteHierarchy(i18n.locale),
-                app.cache.getCategoryHierarchy(i18n.locale)
+                app.cache.getFavouriteHierarchy(__.locale),
+                app.cache.getCategoryHierarchy(__.locale)
             )
             .then(function (favourites, categories) {
-                var rootNodes = i18n.culture.finder.treeview.rootNodes;
+                var rootNodes = __('webapp.finder.treeview.rootNodes');
                 var rummages = [
                     { id: HOME, icon: rootNodes.home.icon, name: rootNodes.home.name, type: 1 },
                     { id: FAVOURITES, icon: rootNodes.favourites.icon, name: rootNodes.favourites.name, items: favourites, type: 0 },
@@ -71,9 +71,9 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
             // assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.isNonEmptyPlainObject(options.data, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.data'));
             assert.match(RX_MONGODB_ID, options.data.id, assert.format(assert.messages.match.default, 'options.data.id', RX_MONGODB_ID));
-            return app.rapi.v1.user.deleteMyFavourite(i18n.locale, options.data.id)
+            return app.rapi.v1.user.deleteMyFavourite(__.locale, options.data.id)
             .then(function () {
-                app.cache.removeMyFavourites(i18n.locale)
+                app.cache.removeMyFavourites(__.locale)
                 .always(function () {
                     options.success(options.data);
                 });

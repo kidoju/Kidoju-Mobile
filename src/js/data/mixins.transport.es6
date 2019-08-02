@@ -9,7 +9,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
@@ -182,7 +182,7 @@ export default function extendModelWithTransport(DataModel, transport) {
             // data[idField] = json[idField];
             data[idField] = this[idField];
             // Some models might require language
-            data.language = i18n.locale;
+            data.language = __.locale;
             // Only send dirty fields with id for update
             Object.keys(dirtyFields).forEach(key => {
                 if (dirtyFields[key]) {

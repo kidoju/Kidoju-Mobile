@@ -7,10 +7,10 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import { editUri, playUri } from '../app/app.uris.es6';
+import { editorUri, playerUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import { getSummaryReference } from '../app/app.partitions.es6';
 import themer from '../app/app.themer.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
@@ -56,16 +56,16 @@ const LazyVersion = BaseModel.define({
         // updated
         // userId
     },
-    playUri$() {
-        return playUri(
-            i18n.locale,
+    playerUri$() {
+        return playerUri(
+            __.locale,
             this.get('summaryId'),
             this.get('id')
         );
     },
-    editUri$() {
-        return editUri(
-            i18n.locale,
+    editorUri$() {
+        return editorUri(
+            __.locale,
             this.get('summaryId')
         );
     },
@@ -73,7 +73,7 @@ const LazyVersion = BaseModel.define({
         // TODO consider the sandbox attribute -- see http://www.html5rocks.com/en/tutorials/security/sandboxed-iframes/
         return format(
             '<iframe src="{0}?embed=true{1}" style="height:500px;width:100%;border:solid 1px #d5d5d5;"></iframe>',
-            this.playUri$(),
+            this.playerUri$(),
             themer && $.isFunction(themer.name)
                 ? `&theme=${encodeURIComponent(themer.name())}`
                 : ''
@@ -129,9 +129,9 @@ const LazyVersionDataSource = DataSource.extend({
                                     // eslint-disable-next-line no-param-reassign
                                     item.name =
                                         item.state === CONSTANTS.WORKFLOW.DRAFT
-                                            ? i18n.culture.versions.draft.name
+                                            ? __('webapp.versions.draft.name')
                                             : format(
-                                                i18n.culture.versions
+                                                __('webapp.versions')
                                                     .published.name,
                                                 response.data.length - index
                                             );

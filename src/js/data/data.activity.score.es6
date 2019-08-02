@@ -6,7 +6,7 @@
 // TODO: Add functions to pull the test model from version.stream and verify it
 
 import 'kendo.core';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import { getVersionReference } from '../app/app.partitions.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxActivities from '../rapi/rapi.activities.es6';
@@ -67,7 +67,7 @@ const Score = Activity.define({
         const id = this.get(this.idField); // TODO Check!!!
         if (CONSTANTS.RX_MONGODB_ID.test(id)) {
             ret = format(
-                `{0:${i18n.culture.dateFormat}} ({1:p0})`, // TODO: i18n
+                `{0:${__('webapp.dateFormat')}} ({1:p0})`, // TODO: i18n
                 this.get('created'), // TODO: timezone
                 this.get('value') / 100
             );

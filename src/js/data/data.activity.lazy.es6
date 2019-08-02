@@ -282,7 +282,7 @@ const ScoreDataSource = DataSource.extend({
             }
             options.data.sort = [{ field: 'id', dir: 'desc' }];
             rapi.v1.content.findSummaryActivities(
-                i18n.locale,
+                __.locale,
                 that.summaryId,
                 options.data
             )

@@ -50,11 +50,13 @@ const THEMES = {
 const DEFAULT = 'flat';
 */
 const THEMES = {
+    // TODO Review to include locales + embedded border color
     black: 'black',
     bootstrap: 'bootstrap',
     flat: 'flat',
     highcontrast: 'highcontrast',
     indigo: 'indigo',
+    memba: 'memba',
     nordic: 'nordic',
     turquoise: 'turquoise',
     urban: 'urban',
@@ -125,6 +127,11 @@ const themer = {
                     }
                 }
             }
+            // TODO Review
+            // $('body>div.k-loading-image')
+            //     .delay(400)
+            //     .fadeIn()
+            //     .fadeOut();
             // The mobile application theme is set in app.mobile.js when initializing kendo.mobile.Application
             $(document.documentElement)
                 .removeClass(`k-${THEMES[oldTheme]}`)

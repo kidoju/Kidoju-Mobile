@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import { finderUri, iconUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxCategories from '../rapi/rapi.categories.es6';
@@ -169,11 +169,11 @@ const LazyCategory = BaseModel.define({
  * lazyCategoryTransport
  */
 const lazyCategoryTransport = new CacheCollectionStrategy({
-    key: `categories.${i18n.locale}`,
+    key: `categories.${__.locale}`,
     transport: new LazyRemoteTransport({
         collection: new AjaxCategories({
             partition: {
-                language: i18n.locale
+                language: __.locale
             }
         })
     })
@@ -279,7 +279,7 @@ const LazyRummage = Node.define({
      */
     href$() {
         const root = `${location.protocol}//${location.host}`;
-        let href = finderUri(i18n.locale);
+        let href = finderUri(__.locale);
         href = href.indexOf(root) === 0 ? href.substr(root.length) : href;
         switch (this.get('type')) {
             case 1: // home

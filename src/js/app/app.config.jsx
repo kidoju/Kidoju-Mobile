@@ -63,7 +63,8 @@ try {
     // Code is packaged via WebPack
     config.version = __VERSION__;
 } catch (ex) {
-    // __VERSION__ is undefined and JSON.parse fails
+    // ReferenceError: __VERSION__ is not defined
+    // and JSON.parse fails
     // Code is not packaged (i.e. unit tests)
     config.version = false;
 }
@@ -270,6 +271,10 @@ config.uris = {
         }
     },
     webapp: {
+        billing: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.billing %>')
+        ),
         editor: url.resolve(
             '<%- uris.webapp.root %>',
             convertFormat('<%- uris.webapp.editor %>')
@@ -282,6 +287,10 @@ config.uris = {
             '<%- uris.webapp.root %>',
             convertFormat('<%- uris.webapp.finder %>')
         ),
+        group: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.group %>')
+        ),
         home: url.resolve(
             '<%- uris.webapp.root %>',
             convertFormat('<%- uris.webapp.home %>')
@@ -293,6 +302,14 @@ config.uris = {
         logger: url.resolve(
             '<%- uris.webapp.root %>',
             convertFormat('<%- uris.webapp.logger %>')
+        ),
+        messaging: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.messaging %>')
+        ),
+        organization: url.resolve(
+            '<%- uris.webapp.root %>',
+            convertFormat('<%- uris.webapp.organization %>')
         ),
         ping: url.resolve(
             '<%- uris.webapp.root %>',

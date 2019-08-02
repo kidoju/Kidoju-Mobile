@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import config from '../app/app.config.jsx';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
@@ -79,7 +79,7 @@ class AjaxWebSearch extends AjaxBase {
                 ret.q = query.filter.filters[1].value || '';
             }
             ret.type = this._searchType;
-            ret.language = i18n.locale;
+            ret.language = __.locale;
             return ret;
         }
         return super._extendQuery(query);

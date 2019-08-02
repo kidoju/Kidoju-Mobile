@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.core';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxUsers from '../rapi/rapi.users.es6';
@@ -64,7 +64,13 @@ const Me = BaseModel.define({
         return CONSTANTS.RX_MONGODB_ID.test(this.get('id'));
     },
     userUri$() {
-        return userUri(i18n.locale, this.get('id'));
+        return userUri(__.locale, this.get('id'));
+    },
+    onUserPictureError(e) {
+        // https://blog.imagekit.io/how-to-handle-loading-images-that-may-not-exist-on-your-website-92e6c3c6ea63
+        // on the img tag, bind this error handler as follows: data-bind="events: { error: me.onUserPictureError }"
+        e.target.onerror = null;
+        e.target.src = iconUri('user');
     }
 });
 

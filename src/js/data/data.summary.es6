@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import { getLanguageReference } from '../app/app.partitions.es6';
 import { iconUri, summaryUri } from '../app/app.uris.es6';
 // import assert from '../common/window.assert.es6';
@@ -19,7 +19,7 @@ import UserReference from './reference.user.es6';
 import RemoteTransport from './transports.remote.es6';
 import extendModelWithTransport from './mixins.transport.es6';
 
-const { format, toString } = window.kendo;
+const { toString } = window.kendo;
 
 /**
  * NewSummary
@@ -48,7 +48,7 @@ const NewSummary = BaseModel.define({
         },
         language: {
             type: CONSTANTS.STRING,
-            defaultValue: i18n.locale,
+            defaultValue: __.locale,
             editable: false,
             validation: {
                 required: true
@@ -70,7 +70,7 @@ const NewSummary = BaseModel.define({
     },
     language$() {
         const locale = this.get('language');
-        const { languages } = i18n.culture;
+        const languages = __('webapp.languages');
         for (let i = 0; i < languages.length; i++) {
             if (languages[i].value === locale) {
                 return languages[i].name;
@@ -87,7 +87,7 @@ const NewSummary = BaseModel.define({
                 me.userId = me.id;
                 // delete me.picture;
                 that.set('author', new models.UserReference(me));
-                // that.set('language', i18n.locale);
+                // that.set('language', __.locale);
             }
         });
     },
@@ -114,7 +114,7 @@ const NewSummary = BaseModel.define({
             type: that.get('type.value')
         };
         // Call server to create a new summary and return a promise
-        return rapi.v1.content.createSummary(i18n.locale, newSummary);
+        return rapi.v1.content.createSummary(__.locale, newSummary);
     }
     */
 });
@@ -236,9 +236,7 @@ const Summary = BaseModel.define({
         return $.type(this.get('userScore')) === CONSTANTS.NUMBER;
     },
     icon$() {
-        return iconUri(
-            this.get('icon')
-        );
+        return iconUri(this.get('icon'));
     },
     isError$() {
         // Used in Kidoju-Mobile only
@@ -287,7 +285,7 @@ const Summary = BaseModel.define({
         if (CONSTANTS.RX_MONGODB_ID.test(data)) {
             // data is a summary id and we fetch a full summary
             rapi.v1.content
-                .getSummary(i18n.locale, data)
+                .getSummary(__.locale, data)
                 .then(summary => {
                     that.accept(summary);
                     dfd.resolve(summary);
@@ -307,7 +305,7 @@ const Summary = BaseModel.define({
                 // We therefore need to fetch a full summary
                 // data is a summary id and we fetch a full summary
                 rapi.v1.content
-                    .getSummary(i18n.locale, data.id)
+                    .getSummary(__.locale, data.id)
                     .then(summary => {
                         that.accept(summary);
                         dfd.resolve(summary);

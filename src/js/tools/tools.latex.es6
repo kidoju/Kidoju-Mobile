@@ -15,23 +15,9 @@ import DropDownListAdapter from './adapters.dropdownlist.es6';
 import MathInputAdapter from './adapters.mathinput.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 
 const { format, ns, template } = window.kendo;
-
-/**
- * i18n
- * @returns {*|{}}
- */
-function i18n() {
-    return (
-        (((window.app || {}).i18n || {}).tools || {}).latex ||
-        {
-            // TODO
-        }
-    );
-}
 
 /**
  * Template
@@ -44,32 +30,30 @@ const TEMPLATE = `<div data-${ns}role="latex" class="#: class$() #" style="#: at
  */
 const LatexTool = BaseTool.extend({
     id: 'latex',
-    icon: 'formula',
-    description: i18n.latex.description,
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    height: 180,
+    width: 370,
+    // menu: [],
     templates: {
         default: TEMPLATE
     },
-    height: 180,
-    width: 370,
     attributes: {
         formula: new MathInputAdapter({
-            title: i18n.latex.attributes.formula.title,
-            defaultValue: i18n.latex.attributes.formula.defaultValue
+            title: __('tools.latex.attributes.formula.title'),
+            defaultValue: __('tools.latex.attributes.formula.defaultValue')
         }),
         inline: new BooleanAdapter({
-            title: i18n.latex.attributes.inline.title,
-            defaultValue: i18n.latex.attributes.inline.defaultValue
+            title: __('tools.latex.attributes.inline.title'),
+            defaultValue: __('tools.latex.attributes.inline.defaultValue')
         }),
         style: new StyleAdapter({
-            title: i18n.latex.attributes.style.title,
+            title: __('tools.latex.attributes.style.title'),
             defaultValue: 'font-size:50px;'
         })
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
-                title: i18n.latex.properties.behavior.title,
+                title: __('tools.latex.properties.behavior.title'),
                 defaultValue: 'none',
                 enum: ['none', 'draggable', 'selectable']
             },
@@ -78,7 +62,7 @@ const LatexTool = BaseTool.extend({
             }
         ),
         constant: new TextBoxAdapter({
-            title: i18n.image.properties.constant.title
+            title: __('tools.image.properties.constant.title')
         })
     },
 
@@ -90,92 +74,23 @@ const LatexTool = BaseTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            LatexTool,
-            that,
-            assert.format(
-                assert.messages.instanceof.default,
-                'this',
-                'LatexTool'
-            )
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(TOOLS.STAGE_MODES)
-            )
-        );
-        const tmpl = template(that.templates.default);
-        // The class$ function adds the kj-interactive class to draggable components
-        component.class$ = function() {
-            return component.properties.behavior === 'draggable'
-                ? CONSTANTS.INTERACTIVE_CLASS
-                : '';
-        };
-        // The id$ function returns the component id for components that have a behavior
-        component.id$ = function() {
-            return component.properties.behavior !== 'none' &&
-                $.type(component.id) === CONSTANTS.STRING &&
-                component.id.length
-                ? component.id
-                : '';
-        };
-        return tmpl(component);
-    },
-
-    /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            assert.format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children('div');
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        $.extend(component, {
+            // The class$ function adds the kj-interactive class to draggable components
+            class$() {
+                return component.properties.behavior === 'draggable'
+                    ? CONSTANTS.INTERACTIVE_CLASS
+                    : '';
+            },
+            // The id$ function returns the component id for components that have a behavior
+            id$() {
+                return component.properties.behavior !== 'none' &&
+                    $.type(component.id) === CONSTANTS.STRING &&
+                    component.id.length
+                    ? component.id
+                    : '';
+            }
+        });
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**
@@ -193,7 +108,7 @@ const LatexTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.formula ||
             component.attributes.formula ===
-                i18n.latex.attributes.formula.defaultValue ||
+                __('tools.latex.attributes.formula.defaultValue') ||
             !TOOLS.RX_FORMULA.test(component.attributes.formula)
         ) {
             // TODO: replace TOOLS.RX_FORMULA with a LaTeX synthax checker
@@ -225,6 +140,6 @@ const LatexTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(LatexTool);
+export default LatexTool;

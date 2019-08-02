@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxUsers from '../rapi/rapi.users.es6';
@@ -292,48 +292,19 @@ const User = BaseModel.define({
      * @returns {*}
      */
     userUri$() {
-        return userUri(i18n.locale, this.get('id'));
+        return userUri(__.locale, this.get('id'));
     },
 
     /**
-     * Get actor medal (based on actor/student) points
-     * @returns {*}
+     * Event handler to bind to error event on user picture img tag
+     * @param e
      */
-    actorMedalUri$() {
-        const points = this.metrics.actorPoints$();
-        const medals = [
-            'grey',
-            'yellow',
-            'orange',
-            'pink',
-            'red',
-            'blue',
-            'green',
-            'black'
-        ];
-        const index = Math.min(Math.floor(points / 10), 7);
-        return iconUri(`medal_${medals[index]}`);
+    onUserPictureError(e) {
+        // https://blog.imagekit.io/how-to-handle-loading-images-that-may-not-exist-on-your-website-92e6c3c6ea63
+        // on the img tag, bind this error handler as follows: data-bind="events: { error: me.onUserPictureError }"
+        e.target.onerror = null;
+        e.target.src = iconUri('user');
     },
-
-    /**
-     * Get author medal (based on author/teacher) points
-     * @returns {*}
-     */
-    authorMedalUri$() {
-        const points = this.metrics.authorPoints$();
-        const medals = [
-            'grey',
-            'yellow',
-            'orange',
-            'pink',
-            'red',
-            'blue',
-            'green',
-            'black'
-        ];
-        const index = Math.min(Math.floor(points / 10), 7);
-        return iconUri(`medal2_${medals[index]}`);
-    }
 
     /**
      * Load

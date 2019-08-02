@@ -9,45 +9,18 @@ import $ from 'jquery';
 import 'kendo.core';
 import math from '../vendor/josdejong/math';
 import config from '../app/app.config.jsx';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import Logger from '../common/window.logger.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ExpressionAdapter from './adapters.expression.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 
 const logger = new Logger('tools.variable');
-const { format, template } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.variable)) {
-    $.extend(true, i18n(), {
-        tools: {
-            variable: {
-                description: 'Variable: <em>#: properties.variable #</em>',
-                help: null,
-                name: 'Variable',
-                attributes: {},
-                properties: {
-                    variable: {
-                        help: 'Enter a variable name',
-                        title: 'Variable'
-                    },
-                    expression: {
-                        help: 'Enter a math expression',
-                        title: 'Expression'
-                    }
-                }
-            }
-        }
-    });
-}
+const { format } = window.kendo;
 
 /**
  * Template
@@ -63,13 +36,9 @@ const TEMPLATE =
  */
 const VariableTool = BaseTool.extend({
     id: 'variable',
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().tools.variable.description,
+    childSelector: CONSTANTS.IMG,
     height: 64,
-    help: i18n().tools.variable.help,
-    icon: 'magic_wand',
     menu: ['properties.variable', 'properties.expression'],
-    name: i18n().tools.variable.name,
     width: 64,
     templates: {
         default: TEMPLATE
@@ -78,14 +47,14 @@ const VariableTool = BaseTool.extend({
     properties: {
         variable: new TextBoxAdapter({
             defaultValue: 'k',
-            help: i18n().tools.variable.properties.variable.help,
-            title: i18n().tools.variable.properties.variable.title
+            help: __('tools.variable.properties.variable.help'),
+            title: __('tools.variable.properties.variable.title')
         }),
         // Note: an expression can handle more than random numbers, for example: 2 * pi
         expression: new ExpressionAdapter({
             defaultValue: 'round(random(0, 10), 2)',
-            help: i18n().tools.variable.properties.expression.help,
-            title: i18n().tools.variable.properties.expression.title
+            help: __('tools.variable.properties.expression.help'),
+            title: __('tools.variable.properties.expression.title')
         })
     },
 
@@ -125,26 +94,7 @@ const VariableTool = BaseTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(TOOLS.STAGE_MODES)
-            )
-        );
-        const tmpl = template(that.templates.default);
+        const { icon } = this;
         $.extend(component, {
             // alternate text of an image
             alt$() {
@@ -156,10 +106,10 @@ const VariableTool = BaseTool.extend({
             },
             // The src$ function resolves the icon path
             src$() {
-                return format(config.uris.cdn.icons, that.icon);
+                return format(config.uris.cdn.icons, icon);
             }
         });
-        return tmpl(component);
+        BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**
@@ -170,19 +120,6 @@ const VariableTool = BaseTool.extend({
      */
     onResize(e, component) {
         const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
         const content = stageElement.children('img');
         // Assuming we can get the natural size of the image, we shall keep proportions
         // TODO Cannot get naturalHeight for SVG images
@@ -224,21 +161,7 @@ const VariableTool = BaseTool.extend({
              }
              */
         }
-        // Set content size
-        content.outerHeight(
-            component.get('height') -
-                content.outerHeight(true) +
-                content.outerHeight()
-        );
-        content.outerWidth(
-            component.get('width') -
-                content.outerWidth(true) +
-                content.outerWidth()
-        );
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        BaseTool.fn.onResize.call(this, e, component);
     },
 
     /**
@@ -256,7 +179,7 @@ const VariableTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.alt ||
             component.attributes.alt ===
-                i18n().tools.variable.attributes.alt.defaultValue ||
+                __('tools.variable.attributes.alt.defaultValue') ||
             !TOOLS.RX_TEXT.test(component.attributes.alt)
         ) {
             ret.push({
@@ -273,13 +196,13 @@ const VariableTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.src ||
             component.attributes.src ===
-                i18n().tools.variable.attributes.src.defaultValue ||
+                __('tools.variable.attributes.src.defaultValue') ||
             !TOOLS.RX_IMAGE.test(component.attributes.src)
         ) {
             ret.push({
                 type:
                     component.attributes.src ===
-                    i18n().tools.variable.attributes.src.defaultValue
+                    __('tools.variable.attributes.src.defaultValue')
                         ? CONSTANTS.WARNING
                         : CONSTANTS.ERROR,
                 index: pageIdx,
@@ -307,6 +230,6 @@ const VariableTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default export
  */
-tools.register(VariableTool);
+export default VariableTool;

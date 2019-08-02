@@ -8,38 +8,17 @@
 import $ from 'jquery';
 import 'kendo.core';
 import assets from '../app/app.assets.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants';
 
-const { format, ns, roleSelector, template } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.audio)) {
-    $.extend(true, i18n(), {
-        tools: {
-            audio: {
-                description: 'Audio Player',
-                help: null,
-                name: 'Audio',
-                attributes: {
-                    autoplay: { title: 'Autoplay' },
-                    mp3: { title: 'MP3 File' },
-                    ogg: { title: 'OGG File' }
-                }
-            }
-        }
-    });
-}
+const { format, ns, roleSelector } = window.kendo;
 
 /**
  * Template
@@ -52,24 +31,23 @@ const TEMPLATE = `<div data-${ns}role="mediaplayer" data-${ns}mode="audio" data-
  */
 const AudioTool = BaseTool.extend({
     id: 'audio',
-    icon: 'loudspeaker3',
-    description: i18n().tools.audio.description,
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    childSelector: `div${roleSelector('mediaplayer')}`,
+    height: 100,
+    width: 400,
+    // menu: [],
     templates: {
         default: TEMPLATE
     },
-    height: 100,
-    width: 400,
     attributes: {
         autoplay: new BooleanAdapter({
-            title: i18n().tools.audio.attributes.autoplay.title,
+            title: __('tools.audio.attributes.autoplay.title'),
             defaultValue: false
         }),
         mp3: new AssetAdapter({
-            title: i18n().tools.audio.attributes.mp3.title
+            title: __('tools.audio.attributes.mp3.title')
         }),
         ogg: new AssetAdapter({
-            title: i18n().tools.audio.attributes.ogg.title
+            title: __('tools.audio.attributes.ogg.title')
         })
     },
 
@@ -104,30 +82,6 @@ const AudioTool = BaseTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            Audio,
-            that,
-            assert.format(assert.messages.instanceof.default, 'this', 'Audio')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(TOOLS.STAGE_MODES)
-            )
-        );
         assert.instanceof(
             ToolAssets,
             assets.audio,
@@ -137,8 +91,6 @@ const AudioTool = BaseTool.extend({
                 'ToolAssets'
             )
         );
-        const tmpl = template(that.templates.default);
-
         $.extend(component, {
             // The files$ function resolves urls with schemes like cdn://video.mp4 and returns a stringified array
             files$() {
@@ -159,53 +111,7 @@ const AudioTool = BaseTool.extend({
                 return JSON.stringify(files);
             }
         });
-        return tmpl(component);
-    },
-
-    /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children(
-            `div${roleSelector('mediaplayer')}`
-        );
-        const widget = content.data('kendoMediaPlayer');
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        widget.resize();
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**
@@ -215,10 +121,7 @@ const AudioTool = BaseTool.extend({
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const {
-            description,
-            i18n: { messages }
-        } = this; // tool description
+        const toolName = this.name;
         if (
             !component.attributes ||
             !TOOLS.RX_AUDIO.test(component.attributes.mp3)
@@ -227,8 +130,8 @@ const AudioTool = BaseTool.extend({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
                 message: format(
-                    messages.invalidAudioFile,
-                    description,
+                    __('tools.messages.invalidAudioFile'),
+                    toolName,
                     pageIdx + 1
                 )
             });
@@ -239,6 +142,6 @@ const AudioTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(AudioTool);
+export default AudioTool;

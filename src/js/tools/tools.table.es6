@@ -7,39 +7,17 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import NumberAdapter from './adapters.number.es6';
 import TableAdapter from './adapters.table.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 // import {} from './util.validators.es6';
 
 const { format, ns, roleSelector } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.table)) {
-    $.extend(true, i18n(), {
-        tools: {
-            table: {
-                description: 'Table',
-                help: null,
-                name: 'Table',
-                attributes: {
-                    columns: { title: 'Columns' },
-                    rows: { title: 'Rows' },
-                    data: { title: 'Data' }
-                }
-                // properties: {}
-            }
-        }
-    });
-}
 
 /**
  * Template
@@ -53,18 +31,17 @@ const TEMPLATE = `<div data-${ns}role="table" style="#: attributes.style #" data
  */
 const TableTool = BaseTool.extend({
     id: 'table',
-    icon: 'table',
-    description: i18n().tools.table.description,
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
+    childSelector: `${CONSTANTS.DIV}${roleSelector('table')}`,
+    height: 350,
+    width: 600,
+    // menu: [],
     templates: {
         default: TEMPLATE
     },
-    height: 350,
-    width: 600,
     attributes: {
         columns: new NumberAdapter(
             {
-                title: i18n().tools.table.attributes.columns.title,
+                title: __('tools.table.attributes.columns.title'),
                 defaultValue: 4
             },
             {
@@ -76,7 +53,7 @@ const TableTool = BaseTool.extend({
         ),
         rows: new NumberAdapter(
             {
-                title: i18n().tools.table.attributes.rows.title,
+                title: __('tools.table.attributes.rows.title'),
                 defaultValue: 6
             },
             {
@@ -87,7 +64,7 @@ const TableTool = BaseTool.extend({
             }
         ),
         data: new TableAdapter({
-            title: i18n().tools.table.attributes.data.title,
+            title: __('tools.table.attributes.data.title'),
             defaultValue: {
                 sheets: [
                     {
@@ -110,56 +87,13 @@ const TableTool = BaseTool.extend({
     },
 
     /**
-     * onResize Event Handler
-     * @method onResize
-     * @param e
-     * @param component
-     */
-    onResize(e, component) {
-        const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children(roleSelector('table'));
-        if ($.type(component.width) === CONSTANTS.NUMBER) {
-            content.outerWidth(
-                component.get('width') -
-                    content.outerWidth(true) +
-                    content.outerWidth()
-            );
-        }
-        if ($.type(component.height) === CONSTANTS.NUMBER) {
-            content.outerHeight(
-                component.get('height') -
-                    content.outerHeight(true) +
-                    content.outerHeight()
-            );
-        }
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
-    },
-
-    /**
      * Component validation
      * @param component
      * @param pageIdx
      */
     validate(component, pageIdx) {
         const ret = BaseTool.fn.validate.call(this, component, pageIdx);
-        const { description } = this; // tool description
-        const { messages } = this.i18n;
+        const toolName = this.name;
         if (
             !component.attributes ||
             // Styles are only checked if there is any (optional)
@@ -169,7 +103,11 @@ const TableTool = BaseTool.extend({
             ret.push({
                 type: CONSTANTS.ERROR,
                 index: pageIdx,
-                message: format(messages.invalidStyle, description, pageIdx + 1)
+                message: format(
+                    __('tools.messages.invalidStyle'),
+                    toolName,
+                    pageIdx + 1
+                )
             });
             // TODO validate columns, rows and data
         }
@@ -178,6 +116,6 @@ const TableTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default eport
  */
-tools.register(TableTool);
+export default TableTool;

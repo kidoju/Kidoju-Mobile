@@ -10,9 +10,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.core';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import { getSummaryReference } from '../app/app.partitions.es6';
-import { editUri, playUri, summaryUri } from '../app/app.uris.es6';
+import { editorUri, playerUri, summaryUri } from '../app/app.uris.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxVersions from '../rapi/rapi.versions.es6';
@@ -91,20 +91,20 @@ const Version = BaseModel.define({
         // TODO timezone
         return this.get('updated');
     },
-    playUri$() {
-        return playUri(i18n.locale, this.get('summaryId'), this.get('id'));
+    playerUri$() {
+        return playerUri(__.locale, this.get('summaryId'), this.get('id'));
     },
-    editUri$() {
-        return editUri(i18n.locale, this.get('summaryId'));
+    editorUri$() {
+        return editorUri(__.locale, this.get('summaryId'));
     },
     summaryUri$() {
-        return summaryUri(i18n.locale, this.get('summaryId'));
+        return summaryUri(__.locale, this.get('summaryId'));
     }
     /*
     load(summaryId, versionId) {
         const that = this;
         return rapi.v1.content
-            .getSummaryVersion(i18n.locale, summaryId, versionId)
+            .getSummaryVersion(__.locale, summaryId, versionId)
             .then(version => {
                 that.accept(version);
                 assert.equal(

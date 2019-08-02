@@ -8,60 +8,19 @@
 import $ from 'jquery';
 import 'kendo.core';
 import assets from '../app/app.assets.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import i18n from '../common/window.i18n.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import AssetAdapter from './adapters.asset.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
-import tools from './tools.es6';
-import BaseTool from './tools.base.es6';
+import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 
 const { format, ns, template } = window.kendo;
-
-/**
- * i18n messages
- */
-if (!(i18n().tools && i18n().tools.image)) {
-    $.extend(true, i18n(), {
-        tools: {
-            image: {
-                description: 'Image: <em>#: attributes.alt #</em>',
-                help: null,
-                name: 'Image',
-                attributes: {
-                    alt: {
-                        title: 'Text',
-                        help: 'Enter alternate text for disabled people',
-                        defaultValue: 'Image'
-                    },
-                    src: {
-                        title: 'Source',
-                        help: 'Select an image',
-                        defaultValue:
-                            'cdn://images/o_collection/svg/office/painting_landscape.svg'
-                    },
-                    style: { title: 'Style' }
-                },
-                properties: {
-                    behavior: {
-                        source: [
-                            { text: 'None', value: 'none' },
-                            { text: 'Draggable', value: 'draggable' },
-                            { text: 'Selectable', value: 'selectable' }
-                        ],
-                        title: 'Behaviour'
-                    },
-                    constant: { title: 'Constant' }
-                }
-            }
-        }
-    });
-}
 
 /**
  * Template
@@ -76,45 +35,41 @@ const TEMPLATE = `<img src="#: src$() #" alt="#: attributes.alt #" class="#: cla
  */
 const ImageTool = BaseTool.extend({
     id: 'image',
-    cursor: CONSTANTS.CROSSHAIR_CURSOR,
-    description: i18n().tools.image.description,
+    childSelector: CONSTANTS.IMG,
     height: 250,
-    help: i18n().tools.image.help,
-    icon: 'painting_landscape',
     menu: ['attributes.src', 'attributes.alt'],
-    name: i18n().tools.image.name,
     width: 250,
     templates: {
         default: TEMPLATE
     },
     attributes: {
         alt: new TextBoxAdapter({
-            title: i18n().tools.image.attributes.alt.title,
-            help: i18n().tools.image.attributes.alt.help,
-            defaultValue: i18n().tools.image.attributes.alt.defaultValue
+            title: __('tools.image.attributes.alt.title'),
+            help: __('tools.image.attributes.alt.help'),
+            defaultValue: __('tools.image.attributes.alt.defaultValue')
         }),
         src: new AssetAdapter({
-            title: i18n().tools.image.attributes.src.title,
-            help: i18n().tools.image.attributes.src.help,
-            defaultValue: i18n().tools.image.attributes.src.defaultValue
+            title: __('tools.image.attributes.src.title'),
+            help: __('tools.image.attributes.src.help'),
+            defaultValue: __('tools.image.attributes.src.defaultValue')
         }),
         style: new StyleAdapter({
-            title: i18n().tools.image.attributes.style.title
+            title: __('tools.image.attributes.style.title')
         })
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
                 defaultValue: 'none',
-                source: i18n().tools.image.properties.behavior.source,
-                title: i18n().tools.image.properties.behavior.title
+                source: __('tools.image.properties.behavior.source'),
+                title: __('tools.image.properties.behavior.title')
             },
             {
                 style: 'width: 100%;'
             }
         ),
         constant: new TextBoxAdapter({
-            title: i18n().tools.image.properties.constant.title
+            title: __('tools.image.properties.constant.title')
         })
     },
 
@@ -149,35 +104,6 @@ const ImageTool = BaseTool.extend({
      * @returns {*}
      */
     getHtmlContent(component, mode) {
-        const that = this;
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        assert.enum(
-            Object.values(TOOLS.STAGE_MODES),
-            mode,
-            assert.format(
-                assert.messages.enum.default,
-                'mode',
-                Object.values(TOOLS.STAGE_MODES)
-            )
-        );
-        assert.instanceof(
-            ToolAssets,
-            assets.image,
-            assert.format(
-                assert.messages.instanceof.default,
-                'assets.image',
-                'ToolAssets'
-            )
-        );
-        const tmpl = template(that.templates.default);
         $.extend(component, {
             // The class$ function adds the kj-interactive class to draggable components
             class$() {
@@ -201,7 +127,7 @@ const ImageTool = BaseTool.extend({
                 return assets.image.scheme2http(src);
             }
         });
-        return tmpl(component);
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
     },
 
     /**
@@ -212,20 +138,7 @@ const ImageTool = BaseTool.extend({
      */
     onResize(e, component) {
         const stageElement = $(e.currentTarget);
-        assert.ok(
-            stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
-            format('e.currentTarget is expected to be a stage element')
-        );
-        assert.instanceof(
-            PageComponent,
-            component,
-            assert.format(
-                assert.messages.instanceof.default,
-                'component',
-                'PageComponent'
-            )
-        );
-        const content = stageElement.children('img');
+        const content = stageElement.children(CONSTANTS.IMG);
         // Assuming we can get the natural size of the image, we shall keep proportions
         // TODO Cannot get naturalHeight for SVG inages
         const { naturalHeight, naturalWidth } = content[0];
@@ -239,10 +152,10 @@ const ImageTool = BaseTool.extend({
             /*
              // Note: comparing rectLimitedByHeight and rectLimitedByWidth does not work because
              // we are using the component size and not the mouse position
-             // therefore, we can only reduce the size proportionnaly, not increase it
+             // therefore, we can only reduce the size proportionaly, not increase it
              var rectLimitedByWidth = {
-             height: Math.round(width * naturalHeight / naturalWidth),
-             width: Math.round(width)
+                height: Math.round(width * naturalHeight / naturalWidth),
+                width: Math.round(width)
              };
              // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
              if (rectLimitedByHeight.width <= width) {
@@ -266,21 +179,7 @@ const ImageTool = BaseTool.extend({
              }
              */
         }
-        // Set content size
-        content.outerHeight(
-            component.get('height') -
-                content.outerHeight(true) +
-                content.outerHeight()
-        );
-        content.outerWidth(
-            component.get('width') -
-                content.outerWidth(true) +
-                content.outerWidth()
-        );
-        // prevent any side effect
-        e.preventDefault();
-        // prevent event to bubble on stage
-        e.stopPropagation();
+        BaseTool.fn.onResize.call(this, e, component);
     },
 
     /**
@@ -298,7 +197,7 @@ const ImageTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.alt ||
             component.attributes.alt ===
-                i18n().tools.image.attributes.alt.defaultValue ||
+                __('tools.image.attributes.alt.defaultValue') ||
             !TOOLS.RX_TEXT.test(component.attributes.alt)
         ) {
             ret.push({
@@ -315,13 +214,13 @@ const ImageTool = BaseTool.extend({
             !component.attributes ||
             !component.attributes.src ||
             component.attributes.src ===
-                i18n().tools.image.attributes.src.defaultValue ||
+                __('tools.image.attributes.src.defaultValue') ||
             !TOOLS.RX_IMAGE.test(component.attributes.src)
         ) {
             ret.push({
                 type:
                     component.attributes.src ===
-                    i18n().tools.image.attributes.src.defaultValue
+                    __('tools.image.attributes.src.defaultValue')
                         ? CONSTANTS.WARNING
                         : CONSTANTS.ERROR,
                 index: pageIdx,
@@ -350,6 +249,6 @@ const ImageTool = BaseTool.extend({
 });
 
 /**
- * Registration
+ * Default export
  */
-tools.register(ImageTool);
+export default ImageTool;

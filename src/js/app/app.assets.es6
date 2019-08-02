@@ -7,12 +7,12 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import config from './app.config.jsx';
+// import __ from './app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxWebSearch from '../rapi/rapi.websearch.es6';
 import ToolAssets from '../tools/util.assets.es6';
-import config from './app.config.jsx';
-// import i18n from './app.i18n.es6';
 
 /*
 '../common/window.logger.es6',
@@ -320,7 +320,7 @@ const collectionSources = {
         );
         return deepExtend(
             {
-                name: 'Google', // Unfortunately i18n.culture is not yet available
+                name: 'Google', // Unfortunately __('webapp.is') not yet available
                 pageSize: params.pageSize, // Google returns a maximum of 10 items
                 serverFiltering: true,
                 serverPaging: true,
@@ -369,7 +369,7 @@ const collectionSources = {
         );
         return deepExtend(
             {
-                name: 'Project', // TODO i18n.culture.assets.collections.summary, but i18n is not yet loaded
+                name: 'Project', // TODO __('webapp.assets.collections.summary'), but i18n is not yet loaded
                 // TODO tools: ['upload', 'create', 'edit', 'destroy'],
                 // TODO editor: editors[type],
                 // pageSize: 12,

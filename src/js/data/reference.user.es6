@@ -4,9 +4,8 @@
  */
 
 import 'kendo.core';
-import config from '../app/app.config.jsx';
-import i18n from '../app/app.i18n.es6';
-import { userUri } from '../app/app.uris.es6';
+import __ from '../app/app.i18n.es6';
+import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 import { UserMetricsReference } from './reference.metrics';
@@ -50,6 +49,11 @@ const UserReference = BaseModel.define({
             },
             serializable: false
         },
+        picture: {
+            type: CONSTANTS.STRING,
+            editable: false,
+            serializable: false
+        },
         updated: {
             type: CONSTANTS.DATE,
             editable: false,
@@ -61,8 +65,17 @@ const UserReference = BaseModel.define({
             this.get('lastName') || ''
         ).trim()}`.trim();
     },
+    picture$() {
+        return this.get('picture') || iconUri('user');
+    },
     userUri$() {
-        return userUri(i18n.locale, this.get('id'));
+        return userUri(__.locale, this.get('id'));
+    },
+    onUserPictureError(e) {
+        // https://blog.imagekit.io/how-to-handle-loading-images-that-may-not-exist-on-your-website-92e6c3c6ea63
+        // on the img tag, bind this error handler as follows: data-bind="events: { error: summary.author.onUserPictureError }"
+        e.target.onerror = null;
+        e.target.src = iconUri('user');
     }
 });
 

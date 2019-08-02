@@ -5,12 +5,14 @@
 
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
+import { iconUri } from '../app/app.uris';
 
 /**
  * AverageReference
  * @class AverageReference
  * @extends BaseModel
  */
+/*
 const AverageReference = BaseModel.define({
     fields: {
         average: {
@@ -24,6 +26,7 @@ const AverageReference = BaseModel.define({
         }
     }
 });
+*/
 
 /**
  * CountReference
@@ -425,6 +428,46 @@ const UserMetricsReference = BaseModel.define({
     authorPoints$() {
         // Each published Kidoju quiz is worth 10 points
         return this.get('summaries.count') || 0;
+    },
+
+    /**
+     * Get actor medal (based on actor/student) points
+     * @returns {*}
+     */
+    actorMedalUri$() {
+        const points = this.actorPoints$();
+        const medals = [
+            'grey',
+            'yellow',
+            'orange',
+            'pink',
+            'red',
+            'blue',
+            'green',
+            'black'
+        ];
+        const index = Math.min(Math.floor(points / 10), 7);
+        return iconUri(`medal_${medals[index]}`);
+    },
+
+    /**
+     * Get author medal (based on author/teacher) points
+     * @returns {*}
+     */
+    authorMedalUri$() {
+        const points = this.authorPoints$();
+        const medals = [
+            'grey',
+            'yellow',
+            'orange',
+            'pink',
+            'red',
+            'blue',
+            'green',
+            'black'
+        ];
+        const index = Math.min(Math.floor(points / 10), 7);
+        return iconUri(`medal2_${medals[index]}`);
     }
 });
 

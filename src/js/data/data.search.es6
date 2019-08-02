@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.data';
 import { finderUri } from '../app/app.uris.es6';
 import config from '../app/app.config.jsx';
-import i18n from '../app/app.i18n.es6';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
@@ -250,7 +250,7 @@ const Search = BaseModel.define({
             )
         );
         const root = `${location.protocol}//${location.host}`;
-        let href = finderUri(i18n.locale);
+        let href = finderUri(__.locale);
         href =
             href.indexOf(root) === 0 ? href.substr(root.length) : href;
         const favourite = {
@@ -258,9 +258,9 @@ const Search = BaseModel.define({
             path: href + this.getHash(true)
         };
         // TODO: we should rather update the cache
-        app.cache.removeMyFavourites(i18n.locale);
+        app.cache.removeMyFavourites(__.locale);
         // Save a favourite on the current user
-        return rapi.v1.user.createMyFavourite(i18n.locale, favourite);
+        return rapi.v1.user.createMyFavourite(__.locale, favourite);
     }
 });
 

@@ -1,9 +1,9 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
 
-
-
-
-transport: {
-
+const transport = {
     /**
      * Create transport
      * @param options
@@ -17,7 +17,7 @@ transport: {
      * @param options
      */
     destroy: function (options) {
-        var locale = i18n.locale;
+        var locale = __.locale;
         var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
         var data = options.data;
 
@@ -38,7 +38,7 @@ transport: {
             });
             options.success({ data: [data], total: 1 });
             assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-            app.notification.success(i18n.culture.editor.notifications.fileDeleteSuccess);
+            app.notification.success(__('webapp.editor.notifications.fileDeleteSuccess'));
         })
         .fail(function (xhr, status, error) {
             logger.error({
@@ -48,7 +48,7 @@ transport: {
             });
             options.error(xhr, status, error);
             assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-            app.notification.error(i18n.culture.editor.notifications.fileDeleteFailure);
+            app.notification.error(__('webapp.editor.notifications.fileDeleteFailure'));
         });
     },
 
@@ -57,7 +57,7 @@ transport: {
      * @param options
      */
     read: function (options) {
-        var locale = i18n.locale;
+        var locale = __.locale;
         var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
         assert.match(RX_LANGUAGE, locale, assert.format(assert.messages.match.default, 'locale', RX_LANGUAGE));
         assert.match(RX_MONGODB_ID, params.summaryId, assert.format(assert.messages.match.default, params.summaryId, RX_MONGODB_ID));
@@ -79,7 +79,7 @@ transport: {
             });
             options.error(xhr, status, error);
             assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-            app.notification.error(i18n.culture.editor.notifications.filesLoadFailure);
+            app.notification.error(__('webapp.editor.notifications.filesLoadFailure'));
         });
     },
 
@@ -98,7 +98,7 @@ transport: {
      * @param options
      */
     upload: function (options) {
-        var locale = i18n.locale;
+        var locale = __.locale;
         var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
         var data = options.data;
 
@@ -143,7 +143,7 @@ transport: {
                 options.success({ data: [response], total: 1 });
                 $(document).trigger('progress.kendoAssetManager', [1, 'complete']); // TODO trigger progress on dataSource
                 assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                app.notification.success(i18n.culture.editor.notifications.fileCreateSuccess);
+                app.notification.success(__('webapp.editor.notifications.fileCreateSuccess'));
             })
             .fail(function (xhr, status, error) {
                 logger.error({
@@ -153,7 +153,7 @@ transport: {
                 });
                 options.error(xhr, status, error);
                 assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-                app.notification.error(i18n.culture.editor.notifications.fileCreateFailure);
+                app.notification.error(__('webapp.editor.notifications.fileCreateFailure'));
             });
         })
         .fail(function (xhr, status, error) {
@@ -164,7 +164,7 @@ transport: {
             });
             options.error(xhr, status, error);
             assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-            app.notification.error(i18n.culture.editor.notifications.uploadUrlFailure);
+            app.notification.error(__('webapp.editor.notifications.uploadUrlFailure'));
         });
     },
 
@@ -175,40 +175,40 @@ transport: {
      * that is when the url is not from amazon s3
      * @param options
      */
-import: function (options) {
-        var locale = i18n.locale;
-        var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
-        var data = options.data;
+    import: function (options) {
+            var locale = __.locale;
+            var params = JSON.parse($(VERSION_HIDDEN_FIELD).val());
+            var data = options.data;
 
-        assert.match(RX_LANGUAGE, locale, assert.format(assert.messages.match.default, 'locale', RX_LANGUAGE));
-        assert.match(RX_MONGODB_ID, params.summaryId, assert.format(assert.messages.match.default, params.summaryId, RX_MONGODB_ID));
-        assert.match(RX_URL, data.url, assert.format(assert.messages.match.default, data.url, RX_URL));
+            assert.match(RX_LANGUAGE, locale, assert.format(assert.messages.match.default, 'locale', RX_LANGUAGE));
+            assert.match(RX_MONGODB_ID, params.summaryId, assert.format(assert.messages.match.default, params.summaryId, RX_MONGODB_ID));
+            assert.match(RX_URL, data.url, assert.format(assert.messages.match.default, data.url, RX_URL));
 
-        window.app.rapi.v1.content.importFile(locale, params.summaryId, data.url)
-        .done(function (response) {
-            assert.isNonEmptyPlainObject(response, assert.format(assert.messages.isNonEmptyPlainObject.default, 'response'));
-            assert.type(STRING, response.name, assert.format(assert.messages.type.default, 'response.name', STRING));
-            assert.type(NUMBER, response.size, assert.format(assert.messages.type.default, 'response.size', NUMBER));
-            assert.type(STRING, response.type, assert.format(assert.messages.type.default, 'response.type', STRING));
-            assert.type(STRING, response.url, assert.format(assert.messages.type.default, 'response.url', STRING));
-            logger.debug({
-                message: 'url imported',
-                method: 'summary.transport.import',
-                data: deepExtend({ language: locale, summaryId: params.summaryId }, response)
+            window.app.rapi.v1.content.importFile(locale, params.summaryId, data.url)
+            .done(function (response) {
+                assert.isNonEmptyPlainObject(response, assert.format(assert.messages.isNonEmptyPlainObject.default, 'response'));
+                assert.type(STRING, response.name, assert.format(assert.messages.type.default, 'response.name', STRING));
+                assert.type(NUMBER, response.size, assert.format(assert.messages.type.default, 'response.size', NUMBER));
+                assert.type(STRING, response.type, assert.format(assert.messages.type.default, 'response.type', STRING));
+                assert.type(STRING, response.url, assert.format(assert.messages.type.default, 'response.url', STRING));
+                logger.debug({
+                    message: 'url imported',
+                    method: 'summary.transport.import',
+                    data: deepExtend({ language: locale, summaryId: params.summaryId }, response)
+                });
+                options.success({ data: [response], total: 1 });
+                assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                app.notification.success(__('webapp.editor.notifications.urlImportSuccess'));
+            })
+            .fail(function (xhr, status, error) {
+                logger.error({
+                    message: 'url import error',
+                    method: 'summary.transport.import',
+                    error: xhr2error(xhr, status, errorThrown)
+                });
+                options.error(xhr, status, error);
+                assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
+                app.notification.error(__('webapp.editor.notifications.urlImportFailure'));
             });
-            options.success({ data: [response], total: 1 });
-            assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-            app.notification.success(i18n.culture.editor.notifications.urlImportSuccess);
-        })
-        .fail(function (xhr, status, error) {
-            logger.error({
-                message: 'url import error',
-                method: 'summary.transport.import',
-                error: xhr2error(xhr, status, errorThrown)
-            });
-            options.error(xhr, status, error);
-            assert.instanceof(kendo.ui.Notification, app.notification, assert.format(assert.messages.instanceof.default, 'app.notification', 'kendo.ui.Notification'));
-            app.notification.error(i18n.culture.editor.notifications.urlImportFailure);
-        });
-    }
-}
+        }
+};

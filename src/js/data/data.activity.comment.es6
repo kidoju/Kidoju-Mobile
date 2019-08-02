@@ -149,7 +149,7 @@ const CommentDataSource = DataSource.extend({
             rapi.v1.content
                 .createSummaryActivity(
                     (options.data.version && options.data.version.language) ||
-                        i18n.locale,
+                        __.locale,
                     (options.data.version && options.data.version.summaryId) ||
                         that.summaryId,
                     { type: 'comment', text: options.data.text }
@@ -197,7 +197,7 @@ const CommentDataSource = DataSource.extend({
             options.data.sort = [{ field: 'id', dir: 'desc' }];
             rapi.v1.content
                 .findSummaryActivities(
-                    i18n.locale,
+                    __.locale,
                     that.summaryId,
                     options.data
                 )

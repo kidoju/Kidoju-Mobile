@@ -11,9 +11,9 @@ import $ from 'jquery';
 import 'kendo.data';
 import { getAuthorReference } from '../app/app.partitions.es6';
 import {
-    editUri,
+    editorUri,
     iconUri,
-    playUri,
+    playerUri,
     summaryUri,
     userUri
 } from '../app/app.uris.es6';
@@ -131,8 +131,8 @@ const LazySummary = BaseModel.define({
         // TODO Add timezone
         return this.get('created');
     },
-    editUri$() {
-        return editUri(this.get('language'), this.get('id'));
+    editorUri$() {
+        return editorUri(this.get('language'), this.get('id'));
     },
     hasUserScore$() {
         // Used in Kidoju-Mobile only
@@ -161,8 +161,8 @@ const LazySummary = BaseModel.define({
             userScore < 75
         );
     },
-    playUri$() {
-        return playUri(
+    playerUri$() {
+        return playerUri(
             this.get('language'),
             this.get('id'),
             this.get('publicationId')
