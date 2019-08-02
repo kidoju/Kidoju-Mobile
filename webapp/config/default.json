@@ -244,7 +244,7 @@
         }
     },
     "slack": {
-        "webhook": "https://hooks.slack.com/services/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"
+        "webhook": "https://hooks.slack.com/services/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"
     },
     "twitter": {
         "account": "kidoju"
@@ -297,12 +297,15 @@
             }
         },
         "webapp": {
+            "billing": "/%s/b",
             "editor": "/%s/e/%s",
             "error": "/%s/error",
             "finder": "/%s",
+            "group": "/%s/g",
             "home": "/",
             "locale": "/%s",
             "logger": "/logger",
+            "messaging": "/%s/m",
             "organization": "/%s/o/%s",
             "ping": "/ping",
             "player": "/%s/x/%s/%s/%s",
