@@ -957,6 +957,7 @@ window.jQuery.holdReady(true);
              * Application version
              */
             version$: function () {
+                // TODO use cordova-plugin-buildinfo
                 return app.version;
             },
 
