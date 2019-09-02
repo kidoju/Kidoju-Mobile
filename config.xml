@@ -149,6 +149,7 @@
         <false />
     </edit-config>
     <plugin name="cordova-plugin-battery-status" spec="2.0.3" />
+    <plugin name="cordova-plugin-buildinfo" spec="4.0.0" />
     <plugin name="cordova-plugin-customurlscheme" spec="4.4.0">
         <variable name="URL_SCHEME" value="com.kidoju.mobile" />
         <variable name="ANDROID_SCHEME" value=" " />
