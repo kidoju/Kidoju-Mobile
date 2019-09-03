@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO IMPORTANT!!!!! import 'core-js';
+
 /* jshint browser: true, jquery: true */
 /* globals define: false, require: false, __NODE_ENV__: false */
 
