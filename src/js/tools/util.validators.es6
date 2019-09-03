@@ -14,7 +14,7 @@ import TOOLS from './util.constants.es6';
  * Turn a property name/value into an input which can be tested
  * in data.Model validation rules
  * @function makeInput
- * @param prop
+ * @param name
  * @param value
  */
 export function makeInput(name, value) {
@@ -44,10 +44,10 @@ export function makeInput(name, value) {
  * Constant validation
  * @const constantValidator
  */
-export const constantValidator = {
+const constantValidator = {
     required: true,
     constant(input) {
-        return true;
+        return !!input;
     }
 };
 
@@ -55,7 +55,7 @@ export const constantValidator = {
  * Question validation
  * @const questionValidator
  */
-export const questionValidator = {
+const questionValidator = {
     required: true,
     pattern: TOOLS.RX_TEXT
 };
@@ -64,9 +64,9 @@ export const questionValidator = {
  * Score validation
  * @const scoreValidator
  */
-export const scoreValidator = {
+const scoreValidator = {
     score(input) {
-        return true;
+        return !!input;
     }
 };
 
@@ -74,10 +74,10 @@ export const scoreValidator = {
  * Solution validation
  * @const solutionValidator
  */
-export const solutionValidator = {
+const solutionValidator = {
     // TODO depends on the solution
     solution(input) {
-        return true;
+        return !!input;
     }
 };
 
@@ -85,7 +85,7 @@ export const solutionValidator = {
  * Style validation
  * @const styleValidator
  */
-export const styleValidator = {
+const styleValidator = {
     // required: true,
     // pattern: TOOLS.RX_STYLE
     style(input) {
@@ -103,7 +103,7 @@ export const styleValidator = {
  * Text validation
  * @const textValidator
  */
-export const textValidator = {
+const textValidator = {
     required: true,
     // the pattern rule requires type="text" which does not fit textareas
     // pattern: TOOLS.RX_TEXT
@@ -121,8 +121,21 @@ export const textValidator = {
  * Beware: we have a kind of a mix here between Kendo UI validation
  * and our own test validation formulas, which are both called validation
  */
-export const validationValidator = {
+const validationValidator = {
     validation(input) {
-        return true;
+        return !!input;
     }
+};
+
+/**
+ * Exports
+ */
+export {
+    constantValidator,
+    questionValidator,
+    scoreValidator,
+    solutionValidator,
+    styleValidator,
+    textValidator,
+    validationValidator
 };

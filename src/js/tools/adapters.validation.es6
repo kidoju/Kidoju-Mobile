@@ -45,9 +45,7 @@ const ValidationAdapter = BaseAdapter.extend({
                 .css({ display: 'flex', alignItems: 'center' })
                 .appendTo(container);
             $(
-                `<div data-${ns}role="codeinput" data-${ns}default="${
-                    model.properties.defaults.validation
-                }" />`
+                `<div data-${ns}role="codeinput" data-${ns}default="${model.properties.defaults.validation}" />`
             )
                 .attr(
                     $.extend(
@@ -102,9 +100,7 @@ const ValidationAdapter = BaseAdapter.extend({
                     options.model.set(options.field, result.data.value);
                 }
             })
-            .catch(err => {
-                // TODO
-            });
+            .catch($.noop); // TODO error management
     }
 });
 
