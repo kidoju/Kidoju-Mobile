@@ -11,6 +11,7 @@
 if (typeof(require) === 'function') {
 
     // Load other CSS
+    /*
     require('../styles/vendor/khan/katex.less');
     require('../styles/widgets/widgets.floating.less');
     require('../styles/widgets/widgets.highlighter.less');
@@ -26,6 +27,7 @@ if (typeof(require) === 'function') {
     require('../styles/widgets/widgets.table.less');
     require('../styles/widgets/widgets.textgaps.less');
     require('../styles/dialogs/widgets.basedialog.less');
+    */
     require('../styles/ui/app.fonts.less');
     require('../styles/ui/app.mobile.less');
 
@@ -98,8 +100,8 @@ window.jQuery.holdReady(true);
         './widgets/widgets.floating.es6',
         './widgets/widgets.highlighter.es6',
         './widgets/widgets.imageset.es6',
+        './widgets/widgets.latex.es6',
         './widgets/widgets.markdown.es6',
-        './widgets/widgets.mathexpression.es6',
         './widgets/widgets.mathinput.es6',
         './widgets/widgets.mediaplayer.es6',
         './widgets/widgets.multiquiz.es6',
