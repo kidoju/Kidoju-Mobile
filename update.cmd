@@ -190,6 +190,8 @@ XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\src\js\vendor\highlight /C /E 
 ATTRIB +R .\src\js\vendor\highlight\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\jashkenas .\src\js\vendor\jashkenas /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\jashkenas\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\josdejong .\src\js\vendor\josdejong /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\josdejong\*.*
 XCOPY ..\Kidoju.Widgets\src\js\vendor\jquery .\src\js\vendor\jquery /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\jquery\*.*
 XCOPY ..\Kidoju.Widgets\src\js\vendor\kendo .\src\js\vendor\kendo /C /E /I /R /Y
