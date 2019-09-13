@@ -142,6 +142,8 @@ COPY ..\Kidoju.WebApp\src\js\app\app.notification.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.notification.es6
 COPY ..\Kidoju.WebApp\src\js\app\app.themer.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.themer.es6
+COPY ..\Kidoju.WebApp\src\js\app\app.uris.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.uris.es6
 
 REM Copy .\src\js\common\*
 ATTRIB -R .\src\js\common\*.es6
@@ -165,6 +167,11 @@ REM Copy .\src\js\dialogs\*
 ATTRIB -R .\src\js\dialogs\*.es6
 COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.alert.es6 .\src\js\dialogs /Y
 COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.assetmanager.es6 .\src\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.chargrid.es6 .\src\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.codeeditor.es6 .\src\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.property.es6 .\src\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.spreadsheet.es6 .\src\js\dialogs /Y
+COPY ..\Kidoju.Widgets\src\js\dialogs\dialogs.styleeditor.es6 .\src\js\dialogs /Y
 COPY ..\Kidoju.Widgets\src\js\dialogs\widgets.basedialog.es6 .\src\js\dialogs /Y
 ATTRIB +R .\src\js\dialogs\*.es6
 
@@ -186,6 +193,8 @@ ATTRIB +R .\src\js\tools\*.es6
 REM Copy .\src\js\vendor\*
 XCOPY ..\Kidoju.Widgets\src\js\vendor\blueimp .\src\js\vendor\blueimp /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\blueimp\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\codemirror .\src\js\vendor\codemirror /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\codemirror\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\highlight .\src\js\vendor\highlight /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\highlight\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\jashkenas .\src\js\vendor\jashkenas /C /E /I /R /Y
@@ -246,6 +255,8 @@ REM XCOPY ..\Kidoju.Widgets\src\styles\dialogs\*.* .\src\styles\dialogs /C /E /I
 REM ATTRIB +R .\src\styles\dialogs\*.* /S
 
 REM Copy ./src/styles/vendor/*
+XCOPY ..\Kidoju.Widgets\src\styles\vendor\codemirror .\src\styles\vendor\codemirror /C /E /I /R /Y
+ATTRIB +R .\src\styles\vendor\codemirror\*.* /S
 XCOPY ..\Kidoju.Widgets\src\styles\vendor\highlight .\src\styles\vendor\highlight /C /E /I /R /Y
 ATTRIB +R .\src\styles\vendor\highlight\*.* /S
 XCOPY ..\Kidoju.Widgets\src\styles\vendor\kendo .\src\styles\vendor\kendo /C /E /I /R /Y
