@@ -204,6 +204,8 @@ XCOPY ..\Kidoju.Widgets\src\js\vendor\mathquill .\src\js\vendor\mathquill /C /E 
 ATTRIB +R .\src\js\vendor\mathquill\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\nodeca .\src\js\vendor\nodeca /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\nodeca\*.* /S
+XCOPY ..\Kidoju.Widgets\src\js\vendor\pieroxy .\src\js\vendor\pieroxy /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\pieroxy\*.* /S
 XCOPY ..\Kidoju.Widgets\src\js\vendor\valve .\src\js\vendor\valve /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\valve\*.* /S
 
