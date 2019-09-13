@@ -11,6 +11,8 @@ import assets from '../app/app.assets.es6';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.audiovideo.es6';
 import AssetAdapter from './adapters.asset.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -19,7 +21,7 @@ import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 
 const { format, ns, roleSelector } = window.kendo;
-const TEMPLATE = `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`;
+const TEMPLATE = `<div data-${ns}role="audiovideo" data-${ns}mode="video" data-${ns}autoplay="#: attributes.autoplay #" data-${ns}files="#: files$() #" data-${ns}toolbar-height="#: attributes.toolbarHeight #"></div>`;
 
 /**
  * VideoTool
@@ -28,10 +30,10 @@ const TEMPLATE = `<div data-${ns}role="mediaplayer" data-${ns}mode="video" data-
  */
 const VideoTool = BaseTool.extend({
     id: 'video',
-    childSelector: `${CONSTANTS.DIV}${roleSelector('mediaplayer')}`,
+    childSelector: `${CONSTANTS.DIV}${roleSelector('audiovideo')}`,
     height: 300,
     width: 600,
-    // menu: [],
+    menu: ['attributes.mp4'],
     templates: {
         default: TEMPLATE
     },
@@ -53,6 +55,33 @@ const VideoTool = BaseTool.extend({
         wbem: new AssetAdapter({
             title: __('tools.video.attributes.wbem.title')
         })
+    },
+
+    /**
+     * getAssets
+     * @method getAssets
+     * @param component
+     * @returns {{audio: Array, image: Array, video: Array}}
+     */
+    getAssets(component) {
+        assert.instanceof(
+            PageComponent,
+            component,
+            assert.format(
+                assert.messages.instanceof.default,
+                'component',
+                'PageComponent'
+            )
+        );
+        return {
+            audio: [],
+            image: [],
+            video: [
+                component.get('attributes.mp4'),
+                component.get('attributes.ogv'),
+                component.get('attributes.wbem')
+            ].filter(item => $.type(item) === CONSTANTS.STRING)
+        };
     },
 
     /**

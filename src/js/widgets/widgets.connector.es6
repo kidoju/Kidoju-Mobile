@@ -462,24 +462,26 @@ const Connector = DataBoundWidget.extend({
     /**
      * Add connection
      * Note: use this.value(string)
-     * @param target
+     * @param $target
      */
-    _addConnection(target) {
-        target = $(target);
-        const that = this;
+    _addConnection($target) {
+        assert.instanceof(
+            $,
+            $target,
+            assert.format(assert.messages.type.default, '$target', 'jQuery')
+        );
         let ret = false;
-        const { options } = that;
-        const { element } = that;
+        const { dataSource, element, options } = this;
         const id = element.attr(attr(CONSTANTS.ID));
-        const container = that.element.closest(options.container);
+        const container = element.closest(options.container);
         assert.hasLength(
             container,
             assert.format(assert.messages.hasLength.default, options.container)
         );
-        const targetId = target.attr(attr(CONSTANTS.ID));
-        const targetWidget = target.data(WIDGET);
+        const targetId = $target.attr(attr(CONSTANTS.ID));
+        const targetWidget = $target.data(WIDGET);
         if (id !== targetId && targetWidget instanceof Connector) {
-            const targetContainer = target.closest(
+            const targetContainer = $target.closest(
                 targetWidget.options.container
             );
             assert.hasLength(
@@ -492,7 +494,7 @@ const Connector = DataBoundWidget.extend({
             if (container[0] === targetContainer[0]) {
                 assert.instanceof(
                     DataSource,
-                    that.dataSource,
+                    dataSource,
                     assert.format(
                         assert.messages.instanceof.default,
                         'this.dataSource',
@@ -501,9 +503,9 @@ const Connector = DataBoundWidget.extend({
                 );
                 const originId = id < targetId ? id : targetId;
                 const destinationId = id < targetId ? targetId : id;
-                const originWidget = id < targetId ? that : targetWidget;
-                const destinationWidget = id < targetId ? targetWidget : that;
-                const connections = that.dataSource.view();
+                const originWidget = id < targetId ? this : targetWidget;
+                const destinationWidget = id < targetId ? targetWidget : this;
+                const connections = dataSource.view();
                 const originConnection = connections.find(
                     connection =>
                         connection.type === DATA_TYPE && // The dataSource is already filtered, so this might be redundant
@@ -523,14 +525,14 @@ const Connector = DataBoundWidget.extend({
                     originConnection !== destinationConnection
                 ) {
                     if (originConnection) {
-                        that.dataSource.remove(originConnection);
+                        dataSource.remove(originConnection);
                         originWidget._dropConnection();
                     }
                     if (destinationConnection) {
-                        that.dataSource.remove(destinationConnection);
+                        dataSource.remove(destinationConnection);
                         destinationWidget._dropConnection();
                     }
-                    that.dataSource.add({
+                    dataSource.add({
                         type: DATA_TYPE,
                         id: originId,
                         data: {
