@@ -2442,7 +2442,7 @@ window.jQuery.holdReady(true);
             if (mobile.support.inAppBrowser) {
                 // We are simply opening a custom url scheme and we do not need SafariViewController for that
                 // Note that this does not work in the Android Emulator because the play store app is missing
-                mobile.InAppBrowser.open(app.constants.helpUrl, '_system');
+                mobile.InAppBrowser.open(app.constants.helpUrl, '_system', 'usewkwebview=yes');
             } else {
                 window.open(app.constants.helpUrl, '_system');
             }
@@ -3244,7 +3244,7 @@ window.jQuery.holdReady(true);
                 // Close may have already been called in loadStart
                 close();
             };
-            var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=yes,clearsessioncache=yes,clearcache=yes');
+            var browser = mobile.InAppBrowser.open(signInUrl, '_blank', 'location=yes,clearsessioncache=yes,clearcache=yes,usewkwebview=yes');
             // browser.addEventListener('exit', exit);
             browser.addEventListener('loadstart', loadStart);
             // browser.addEventListener('loadstop', loadStop);
@@ -3470,7 +3470,7 @@ window.jQuery.holdReady(true);
             var url = kendo.format(app.constants.feedbackUrl, i18n.locale(), encodeURIComponent(viewModel.summary.summaryUri$()));
             // targeting _system should open the web browser instead of the InApp browser (target = _blank)
             if (mobile.support.inAppBrowser) {
-                mobile.InAppBrowser.open(url, '_system');
+                mobile.InAppBrowser.open(url, '_system', 'usewkwebview=yes');
             } else {
                 window.open(url, '_system');
             }
@@ -4141,7 +4141,7 @@ window.jQuery.holdReady(true);
                                 // We are simply opening a custom url scheme and we do not need SafariViewController for that
                                 // Note that this does not work in the Android Emulator because the play store app is missing
                                 if (mobile.support.inAppBrowser) {
-                                    mobile.InAppBrowser.open(appStoreUrl, '_system');
+                                    mobile.InAppBrowser.open(appStoreUrl, '_system', 'usewkwebview=yes');
                                 } else {
                                     window.open(appStoreUrl, '_system');
                                 }
