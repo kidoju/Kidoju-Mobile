@@ -26,7 +26,11 @@ import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
-import { questionValidator, scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -43,6 +47,9 @@ const TEMPLATE = `<div
     data-${ns}source="#: data$() #"
     style="#: attributes.groupStyle #" {0}>
 </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enable="false"`;
+const SHUFFLE = `data-${ns}shuffle="#: attributes.shuffle #"`;
 
 /**
  * QuizTool
@@ -63,16 +70,11 @@ const QuizTool = BaseTool.extend({
     weight: 1,
     width: 490,
     templates: {
-        design: format(TEMPLATE, `data-${ns}enable="false"`),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, `${BINDING} ${SHUFFLE}`),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         mode: new DropDownListAdapter(
@@ -88,14 +90,16 @@ const QuizTool = BaseTool.extend({
             title: __('tools.quiz.attributes.shuffle.title')
         }),
         groupStyle: new StyleAdapter({
-            defaultValue: 'font-size:60px;',
-            title: __('tools.quiz.attributes.groupStyle.title')
+            title: __('tools.quiz.attributes.groupStyle.title'),
+            validation: styleValidator
         }),
         itemStyle: new StyleAdapter({
-            title: __('tools.quiz.attributes.itemStyle.title')
+            title: __('tools.quiz.attributes.itemStyle.title'),
+            validation: styleValidator
         }),
         selectedStyle: new StyleAdapter({
-            title: __('tools.quiz.attributes.selectedStyle.title')
+            title: __('tools.quiz.attributes.selectedStyle.title'),
+            validation: styleValidator
         }),
         data: new ImageListAdapter({
             defaultValue: __('tools.quiz.attributes.data.defaultValue'),
@@ -123,18 +127,18 @@ const QuizTool = BaseTool.extend({
             title: __('tools.quiz.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.quiz.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.quiz.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.quiz.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.quiz.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.quiz.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.quiz.properties.omit.title'),
             validation: scoreValidator
         })
     },

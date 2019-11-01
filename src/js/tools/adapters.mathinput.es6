@@ -8,6 +8,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
+import '../widgets/widgets.mathinput.es6';
 import { getValueBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
@@ -40,7 +41,7 @@ const MathInputAdapter = BaseAdapter.extend({
                 .attr(
                     $.extend(
                         true,
-                        {},
+                        {}, // { name: settings.field },
                         settings.attributes,
                         getValueBinding(settings.field),
                         attributes
@@ -49,7 +50,7 @@ const MathInputAdapter = BaseAdapter.extend({
                 .appendTo(container);
             input.kendoMathInput({
                 toolbar: {
-                    // container: '',
+                    container: '', // TODO
                     resizable: true,
                     tools: [
                         // 'backspace',

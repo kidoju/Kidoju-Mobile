@@ -194,13 +194,23 @@ function tools(id) {
         });
 
         /**
-         * TextBox
+         * NumericBox
          */
-        _tools.textgaps = new StubTool({
-            description: __('tools.textgaps.description'),
-            help: __('tools.textgaps.help'),
-            icon: __('tools.textgaps.icon'),
-            name: __('tools.textgaps.name')
+        _tools.numericbox = new StubTool({
+            description: __('tools.numericbox.description'),
+            help: __('tools.numericbox.help'),
+            icon: __('tools.numericbox.icon'),
+            name: __('tools.numericbox.name')
+        });
+
+        /**
+         * Variable
+         */
+        _tools.variable = new StubTool({
+            description: __('tools.variable.description'),
+            help: __('tools.variable.help'),
+            icon: __('tools.variable.icon'),
+            name: __('tools.variable.name')
         });
 
         /**
@@ -224,6 +234,26 @@ function tools(id) {
         });
 
         /**
+         * HighLighter
+         */
+        _tools.highlighter = new StubTool({
+            description: __('tools.highlighter.description'),
+            help: __('tools.highlighter.help'),
+            icon: __('tools.highlighter.icon'),
+            name: __('tools.highlighter.name')
+        });
+
+        /**
+         * TextGaps
+         */
+        _tools.textgaps = new StubTool({
+            description: __('tools.textgaps.description'),
+            help: __('tools.textgaps.help'),
+            icon: __('tools.textgaps.icon'),
+            name: __('tools.textgaps.name')
+        });
+
+        /**
          * Line
          */
         _tools.line = new StubTool({
@@ -231,6 +261,56 @@ function tools(id) {
             help: __('tools.line.help'),
             icon: __('tools.line.icon'),
             name: __('tools.line.name')
+        });
+
+        /**
+         * Connector
+         */
+        _tools.connector = new StubTool({
+            description: __('tools.connector.description'),
+            help: __('tools.connector.help'),
+            icon: __('tools.connector.icon'),
+            name: __('tools.connector.name')
+        });
+
+        /**
+         * Selector
+         */
+        _tools.selector = new StubTool({
+            description: __('tools.selector.description'),
+            help: __('tools.selector.help'),
+            icon: __('tools.selector.icon'),
+            name: __('tools.selector.name')
+        });
+
+        /**
+         * Drop Zone
+         */
+        _tools.dropzone = new StubTool({
+            description: __('tools.dropzone.description'),
+            help: __('tools.dropzone.help'),
+            icon: __('tools.dropzone.icon'),
+            name: __('tools.dropzone.name')
+        });
+
+        /**
+         * Latex
+         */
+        _tools.mathinput = new StubTool({
+            description: __('tools.mathinput.description'),
+            help: __('tools.mathinput.help'),
+            icon: __('tools.mathinput.icon'),
+            name: __('tools.mathinput.name')
+        });
+
+        /**
+         * Latex
+         */
+        _tools.latex = new StubTool({
+            description: __('tools.latex.description'),
+            help: __('tools.latex.help'),
+            icon: __('tools.latex.icon'),
+            name: __('tools.latex.name')
         });
 
         /**
@@ -251,6 +331,36 @@ function tools(id) {
             help: __('tools.video.help'),
             icon: __('tools.video.icon'),
             name: __('tools.video.name')
+        });
+
+        /**
+         * Table
+         */
+        _tools.table = new StubTool({
+            description: __('tools.table.description'),
+            help: __('tools.table.help'),
+            icon: __('tools.table.icon'),
+            name: __('tools.table.name')
+        });
+
+        /**
+         * Chart
+         */
+        _tools.chart = new StubTool({
+            description: __('tools.chart.description'),
+            help: __('tools.chart.help'),
+            icon: __('tools.chart.icon'),
+            name: __('tools.chart.name')
+        });
+
+        /**
+         * CharGrid
+         */
+        _tools.chargrid = new StubTool({
+            description: __('tools.chargrid.description'),
+            help: __('tools.chargrid.help'),
+            icon: __('tools.chargrid.icon'),
+            name: __('tools.chargrid.name')
         });
 
         /**

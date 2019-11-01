@@ -147,7 +147,7 @@ const Stage = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._mode = this.options.mode;
@@ -324,24 +324,25 @@ const Stage = DataBoundWidget.extend({
      */
     index(index) {
         // TODO select
-        const that = this;
         let component;
-        if (index !== undefined) {
+        let ret;
+        if ($.type(index) !== CONSTANTS.UNDEFINED) {
             if ($.type(index) !== CONSTANTS.NUMBER || index % 1 !== 0) {
                 throw new TypeError();
-            } else if (index < 0 || (index > 0 && index >= that.length())) {
+            } else if (index < 0 || (index > 0 && index >= this.length())) {
                 throw new RangeError();
             } else {
-                component = that.dataSource.at(index);
-                that.value(component);
+                component = this.dataSource.at(index);
+                this.value(component);
             }
         } else {
-            component = that.dataSource.getByUid(that._selectedUid);
+            component = this.dataSource.getByUid(this._selectedUid);
             if (component instanceof PageComponent) {
-                return that.dataSource.indexOf(component);
+                ret = this.dataSource.indexOf(component);
             }
             return -1;
         }
+        return ret;
     },
 
     /**
@@ -350,24 +351,25 @@ const Stage = DataBoundWidget.extend({
      * @returns {*}
      */
     id(id) {
-        // TODO dataItem
-        const that = this;
+        // TODO Check dataItem
         let component;
-        if (id !== undefined) {
+        let ret;
+        if ($.type(id) !== CONSTANTS.UNDEFINED) {
             if (
                 $.type(id) !== CONSTANTS.NUMBER &&
                 $.type(id) !== CONSTANTS.STRING
             ) {
                 throw new TypeError();
             }
-            component = that.dataSource.get(id);
-            that.value(component);
+            component = this.dataSource.get(id);
+            this.value(component);
         } else {
-            component = that.dataSource.getByUid(that._selectedUid);
+            component = this.dataSource.getByUid(this._selectedUid);
             if (component instanceof PageComponent) {
-                return component[component.idField];
+                ret = component[component.idField];
             }
         }
+        return ret;
     },
 
     /**
@@ -673,10 +675,11 @@ const Stage = DataBoundWidget.extend({
             options: { dataSource }
         } = this;
 
+        const mode = this.mode();
         const hasPage = !!dataSource; // TODO and data.length
         const isReadOnly = !hasPage || !this._enabled;
-        const bindUserEntries = hasPage && this.mode() !== modes.DESIGN;
-        const designMode = hasPage && this.mode() === modes.DESIGN;
+        const bindUserEntries = hasPage && mode !== modes.DESIGN;
+        const designMode = hasPage && mode === modes.DESIGN;
         const enabledDesignMode = designMode && this._enabled;
 
         // Set mode
@@ -689,6 +692,12 @@ const Stage = DataBoundWidget.extend({
         this._toggleKeyboardEvents(enabledDesignMode);
         this._toggleTransformEventHandlers(designMode);
         this._initContextMenu(enabledDesignMode);
+
+        // Toggle stage class
+        this.wrapper
+            .toggleClass(`kj-${modes.DESIGN}`, mode === modes.DESIGN)
+            .toggleClass(`kj-${modes.PLAY}`, mode === modes.PLAY)
+            .toggleClass(`kj-${modes.REVIEW}`, mode === modes.REVIEW);
     },
 
     /**
@@ -772,7 +781,6 @@ const Stage = DataBoundWidget.extend({
     _toggleLoadingOverlay(enable) {
         const enabled =
             $.type(enable) === CONSTANTS.UNDEFINED ? true : !!enable;
-        debugger;
         this.element.toggleClass('k-loading', enabled);
     },
 
@@ -800,7 +808,7 @@ const Stage = DataBoundWidget.extend({
 
         if (enabled) {
             // Bind properties
-            that._propertyBinding = function() {
+            that._propertyBinding = function _propertyBinding() {
                 const widget = this;
                 if (widget.properties() instanceof ObservableObject) {
                     widget.stage
@@ -1780,6 +1788,10 @@ const Stage = DataBoundWidget.extend({
                 this.trigger(CONSTANTS.SELECT, { value: null });
             }
 
+            // Do not uncomment: breaks moving, resizing and rotating
+            // this.userEvents.cancel();
+            // this.userEvents._disposeAll();
+
             // Focus on the stage to receive keyboard events
             this.stage.focus();
         } else {
@@ -1828,12 +1840,18 @@ const Stage = DataBoundWidget.extend({
                         // Reset the pointer tool
                         options.tools.active = TOOLS.POINTER;
 
+                        // this.userEvents.cancel();
+                        this.userEvents._disposeAll();
+
                         // Focus on the stage to receive keyboard events
                         this.stage.focus();
                     }
                 })
-                .catch(err => {
-                    // TODO
+                .catch(error => {
+                    logger.error({
+                        error,
+                        method: '_onMousePress'
+                    });
                 });
         }
     },
@@ -1907,7 +1925,7 @@ const Stage = DataBoundWidget.extend({
         const uid = adorner.attr(attr(CONSTANTS.UID));
         const state = adorner.data(STATE);
 
-        // Weh have s state with a consistent action and uid
+        // We have s state with a consistent action and uid
         if (
             $.isPlainObject(state) &&
             action === state.action &&
@@ -2033,7 +2051,7 @@ const Stage = DataBoundWidget.extend({
         const uid = adorner.attr(attr(CONSTANTS.UID));
         const state = adorner.data(STATE);
 
-        // Weh have s state with a consistent action and uid
+        // We have s state with a consistent action and uid
         if (
             $.isPlainObject(state) &&
             action === state.action &&
@@ -2052,6 +2070,9 @@ const Stage = DataBoundWidget.extend({
                 Stage._hideDebugVisualElements(this.wrapper);
             }
         }
+
+        // this.userEvents.cancel();
+        this.userEvents._disposeAll();
     },
 
     /**
@@ -2303,7 +2324,10 @@ const Stage = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Stage);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Stage')) {
+    // Prevents loading several times in karma
+    plugin(Stage);
+}
 
 /** *******************************************************************************
  * Visual debug helpers
@@ -2321,7 +2345,7 @@ if (window.DEBUG) {
      * Add debug visual eleemnts
      * @param wrapper
      */
-    Stage._addDebugVisualElements = function(wrapper) {
+    Stage._addDebugVisualElements = wrapper => {
         // Add bounding rectangle
         $(DEBUG_BOUNDS)
             .css({
@@ -2364,7 +2388,7 @@ if (window.DEBUG) {
      * Update debug visual elements
      * @param options
      */
-    Stage._updateDebugVisualElements = function(options) {
+    Stage._updateDebugVisualElements = options => {
         if ($.isPlainObject(options)) {
             const { bounds, center, mouse, wrapper } = options;
             // Display center of rotation
@@ -2396,7 +2420,7 @@ if (window.DEBUG) {
      * Hide debug visual elements
      * @param wrapper
      */
-    Stage._hideDebugVisualElements = function(wrapper) {
+    Stage._hideDebugVisualElements = wrapper => {
         wrapper
             .children(CONSTANTS.DOT + DEBUG_CENTER_CLASS)
             .css({ display: CONSTANTS.NONE });
@@ -2412,7 +2436,7 @@ if (window.DEBUG) {
      * Remove debug visual elements
      * @param wrapper
      */
-    Stage._removeDebugVisualElements = function(wrapper) {
+    Stage._removeDebugVisualElements = wrapper => {
         wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).remove();
         wrapper.children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS).remove();
         wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).remove();

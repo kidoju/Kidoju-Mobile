@@ -7,9 +7,11 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.core';
+import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.dropzone.es6';
 import BasicListAdapter from './adapters.basiclist.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import DisabledAdapter from './adapters.disabled.es6';
@@ -22,14 +24,27 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
-import __ from '../app/app.i18n.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-const DROPZONE = `<div id="#: properties.name #" data-${ns}role="dropzone" data-${ns}center="#: attributes.center #"  data-${ns}empty="#: attributes.empty #" style="#: attributes.style #" {0}><div>#: attributes.text #</div></div>`;
-// TODO: Check whether DROPZONE requires class="kj-interactive"
+const TEMPLATE = `<div
+    data-${ns}role="dropzone"
+    data-${ns}center="#: attributes.center #"
+    data-${ns}empty="#: attributes.empty #"
+    id="#: properties.name #"
+    style="#: attributes.style #" {0}>
+    <div>#: attributes.text #</div>
+    </div>`;
+// TODO: Check whether TEMPLATE requires class="kj-interactive"
+const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
+const DISABLED = `data-${ns}enable="false"`;
+
 /**
  * @class DropZoneTool tool
  * @type {void|*}
@@ -40,18 +55,13 @@ const DropZoneTool = BaseTool.extend({
     height: 250,
     width: 250,
     weight: 1,
-    // menu: [],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
-        design: format(DROPZONE, `data-${ns}enable="false"`),
-        play: format(
-            DROPZONE,
-            `data-${ns}bind="value: #: properties.name #.value, source: interactions"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                DROPZONE,
-                `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         center: new BooleanAdapter({
@@ -67,7 +77,7 @@ const DropZoneTool = BaseTool.extend({
         }),
         style: new StyleAdapter({
             title: __('tools.dropzone.attributes.style.title'),
-            defaultValue: 'font-size:30px;border:dashed 3px #e1e1e1;'
+            validation: styleValidator
         })
     },
     properties: {
@@ -75,9 +85,12 @@ const DropZoneTool = BaseTool.extend({
             title: __('tools.dropzone.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.dropzone.properties.question.title')
+            help: __('tools.dropzone.properties.question.help'),
+            title: __('tools.dropzone.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new BasicListAdapter({
+            help: __('tools.dropzone.properties.solution.help'),
             title: __('tools.dropzone.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -91,18 +104,18 @@ const DropZoneTool = BaseTool.extend({
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.dropzone.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.dropzone.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.dropzone.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.dropzone.properties.omit.title'),
             validation: scoreValidator
         }),
         disabled: new DisabledAdapter({
-            title: __('tools.dropzone.properties.disabled.title'),
-            defaultValue: false
+            defaultValue: false,
+            title: __('tools.dropzone.properties.disabled.title')
         })
     },
 

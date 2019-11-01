@@ -92,7 +92,7 @@ const BasicList = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
@@ -517,11 +517,11 @@ const BasicList = DataBoundWidget.extend({
     destroy() {
         this.enable(false);
         unbind(this.element);
+        this.setDataSource(null);
         if (this.listView instanceof ListView) {
             this.listView.destroy();
             this.listView = undefined;
         }
-        this.dataSource(null);
         // Destroy widget
         DataBoundWidget.fn.destroy.call(this);
         destroy(this.element);
@@ -532,4 +532,7 @@ const BasicList = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(BasicList);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'BasicList')) {
+    // Prevents loading several times in karma
+    plugin(BasicList);
+}

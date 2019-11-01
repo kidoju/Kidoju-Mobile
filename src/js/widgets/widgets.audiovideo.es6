@@ -151,7 +151,7 @@ const AudioVideo = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
@@ -481,19 +481,24 @@ const AudioVideo = Widget.extend({
      */
     _toolbar() {
         const { element, options } = this;
-        this.toolbar = $(`<${CONSTANTS.DIV}/>`)
-            .addClass(TOOLBAR_CLASS)
-            .css({
-                position: 'absolute',
-                boxSizing: 'border-box',
+        const css = {
+            boxSizing: 'border-box',
+            width: '100%'
+        };
+        if (options.mode === MODES.VIDEO) {
+            $.extend(css, {
                 bottom: 0,
                 left: 0,
-                width: '100%',
-                zIndex: 99,
+                position: 'absolute',
                 // We hide the toolbar until we get loadedmetadata to resize it properly.
                 // We cannot use display:none which yields incorrect measurements
-                visibility: 'hidden'
-            })
+                visibility: 'hidden',
+                zIndex: 99
+            });
+        }
+        this.toolbar = $(`<${CONSTANTS.DIV}/>`)
+            .addClass(TOOLBAR_CLASS)
+            .css(css)
             .appendTo(element);
 
         // Play button
@@ -636,6 +641,7 @@ const AudioVideo = Widget.extend({
 
     /**
      * Toggle play pause
+     * @returns {*}
      */
     togglePlayPause() {
         const mediaElement = this.media.get(0);
@@ -648,12 +654,24 @@ const AudioVideo = Widget.extend({
                 'HTMLMediaElement'
             )
         );
-        if (mediaElement.paused && mediaElement.readyState >= 1) {
+        const dfd = $.Deferred();
+        let promise;
+        try {
+            // @see https://developers.google.com/web/updates/2016/03/play-returns-promise
             // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
-            mediaElement.play();
-        } else {
-            mediaElement.pause();
+            promise =
+                mediaElement.paused && mediaElement.readyState >= 1
+                    ? mediaElement.play()
+                    : mediaElement.pause();
+            if (promise instanceof Promise) {
+                promise.then(dfd.resolve).catch(dfd.reject);
+            } else {
+                dfd.resolve();
+            }
+        } catch (ex) {
+            dfd.reject(ex);
         }
+        return dfd.promise();
     },
 
     /**
@@ -1040,4 +1058,7 @@ const AudioVideo = Widget.extend({
 /**
  * Registration
  */
-plugin(AudioVideo);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'AudioVideo')) {
+    // Prevents loading several times in karma
+    plugin(AudioVideo);
+}

@@ -10,7 +10,7 @@ import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 
-const { } = window.kendo;
+const {} = window.kendo;
 
 /**
  * Rummage node (displayed in treeview on find page)
@@ -68,11 +68,13 @@ models.Rummage = Node.define({
             type: CONSTANTS.STRING,
             editable: false
         },
-        path: { // Different from the path in LazyCategory, this is for favourites/bookmarks
+        path: {
+            // Different from the path in LazyCategory, this is for favourites/bookmarks
             type: CONSTANTS.STRING,
             editable: false
         },
-        type: { // 0 = groups/folders, 1 = home, 2 = categories, 3 = favourites/bookmarks
+        type: {
+            // 0 = groups/folders, 1 = home, 2 = categories, 3 = favourites/bookmarks
             type: CONSTANTS.NUMBER,
             editable: false,
             defaultValue: 2 // categories
@@ -86,26 +88,43 @@ models.Rummage = Node.define({
      * Return the href the category or bookmark points at
      * @returns {*}
      */
-    href$: function () {
-        var root = window.location.protocol + '//' + window.location.host;
-        var finder = format(uris.webapp.finder, __.locale);
-        finder = finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
+    href$() {
+        const root = `${window.location.protocol}//${window.location.host}`;
+        let finder = format(uris.webapp.finder, __.locale);
+        finder =
+            finder.indexOf(root) === 0 ? finder.substr(root.length) : finder;
         switch (this.get('type')) {
             case 1: // home
                 return finder + HASHBANG; // Note: without hashbang, the page is reloaded
             case 2: // categories
-                return finder + HASHBANG + $.param({
-                    filter: {
-                        logic: 'and',
-                        filters: [
-                            { field: 'categoryId', operator: 'gte', value: this.get('id') },
-                            { field: 'categoryId', operator: 'lte', value: this.get('id').replace(/0000/g, 'ffff') }
-                        ]
-                    }
-                });
+                return (
+                    finder +
+                    HASHBANG +
+                    $.param({
+                        filter: {
+                            logic: 'and',
+                            filters: [
+                                {
+                                    field: 'categoryId',
+                                    operator: 'gte',
+                                    value: this.get('id')
+                                },
+                                {
+                                    field: 'categoryId',
+                                    operator: 'lte',
+                                    value: this.get('id').replace(
+                                        /0000/g,
+                                        'ffff'
+                                    )
+                                }
+                            ]
+                        }
+                    })
+                );
             case 3: // favourites
                 return this.get('path');
-            default: // including 0 (no hypertext link)
+            default:
+                // including 0 (no hypertext link)
                 return null; // should not be used!!!
         }
     },
@@ -116,23 +135,26 @@ models.Rummage = Node.define({
      * Return a complete icon path (from CDN)
      * @returns {*}
      */
-    icon$: function () {
-        return format(window.cordova ? uris.mobile.icons : uris.cdn.icons, this.get('icon'));
+    icon$() {
+        return format(
+            window.cordova ? uris.mobile.icons : uris.cdn.icons,
+            this.get('icon')
+        );
     },
 
     /**
      * An array of parent categories up the the root of the hierarchy
      * Note: does not contains the current category
      */
-    path$: function () {
-        var ret = [];
-        var item = this;
+    path$() {
+        const ret = [];
+        let item = this;
         while (
             $.isFunction(item.parent) &&
             item.parent() instanceof ObservableArray &&
             $.isFunction(item.parent().parent) &&
             item.parent().parent() instanceof models.Rummage
-            ) {
+        ) {
             item = item.parent().parent();
             ret.push(item);
         }

@@ -5,12 +5,14 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-// import $ from 'jquery';
+import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
+import { iconUri } from '../app/app.uris.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.selector.es6';
 import BasicListAdapter from './adapters.basiclist.es6';
 import ColorAdapter from './adapters.color.es6';
 import DisabledAdapter from './adapters.disabled.es6';
@@ -23,36 +25,43 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
 
-const TEMPLATE = `<div data-${ns}role="selector" data-${ns}id="#: properties.name #" data-${ns}shape="#: attributes.shape #" data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }" data-${ns}empty="#: attributes.empty #" data-${ns}hit-radius="#: attributes.hitRadius #" {0}></div>`;
+const TEMPLATE = `<img
+    alt="#: alt$() #" 
+    data-${ns}role="selector"
+    data-${ns}id="#: properties.name #"
+    data-${ns}shape="#: attributes.shape #"
+    data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }"
+    data-${ns}empty="#: attributes.empty #"
+    data-${ns}hit-radius="#: attributes.hitRadius #"
+    src="#: src$() #" {0}>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
+const DISABLED = `data-${ns}enable="false"`;
+
 /**
  * @class SelectorTool tool
  * @type {void|*}
  */
 const SelectorTool = BaseTool.extend({
     id: 'selector',
-    childSelector: `${CONSTANTS.DIV}${roleSelector('selector')}`,
+    childSelector: `${CONSTANTS.IMG}${roleSelector('selector')}`,
     height: 50,
     width: 50,
     weight: 1,
-    // MENU: [],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
-        design:
-            '<img src="https://cdn.kidoju.com/images/o_collection/svg/office/selector.svg" alt="selector">',
-        // design: '<img src="#: icon$() #" alt="#: description$() #">',
+        design: format(TEMPLATE, DISABLED),
         play: format(
             TEMPLATE,
-            `data-${ns}toolbar="\\#floating .kj-floating-content" data-${ns}bind="value: #: properties.name #.value, source: interactions"`
+            `data-${ns}toolbar="\\#floating .kj-floating-content" ${BINDING}` // TODO review
         ),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         color: new ColorAdapter({
@@ -76,9 +85,9 @@ const SelectorTool = BaseTool.extend({
         ),
         shape: new DropDownListAdapter(
             {
-                title: __('tools.selector.attributes.shape.title'),
                 defaultValue: 'circle',
-                source: __('tools.selector.attributes.shape.source')
+                source: __('tools.selector.attributes.shape.source'),
+                title: __('tools.selector.attributes.shape.title')
             },
             { style: 'width: 100%;' }
         ),
@@ -100,9 +109,12 @@ const SelectorTool = BaseTool.extend({
             title: __('tools.selector.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.selector.properties.question.title')
+            help: __('tools.selector.properties.question.help'),
+            title: __('tools.selector.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new BasicListAdapter({
+            help: __('tools.selector.properties.solution.help'),
             title: __('tools.selector.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -111,23 +123,23 @@ const SelectorTool = BaseTool.extend({
             title: __('tools.selector.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.selector.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.selector.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.selector.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.selector.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.selector.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.selector.properties.omit.title'),
             validation: scoreValidator
         }),
         disabled: new DisabledAdapter({
-            title: __('tools.selector.properties.disabled.title'),
-            defaultValue: false
+            defaultValue: false,
+            title: __('tools.selector.properties.disabled.title')
         })
     },
 
@@ -150,6 +162,52 @@ const SelectorTool = BaseTool.extend({
      */
     solution$(testItem) {
         return htmlEncode(testItem.solution || '');
+    },
+
+    /**
+     * getHtmlContent
+     * @method getHtmlContent
+     * @param component
+     * @param mode
+     * @returns {*}
+     */
+    getHtmlContent(component, mode) {
+        const { icon } = this;
+        $.extend(component, {
+            // alternate text of an image
+            alt$() {
+                return component.get('properties.name');
+            },
+            // The src$ function resolves the icon path
+            src$() {
+                return iconUri(icon);
+            }
+        });
+        return BaseTool.fn.getHtmlContent.call(this, component, mode);
+    },
+
+    /**
+     * onResize
+     * @method onResize
+     * @param e
+     * @param component
+     */
+    onResize(e, component) {
+        const stageElement = $(e.currentTarget);
+        const content = stageElement.children('img');
+        // Assuming we can get the natural size of the image, we shall keep proportions
+        const { naturalHeight, naturalWidth } = content[0];
+        if (naturalHeight && naturalWidth) {
+            const height = component.get('height');
+            const width = component.get('width');
+            // Keep the height, change the width
+            const w = (height * naturalWidth) / naturalHeight;
+            if (width !== w) {
+                // `if` avoids a stack overflow
+                component.set('width', w);
+            }
+        }
+        BaseTool.fn.onResize.call(this, e, component);
     },
 
     /**

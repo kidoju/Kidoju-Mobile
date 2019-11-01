@@ -22,6 +22,7 @@ const {
     data: { ObservableArray },
     destroy,
     format,
+    notify,
     ns,
     roleSelector,
     support,
@@ -54,7 +55,7 @@ const Navigation = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         // By default, no page is selected
@@ -147,7 +148,9 @@ const Navigation = DataBoundWidget.extend({
      * @returns {*}
      */
     id(id) {
+        // TODO use asserts
         let page;
+        let ret;
         if (
             $.type(id) === CONSTANTS.STRING ||
             $.type(id) === CONSTANTS.NUMBER
@@ -161,11 +164,12 @@ const Navigation = DataBoundWidget.extend({
         } else if ($.type(id) === CONSTANTS.UNDEFINED) {
             page = this.dataSource.getByUid(this._selectedUid);
             if (page instanceof Page) {
-                return page[page.idField];
+                ret = page[page.idField];
             }
         } else {
-            throw new TypeError();
+            throw new TypeError('Invalid id');
         }
+        return ret;
     },
 
     /**
@@ -186,7 +190,7 @@ const Navigation = DataBoundWidget.extend({
                 'Page'
             )
         );
-
+        let ret;
         if (page === null || page instanceof Page) {
             let hasChanged = false;
             if (page === null && this._selectedUid !== null) {
@@ -206,11 +210,12 @@ const Navigation = DataBoundWidget.extend({
                 this.trigger(CONSTANTS.CHANGE, { value: page });
             }
         } else if ($.type(page) === CONSTANTS.UNDEFINED) {
-            if (this._selectedUid === null) {
-                return null;
-            }
-            return this.dataSource.getByUid(this._selectedUid) || null; // getByUid returns undefined if not found
+            ret =
+                this._selectedUid === null
+                    ? null
+                    : this.dataSource.getByUid(this._selectedUid) || null; // getByUid returns undefined if not found
         }
+        return ret;
     },
 
     /**
@@ -371,7 +376,7 @@ const Navigation = DataBoundWidget.extend({
                 this._onClick.bind(this)
             );
         // TODO debugger;
-        kendo.notify(this);
+        notify(this);
     },
 
     /**
@@ -539,14 +544,18 @@ const Navigation = DataBoundWidget.extend({
             pages.forEach(page => {
                 that._addItem(page);
             });
-        } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+        } else if (
+            e.action === 'add' &&
+            Array.isArray(e.items) &&
+            e.items.length
+        ) {
             e.items.forEach(page => {
                 selectedIndex = that.dataSource.indexOf(page);
                 that._addItem(page, selectedIndex);
             });
         } else if (
             e.action === 'remove' &&
-            $.isArray(e.items) &&
+            Array.isArray(e.items) &&
             e.items.length
         ) {
             e.items.forEach(page => {
@@ -734,4 +743,7 @@ const Navigation = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Navigation);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Navigation')) {
+    // Prevents loading several times in karma
+    plugin(Navigation);
+}

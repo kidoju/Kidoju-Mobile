@@ -28,6 +28,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 // import { isAnyArray } from '../common/window.util.es6';
 import { AssetDataSource } from '../data/data.asset.es6';
+import { openOKCancelAlert } from '../dialogs/dialogs.alert.es6';
 
 const { FileList } = window;
 const {
@@ -168,7 +169,7 @@ const AssetManager = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._initDataSources();
@@ -774,20 +775,18 @@ const AssetManager = Widget.extend({
             }
         }
         if (found.length) {
-            window.kidoju.dialogs
-                .openAlert({
-                    type: BaseDialog.fn.type.warning,
-                    title: options.messages.dialogs.confirm,
-                    message: format(
-                        options.messages.dialogs.warningOverwrite,
-                        found.join('`, `')
-                    )
-                })
-                .then(e => {
-                    if (e.action === 'ok') {
-                        execUpload();
-                    }
-                });
+            openOKCancelAlert({
+                type: BaseDialog.fn.type.warning,
+                title: options.messages.dialogs.confirm,
+                message: format(
+                    options.messages.dialogs.warningOverwrite,
+                    found.join('`, `')
+                )
+            }).then(e => {
+                if (e.action === 'ok') {
+                    execUpload();
+                }
+            });
         } else {
             execUpload();
         }
@@ -1383,7 +1382,7 @@ const AssetManager = Widget.extend({
         const value = $(e.target).val();
         const search = { field: 'url', operator: 'contains', value };
         if ($.type(value) === CONSTANTS.STRING && value.length) {
-            if ($.isArray(filter)) {
+            if (Array.isArray(filter)) {
                 // We assume all array items are valid filters
                 filter = filter.slice().push(search);
             } else if (
@@ -1396,13 +1395,13 @@ const AssetManager = Widget.extend({
             } else if (
                 $.isPlainObject(filter) &&
                 filter.logic === 'and' &&
-                $.isArray(filter.filters)
+                Array.isArray(filter.filters)
             ) {
                 filter = $.extend(true, {}, filter).filters.push(search);
             } else if (
                 $.isPlainObject(filter) &&
                 filter.logic === 'or' &&
-                $.isArray(filter.filters)
+                Array.isArray(filter.filters)
             ) {
                 filter = { logic: 'and', filters: [filter, search] };
             } else {
@@ -1576,7 +1575,7 @@ const AssetManager = Widget.extend({
         );
         const listView = e.sender; // Do not use this.listView because it might not yet have been assigned.
         this._computeStorageSize();
-        if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+        if (e.action === 'add' && Array.isArray(e.items) && e.items.length) {
             listView._dataBoundUid = e.items[e.items.length - 1].uid;
         } else if (
             e.action === 'sync' &&
@@ -1863,4 +1862,7 @@ const AssetManager = Widget.extend({
 /**
  * Registration
  */
-plugin(AssetManager);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'AssetManager')) {
+    // Prevents loading several times in karma
+    plugin(AssetManager);
+}

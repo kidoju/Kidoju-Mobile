@@ -19,7 +19,7 @@ const {
     ui: { plugin, Widget }
 } = window.kendo;
 const logger = new Logger('widgets.latex');
-const WIDGET_CLASS = 'kj-latex'; // 'k-widget kj-latex';
+const WIDGET_CLASS = /* 'k-widget */ 'kj-latex';
 
 /**
  * Latex
@@ -33,7 +33,7 @@ const Latex = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
@@ -123,4 +123,7 @@ const Latex = Widget.extend({
 /**
  * Registration
  */
-plugin(Latex);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Latex')) {
+    // Prevents loading several times in karma
+    plugin(Latex);
+}

@@ -304,7 +304,7 @@ const User = BaseModel.define({
         // on the img tag, bind this error handler as follows: data-bind="events: { error: me.onUserPictureError }"
         e.target.onerror = null;
         e.target.src = iconUri('user');
-    },
+    }
 
     /**
      * Load

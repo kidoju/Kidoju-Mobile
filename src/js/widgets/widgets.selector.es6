@@ -3,11 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-/**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
- * Sources at https://github.com/Memba
- */
-
 // TODO use applyEventMap - See scratchpad
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
@@ -45,10 +40,10 @@ const WIDGET = 'kendoSelector';
 const NS = CONSTANTS.DOT + WIDGET;
 const WIDGET_CLASS = 'kj-selector'; // 'k-widget kj-selector';
 
-const MOUSEDOWN = `mousedown${NS} ` + `touchstart${NS}`;
-const MOUSEMOVE = `mousemove${NS} ` + `touchmove${NS}`;
-const MOUSELEAVE = `mouseleave${NS} ` + `touchleave${NS}`;
-const MOUSEUP = `mouseup${NS} ` + `touchend${NS}`;
+const MOUSEDOWN = `mousedown${NS} touchstart${NS}`;
+const MOUSEMOVE = `mousemove${NS} touchmove${NS}`;
+const MOUSELEAVE = `mouseleave${NS} touchleave${NS}`;
+const MOUSEUP = `mouseup${NS} touchend${NS}`;
 const TOGGLE = 'toggle';
 const CONSTANT = 'constant';
 const SURFACE_CLASS = `${WIDGET_CLASS}-surface`;
@@ -76,7 +71,10 @@ const SelectorEvents = Class.extend({
     init(options) {
         assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         assert(
             CONSTANTS.STRING,
@@ -229,12 +227,14 @@ const SelectorEvents = Class.extend({
         const selectorSurface = container
             .find(roleSelector('selectorsurface'))
             .data('kendoSelectorSurface');
+        let ret;
         if (
             selectorSurface instanceof SelectorSurface &&
             selectorSurface.enabled()
         ) {
-            return selectorSurface;
+            ret = selectorSurface;
         }
+        return ret;
     },
 
     /**
@@ -263,7 +263,9 @@ const SelectorEvents = Class.extend({
         );
         const target = $(e.target);
         // Do not interfere with interactive elements
-        if (target.closest(CONSTANTS.DOT + CONSTANTS.INTERACTIVE_CLASS).length) {
+        if (
+            target.closest(CONSTANTS.DOT + CONSTANTS.INTERACTIVE_CLASS).length
+        ) {
             return;
         }
         const selectorSurface = this._getSelectorSurface(target);
@@ -273,7 +275,7 @@ const SelectorEvents = Class.extend({
             const pulled = selectorSurface._pullSelections(point);
             // If we are not removing selections under point, we are adding a new selection
             if (Array.isArray(pulled) && pulled.length === 0) {
-                const stroke = selectorSurface.activeSelector.options.stroke;
+                const { stroke } = selectorSurface.activeSelector.options;
                 const path = new Path({ stroke });
                 path.moveTo(point);
                 selectorSurface.drawingSurface.draw(path);
@@ -423,7 +425,7 @@ const SelectorToolBar = ToolBar.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         ToolBar.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'toolbar initialized' });
         this.bind(TOGGLE, this._onToggle);
@@ -491,7 +493,7 @@ const SelectorToolBar = ToolBar.extend({
         );
         const id = e.id.substr(BUTTON_PREFIX.length);
         for (
-            let i = 0, length = this.selectorSurface.selectors.length;
+            let i = 0, { length } = this.selectorSurface.selectors;
             i < length;
             i++
         ) {
@@ -609,8 +611,8 @@ const SelectorToolBar = ToolBar.extend({
             }
         }
         var that = this;
-        const selectorSurface = that.selectorSurface;
-        const length = selectorSurface.selectors.length; // TODO check enabled
+        const { selectorSurface } = that;
+        const { length } = selectorSurface.selectors; // TODO check enabled
         if (length > 1) {
             // Rebuild all buttons
             const promises = [];
@@ -661,7 +663,7 @@ const SelectorToolBar = ToolBar.extend({
      * Destroy widget
      */
     destroy() {
-        const element = this.element;
+        const { element } = this;
         // Unref
         this.selectorSurface = undefined;
         // Destroy
@@ -674,7 +676,10 @@ const SelectorToolBar = ToolBar.extend({
 /**
  * Registration
  */
-plugin(SelectorToolBar);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'SelectorToolBar')) {
+    // Prevents loading several times in karma
+    plugin(SelectorToolBar);
+}
 
 /** *******************************************************************************
  * SelectorSurface Widget
@@ -687,13 +692,13 @@ plugin(SelectorToolBar);
  * @class SelectorSurface
  * @extends Widget
  */
-var SelectorSurface = Widget.extend({
+const SelectorSurface = Widget.extend({
     /**
      * Init
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug('surface initialized');
         this.selectors = [];
@@ -716,8 +721,10 @@ var SelectorSurface = Widget.extend({
      * @private
      */
     _layout() {
-        const element = (this.wrapper = this.element);
-        element.addClass(SURFACE_CLASS).attr(attr(CONSTANTS.ID), randomId()); // Add an id to match the toolbar
+        const { element } = this;
+        this.wrapper = element
+            .addClass(SURFACE_CLASS)
+            .attr(attr(CONSTANTS.ID), randomId()); // Add an id to match the toolbar
         this.drawingSurface = Surface.create(element);
     },
 
@@ -851,7 +858,7 @@ var SelectorSurface = Widget.extend({
             this.selectors,
             assert.format(assert.messages.isArray.default, 'this.selectors')
         );
-        for (let i = 0, length = this.selectors.length; i < length; i++) {
+        for (let i = 0, { length } = this.selectors; i < length; i++) {
             if (this.selectors[i]._enabled) {
                 return true;
             }
@@ -983,9 +990,7 @@ var SelectorSurface = Widget.extend({
         );
         const radius = parseInt(selector.options.minRadius, 10) || MIN_RADIUS;
         return (
-            Math.sqrt(
-                Math.pow(rect.size.height, 2) + Math.pow(rect.size.width, 2)
-            ) <=
+            Math.sqrt(rect.size.height ** 2 + rect.size.width ** 2) <=
             2 * Math.sqrt(2) * radius
         );
     },
@@ -1024,7 +1029,7 @@ var SelectorSurface = Widget.extend({
             )
         );
         const selector = this.activeSelector;
-        const dataSource = selector.dataSource;
+        const { dataSource } = selector;
         // Discard small selection that anyone will struggle to see on mobile
         if (!this._isSmallSelection(selector, rect)) {
             // Find the dataItem corresponding to the selector
@@ -1096,7 +1101,7 @@ var SelectorSurface = Widget.extend({
         );
         const ret = [];
         const selector = this.activeSelector;
-        const dataSource = selector.dataSource;
+        const { dataSource } = selector;
         // Find the dataItem corresponding to the selector
         const dataItem = this._getDataItem(selector);
         // Check and remove selections containing point
@@ -1150,14 +1155,17 @@ var SelectorSurface = Widget.extend({
         );
         assert.isNonEmptyPlainObject(
             stroke,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'stroke')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'stroke'
+            )
         );
         const RECT_RADIUS = 10;
         const path = new Path({ stroke });
-        const x = rect.origin.x;
-        const y = rect.origin.y;
-        const height = rect.size.height;
-        const width = rect.size.width;
+        const { x } = rect.origin;
+        const { y } = rect.origin;
+        const { height } = rect.size;
+        const { width } = rect.size;
         path.moveTo(x + width - RECT_RADIUS, y)
             .curveTo(
                 [x + width, y],
@@ -1200,7 +1208,10 @@ var SelectorSurface = Widget.extend({
         );
         assert.isNonEmptyPlainObject(
             stroke,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'stroke')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'stroke'
+            )
         );
         const arcGeometry = new geometry.Arc(
             [
@@ -1237,14 +1248,17 @@ var SelectorSurface = Widget.extend({
         );
         assert.isNonEmptyPlainObject(
             stroke,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'stroke')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'stroke'
+            )
         );
         const CROSS_CURVE = 0.5;
         const path = new Path({ stroke });
-        const x = rect.origin.x;
-        const y = rect.origin.y;
-        const height = rect.size.height;
-        const width = rect.size.width;
+        const { x } = rect.origin;
+        const { y } = rect.origin;
+        const { height } = rect.size;
+        const { width } = rect.size;
         path.moveTo(x + width, y)
             .lineTo(x + CROSS_CURVE * width, y + (1 - CROSS_CURVE) * height)
             .curveTo(
@@ -1304,7 +1318,7 @@ var SelectorSurface = Widget.extend({
                 CONSTANTS.OBJECT
             )
         );
-        const selections = dataItem.data.selections;
+        const { selections } = dataItem.data;
         const group = new Group();
         // We need a plain object for stroke
         const stroke =
@@ -1312,7 +1326,7 @@ var SelectorSurface = Widget.extend({
                 ? dataItem.data.stroke.toJSON()
                 : dataItem.data.stroke || {};
         // Iterate over selections to draw all shapes in group
-        for (let idx = 0, length = selections.length; idx < length; idx++) {
+        for (let idx = 0, { length } = selections; idx < length; idx++) {
             const rect = new geometry.Rect(
                 selections[idx].origin,
                 selections[idx].size
@@ -1420,7 +1434,10 @@ var SelectorSurface = Widget.extend({
 /**
  * Registration
  */
-plugin(SelectorSurface);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'SelectorSurface')) {
+    // Prevents loading several times in karma
+    plugin(SelectorSurface);
+}
 
 /** *******************************************************************************
  * Selector Widget
@@ -1431,14 +1448,13 @@ plugin(SelectorSurface);
  * @class Selector
  * @extends DataBoundWidget
  */
-var Selector = DataBoundWidget.extend({
+const Selector = DataBoundWidget.extend({
     /**
      * Init
      * @param element
      * @param options
      */
-    init(element, options) {
-        const that = this;
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._layout();
@@ -1456,7 +1472,7 @@ var Selector = DataBoundWidget.extend({
         name: 'Selector',
         id: null,
         autoBind: true,
-        dataSource: null,
+        dataSource: [],
         scaler: 'div.kj-stage',
         container: `div.kj-stage>div[data-${ns}role="stage"]`,
         selectable: `div.kj-element>[data-${ns}behavior="selectable"]`,
@@ -1517,9 +1533,9 @@ var Selector = DataBoundWidget.extend({
             );
             let ret;
             const that = this;
-            const element = that.element;
-            const options = that.options;
-            const selectorSurface = that.selectorSurface;
+            const { element } = that;
+            const { options } = that;
+            const { selectorSurface } = that;
             const dataItem = selectorSurface._getDataItem(that);
             if (
                 dataItem &&
@@ -1540,7 +1556,7 @@ var Selector = DataBoundWidget.extend({
                     const constant = selectable.attr(attr(CONSTANT));
                     const bbox = that._getBBox(selectable);
                     for (
-                        let i = 0, length = dataItem.data.selections.length;
+                        let i = 0, { length } = dataItem.data.selections;
                         i < length;
                         i++
                     ) {
@@ -1570,8 +1586,8 @@ var Selector = DataBoundWidget.extend({
      * @private
      */
     _layout() {
-        const element = (this.wrapper = this.element);
-        element.addClass(WIDGET_CLASS);
+        const { element } = this;
+        this.wrapper = element.addClass(WIDGET_CLASS);
         this._initSurface();
     },
 
@@ -1580,7 +1596,7 @@ var Selector = DataBoundWidget.extend({
      * @private
      */
     _initSurface() {
-        const options = this.options;
+        const { options } = this;
         const container = this.element.closest(options.container);
         assert.hasLength(
             container,
@@ -1628,7 +1644,10 @@ var Selector = DataBoundWidget.extend({
         // TODO Review for null
 
         // bind to the reset event to reset the dataSource
-        if (this.dataSource instanceof DataSource &&  $.isFunction(this._refreshHandler)) {
+        if (
+            this.dataSource instanceof DataSource &&
+            $.isFunction(this._refreshHandler)
+        ) {
             this.dataSource.unbind(CONSTANTS.CHANGE, this._refreshHandler);
             this._refreshHandler = undefined;
         }
@@ -1703,7 +1722,7 @@ var Selector = DataBoundWidget.extend({
      * @private
      */
     _getBBox(element) {
-        const options = this.options;
+        const { options } = this;
         const container = element.closest(options.container);
         const scaler = container.closest(options.scaler);
         const scale = scaler.length ? getTransformScale(scaler) : 1;
@@ -1817,4 +1836,7 @@ var Selector = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Selector);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Selector')) {
+    // Prevents loading several times in karma
+    plugin(Selector);
+}

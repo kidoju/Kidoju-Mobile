@@ -10,6 +10,7 @@ import 'kendo.core';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import '../widgets/widgets.connector.es6';
 import ColorAdapter from './adapters.color.es6';
 import ConnectorAdapter from './adapters.connector.es6';
 import DisabledAdapter from './adapters.disabled.es6';
@@ -20,7 +21,7 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import { questionValidator, scoreValidator } from './util.validators.es6';
 
 const {
     format,
@@ -34,7 +35,15 @@ const ScoreAdapter = NumberAdapter;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="connector" data-${ns}id="#: properties.name #" data-${ns}target-value="#: properties.solution #" data-${ns}color="#: attributes.color #" {0}></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="connector"
+    data-${ns}id="#: properties.name #"
+    data-${ns}target-value="#: properties.solution #"
+    data-${ns}color="#: attributes.color #" {0}>
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
+const DISABLED = `data-${ns}enable="false"`; // TODO use enabled
+const NO_SURFACE = `data-${ns}create-surface="false"`;
 
 /**
  * ConnectorTool
@@ -46,26 +55,18 @@ const ConnectorTool = BaseTool.extend({
     height: 70,
     width: 70,
     weight: 0.25,
-    // menu: [],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
-        design: format(
-            TEMPLATE,
-            `data-${ns}enable="false" data-${ns}create-surface="false"`
-        ),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value, source: interactions"`
-        ),
+        design: format(TEMPLATE, `${DISABLED} ${NO_SURFACE}`),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         color: new ColorAdapter({
             title: __('tools.connector.attributes.color.title'),
-            defaultValue: '#f0000'
+            defaultValue: '#ff0000'
         })
     },
     properties: {
@@ -73,9 +74,12 @@ const ConnectorTool = BaseTool.extend({
             title: __('tools.connector.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.connector.properties.question.title')
+            help: __('tools.connector.properties.question.help'),
+            title: __('tools.connector.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new ConnectorAdapter({
+            help: __('tools.connector.properties.solution.help'),
             title: __('tools.connector.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -84,23 +88,23 @@ const ConnectorTool = BaseTool.extend({
             title: __('tools.connector.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.connector.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.connector.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.connector.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.connector.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.connector.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.connector.properties.omit.title'),
             validation: scoreValidator
         }),
         disabled: new DisabledAdapter({
-            title: __('tools.connector.properties.disabled.title'),
-            defaultValue: false
+            defaultValue: false,
+            title: __('tools.connector.properties.disabled.title')
         })
     },
 

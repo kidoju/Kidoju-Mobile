@@ -22,7 +22,11 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { arrayLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -31,7 +35,14 @@ const ScoreAdapter = NumberAdapter;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="textgaps" data-${ns}text="#: attributes.text #" data-${ns}input-style="#: attributes.inputStyle #" style="#: attributes.style #" {0}></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="textgaps"
+    data-${ns}text="#: attributes.text #"
+    data-${ns}input-style="#: attributes.inputStyle #"
+    style="#: attributes.style #" {0}>
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enable="false"`; // TODO: enabled
 
 /**
  * TextGapsTool
@@ -46,24 +57,23 @@ const TextGapsTool = BaseTool.extend({
     weight: 1,
     menu: ['properties.question', 'properties.solution'],
     templates: {
-        design: format(TEMPLATE, `data-${ns}enable="false"`),
+        design: format(TEMPLATE, DISABLED),
         play: format(
             TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
+            `${BINDING} data-${ns}shuffle="#: attributes.shuffle #"`
         ),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         inputStyle: new StyleAdapter({
-            title: __('tools.textgaps.attributes.inputStyle.title')
+            title: __('tools.textgaps.attributes.inputStyle.title'),
+            validation: styleValidator
         }),
         style: new StyleAdapter({
             title: __('tools.textgaps.attributes.style.title'),
-            defaultValue: 'font-size:32px;'
+            validation: styleValidator
         }),
         text: new TextBoxAdapter({
             title: __('tools.textgaps.attributes.text.title'),
@@ -75,11 +85,14 @@ const TextGapsTool = BaseTool.extend({
             title: __('tools.textgaps.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.textgaps.properties.question.title')
+            help: __('tools.textgaps.properties.question.help'),
+            title: __('tools.textgaps.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new BasicListAdapter({
-            title: __('tools.textgaps.properties.solution.title'),
-            defaultValue: []
+            defaultValue: [],
+            help: __('tools.textgaps.properties.solution.help'),
+            title: __('tools.textgaps.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${arrayLibrary.defaultKey}`,
@@ -87,18 +100,18 @@ const TextGapsTool = BaseTool.extend({
             title: __('tools.textgaps.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.textgaps.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.textgaps.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.textgaps.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.textgaps.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.textgaps.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.textgaps.properties.omit.title'),
             validation: scoreValidator
         })
     },

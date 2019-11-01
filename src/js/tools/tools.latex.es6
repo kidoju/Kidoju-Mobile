@@ -11,6 +11,7 @@ import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.latex.es6';
 import BooleanAdapter from './adapters.boolean.es6';
 import DropDownListAdapter from './adapters.dropdownlist.es6';
 import MathInputAdapter from './adapters.mathinput.es6';
@@ -18,6 +19,7 @@ import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
+import { constantValidator, styleValidator } from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 
@@ -25,7 +27,16 @@ const { format, ns } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="latex" class="#: class$() #" style="#: attributes.style #" data-${ns}id="#: id$() #" data-${ns}behavior="#: properties.behavior #" data-${ns}constant="#: properties.constant #" data-${ns}inline="#: attributes.inline #" data-${ns}value="#: attributes.formula #" ></div>`;
+const TEMPLATE = `<div
+    class="#: class$() #"
+    data-${ns}behavior="#: properties.behavior #"
+    data-${ns}constant="#: properties.constant #"
+    data-${ns}id="#: id$() #"
+    data-${ns}inline="#: attributes.inline #"
+    data-${ns}role="latex"
+    data-${ns}value="#: attributes.formula #"
+    style="#: attributes.style #">
+    </div>`;
 
 /**
  * @class LatexTool
@@ -49,22 +60,23 @@ const LatexTool = BaseTool.extend({
         }),
         style: new StyleAdapter({
             title: __('tools.latex.attributes.style.title'),
-            defaultValue: 'font-size:50px;'
+            validation: styleValidator
         })
     },
     properties: {
         behavior: new DropDownListAdapter(
             {
-                title: __('tools.latex.properties.behavior.title'),
                 defaultValue: 'none',
-                enum: ['none', 'draggable', 'selectable']
+                source: __('tools.latex.properties.behavior.source'),
+                title: __('tools.latex.properties.behavior.title')
             },
             {
                 style: 'width: 100%;'
             }
         ),
         constant: new TextBoxAdapter({
-            title: __('tools.image.properties.constant.title')
+            title: __('tools.image.properties.constant.title'),
+            validation: constantValidator
         })
     },
 

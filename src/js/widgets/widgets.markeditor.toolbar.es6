@@ -23,7 +23,7 @@ import 'kendo.popup';
 import 'kendo.window';
 import assert from '../common/window.assert.es6';
 // import CONSTANTS from '../common/window.constants.es6';
-// import Logger from '../common/window.logger.es6';
+import Logger from '../common/window.logger.es6';
 import './widgets.markdown.es6';
 // import './widgets.markeditor.es6'; // <-- cyclical dependency
 // import './widgets.mathinput.es6'; // <-- TODO
@@ -204,8 +204,8 @@ const MarkEditorToolBar = ToolBar.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
-        options = options || {};
+    init(element, options = {}) {
+        // eslint-disable-next-line no-param-reassign
         options.items = this._expandTools(
             options.tools || MarkEditorToolBar.prototype.options.tools
         );
@@ -278,7 +278,7 @@ const MarkEditorToolBar = ToolBar.extend({
             return tool;
         }
         return tools.reduce(function(all, tool) {
-            if ($.isArray(tool)) {
+            if (Array.isArray(tool)) {
                 all.push({
                     type: 'buttonGroup',
                     buttons: tool.map(expandTool)
@@ -361,7 +361,7 @@ const MarkEditorToolBar = ToolBar.extend({
      */
     /*
             refresh: function (selection) {
-                if ($.isArray(selected) && selected.length !== 1) {
+                if (Array.isArray(selected) && selected.length !== 1) {
                     // For now, we disable fill and stroke buttons on multiple selections
                     // TODO: Disable toolbar options
                     return;
@@ -464,7 +464,12 @@ const MarkEditorToolBar = ToolBar.extend({
 /**
  * Registrtation
  */
-plugin(MarkEditorToolBar);
+if (
+    !Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MarkEditorToolBar')
+) {
+    // Prevents loading several times in karma
+    plugin(MarkEditorToolBar);
+}
 
 /** *******************************************************************************
  * MarkEditorToolBar Tools
@@ -667,11 +672,7 @@ const HeadingsTool = PopupTool.extend({
         const element = $('<div />').appendTo(this.popup.element);
         buttons.forEach((options, index) => {
             const button =
-                `<a title="${options.text}" data-property="${
-                    options.property
-                }" data-value="${
-                    options.value
-                }" class="k-button k-button-icon">` +
+                `<a title="${options.text}" data-property="${options.property}" data-value="${options.value}" class="k-button k-button-icon">` +
                 `<span class="k-icon k-i-${options.iconClass}"></span>` +
                 `</a>`;
             if (

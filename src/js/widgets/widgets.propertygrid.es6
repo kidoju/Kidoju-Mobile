@@ -51,7 +51,7 @@ const PropertyGrid = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         // base call to widget initialization
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
@@ -112,12 +112,20 @@ const PropertyGrid = Widget.extend({
      * @returns {*}
      */
     rows(rows) {
-        assert.isArray(rows, assert.format(assert.messages.isArray.default));
+        assert.nullableTypeOrUndef(
+            CONSTANTS.ARRAY,
+            rows,
+            assert.format(
+                assert.messages.nullableTypeOrUndef.default,
+                'rows',
+                CONSTANTS.ARRAY
+            )
+        );
         let ret;
         if ($.type(rows) === CONSTANTS.UNDEFINED) {
             ret = this.options.rows;
         } else if (rows !== this.options.rows) {
-            this.options.rows = rows;
+            this.options.rows = rows || [];
             this.refresh();
         }
         return ret;
@@ -152,9 +160,7 @@ const PropertyGrid = Widget.extend({
                     '<th role="columnheader" class="k-header">'}${
                     messages.property
                 }</th>` +
-                    `<th role="columnheader" class="k-header">${
-                        messages.value
-                    }</th>` +
+                    `<th role="columnheader" class="k-header">${messages.value}</th>` +
                     `</tr></thead>` +
                     `</table>` +
                     `</div>` +
@@ -300,10 +306,7 @@ const PropertyGrid = Widget.extend({
                 !$.isFunction(properties[prop]) &&
                 // if rows are designated in this.options.rows, only select these rows
                 (!hasRows ||
-                    Object.prototype.hasOwnProperty.call(
-                        optionRows,
-                        prop
-                    ))
+                    Object.prototype.hasOwnProperty.call(optionRows, prop))
             ) {
                 // TODO: the following line has been modified to care for complex values like CharGrid, which should be edited as a whole in a specific editor
                 // if ($.type(properties[prop]) === CONSTANTS.OBJECT) {
@@ -340,9 +343,7 @@ const PropertyGrid = Widget.extend({
                                 : undefined,
                         field: path.length === 0 ? prop : `${path}.${prop}`,
                         help:
-                            hasRows &&
-                            optionRows[prop] &&
-                            optionRows[prop].help
+                            hasRows && optionRows[prop] && optionRows[prop].help
                                 ? optionRows[prop].help
                                 : CONSTANTS.EMPTY,
                         // nullable
@@ -382,7 +383,11 @@ const PropertyGrid = Widget.extend({
                             pattern: fields[prop].validation.pattern,
                             type: fields[prop].validation.type
                         };
-                        $.extend(row.attributes, attributes);
+                        row.attributes = $.extend(
+                            {},
+                            row.attributes,
+                            attributes
+                        );
                     }
 
                     optimizeEditor(row);
@@ -411,7 +416,7 @@ const PropertyGrid = Widget.extend({
      */
     _hash(rows) {
         let ret = null;
-        if ($.isArray(rows)) {
+        if (Array.isArray(rows)) {
             ret = {};
             $.each(rows, (index, row) => {
                 // check fields like attributes.src
@@ -752,4 +757,7 @@ const PropertyGrid = Widget.extend({
 /**
  * Registration
  */
-plugin(PropertyGrid);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'PropertyGrid')) {
+    // Prevents loading several times in karma
+    plugin(PropertyGrid);
+}

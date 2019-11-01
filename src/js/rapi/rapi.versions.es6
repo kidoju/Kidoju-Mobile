@@ -90,7 +90,7 @@ class AjaxVersions extends AjaxBase {
 
     // TODO: review
     draft(query) {
-        debugger;
+        // debugger;
         return super.get(undefined, query);
     }
 }

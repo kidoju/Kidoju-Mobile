@@ -64,8 +64,8 @@ const BaseDialog = Dialog.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
-        this._fixKarma(element);
+    init(element, options = {}) {
+        // this._fixKarma(element);
         Dialog.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this.element.addClass(WIDGET_CLASS);
@@ -153,6 +153,7 @@ const BaseDialog = Dialog.extend({
      * @param element
      * @private
      */
+    /*
     _fixKarma(element) {
         if (window.__karma__) {
             // The following fixes a bug in Karma where the title is not replaced
@@ -163,6 +164,7 @@ const BaseDialog = Dialog.extend({
                 .html('');
         }
     },
+     */
 
     /**
      * Initialize view model
@@ -361,4 +363,7 @@ BaseDialog.getElement = function getElement(cssClass = 'kj-dialog-tools') {
 /**
  * Registration
  */
-plugin(BaseDialog);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'BaseDialog')) {
+    // Prevents loading several times in karma
+    plugin(BaseDialog);
+}

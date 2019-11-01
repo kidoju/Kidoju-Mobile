@@ -50,7 +50,7 @@ const HighLighter = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this.setOptions(this.options);
@@ -750,4 +750,10 @@ const HighLighter = Widget.extend({
     }
 });
 
-plugin(HighLighter);
+/**
+ * Registration
+ */
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'HighLighter')) {
+    // Prevents loading several times in karma
+    plugin(HighLighter);
+}

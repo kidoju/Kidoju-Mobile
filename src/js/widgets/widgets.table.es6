@@ -34,7 +34,7 @@ const Table = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
@@ -255,4 +255,7 @@ const Table = Widget.extend({
 /**
  * Registration
  */
-plugin(Table);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Table')) {
+    // Prevents loading several times in karma
+    plugin(Table);
+}

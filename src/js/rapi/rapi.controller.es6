@@ -105,7 +105,9 @@ const BaseController = Observable.extend({
                     $.isPlainObject(token) &&
                     Date.now() > token.ts + (token.expires - 10 * 60) * 1000
                 ) {
-                    console.log('-----------------------------------------> RENEW TOKEN!');
+                    console.log(
+                        '-----------------------------------------> RENEW TOKEN!'
+                    );
                     refresh();
                 }
             }, 60 * 1000); // every minute

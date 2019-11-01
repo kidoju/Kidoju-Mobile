@@ -251,8 +251,7 @@ const Search = BaseModel.define({
         );
         const root = `${location.protocol}//${location.host}`;
         let href = finderUri(__.locale);
-        href =
-            href.indexOf(root) === 0 ? href.substr(root.length) : href;
+        href = href.indexOf(root) === 0 ? href.substr(root.length) : href;
         const favourite = {
             name: this.get('favourite').trim(),
             path: href + this.getHash(true)

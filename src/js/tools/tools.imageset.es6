@@ -24,7 +24,11 @@ import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -33,7 +37,12 @@ const ScoreAdapter = NumberAdapter;
  * ImageSet Template
  * @type {string}
  */
-const IMAGESET = `<input data-${ns}role="imageset" data-${ns}source="#: data$() #" data-${ns}style="#: attributes.style #" {0}></input>`;
+const TEMPLATE = `<input
+    data-${ns}role="imageset"
+    data-${ns}source="#: data$() #"
+    data-${ns}style="#: attributes.style #" {0}>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enabled="false"`;
 
 /**
  * @class ImageSetTool tool
@@ -46,23 +55,19 @@ const ImageSetTool = BaseTool.extend({
     height: 250,
     width: 250,
     weight: 1,
-    menu: ['attributes.data'],
+    menu: ['attributes.data', '', 'properties.question', 'properties.solution'],
     templates: {
-        design: format(IMAGESET, `data-${ns}enabled="false"`),
-        play: format(
-            IMAGESET,
-            `data-${ns}bind="value: #: properties.name #.value"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                IMAGESET,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enabled="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         // shuffle: new BooleanAdapter({ title: i18n.quiz.attributes.shuffle.title }),
         style: new StyleAdapter({
-            title: __('tools.imageset.attributes.style.title')
+            title: __('tools.imageset.attributes.style.title'),
+            validation: styleValidator
         }),
         data: new ImageListAdapter({
             title: __('tools.imageset.attributes.data.title'),
@@ -74,9 +79,12 @@ const ImageSetTool = BaseTool.extend({
             title: __('tools.imageset.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.imageset.properties.question.title')
+            help: __('tools.imageset.properties.question.help'),
+            title: __('tools.imageset.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new QuizAdapter({
+            help: __('tools.imageset.properties.solution.help'),
             title: __('tools.imageset.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -85,18 +93,18 @@ const ImageSetTool = BaseTool.extend({
             title: __('tools.imageset.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.imageset.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.imageset.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.imageset.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.imageset.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.imageset.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.imageset.properties.omit.title'),
             validation: scoreValidator
         })
     },

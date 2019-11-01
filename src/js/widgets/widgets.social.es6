@@ -87,7 +87,7 @@ const Social = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         const CONTENT = 'content';
@@ -510,4 +510,7 @@ const Social = Widget.extend({
 /**
  * Registration
  */
-plugin(Social);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Social')) {
+    // Prevents loading several times in karma
+    plugin(Social);
+}

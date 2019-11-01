@@ -57,7 +57,7 @@ const Template = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'Widget initialized' });
         this._initTemplate();
@@ -257,6 +257,7 @@ const Template = DataBoundWidget.extend({
         this.setDataSource(null);
         this._template = undefined;
         DataBoundWidget.fn.destroy.call(this);
+        logger.debug({ method: 'destroy', message: 'Widget destroyed' });
         destroy(this.element);
     }
 });
@@ -264,4 +265,7 @@ const Template = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Template);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Template')) {
+    // Prevents loading several times in karma
+    plugin(Template);
+}

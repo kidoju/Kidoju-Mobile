@@ -31,7 +31,7 @@ const BitFlags = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         DataBoundWidget.fn.init.call(this, element, options);
         this._render();
         this.setOptions(options);
@@ -339,4 +339,7 @@ const BitFlags = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(BitFlags);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'BitFlags')) {
+    // Prevents loading several times in karma
+    plugin(BitFlags);
+}

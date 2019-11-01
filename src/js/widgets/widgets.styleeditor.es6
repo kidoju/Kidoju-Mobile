@@ -87,11 +87,7 @@ function comboBox(container, options, widgetOptions) {
     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
     // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + this.options.messages.validation.value + '">')
     const input = $(
-        `<input data-bind="value: ${
-            options.field
-        }" required data-required-msg="${
-            this.options.messages.validation.value
-        }">`
+        `<input data-bind="value: ${options.field}" required data-required-msg="${this.options.messages.validation.value}">`
     )
         .appendTo(container)
         .kendoComboBox(widgetOptions)
@@ -99,9 +95,7 @@ function comboBox(container, options, widgetOptions) {
     // The workaround for validation to work is to set the name after initializing the kendo ui widget
     // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
     input.element.attr('name', 'value');
-    $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(
-        container
-    );
+    $('<span class="k-invalid-msg" data-for="value" />').appendTo(container);
 }
 
 /*
@@ -121,11 +115,7 @@ function unitInput(container, options, widgetOptions) {
     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
     // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + this.options.messages.validation.value + '">')
     const unitinput = $(
-        `<input data-${ns}bind="value: ${
-            options.field
-        }" required data-required-msg="${
-            this.options.messages.validation.value
-        }" style="width:100%;">`
+        `<input data-${ns}bind="value: ${options.field}" required data-required-msg="${this.options.messages.validation.value}" style="width:100%;">`
     )
         .appendTo(container)
         .kendoUnitInput(widgetOptions)
@@ -133,9 +123,7 @@ function unitInput(container, options, widgetOptions) {
     // The workaround for validation to work is to set the name after initializing the kendo ui widget
     // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
     unitinput.element.attr('name', 'value');
-    $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(
-        container
-    );
+    $('<span class="k-invalid-msg" data-for="value" />').appendTo(container);
 }
 
 /**
@@ -189,11 +177,7 @@ function colorPicker(container, options) {
     // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
     // $('<input name="name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.value + '">')
     const picker = $(
-        `<input data-bind="value: ${
-            options.field
-        }" required data-required-msg="${
-            that.options.messages.validation.value
-        }">`
+        `<input data-bind="value: ${options.field}" required data-required-msg="${that.options.messages.validation.value}">`
     )
         .appendTo(container)
         .kendoColorPicker()
@@ -201,9 +185,7 @@ function colorPicker(container, options) {
     // The workaround for validation to work is to set the name after initializing the kendo ui widget
     // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
     picker.element.attr('name', 'value');
-    $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(
-        container
-    );
+    $('<span class="k-invalid-msg" data-for="value" />').appendTo(container);
 }
 
 /**
@@ -436,7 +418,7 @@ const StyleEditor = DataBoundWidget.extend({
                 const styles = ret.split(CONSTANTS.SEMICOLON);
                 for (i = 0; i < styles.length; i++) {
                     const style = styles[i].split(CONSTANTS.COLON);
-                    if ($.isArray(style) && style.length === 2) {
+                    if (Array.isArray(style) && style.length === 2) {
                         data.push({
                             name: style[0].trim(),
                             value: style[1].trim()
@@ -541,11 +523,7 @@ const StyleEditor = DataBoundWidget.extend({
         // See http://www.telerik.com/forums/comboxbox-in-grid-with-validation
         // $('<input name="style_name" data-bind="value: ' + options.field + '" required data-required-msg="' + that.options.messages.validation.name + '">')
         const combobox = $(
-            `<input data-bind="value: ${
-                options.field
-            }" required data-required-msg="${
-                that.options.messages.validation.name
-            }">`
+            `<input data-bind="value: ${options.field}" required data-required-msg="${that.options.messages.validation.name}">`
         )
             .appendTo(container)
             .kendoComboBox({
@@ -580,9 +558,7 @@ const StyleEditor = DataBoundWidget.extend({
         // The workaround for validation to work is to set the name after initializing the kendo ui widget
         // TODO http://www.telerik.com/forums/how-to-enforce-validation-in-grid-sample
         combobox.element.attr('name', 'name');
-        $('<span class="k-invalid-msg" data-for="name"></span>').appendTo(
-            container
-        );
+        $('<span class="k-invalid-msg" data-for="name" />').appendTo(container);
     },
 
     /**
@@ -592,7 +568,7 @@ const StyleEditor = DataBoundWidget.extend({
      * @private
      */
     _cssValueEditor(container, options) {
-        const that = this;
+        let ret;
         // Find the corresponding property name and custom editor
         const name = container
             .closest('tr.k-state-selected')
@@ -602,23 +578,22 @@ const StyleEditor = DataBoundWidget.extend({
         const found = CSS_STYLES.filter(item => item.name === name);
         // Switch to the corresponding editor or fallback to a simple textbox
         if (
-            $.isArray(found) &&
+            Array.isArray(found) &&
             found.length &&
             found[0] &&
             $.isFunction(found[0].editor)
         ) {
-            return found[0].editor.bind(that)(container, options);
+            ret = found[0].editor.bind(this)(container, options);
+        } else {
+            // TODO why not assigning ret here?
+            $(
+                `<input type="text" name="value" class="k-textbox" data-bind="value: ${options.field}" required data-required-msg="${this.options.messages.validation.value}">`
+            ).appendTo(container);
+            $('<span class="k-invalid-msg" data-for="value" />').appendTo(
+                container
+            );
         }
-        const textbox = $(
-            `<input type="text" name="value" class="k-textbox" data-bind="value: ${
-                options.field
-            }" required data-required-msg="${
-                that.options.messages.validation.value
-            }">`
-        ).appendTo(container);
-        $('<span class="k-invalid-msg" data-for="value"></span>').appendTo(
-            container
-        );
+        return ret;
     },
 
     /**
@@ -680,15 +655,15 @@ const StyleEditor = DataBoundWidget.extend({
             )
         );
         // Select the edited row
-        const row = e.container.closest('tr');
+        // const row = e.container.closest('tr');
         e.sender.select(e.container.closest('tr'));
         // if editing a css property name (and not a css property value)
         if (e.container.is('td:eq(0)')) {
             // Find the combobox and update dataSource with a list of styles that does not contain styles already defined
-            const comboBox = e.container
+            const combobox = e.container
                 .find(roleSelector('combobox'))
                 .data('kendoComboBox');
-            if (comboBox instanceof ComboBox) {
+            if (combobox instanceof ComboBox) {
                 const rows = e.sender.dataSource.data();
                 const css = [];
                 for (let i = 0; i < CSS_STYLES.length; i++) {
@@ -696,7 +671,7 @@ const StyleEditor = DataBoundWidget.extend({
                     for (let j = 0; j < rows.length; j++) {
                         if (
                             CSS_STYLES[i].name === rows[j].name &&
-                            CSS_STYLES[i].name !== comboBox.value()
+                            CSS_STYLES[i].name !== combobox.value()
                         ) {
                             found = true;
                             break;
@@ -706,8 +681,8 @@ const StyleEditor = DataBoundWidget.extend({
                         css.push(CSS_STYLES[i]);
                     }
                 }
-                comboBox.setDataSource(css);
-                comboBox.focus();
+                combobox.setDataSource(css);
+                combobox.focus();
             }
         }
     },
@@ -721,7 +696,7 @@ const StyleEditor = DataBoundWidget.extend({
         // This dataSource is private to the widget because data is assigned through value binding instead of source binding
         that._dataSource = new DataSource({
             autoSync: true,
-            change(e) {
+            change(/* e */) {
                 // triggers the change event on the widget for value binding
                 // that.trigger(CONSTANTS.CHANGE, { value: that.value() }); // otherwise that.value is executed twice (also by MVVM)
                 that.trigger(CONSTANTS.CHANGE);
@@ -886,4 +861,7 @@ const StyleEditor = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(StyleEditor);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'StyleEditor')) {
+    // Prevents loading several times in karma
+    plugin(StyleEditor);
+}

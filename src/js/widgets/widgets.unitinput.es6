@@ -41,12 +41,12 @@ const UnitInput = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
         this.enable(
-            this.element.prop('disabled') ? false : this.options.enabled
+            this.element.prop('disabled') ? false : this.options.enable
         );
         this.value(this.options.value);
     },
@@ -65,7 +65,7 @@ const UnitInput = Widget.extend({
         name: 'UnitInput',
         decimals: 0,
         default: 0,
-        enabled: true,
+        enable: true,
         format: 'n0',
         value: '',
         max: 100,
@@ -98,7 +98,7 @@ const UnitInput = Widget.extend({
         } else if (element.val() !== value) {
             const matches = value.match(RX_UNIT);
             if (
-                $.isArray(matches) &&
+                Array.isArray(matches) &&
                 matches.length === 3 // &&
                 // options.units.indexOf(matches[2]) !== -1
             ) {
@@ -230,4 +230,7 @@ const UnitInput = Widget.extend({
 /**
  * Registration
  */
-plugin(UnitInput);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'UnitInput')) {
+    // Prevents loading several times in karma
+    plugin(UnitInput);
+}

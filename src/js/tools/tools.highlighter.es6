@@ -23,7 +23,11 @@ import ValidationAdapter from './adapters.validation.es6';
 import { BaseTool } from './tools.base.es6';
 import TOOLS from './util.constants.es6';
 import { genericLibrary } from './util.libraries.es6';
-import { questionValidator, scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -32,7 +36,16 @@ const ScoreAdapter = NumberAdapter;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div class="kj-interactive" data-${ns}role="highlighter" data-${ns}text="#: attributes.text #" data-${ns}split="#: attributes.split #"  data-${ns}highlight-style="#: attributes.highlightStyle #" style="#: attributes.style #" {0}></div>`;
+const TEMPLATE = `<div
+    class="kj-interactive"
+    data-${ns}role="highlighter"
+    data-${ns}text="#: attributes.text #"
+    data-${ns}split="#: attributes.split #"
+    data-${ns}highlight-style="#: attributes.highlightStyle #"
+    style="#: attributes.style #" {0}>
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
+const DISABLED = `data-${ns}enable="false"`;
 
 /**
  * HighLighterTool
@@ -45,26 +58,22 @@ const HighLighterTool = BaseTool.extend({
     height: 250,
     width: 250,
     weight: 1,
-    // menu: [],
+    menu: ['properties.question', 'properties.solution'],
     templates: {
-        design: format(TEMPLATE, `data-${ns}enable="false"`),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value, source: interactions"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value, source: interactions" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         highlightStyle: new StyleAdapter({
-            title: __('tools.highlighter.attributes.highlightStyle.title')
+            title: __('tools.highlighter.attributes.highlightStyle.title'),
+            validation: styleValidator
         }),
         style: new StyleAdapter({
             title: __('tools.highlighter.attributes.style.title'),
-            defaultValue: 'font-size:32px;'
+            validation: styleValidator
         }),
         text: new TextAreaAdapter({
             title: __('tools.highlighter.attributes.text.title'),
@@ -80,10 +89,12 @@ const HighLighterTool = BaseTool.extend({
             title: __('tools.highlighter.properties.name.title')
         }),
         question: new QuestionAdapter({
+            help: __('tools.highlighter.properties.question.help'),
             title: __('tools.highlighter.properties.question.title'),
             validator: questionValidator
         }),
         solution: new HighLighterAdapter({
+            help: __('tools.highlighter.properties.solution.help'),
             title: __('tools.highlighter.properties.solution.title')
         }),
         validation: new ValidationAdapter({
@@ -92,18 +103,18 @@ const HighLighterTool = BaseTool.extend({
             title: __('tools.highlighter.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.highlighter.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.highlighter.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.highlighter.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.highlighter.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.highlighter.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.highlighter.properties.omit.title'),
             validation: scoreValidator
         })
     },

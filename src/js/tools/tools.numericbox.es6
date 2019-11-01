@@ -3,7 +3,7 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO NummericBox can use Random tools to calculate solutions using simple MathJS scripting
+// TODO NummericBox can use variables to calculate solutions using simple MathJS scripting
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
@@ -14,6 +14,7 @@ import math from '../vendor/josdejong/math';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import Logger from '../common/window.logger.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import ExpressionAdapter from './adapters.expression.es6';
 import NumberAdapter from './adapters.number.es6';
@@ -30,14 +31,27 @@ import {
     styleValidator
 } from './util.validators.es6';
 
-const { format, htmlEncode, ns, template, roleSelector } = window.kendo;
+const { format, htmlEncode, ns, template /* , roleSelector */ } = window.kendo;
 const ScoreAdapter = NumberAdapter;
+const logger = new Logger('tools.numericbox');
 
 /**
  * Template
  * @type {string}
  */
-const TEMPLATE = `<input type="number" id="#: properties.name #" class="kj-interactive" data-${ns}role="numerictextbox" data-${ns}decimals="#: attributes.decimals #" data-${ns}format="n#: attributes.decimals #" data-${ns}min="#: attributes.min #" data-${ns}max="#: attributes.max #" data-${ns}spinners="false" style="#: attributes.style #" {0}>`;
+const TEMPLATE = `<input
+    type="number"
+    id="#: properties.name #"
+    class="kj-interactive"
+    data-${ns}role="numerictextbox"
+    data-${ns}decimals="#: attributes.decimals #"
+    data-${ns}format="n#: attributes.decimals #"
+    data-${ns}min="#: attributes.min #"
+    data-${ns}max="#: attributes.max #"
+    data-${ns}spinners="false"
+    style="#: attributes.style #" {0}>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enabled="false"`;
 
 /**
  * NumericBoxTool
@@ -46,22 +60,18 @@ const TEMPLATE = `<input type="number" id="#: properties.name #" class="kj-inter
  */
 const NumericBoxTool = BaseTool.extend({
     id: 'numericbox',
-    childSelector: `${CONSTANTS.INPUT}${roleSelector('numerictextbox')}`,
+    // childSelector: `${CONSTANTS.INPUT}${roleSelector('numerictextbox')}`,
+    childSelector: `${CONSTANTS.INPUT}`, // Note there are 2 inputs to resize
     height: 80,
     width: 300,
     weight: 1,
     menu: ['properties.question', 'properties.solution'],
     templates: {
-        design: format(TEMPLATE, ''),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, BINDING),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         decimals: new NumberAdapter(
@@ -119,18 +129,18 @@ const NumericBoxTool = BaseTool.extend({
             title: __('tools.numericbox.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.numericbox.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.numericbox.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.numericbox.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.numericbox.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.numericbox.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.numericbox.properties.omit.title'),
             validation: scoreValidator
         })
     },
@@ -192,13 +202,24 @@ const NumericBoxTool = BaseTool.extend({
             variables,
             assert.format(assert.messages.isPlainObject.default, 'variables')
         );
-        // TODO Manage eval errors in try/catch
-        const value = math.eval(
-            component.get('properties.solution'),
-            variables
-        );
-        const decimals = Math.round(component.get('attributes.decimals') || 0);
-        return math.round(value, decimals);
+        let ret;
+        try {
+            const value = math.evaluate(
+                component.get('properties.solution'),
+                variables
+            );
+            const decimals = Math.round(
+                component.get('attributes.decimals') || 0
+            );
+            ret = math.round(value, decimals);
+        } catch (error) {
+            logger.error({
+                method: 'getSolution',
+                error,
+                data: { component, variables }
+            });
+        }
+        return ret;
     },
 
     /**

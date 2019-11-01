@@ -11,6 +11,7 @@ import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import { PageComponent } from '../data/data.pagecomponent.es6';
+import '../widgets/widgets.table.es6';
 import NumberAdapter from './adapters.number.es6';
 import TableAdapter from './adapters.table.es6';
 import { BaseTool } from './tools.base.es6';
@@ -23,7 +24,12 @@ const { format, ns, roleSelector } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="table" style="#: attributes.style #" data-${ns}columns="#: attributes.columns #" data-${ns}rows="#: attributes.rows #" data-${ns}value="#: JSON.stringify(attributes.data) #"></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="table"
+    data-${ns}columns="#: attributes.columns #"
+    data-${ns}rows="#: attributes.rows #"
+    data-${ns}value="#: JSON.stringify(attributes.data) #"
+    style="#: attributes.style #"></div>`;
 
 /**
  * @class Static table tool
@@ -34,15 +40,16 @@ const TableTool = BaseTool.extend({
     childSelector: `${CONSTANTS.DIV}${roleSelector('table')}`,
     height: 350,
     width: 600,
-    // menu: [],
+    menu: ['attributes.columns', 'attributes.rows', 'attributes.data'],
     templates: {
         default: TEMPLATE
     },
     attributes: {
         columns: new NumberAdapter(
             {
-                title: __('tools.table.attributes.columns.title'),
-                defaultValue: 4
+                defaultValue: 4,
+                help: __('tools.table.attributes.columns.help'),
+                title: __('tools.table.attributes.columns.title')
             },
             {
                 'data-decimals': 0,
@@ -53,8 +60,9 @@ const TableTool = BaseTool.extend({
         ),
         rows: new NumberAdapter(
             {
-                title: __('tools.table.attributes.rows.title'),
-                defaultValue: 6
+                defaultValue: 6,
+                help: __('tools.table.attributes.rows.help'),
+                title: __('tools.table.attributes.rows.title')
             },
             {
                 'data-decimals': 0,
@@ -64,7 +72,6 @@ const TableTool = BaseTool.extend({
             }
         ),
         data: new TableAdapter({
-            title: __('tools.table.attributes.data.title'),
             defaultValue: {
                 sheets: [
                     {
@@ -82,7 +89,9 @@ const TableTool = BaseTool.extend({
                         ]
                     }
                 ]
-            }
+            },
+            help: __('tools.table.attributes.data.help'),
+            title: __('tools.table.attributes.data.title')
         })
     },
 

@@ -19,6 +19,11 @@ import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
 // import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
+import {
+    altValidator,
+    constantValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, ns } = window.kendo;
 
@@ -44,17 +49,19 @@ const ImageTool = BaseTool.extend({
     },
     attributes: {
         alt: new TextBoxAdapter({
-            title: __('tools.image.attributes.alt.title'),
+            defaultValue: __('tools.image.attributes.alt.defaultValue'),
             help: __('tools.image.attributes.alt.help'),
-            defaultValue: __('tools.image.attributes.alt.defaultValue')
+            title: __('tools.image.attributes.alt.title'),
+            validation: altValidator
         }),
         src: new AssetAdapter({
-            title: __('tools.image.attributes.src.title'),
+            defaultValue: __('tools.image.attributes.src.defaultValue'),
             help: __('tools.image.attributes.src.help'),
-            defaultValue: __('tools.image.attributes.src.defaultValue')
+            title: __('tools.image.attributes.src.title')
         }),
         style: new StyleAdapter({
-            title: __('tools.image.attributes.style.title')
+            title: __('tools.image.attributes.style.title'),
+            validation: styleValidator
         })
     },
     properties: {
@@ -69,7 +76,8 @@ const ImageTool = BaseTool.extend({
             }
         ),
         constant: new TextBoxAdapter({
-            title: __('tools.image.properties.constant.title')
+            title: __('tools.image.properties.constant.title'),
+            validation: constantValidator
         })
     },
 
@@ -140,44 +148,16 @@ const ImageTool = BaseTool.extend({
         const stageElement = $(e.currentTarget);
         const content = stageElement.children(CONSTANTS.IMG);
         // Assuming we can get the natural size of the image, we shall keep proportions
-        // TODO Cannot get naturalHeight for SVG inages
         const { naturalHeight, naturalWidth } = content[0];
         if (naturalHeight && naturalWidth) {
             const height = component.get('height');
             const width = component.get('width');
-            const rectLimitedByHeight = {
-                height,
-                width: (height * naturalWidth) / naturalHeight
-            };
-            /*
-             // Note: comparing rectLimitedByHeight and rectLimitedByWidth does not work because
-             // we are using the component size and not the mouse position
-             // therefore, we can only reduce the size proportionaly, not increase it
-             var rectLimitedByWidth = {
-                height: Math.round(width * naturalHeight / naturalWidth),
-                width: Math.round(width)
-             };
-             // if (rectLimitedByHeight.height * rectLimitedByHeight.width <= rectLimitedByWidth.height * rectLimitedByWidth.width) {
-             if (rectLimitedByHeight.width <= width) {
-             */
-            if (height !== rectLimitedByHeight.height) {
-                // avoids a stack overflow
-                component.set('height', rectLimitedByHeight.height);
+            // Keep the height, change the width
+            const w = (height * naturalWidth) / naturalHeight;
+            if (width !== w) {
+                // `if` avoids a stack overflow
+                component.set('width', w);
             }
-            if (width !== rectLimitedByHeight.width) {
-                // avoids a stack overflow
-                component.set('width', rectLimitedByHeight.width);
-            }
-            /*
-             } else if(rectLimitedByWidth.height <= height) {
-             if (height !== rectLimitedByWidth.height) {
-             component.set('height', rectLimitedByWidth.height);
-             }
-             if (width !== rectLimitedByWidth.width) {
-             component.set('width', rectLimitedByWidth.width);
-             }
-             }
-             */
         }
         BaseTool.fn.onResize.call(this, e, component);
     },

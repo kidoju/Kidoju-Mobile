@@ -35,10 +35,10 @@ const logger = new Logger('widgets.dropzone');
 const NS = '.kendoDropZone';
 const WIDGET_CLASS = 'kj-dropzone'; // 'k-widget kj-dropzone';
 
-const MOUSEDOWN = `mousedown${NS} ` + `touchstart${NS}`;
-const MOUSEMOVE = `mousemove${NS} ` + `touchmove${NS}`;
-const MOUSELEAVE = `mouseleave${NS} ` + `touchleave${NS}`;
-const MOUSEUP = `mouseup${NS} ` + `touchend${NS}`;
+const MOUSEDOWN = `mousedown${NS} touchstart${NS}`;
+const MOUSEMOVE = `mousemove${NS} touchmove${NS}`;
+const MOUSELEAVE = `mouseleave${NS} touchleave${NS}`;
+const MOUSEUP = `mouseup${NS} touchend${NS}`;
 const ROLE_SELECTOR = 'dropzone';
 const DATA_TYPE = 'draggable';
 
@@ -60,7 +60,10 @@ const DropZoneEvents = Class.extend({
     init(options) {
         assert.isNonEmptyPlainObject(
             options,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
         );
         assert(
             CONSTANTS.STRING,
@@ -141,7 +144,7 @@ const DropZoneEvents = Class.extend({
                 : $(document.body);
         const dropZones = container.find(roleSelector(ROLE_SELECTOR));
         container.find(this._draggable).css('cursor', '');
-        for (let i = 0, length = dropZones.length; i < length; i++) {
+        for (let i = 0, { length } = dropZones; i < length; i++) {
             const dropZone = $(dropZones[i]);
             const dropZoneWidget = dropZone.data('kendoDropZone');
             if (dropZoneWidget instanceof DropZone && dropZoneWidget._enabled) {
@@ -282,10 +285,10 @@ const DropZoneEvents = Class.extend({
             e.data.stageElement instanceof $
         ) {
             e.preventDefault();
-            const stageElement = e.data.stageElement;
+            const { stageElement } = e.data;
             const container = stageElement.closest(this._container);
-            const initial = e.data.initial;
-            const mousedown = e.data.mousedown;
+            const { initial } = e.data;
+            const { mousedown } = e.data;
             const mouse = this._getStagePoint(e);
             let left = snap(initial.left + mouse.x - mousedown.x, 0);
             let top = snap(initial.top + mouse.y - mousedown.y, 0);
@@ -366,7 +369,10 @@ const DropZoneEvents = Class.extend({
         );
         assert.isNonEmptyPlainObject(
             position,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'position')
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'position'
+            )
         );
         assert.type(
             CONSTANTS.NUMBER,
@@ -414,7 +420,7 @@ const DropZoneEvents = Class.extend({
                 dropZoneWidget instanceof DropZone &&
                 dropZoneWidget.dataSource instanceof DataSource
             ) {
-                const dataSource = dropZoneWidget.dataSource;
+                const { dataSource } = dropZoneWidget;
                 const dataItem = dataSource.get(id);
                 // Center hits if option is set
                 if (
@@ -561,7 +567,7 @@ var DropZone = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         options = options || {};
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
@@ -844,4 +850,7 @@ var DropZone = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(DropZone);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'DropZone')) {
+    // Prevents loading several times in karma
+    plugin(DropZone);
+}

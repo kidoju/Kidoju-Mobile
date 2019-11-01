@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
+import 'kendo.dataviz.chart';
 import __ from '../app/app.i18n.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -18,6 +19,7 @@ import StyleAdapter from './adapters.style.es6';
 import TextBoxAdapter from './adapters.textbox.es6';
 import { BaseTool } from './tools.base.es6';
 import { defaultChartData } from './util.miscellaneous.es6';
+import { styleValidator } from './util.validators.es6';
 
 const { ns, roleSelector } = window.kendo;
 
@@ -25,7 +27,17 @@ const { ns, roleSelector } = window.kendo;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="chart" data-${ns}chart-area="#: chartArea$() #" data-${ns}series-defaults="#: seriesDefaults$() #" data-${ns}title="#: title$() #" data-${ns}legend="#: legend$() #" data-${ns}series="#: series$() #" data-${ns}category-axis="#: categoryAxis$() #" data-${ns}value-axis="#: valueAxis$() #" style="#: attributes.style #"></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="chart"
+    data-${ns}chart-area="#: chartArea$() #"
+    data-${ns}series-defaults="#: seriesDefaults$() #"
+    data-${ns}title="#: title$() #"
+    data-${ns}legend="#: legend$() #"
+    data-${ns}series="#: series$() #"
+    data-${ns}category-axis="#: categoryAxis$() #"
+    data-${ns}value-axis="#: valueAxis$() #"
+    style="#: attributes.style #">
+    </div>`;
 
 /**
  * ChartTool
@@ -36,29 +48,17 @@ const ChartTool = BaseTool.extend({
     childSelector: `${CONSTANTS.DIV}${roleSelector('chart')}`,
     height: 400,
     width: 400,
-    // MENU: [],
+    menu: ['attributes.type', 'attributes.data'],
     templates: {
         default: TEMPLATE
     },
     attributes: {
         type: new DropDownListAdapter(
             {
-                title: __('tools.chart.attributes.type.title'),
                 defaultValue: 'column',
-                enum: [
-                    'area',
-                    'bar',
-                    'column',
-                    'line',
-                    'radarArea',
-                    'radarColumn',
-                    'radarLine',
-                    'smoothLine',
-                    'stackBar',
-                    'waterfall',
-                    'verticalArea',
-                    'verticalLine'
-                ]
+                help: __('tools.chart.attributes.type.help'),
+                source: __('tools.chart.attributes.type.source'),
+                title: __('tools.chart.attributes.type.title')
             },
             { style: 'width: 100%;' }
         ),
@@ -91,18 +91,20 @@ const ChartTool = BaseTool.extend({
         ),
         legend: new DropDownListAdapter(
             {
-                title: __('tools.chart.attributes.legend.title'),
                 defaultValue: 'none',
-                enum: ['none', 'top', 'bottom', 'left', 'right']
+                source: __('tools.chart.attributes.legend.source'),
+                title: __('tools.chart.attributes.legend.title')
             },
             { style: 'width: 100%;' }
         ),
         data: new ChartAdapter({
-            title: __('tools.chart.attributes.data.title'),
-            defaultValue: defaultChartData(4, 2)
+            defaultValue: defaultChartData(4, 2),
+            help: __('tools.chart.attributes.data.help'),
+            title: __('tools.chart.attributes.data.title')
         }),
         style: new StyleAdapter({
-            title: __('tools.chart.attributes.style.title')
+            title: __('tools.chart.attributes.style.title'),
+            validation: styleValidator
         })
     },
 

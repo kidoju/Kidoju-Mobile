@@ -26,7 +26,11 @@ import { BaseTool } from './tools.base.es6';
 import ToolAssets from './util.assets.es6';
 import TOOLS from './util.constants.es6';
 import { multiQuizLibrary } from './util.libraries.es6';
-import { scoreValidator } from './util.validators.es6';
+import {
+    questionValidator,
+    scoreValidator,
+    styleValidator
+} from './util.validators.es6';
 
 const { format, htmlEncode, ns, roleSelector } = window.kendo;
 const ScoreAdapter = NumberAdapter;
@@ -35,7 +39,17 @@ const ScoreAdapter = NumberAdapter;
  * Template
  * @type {string}
  */
-const TEMPLATE = `<div data-${ns}role="multiquiz" data-${ns}mode="#: attributes.mode #" data-${ns}source="#: data$() #" style="#: attributes.groupStyle #" data-${ns}item-style="#: attributes.itemStyle #" data-${ns}selected-style="#: attributes.selectedStyle #" {0}></div>`;
+const TEMPLATE = `<div
+    data-${ns}role="multiquiz"
+    data-${ns}mode="#: attributes.mode #"
+    data-${ns}source="#: data$() #"
+    data-${ns}item-style="#: attributes.itemStyle #"
+    data-${ns}selected-style="#: attributes.selectedStyle #"
+    style="#: attributes.groupStyle #" {0}>
+    </div>`;
+const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enable="false"`;
+const SHUFFLE = `data-${ns}shuffle="#: attributes.shuffle #"`;
 
 /**
  * MultiQuizTool tool
@@ -56,16 +70,11 @@ const MultiQuizTool = BaseTool.extend({
     weight: 1,
     width: 420,
     templates: {
-        design: format(TEMPLATE, `data-${ns}enable="false"`),
-        play: format(
-            TEMPLATE,
-            `data-${ns}bind="value: #: properties.name #.value" data-${ns}shuffle="#: attributes.shuffle #"`
-        ),
+        design: format(TEMPLATE, DISABLED),
+        play: format(TEMPLATE, `${BINDING} ${SHUFFLE}`),
         review:
-            format(
-                TEMPLATE,
-                `data-${ns}bind="value: #: properties.name #.value" data-${ns}enable="false"`
-            ) + BaseTool.fn.getHtmlCheckMarks()
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         mode: new DropDownListAdapter(
@@ -81,13 +90,15 @@ const MultiQuizTool = BaseTool.extend({
         }),
         groupStyle: new StyleAdapter({
             title: __('tools.multiquiz.attributes.groupStyle.title'),
-            defaultValue: 'font-size:60px;'
+            validation: styleValidator
         }),
         itemStyle: new StyleAdapter({
-            title: __('tools.multiquiz.attributes.itemStyle.title')
+            title: __('tools.multiquiz.attributes.itemStyle.title'),
+            validation: styleValidator
         }),
         selectedStyle: new StyleAdapter({
-            title: __('tools.multiquiz.attributes.selectedStyle.title')
+            title: __('tools.multiquiz.attributes.selectedStyle.title'),
+            validation: styleValidator
         }),
         data: new ImageListAdapter({
             title: __('tools.multiquiz.attributes.data.title'),
@@ -99,11 +110,14 @@ const MultiQuizTool = BaseTool.extend({
             title: __('tools.multiquiz.properties.name.title')
         }),
         question: new QuestionAdapter({
-            title: __('tools.multiquiz.properties.question.title')
+            help: __('tools.multiquiz.properties.question.help'),
+            title: __('tools.multiquiz.properties.question.title'),
+            validation: questionValidator
         }),
         solution: new MultiQuizAdapter({
-            title: __('tools.multiquiz.properties.solution.title'),
-            defaultValue: []
+            defaultValue: [],
+            help: __('tools.multiquiz.properties.solution.help'),
+            title: __('tools.multiquiz.properties.solution.title')
         }),
         validation: new ValidationAdapter({
             defaultValue: `${TOOLS.LIB_COMMENT}${multiQuizLibrary.defaultKey}`,
@@ -111,18 +125,18 @@ const MultiQuizTool = BaseTool.extend({
             title: __('tools.multiquiz.properties.validation.title')
         }),
         success: new ScoreAdapter({
-            title: __('tools.multiquiz.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.multiquiz.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.multiquiz.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.multiquiz.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.multiquiz.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.multiquiz.properties.omit.title'),
             validation: scoreValidator
         })
     },

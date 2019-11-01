@@ -74,7 +74,7 @@ const MultiInput = Widget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         Widget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._render();
@@ -321,9 +321,9 @@ const MultiInput = Widget.extend({
             wrapper
                 .removeClass(`${CONSTANTS.DISABLED_CLASS} kj-readonly`)
                 .on(
-                    `${CONSTANTS.MOUSEENTER}${NS} ${`${
-                        CONSTANTS.MOUSELEAVE
-                    }${NS}`}`,
+                    `${
+                        CONSTANTS.MOUSEENTER
+                    }${NS} ${`${CONSTANTS.MOUSELEAVE}${NS}`}`,
                     this._toggleHover.bind(this)
                 )
                 .on(
@@ -557,8 +557,9 @@ const MultiInput = Widget.extend({
             if (isMatch) {
                 const value = this.value();
                 value.push(tag);
-                this._addTagElements(tag);
+                // this._addTagElements(tag);
                 input.val('');
+                this.value(value);
                 this.trigger(CONSTANTS.CHANGE, { value });
             }
         }
@@ -610,4 +611,7 @@ const MultiInput = Widget.extend({
 /**
  * Registration
  */
-plugin(MultiInput);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MultiInput')) {
+    // Prevents loading several times in karma
+    plugin(MultiInput);
+}

@@ -107,7 +107,7 @@ const PlayBar = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         // TODO: review how index is set - probably use this.value()
@@ -183,6 +183,7 @@ const PlayBar = DataBoundWidget.extend({
      */
     index(index) {
         const that = this;
+        let ret;
         if (index !== undefined) {
             if ($.type(index) !== CONSTANTS.NUMBER || index % 1 !== 0) {
                 throw new TypeError();
@@ -201,8 +202,9 @@ const PlayBar = DataBoundWidget.extend({
                 }
             }
         } else {
-            return that._selectedIndex;
+            ret = that._selectedIndex;
         }
+        return ret;
     },
 
     /**
@@ -212,30 +214,31 @@ const PlayBar = DataBoundWidget.extend({
      * @returns {*}
      */
     id(id) {
-        const that = this;
         let page;
-        if (id !== undefined) {
+        let ret;
+        if ($.type(id) !== CONSTANTS.UNDEFINED) {
             if (
                 $.type(id) !== CONSTANTS.STRING &&
                 $.type(id) !== CONSTANTS.NUMBER
             ) {
                 throw new TypeError();
             }
-            page = that.dataSource.get(id);
+            page = this.dataSource.get(id);
             if (page !== undefined) {
-                const index = that.dataSource.indexOf(page);
+                const index = this.dataSource.indexOf(page);
                 if (index >= 0) {
                     // index = -1 if not found
-                    that.index(index);
+                    this.index(index);
                 }
                 // if page not found, we do nothing
             }
         } else {
-            page = that.dataSource.at(that._selectedIndex);
+            page = this.dataSource.at(this._selectedIndex);
             if (page instanceof Page) {
-                return page[page.idField];
+                ret = page[page.idField];
             }
         }
+        return ret;
     },
 
     /**
@@ -245,20 +248,21 @@ const PlayBar = DataBoundWidget.extend({
      * @returns {*}
      */
     value(page) {
-        const that = this;
+        let ret;
         if (page === null) {
             $.noop(); // TODO
         } else if (page !== undefined) {
             if (!(page instanceof Page)) {
                 throw new TypeError();
             }
-            const index = that.dataSource.indexOf(page);
+            const index = this.dataSource.indexOf(page);
             if (index > -1) {
-                that.index(index);
+                this.index(index);
             }
         } else {
-            return that.dataSource.at(that._selectedIndex); // This returns undefined if not found
+            ret = this.dataSource.at(this._selectedIndex); // This returns undefined if not found
         }
+        return ret;
     },
 
     /**
@@ -435,11 +439,7 @@ const PlayBar = DataBoundWidget.extend({
         if (options.refresh) {
             if (!element.find('.k-pager-refresh').length) {
                 element.append(
-                    `<a href="#" class="k-pager-refresh k-link" aria-label="${
-                        options.messages.refresh
-                    }" title="${
-                        options.messages.refresh
-                    }"><span class="k-icon k-i-refresh"></span></a>`
+                    `<a href="#" class="k-pager-refresh k-link" aria-label="${options.messages.refresh}" title="${options.messages.refresh}"><span class="k-icon k-i-refresh"></span></a>`
                 );
             }
             element.on(
@@ -469,45 +469,50 @@ const PlayBar = DataBoundWidget.extend({
 
     _initTooltip() {
         const that = this;
-        this.tooltip = this.ul
-            .kendoTooltip({
-                filter: 'span.k-state-selected, a[data-index]',
-                width: 256, // 1024 * 0.25
-                height: 192, // 768 * 0.25
-                position: 'bottom',
-                content(e) {
-                    const { target } = e;
-                    const index =
-                        target.attr(attr('index')) ||
-                        parseInt(target.text(), 10) - 1;
-                    return $(`<${CONSTANTS.DIV}/>`).attr(attr('index'), index);
-                },
-                show(e) {
-                    e.sender.content.css({ padding: 0 });
-                    const element = e.sender.content
-                        .children(CONSTANTS.DIV)
-                        .first();
-                    const index = parseInt(element.attr(attr('index')), 10);
-                    const page = that.dataSource.at(index);
-                    element.kendoStage({
-                        dataSource: page.components,
-                        enabled: false,
-                        mode: 'play',
-                        scale: 0.25,
-                        style: page.style
-                    });
-                },
-                hide(e) {
-                    destroy(e.sender.content);
-                },
-                animation: {
-                    open: {
-                        effects: 'zoom',
-                        duration: 150
+        if (this.ul instanceof $) {
+            this.tooltip = this.ul
+                .kendoTooltip({
+                    filter: 'span.k-state-selected, a[data-index]',
+                    width: 256, // 1024 * 0.25
+                    height: 192, // 768 * 0.25
+                    position: 'bottom',
+                    content(e) {
+                        const { target } = e;
+                        const index =
+                            target.attr(attr('index')) ||
+                            parseInt(target.text(), 10) - 1;
+                        return $(`<${CONSTANTS.DIV}/>`).attr(
+                            attr('index'),
+                            index
+                        );
+                    },
+                    show(e) {
+                        e.sender.content.css({ padding: 0 });
+                        const element = e.sender.content
+                            .children(CONSTANTS.DIV)
+                            .first();
+                        const index = parseInt(element.attr(attr('index')), 10);
+                        const page = that.dataSource.at(index);
+                        element.kendoStage({
+                            dataSource: page.components,
+                            enabled: false,
+                            mode: 'play',
+                            scale: 0.25,
+                            style: page.style
+                        });
+                    },
+                    hide(e) {
+                        destroy(e.sender.content);
+                    },
+                    animation: {
+                        open: {
+                            effects: 'zoom',
+                            duration: 150
+                        }
                     }
-                }
-            })
-            .data('kendoTooltip');
+                })
+                .data('kendoTooltip');
+        }
     },
 
     /**
@@ -709,4 +714,7 @@ const PlayBar = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(PlayBar);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'PlayBar')) {
+    // Prevents loading several times in karma
+    plugin(PlayBar);
+}

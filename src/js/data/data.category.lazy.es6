@@ -156,9 +156,10 @@ const LazyCategory = BaseModel.define({
                 if (item) {
                     ret.unshift(item);
                 }
-                id = item && $.isFunction(item.parentId$)
-                    ? item.parentId$()
-                    : undefined;
+                id =
+                    item && $.isFunction(item.parentId$)
+                        ? item.parentId$()
+                        : undefined;
             }
         }
         return ret;
@@ -301,10 +302,7 @@ const LazyRummage = Node.define({
                                 {
                                     field: 'categoryId',
                                     operator: 'lte',
-                                    value: this.get('id').replace(
-                                        RX_O4,
-                                        F4
-                                    )
+                                    value: this.get('id').replace(RX_O4, F4)
                                 }
                             ]
                         }
@@ -338,7 +336,7 @@ const LazyRummage = Node.define({
             item.parent() instanceof ObservableArray &&
             $.isFunction(item.parent().parent) &&
             item.parent().parent() instanceof LazyRummage
-            ) {
+        ) {
             item = item.parent().parent();
             ret.unshift(item);
         }

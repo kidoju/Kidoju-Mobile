@@ -28,6 +28,7 @@ import {
     questionValidator,
     scoreValidator,
     solutionValidator,
+    styleValidator,
     validationValidator
 } from './util.validators.es6';
 
@@ -52,6 +53,7 @@ const TEMPLATE = `<input
     data-${ns}prompt-char="\u25CA"
     style="#: attributes.style #" {0}>`;
 const BINDING = `data-${ns}bind="value: #: properties.name #.value"`;
+const DISABLED = `data-${ns}enabled="false"`;
 
 /**
  * @class TextBoxTool tool
@@ -65,16 +67,19 @@ const TextBoxTool = BaseTool.extend({
     weight: 1,
     width: 300,
     templates: {
-        design: format(TEMPLATE, ''),
+        design: format(TEMPLATE, DISABLED),
         play: format(TEMPLATE, BINDING),
-        review: format(TEMPLATE, BINDING) + BaseTool.fn.getHtmlCheckMarks()
+        review:
+            format(TEMPLATE, `${BINDING} ${DISABLED}`) +
+            BaseTool.fn.getHtmlCheckMarks()
     },
     attributes: {
         mask: new TextBoxAdapter({
             title: __('tools.textbox.attributes.mask.title')
         }),
         style: new StyleAdapter({
-            title: __('tools.textbox.attributes.style.title')
+            title: __('tools.textbox.attributes.style.title'),
+            validation: styleValidator
         })
     },
     properties: {
@@ -98,18 +103,18 @@ const TextBoxTool = BaseTool.extend({
             validation: validationValidator
         }),
         success: new ScoreAdapter({
-            title: __('tools.textbox.properties.success.title'),
             defaultValue: 1,
+            title: __('tools.textbox.properties.success.title'),
             validation: scoreValidator
         }),
         failure: new ScoreAdapter({
-            title: __('tools.textbox.properties.failure.title'),
             defaultValue: 0,
+            title: __('tools.textbox.properties.failure.title'),
             validation: scoreValidator
         }),
         omit: new ScoreAdapter({
-            title: __('tools.textbox.properties.omit.title'),
             defaultValue: 0,
+            title: __('tools.textbox.properties.omit.title'),
             validation: scoreValidator
         })
     },

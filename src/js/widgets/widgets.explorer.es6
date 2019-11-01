@@ -56,7 +56,7 @@ const Explorer = DataBoundWidget.extend({
      * @param element
      * @param options
      */
-    init(element, options) {
+    init(element, options = {}) {
         DataBoundWidget.fn.init.call(this, element, options);
         logger.debug({ method: 'init', message: 'widget initialized' });
         this._templates();
@@ -571,14 +571,18 @@ const Explorer = DataBoundWidget.extend({
             $.each(components, (index, component) => {
                 that._addItem(component);
             });
-        } else if (e.action === 'add' && $.isArray(e.items) && e.items.length) {
+        } else if (
+            e.action === 'add' &&
+            Array.isArray(e.items) &&
+            e.items.length
+        ) {
             $.each(e.items, (index, component) => {
                 selectedIndex = that.dataSource.indexOf(component);
                 that._addItem(component, selectedIndex);
             });
         } else if (
             e.action === 'remove' &&
-            $.isArray(e.items) &&
+            Array.isArray(e.items) &&
             e.items.length
         ) {
             $.each(e.items, (index, page) => {
@@ -675,4 +679,7 @@ const Explorer = DataBoundWidget.extend({
 /**
  * Registration
  */
-plugin(Explorer);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'Explorer')) {
+    // Prevents loading several times in karma
+    plugin(Explorer);
+}

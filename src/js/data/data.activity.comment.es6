@@ -196,11 +196,7 @@ const CommentDataSource = DataSource.extend({
             };
             options.data.sort = [{ field: 'id', dir: 'desc' }];
             rapi.v1.content
-                .findSummaryActivities(
-                    __.locale,
-                    that.summaryId,
-                    options.data
-                )
+                .findSummaryActivities(__.locale, that.summaryId, options.data)
                 .then(response => {
                     options.success(response);
                 })

@@ -31,42 +31,27 @@ const StyleAdapter = BaseAdapter.extend({
      * @param attributes
      */
     init(options, attributes) {
-        const that = this;
-        BaseAdapter.fn.init.call(that, options);
-        that.type = CONSTANTS.STRING;
-        that.defaultValue = that.defaultValue || (that.nullable ? null : '');
+        BaseAdapter.fn.init.call(this, options);
+        this.type = CONSTANTS.STRING;
+        this.defaultValue = this.defaultValue || (this.nullable ? null : '');
         // This is the inline editor with a [...] button which triggers this.showDialog
-        that.editor = (container, settings) => {
-            // We need a wrapper because container has { display: table-cell; }
-            const wrapper = $(`<${CONSTANTS.DIV}/>`)
-                .css({ display: 'flex', alignItems: 'center' })
-                .appendTo(container);
+        this.editor = (container, settings) => {
             $(`<${CONSTANTS.INPUT}>`)
-                .addClass('k-textbox')
-                .css({
-                    flex: 'auto',
-                    width: '100%' // 'auto' seems to imply a min-width
-                })
+                .css({ width: '100%' }) // 'auto' seems to imply a min-width
                 .prop({ readonly: true })
                 .attr(
                     $.extend(
                         true,
-                        {},
+                        { name: settings.name },
                         settings.attributes,
                         getValueBinding(settings.field),
                         attributes
                     )
                 )
-                .appendTo(wrapper);
-            $(`<${CONSTANTS.BUTTON}/>`)
-                .text(CONSTANTS.ELLIPSIS)
-                .addClass('k-button')
-                .css({
-                    flex: 'none',
-                    marginRight: 0
-                })
-                .appendTo(wrapper)
-                .on(CONSTANTS.CLICK, that.showDialog.bind(that, settings));
+                .appendTo(container)
+                .kendoButtonBox({
+                    click: this.showDialog.bind(this, settings)
+                });
         };
     },
 

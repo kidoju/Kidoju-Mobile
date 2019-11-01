@@ -249,7 +249,7 @@ const MarkEditor = Widget.extend({
         // assert.type(CONSTANTS.STRING, name, assert.format(assert.messages.type.default, 'name', CONSTANTS.STRING));
         // assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
         const dialog = markeditor.dialogs.create(name, options);
-        if (!$.isArray(this._dialogs)) {
+        if (!Array.isArray(this._dialogs)) {
             this._dialogs = [];
         }
         if (dialog) {
@@ -512,4 +512,7 @@ const MarkEditor = Widget.extend({
 /**
  * Registration
  */
-plugin(MarkEditor);
+if (!Object.prototype.hasOwnProperty.call(window.kendo.ui, 'MarkEditor')) {
+    // Prevents loading several times in karma
+    plugin(MarkEditor);
+}

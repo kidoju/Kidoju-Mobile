@@ -57,17 +57,10 @@ const LazyVersion = BaseModel.define({
         // userId
     },
     playerUri$() {
-        return playerUri(
-            __.locale,
-            this.get('summaryId'),
-            this.get('id')
-        );
+        return playerUri(__.locale, this.get('summaryId'), this.get('id'));
     },
     editorUri$() {
-        return editorUri(
-            __.locale,
-            this.get('summaryId')
-        );
+        return editorUri(__.locale, this.get('summaryId'));
     },
     iframe$() {
         // TODO consider the sandbox attribute -- see http://www.html5rocks.com/en/tutorials/security/sandboxed-iframes/
