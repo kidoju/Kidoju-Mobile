@@ -3,40 +3,50 @@
  * Sources at https://github.com/Memba
  */
 
+// TODO use https://github.com/garysieling/jquery-highlighttextarea or https://markjs.io/
+// TODO use https://github.com/davisjam/safe-regex/releases
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-
-const { kendo } = window;
+import { getValueBinding } from '../data/data.util.es6';
+// import '../experiments/widgets.regex.es6';
 
 /**
- * template
+ * regex
  * @param container
  * @param options
- * @private
  */
-function template(container, options) {
+function regex(container, options) {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     assert.type(
         CONSTANTS.STRING,
-        options.template,
+        options.field,
         assert.format(
             assert.messages.type.default,
-            'options.template',
+            'options.field',
             CONSTANTS.STRING
         )
     );
-    const tmpl = kendo.template(options.template);
-    return $(tmpl(options)).appendTo(container);
+    const attributes = {
+        ...options.attributes,
+        ...getValueBinding(options.field)
+    };
+    attributes.class = attributes.class || 'k-textbox';
+    return $(`<${CONSTANTS.INPUT}/>`)
+        .attr(attributes)
+        .attr({ name: options.field })
+        .css({ width: '100%' })
+        .appendTo(container);
 }
 
 /**
  * Default export
  */
-export default template;
+export default regex;

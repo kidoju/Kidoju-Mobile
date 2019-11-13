@@ -33,16 +33,20 @@ function select(container, options) {
             CONSTANTS.STRING
         )
     );
-    const attributes = $.extend({}, options.attributes);
+    const attributes = {
+        ...options.attributes,
+        ...getValueBinding(options.field)
+    };
     if ($.type(attributes[attr('role')]) === CONSTANTS.UNDEFINED) {
         attributes[attr('role')] = 'dropdownlist';
     }
     if (options.source) {
         attributes[attr('source')] = JSON.stringify(options.source || {});
     }
-    $('<select style="width: 100%;"/>')
-        .attr('name', options.field)
-        .attr($.extend(attributes, getValueBinding(options.field)))
+    return $(`<${CONSTANTS.SELECT}/>`)
+        .attr(attributes)
+        .attr({ name: options.field })
+        .css({ width: '100%' })
         .appendTo(container);
 }
 

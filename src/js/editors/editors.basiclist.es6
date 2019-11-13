@@ -9,34 +9,47 @@ import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import { getValueBinding } from '../data/data.util.es6';
+import '../widgets/widgets.basiclist.es6';
 
-const { kendo } = window;
+const { attr } = window.kendo;
 
 /**
- * template
+ * basiclist
  * @param container
  * @param options
- * @private
  */
-function template(container, options) {
+function basiclist(container, options) {
     assert.isNonEmptyPlainObject(
         options,
         assert.format(assert.messages.isNonEmptyPlainObject.default, 'options')
     );
     assert.type(
         CONSTANTS.STRING,
-        options.template,
+        options.field,
         assert.format(
             assert.messages.type.default,
-            'options.template',
+            'options.field',
             CONSTANTS.STRING
         )
     );
-    const tmpl = kendo.template(options.template);
-    return $(tmpl(options)).appendTo(container);
+    const attributes = getValueBinding(options.field);
+    attributes[attr('role')] = 'basiclist';
+    attributes[attr('type')] = options.type;
+    if (
+        $.isPlainObject(options.attributes) &&
+        !$.isEmptyObject(options.attributes)
+    ) {
+        attributes[attr('attributes')] = JSON.stringify(options.attributes);
+    }
+    return $(`<${CONSTANTS.DIV}/>`)
+        .attr('name', options.field)
+        .attr(attributes)
+        .css({ width: '100%' })
+        .appendTo(container);
 }
 
 /**
  * Default export
  */
-export default template;
+export default basiclist;

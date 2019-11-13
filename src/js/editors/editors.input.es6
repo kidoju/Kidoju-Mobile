@@ -32,27 +32,25 @@ function input(container, options) {
             CONSTANTS.STRING
         )
     );
-    const attributes = $.extend({}, options.attributes);
+    const attributes = {
+        ...options.attributes,
+        ...getValueBinding(options.field)
+    };
     if ($.type(attributes[attr('role')]) === CONSTANTS.UNDEFINED) {
         if (
             [undefined, 'text', 'email', 'search', 'tel', 'url'].indexOf(
                 attributes.type
             ) > -1
         ) {
-            attributes.class =
-                $.type(attributes.class) === CONSTANTS.STRING
-                    ? attributes.class
-                    : 'k-textbox';
+            attributes.class = attributes.class || 'k-textbox';
         } else if (['button', 'reset'].indexOf(attributes.type) > -1) {
-            attributes.class =
-                $.type(attributes.class) === CONSTANTS.STRING
-                    ? attributes.class
-                    : 'k-button';
+            attributes.class = attributes.class || 'k-button';
         }
     }
-    $('<input style="width: 100%;"/>')
-        .attr('name', options.field)
-        .attr($.extend(attributes, getValueBinding(options.field)))
+    return $(`<${CONSTANTS.INPUT}/>`)
+        .attr(attributes)
+        .attr({ name: options.field })
+        .css({ width: '100%' })
         .appendTo(container);
 }
 
