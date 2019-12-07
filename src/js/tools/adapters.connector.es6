@@ -10,7 +10,7 @@ import 'kendo.core';
 import 'kendo.combobox';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import { Page } from '../data/data.page.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import BaseAdapter from './adapters.base.es6';
@@ -38,15 +38,15 @@ const ConnectorAdapter = BaseAdapter.extend({
         this.editor = (container, settings) => {
             const input = $(`<${CONSTANTS.INPUT}>`)
                 .css({ width: '100%' })
-                .attr(
-                    $.extend(
-                        true,
-                        { name: settings.field },
-                        settings.attributes,
-                        getValueBinding(settings.field),
-                        attributes
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container);
             input.kendoComboBox({
                 autoWidth: true,
@@ -59,7 +59,9 @@ const ConnectorAdapter = BaseAdapter.extend({
                     const solutions = [];
                     // find the design (mode) stage, avoiding navigation
                     const stage = $(
-                        `[${attr('role')}="stage"][${attr('mode')}="design"]`
+                        `[${attr(CONSTANTS.ROLE)}="stage"][${attr(
+                            'mode'
+                        )}="design"]`
                     );
                     // find the handle box and the selected uid which should be a connector
                     const handleBox = stage.parent().children('.kj-handle-box');

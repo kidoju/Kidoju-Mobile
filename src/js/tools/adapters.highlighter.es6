@@ -10,7 +10,7 @@
 import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 
 // const { attr, format } = window.kendo;
@@ -40,16 +40,15 @@ const HighLighterAdapter = BaseAdapter.extend({
                     fontSize: '1em',
                     minHeight: '4.6em'
                 })
-                // .attr($.extend(binding, attributes))
-                .attr(
-                    $.extend(
-                        true,
-                        {}, // { settings.field }
-                        settings.attributes,
-                        getValueBinding(settings.field),
-                        attributes
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container);
             highLighter.kendoHighLighter({
                 text: settings.model.get('attributes.text'),

@@ -10,7 +10,7 @@ import 'kendo.core';
 import assets from '../app/app.assets.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import { PageComponent } from '../data/data.pagecomponent.es6';
 import openAssetManager from '../dialogs/dialogs.assetmanager.es6';
 import '../dialogs/widgets.basedialog.es6';
@@ -43,15 +43,15 @@ const AssetAdapter = BaseAdapter.extend({
             $(`<${CONSTANTS.INPUT}>`)
                 .css({ width: '100%' }) // 'auto' seems to imply a min-width
                 .prop({ readonly: true })
-                .attr(
-                    $.extend(
-                        true,
-                        { name: settings.field },
-                        settings.attributes,
-                        getValueBinding(settings.field),
-                        attributes
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container)
                 .kendoButtonBox({
                     click: this.showDialog.bind(this, settings)

@@ -9,7 +9,7 @@ import $ from 'jquery';
 import 'kendo.core';
 import CONSTANTS from '../common/window.constants.es6';
 import { ImageDataSource } from '../data/data.image.es6';
-import { getValueBinding } from '../data/data.util.es6';
+import { getAttributeBinding } from '../data/data.util.es6';
 import BaseAdapter from './adapters.base.es6';
 import '../widgets/widgets.multiquiz.es6';
 
@@ -35,15 +35,15 @@ const MultiQuizAdapter = BaseAdapter.extend({
         // this.attributes = $.extend({}, this.attributes, { type: 'text', style: 'width: 100%;' });
         this.editor = (container, settings) => {
             const input = $(`<${CONSTANTS.DIV}/>`)
-                .attr(
-                    $.extend(
-                        true,
-                        {}, // { name: settings.field }
-                        settings.attributes,
-                        getValueBinding(settings.field),
-                        attributes
-                    )
-                )
+                .attr({
+                    name: settings.field,
+                    ...settings.attributes,
+                    ...getAttributeBinding(
+                        CONSTANTS.BIND,
+                        `value: ${settings.field}`
+                    ),
+                    ...attributes
+                })
                 .appendTo(container);
             input.kendoMultiQuiz({
                 mode: 'checkbox',

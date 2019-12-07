@@ -14,6 +14,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import {
     getLibraryItemKey,
+    getParams,
     isCustomFormula,
     parseLibraryItem,
     stringifyLibraryItem
@@ -67,15 +68,18 @@ const CodeInput = DataBoundWidget.extend({
         autoBind: true,
         enabled: true,
         dataSource: [],
-        custom: 'custom', // key versus name??
-        value: null
+        custom: 'custom', // key
+        value: null,
+        messages: {
+            custom: 'Custom' // name
+        }
     },
 
     /**
      * Events
      * @property events
      */
-    events: [CONSTANTS.CHANGE],
+    events: [CONSTANTS.CHANGE, CONSTANTS.CLICK],
 
     /**
      * Value for MVVM binding
@@ -99,7 +103,7 @@ const CodeInput = DataBoundWidget.extend({
         } else if (
             this._value !== value &&
             this.dataSource instanceof DataSource
-            // this.dataSource.total()
+            // && this.dataSource.total()
         ) {
             const _old = getLibraryItemKey(this._value);
             const _new = getLibraryItemKey(value);
@@ -107,7 +111,17 @@ const CodeInput = DataBoundWidget.extend({
                 $.type(value) === CONSTANTS.STRING ? value : undefined;
             if (_old !== _new) {
                 // Only rebuild the UI if we change the formula
+                // because this is not needed when changing params
                 this.refresh();
+            } else if (this.viewModel instanceof Observable) {
+                const item = this.dropDownList.dataItem();
+                if (item && $.isFunction(item.editor)) {
+                    const params = getParams(this._value);
+                    this.viewModel.set(
+                        item.options.field,
+                        params || item.defaultParams
+                    );
+                }
             }
         }
         return ret;
@@ -122,18 +136,22 @@ const CodeInput = DataBoundWidget.extend({
         const { element, options } = this;
         this.wrapper = element.addClass(WIDGET_CLASS);
 
+        const formulaWrapper = $(`<${CONSTANTS.DIV}/>`)
+            .addClass('kj-codeinput-formula')
+            .appendTo(element);
+
         // Static input showing `Custom`
         this.customInput = $(
             '<input class="k-textbox k-state-disabled" disabled>'
         )
             .width('100%')
-            .val(options.custom)
-            .appendTo(element);
+            .val(options.messages.custom)
+            .appendTo(formulaWrapper);
 
         // Drop down list to choose from library
         this.dropDownList = $(`<${CONSTANTS.SELECT}/>`)
             .width('100%')
-            .appendTo(element)
+            .appendTo(formulaWrapper)
             .kendoDropDownList({
                 autoBind: options.autoBind,
                 autoWidth: true,
@@ -145,10 +163,17 @@ const CodeInput = DataBoundWidget.extend({
             })
             .data('kendoDropDownList');
 
-        // Param editor container
+        this.moreButton = $(
+            `<span unselectable="on" class="kj-codeinput-wrap k-state-default">
+                <span unselectable="on" class="k-select" aria-label="select"><span class="k-icon k-i-more-horizontal"/></span>
+            </span>`
+        )
+            .appendTo(formulaWrapper)
+            .on(CONSTANTS.CLICK, this._onMoreButtonClick.bind(this));
+
+        // Params editor container
         this.paramsContainer = $(`<${CONSTANTS.DIV}/>`)
-            .css({ marginTop: '0.25em' })
-            .width('100%')
+            .addClass('kj-codeinput-params')
             .hide()
             .appendTo(element);
     },
@@ -258,7 +283,7 @@ const CodeInput = DataBoundWidget.extend({
 
         if (isCustomFormula(value)) {
             // Hide drop down list
-            this.dropDownList.text(this.options.custom);
+            this.dropDownList.value(this.options.custom);
             this.dropDownList.wrapper.hide();
 
             // Show custom input
@@ -335,6 +360,14 @@ const CodeInput = DataBoundWidget.extend({
             }
             this.trigger(CONSTANTS.CHANGE);
         }
+    },
+
+    /**
+     * Event handler triggered when clicking the more button
+     * @private
+     */
+    _onMoreButtonClick() {
+        this.trigger(CONSTANTS.CLICK);
     },
 
     /**

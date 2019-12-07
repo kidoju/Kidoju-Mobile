@@ -226,9 +226,9 @@ COPY ..\Kidoju.Widgets\src\js\widgets\*.es6 .\src\js\widgets /Y
 ATTRIB +R .\src\js\widgets\*.es6
 
 REM Copy .\src\js\workers\*
-ATTRIB -R .\src\js\workers\*.es6
-COPY ..\Kidoju.Widgets\src\js\workers\*.es6 .\src\js\workers /Y
-ATTRIB +R .\src\js\workers\*.es6
+ATTRIB -R .\src\js\workers\*.*
+COPY ..\Kidoju.Widgets\src\js\workers\*.* .\src\js\workers /Y
+ATTRIB +R .\src\js\workers\*.*
 
 REM ------------------------------------------------------------
 REM Styles
