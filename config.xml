@@ -126,6 +126,8 @@
         <preference name="Orientation" value="all" />
         <preference name="StatusBarOverlaysWebView" value="true" />
         <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+        <preference name="WKWebViewOnly" value="true" />
+        <preference name="Allow3DTouchLinkPreview" value="false" />
     </platform>
     <platform name="windows">
         <preference name="WindowsToastCapable" value="true" />
