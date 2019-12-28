@@ -5,7 +5,7 @@
 
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
-import { iconUri } from '../app/app.uris';
+import { iconUri } from '../app/app.uris.es6';
 
 /**
  * AverageReference

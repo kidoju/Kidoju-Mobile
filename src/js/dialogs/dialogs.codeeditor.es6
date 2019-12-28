@@ -68,7 +68,6 @@ function openCodeEditor(options = {}) {
 
             // Bind the click event
             dialog.bind(CONSTANTS.CLICK, e => {
-                debugger;
                 dfd.resolve({
                     action: e.action,
                     // data: e.sender.viewModel.toJSON() <-- we do not need to return the library

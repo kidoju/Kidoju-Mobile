@@ -21,6 +21,10 @@
                 text-align: initial;
                 width: 100%;
 
+                .k-icon {
+                    float: right;
+                }
+
                 &:nth-child(n+1) {
                     margin-top: 0.5em;
                 }
@@ -63,6 +67,12 @@
             .CodeMirror {
                 height: 100%;
             }
+        }
+    }
+
+    .k-tooltip {
+        .kj-codeeditor-json {
+            margin: 0;
         }
     }
 

@@ -62,7 +62,8 @@ const MESSAGE_CLASS = 'kj-codeeditor-message';
 const NOTIFICATION_CLASS = 'kj-codeeditor-notification';
 const PANEL_CLASS = 'kj-codeeditor-panel';
 const LABEL_TMPL =
-    '<div class="k-edit-label"><label for="{0}">{1}</label><span class="k-icon k-i-js"/></div>';
+    '<div class="k-edit-label"><label for="{0}">{1}</label></div>';
+const CODE_TMPL = '<span class="k-icon k-i-js"/>';
 const FIELD_TMPL = '<div class="k-edit-field" data-container-for="{0}"/>';
 const BUTTON_TMPL =
     '<button class="k-button k-primary"><span class="k-icon k-i-{0}"></span>&nbsp;{1}</button>';
@@ -71,6 +72,7 @@ const NOTIFICATION_TMPL =
     '<div class="k-notification-wrap"><span class="k-icon k-i-#: type #"></span>#: message #</div>' +
     '</div>';
 const MESSAGE_TMPL = '<div class="k-block k-error-colored">#: message #</div>';
+const TOOLTIP_TMPL = '<pre class="kj-codeeditor-json">{0}</pre>';
 const SOLUTION_PROP = 'properties.solution';
 const VALIDATION_PROP = 'properties.validation';
 
@@ -215,15 +217,21 @@ const CodeEditor = DataBoundWidget.extend({
             .data('kendoDropDownList');
 
         // Add solution
-        $(format(LABEL_TMPL, 'solution', messages.solution)).appendTo(panel);
+        $(format(LABEL_TMPL, 'solution', messages.solution))
+            .append(CODE_TMPL)
+            .appendTo(panel);
         $(format(FIELD_TMPL, 'solution')).appendTo(panel);
 
         // Add params (dynamically added when refreshing)
-        $(format(LABEL_TMPL, 'params', messages.params)).appendTo(panel);
+        $(format(LABEL_TMPL, 'params', messages.params))
+            .append(CODE_TMPL)
+            .appendTo(panel);
         $(format(FIELD_TMPL, 'params')).appendTo(panel);
 
         // Add test value
-        $(format(LABEL_TMPL, 'value', messages.value)).appendTo(panel);
+        $(format(LABEL_TMPL, 'value', messages.value))
+            .append(CODE_TMPL)
+            .appendTo(panel);
         $(format(FIELD_TMPL, 'value')).appendTo(panel);
 
         // Add test button and notification
@@ -242,16 +250,16 @@ const CodeEditor = DataBoundWidget.extend({
 
         this.tooltip = panel.kendoTooltip({
             filter: '.k-i-js',
+            position: 'right',
             content: e => {
                 const field = e.target
                     .closest('.k-edit-label')
                     .children('label')
                     .attr('for');
-                return `<pre>${JSON.stringify(
-                    this.viewModel.get(field),
-                    null,
-                    2
-                )}</pre>`;
+                return format(
+                    TOOLTIP_TMPL,
+                    JSON.stringify(this.viewModel.get(field), null, 2)
+                );
             }
         });
     },
@@ -668,6 +676,7 @@ const CodeEditor = DataBoundWidget.extend({
         const row = getter(SOLUTION_PROP)(tool).getRow('solution');
         row.editable = true;
         row.model = this._value;
+        debugger;
         optimizeEditor(row);
         // Empty container
         container.empty();
