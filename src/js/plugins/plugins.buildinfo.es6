@@ -6,6 +6,9 @@
 // Note: requires https://github.com/lynrin/cordova-plugin-buildinfo
 // so window.BuildInfo is only available after deviceready event
 
+/**
+ * BuildInfo plugin
+ */
 const plugin = {
     /**
      * Ready

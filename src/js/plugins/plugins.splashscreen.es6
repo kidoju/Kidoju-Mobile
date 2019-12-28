@@ -6,6 +6,9 @@
 // Note: requires cordova-plugin-splashscreen
 // so window.navigator.splashscreen is only available after deviceready event
 
+/**
+ * SplashScreen plugin
+ */
 const plugin = {
     /**
      * Ready

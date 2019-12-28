@@ -8,6 +8,9 @@
 // Note: requires https://github.com/apache/cordova-plugin-dialogs
 // so window.navigator.notification is only available after deviceready event
 
+/**
+ * Dialogs plugin
+ */
 const plugin = {
     /**
      * Ready

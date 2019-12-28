@@ -6,6 +6,9 @@
 // Note: requires cordova-plugin-safariviewcontroller
 // so window.SafariViewController is only available after deviceready event
 
+/**
+ * SafariViewController plugin
+ */
 const plugin = {
     /**
      * Ready

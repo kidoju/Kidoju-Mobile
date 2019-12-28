@@ -6,6 +6,9 @@
 // Note: requires phonegap-plugin-barcodescanner
 // so plugin.scan is only available after deviceready event
 
+/**
+ * BarCodeScanner plugin
+ */
 const plugin = {
     /**
      * Ready

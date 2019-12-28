@@ -6,6 +6,9 @@
 // Note: requires cordova-plugin-inappbrowser
 // so window.cordova.InAppBrowser is only available after deviceready event
 
+/**
+ * InAppBrowser plugin
+ */
 const plugin = {
     /**
      * Ready

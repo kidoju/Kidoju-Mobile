@@ -25,6 +25,11 @@ iOS UIWebView support the W3C Speech APIs, but the sound seems less metallic wit
 On the long term, we should be able to remove the Cordova TTS Plugin and only rely on the W3C Speech APIs
 */
 
+/**
+ * TTS plugin
+ */
+const plugin = {};
+
 function loadVoices() {
     voices = window.speechSynthesis.getVoices() || [];
     if (voices._list) {
@@ -407,3 +412,8 @@ window.app.tts._chunk = splitChunks;
 window.app.tts._speechSynthesisPromise = speechSynthesisPromise;
 window.app.tts.doSpeak = doSpeak;
 window.app.tts.cancelSpeak = cancelSpeak;
+
+/**
+ * Default export
+ */
+export default plugin;

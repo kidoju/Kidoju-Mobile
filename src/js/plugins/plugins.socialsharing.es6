@@ -6,6 +6,9 @@
 // Note: requires cordova-plugin-x-socialsharing
 // so window.plugins.socialsharing is only available after deviceready event
 
+/**
+ * SocialSharing plugin
+ */
 const plugin = {
     /**
      * Ready
