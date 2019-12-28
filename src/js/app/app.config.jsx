@@ -11,8 +11,11 @@
  * depending on NODE_ENV: development, test or production (by default).
  */
 
+import constants from './app.constants.es6';
+
 /**
  * application DEBUG mode
+ * @type {boolean}
  */
 window.DEBUG = window.DEBUG || '<%- debug %>'.toLowerCase() === 'true';
 
@@ -78,11 +81,8 @@ config.locales = config.version
 
 /**
  * Constants
- * Note: This is replaced by app.constants.js in Kidoju-Mobile
  */
 config.constants = {
-    // Makes sure Kidoju-Mobile wins
-
     // Application scheme
     appScheme: '<%- application.scheme %>',
 
@@ -90,7 +90,10 @@ config.constants = {
     facebookAppId: '<%- facebook.clientID %>',
 
     // Twitter account
-    twitterAccount: '<%- twitter.account %>'
+    twitterAccount: '<%- twitter.account %>',
+
+    // Client application constants merged here
+    ...constants
 };
 
 /**
@@ -214,6 +217,10 @@ config.uris = {
                 convertFormat('<%- uris.rapi.oauth.signOut %>')
             )
         },
+        ping: url.resolve(
+            '<%- uris.rapi.root %>',
+            convertFormat('<%- uris.rapi.ping %>')
+        ),
         v1: {
             activities: url.resolve(
                 '<%- uris.rapi.root %>',
