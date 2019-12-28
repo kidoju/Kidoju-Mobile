@@ -4,7 +4,7 @@
  */
 
 // Note: requires phonegap-plugin-barcodescanner
-// so window.cordova.plugins.barcodeScanner is only available after deviceready event
+// so plugin.scan is only available after deviceready event
 
 const plugin = {
     /**
@@ -12,7 +12,8 @@ const plugin = {
      * @returns {boolean}
      */
     ready() {
-        return !!((window.cordova || {}).plugins || {}).barcodeScanner;
+        const { barcodeScanner } = (window.cordova || {}).plugins || {};
+        return barcodeScanner && typeof barcodeScanner.scan === 'function';
     },
 
     /**
@@ -22,9 +23,8 @@ const plugin = {
      * @param options
      */
     scan(success, error, options) {
-        const { barcodeScanner } = (window.cordova || {}).plugins || {};
-        if (barcodeScanner && typeof barcodeScanner.scan === 'function') {
-            barcodeScanner.scan(success, error, options);
+        if (plugin.ready()) {
+            window.cordova.plugins.barcodeScanner.scan(success, error, options);
         }
     }
 };

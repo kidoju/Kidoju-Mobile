@@ -12,7 +12,16 @@ const plugin = {
      * @returns {boolean}
      */
     ready() {
-        return;
+        return true;
+    },
+
+    /**
+     * Initialize battery events
+     * @param low
+     * @param critical
+     */
+    initEvents(low, critical) {
+
     }
 };
 

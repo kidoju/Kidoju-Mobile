@@ -12,7 +12,11 @@ const plugin = {
      * @returns {boolean}
      */
     ready() {
-        return !!(window.plugins || {}).socialsharing;
+        const { socialsharing } = window.plugins || {};
+        return (
+            socialsharing &&
+            typeof socialsharing.shareWithOptions === 'function'
+        );
     },
 
     /**
@@ -22,12 +26,12 @@ const plugin = {
      * @param error
      */
     share(options, success, error) {
-        const { socialsharing } = window.plugins || {};
-        if (
-            socialsharing &&
-            typeof socialsharing.shareWithOptions === 'function'
-        ) {
-            socialsharing.shareWithOptions(options, success, error);
+        if (plugin.ready()) {
+            window.plugins.socialsharing.shareWithOptions(
+                options,
+                success,
+                error
+            );
         }
     }
 };

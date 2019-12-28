@@ -3,8 +3,6 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO revert to window.open with browser device
-
 // Note: requires cordova-plugin-safariviewcontroller
 // so window.SafariViewController is only available after deviceready event
 
@@ -14,7 +12,14 @@ const plugin = {
      * @returns {boolean}
      */
     ready() {
-        return !!window.SafariViewController;
+        const { SafariViewController } = window;
+        const { platform } = window.device || {};
+        return (
+            platform !== 'browser' &&
+            SafariViewController &&
+            typeof SafariViewController.isAvailable === 'function' &&
+            typeof SafariViewController.show === 'function'
+        );
     },
 
     /**
@@ -24,12 +29,8 @@ const plugin = {
      * @param error
      */
     show(options, success, error) {
-        const { SafariViewController } = window;
-        if (
-            SafariViewController &&
-            typeof SafariViewController.isAvailable === 'function' &&
-            typeof SafariViewController.show === 'function'
-        ) {
+        if (plugin.ready()) {
+            const { SafariViewController } = window;
             SafariViewController.isAvailable(available => {
                 if (available) {
                     SafariViewController.show(options, success, error);

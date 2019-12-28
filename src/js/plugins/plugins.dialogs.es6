@@ -14,7 +14,14 @@ const plugin = {
      * @returns {boolean}
      */
     ready() {
-        return !!window.navigator.notification;
+        const { notification } = window.navigator;
+        return (
+            notification &&
+            typeof notification.alert === 'function' &&
+            typeof notification.confirm === 'function' &&
+            typeof notification.prompt === 'function' &&
+            typeof notification.beep === 'function'
+        );
     },
 
     /**
@@ -25,9 +32,13 @@ const plugin = {
      * @param button
      */
     alert(message, callback, title = 'Alert', button = 'OK') {
-        const { notification } = window.navigator;
-        if (notification && typeof notification.alert === 'function') {
-            notification.alert(message, callback, title, button);
+        if (plugin.ready()) {
+            window.navigator.notification.alert(
+                message,
+                callback,
+                title,
+                button
+            );
         }
     },
 
@@ -39,9 +50,13 @@ const plugin = {
      * @param buttons
      */
     confirm(message, callback, title = 'Confirm', buttons = ['OK', 'Cancel']) {
-        const { notification } = window.navigator;
-        if (notification && typeof notification.confirm === 'function') {
-            notification.confirm(message, callback, title, buttons);
+        if (plugin.ready()) {
+            window.navigator.notification.confirm(
+                message,
+                callback,
+                title,
+                buttons
+            );
         }
     },
 
@@ -59,9 +74,14 @@ const plugin = {
         buttons = ['OK', 'Cancel'],
         text = ''
     ) {
-        const { notification } = window.navigator;
-        if (notification && typeof notification.prompt === 'function') {
-            notification.prompt(message, callback, title, buttons, text);
+        if (plugin.ready()) {
+            window.navigator.notification.prompt(
+                message,
+                callback,
+                title,
+                buttons,
+                text
+            );
         }
     },
 
@@ -70,9 +90,8 @@ const plugin = {
      * @param times
      */
     beep(times = 1) {
-        const { notification } = window.navigator;
-        if (notification && typeof notification.beep === 'function') {
-            notification.beep(times);
+        if (plugin.ready()) {
+            window.navigator.notification.beep(times);
         }
     }
 };

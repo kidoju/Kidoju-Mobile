@@ -12,16 +12,20 @@ const plugin = {
      * @returns {boolean}
      */
     ready() {
-        return !!(window.navigator || {}).splashscreen;
+        const { splashscreen } = window.navigator;
+        return (
+            splashscreen &&
+            typeof splashscreen.hide === 'function' &&
+            typeof splashscreen.show === 'function'
+        );
     },
 
     /**
      * Hide
      */
     hide() {
-        const { splashscreen } = window.navigator;
-        if (splashscreen && typeof splashscreen.hide === 'function') {
-            splashscreen.hide();
+        if (plugin.ready()) {
+            window.navigator.splashscreen.hide();
         }
     },
 
@@ -29,9 +33,8 @@ const plugin = {
      * Show
      */
     show() {
-        const { splashscreen } = window.navigator;
-        if (splashscreen && typeof splashscreen.show === 'function') {
-            splashscreen.show();
+        if (plugin.ready()) {
+            window.navigator.splashscreen.show();
         }
     }
 };

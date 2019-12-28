@@ -8,17 +8,27 @@
 //   https://github.com/arnesson/cordova-plugin-firebase
 //   https://github.com/chemerisuk/cordova-plugin-firebase-analytics
 
-// Note: requires cordova-plugin-inappbrowser
-// so window.cordova.InAppBrowser is only available after deviceready event
+// Note: requires cordova-plugin-google-analytics or cordova-plugin-firebase-analytics
+// so plugin.logEvent is only available after deviceready event
 
+/**
+ * Analytics plugin
+ */
 const plugin = {
-        /**
-         * Ready
-         * @returns {boolean}
-         */
-        ready() {
+    /**
+     * Ready
+     * @returns {boolean}
+     */
+    ready() {
+        return true;
+    },
 
-        },
+    /**
+     * Log and event
+     */
+    logEvent() {
+        // TODO
+    }
 };
 
 /**
