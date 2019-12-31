@@ -134,12 +134,18 @@ REM Copy ./src/js/app/*
 ATTRIB -R .\src\js\app\*.es6
 COPY ..\Kidoju.WebApp\src\js\app\app.assets.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.assets.es6
+COPY ..\Kidoju.WebApp\src\js\app\app.db.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.db.es6
 COPY ..\Kidoju.WebApp\src\js\app\app.i18n.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.i18n.es6
 COPY ..\Kidoju.WebApp\src\js\app\app.logger.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.logger.es6
+COPY ..\Kidoju.WebApp\src\js\app\app.network.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.network.es6
 COPY ..\Kidoju.WebApp\src\js\app\app.notification.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.notification.es6
+COPY ..\Kidoju.WebApp\src\js\app\app.partitions.es6 .\src\js\app /Y
+ATTRIB +R .\src\js\app\app.partitions.es6
 COPY ..\Kidoju.WebApp\src\js\app\app.themer.es6 .\src\js\app /Y
 ATTRIB +R .\src\js\app\app.themer.es6
 COPY ..\Kidoju.WebApp\src\js\app\app.uris.es6 .\src\js\app /Y
