@@ -276,6 +276,7 @@
                 "signIn": "/api/auth/%s/signin",
                 "signOut": "/api/auth/signout"
             },
+            "ping": "/api/ping",
             "v1": {
                 "activities": "/api/v1/%s/summaries/%s/activities",
                 "activity": "/api/v1/%s/summaries/%s/activities/%s",
