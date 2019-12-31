@@ -14,7 +14,14 @@ const LAYOUT = {
 /**
  * MISC
  */
+const LEVEL_CHARS = 4;
+const TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
 const MISC = {
+    LEVEL_CHARS,
+    TOP_LEVEL_CHARS,
+    RX_TOP_LEVEL_MATCH: new RegExp(
+        `^[a-z0-9]{${TOP_LEVEL_CHARS}}0{${24 - TOP_LEVEL_CHARS}}$`
+    ),
     SIGNIN_PAGE: 3 // Last page of walkthrough tour
 };
 

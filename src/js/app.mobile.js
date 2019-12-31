@@ -3056,7 +3056,7 @@ window.jQuery.holdReady(true);
             var scrollViewWidget = scrollViewElement.data('kendoMobileScrollView');
             if (scrollViewWidget instanceof kendo.mobile.ui.ScrollView) {
                 // Note: the change event occurs a little bit late to coordinate scrolling with titles and styles
-                scrollViewWidget.bind('changing', function (e) {
+                scrollViewWidget.bind(CONSTANTS.CHANGING, function (e) {
                     // Note: The user needs to scroll through pages for this event to be triggered
                     // Especially, it is not triggered when showing the initial page, so page 0 has default values
                     assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));

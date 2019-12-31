@@ -43,11 +43,13 @@ const viewModel = observable({
      * Load
      */
     load() {
+        const promises = [];
         (this._loaders || []).forEach(method => {
             if ($.isFunction(method)) {
-                method();
+                promises.push(method());
             }
         });
+        return $.when(...promises);
     },
 
     /**

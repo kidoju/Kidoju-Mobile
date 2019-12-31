@@ -22,6 +22,7 @@ import safariViewController from '../plugins/plugins.safariviewcontroller.es6';
 import { getSignInUrl } from '../rapi/rapi.oauth.es6';
 import { cleanHistory, parseToken } from '../rapi/rapi.util.es6';
 import { MISC, VIEW, VIEW_MODEL } from './ui.constants.es6';
+import { xhr2error } from '../data/data.util.es6';
 
 const {
     attr,
@@ -258,12 +259,8 @@ const feature = {
                 logger.error({
                     message: 'error obtaining a signin url',
                     method: 'onSigninButtonClick',
-                    data: {
-                        provider,
-                        status,
-                        errorThrown,
-                        response: parseResponse(xhr) // TODO
-                    }
+                    error: xhr2error(xhr, status, errorThrown),
+                    data: { provider }
                 });
             })
             .always(() => {
@@ -430,7 +427,7 @@ const feature = {
         // TODO if (!safariViewController.ready() && !inAppBrowser.ready()) {
         //    cleanHistory();
         // }
-
+debugger;
         // parseToken sets the token in localStorage
         parseToken(url)
             .then(token => {

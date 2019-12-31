@@ -8,11 +8,12 @@
 import $ from 'jquery';
 import 'kendo.mobile.view';
 import 'kendo.mobile.scroller';
+import 'kendo.mobile.scrollview';
 import assert from '../common/window.assert.es6';
 
 const {
     mobile: {
-        ui: { Scroller, View }
+        ui: { Scroller, ScrollView, View }
     },
     roleSelector
 } = window.kendo;
@@ -41,14 +42,35 @@ const feature = {
             e.view.scroller.reset();
         }
         // Reset other scrollers including markdown scrollers
-        e.view.element
-            .find(roleSelector('scroller'))
-            .each((index, scroller) => {
-                const scrollerWidget = $(scroller).data('kendoMobileScroller');
-                if (scrollerWidget instanceof Scroller) {
-                    scrollerWidget.reset();
-                }
-            });
+        e.view.content.find(roleSelector('scroller')).each((index, element) => {
+            const scroller = $(element).data('kendoMobileScroller');
+            if (scroller instanceof Scroller) {
+                scroller.reset();
+            }
+        });
+    },
+
+    /**
+     * Resize
+     * @param e
+     * @param view
+     */
+    resize(e, view) {
+        assert.instanceof(
+            View,
+            view,
+            assert.format(
+                assert.messages.instanceof.default,
+                'view',
+                'kendo.mobile.ui.View'
+            )
+        );
+        view.content.find(roleSelector('scrollview')).each((index, element) => {
+            const scrollView = $(element).data('kendoMobileScrollView');
+            if (scrollView instanceof ScrollView) {
+                scrollView.refresh();
+            }
+        });
     }
 };
 

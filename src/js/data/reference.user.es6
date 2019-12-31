@@ -8,7 +8,7 @@ import __ from '../app/app.i18n.es6';
 import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
-import { UserMetricsReference } from './reference.metrics';
+import { UserMetricsReference } from './reference.metrics.es6';
 
 /**
  * UserReference

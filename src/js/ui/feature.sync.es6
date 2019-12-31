@@ -10,6 +10,7 @@ import 'kendo.mobile.view';
 import 'kendo.progressbar';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import {xhr2error} from '../data/data.util';
 // import Logger from '../common/window.logger.es6';
 
 const {
@@ -103,24 +104,24 @@ const feature = {
                     );
                 }
             })
-            .fail(function (xhr, status, error) {
-                app.notification.error(i18n.culture.notifications.userSaveFailure);
+            .catch((xhr, status, errorThrown) => {
+                app.notification.error(__('notifications.userSaveFailure'));
                 logger.error({
                     message: 'Error updating user after synchronization',
                     method: 'mobile.onSyncViewShow',
-                    data: { error: error, status: status, response: parseResponse(xhr) }
+                    error: xhr2error(xhr, status, errorThrown)
                 });
             });
         })
-        .fail(function (xhr, status, error) {
+        .catch((xhr, status, errorThrown) => {
             if (xhr.status === 401) {
-                app.notification.error(i18n.culture.notifications.syncUnauthorized);
+                app.notification.error(__('notifications.syncUnauthorized'));
             } else {
-                app.notification.error(i18n.culture.notifications.syncFailure);
+                app.notification.error(__('notifications.syncFailure'));
                 logger.error({
                     message: 'Error Synchronizing',
                     method: 'mobile.onSyncViewShow',
-                    data: { error: error, status: status, response: parseResponse(xhr) }
+                    error: xhr2error(xhr, status, errorThrown)
                 });
             }
         })

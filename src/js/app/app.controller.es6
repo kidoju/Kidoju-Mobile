@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.userevents';
 import 'kendo.mobile.application';
+import 'kendo.mobile.pane';
 import { compareVersions } from '../common/pongodb.util.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -18,11 +19,12 @@ import splashScreen from '../plugins/plugins.splashscreen.es6'
 import BaseController from '../rapi/rapi.controller.es6';
 import AjaxPing from '../rapi/rapi.ping.es6';
 // import { getSignInUrl, signOut } from '../rapi/rapi.oauth.es6';
+import { VIEW } from '../ui/ui.constants.es6';
 import config from './app.config.jsx';
 import db from './app.db.es6';
 import __ from './app.i18n.es6';
 
-const { UserEvents, mobile: { Application } } = window.kendo;
+const { UserEvents, mobile: { Application, ui: { Pane } } } = window.kendo;
 const logger = new Logger('app.controller');
 
 /**
@@ -150,18 +152,16 @@ const AppController = BaseController.extend({
 
         // Initial page
         var initial = CONSTANTS.HASH;
-        /*
-        if (viewModel.isSyncedUser$()) {
+        if (app.viewModel.isSyncedUser$()) {
             // The viewModel user has been recently synced, show the user view
             initial += VIEW.USER;
-        } else if (viewModel.isSavedUser$()) {
+        } else if (app.viewModel.isSavedUser$()) {
             // The viewModel user has not been synced for a while, suggest to signin to sync
-            initial += VIEW.SIGNIN + '?page=' + encodeURIComponent(SIGNIN_PAGE) + '&userId=' + encodeURIComponent(viewModel.get(VIEW_MODEL.USER.ID));
+            initial += `${VIEW.SIGNIN}?page=${encodeURIComponent(MISC.SIGNIN_PAGE)}&userId=${encodeURIComponent(app.viewModel.get(VIEW_MODEL.USER.ID))}`;
         } else {
-        */
             // The viewModel user is new, show walkthrough before signing in
-            initial +=  'signin'; // VIEW.SIGNIN;
-        // }
+            initial +=  VIEW.SIGNIN;
+        }
 
         // Initialize application
         this.application = new Application(document.body, {
@@ -179,7 +179,7 @@ const AppController = BaseController.extend({
                     method: 'application.init'
                 });
                 // Fix skin variant
-                // TODO mobile._fixThemeVariant(e.sender.options.skin);
+                this._fixThemeVariant(e.sender.options.skin);
                 // Localize the application
                 // TODO mobile.localize(viewModel.get(VIEW_MODEL.LANGUAGE));
                 // Fix signin page when initial page
@@ -217,9 +217,16 @@ const AppController = BaseController.extend({
      * Event handler for the resize event
      */
     onResize(e) {
-        this.resizers.forEach(resize => {
-            resize(e);
-        });
+        // In Android and iOS, onResize might be triggered before kendo.mobile.Application is instantiated
+        // and/or before mobile.application as a pane which would trigger an error in mobile.application.view()
+        // which is a shortcut for mobile.application.pane.view()
+        if (this.application instanceof Application &&
+            this.application.pane instanceof Pane) {
+            const view = this.application.view();
+            this.resizers.forEach(resize => {
+                resize(e, view);
+            });
+        }
     },
 
     /**

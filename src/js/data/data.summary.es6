@@ -12,12 +12,15 @@ import { getLanguageReference } from '../app/app.partitions.es6';
 import { iconUri, summaryUri } from '../app/app.uris.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import AjaxRpc from '../rapi/rapi.rpc.es6';
 import AjaxSummaries from '../rapi/rapi.summaries.es6';
 import BaseModel from './data.base.es6';
 import { SummaryMetricsReference } from './reference.metrics.es6';
 import UserReference from './reference.user.es6';
 import RemoteTransport from './transports.remote.es6';
 import extendModelWithTransport from './mixins.transport.es6';
+import JSC from 'jscheck';
+import ObjectId from '../common/window.objectid';
 
 const { toString } = window.kendo;
 
@@ -400,30 +403,62 @@ const Summary = BaseModel.define({
     },
     */
     createDraft() {
-        // TODO use rpc call
+        const draft = {
+            command: 'draft',
+            context: 'Summary',
+            id: this.get('id'),
+            options: {
+                // language: this.get('language')
+            }
+        };
+        AjaxRpc.call(draft);
+        /*
         return rapi.v1.content.executeCommand(
             this.get('language'),
             this.get('id'),
             { command: 'draft' }
         );
+         */
     },
     publish() {
-        // TODO use rpc call
+        const publish = {
+            command: 'publish',
+            context: 'Summary',
+            id: this.get('id'),
+            options: {
+                // language: this.get('language')
+            }
+        };
+        AjaxRpc.call(publish);
+        /*
         return rapi.v1.content.executeCommand(
             this.get('language'),
             this.get('id'),
             { command: 'publish' }
         );
+         */
     },
     rate(value) {
         // TODO use rpc call
         // TODO: what if already rated?????
         // TODO: check that an author cannot rate his own summaries
+        const rate = {
+            command: 'rate',
+            context: 'Summary',
+            id: this.get('id'),
+            options: {
+                // language: this.get('language'),
+                value
+            }
+        };
+        AjaxRpc.call(rate);
+        /*
         return rapi.v1.content.createSummaryActivity(
             this.get('language'),
             this.get('id'),
             { type: 'rating', value }
         );
+         */
     }
 });
 

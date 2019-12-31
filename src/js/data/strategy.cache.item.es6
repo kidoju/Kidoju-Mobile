@@ -25,7 +25,7 @@ const {
  * CacheItemStrategy
  * Creates/destroy/reads/updates an item using window.cache.es6
  * @class CacheItemStrategy
- * extends Class
+ * @extends Class
  */
 const CacheItemStrategy = Class.extend({
     /**
