@@ -84,7 +84,10 @@ module.exports = {
     context: path.join(__dirname, '/'),
     devtool: 'sourcemap',
     entry: {
-        app: ['./src/js/app.mobile.js'] // ,
+        // ES5 application
+        // app: ['./src/js/app.mobile.js'],
+        // ES6 application
+        app: ['./src/js/app/app.init.es6']
         // Worker library
         // workerlib: './src/js//kidoju.data.workerlib.js'
     },
