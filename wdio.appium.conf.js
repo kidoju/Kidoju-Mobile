@@ -1,3 +1,35 @@
+/** **************************************************************
+ * On any platform including Travis-CI
+ *************************************************************** */
+
+let capabilities = [
+    {
+        // 'Android' or 'iOS'
+        platformName: 'Android',
+
+        // The version of the Android or iOS system
+        platformVersion: '8.1',
+
+        // For Android, Appium uses the first device it finds using "adb devices". So, this
+        // string simply needs to be non-empty.
+        // For iOS, this must exactly match the device name as seen in Xcode.
+        deviceName: 'any',
+
+        // Where to find the .apk or .ipa file to install on the device. The exact location
+        // of the file may change depending on your Cordova version.
+        app: './platforms/android/build/outputs/apk/debug/android-debug.apk',
+
+        // By default, Appium runs tests in the native context. By setting autoWebview to
+        // true, it runs our tests in the Cordova context.
+        autoWebview: true,
+
+        // When set to true, it will not show permission dialogs, but instead grant all
+        // permissions automatically.
+        autoGrantPermissions: true
+    }
+];
+let seleniumArgs = {};
+
 module.exports.config = {
     //
     // ==================
@@ -8,7 +40,7 @@ module.exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
-    specs: ['./test/appium/**/*.js'],
+    specs: ['./test/appium/**/*.es6'],
     // Patterns to exclude.
     exclude: [
         // 'path/to/excluded/files'
@@ -35,16 +67,7 @@ module.exports.config = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://docs.saucelabs.com/reference/platforms-configurator
     //
-    capabilities: [
-        {
-            // maxInstances can get overwritten per capability. So if you have an in-house Selenium
-            // grid with only 5 firefox instances available you can make sure that not more than
-            // 5 instances get started at a time.
-            maxInstances: 5,
-            //
-            browserName: 'firefox'
-        }
-    ],
+    capabilities,
     //
     // ===================
     // Test Configurations
@@ -106,7 +129,10 @@ module.exports.config = {
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
     services: ['appium'],
+    port: 4723, // default appium port
     appium: {
+        // for globally installed Appium just pass appium
+        command: 'appium',
         args: {
             address: '127.0.0.1',
             commandTimeout: '7200',
