@@ -244,7 +244,7 @@
         }
     },
     "slack": {
-        "webhook": "https://hooks.slack.com/services/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"
+        "webhook": "T02TQ1BET/B1TRWEKPW/vNIZBgmUTMqOHeZ3LL6Wt0r0"
     },
     "twitter": {
         "account": "kidoju"
