@@ -13,7 +13,7 @@ import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
-import Me from './data.me.es6';
+import { Me } from './data.me.es6';
 
 const { Observable } = window.kendo;
 

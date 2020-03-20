@@ -20,7 +20,7 @@ import {
 } from './rapi.util.es6';
 import { refresh } from './rapi.oauth.es6';
 
-const { /* cordova, chrome, */ location } = window;
+const { cordova, chrome, location } = window;
 const { Observable } = window.kendo;
 const logger = new Logger('rapi.controller');
 
@@ -36,7 +36,13 @@ const BaseController = Observable.extend({
      */
     init() {
         Observable.fn.init.call(this);
-        this.initializers = [this.readAccessToken()];
+        this.initializers =
+            // In cordova, we collect the token in SafariViewController ou InAppBrowser
+            $.type(cordova) === CONSTANTS.UNDEFINED &&
+            // In chrome apps, the following throws an error
+            !(chrome && $.isEmptyObject(chrome.app))
+                ? [this.readAccessToken()]
+                : [];
     },
 
     /**
@@ -46,12 +52,6 @@ const BaseController = Observable.extend({
      * @function readAccessToken
      */
     readAccessToken() {
-        // if (
-        //     // In cordova, we collect the token in InAppBrowser which does not load app.controller.es6
-        //     $.type(cordova) === CONSTANTS.UNDEFINED &&
-        //     // In chrome apps, the following throws an error
-        //     !(chrome && $.isEmptyObject(chrome.app))
-        // ) {
         const dfd = $.Deferred();
         parseToken(location.href)
             .then(token => {
@@ -84,7 +84,6 @@ const BaseController = Observable.extend({
                 // Pass error
                 dfd.reject(error);
             });
-        // }
         return dfd.promise();
     },
 
@@ -105,9 +104,7 @@ const BaseController = Observable.extend({
                     $.isPlainObject(token) &&
                     Date.now() > token.ts + (token.expires - 10 * 60) * 1000
                 ) {
-                    console.log(
-                        '-----------------------------------------> RENEW TOKEN!'
-                    );
+                    console.log('-----------------------------> RENEW TOKEN!');
                     refresh();
                 }
             }, 60 * 1000); // every minute

@@ -96,7 +96,7 @@ class AjaxActivities extends AjaxBase {
             this._partition.summaryId,
             id
         );
-        // return super._getUrl(method);
+        // return super._getUrl(method, id);
     }
 
     /**

@@ -341,9 +341,9 @@ const feature = {
         const { controller, viewModel } = app;
         const language = __.locale();
         assert.equal(language, viewModel.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
-        assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
+        assert.equal(language, viewModel.get(VIEW_MODEL.SUMMARY_.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
         assert.equal(language, viewModel.get(VIEW_MODEL.VERSION.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
-        const summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
+        const summaryId = viewModel.get(VIEW_MODEL.SUMMARY_.ID);
         assert.equal(summaryId, viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID), assert.format(assert.messages.equal.default, 'viewModel.get("version.summaryId")', summaryId));
         controller.application.navigate(`${CONSTANTS.HASH}${VIEW.SUMMARY}?language=${encodeURIComponent(language)}&summaryId=${encodeURIComponent(summaryId)}`);
     },

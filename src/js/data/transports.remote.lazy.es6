@@ -76,7 +76,13 @@ const LazyRemoteTransport = BaseTransport.extend({
         const data = this.parameterMap(options.data, 'get');
         this._collection
             .get(data[this.idField()], { fields: data.fields })
-            .then(options.success)
+            .then((result, textStatus, xhr) => {
+                if (xhr.status === 200) {
+                    options.success(result);
+                } else {
+                    options.error(xhr, xhr.statusText, 'Error getting');
+                }
+            })
             .catch(options.error);
     },
 
@@ -97,7 +103,13 @@ const LazyRemoteTransport = BaseTransport.extend({
             // data.partition = undefined;
             this._collection
                 .read(data)
-                .then(options.success)
+                .then((result, textStatus, xhr) => {
+                    if (xhr.status === 200) {
+                        options.success(result);
+                    } else {
+                        options.error(xhr, xhr.statusText, 'Error reading');
+                    }
+                })
                 .catch(options.error);
         }
     }

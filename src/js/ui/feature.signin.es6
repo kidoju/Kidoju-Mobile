@@ -132,11 +132,11 @@ const feature = {
 
         const { controller, viewModel } = app;
 
-        // Parse token (in browser)
-        // if (!inAppBrowser.ready() && !safariViewController.ready()) {
-        //     e.preventDefault();
-        //     mobile._parseTokenAndLoadUser(window.location.href);
-        // }
+        // Parse token (in browser only)
+        if (!inAppBrowser.ready() && !safariViewController.ready()) {
+             e.preventDefault();
+             feature.parseTokenAndLoadUser(window.location.href);
+        }
 
         // Set Navbar
         const { view } = e;
@@ -269,182 +269,22 @@ const feature = {
     },
 
     /**
-     * Sign in with SFSafariViewController
-     * requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
-     * also requires https://github.com/EddyVerbruggen/Custom-URL-scheme
-     *
-     * Note: Parsing the token is done by mobile._parseTokenAndLoadUser in handleOpenURL (see custom url scheme)
-     *
-     * Now that Google has deprecated oAuth flows from web views, this is the preferred way to sign in
-     * although this is only compatible with iOS 9 and above
-     * See: https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html
-     * There is also a huge benefit: social accounts are remembered and users do not have to re-enter their MFA codes each time they signin
-     *
-     * @param signInUrl
-     * @private
-     */
-    signinWithSafariViewController(signInUrl) {
-        logger.debug({
-            message: 'opening signInUrl in SafariViewController',
-            method: 'signinWithSafariViewController',
-            data: { signInUrl }
-        });
-        safariViewController.show(
-            {
-                url: signInUrl
-                // hidden: false,
-                // animated: false, // default true, note that 'hide' will reuse this preference (the 'Done' button will always animate though)
-                // transition: 'curl', // (this only works in iOS 9.1/9.2 and lower) unless animated is false you can choose from: curl, flip, fade, slide (default)
-                // enterReaderModeIfAvailable: readerMode, // default false
-                // tintColor: "#00ffff", // default is ios blue
-                // barColor: "#0000ff", // on iOS 10+ you can change the background color as well
-                // controlTintColor: "#ffffff" // on iOS 10+ you can override the default tintColor
-            },
-            // this success callback will be invoked for the lifecycle events 'opened', 'loaded' and 'closed'
-            result => {
-                // result has only one property, event which can take any value among 'opened', 'loaded' and 'closed'
-                logger.debug({
-                    message: 'safari/chrome successfully opened',
-                    method: 'signinWithSafariViewController',
-                    data: { event: result.event }
-                });
-            },
-            // error callback
-            msg => {
-                logger.error({
-                    message: 'safari/chrome failed to open',
-                    method: 'signinWithSafariViewController',
-                    error: new Error(msg)
-                });
-            }
-        );
-    },
-
-    /**
-     * Sign in with InAppBrowser
-     * Requires https://github.com/apache/cordova-plugin-inappbrowser
-     *
-     * Note: Parsing the token is done here by mobile._parseTokenAndLoadUser
-     *
-     * This is the old way applicable to iOS8 and prior versions
-     * This way has several limitations:
-     * - InAppBrowser uses UIWebView, not WKWebView on iOS
-     * - The oAuth flow is incompatible with WKWebView which has to be disabled to work - see https://github.com/kidoju/Kidoju-Mobile/issues/34
-     * - Google has announced that as of April 2007 the oAuth flow with web views won't be supported - see https://github.com/kidoju/Kidoju-Mobile/issues/33
-     *
-     * @param signInUrl
-     * @param returnUrl
-     * @private
-     */
-    signinWithInAppBrowser(signInUrl, returnUrl) {
-        let browser;
-        let loadStart;
-        let loadError;
-        function close() {
-            // Makes it idempotent in case it has already been called
-            if (browser) {
-                browser.removeEventListener('loadstart', loadStart);
-                // browser.removeEventListener('loadstop', loadStop);
-                browser.removeEventListener('loaderror', loadError);
-                browser.close();
-                browser = undefined;
-                logger.debug({
-                    message: 'closed InAppBrowser',
-                    method: 'signinWithInAppBrowser'
-                });
-            }
-        }
-        loadStart = e => {
-            // There is an incompatibility between InAppBrowser and WkWebView that prevents
-            // the loadstart event to be triggered in an oAuth flow if cordova-plugin-wkwebview-engine is installed
-            // See https://issues.apache.org/jira/browse/CB-10698
-            // See https://issues.apache.org/jira/browse/CB-11136
-            // Seems to have been fixed in https://github.com/apache/cordova-plugin-inappbrowser/pull/187
-            // Has yet to be released - https://github.com/kidoju/Kidoju-Mobile/issues/34
-            logger.debug({
-                message: 'loadstart event of InAppBrowser',
-                method: 'signinWithInAppBrowser',
-                data: { url: e.url }
-            });
-            // Once https://github.com/apache/cordova-plugin-inappbrowser/pull/99 is fixed
-            // we should be able to have the same flow as in SafariViewController
-            if (e.url.startsWith(returnUrl)) {
-                feature._parseTokenAndLoadUser(e.url).always(close);
-            }
-        };
-        loadError = error => {
-            // We have an issue with the InAppBrowser which raises an error when opening custom url schemes, e.g. com.kidoju.mobile://oauth
-            // See https://github.com/apache/cordova-plugin-inappbrowser/pull/99
-            // window.alert(JSON.stringify($.extend({}, error)));
-            logger.error({
-                message: 'loaderror event of InAppBrowser',
-                method: 'signinWithInAppBrowser',
-                error,
-                data: { url: error.url }
-            });
-            // Close may have already been called in loadStart
-            close();
-        };
-        browser = inAppBrowser.open(
-            signInUrl,
-            '_blank',
-            'location=yes,clearsessioncache=yes,clearcache=yes,usewkwebview=yes'
-        );
-        // browser.addEventListener('exit', exit);
-        browser.addEventListener('loadstart', loadStart);
-        // browser.addEventListener('loadstop', loadStop);
-        browser.addEventListener('loaderror', loadError);
-        logger.debug({
-            message: 'opening signInUrl in InAppBrowser',
-            method: 'signinWithInAppBrowser',
-            data: { signInUrl }
-        });
-    },
-
-    /**
-     * Sign in within the same browser as the application
-     * @param signInUrl
-     * @private
-     */
-    signinWithinBrowser(signInUrl) {
-        logger.debug({
-            message: 'opening signInUrl in browser',
-            method: 'signinWithinBrowser',
-            data: { signInUrl }
-        });
-        // Simply assign url and let the authentication provider redirect to the registered callback
-        window.location.assign(signInUrl);
-    },
-
-    /**
      * Parse token and load user
      * @param url
      * @private
      */
-    _parseTokenAndLoadUser(url) {
+    parseTokenAndLoadUser(url) {
         const dfd = $.Deferred();
         // No need to clean the history when opening in InAppBrowser or SafariViewController
-        // TODO if (!safariViewController.ready() && !inAppBrowser.ready()) {
-        //    cleanHistory();
-        // }
-debugger;
+        debugger;
+        if (!inAppBrowser.ready() && !safariViewController.ready()) {
+            cleanHistory();
+        }
         // parseToken sets the token in localStorage
         parseToken(url)
             .then(token => {
-                if (token && token.error) {
-                    app.notification.error(
-                        __('notifications.oAuthTokenFailure')
-                    );
-                    logger.error({
-                        message: token.error,
-                        method: 'parseTokenAndLoadUser',
-                        data: { url }
-                    });
-                    dfd.reject(new Error(token.error)); // TODO Make it an XHRError to match viewModel.loadUser
-                    /* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
-                } else if (token && token.access_token) {
+                if (token && token.access_token) {
                     const { controller, viewModel } = app;
-                    /* jscs:enable requireCamelCaseOrUpperCaseIdentifiers */
                     // Load the remote mobile user (me) using the oAuth token
                     // We cannot navigate to a page here because the initial page is defined in the constructor of kendo.mobile.Application
                     viewModel
@@ -469,9 +309,20 @@ debugger;
                             }, 0);
                         })
                         .fail(dfd.reject);
+                } else {
+                    // When there is no token in the url
+                    dfd.resolve();
                 }
             })
             .catch(error => {
+                app.notification.error(
+                    __('notifications.oAuthTokenFailure')
+                );
+                logger.error({
+                    error,
+                    method: 'parseTokenAndLoadUser',
+                    data: { url }
+                });
                 dfd.reject(error);
             });
         return dfd.promise();

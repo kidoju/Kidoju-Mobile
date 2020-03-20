@@ -145,9 +145,9 @@ const extension = {
         assert.match(RX_MONGODB_ID, userId, assert.format(assert.messages.match.default, 'userId', RX_MONGODB_ID));
         var language = i18n.locale();
         assert.equal(language, that.get(VIEW_MODEL.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("language")', language));
-        assert.equal(language, that.get(VIEW_MODEL.SUMMARY.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
+        assert.equal(language, that.get(VIEW_MODEL.SUMMARY_.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("summary.language")', language));
         assert.equal(language, that.get(VIEW_MODEL.VERSION.LANGUAGE), assert.format(assert.messages.equal.default, 'viewModel.get("version.language")', language));
-        var summaryId = that.get(VIEW_MODEL.SUMMARY.ID);
+        var summaryId = that.get(VIEW_MODEL.SUMMARY_.ID);
         assert.match(RX_MONGODB_ID, summaryId, assert.format(assert.messages.match.default, 'summaryId', RX_MONGODB_ID));
         assert.equal(summaryId, this.get(VIEW_MODEL.VERSION.SUMMARY_ID), assert.format(assert.messages.equal.default, 'viewModel.get("version.summaryId")', summaryId));
         var versionId = that.get(VIEW_MODEL.VERSION.ID);
@@ -168,7 +168,7 @@ const extension = {
                 language: language,
                 // TODO Add categoryId for better statistics
                 summaryId: summaryId,
-                title: that.get(VIEW_MODEL.SUMMARY.TITLE),
+                title: that.get(VIEW_MODEL.SUMMARY_.TITLE),
                 versionId: versionId
             }
         });

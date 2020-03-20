@@ -19,8 +19,6 @@ import { SummaryMetricsReference } from './reference.metrics.es6';
 import UserReference from './reference.user.es6';
 import RemoteTransport from './transports.remote.es6';
 import extendModelWithTransport from './mixins.transport.es6';
-import JSC from 'jscheck';
-import ObjectId from '../common/window.objectid';
 
 const { toString } = window.kendo;
 
@@ -214,18 +212,21 @@ const Summary = BaseModel.define({
             nullable: true,
             serializable: false,
             parse(activities) {
+                let ret;
                 // We need a userId but `this` is undefined, so we cannot find it in this object or in its parents
                 // so we are assigning app._userId in app.mobile.viewModel._reset but this is really crap
                 if (
                     Array.isArray(activities) &&
-                    CONSTANTS.RX_MONGODB_ID.test(app._userId)
+                    CONSTANTS.RX_MONGODB_ID.test(app._userId) // TODO
                 ) {
                     for (let i = 0, { length } = activities; i < length; i++) {
                         if (activities[i].actorId === app._userId) {
-                            return activities[i].score;
+                            ret = activities[i].score;
+                            break;
                         }
                     }
                 }
+                return ret;
             }
         }
     },

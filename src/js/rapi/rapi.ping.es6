@@ -26,7 +26,6 @@ class AjaxPing extends AjaxBase {
 
     /**
      * Get headers
-     * @param method
      * @private
      */
     // eslint-disable-next-line class-methods-use-this
@@ -38,7 +37,7 @@ class AjaxPing extends AjaxBase {
      * @returns {*}
      * @private
      */
-    _getUrl(method) {
+    _getUrl(method /* , id */) {
         if (method === AjaxBase.METHOD.GET) {
             return config.uris.rapi.ping;
         }

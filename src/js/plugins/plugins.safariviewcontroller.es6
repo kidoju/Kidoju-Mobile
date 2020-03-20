@@ -18,8 +18,8 @@ const plugin = {
         const { SafariViewController } = window;
         const { platform } = window.device || {};
         return (
-            platform !== 'browser' &&
             SafariViewController &&
+            platform !== 'browser' &&
             typeof SafariViewController.isAvailable === 'function' &&
             typeof SafariViewController.show === 'function'
         );

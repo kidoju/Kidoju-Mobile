@@ -5,25 +5,16 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-import $ from 'jquery';
-import 'kendo.data';
+// import $ from 'jquery';
+// import 'kendo.data';
 import __ from '../app/app.i18n.es6';
-import database from '../app/app.db.es6';
 import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxUsers from '../rapi/rapi.users.es6';
 import BaseModel from './data.base.es6';
-import { normalizeSchema } from './data.util.es6';
 import extendModelWithTransport from './mixins.transport.es6';
 import { UserMetricsReference } from './reference.metrics.es6';
-// import Me from './data.me.es6';
-// import LocalFirstStrategy from './strategy.local.first.es6';
-import LocalTransport from './transports.local.es6';
 import RemoteTransport from './transports.remote.es6';
-
-const {
-    data: { DataSource }
-} = window.kendo;
 
 /**
  * Account
@@ -295,6 +286,7 @@ const User = BaseModel.define({
      * @returns {*}
      */
     picture$() {
+        // TODO check former mobilePicture$
         return this.get('picture') || iconUri('user');
     },
 
@@ -472,43 +464,32 @@ const User = BaseModel.define({
 });
 
 /**
- * userRemoteTransport
+ * userTransport
  */
-const userRemoteTransport = new RemoteTransport({
+const userTransport = new RemoteTransport({
     collection: new AjaxUsers({
-        // projection: BaseModel.projection(Me)
+        // projection: BaseModel.projection(User)
     })
 });
 
 /**
  * Extend User with transport
  */
-extendModelWithTransport(User, userRemoteTransport);
-
-/**
- * userRemoteTransport
- */
-const userLocalTransport = new LocalTransport({
-    collection: database.users
-});
+extendModelWithTransport(User, userTransport);
 
 /**
  * UserDataSource
- * @class LazyVersionDataSource
+ * @class UserDataSource
  * @extends DataSource
  */
+/*
 const UserDataSource = DataSource.extend({
-    /**
-     * Init
-     * @constructor
-     * @param options
-     */
     init(options = {}) {
         DataSource.fn.init.call(this, {
             pageSize: CONSTANTS.DATA_PAGE_SIZE.MAX,
             ...options,
             ...{
-                transport: userLocalTransport,
+                transport: userTransport,
                 schema: normalizeSchema({
                     modelBase: User,
                     model: User
@@ -520,8 +501,10 @@ const UserDataSource = DataSource.extend({
         });
     }
 });
+*/
 
 /**
  * Default export
  */
-export { User, UserDataSource };
+// export { User, UserDataSource };
+export default User;

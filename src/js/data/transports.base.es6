@@ -62,7 +62,7 @@ const BaseTransport = Class.extend({
         if ($.isPlainObject(options.partition)) {
             this.partition(options.partition);
         }
-        if ($.isPlainObject(options.projection)) {
+        if ($.type(options.projection) === CONSTANTS.STRING) {
             this.projection(options.projection);
         }
         if ($.isFunction(options.parameterMap)) {

@@ -56,7 +56,7 @@ class AjaxCategories extends AjaxBase {
      * @param method
      * @private
      */
-    _getUrl(method) {
+    _getUrl(method /* , id */) {
         if (method === AjaxBase.METHOD.READ) {
             return format(
                 config.uris.rapi.v1.categories,

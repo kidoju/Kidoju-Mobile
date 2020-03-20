@@ -46,7 +46,7 @@ class AjaxUsers extends AjaxBase {
         if (method === AjaxBase.METHOD.GET) {
             return format(config.uris.rapi.v1.user, id);
         }
-        return super._getUrl(method);
+        return super._getUrl(method, id);
     }
 
     /**

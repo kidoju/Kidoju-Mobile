@@ -7,6 +7,7 @@ import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
+import { format } from './rapi.util.es6';
 
 /**
  * AjaxVersions
@@ -58,25 +59,29 @@ class AjaxVersions extends AjaxBase {
      * @private
      */
     _getUrl(method, id) {
-        let ret;
         if (
             method === AjaxBase.METHOD.CREATE ||
             method === AjaxBase.METHOD.READ
         ) {
-            ret = assert.format(
+            return format(
                 config.uris.rapi.v1.versions,
                 this._partition.language,
                 this._partition.summaryId
             );
-        } else {
-            ret = assert.format(
+        }
+        if (
+            method === AjaxBase.METHOD.DESTROY ||
+            method === AjaxBase.METHOD.GET ||
+            method === AjaxBase.METHOD.UPDATE
+        ) {
+            return format(
                 config.uris.rapi.v1.version,
                 this._partition.language,
                 this._partition.summaryId,
                 id || CONSTANTS.DRAFT
             );
         }
-        return ret;
+        return super._getUrl(method, id);
     }
 
     /**

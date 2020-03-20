@@ -47,7 +47,7 @@ class AjaxLanguages extends AjaxBase {
         if (method === AjaxBase.METHOD.GET) {
             return format(config.uris.rapi.v1.language, id);
         }
-        return super._getUrl(method);
+        return super._getUrl(method, id);
     }
 }
 

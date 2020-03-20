@@ -36,7 +36,7 @@ const extension = {
      * Reset summaries
      */
     resetSummaries() {
-        this.set(VIEW_MODEL.SUMMARY.$, new Summary()); // new models.Summary()
+        this.set(VIEW_MODEL.SUMMARY, new Summary()); // new models.Summary()
         this.set(VIEW_MODEL.SUMMARIES, new LazySummaryDataSource()); // new models.LazySummaryDataSource({ pageSize: VIRTUAL_PAGE_SIZE })
     },
 
@@ -111,7 +111,7 @@ const extension = {
                 CONSTANTS.RX_MONGODB_ID
             )
         );
-        return this[VIEW_MODEL.SUMMARY.$]
+        return this[VIEW_MODEL.SUMMARY]
             .load(options)
             .catch((xhr, status, errorThrown) => {
                 app.notification.error(__('notifications.summaryLoadFailure'));

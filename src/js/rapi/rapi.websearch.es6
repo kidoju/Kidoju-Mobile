@@ -70,6 +70,7 @@ class AjaxWebSearch extends AjaxBase {
             const ret = { q: '' };
             // query.filter is built by the assetmanager search box
             if (
+                query &&
                 query.filter &&
                 query.filter.logic === 'and' &&
                 Array.isArray(query.filter.filters) &&

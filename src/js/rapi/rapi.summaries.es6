@@ -67,12 +67,18 @@ class AjaxSummaries extends AjaxBase {
                 this._partition.language
             );
         }
-        return format(
-            config.uris.rapi.v1.summary,
-            this._partition.language,
-            id
-        );
-        // return super._getUrl(method);
+        if (
+            method === AjaxBase.METHOD.DESTROY ||
+            method === AjaxBase.METHOD.GET ||
+            method === AjaxBase.METHOD.UPDATE
+        ) {
+            return format(
+                config.uris.rapi.v1.summary,
+                this._partition.language,
+                id
+            );
+        }
+        return super._getUrl(method, id);
     }
 
     /**

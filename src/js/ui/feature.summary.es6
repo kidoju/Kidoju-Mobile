@@ -45,7 +45,7 @@ const feature = {
             mobile.onGenericViewShow(e);
             // Set the background color
             // This cannot be done via bindings because the view and vien.content cannot be bound
-            var summary = viewModel.get(VIEW_MODEL.SUMMARY.$);
+            var summary = viewModel.get(VIEW_MODEL.SUMMARY);
             view.content
             .toggleClass('error', summary.isError$())
             .toggleClass('success', summary.isSuccess$())

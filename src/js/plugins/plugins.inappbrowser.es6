@@ -19,8 +19,8 @@ const plugin = {
         const { InAppBrowser } = window.cordova || {};
         const { platform } = window.device || {};
         return (
-            platform !== 'browser' &&
             InAppBrowser &&
+            platform !== 'browser' &&
             typeof InAppBrowser.open === 'function'
         );
     },

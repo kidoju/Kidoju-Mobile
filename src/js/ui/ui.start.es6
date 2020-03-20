@@ -88,8 +88,8 @@ $.ajaxSetup({
     timeout: 20000 // Timeout in milliseconds
 });
 
-window.handleOpenUrl = function (url) {
-    debugger;
+window.handleOpenUrl = function(url) {
+    console.log(`--> ${url}`);
 };
 
 /**

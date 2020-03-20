@@ -191,9 +191,11 @@ class AjaxBase {
      * @param query
      */
     get(id, query) {
-        if ($.type(id) !== CONSTANTS.UNDEFINED) {
-            // ping or me designate no id
+        // if ($.type(id) !== CONSTANTS.UNDEFINED) {
+        if ($.type(id) === CONSTANTS.STRING && id.length !== 2) {
+            // ping or me designate no id (undefined)
             // draft version designates no id
+            // language is two characters only
             assert.match(
                 CONSTANTS.RX_MONGODB_ID,
                 id,

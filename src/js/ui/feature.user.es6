@@ -121,7 +121,7 @@ const feature = {
         mobile.enableUserButtons(false);
 
         // Get user from viewModel
-        var user = viewModel.get(VIEW_MODEL.USER.$);
+        var user = viewModel.get(VIEW_MODEL.USER);
         assert.instanceof(models.MobileUser, user, assert.format(assert.messages.instanceof.default, 'user', 'models.MobileUser'));
         var isNewUser = user.isNew();
 

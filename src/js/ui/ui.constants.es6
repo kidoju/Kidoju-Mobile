@@ -52,6 +52,7 @@ const VIEW = {
 const VIEW_MODEL = {
     ACTIVITIES: 'activities',
     CATEGORIES: 'categories',
+    /*
     CURRENT: {
         $: 'current',
         ID: 'current.id',
@@ -64,12 +65,12 @@ const VIEW_MODEL = {
             VERSION_ID: 'current.version.versionId'
         }
     },
+     */
     LANGUAGE: 'language',
     LANGUAGES: 'languages',
-    PAGES_COLLECTION: 'version.stream.pages',
     SELECTED_PAGE: 'selectedPage',
-    SUMMARY: {
-        $: 'summary',
+    SUMMARY: 'summary',
+    SUMMARY_: {
         CATEGORY_ID: 'summary.categoryId',
         DESCRIPTION: 'summary.description',
         ID: 'summary.id',
@@ -79,8 +80,8 @@ const VIEW_MODEL = {
     SUMMARIES: 'summaries',
     THEME: 'theme',
     THEMES: 'themes',
-    USER: {
-        $: 'user',
+    USER: 'user',
+    USER_: {
         ROOT_CATEGORY_ID: 'user.rootCategoryId',
         FIRST_NAME: 'user.firstName',
         ID: 'user.id',
@@ -94,11 +95,14 @@ const VIEW_MODEL = {
         // THEME: 'user.theme'
     },
     USERS: 'users',
-    VERSION: {
-        $: 'version',
-        ID: 'version.id',
-        LANGUAGE: 'version.language',
-        SUMMARY_ID: 'version.summaryId'
+    VERSION: 'version',
+    VERSION_: {
+        // ID: 'version.id',
+        // LANGUAGE: 'version.language',
+        STREAM_: {
+            PAGES: 'version.stream.pages'
+        }
+        // SUMMARY_ID: 'version.summaryId'
     },
     VERSIONS: 'versions'
 };

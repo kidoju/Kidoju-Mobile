@@ -8,11 +8,10 @@
 import $ from 'jquery';
 import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
-import BaseModel from './data.base.es6';
-import { Page } from './data.page.es6';
+import Activity from './data.activity.es6';
 
 const {
-    data: { DataSource, Model } // TODO MOdel
+    data: { DataSource, Model }
 } = window.kendo;
 
 /**
@@ -157,7 +156,7 @@ const CommentDataSource = DataSource.extend({
                 .then(response => {
                     options.success(response);
                 })
-                .catch((xhr, status, error) => {
+                .catch((xhr, status, errorThrown) => {
                     options.error(xhr, status, errorThrown);
                 });
         },

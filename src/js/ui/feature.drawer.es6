@@ -40,7 +40,7 @@ const feature = {
         const command = e.item.attr(attr('command')); // TODO replace with action
         debugger;
         const language = __.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE);
-        const userId = viewModel.get(VIEW_MODEL.USER.SID);
+        const userId = viewModel.get(VIEW_MODEL.USER_.SID);
         switch (command) {
             case 'categories':
                 controller.application.navigate(`${CONSTANTS.HASH}${VIEW.CATEGORIES}?language=${encodeURIComponent(language)}`);

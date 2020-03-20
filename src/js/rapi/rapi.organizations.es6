@@ -3,11 +3,9 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO
-
 import config from '../app/app.config.jsx';
-import assert from '../common/window.assert.es6';
-import CONSTANTS from '../common/window.constants.es6';
+// import assert from '../common/window.assert.es6';
+// import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
 import { format } from './rapi.util.es6';
 
@@ -27,22 +25,6 @@ class AjaxOrganizations extends AjaxBase {
             collection: 'organizations'
         });
         super(options);
-        assert.isNonEmptyPlainObject(
-            this._partition,
-            assert.format(
-                assert.messages.isNonEmptyPlainObject.default,
-                'options.partition'
-            )
-        );
-        assert.match(
-            CONSTANTS.RX_LANGUAGE,
-            this._partition.language,
-            assert.format(
-                assert.messages.match.default,
-                'options.partition.language',
-                CONSTANTS.RX_LANGUAGE
-            )
-        );
     }
 
     /**
@@ -52,24 +34,20 @@ class AjaxOrganizations extends AjaxBase {
      * @private
      */
     _getUrl(method, id) {
-        let ret;
         if (
             method === AjaxBase.METHOD.CREATE ||
             method === AjaxBase.METHOD.READ
         ) {
-            ret = format(
-                // TODO config.uris.rapi.v1.mySummaries,
-                config.uris.rapi.v1.summaries,
-                this._partition.language
-            );
-        } else {
-            ret = format(
-                config.uris.rapi.v1.summary,
-                this._partition.language,
-                id
-            );
+            return config.uris.rapi.v1.organizations;
         }
-        return ret;
+        if (
+            method === AjaxBase.METHOD.DESTROY ||
+            method === AjaxBase.METHOD.GET ||
+            method === AjaxBase.METHOD.UPDATE
+        ) {
+            return format(config.uris.rapi.v1.organization, id);
+        }
+        return super._getUrl(method, id);
     }
 
     /**

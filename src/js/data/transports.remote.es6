@@ -26,7 +26,13 @@ const RemoteTransport = LazyRemoteTransport.extend({
             // Execute request
             this._collection
                 .create(data)
-                .then(options.success)
+                .then((result, textStatus, xhr) => {
+                    if (xhr.status === 201) {
+                        options.success(result);
+                    } else {
+                        options.error(xhr, xhr.statusText, 'Error creating');
+                    }
+                })
                 .catch(options.error);
         }
     },
@@ -46,11 +52,11 @@ const RemoteTransport = LazyRemoteTransport.extend({
             // Execute request
             this._collection
                 .destroy(data[this.idField()])
-                .then(result => {
-                    if (result.nRemoved === 1) {
-                        options.success();
+                .then((result, textStatus, xhr) => {
+                    if (xhr.status === 204) {
+                        options.success(/* result */);
                     } else {
-                        options.error('TODO');
+                        options.error(xhr, xhr.statusText, 'Error destroying');
                     }
                 })
                 .catch(options.error);
@@ -72,16 +78,13 @@ const RemoteTransport = LazyRemoteTransport.extend({
             // Execute request
             this._collection
                 .update(data[this.idField()], data)
-                .then(options.success)
-                /*
-                .then(result => {
-                    if (result.n === 1) {
-                        options.success();
+                .then((result, textStatus, xhr) => {
+                    if (xhr.status === 200) {
+                        options.success(result);
                     } else {
-                        options.error('TODO');
+                        options.error(xhr, xhr.statusText, 'Error updating');
                     }
                 })
-                */
                 .catch(options.error);
         }
     }

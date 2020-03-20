@@ -173,7 +173,7 @@ const CodeEditor = DataBoundWidget.extend({
      */
     _onValueChange(e) {
         if (e.field === VALIDATION_PROP) {
-            debugger;
+            // debugger;
         }
     },
 
@@ -489,7 +489,7 @@ const CodeEditor = DataBoundWidget.extend({
      * refresh UI
      * @private
      */
-    refresh(e) {
+    refresh(/* e */) {
         let item;
         let params;
         const validation = getter(VALIDATION_PROP)(this._value);
@@ -676,7 +676,6 @@ const CodeEditor = DataBoundWidget.extend({
         const row = getter(SOLUTION_PROP)(tool).getRow('solution');
         row.editable = true;
         row.model = this._value;
-        debugger;
         optimizeEditor(row);
         // Empty container
         container.empty();

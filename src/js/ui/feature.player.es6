@@ -93,7 +93,7 @@ const feature = {
             // load version to display quiz content in the player
             viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
             // Load activities to save score in datasource
-            viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
+            viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER_.SID) })
         )
         .done(function () {
             viewModel.resetCurrent();
