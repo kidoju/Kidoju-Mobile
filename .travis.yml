@@ -1,15 +1,13 @@
-# sudo: false - uncomment when Travis is fixed - https://github.com/kidoju/Kidoju-Widgets/issues/251
-sudo: required
-dist: trusty
+sudo: false
+# dist: xenial
 language: node_js
 node_js:
+  - "13"
   - "12"
   - "11"
   - "10"
-  - "9"
-  - "8"
 env:
-  - NODE_ENV=test CC=gcc-6 CXX=g++-6
+  - NODE_ENV=test CC=gcc-6 CXX=g++-6 FORCE_COLOR=true
 addons:
   chrome: stable
   apt:
