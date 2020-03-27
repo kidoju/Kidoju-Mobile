@@ -13,8 +13,8 @@ let capabilities = [
         // browserName: 'firefox' // gecko
         // browserName: 'internet explorer'
         // The following driver is installed with phantomjs-brebuilt
-        browserName: 'phantomjs'
-    }
+        browserName: 'phantomjs',
+    },
 ];
 let seleniumArgs = {};
 
@@ -32,8 +32,8 @@ if (/^win/.test(process.platform)) {
             // Add opera driver
             // '-Dwebdriver.opera.driver=' + path.join(__dirname, './test/bin/operadriver.exe')
             // '-Dwebdriver.opera.driver=' + path.join(__dirname, './node_modules/selenium-standalone/.selenium/chromedriver/2.36-x64-chromedriver')
-            '-Dwebdriver.opera.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\chromedriver\\2.37-x64-chromedriver'
-        ]
+            '-Dwebdriver.opera.driver=C:\\Users\\jlche\\AppData\\Roaming\\npm\\node_modules\\selenium-standalone\\.selenium\\chromedriver\\2.37-x64-chromedriver',
+        ],
         // For other opts, see https://github.com/vvo/selenium-standalone/blob/master/lib/start.js#L22
         // seleniumArgs: [],
         // version
@@ -46,7 +46,7 @@ if (/^win/.test(process.platform)) {
         // @see https://medium.com/@jlchereau/how-to-configure-webdrivier-io-with-selenium-standalone-and-additional-browsers-9369d38bc4d1
         {
             maxInstances: 1,
-            browserName: 'chrome'
+            browserName: 'chrome',
             // unexpectedAlertBehaviour: 'ignore' - use it to display an alert that is not seen
         },
         {
@@ -54,15 +54,15 @@ if (/^win/.test(process.platform)) {
             browserName: 'firefox',
             // @see https://github.com/vvo/selenium-standalone/issues/237
             // @see http://stackoverflow.com/questions/38125581/how-to-enable-a-firefox-extension-when-testing-with-selenium-webdriverio
-            marionette: true
+            marionette: true,
         },
         {
             maxInstances: 1,
-            browserName: 'internet explorer'
+            browserName: 'internet explorer',
         },
         {
             maxInstances: 1,
-            browserName: 'MicrosoftEdge'
+            browserName: 'MicrosoftEdge',
         },
         {
             maxInstances: 1,
@@ -70,7 +70,7 @@ if (/^win/.test(process.platform)) {
             // Without the path, phantomJS is not found on Windows
             // 'phantomjs.binary.path': path.join(__dirname, './node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs.exe')
             'phantomjs.binary.path':
-                'C:\\Program Files (x86)\\PhantomJS\\bin\\phantomjs.EXE'
+                'C:\\Program Files (x86)\\PhantomJS\\bin\\phantomjs.EXE',
         },
         {
             maxInstances: 1,
@@ -80,9 +80,9 @@ if (/^win/.test(process.platform)) {
                 extensions: [],
                 // binary: 'C:\\Program Files (x86)\\Opera\\launcher.exe'
                 binary:
-                    'C:\\Program Files (x86)\\Opera\\42.0.2393.94\\opera.exe'
-            }
-        }
+                    'C:\\Program Files (x86)\\Opera\\42.0.2393.94\\opera.exe',
+            },
+        },
     ];
 }
 
@@ -97,9 +97,10 @@ module.exports.config = {
     // according to your user and key information. However, if you are using a private Selenium
     // backend you should define the host address, port, and path here.
     //
-    // host: '0.0.0.0',
-    // port: 4444,
-    // path: '/wd/hub',
+    protocol: 'http',
+    host: 'localhost',
+    port: 4444,
+    path: '/wd/hub',
     //
     // =================
     // Service Providers
@@ -224,7 +225,7 @@ module.exports.config = {
     // @see http://webdriver.io/guide/services/static-server.html
     staticServerFolders: [
         { mount: '/', path: './www' }, // index.html and build
-        { mount: '/js', path: './js' } // ./js/app.rapi.mock.js
+        { mount: '/js', path: './js' }, // ./js/app.rapi.mock.js
     ],
     staticServerLog: true,
     staticServerPort: 3000,
@@ -245,9 +246,8 @@ module.exports.config = {
     // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
-        timeout: 10000
-    }
-    // ,
+        timeout: 10000,
+    },
     //
     // =====
     // Hooks
@@ -256,58 +256,113 @@ module.exports.config = {
     // it and to build services around it. You can either apply a single function or an array of
     // methods to it. If one of them returns with a promise, WebdriverIO will wait until that promise got
     // resolved to continue.
-    //
-    // Gets executed once before all workers get launched.
-    // onPrepare: function (config, capabilities) {
-    // var app = require('./webapp/server'); // Start the web application
+    /**
+     * Gets executed once before all workers get launched.
+     * @param {Object} config wdio configuration object
+     * @param {Array.<Object>} capabilities list of capabilities details
+     */
+    // onPrepare(config, capabilities) {
+    // Start the web application
+    // eslint-disable-next-line global-require
+    // require('./webapp/server');
     // }
-    //
-    // Gets executed before test execution begins. At this point you can access all global
-    // variables, such as `browser`. It is the perfect place to define custom commands.
-    // before: function (capabilities, specs) {
+    /**
+     * Gets executed just before initialising the webdriver session and test framework. It allows you
+     * to manipulate configurations depending on the capability or spec.
+     * @param {Object} config wdio configuration object
+     * @param {Array.<Object>} capabilities list of capabilities details
+     * @param {Array.<String>} specs List of spec file paths that are to be run
+     */
+    // beforeSession(config, capabilities, specs) {
     // },
-    //
-    // Hook that gets executed before the suite starts
-    // beforeSuite: function (suite) {
+    /**
+     * Gets executed before test execution begins. At this point you can access to all global
+     * variables like `browser`. It is the perfect place to define custom commands.
+     * @param {Array.<Object>} capabilities list of capabilities details
+     * @param {Array.<String>} specs List of spec file paths that are to be run
+     */
+    before(/* capabilities, specs */) {
+        // Enhance browser with our Ex functions
+        // @see https://webdriver.io/blog/2019/11/01/spec-filtering.html
+        // eslint-disable-next-line global-require
+        require('./test/selenium/_misc/selenium.util.es6');
+    },
+    /**
+     * Hook that gets executed before the suite starts
+     * @param {Object} suite suite details
+     */
+    // beforeSuite(suite) {
     // },
-    //
-    // Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
-    // beforeEach in Mocha)
-    // beforeHook: function () {
+    /**
+     * Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
+     * beforeEach in Mocha)
+     */
+    // beforeHook() {
     // },
-    //
-    // Hook that gets executed _after_ a hook within the suite starts (e.g. runs after calling
-    // afterEach in Mocha)
-    // afterHook: function () {
+    /**
+     * Hook that gets executed _after_ a hook within the suite starts (e.g. runs after calling
+     * afterEach in Mocha)
+     */
+    // afterHook() {
     // },
-    //
-    // Function to be executed before a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
-    // beforeTest: function (test) {
+    /**
+     * Function to be executed before a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
+     * @param {Object} test test details
+     */
+    // beforeTest(test) {
     // },
-    //
-    // Runs before a WebdriverIO command gets executed.
-    // beforeCommand: function (commandName, args) {
+    /**
+     * Runs before a WebdriverIO command gets executed.
+     * @param {String} commandName hook command name
+     * @param {Array} args arguments that command would receive
+     */
+    // beforeCommand(commandName, args) {
     // },
-    //
-    // Runs after a WebdriverIO command gets executed
-    // afterCommand: function (commandName, args, result, error) {
+    /**
+     * Runs after a WebdriverIO command gets executed
+     * @param {String} commandName hook command name
+     * @param {Array} args arguments that command would receive
+     * @param {Number} result 0 - command success, 1 - command error
+     * @param {Object} error error object if any
+     */
+    // afterCommand(commandName, args, result, error) {
     // },
-    //
-    // Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
-    // afterTest: function (test) {
+    /**
+     * Function to be executed after a test (in Mocha/Jasmine) or a step (in Cucumber) starts.
+     * @param {Object} test test details
+     */
+    // afterTest(test) {
     // },
-    //
-    // Hook that gets executed after the suite has ended
-    // afterSuite: function (suite) {
+    /**
+     * Hook that gets executed after the suite has ended
+     * @param {Object} suite suite details
+     */
+    // afterSuite(suite) {
     // },
-    //
-    // Gets executed after all tests are done. You still have access to all global variables from
-    // the test.
-    // after: function (result, capabilities, specs) {
+    /**
+     * Gets executed after all tests are done. You still have access to all global variables from
+     * the test.
+     * @param {Number} result 0 - test pass, 1 - test fail
+     * @param {Array.<Object>} capabilities list of capabilities details
+     * @param {Array.<String>} specs List of spec file paths that ran
+     */
+    // after(result, capabilities, specs) {
     // },
-    //
-    // Gets executed after all workers got shut down and the process is about to exit. It is not
-    // possible to defer the end of the process using a promise.
+    /**
+     * Gets executed right after terminating the webdriver session.
+     * @param {Object} config wdio configuration object
+     * @param {Array.<Object>} capabilities list of capabilities details
+     * @param {Array.<String>} specs List of spec file paths that ran
+     */
+    // afterSession(config, capabilities, specs) {
+    // },
+    /**
+     * Gets executed after all workers got shut down and the process is about to exit.
+     * @param {Object} exitCode 0 - success, 1 - fail
+     * @param {Object} config wdio configuration object
+     * @param {Array.<Object>} capabilities list of capabilities details
+     * @param {<Object>} results object containing test results
+     */
     // onComplete: function(exitCode) {
     // }
 };

@@ -2,7 +2,7 @@
  * On any platform including Travis-CI
  *************************************************************** */
 
-let capabilities = [
+const capabilities = [
     {
         // 'Android' or 'iOS'
         platformName: 'Android',
@@ -25,10 +25,10 @@ let capabilities = [
 
         // When set to true, it will not show permission dialogs, but instead grant all
         // permissions automatically.
-        autoGrantPermissions: true
-    }
+        autoGrantPermissions: true,
+    },
 ];
-let seleniumArgs = {};
+const seleniumArgs = {};
 
 module.exports.config = {
     //
@@ -144,8 +144,8 @@ module.exports.config = {
             deviceName: 'iPhone 6',
             nativeInstrumentsLib: true,
             isolateSimDevice: true,
-            app: 'www/index.html' // TODO: Review
-        }
+            app: 'www/index.html', // TODO: Review
+        },
     },
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
@@ -164,8 +164,8 @@ module.exports.config = {
     // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
-        timeout: 10000
-    }
+        timeout: 10000,
+    },
     //
     // =====
     // Hooks
