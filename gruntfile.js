@@ -38,7 +38,7 @@ module.exports = grunt => {
                 processContentExclude: ['**/*.js']
             },
             jquery: {
-                src: './js/vendor/jquery/jquery-3.4.1.min.js',
+                src: './js/vendor/jquery/jquery-3.5.0.min.js',
                 dest: './www/build/jquery.min.js'
             },
             workerlib: {
