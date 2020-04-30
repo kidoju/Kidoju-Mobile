@@ -13,7 +13,7 @@
 const path = require('path');
 const deasync = require('deasync');
 const webpack = require('webpack');
-const cleanPlugin = require('./web_modules/less-plugin/index.es6');
+const cleanLessPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
 const pkg = require('./package.json');
 
@@ -23,7 +23,7 @@ const pkg = require('./package.json');
  * @type {boolean}
  */
 let loaded = false;
-config.load(error => {
+config.load((error) => {
     if (error) {
         throw error;
     }
@@ -48,7 +48,7 @@ console.log(`processing version ${pkg.version}`); // eslint-disable-line no-cons
  */
 const definePlugin = new webpack.DefinePlugin({
     __NODE_ENV__: JSON.stringify(environment),
-    __VERSION__: JSON.stringify(pkg.version)
+    __VERSION__: JSON.stringify(pkg.version),
 });
 
 /**
@@ -87,13 +87,13 @@ module.exports = {
         // ES5 application
         // app: ['./src/js/app.mobile.js'],
         // ES6 application
-        app: ['./src/js/app/app.init.es6']
+        app: ['./src/js/app/app.init.es6'],
         // Worker library
         // workerlib: './src/js//kidoju.data.workerlib.js'
     },
     externals: {
         // CDN modules
-        jquery: 'jQuery'
+        jquery: 'jQuery',
     },
     module: {
         rules: [
@@ -103,9 +103,9 @@ module.exports = {
                 use: [
                     {
                         loader: 'babel-loader',
-                        options: { babelrc: true }
-                    }
-                ]
+                        options: { babelrc: true },
+                    },
+                ],
             },
             {
                 // Do not put a $ at the end of the test regex
@@ -113,34 +113,36 @@ module.exports = {
                 use: [
                     {
                         loader: './web_modules/jsx-loader/index.es6',
-                        options: { config: 'webapp/config' }
-                    }
-                ]
+                        options: { config: 'webapp/config' },
+                    },
+                ],
             },
             {
                 test: /app\.theme\.[a-z0-9-]+\.less$/,
                 use: [
                     {
                         loader: 'bundle-loader',
-                        options: { name: '[name]' }
+                        options: { name: '[name]' },
                     },
                     { loader: 'style-loader/useable' },
                     {
                         loader: 'css-loader',
-                        options: { importLoaders: 2 }
+                        options: { importLoaders: 2 },
                     },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
                     {
                         loader: 'less-loader',
                         options: {
-                            compress: true,
-                            relativeUrls: true,
-                            strictMath: true,
-                            plugins: [cleanPlugin]
-                        }
-                    }
-                ]
+                            lessOptions: {
+                                compress: true,
+                                relativeUrls: true,
+                                strictMath: true,
+                                plugins: [cleanLessPlugin],
+                            },
+                        },
+                    },
+                ],
             },
             {
                 test: /\.less$/,
@@ -149,20 +151,22 @@ module.exports = {
                     { loader: 'style-loader' },
                     {
                         loader: 'css-loader',
-                        options: { importLoaders: 1 }
+                        options: { importLoaders: 1 },
                     },
                     { loader: 'postcss-loader' },
                     // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
                     {
                         loader: 'less-loader',
                         options: {
-                            compress: true,
-                            relativeUrls: true,
-                            strictMath: true,
-                            plugins: [cleanPlugin]
-                        }
-                    }
-                ]
+                            lessOptions: {
+                                compress: true,
+                                relativeUrls: true,
+                                strictMath: true,
+                                plugins: [cleanLessPlugin],
+                            },
+                        },
+                    },
+                ],
             },
             {
                 test: /\.css$/,
@@ -170,19 +174,19 @@ module.exports = {
                     { loader: 'style-loader' },
                     {
                         loader: 'css-loader',
-                        options: { importLoaders: 1 }
+                        options: { importLoaders: 1 },
                     },
-                    { loader: 'postcss-loader' }
-                ]
+                    { loader: 'postcss-loader' },
+                ],
             },
             {
                 test: /\.(gif|png|jpe?g)$/,
                 use: [
                     {
                         loader: 'url-loader',
-                        options: { limit: 8192 }
-                    }
-                ]
+                        options: { limit: 8192 },
+                    },
+                ],
             },
             {
                 test: /\.woff(2)?/,
@@ -191,20 +195,20 @@ module.exports = {
                         loader: 'url-loader',
                         options: {
                             limit: 10000,
-                            mimetype: 'application/font-woff'
-                        }
-                    }
-                ]
+                            mimetype: 'application/font-woff',
+                        },
+                    },
+                ],
             },
             {
                 test: /\.(ttf|eot|svg)/,
-                use: [{ loader: 'file-loader' }]
-            }
-        ]
+                use: [{ loader: 'file-loader' }],
+            },
+        ],
     },
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     optimization: {
-        minimize: process.env.NODE_ENV === 'production'
+        minimize: process.env.NODE_ENV === 'production',
     },
     output: {
         // Unfortunately it is not possible to specialize output directories
@@ -212,16 +216,16 @@ module.exports = {
         path: path.join(__dirname, '/www/build'),
         publicPath: buildPath,
         filename: `[name].bundle.js?v=${pkg.version}`,
-        chunkFilename: `[name].bundle.js?v=${pkg.version}`
+        chunkFilename: `[name].bundle.js?v=${pkg.version}`,
     },
     plugins: [
-        definePlugin
+        definePlugin,
         // bundleAnalyzerPlugin
     ],
     resolve: {
         modules: [
             path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
-            'node_modules'
-        ]
-    }
+            'node_modules',
+        ],
+    },
 };
