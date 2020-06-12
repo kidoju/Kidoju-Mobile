@@ -38,7 +38,7 @@ module.exports = grunt => {
                 processContentExclude: ['**/*.js']
             },
             jquery: {
-                src: './js/vendor/jquery/jquery-3.5.1.min.js',
+                src: './src/js/vendor/jquery/jquery-3.5.1.min.js',
                 dest: './www/build/jquery.min.js'
             },
             workerlib: {
@@ -52,43 +52,43 @@ module.exports = grunt => {
                 config: '.eslintrc'
             }
         },
-        jscs: {
-            files: [
-                'js/**/app.*.js',
-                'js/**/*.jsx',
-                'test/**/*.js',
-                'webapp/**/*.js'
-            ],
-            options: {
-                config: '.jscsrc',
-                excludeFiles: [
-                    '*.js',
-                    'js/kidoju.*.js',
-                    'js/vendor/**/*.js',
-                    'test/vendor/**/*.js',
-                    'webapp/public/**/*.js'
-                ]
-            }
-        },
-        jshint: {
-            files: [
-                'js/**/app.*.js',
-                'js/**/*.jsx',
-                'test/**/*.js',
-                'webapp/**/*.js'
-            ],
-            options: {
-                // .jshintignore does ot work with grunt-contrib-jshint
-                ignores: [
-                    '*.js',
-                    'js/kidoju.*.js',
-                    'js/vendor/**/*.js',
-                    'test/vendor/**/*.js',
-                    'webapp/public/**/*.js'
-                ],
-                jshintrc: true
-            }
-        },
+        // jscs: {
+        //     files: [
+        //         'js/**/app.*.js',
+        //         'js/**/*.jsx',
+        //         'test/**/*.js',
+        //         'webapp/**/*.js'
+        //     ],
+        //     options: {
+        //         config: '.jscsrc',
+        //         excludeFiles: [
+        //             '*.js',
+        //             'js/kidoju.*.js',
+        //             'js/vendor/**/*.js',
+        //             'test/vendor/**/*.js',
+        //             'webapp/public/**/*.js'
+        //         ]
+        //     }
+        // },
+        // jshint: {
+        //     files: [
+        //         'js/**/app.*.js',
+        //         'js/**/*.jsx',
+        //         'test/**/*.js',
+        //         'webapp/**/*.js'
+        //     ],
+        //     options: {
+        //         // .jshintignore does ot work with grunt-contrib-jshint
+        //         ignores: [
+        //             '*.js',
+        //             'js/kidoju.*.js',
+        //             'js/vendor/**/*.js',
+        //             'test/vendor/**/*.js',
+        //             'webapp/public/**/*.js'
+        //         ],
+        //         jshintrc: true
+        //     }
+        // },
         /*
         // Kendo Lint is now obsolete
         kendo_lint: {
@@ -176,10 +176,11 @@ module.exports = grunt => {
 
     // Load npm tasks
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
+
+    // grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-eslint');
-    grunt.loadNpmTasks('grunt-jscs');
+    // grunt.loadNpmTasks('grunt-jscs');
     // grunt.loadNpmTasks('grunt-kendo-lint');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
@@ -191,8 +192,8 @@ module.exports = grunt => {
     // Commands
     grunt.registerTask('lint', [
         'eslint',
-        'jscs',
-        'jshint',
+        // 'jscs',
+        // 'jshint',
         'stylelint'
         // 'nsp'
     ]); // , 'kendo_lint']);
