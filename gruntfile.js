@@ -7,7 +7,7 @@
 const webpack = require('webpack');
 const webpackConfig = require('./webpack.config.js');
 
-module.exports = grunt => {
+module.exports = (grunt) => {
     /**
      * Unfortunately, we cannot use grunt-env to set the environment
      * - webpack uses a DefinePlugin which reads process.env.NODE_ENV
@@ -33,24 +33,39 @@ module.exports = grunt => {
 
     grunt.initConfig({
         pkg,
+        concat: {
+            options: {},
+            dist: {
+                src: [
+                    'www/views/layout.html',
+                    'www/views/drawer.html',
+                    'www/views/activities.html',
+                    'www/views/categories.html',
+                    'www/views/correction.html',
+                    'www/views/favourites.html',
+                    'www/views/finder.html',
+                ],
+                dest: 'www/index2.html',
+            },
+        },
         copy: {
             options: {
-                processContentExclude: ['**/*.js']
+                processContentExclude: ['**/*.js'],
             },
             jquery: {
                 src: './src/js/vendor/jquery/jquery-3.5.1.min.js',
-                dest: './www/build/jquery.min.js'
+                dest: './www/build/jquery.min.js',
             },
             workerlib: {
                 src: './webapp/public/build/workerlib.bundle.js',
-                dest: './www/build/workerlib.bundle.js'
-            }
+                dest: './www/build/workerlib.bundle.js',
+            },
         },
         eslint: {
             files: ['*.js', './hooks/*.js', './js/**/*.es6'],
             options: {
-                config: '.eslintrc'
-            }
+                config: '.eslintrc',
+            },
         },
         // jscs: {
         //     files: [
@@ -103,10 +118,10 @@ module.exports = grunt => {
                     logErrors: true,
                     reporter: 'Spec',
                     run: true,
-                    timeout: 5000
+                    timeout: 5000,
                 },
-                src: ['test/browser/**/*.html']
-            }
+                src: ['test/browser/**/*.html'],
+            },
         },
         mochaTest: {
             // In node (Zombie) unit tests
@@ -115,10 +130,10 @@ module.exports = grunt => {
                     quiet: false,
                     reporter: 'spec',
                     timeout: 10000,
-                    ui: 'bdd'
+                    ui: 'bdd',
                 },
-                src: ['test/node/**/*.js']
-            }
+                src: ['test/node/**/*.js'],
+            },
         },
         /*
         nsp: {
@@ -127,15 +142,15 @@ module.exports = grunt => {
         */
         stylelint: {
             options: {
-                configFile: '.stylelintrc'
+                configFile: '.stylelintrc',
             },
-            src: ['styles/**/*.{css,less,scss}']
+            src: ['styles/**/*.{css,less,scss}'],
         },
         uglify: {
             build: {
                 options: {
                     banner,
-                    sourceMap: false
+                    sourceMap: false,
                     // sourceMap: true,
                     // sourceMapName: 'webapp/public/build/workerlib.bundle.js.map'
                 },
@@ -143,19 +158,19 @@ module.exports = grunt => {
                     'webapp/public/build/workerlib.bundle.js': [
                         'src/js/vendor/jashkenas/underscore.js',
                         'src/js/vendor/khan/kas.js',
-                        'src/js/kidoju.data.workerlib.js'
-                    ]
-                }
-            }
+                        'src/js/kidoju.data.workerlib.js',
+                    ],
+                },
+            },
         },
         webdriver: {
             // Selenium functional tests
             appium: {
-                configFile: './wdio.appium.conf.js'
+                configFile: './wdio.appium.conf.js',
             },
             selenium: {
-                configFile: './wdio.selenium.conf.js'
-            }
+                configFile: './wdio.selenium.conf.js',
+            },
         },
         webpack: {
             // @see https://github.com/webpack/webpack-with-common-libs/blob/master/Gruntfile.js
@@ -166,15 +181,16 @@ module.exports = grunt => {
                 plugins: webpackConfig.plugins.concat(
                     new webpack.BannerPlugin({
                         banner,
-                        raw: true
+                        raw: true,
                         // entryOnly: true
                     })
-                )
-            }
-        }
+                ),
+            },
+        },
     });
 
     // Load npm tasks
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
 
     // grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -194,7 +210,7 @@ module.exports = grunt => {
         'eslint',
         // 'jscs',
         // 'jshint',
-        'stylelint'
+        'stylelint',
         // 'nsp'
     ]); // , 'kendo_lint']);
     grunt.registerTask('build', ['webpack:build', 'uglify:build', 'copy']);

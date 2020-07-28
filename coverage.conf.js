@@ -1,12 +1,12 @@
 // Karma configuration
-module.exports = config => {
+module.exports = (config) => {
     config.set({
         // mocha configuration
         client: {
             mocha: {
                 ui: 'bdd',
-                timeout: 10000
-            }
+                timeout: 10000,
+            },
         },
 
         // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -25,151 +25,151 @@ module.exports = config => {
             {
                 pattern: 'src/styles/vendor/kendo/web/kendo.common.min.css',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/styles/vendor/kendo/web/kendo.default.min.css',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern:
                     'src/styles/vendor/kendo/web/kendo.default.mobile.min.css',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/vendor/kendo/jquery.min.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/vendor/kendo/kendo.all.min.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/window.assert.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/window.logger.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.data.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.data.workerlibjs',
                 served: true,
-                included: false
+                included: false,
             },
             {
                 pattern: 'src/js/kidoju.tools.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.assetmanager.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.codeeditor.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.codeinput.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.explorer.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.mediaplayer.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.multiinput.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.navigation.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.playbar.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.propertygrid.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.quiz.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.rating.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.stage.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.styleeditor.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'src/js/kidoju.widgets.toolbox.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'test/vendor/chai-jquery.js',
                 served: true,
-                included: true
+                included: true,
             },
             {
                 pattern: 'test/vendor/jquery.simulate.js',
                 served: true,
-                included: true
+                included: true,
             },
             // Our tests
             {
                 pattern: 'test/browsers/*.js',
                 served: true,
-                included: true
+                included: true,
             },
             // served but not included
             {
                 pattern: 'test/data/*.json',
                 served: true,
-                included: false
+                included: false,
             },
             {
                 pattern: 'src/**/*.*',
                 served: true,
-                included: false
-            }
+                included: false,
+            },
         ],
 
         // list of files to exclude
@@ -178,7 +178,7 @@ module.exports = config => {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'src/js/*.js': ['coverage']
+            'src/js/*.js': ['coverage'],
         },
 
         // test results reporter to use
@@ -208,17 +208,17 @@ module.exports = config => {
             'IE',
             'Opera',
             'PhantomJS',
-            'Safari'
+            'Safari',
         ],
 
         // optionally, configure the reporter
         coverageReporter: {
             type: 'html',
-            dir: 'coverage/'
+            dir: 'coverage/',
         },
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
-        singleRun: true
+        singleRun: true,
     });
 };
