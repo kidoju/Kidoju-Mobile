@@ -22,7 +22,7 @@ class AjaxOrganizations extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'organizations'
+            collection: 'organizations',
         });
         super(options);
     }

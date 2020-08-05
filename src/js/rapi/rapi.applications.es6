@@ -20,7 +20,7 @@ class AjaxApplications extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'applications'
+            collection: 'applications',
         });
         super(options);
     }

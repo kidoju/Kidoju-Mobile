@@ -21,7 +21,7 @@ class AjaxLanguages extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'languages'
+            collection: 'languages',
         });
         super(options);
     }

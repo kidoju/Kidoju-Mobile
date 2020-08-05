@@ -87,10 +87,10 @@ export default class Database {
         */
 
         // Add collections
-        options.collections.forEach(collection => {
+        options.collections.forEach((collection) => {
             this[collection] = new Collection({
                 db: this,
-                name: collection
+                name: collection,
             });
         });
 
@@ -231,7 +231,7 @@ export default class Database {
             callback,
             assert.format(assert.messages.isFunction.default, 'callback')
         );
-        events.forEach(evt => {
+        events.forEach((evt) => {
             const event = evt.toLowerCase();
             if (TRIGGERS.indexOf(event) > -1) {
                 this[collection]._triggers[event].push(callback);
@@ -264,18 +264,18 @@ export default class Database {
         const db = this;
         const dfd = $.Deferred();
         db.version() // Read from storage
-            .then(dbVersion => {
+            .then((dbVersion) => {
                 // Sort migrations by version number
                 const migrations = db._migrations.sort(compareVersions);
                 // Find the next migration
                 let found = false;
-                migrations.some(migration => {
+                migrations.some((migration) => {
                     if (compareVersions(dbVersion, migration._version) < 0) {
                         found = true;
                         logger.info({
                             method: 'upgrade',
                             message: 'Starting migration',
-                            data: { version: migration._version }
+                            data: { version: migration._version },
                         });
                         migration
                             .execute(db)
@@ -288,8 +288,8 @@ export default class Database {
                                             method: 'upgrade',
                                             message: 'Completed migration',
                                             data: {
-                                                version: migration._version
-                                            }
+                                                version: migration._version,
+                                            },
                                         });
                                         // Use recursion to execute the following migration
                                         db.upgrade()
@@ -321,11 +321,11 @@ export default class Database {
      */
     dropDatabase() {
         const dfd = $.Deferred();
-        localForage.dropInstance({ name: this._name }, err => {
+        localForage.dropInstance({ name: this._name }, (err) => {
             if (err) {
                 dfd.reject(err);
             } else {
-                Object.keys(this).forEach(key => {
+                Object.keys(this).forEach((key) => {
                     if (this[key] instanceof Collection) {
                         delete this[key];
                     }

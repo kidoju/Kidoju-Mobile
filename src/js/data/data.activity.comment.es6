@@ -11,7 +11,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import Activity from './data.activity.es6';
 
 const {
-    data: { DataSource, Model }
+    data: { DataSource, Model },
 } = window.kendo;
 
 /**
@@ -21,14 +21,14 @@ const {
 const Comment = Activity.define({
     fields: {
         text: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         // the authenticated user
         userId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
-        }
+            nullable: true,
+        },
     },
     init(data) {
         // Call the base init method
@@ -54,7 +54,7 @@ const Comment = Activity.define({
             hex += ((43 * name.charCodeAt(i)) % 256).toString(16);
         }
         return `#${hex.slice(-6)}`;
-    }
+    },
 });
 
 // export const CommentTransport = BaseTranspo
@@ -84,7 +84,7 @@ const CommentDataSource = DataSource.extend({
                         create: $.proxy(that._transport._create, that),
                         destroy: $.proxy(that._transport._destroy, that),
                         read: $.proxy(that._transport._read, that),
-                        update: $.proxy(that._transport._update, that)
+                        update: $.proxy(that._transport._update, that),
                     },
                     serverFiltering: true,
                     serverSorting: true,
@@ -125,8 +125,8 @@ const CommentDataSource = DataSource.extend({
                                 }
                             }
                             return response;
-                        }
-                    }
+                        },
+                    },
                 },
                 options
             )
@@ -153,7 +153,7 @@ const CommentDataSource = DataSource.extend({
                         that.summaryId,
                     { type: 'comment', text: options.data.text }
                 )
-                .then(response => {
+                .then((response) => {
                     options.success(response);
                 })
                 .catch((xhr, status, errorThrown) => {
@@ -168,7 +168,7 @@ const CommentDataSource = DataSource.extend({
                     options.data.version.summaryId,
                     options.data.id
                 )
-                .then(response => {
+                .then((response) => {
                     options.success(response);
                 })
                 .catch((xhr, status, error) => {
@@ -191,12 +191,12 @@ const CommentDataSource = DataSource.extend({
             options.data.filter = {
                 field: 'type',
                 operator: 'eq',
-                value: 'Comment'
+                value: 'Comment',
             };
             options.data.sort = [{ field: 'id', dir: 'desc' }];
             rapi.v1.content
                 .findSummaryActivities(__.locale, that.summaryId, options.data)
-                .then(response => {
+                .then((response) => {
                     options.success(response);
                 })
                 .catch((xhr, status, error) => {
@@ -211,14 +211,14 @@ const CommentDataSource = DataSource.extend({
                     options.data.id,
                     { text: options.data.text }
                 )
-                .then(response => {
+                .then((response) => {
                     options.success(response);
                 })
                 .catch((xhr, status, error) => {
                     options.error(xhr, status, errorThrown);
                 });
-        }
-    }
+        },
+    },
 });
 
 /**

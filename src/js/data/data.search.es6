@@ -29,38 +29,38 @@ const Search = BaseModel.define({
         userId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         ageGroup: {
             type: CONSTANTS.NUMBER,
-            defaultValue: 255
+            defaultValue: 255,
         },
         author: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         categoryId: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         favourite: {
             // name of favourite when saveChecked
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         navbar: {
             // text search in navbar
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         saveChecked: {
             type: CONSTANTS.BOOLEAN,
-            defaultValue: false
+            defaultValue: false,
         },
         sort: {
             type: CONSTANTS.STRING,
-            defaultValue: 'd' // other possible values are 'r' and 'v' for dates, rates and views
+            defaultValue: 'd', // other possible values are 'r' and 'v' for dates, rates and views
         },
         text: {
             // text search
-            type: CONSTANTS.STRING
-        }
+            type: CONSTANTS.STRING,
+        },
     },
 
     /**
@@ -114,9 +114,9 @@ const Search = BaseModel.define({
             const options = {
                 filter: {
                     logic: 'and',
-                    filters: []
+                    filters: [],
                 },
-                sort: []
+                sort: [],
             };
 
             // Filter
@@ -129,7 +129,7 @@ const Search = BaseModel.define({
                 options.filter.filters.push({
                     field: 'ageGroup',
                     operator: 'flags',
-                    value: ageGroup
+                    value: ageGroup,
                 });
             }
             const author = this.get('author');
@@ -137,7 +137,7 @@ const Search = BaseModel.define({
                 options.filter.filters.push({
                     field: 'author.lastName',
                     operator: 'startswith',
-                    value: author.trim()
+                    value: author.trim(),
                 });
             }
             const categoryId = this.get('categoryId');
@@ -145,7 +145,7 @@ const Search = BaseModel.define({
                 options.filter.filters.push({
                     field: 'categoryId',
                     operator: 'eq',
-                    value: categoryId
+                    value: categoryId,
                 });
             }
             const text = this.get('text');
@@ -153,7 +153,7 @@ const Search = BaseModel.define({
                 options.filter.filters.push({
                     field: '$text',
                     operator: 'eq',
-                    value: text.trim()
+                    value: text.trim(),
                 });
                 // Note: the language is added server side based on the url, so do not bother here
             }
@@ -175,12 +175,12 @@ const Search = BaseModel.define({
                     break;
                 case 'r': // sort by ratings
                     options.sort = [
-                        { field: 'metrics.ratings.average', dir: 'desc' }
+                        { field: 'metrics.ratings.average', dir: 'desc' },
                     ];
                     break;
                 case 'v': // sort by number of views
                     options.sort = [
-                        { field: 'metrics.views.count', dir: 'desc' }
+                        { field: 'metrics.views.count', dir: 'desc' },
                     ];
                     break;
             }
@@ -254,13 +254,13 @@ const Search = BaseModel.define({
         href = href.indexOf(root) === 0 ? href.substr(root.length) : href;
         const favourite = {
             name: this.get('favourite').trim(),
-            path: href + this.getHash(true)
+            path: href + this.getHash(true),
         };
         // TODO: we should rather update the cache
         app.cache.removeMyFavourites(__.locale);
         // Save a favourite on the current user
         return rapi.v1.user.createMyFavourite(__.locale, favourite);
-    }
+    },
 });
 
 /**

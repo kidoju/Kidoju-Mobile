@@ -17,7 +17,7 @@ const HTTP = {
     GET: 'GET',
     POST: 'POST',
     PATCH: 'PATCH',
-    PUT: 'PUT'
+    PUT: 'PUT',
 };
 // Note: we cannot use arguments.callee.name in strict mode
 const METHOD = {
@@ -25,7 +25,7 @@ const METHOD = {
     DESTROY: 'destroy',
     GET: 'get',
     READ: 'read',
-    UPDATE: 'update'
+    UPDATE: 'update',
 };
 
 /**
@@ -95,7 +95,7 @@ class AjaxBase {
         // TODO _partition
         const { _projection } = this;
         let fields = [];
-        Object.keys(_projection || {}).forEach(key => {
+        Object.keys(_projection || {}).forEach((key) => {
             if (_projection[key]) {
                 fields.push(key);
             }
@@ -147,14 +147,14 @@ class AjaxBase {
         logger.info({
             message: '$.ajax',
             method: `${this._collection}.${METHOD.CREATE}`,
-            data: { url, doc }
+            data: { url, doc },
         });
         return $.ajax({
             contentType: CONSTANTS.JSON_CONTENT_TYPE,
             data: JSON.stringify(doc),
             headers: this._getHeaders(METHOD.CREATE),
             type: HTTP.POST,
-            url
+            url,
         });
     }
 
@@ -176,12 +176,12 @@ class AjaxBase {
         logger.info({
             message: '$.ajax',
             method: `${this._collection}.${METHOD.DESTROY}`,
-            data: { url }
+            data: { url },
         });
         return $.ajax({
             headers: this._getHeaders(METHOD.DESTROY),
             type: HTTP.DELETE,
-            url
+            url,
         });
     }
 
@@ -218,14 +218,14 @@ class AjaxBase {
         logger.info({
             message: '$.ajax',
             method: `${this._collection}.${METHOD.GET}`,
-            data: { url, q }
+            data: { url, q },
         });
         return $.ajax({
             cache: false,
             data: q,
             headers: this._getHeaders(METHOD.GET),
             type: HTTP.GET,
-            url
+            url,
         });
     }
 
@@ -243,14 +243,14 @@ class AjaxBase {
         logger.info({
             message: '$.ajax',
             method: `${this._collection}.${METHOD.READ}`,
-            data: { url, q }
+            data: { url, q },
         });
         return $.ajax({
             cache: false,
             data: q,
             headers: this._getHeaders(METHOD.READ),
             type: HTTP.GET,
-            url
+            url,
         });
     }
 
@@ -277,14 +277,14 @@ class AjaxBase {
         logger.info({
             message: '$.ajax',
             method: `${this._collection}.${METHOD.UPDATE}`,
-            data: { url, doc }
+            data: { url, doc },
         });
         return $.ajax({
             contentType: CONSTANTS.JSON_CONTENT_TYPE,
             data: JSON.stringify(doc),
             headers: this._getHeaders(METHOD.UPDATE),
             type: HTTP.PUT,
-            url
+            url,
         });
     }
 }

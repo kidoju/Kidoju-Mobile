@@ -17,23 +17,23 @@ const VersionReference = BaseModel.define({
     fields: {
         language: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         summaryId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         title: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         versionId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
-        }
-    }
+            nullable: true,
+        },
+    },
 });
 
 /**

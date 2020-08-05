@@ -128,7 +128,7 @@ export function listFields(doc, path = '') {
         assert.format(assert.messages.type.default, 'path', CONSTANTS.STRING)
     );
     const fields = [];
-    Object.keys(doc).forEach(prop => {
+    Object.keys(doc).forEach((prop) => {
         if ($.type(doc[prop]) === CONSTANTS.OBJECT) {
             fields.push(
                 ...listFields(
@@ -178,11 +178,11 @@ export function search(str, doc, textFields) {
     );
     // Match all str words
     const matches = str.split(/\s+/g);
-    return textFields.some(path => {
+    return textFields.some((path) => {
         const value = getter(doc, path);
         if (Array.isArray(value)) {
             // Search string arrays like summary tags
-            value.forEach(item => {
+            value.forEach((item) => {
                 for (let idx = matches.length - 1; idx >= 0; idx--) {
                     if (
                         new RegExp(escapeRegExp(matches[idx]), 'i').test(item)
@@ -221,14 +221,14 @@ export function match(query, doc, textFields) {
         doc,
         assert.format(assert.messages.type.default, 'doc', CONSTANTS.OBJECT)
     );
-    return Object.keys(query).every(path => {
+    return Object.keys(query).every((path) => {
         const value = getter(doc, path);
         const criterion = query[path];
         let ret;
         if (criterion instanceof RegExp) {
             ret = criterion.test(value);
         } else if ($.type(criterion) === CONSTANTS.OBJECT) {
-            ret = Object.keys(criterion).every(operator => {
+            ret = Object.keys(criterion).every((operator) => {
                 // @see http://docs.mongodb.org/manual/reference/operator/query/
                 switch (operator) {
                     case '$caseSensitive': // $text
@@ -308,13 +308,13 @@ export function normalizeFilter(filter) {
         'contains',
         'doesnotcontain',
         'isempty', // empty string
-        'isnotempty'
+        'isnotempty',
     ];
     let ret = filter;
     if (Array.isArray(ret)) {
         ret = {
             logic: 'and',
-            filters: ret
+            filters: ret,
         };
     }
     assert.isNonEmptyPlainObject(
@@ -324,7 +324,7 @@ export function normalizeFilter(filter) {
     if (ret.field && ret.operator) {
         ret = {
             logic: 'and',
-            filters: [ret]
+            filters: [ret],
         };
     }
     assert.equal(
@@ -341,7 +341,7 @@ export function normalizeFilter(filter) {
         assert.format(assert.messages.hasLength.default, 'filter.filters')
     );
     const checkFilters = ret.filters.every(
-        f =>
+        (f) =>
             Object.keys(f).length <= 3 &&
             $.type(f.field) === CONSTANTS.STRING &&
             OPERATORS.indexOf(f.operator) > -1
@@ -352,7 +352,7 @@ export function normalizeFilter(filter) {
     );
     return {
         logic: ret.logic,
-        filters: ret.filters
+        filters: ret.filters,
     };
 }
 
@@ -372,7 +372,7 @@ export function convertFilter(filter) {
         assert.format(assert.messages.isArray.default, 'filter.filters')
     );
     const query = {};
-    filter.filters.forEach(f => {
+    filter.filters.forEach((f) => {
         const op = {};
         if (
             f.field === '$text' &&
@@ -414,13 +414,13 @@ export function convertFilter(filter) {
                 case 'startswith':
                     op[f.field] = {
                         $regex: `^${f.value}`,
-                        $options: 'i'
+                        $options: 'i',
                     };
                     break;
                 case 'endswith':
                     op[f.field] = {
                         $regex: `${f.value}$`,
-                        $options: 'i'
+                        $options: 'i',
                     };
                     break;
                 case 'contains':
@@ -432,7 +432,7 @@ export function convertFilter(filter) {
                     // op[f.field] = { $not: new RegExp(f.value, 'i') };
                     op[f.field] = {
                         $regex: `^((?!${f.value}).)*$`,
-                        $options: 'i'
+                        $options: 'i',
                     };
                     break;
                 case 'isempty':
@@ -474,7 +474,7 @@ export function convertSort(options) {
         sort,
         assert.format(assert.messages.isArray.default, 'options')
     );
-    sort.forEach(order => {
+    sort.forEach((order) => {
         if (
             $.type(order.field) === CONSTANTS.STRING &&
             $.type(order.dir) === CONSTANTS.STRING

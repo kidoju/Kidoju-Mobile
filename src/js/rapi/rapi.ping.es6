@@ -19,7 +19,7 @@ class AjaxPing extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'ping'
+            collection: 'ping',
         });
         super(options);
     }

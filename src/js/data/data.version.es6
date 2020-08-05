@@ -32,56 +32,56 @@ const Version = BaseModel.define({
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true,
-            serializable: false
+            serializable: false,
         },
         authorId: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         categoryId: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         created: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         language: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         state: {
             type: CONSTANTS.NUMBER,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         stream: {
             defaultValue: {}, // new Stream(),
             nullable: false,
             parse(value) {
                 return value instanceof Stream ? value : new Stream(value);
-            }
+            },
         },
         summaryId: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
             // We need to serialize summaryId so that partition validation passes
             // serializable: false
         },
         type: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         updated: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
-        }
+            serializable: false,
+        },
     },
     created$() {
         // TODO timezone
@@ -99,7 +99,7 @@ const Version = BaseModel.define({
     },
     summaryUri$() {
         return summaryUri(__.locale, this.get('summaryId'));
-    }
+    },
     /*
     load(summaryId, versionId) {
         const that = this;
@@ -193,8 +193,8 @@ const Version = BaseModel.define({
 const versionTransport = new RemoteTransport({
     collection: new AjaxVersions({
         partition: getSummaryReference(),
-        projection: BaseModel.projection(Version)
-    })
+        projection: BaseModel.projection(Version),
+    }),
 });
 
 /**

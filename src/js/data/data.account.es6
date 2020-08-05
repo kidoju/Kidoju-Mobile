@@ -18,59 +18,59 @@ const Account = BaseModel.define({
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true,
-            serializable: false
+            serializable: false,
         },
         email: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         firstName: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         gender: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         lastName: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         link: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         locale: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         timezone: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         picture: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         updated: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         verified: {
             type: CONSTANTS.BOOLEAN,
             editable: false,
-            serializable: false
-        }
-    }
+            serializable: false,
+        },
+    },
 });
 
 /**

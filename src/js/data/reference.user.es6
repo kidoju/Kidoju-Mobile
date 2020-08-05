@@ -22,22 +22,22 @@ const UserReference = BaseModel.define({
             type: CONSTANTS.STRING,
             editable: false,
             // nullable: true, // isNew is not required
-            serializable: false
+            serializable: false,
         },
         created: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         firstName: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         lastName: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         metrics: {
             defaultValue: {},
@@ -47,18 +47,18 @@ const UserReference = BaseModel.define({
                     ? value
                     : new UserMetricsReference(value);
             },
-            serializable: false
+            serializable: false,
         },
         picture: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         updated: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
-        }
+            serializable: false,
+        },
     },
     fullName$() {
         return `${(this.get('firstName') || '').trim()} ${(
@@ -76,7 +76,7 @@ const UserReference = BaseModel.define({
         // on the img tag, bind this error handler as follows: data-bind="events: { error: summary.author.onUserPictureError }"
         e.target.onerror = null;
         e.target.src = iconUri('user');
-    }
+    },
 });
 
 /**

@@ -18,7 +18,7 @@ import LazyRemoteTransport from './transports.remote.lazy.es6';
 
 const { location } = window;
 const {
-    data: { DataSource, HierarchicalDataSource, Node, ObservableArray }
+    data: { DataSource, HierarchicalDataSource, Node, ObservableArray },
 } = window.kendo;
 const LEVEL_CHARS = 4;
 const TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
@@ -37,7 +37,7 @@ const LazyCategory = BaseModel.define({
     fields: {
         id: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         ageGroup: {
             type: CONSTANTS.NUMBER,
@@ -46,7 +46,7 @@ const LazyCategory = BaseModel.define({
                 // defaultValue: 0 does not work as we get null
                 // default parse function is return kendo.parseFloat(value);
                 return parseInt(value, 10) || 255;
-            }
+            },
         },
         count: {
             type: CONSTANTS.NUMBER,
@@ -55,7 +55,7 @@ const LazyCategory = BaseModel.define({
                 // defaultValue: 0 does not work as we get null
                 // default parse function is return kendo.parseFloat(value);
                 return parseInt(value, 10) || 0;
-            }
+            },
         },
         /*
         description: {
@@ -65,16 +65,16 @@ const LazyCategory = BaseModel.define({
         */
         icon: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         language: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         name: {
             type: CONSTANTS.STRING,
-            editable: false
-        }
+            editable: false,
+        },
     },
     /**
      * The depth used to add a margin to simulate a tree in mobile app list views
@@ -100,15 +100,15 @@ const LazyCategory = BaseModel.define({
                     {
                         field: 'categoryId',
                         operator: 'gte',
-                        value: this.get('id')
+                        value: this.get('id'),
                     },
                     {
                         field: 'categoryId',
                         operator: 'lte',
-                        value: this.get('id').replace(RX_O4, F4)
-                    }
-                ]
-            }
+                        value: this.get('id').replace(RX_O4, F4),
+                    },
+                ],
+            },
         });
     },
     /**
@@ -144,7 +144,7 @@ const LazyCategory = BaseModel.define({
         const ret = [];
         const data = this.parent();
         function finder(id) {
-            return r => r.get(r.idField) === id;
+            return (r) => r.get(r.idField) === id;
         }
         if (data instanceof ObservableArray) {
             let item = this;
@@ -163,7 +163,7 @@ const LazyCategory = BaseModel.define({
             }
         }
         return ret;
-    }
+    },
 });
 
 /**
@@ -174,10 +174,10 @@ const lazyCategoryTransport = new CacheCollectionStrategy({
     transport: new LazyRemoteTransport({
         collection: new AjaxCategories({
             partition: {
-                language: __.locale
-            }
-        })
-    })
+                language: __.locale,
+            },
+        }),
+    }),
     // ttl: 24 * 60 * 60
 });
 
@@ -194,11 +194,11 @@ const LazyCategoryDataSource = DataSource.extend({
                 transport: lazyCategoryTransport,
                 schema: normalizeSchema({
                     modelBase: LazyCategory,
-                    model: LazyCategory
-                })
+                    model: LazyCategory,
+                }),
             })
         );
-    }
+    },
 });
 
 /**
@@ -211,14 +211,14 @@ const LazyRummage = Node.define({
     hasChildren: true,
     children: {
         schema: {
-            data: 'items'
-        }
+            data: 'items',
+        },
     },
     fields: {
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         ageGroup: {
             type: CONSTANTS.NUMBER,
@@ -227,7 +227,7 @@ const LazyRummage = Node.define({
                 // defaultValue: 0 does not work as we get null
                 // default parse function is return kendo.parseFloat(value);
                 return parseInt(value, 10) || 255;
-            }
+            },
         },
         count: {
             type: CONSTANTS.NUMBER,
@@ -236,7 +236,7 @@ const LazyRummage = Node.define({
                 // defaultValue: 0 does not work as we get null
                 // default parse function is return kendo.parseFloat(value);
                 return parseInt(value, 10) || 0;
-            }
+            },
         },
         /*
         description: {
@@ -246,7 +246,7 @@ const LazyRummage = Node.define({
         */
         icon: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         /*
         language: {
@@ -256,19 +256,19 @@ const LazyRummage = Node.define({
         */
         name: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         path: {
             // Different from the path in LazyCategory, this is for favourites/bookmarks
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         type: {
             // 0 = groups/folders, 1 = home, 2 = categories, 3 = favourites/bookmarks
             type: CONSTANTS.NUMBER,
             editable: false,
-            defaultValue: 2 // categories
-        }
+            defaultValue: 2, // categories
+        },
     },
 
     /* This function's cyclomatic complexity is too high. */
@@ -297,15 +297,15 @@ const LazyRummage = Node.define({
                                 {
                                     field: 'categoryId',
                                     operator: 'gte',
-                                    value: this.get('id')
+                                    value: this.get('id'),
                                 },
                                 {
                                     field: 'categoryId',
                                     operator: 'lte',
-                                    value: this.get('id').replace(RX_O4, F4)
-                                }
-                            ]
-                        }
+                                    value: this.get('id').replace(RX_O4, F4),
+                                },
+                            ],
+                        },
                     })
                 );
             case 3: // favourites
@@ -341,7 +341,7 @@ const LazyRummage = Node.define({
             ret.unshift(item);
         }
         return ret;
-    }
+    },
 });
 
 /**
@@ -357,7 +357,7 @@ LazyRummage.prototype.children.schema.model = LazyRummage;
  * @param node
  * @returns {boolean}
  */
-LazyRummage.prototype.hasChildren = node => {
+LazyRummage.prototype.hasChildren = (node) => {
     return (node.items || []).length > 0;
     // return (node[node.children.schema.data] || {}).length > 0;
 };
@@ -373,7 +373,7 @@ function parse(response) {
     const hash = {};
     const { data } = response;
     // TODO: review count <----------------------------
-    data.forEach(item => {
+    data.forEach((item) => {
         const { id } = item;
         const node = {
             id,
@@ -382,7 +382,7 @@ function parse(response) {
             icon: item.icon,
             // language: item.language,
             name: item.name,
-            type: 2
+            type: 2,
         };
         const trimmedId = id.replace(RX_TRIM, CONSTANTS.EMPTY);
         let parentId = 'root';
@@ -419,15 +419,15 @@ const LazyCategoryHierarchicalDataSource = HierarchicalDataSource.extend({
                     // modelBase: LazyRummage,
                     model: LazyRummage,
                     // Parser to turn flat data into hierarchical data
-                    parse
-                }
+                    parse,
+                },
                 // This is the default
                 // serverFiltering: false,
                 // serverSorting: false,
                 // serverPaging: false
             })
         );
-    }
+    },
 });
 
 // TODO COnsider affing change event handler
@@ -459,15 +459,15 @@ const LazyRummageHierarchicalDataSource = HierarchicalDataSource.extend({
                     // modelBase: LazyRummage,
                     model: LazyRummage,
                     // Parser to turn flat data into hierarchical data
-                    parse
-                }
+                    parse,
+                },
                 // This is the default
                 // serverFiltering: false,
                 // serverSorting: false,
                 // serverPaging: false
             })
         );
-    }
+    },
 });
 
 /**
@@ -478,5 +478,5 @@ export {
     LazyCategoryDataSource,
     LazyCategoryHierarchicalDataSource,
     LazyRummage,
-    LazyRummageHierarchicalDataSource
+    LazyRummageHierarchicalDataSource,
 };

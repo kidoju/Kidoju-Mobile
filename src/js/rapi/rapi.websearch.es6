@@ -29,7 +29,7 @@ class AjaxWebSearch extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'websearch'
+            collection: 'websearch',
         });
         super(options);
 
@@ -100,14 +100,14 @@ class AjaxWebSearch extends AjaxBase {
         logger.info({
             message: '$.ajax',
             method: `${this._collection}.${AjaxBase.METHOD.READ}`,
-            data: { url, q }
+            data: { url, q },
         });
         return $.ajax({
             cache: true, // <----------This is different from AjaxBase.read
             data: q,
             headers: this._getHeaders(AjaxBase.METHOD.READ),
             type: AjaxBase.HTTP.GET,
-            url
+            url,
         });
     }
 }

@@ -6,15 +6,20 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
-// import 'kendo.data';
+import 'kendo.data';
 import __ from '../app/app.i18n.es6';
 import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxUsers from '../rapi/rapi.users.es6';
 import BaseModel from './data.base.es6';
+import { normalizeSchema } from './data.util.es6';
 import extendModelWithTransport from './mixins.transport.es6';
 import { UserMetricsReference } from './reference.metrics.es6';
 import RemoteTransport from './transports.remote.es6';
+
+const {
+    data: { DataSource },
+} = window.kendo;
 
 /**
  * Account
@@ -28,59 +33,59 @@ const Account = BaseModel.define({
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true,
-            serializable: false
+            serializable: false,
         },
         email: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         firstName: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         gender: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         lastName: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         link: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         locale: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         timezone: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         picture: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         updated: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         verified: {
             type: CONSTANTS.BOOLEAN,
             editable: false,
-            serializable: false
-        }
-    }
+            serializable: false,
+        },
+    },
 });
 
 /**
@@ -94,35 +99,35 @@ const User = BaseModel.define({
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
             // serializable: false
         },
         born: {
             type: CONSTANTS.DATE,
-            nullable: true
+            nullable: true,
         },
         created: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         description: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         email: {
             type: CONSTANTS.STRING,
             // Note: if user is not me, the email is null
-            nullable: true
+            nullable: true,
         },
         firstName: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         lastName: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         // Note: favourites are stored with users but are displayed with rummages
         language: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         metrics: {
             defaultValue: {},
@@ -132,15 +137,15 @@ const User = BaseModel.define({
                     ? value
                     : new UserMetricsReference(value);
             },
-            serializable: false
+            serializable: false,
         },
         picture: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         updated: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         // For complex types, the recommendation is to leave the type undefined and set a default value
         // See: http://www.telerik.com/forums/model---complex-model-with-nested-objects-or-list-of-objects
@@ -154,7 +159,7 @@ const User = BaseModel.define({
                 return value instanceof Account || value === null
                     ? value
                     : new Account(value);
-            }
+            },
         },
         google: {
             defaultValue: null,
@@ -164,7 +169,7 @@ const User = BaseModel.define({
                 return value instanceof Account || value === null
                     ? value
                     : new Account(value);
-            }
+            },
         },
         live: {
             defaultValue: null,
@@ -174,7 +179,7 @@ const User = BaseModel.define({
                 return value instanceof Account || value === null
                     ? value
                     : new Account(value);
-            }
+            },
         },
         twitter: {
             defaultValue: null,
@@ -184,8 +189,8 @@ const User = BaseModel.define({
                 return value instanceof Account || value === null
                     ? value
                     : new Account(value);
-            }
-        }
+            },
+        },
     },
 
     /**
@@ -307,7 +312,7 @@ const User = BaseModel.define({
         // on the img tag, bind this error handler as follows: data-bind="events: { error: me.onUserPictureError }"
         e.target.onerror = null;
         e.target.src = iconUri('user');
-    }
+    },
 
     /**
      * Load
@@ -469,7 +474,7 @@ const User = BaseModel.define({
 const userTransport = new RemoteTransport({
     collection: new AjaxUsers({
         // projection: BaseModel.projection(User)
-    })
+    }),
 });
 
 /**
@@ -482,7 +487,6 @@ extendModelWithTransport(User, userTransport);
  * @class UserDataSource
  * @extends DataSource
  */
-/*
 const UserDataSource = DataSource.extend({
     init(options = {}) {
         DataSource.fn.init.call(this, {
@@ -492,19 +496,17 @@ const UserDataSource = DataSource.extend({
                 transport: userTransport,
                 schema: normalizeSchema({
                     modelBase: User,
-                    model: User
-                })
+                    model: User,
+                }),
                 // serverFiltering: true,
                 // serverSorting: true,
                 // serverPaging: true
-            }
+            },
         });
-    }
+    },
 });
-*/
 
 /**
- * Default export
+ * Export
  */
-// export { User, UserDataSource };
-export default User;
+export { User, UserDataSource };

@@ -29,7 +29,7 @@ class AjaxFiles extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'files'
+            collection: 'files',
         });
         super(options);
         assert.isNonEmptyPlainObject(

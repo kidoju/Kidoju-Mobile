@@ -3,12 +3,11 @@
  * Sources at https://github.com/Memba
  */
 
-
 /**
  * LAYOUT
  */
 const LAYOUT = {
-    MAIN: 'main-layout'
+    MAIN: 'main-layout',
 };
 
 /**
@@ -22,7 +21,7 @@ const MISC = {
     RX_TOP_LEVEL_MATCH: new RegExp(
         `^[a-z0-9]{${TOP_LEVEL_CHARS}}0{${24 - TOP_LEVEL_CHARS}}$`
     ),
-    SIGNIN_PAGE: 3 // Last page of walkthrough tour
+    SIGNIN_PAGE: 3, // Last page of walkthrough tour
 };
 
 /**
@@ -43,7 +42,7 @@ const VIEW = {
     SUMMARY: 'summary',
     SIGNIN: 'signin',
     SYNC: 'sync',
-    USER: 'user'
+    USER: 'user',
 };
 
 /**
@@ -75,7 +74,7 @@ const VIEW_MODEL = {
         DESCRIPTION: 'summary.description',
         ID: 'summary.id',
         LANGUAGE: 'summary.language',
-        TITLE: 'summary.title'
+        TITLE: 'summary.title',
     },
     SUMMARIES: 'summaries',
     THEME: 'theme',
@@ -91,7 +90,7 @@ const VIEW_MODEL = {
         LAST_USE: 'user.lastUse',
         PROVIDER: 'user.provider',
         REVIEW_STATE: 'user.reviewState',
-        SID: 'user.sid'
+        SID: 'user.sid',
         // THEME: 'user.theme'
     },
     USERS: 'users',
@@ -100,11 +99,11 @@ const VIEW_MODEL = {
         // ID: 'version.id',
         // LANGUAGE: 'version.language',
         STREAM_: {
-            PAGES: 'version.stream.pages'
-        }
+            PAGES: 'version.stream.pages',
+        },
         // SUMMARY_ID: 'version.summaryId'
     },
-    VERSIONS: 'versions'
+    VERSIONS: 'versions',
 };
 
 /**

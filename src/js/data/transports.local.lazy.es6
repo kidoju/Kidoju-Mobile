@@ -14,7 +14,7 @@ import Logger from '../common/window.logger.es6';
 import {
     error2xhr,
     extendQueryWithPartition,
-    SYNC_STATE
+    SYNC_STATE,
 } from './data.util.es6';
 import BaseTransport from './transports.base.es6';
 
@@ -59,7 +59,7 @@ const LazyLocalTransport = BaseTransport.extend({
         logger.debug({
             message: 'Get local data',
             method: 'LazyLocalTransport.get',
-            data: options.data
+            data: options.data,
         });
         const data = this.parameterMap(options.data, 'get');
         const query = {};
@@ -67,10 +67,10 @@ const LazyLocalTransport = BaseTransport.extend({
         query[SYNC_STATE.FIELD] = { $ne: SYNC_STATE.DESTROYED };
         this._collection
             .findOne(query, this.projection())
-            .then(response => {
+            .then((response) => {
                 options.success(response);
             })
-            .catch(error => {
+            .catch((error) => {
                 options.error(...error2xhr(error));
             });
     },
@@ -85,7 +85,7 @@ const LazyLocalTransport = BaseTransport.extend({
         logger.debug({
             message: 'Read local data',
             method: 'LazyLocalTransport.read',
-            data: options.data
+            data: options.data,
         });
         if ($.type(partition) === CONSTANTS.UNDEFINED) {
             // This lets us create a dataSource without knowing the partition, which can be set in the load method of the data source
@@ -97,16 +97,16 @@ const LazyLocalTransport = BaseTransport.extend({
             query.filter.filters.push({
                 field: SYNC_STATE.FIELD,
                 operator: 'neq',
-                value: SYNC_STATE.DESTROYED
+                value: SYNC_STATE.DESTROYED,
             });
             query = convertFilter(options.data.filter);
             this._collection
                 .find(query, this.projection())
-                .then(response => {
+                .then((response) => {
                     if ($.isArray(response)) {
                         options.success({
                             total: response.length,
-                            data: response
+                            data: response,
                         });
                     } else {
                         options.error(
@@ -116,11 +116,11 @@ const LazyLocalTransport = BaseTransport.extend({
                         );
                     }
                 })
-                .catch(error => {
+                .catch((error) => {
                     options.error(...error2xhr(error));
                 });
         }
-    }
+    },
 });
 
 /**

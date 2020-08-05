@@ -87,7 +87,7 @@ const RemoteTransport = LazyRemoteTransport.extend({
                 })
                 .catch(options.error);
         }
-    }
+    },
 });
 
 /**

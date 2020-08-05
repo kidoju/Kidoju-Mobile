@@ -28,7 +28,7 @@ const LocalTransport = LazyLocalTransport.extend({
         logger.debug({
             message: 'Create local data',
             method: 'LocalTransport.create',
-            data: options.data
+            data: options.data,
         });
         // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
         const item = JSON.parse(
@@ -51,11 +51,11 @@ const LocalTransport = LazyLocalTransport.extend({
             // Unless we give one ourselves, the collection will give the item an id
             this._collection
                 .insert(item)
-                .then(created => {
+                .then((created) => {
                     // Note: created is the item with an id
                     options.success(created);
                 })
-                .catch(error => {
+                .catch((error) => {
                     options.error(...error2xhr(error));
                 });
         }
@@ -70,7 +70,7 @@ const LocalTransport = LazyLocalTransport.extend({
         logger.debug({
             message: 'Destroy local data',
             method: 'LocalTransport.destroy',
-            data: options.data
+            data: options.data,
         });
         // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
         const item = JSON.parse(
@@ -86,7 +86,7 @@ const LocalTransport = LazyLocalTransport.extend({
                 query[idField] = id;
                 this._collection
                     .remove(query)
-                    .then(response => {
+                    .then((response) => {
                         if (response && response.nRemoved === 1) {
                             options.success(response);
                         } else {
@@ -95,7 +95,7 @@ const LocalTransport = LazyLocalTransport.extend({
                             );
                         }
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         options.error(...error2xhr(error));
                     });
             } else {
@@ -116,7 +116,7 @@ const LocalTransport = LazyLocalTransport.extend({
                 query[idField] = id;
                 this._collection
                     .update(query, item)
-                    .then(response => {
+                    .then((response) => {
                         if (
                             response &&
                             response.nMatched === 1 &&
@@ -129,7 +129,7 @@ const LocalTransport = LazyLocalTransport.extend({
                             );
                         }
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         options.error(...error2xhr(error));
                     });
             } else {
@@ -148,7 +148,7 @@ const LocalTransport = LazyLocalTransport.extend({
         logger.debug({
             message: 'Update local data',
             method: 'LocalTransport.update',
-            data: options.data
+            data: options.data,
         });
         // Clean object to avoid DataCloneError: Failed to execute 'put' on 'IDBObjectStore': An object could not be cloned.
         const item = JSON.parse(
@@ -174,7 +174,7 @@ const LocalTransport = LazyLocalTransport.extend({
             delete item[idField];
             this._collection
                 .update(query, item, { upsert: true })
-                .then(response => {
+                .then((response) => {
                     if (
                         response &&
                         response.nMatched === 1 &&
@@ -188,14 +188,14 @@ const LocalTransport = LazyLocalTransport.extend({
                         );
                     }
                 })
-                .catch(error => {
+                .catch((error) => {
                     options.error(...error2xhr(error));
                 });
         } else {
             // No need to hit the database, it won't be found
             options.error(...error2xhr(new Error(CONSTANTS.NOT_FOUND_ERR)));
         }
-    }
+    },
 });
 
 /**

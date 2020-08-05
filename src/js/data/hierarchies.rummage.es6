@@ -21,14 +21,14 @@ models.Rummage = Node.define({
     hasChildren: true,
     children: {
         schema: {
-            data: 'items'
-        }
+            data: 'items',
+        },
     },
     fields: {
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         ageGroup: {
             type: CONSTANTS.NUMBER,
@@ -37,7 +37,7 @@ models.Rummage = Node.define({
                 // defaultValue: 0 does not work as we get null
                 // default parse function is return kendo.parseFloat(value);
                 return window.parseInt(value, 10) || 255;
-            }
+            },
         },
         count: {
             type: CONSTANTS.NUMBER,
@@ -46,7 +46,7 @@ models.Rummage = Node.define({
                 // defaultValue: 0 does not work as we get null
                 // default parse function is return kendo.parseFloat(value);
                 return window.parseInt(value, 10) || 0;
-            }
+            },
         },
         /*
         description: {
@@ -56,7 +56,7 @@ models.Rummage = Node.define({
         */
         icon: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         /*
         language: {
@@ -66,19 +66,19 @@ models.Rummage = Node.define({
         */
         name: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         path: {
             // Different from the path in LazyCategory, this is for favourites/bookmarks
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         type: {
             // 0 = groups/folders, 1 = home, 2 = categories, 3 = favourites/bookmarks
             type: CONSTANTS.NUMBER,
             editable: false,
-            defaultValue: 2 // categories
-        }
+            defaultValue: 2, // categories
+        },
     },
 
     /* This function's cyclomatic complexity is too high. */
@@ -107,7 +107,7 @@ models.Rummage = Node.define({
                                 {
                                     field: 'categoryId',
                                     operator: 'gte',
-                                    value: this.get('id')
+                                    value: this.get('id'),
                                 },
                                 {
                                     field: 'categoryId',
@@ -115,10 +115,10 @@ models.Rummage = Node.define({
                                     value: this.get('id').replace(
                                         /0000/g,
                                         'ffff'
-                                    )
-                                }
-                            ]
-                        }
+                                    ),
+                                },
+                            ],
+                        },
                     })
                 );
             case 3: // favourites
@@ -154,12 +154,12 @@ models.Rummage = Node.define({
             item.parent() instanceof ObservableArray &&
             $.isFunction(item.parent().parent) &&
             item.parent().parent() instanceof models.Rummage
-            ) {
+        ) {
             item = item.parent().parent();
             ret.push(item);
         }
         return ret.reverse();
-    }
+    },
 });
 
 // Children schema model cannot be set until the model exists
@@ -184,12 +184,12 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
                     transport: {
                         read: $.proxy(that._transport._read, that),
                         update: $.proxy(that._transport._update, that),
-                        destroy: $.proxy(that._transport._destroy, that)
+                        destroy: $.proxy(that._transport._destroy, that),
                     },
                     schema: {
                         model: models.Rummage,
-                        modelBase: models.Rummage
-                    }
+                        modelBase: models.Rummage,
+                    },
                 },
                 options
             )
@@ -200,40 +200,40 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
             logger.debug({
                 message: 'dataSource.read',
                 method:
-                    'app.models.RummageHierarchicalDataSource.transport.read'
+                    'app.models.RummageHierarchicalDataSource.transport.read',
                 // data: options.data
             });
             $.when(
                 app.cache.getFavouriteHierarchy(__.locale),
                 app.cache.getCategoryHierarchy(__.locale)
             )
-                .then(function(favourites, categories) {
+                .then(function (favourites, categories) {
                     const rootNodes = __('webapp.finder.treeview.rootNodes');
                     const rummages = [
                         {
                             id: HOME,
                             icon: rootNodes.home.icon,
                             name: rootNodes.home.name,
-                            type: 1
+                            type: 1,
                         },
                         {
                             id: FAVOURITES,
                             icon: rootNodes.favourites.icon,
                             name: rootNodes.favourites.name,
                             items: favourites,
-                            type: 0
+                            type: 0,
                         },
                         {
                             id: CATEGORIES,
                             icon: rootNodes.categories.icon,
                             name: rootNodes.categories.name,
                             items: categories,
-                            type: 0
-                        }
+                            type: 0,
+                        },
                     ];
                     options.success(rummages);
                 })
-                .catch(function(xhr, status, errorThrown) {
+                .catch(function (xhr, status, errorThrown) {
                     options.error(xhr, status, errorThrown);
                 });
         },
@@ -246,7 +246,7 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
                 message: 'dataSource.destroy',
                 method:
                     'app.models.RummageHierarchicalDataSource.transport.destroy',
-                data: options.data
+                data: options.data,
             });
             // assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
             assert.isNonEmptyPlainObject(
@@ -267,12 +267,12 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
             );
             return app.rapi.v1.user
                 .deleteMyFavourite(__.locale, options.data.id)
-                .then(function() {
-                    app.cache.removeMyFavourites(__.locale).always(function() {
+                .then(function () {
+                    app.cache.removeMyFavourites(__.locale).always(function () {
                         options.success(options.data);
                     });
                 })
                 .catch(options.error);
-        }
-    }
+        },
+    },
 });

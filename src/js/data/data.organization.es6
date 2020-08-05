@@ -29,7 +29,7 @@ const NewOrganization = BaseModel.define({
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         /*
         author: {
@@ -45,9 +45,9 @@ const NewOrganization = BaseModel.define({
             type: CONSTANTS.STRING,
             validation: {
                 required: true,
-                pattern: '^\\S[^<>]{4,48}\\S$'
-            }
-        }
+                pattern: '^\\S[^<>]{4,48}\\S$',
+            },
+        },
     },
     /*
     // TODO use transport mixin
@@ -66,7 +66,7 @@ const NewOrganization = BaseModel.define({
     reset() {
         const that = this;
         that.set('name', this.defaults.name);
-    }
+    },
     /*
     // TODO use transport mixin
     save() {
@@ -100,7 +100,7 @@ const Organization = BaseModel.define({
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true,
-            serializable: false
+            serializable: false,
         },
         author: {
             // For complex types, the recommendation is to leave the type undefined and set a default value
@@ -113,24 +113,24 @@ const Organization = BaseModel.define({
                 return value instanceof UserReference || value === null
                     ? value
                     : new UserReference(value);
-            }
+            },
         },
         created: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         description: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         title: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         updated: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
-        }
+            serializable: false,
+        },
     },
     init(data) {
         const that = this;
@@ -150,7 +150,7 @@ const Organization = BaseModel.define({
         if (e.action === CONSTANTS.ITEMCHANGE) {
             this.dirty = true;
         }
-    }
+    },
     /*
     load(data) {
         const that = this;
@@ -280,8 +280,8 @@ const Organization = BaseModel.define({
 const organizationTransport = new RemoteTransport({
     collection: new AjaxOrganizations({
         partition: { language: 'en' }, // TODO remove but raises an error
-        projection: BaseModel.projection(Organization)
-    })
+        projection: BaseModel.projection(Organization),
+    }),
 });
 
 /**

@@ -15,7 +15,7 @@ const { format } = window.kendo;
  * @param language
  * @returns {string}
  */
-const billingUri = language =>
+const billingUri = (language) =>
     window.cordova ? 'TODO' : format(config.uris.webapp.billing, language);
 
 /**
@@ -45,7 +45,7 @@ const errorUri = (language, code) =>
  * @param language
  * @returns {string}
  */
-const finderUri = language =>
+const finderUri = (language) =>
     window.cordova ? 'TODO' : format(config.uris.webapp.finder, language);
 
 /**
@@ -53,7 +53,7 @@ const finderUri = language =>
  * @param language
  * @returns {string}
  */
-const groupUri = language =>
+const groupUri = (language) =>
     window.cordova ? 'TODO' : format(config.uris.webapp.group, language);
 
 /**
@@ -61,7 +61,7 @@ const groupUri = language =>
  * @param icon
  * @returns {string}
  */
-const iconUri = icon =>
+const iconUri = (icon) =>
     format(
         window.cordova ? config.uris.mobile.icons : config.uris.cdn.icons,
         icon
@@ -72,7 +72,7 @@ const iconUri = icon =>
  * @param language
  * @returns {string}
  */
-const messagingUri = language =>
+const messagingUri = (language) =>
     window.cordova ? 'TODO' : format(config.uris.webapp.messaging, language);
 
 /**
@@ -141,5 +141,5 @@ export {
     organizationUri,
     playerUri,
     summaryUri,
-    userUri
+    userUri,
 };

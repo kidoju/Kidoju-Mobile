@@ -28,7 +28,7 @@ export function getActorReference() {
     return {
         language: __.locale,
         // Assuming hidden is a user
-        actorId: hidden.id
+        actorId: hidden.id,
     };
 }
 
@@ -41,7 +41,7 @@ export function getAuthorReference() {
     return {
         language: __.locale,
         // Assuming hidden is a user
-        authorId: hidden.id
+        authorId: hidden.id,
     };
 }
 
@@ -51,7 +51,7 @@ export function getAuthorReference() {
  */
 export function getLanguageReference() {
     return {
-        language: __.locale
+        language: __.locale,
     };
 }
 
@@ -63,7 +63,7 @@ export function getSummaryReference() {
     const hidden = getHidden();
     return {
         language: __.locale,
-        summaryId: hidden.summaryId
+        summaryId: hidden.summaryId,
     };
 }
 
@@ -76,6 +76,6 @@ export function getVersionReference() {
     return {
         language: __.locale,
         summaryId: hidden.summaryId,
-        versionId: hidden.versionId
+        versionId: hidden.versionId,
     };
 }

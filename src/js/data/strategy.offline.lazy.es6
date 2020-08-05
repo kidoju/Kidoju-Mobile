@@ -14,7 +14,7 @@ import LocalTransport from './transports.local.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
 
 const {
-    Class
+    Class,
     // data: { Query }
 } = window.kendo;
 const logger = new Logger('strategy.offline.lazy');
@@ -97,7 +97,7 @@ const LazyOfflineStrategy = Class.extend({
         logger.debug({
             message: 'get data',
             method: 'get',
-            data: options.data // TODO add isOffline
+            data: options.data, // TODO add isOffline
         });
         const { _localTransport, _remoteTransport } = this;
         _localTransport.get({
@@ -132,12 +132,12 @@ const LazyOfflineStrategy = Class.extend({
                                         )
                                     );
                                     options.success(updatedResponse.data[0]);
-                                }
+                                },
                             });
-                        }
+                        },
                     });
                 }
-            }
+            },
         });
     },
 
@@ -150,7 +150,7 @@ const LazyOfflineStrategy = Class.extend({
         logger.debug({
             message: 'read data',
             method: 'read',
-            data: options.data // TODO add isOffline
+            data: options.data, // TODO add isOffline
         });
         const { _localTransport, _remoteTransport } = this;
         _localTransport.read({
@@ -171,7 +171,7 @@ const LazyOfflineStrategy = Class.extend({
                                 _localTransport.update({
                                     data: onlineResponse.data[index],
                                     error: dfd.reject,
-                                    success: dfd.resolve
+                                    success: dfd.resolve,
                                 });
                                 return dfd.promise();
                             }
@@ -187,12 +187,12 @@ const LazyOfflineStrategy = Class.extend({
                                 // Note: ignore errors caching the response
                                 options.success(onlineResponse);
                             });
-                        }
+                        },
                     });
                 }
-            }
+            },
         });
-    }
+    },
 });
 
 /**

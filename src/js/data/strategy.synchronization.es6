@@ -15,7 +15,7 @@ import LocalTransport from './transports.local.es6';
 import RemoteTransport from './transports.remote.es6';
 
 const {
-    Class
+    Class,
     // data: { Query }
 } = window.kendo;
 const logger = new Logger('strategy.synchronization');
@@ -188,7 +188,7 @@ const SynchronizationStrategy = Class.extend({
                 )
                     .then(dfd.resolve)
                     .catch(dfd.reject);
-            }
+            },
         });
         return dfd.promise();
     },
@@ -235,7 +235,7 @@ const SynchronizationStrategy = Class.extend({
                     .remove({ id: item[idField] })
                     .then(dfd.resolve)
                     .catch(dfd.reject);
-            }
+            },
         });
         return dfd.promise();
     },
@@ -254,9 +254,9 @@ const SynchronizationStrategy = Class.extend({
                 filter: {
                     field: 'updated',
                     operator: 'gte',
-                    value: that._lastSync
+                    value: that._lastSync,
                 },
-                sort: { field: 'updated', dir: 'desc' }
+                sort: { field: 'updated', dir: 'desc' },
             },
             success(response) {
                 const result = response.data; // this.remoteTransport.read ensures data is already partitioned
@@ -266,12 +266,12 @@ const SynchronizationStrategy = Class.extend({
                     const item = result[index];
                     return collection
                         .update({ id: item[idField] }, item, { upsert: true })
-                        .always(function() {
+                        .always(function () {
                             dfd.notify({
                                 collection: collection.name(),
                                 pass: 2,
                                 index,
-                                total
+                                total,
                             });
                         });
                 }
@@ -280,14 +280,14 @@ const SynchronizationStrategy = Class.extend({
                 }
                 $.when
                     .apply(that, promises)
-                    .always(function() {
+                    .always(function () {
                         // Note: dfd.notify is ignored if called after dfd.resolve or dfd.reject
                         total = total || 1; // Cannot divide by 0;
                         dfd.notify({
                             collection: collection.name(),
                             pass: 2,
                             index: total - 1,
-                            total
+                            total,
                         }); // Make sure we always reach 100%
                         if (total >= 90) {
                             // Don not wait till we reach 100 to act
@@ -298,14 +298,14 @@ const SynchronizationStrategy = Class.extend({
                                     'Time to add paging to synchronization',
                                 method:
                                     'models.SynchronizationStrategy._readSync',
-                                data: { total }
+                                data: { total },
                             });
                         }
                     })
                     .then(dfd.resolve)
                     .catch(dfd.reject);
             },
-            error: dfd.reject
+            error: dfd.reject,
         });
         return dfd.promise();
     },
@@ -355,7 +355,7 @@ const SynchronizationStrategy = Class.extend({
                     .update(query, response.data[0])
                     .then(dfd.resolve)
                     .catch(dfd.reject);
-            }
+            },
         });
         return dfd.promise();
     },
@@ -371,37 +371,37 @@ const SynchronizationStrategy = Class.extend({
         const partition = that.remoteTransport._partition;
         this._collection
             .find(partition, this.projection())
-            .then(items => {
+            .then((items) => {
                 const promises = [];
                 let total = items.length;
                 function syncItem(index) {
                     let ret;
                     const item = items[index];
                     if (item.__state__ === SYNC_STATE.CREATED) {
-                        ret = that._createSync(item).always(function() {
+                        ret = that._createSync(item).always(function () {
                             dfd.notify({
                                 collection: collection.name(),
                                 pass: 1,
                                 index,
-                                total
+                                total,
                             });
                         });
                     } else if (item.__state__ === SYNC_STATE.DESTROYED) {
-                        ret = that._destroySync(item).always(function() {
+                        ret = that._destroySync(item).always(function () {
                             dfd.notify({
                                 collection: collection.name(),
                                 pass: 1,
                                 index,
-                                total
+                                total,
                             });
                         });
                     } else if (item.__state__ === SYNC_STATE.UPDATED) {
-                        ret = that._updateSync(item).always(function() {
+                        ret = that._updateSync(item).always(function () {
                             dfd.notify({
                                 collection: collection.name(),
                                 pass: 1,
                                 index,
-                                total
+                                total,
                             });
                         });
                     }
@@ -421,7 +421,7 @@ const SynchronizationStrategy = Class.extend({
                             collection: collection.name(),
                             pass: 1,
                             index: total - 1,
-                            total
+                            total,
                         }); // Make sure we always reach 100%
                     })
                     .then(() => {
@@ -434,7 +434,7 @@ const SynchronizationStrategy = Class.extend({
             })
             .catch(dfd.reject);
         return dfd.promise();
-    }
+    },
 });
 
 /**

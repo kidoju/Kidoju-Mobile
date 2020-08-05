@@ -17,7 +17,7 @@ import CONSTANTS from '../common/window.constants.es6';
 
 const {
     data: { DataSource, Model },
-    getter
+    getter,
 } = window.kendo;
 
 /**
@@ -118,7 +118,7 @@ const BaseModel = Model.define({
         );
         // Build our parsed data, discarding any fields that does not belong to our model
         const parsed = {};
-        Object.keys(this.fields).forEach(name => {
+        Object.keys(this.fields).forEach((name) => {
             const field = this.fields[name];
             // Some fields get their data from another field
             const from = field.from || name;
@@ -227,7 +227,7 @@ const BaseModel = Model.define({
      */
     toJSON() {
         const json = {};
-        Object.keys(this).forEach(key => {
+        Object.keys(this).forEach((key) => {
             if (this.shouldSerialize(key)) {
                 let value = this[key];
                 // `undefined` is ambiguous because it is also the value of a missing property.
@@ -285,7 +285,7 @@ const BaseModel = Model.define({
             }
         });
         return json;
-    }
+    },
 
     /**
      * Execute validation of the model data considering the rules defined on fields
@@ -328,29 +328,33 @@ const BaseModel = Model.define({
  * Projection of fields for any model
  * @param AnyModel
  */
-BaseModel.projection = AnyModel => {
+BaseModel.projection = (AnyModel) => {
     assert.extends(
         BaseModel,
         AnyModel,
         assert.format(assert.messages.extends.default, 'AnyModel', 'BaseModel')
     );
     const projection = {};
-    Object.keys(AnyModel.fields).forEach(key => {
+    Object.keys(AnyModel.fields).forEach((key) => {
         const { defaultValue, from, parse } = AnyModel.fields[key];
-        // Simply use `from: CONSTANTS.EMPTY` to remove a field from projection
-        // because then field.length === 0
+        // Simply use `from: CONSTANTS.EMPTY` to remove a field from projection because then field.length === 0
         const field = $.type(from) === CONSTANTS.STRING ? from : key;
-        // Note that a null defaultValue, i.e. parse(null), won't work
-        const subDoc = parse(
-            $.isFunction(defaultValue) ? defaultValue() : defaultValue
-        );
-        if (field.length && $.type(subDoc) === CONSTANTS.OBJECT) {
-            Object.keys(subDoc.fields).forEach(subField => {
-                projection[`${field}.${subField}`] = true;
-            });
-            // TODO } else if (field.length && Array.isArray(subDoc)) {
-        } else if (field.length) {
-            projection[field] = true;
+        if (field.length) {
+            // Note that a null defaultValue, i.e. parse(null), won't work
+            const subDoc = parse(
+                $.isFunction(defaultValue) ? defaultValue() : defaultValue
+            );
+            if (
+                $.type(subDoc) === CONSTANTS.OBJECT &&
+                Object.prototype.hasOwnProperty.call(subDoc, 'fields')
+            ) {
+                Object.keys(subDoc.fields).forEach((subField) => {
+                    projection[`${field}.${subField}`] = true;
+                });
+                // TODO } else if (field.length && Array.isArray(subDoc)) {
+            } else {
+                projection[field] = true;
+            }
         }
     });
     return projection;

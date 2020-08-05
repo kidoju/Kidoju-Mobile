@@ -18,7 +18,7 @@ import BaseTransport from './transports.base.es6';
 
 const {
     Class,
-    data: { Query }
+    data: { Query },
 } = window.kendo;
 
 /**
@@ -143,7 +143,7 @@ const CacheItemStrategy = Class.extend({
             _key,
             _singleton,
             _ttl,
-            _transport: { _idField }
+            _transport: { _idField },
         } = this;
         this._transport.create({
             data: options.data,
@@ -152,7 +152,7 @@ const CacheItemStrategy = Class.extend({
                 const key = _singleton ? _key : `${_key}.${args[0][_idField]}`;
                 _cache.setItem(key, args[0], _ttl);
             },
-            error: options.error
+            error: options.error,
         });
     },
 
@@ -168,7 +168,7 @@ const CacheItemStrategy = Class.extend({
             _cache,
             _key,
             _singleton,
-            _transport: { _idField }
+            _transport: { _idField },
         } = this;
         // const key = _singleton ? _key : `${_key}.${options.data[_idField]}`;
         this._transport.destroy({
@@ -178,7 +178,7 @@ const CacheItemStrategy = Class.extend({
                 const key = _singleton ? _key : `${_key}.${args[0][_idField]}`;
                 _cache.removeItem(key);
             },
-            error: options.error
+            error: options.error,
         });
     },
 
@@ -195,7 +195,7 @@ const CacheItemStrategy = Class.extend({
             _key,
             _singleton,
             _ttl,
-            _transport: { _idField }
+            _transport: { _idField },
         } = this;
         const key = _singleton ? _key : `${_key}.${options.data[_idField]}`;
         const item = _cache.getItem(key);
@@ -208,7 +208,7 @@ const CacheItemStrategy = Class.extend({
                     options.success(...args);
                     _cache.setItem(key, args[0], _ttl);
                 },
-                error: options.error
+                error: options.error,
             });
         }
     },
@@ -225,7 +225,7 @@ const CacheItemStrategy = Class.extend({
             _key,
             _singleton,
             _ttl,
-            _transport: { _idField }
+            _transport: { _idField },
         } = this;
         const rx = new RegExp(`^${_key}\\.`);
         const data = _singleton ? [_cache.getItem(_key)] : _cache.getItems(rx);
@@ -247,14 +247,14 @@ const CacheItemStrategy = Class.extend({
                         );
                     }
                     options.success(...args);
-                    args[0].data.forEach(item => {
+                    args[0].data.forEach((item) => {
                         const key = _singleton
                             ? _key
                             : `${_key}.${item[_idField]}`;
                         _cache.setItem(key, item, _ttl);
                     });
                 },
-                error: options.error
+                error: options.error,
             });
         }
     },
@@ -272,7 +272,7 @@ const CacheItemStrategy = Class.extend({
             _key,
             _singleton,
             _ttl,
-            _transport: { _idField }
+            _transport: { _idField },
         } = this;
         // const key = _singleton ? _key : `${_key}.${options.data[_idField]}`;
         this._transport.update({
@@ -282,9 +282,9 @@ const CacheItemStrategy = Class.extend({
                 const key = _singleton ? _key : `${_key}.${args[0][_idField]}`;
                 _cache.setItem(key, args[0], _ttl);
             },
-            error: options.error
+            error: options.error,
         });
-    }
+    },
 });
 
 /**

@@ -23,7 +23,7 @@ import '../vendor/kendo/cultures/kendo.culture.en-GB';
 import '../vendor/kendo/messages/kendo.messages.en-GB';
 import './widgets.en.es6';
 
-window.kendo.culture('en-GB');
+window.kendo.culture('en-GB'); // TODO requires 'kendo.core'
 
 app.cultures = app.cultures || {};
 app.cultures.en = mobile;

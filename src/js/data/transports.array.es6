@@ -16,7 +16,7 @@ import { error2xhr } from './data.util.es6';
 import BaseTransport from './transports.base.es6';
 
 const {
-    data: { Query }
+    data: { Query },
 } = window.kendo;
 
 // The in-memory database with one entry per collection
@@ -105,7 +105,7 @@ const ArrayTransport = BaseTransport.extend({
             options.success(result);
         } else {
             const error = Object.assign(new Error(CONSTANTS.NOT_FOUND_ERR), {
-                status: 404
+                status: 404,
             });
             options.error(...error2xhr(error));
         }
@@ -126,7 +126,7 @@ const ArrayTransport = BaseTransport.extend({
             )
         );
         let result;
-        const found = this.data().some(item => {
+        const found = this.data().some((item) => {
             if (item[idField] === options.data[idField]) {
                 result = item;
                 return true;
@@ -137,7 +137,7 @@ const ArrayTransport = BaseTransport.extend({
             options.success(result);
         } else {
             const error = Object.assign(new Error(CONSTANTS.NOT_FOUND_ERR), {
-                status: 404
+                status: 404,
             });
             options.error(...error2xhr(error));
         }
@@ -183,11 +183,11 @@ const ArrayTransport = BaseTransport.extend({
             options.success(result);
         } else {
             const error = Object.assign(new Error(CONSTANTS.NOT_FOUND_ERR), {
-                status: 404
+                status: 404,
             });
             options.error(...error2xhr(error));
         }
-    }
+    },
 });
 
 /**

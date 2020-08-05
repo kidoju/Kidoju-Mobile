@@ -150,7 +150,7 @@ const BaseTransport = Class.extend({
                 CONSTANTS.OBJECT
             )
         );
-        Object.keys(partition).forEach(field => {
+        Object.keys(partition).forEach((field) => {
             let value = dataItem;
             // TODO use getter
             // TODO check from fields
@@ -222,7 +222,7 @@ const BaseTransport = Class.extend({
     // eslint-disable-next-line class-methods-use-this
     update() {
         throw new Error(CONSTANTS.NOT_IMPLEMENTED_ERR);
-    }
+    },
 });
 
 /**

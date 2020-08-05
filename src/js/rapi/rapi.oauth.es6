@@ -21,7 +21,7 @@ import {
     getHeaders,
     setState,
     setToken,
-    uuid
+    uuid,
 } from './rapi.util.es6';
 
 const logger = new Logger('rapi.oauth');
@@ -52,7 +52,7 @@ function getSignInUrl(provider, returnUrl) {
     logger.info({
         message: '$.ajax',
         method: 'getSignInUrl',
-        data: { provider, returnUrl }
+        data: { provider, returnUrl },
     });
     const ajax = $.Deferred();
     const logout = $.Deferred();
@@ -75,18 +75,18 @@ function getSignInUrl(provider, returnUrl) {
         logout.resolve();
     }
     $.when(getFingerPrint(), logout.promise())
-        .then(fp => {
+        .then((fp) => {
             const state = `${fp}-${uuid()}`;
             setState(state);
             $.ajax({
                 cache: false,
                 data: {
                     returnUrl: cleanUrl(returnUrl),
-                    state
+                    state,
                 },
                 headers: getHeaders({ trace: true }),
                 type: AjaxBase.HTTP.GET,
-                url: format(config.uris.rapi.oauth.signIn, provider)
+                url: format(config.uris.rapi.oauth.signIn, provider),
             })
                 .then(ajax.resolve)
                 .catch(ajax.reject);
@@ -103,13 +103,13 @@ function getSignInUrl(provider, returnUrl) {
 function signOut() {
     logger.info({
         message: '$.ajax',
-        method: 'signOut'
+        method: 'signOut',
     });
     return $.ajax({
         contentType: CONSTANTS.FORM_CONTENT_TYPE,
         headers: getHeaders({ security: true, trace: true }),
         type: AjaxBase.HTTP.POST,
-        url: config.uris.rapi.oauth.signOut
+        url: config.uris.rapi.oauth.signOut,
     }).always(() => {
         clearToken();
     });
@@ -123,15 +123,15 @@ function signOut() {
 function refresh() {
     logger.info({
         message: '$.ajax',
-        method: 'refresh'
+        method: 'refresh',
     });
     return $.ajax({
         cache: false,
         headers: getHeaders({ security: true, trace: true }),
         type: AjaxBase.HTTP.GET,
-        url: config.uris.rapi.oauth.refresh
+        url: config.uris.rapi.oauth.refresh,
     })
-        .then(token => {
+        .then((token) => {
             setToken(token);
         })
         .catch(() => {
@@ -146,13 +146,13 @@ function refresh() {
 function revoke() {
     logger.info({
         message: '$.ajax',
-        method: 'revoke'
+        method: 'revoke',
     });
     return $.ajax({
         contentType: CONSTANTS.FORM_CONTENT_TYPE,
         headers: getHeaders({ security: true, trace: true }),
         type: AjaxBase.HTTP.POST,
-        url: config.uris.rapi.oauth.revoke
+        url: config.uris.rapi.oauth.revoke,
     }).always(() => {
         clearToken();
     });

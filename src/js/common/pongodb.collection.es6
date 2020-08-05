@@ -16,19 +16,19 @@ import { match } from './pongodb.util.es6';
 const TRIGGERS = {
     insert: 'insert',
     remove: 'remove',
-    update: 'update'
+    update: 'update',
 };
 
 function deepClone(obj) {
     let ret;
     if (Array.isArray(obj)) {
         ret = [];
-        obj.forEach(item => {
+        obj.forEach((item) => {
             ret.push(deepClone(item));
         });
     } else if ($.type(obj) === CONSTANTS.OBJECT) {
         ret = {};
-        Object.keys(obj).forEach(_key => {
+        Object.keys(obj).forEach((_key) => {
             // Note: we do not expect functions or symbols here
             let key = _key;
             if (key !== '__v') {
@@ -117,7 +117,7 @@ export default class Collection {
         // Keep localForage as an internal reference
         this._store = localForage.createInstance({
             name: this._db._name, // Database name
-            storeName: this._name // Collection name
+            storeName: this._name, // Collection name
         });
 
         // Init text fields and triggers
@@ -136,7 +136,7 @@ export default class Collection {
         this._triggers = {
             insert: [],
             remove: [],
-            update: []
+            update: [],
         };
     }
 
@@ -251,12 +251,12 @@ export default class Collection {
                             } else {
                                 dfd.notify({
                                     index: index - 1, // index starts at 1
-                                    total: length
+                                    total: length,
                                 });
                             }
                             return ret;
                         },
-                        error => {
+                        (error) => {
                             if (error) {
                                 dfd.reject(error);
                             } else {
@@ -279,7 +279,7 @@ export default class Collection {
     findOne(query, projection) {
         const dfd = $.Deferred();
         this.find(query, projection, true)
-            .then(results => {
+            .then((results) => {
                 assert.isArray(
                     results,
                     assert.format(assert.messages.isArray.default, 'results')
@@ -347,7 +347,7 @@ export default class Collection {
                             }
                             dfd.notify({ index: index - 1, total: length }); // index starts at 1
                         },
-                        error => {
+                        (error) => {
                             if (error) {
                                 dfd.reject(error);
                             } else {
@@ -486,7 +486,7 @@ export default class Collection {
                                             dfd.resolve({
                                                 nMatched: 1,
                                                 nUpserted: 0,
-                                                nModified: 1
+                                                nModified: 1,
                                             });
                                         })
                                         .catch(dfd.reject);
@@ -498,7 +498,7 @@ export default class Collection {
                         dfd.resolve({
                             nMatched: 0,
                             nUpserted: 0,
-                            nModified: 0
+                            nModified: 0,
                         });
                     }
                 } else if (
@@ -523,7 +523,7 @@ export default class Collection {
                                         dfd.resolve({
                                             nMatched: 1,
                                             nUpserted: 1,
-                                            nModified: 0
+                                            nModified: 0,
                                         });
                                     })
                                     .catch(dfd.reject);
@@ -557,7 +557,7 @@ export default class Collection {
                                         that._store.setItem(
                                             obj[idField],
                                             $.extend(true, obj, doc),
-                                            error => {
+                                            (error) => {
                                                 // }, doc) {
                                                 if (error) {
                                                     def.reject(error);
@@ -580,7 +580,7 @@ export default class Collection {
                             }
                             dfd.notify({ index: index - 1, total: length }); // index starts at 1
                         },
-                        error => {
+                        (error) => {
                             // This is called at the end of the iteration
                             if (error) {
                                 dfd.reject(error);
@@ -589,13 +589,13 @@ export default class Collection {
                                     .then(() => {
                                         dfd.notify({
                                             index: length - 1,
-                                            total: length
+                                            total: length,
                                         }); // Make sure we reach 100%
                                         // Note: Cannot upsert when query returns several documents => upsert requires an id
                                         dfd.resolve({
                                             nMatched: length,
                                             nUpserted: 0,
-                                            nModified: promises.length
+                                            nModified: promises.length,
                                         });
                                     })
                                     .catch(dfd.reject);
@@ -636,7 +636,7 @@ export default class Collection {
                     dfd.reject(err);
                 } else if (item) {
                     // https://localforage.github.io/localForage/#data-api-removeitem
-                    that._store.removeItem(query[idField], error => {
+                    that._store.removeItem(query[idField], (error) => {
                         if (error) {
                             dfd.reject(error);
                         } else {
@@ -673,26 +673,29 @@ export default class Collection {
                             if (match(query, item, that._textFields)) {
                                 removals[key] = $.Deferred();
                                 // https://localforage.github.io/localForage/#data-api-removeitem
-                                that._store.removeItem(item[idField], error => {
-                                    let ret;
-                                    if (error) {
-                                        ret = removals[key].reject(error); // return something to stop iterating
-                                    } else {
-                                        $.when(
-                                            ...that.triggers(
-                                                Collection.triggers.remove,
-                                                item
+                                that._store.removeItem(
+                                    item[idField],
+                                    (error) => {
+                                        let ret;
+                                        if (error) {
+                                            ret = removals[key].reject(error); // return something to stop iterating
+                                        } else {
+                                            $.when(
+                                                ...that.triggers(
+                                                    Collection.triggers.remove,
+                                                    item
+                                                )
                                             )
-                                        )
-                                            .then(removals[key].resolve)
-                                            .catch(removals[key].reject);
+                                                .then(removals[key].resolve)
+                                                .catch(removals[key].reject);
+                                        }
+                                        return ret;
                                     }
-                                    return ret;
-                                });
+                                );
                             }
                             dfd.notify({ index: index - 1, total: length }); // index starts at 1
                         },
-                        error => {
+                        (error) => {
                             if (error) {
                                 dfd.reject(error);
                             }
@@ -705,7 +708,7 @@ export default class Collection {
                             // In other words how many items have been removed before an error occurred?
                             const count = Object.keys(removals).length;
                             const promises = [];
-                            Object.keys(removals).forEach(key => {
+                            Object.keys(removals).forEach((key) => {
                                 promises.push(removals[key].promise());
                             });
                             $.when(...promises)
@@ -746,7 +749,7 @@ export default class Collection {
             )
         );
         const promises = [];
-        this._triggers[event].forEach(trigger => {
+        this._triggers[event].forEach((trigger) => {
             promises.push(trigger(item));
         });
         return promises;
@@ -763,7 +766,7 @@ export default class Collection {
             assert.format(assert.messages.isArray.default, 'data')
         );
         const that = this;
-        const promises = data.map(item => {
+        const promises = data.map((item) => {
             const doc = deepClone(item);
             return that.insert(doc);
         });
@@ -778,7 +781,7 @@ export default class Collection {
     clear() {
         const dfd = $.Deferred();
         // https://localforage.github.io/localForage/#data-api-clear
-        this._store.clear(err => {
+        this._store.clear((err) => {
             if (err) {
                 dfd.reject(err);
             } else {
@@ -798,9 +801,9 @@ export default class Collection {
         this._store = localForage.dropInstance(
             {
                 name: this._db._name, // Database name
-                storeName: this._name // Collection name
+                storeName: this._name, // Collection name
             },
-            err => {
+            (err) => {
                 if (err) {
                     dfd.reject(err);
                 } else {

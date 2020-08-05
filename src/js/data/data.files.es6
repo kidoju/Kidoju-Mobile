@@ -72,7 +72,7 @@ const fileTransport = {
         // Delete file
         rapi.v1.content
             .deleteFile(locale, params.summaryId, matches[3])
-            .done(function(response) {
+            .done(function (response) {
                 logger.debug({
                     message: 'file deleted',
                     method: 'summary.transport.destroy',
@@ -80,10 +80,10 @@ const fileTransport = {
                         {
                             language: locale,
                             summaryId: params.summaryId,
-                            url: data.url
+                            url: data.url,
                         },
                         response
-                    )
+                    ),
                 });
                 options.success({ data: [data], total: 1 });
                 notification.success(
@@ -94,7 +94,7 @@ const fileTransport = {
                 logger.error({
                     message: 'file deletion error',
                     method: 'summary.transport.destroy',
-                    error: xhr2error(xhr, status, errorThrown)
+                    error: xhr2error(xhr, status, errorThrown),
                 });
                 options.error(xhr, status, errorThrown);
                 notification.error(
@@ -128,7 +128,7 @@ const fileTransport = {
         // Get all project files
         rapi.v1.content
             .getAllSummaryFiles(locale, params.summaryId)
-            .done(function(response) {
+            .done(function (response) {
                 assert.isNonEmptyPlainObject(
                     response,
                     assert.format(
@@ -160,7 +160,7 @@ const fileTransport = {
                 logger.error({
                     message: 'file list read error',
                     method: 'summary.transport.read',
-                    error: xhr2error(xhr, status, errorThrown)
+                    error: xhr2error(xhr, status, errorThrown),
                 });
                 options.error(xhr, status, errorThrown);
                 notification.error(
@@ -225,35 +225,35 @@ const fileTransport = {
         logger.debug({
             message: 'getting a signed url from aws',
             method: 'summary.transport.upload',
-            data: { language: locale, summaryId: params.summaryId }
+            data: { language: locale, summaryId: params.summaryId },
         });
 
         // Get a signed upload url from Amazon S3
         rapi.v1.content
             .getUploadUrl(locale, params.summaryId, data.file)
-            .done(function(uploadUrl) {
+            .done(function (uploadUrl) {
                 logger.debug({
                     message: 'uploading file/blob to signed url',
                     method: 'summary.transport.upload',
                     data: {
                         language: locale,
                         summaryId: params.summaryId,
-                        uploadUrl
-                    }
+                        uploadUrl,
+                    },
                 });
                 // Upload to that signed url
                 rapi.v1.content
                     .uploadFile(uploadUrl, data.file)
-                    .progress(function(e) {
+                    .progress(function (e) {
                         if (e.lengthComputable) {
                             // TODO trigger progress on dataSource
                             $(document).trigger('progress.kendoAssetManager', [
                                 e.loaded / e.total,
-                                'progress'
+                                'progress',
                             ]);
                         }
                     })
-                    .done(function(response) {
+                    .done(function (response) {
                         assert.isNonEmptyPlainObject(
                             response,
                             assert.format(
@@ -303,15 +303,15 @@ const fileTransport = {
                             data: deepExtend(
                                 {
                                     language: locale,
-                                    summaryId: params.summaryId
+                                    summaryId: params.summaryId,
                                 },
                                 response
-                            )
+                            ),
                         });
                         options.success({ data: [response], total: 1 });
                         $(document).trigger('progress.kendoAssetManager', [
                             1,
-                            'complete'
+                            'complete',
                         ]); // TODO trigger progress on dataSource
                         notification.success(
                             __('webapp.editor.notifications.fileCreateSuccess')
@@ -321,7 +321,7 @@ const fileTransport = {
                         logger.error({
                             message: 'file/blob upload error',
                             method: 'summary.transport.upload',
-                            error: xhr2error(xhr, status, errorThrown)
+                            error: xhr2error(xhr, status, errorThrown),
                         });
                         options.error(xhr, status, errorThrown);
                         notification.error(
@@ -333,7 +333,7 @@ const fileTransport = {
                 logger.error({
                     message: 'erro getting a signed upload url',
                     method: 'summary.transport.create',
-                    error: xhr2error(xhr, status, errorThrown)
+                    error: xhr2error(xhr, status, errorThrown),
                 });
                 options.error(xhr, status, error);
                 notification.error(
@@ -376,7 +376,7 @@ const fileTransport = {
 
         window.app.rapi.v1.content
             .importFile(locale, params.summaryId, data.url)
-            .done(function(response) {
+            .done(function (response) {
                 assert.isNonEmptyPlainObject(
                     response,
                     assert.format(
@@ -426,7 +426,7 @@ const fileTransport = {
                     data: deepExtend(
                         { language: locale, summaryId: params.summaryId },
                         response
-                    )
+                    ),
                 });
                 options.success({ data: [response], total: 1 });
                 notification.success(
@@ -437,12 +437,12 @@ const fileTransport = {
                 logger.error({
                     message: 'url import error',
                     method: 'summary.transport.import',
-                    error: xhr2error(xhr, status, errorThrown)
+                    error: xhr2error(xhr, status, errorThrown),
                 });
                 options.error(xhr, status, errorThrown);
                 notification.error(
                     __('webapp.editor.notifications.urlImportFailure')
                 );
             });
-    }
+    },
 };

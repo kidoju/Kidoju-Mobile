@@ -23,7 +23,7 @@ class AjaxUsers extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'users'
+            collection: 'users',
         });
         super(options);
     }

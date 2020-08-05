@@ -112,7 +112,7 @@ const LazyRemoteTransport = BaseTransport.extend({
                 })
                 .catch(options.error);
         }
-    }
+    },
 });
 
 /**

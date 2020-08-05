@@ -25,7 +25,7 @@ const viewModel = observable({
         if (!Array.isArray(this._resetters)) {
             this._resetters = [];
         }
-        Object.keys(options).forEach(key => {
+        Object.keys(options).forEach((key) => {
             const method = options[key];
             if ($.isFunction(method)) {
                 if (key === 'load') {
@@ -44,7 +44,7 @@ const viewModel = observable({
      */
     load() {
         const promises = [];
-        (this._loaders || []).forEach(method => {
+        (this._loaders || []).forEach((method) => {
             if ($.isFunction(method)) {
                 promises.push(method());
             }
@@ -56,12 +56,12 @@ const viewModel = observable({
      * Reset
      */
     reset() {
-        (this._resetters || []).forEach(method => {
+        (this._resetters || []).forEach((method) => {
             if ($.isFunction(method)) {
                 method();
             }
         });
-    }
+    },
 });
 
 /**

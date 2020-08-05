@@ -13,10 +13,10 @@ const network = new Network({
     // @ see http://api.jquery.com/jquery.ajax/
     ajax: {
         url: config.uris.rapi.ping,
-        timeout: 5000
+        timeout: 5000,
     },
     enabled: true,
-    global: false
+    global: false,
 });
 
 /**

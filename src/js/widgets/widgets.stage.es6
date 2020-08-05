@@ -25,13 +25,13 @@ import {
     getTransformScale,
     getTransformRotation,
     rad2deg,
-    snap
+    snap,
 } from '../common/window.position.es6';
 import Style from '../common/window.style.es6';
 import { isGuid } from '../common/window.util.es6';
 import {
     PageComponent,
-    PageComponentDataSource
+    PageComponentDataSource,
 } from '../data/data.pagecomponent.es6';
 import tools from '../tools/tools.es6';
 import { BaseTool } from '../tools/tools.base.es6';
@@ -51,7 +51,7 @@ const {
     throttle,
     ui: { plugin, ContextMenu, DataBoundWidget },
     unbind,
-    UserEvents
+    UserEvents,
 } = window.kendo;
 const logger = new Logger('widgets.stage');
 const NS = '.kendoStage';
@@ -60,7 +60,7 @@ const DEFAULTS = {
     MODE: 'play',
     SCALE: 1,
     WIDTH: 1024,
-    HEIGHT: 768
+    HEIGHT: 768,
 };
 
 const LOADING_OVERLAY =
@@ -102,7 +102,7 @@ const ACTIONS = {
     MOVE: 'move',
     RESIZE: 'resize',
     ROTATE: 'rotate',
-    MENU: 'menu'
+    MENU: 'menu',
 };
 
 /** *******************************************************************************
@@ -128,7 +128,7 @@ binders.widget.properties = Binder.extend({
     },
     destroy() {
         this.widget.unbind(CONSTANTS.CHANGE, this._change);
-    }
+    },
 });
 
 /** *******************************************************************************
@@ -178,7 +178,7 @@ const Stage = DataBoundWidget.extend({
         CONSTANTS.DATABINDING,
         CONSTANTS.DATABOUND,
         PROPERTYBINDING,
-        CONSTANTS.SELECT // TODO never triggered !!! See HTML too !!!
+        CONSTANTS.SELECT, // TODO never triggered !!! See HTML too !!!
     ],
 
     /**
@@ -202,10 +202,10 @@ const Stage = DataBoundWidget.extend({
         messages: {
             contextMenu: {
                 delete: 'Delete',
-                duplicate: 'Duplicate'
+                duplicate: 'Duplicate',
             },
-            noPage: 'Please add or select a page'
-        }
+            noPage: 'Please add or select a page',
+        },
     },
 
     /**
@@ -282,11 +282,11 @@ const Stage = DataBoundWidget.extend({
             this._scale = value;
             this.wrapper.css({
                 // transformOrigin: this._transformOrigin,
-                transform: format(CSS_SCALE, this._scale)
+                transform: format(CSS_SCALE, this._scale),
             });
             this.wrapper.find(CONSTANTS.DOT + HANDLE_CLASS).css({
                 // transformOrigin: 'center center', // by default
-                transform: format(CSS_SCALE, 1 / this._scale)
+                transform: format(CSS_SCALE, 1 / this._scale),
             });
             /*
             // Scaling the message does not work very well so we have simply increased the font-size
@@ -407,7 +407,7 @@ const Stage = DataBoundWidget.extend({
                 this._toggleSelection();
                 this.trigger(CONSTANTS.CHANGE, {
                     index: -1,
-                    value: null
+                    value: null,
                 });
             }
         } else if (
@@ -422,7 +422,7 @@ const Stage = DataBoundWidget.extend({
                 this._toggleSelection();
                 this.trigger(CONSTANTS.CHANGE, {
                     index,
-                    value
+                    value,
                 });
             }
         }
@@ -561,21 +561,21 @@ const Stage = DataBoundWidget.extend({
                 'font-family',
                 'font-size',
                 'font-style',
-                'font-weight'
+                'font-weight',
             ]);
             style.reset([
                 'position',
                 'height',
                 'width',
                 'transform',
-                'transform-origin'
+                'transform-origin',
             ]);
             style.merge(value, true, [
                 'position',
                 'height',
                 'width',
                 'transform',
-                'transform-origin'
+                'transform-origin',
             ]);
             this.wrapper.attr({ style: style.toString() });
         }
@@ -592,27 +592,31 @@ const Stage = DataBoundWidget.extend({
             this.element.is(CONSTANTS.DIV),
             'Please instantiate this widget with a <div/>'
         );
-
+        // debugger;
         // Set this.stage from the div element that makes the widget
         this.stage = this.element.css({
             position: RELATIVE, // !important
             overflow: HIDDEN,
             height: this.height(),
-            width: this.width()
+            width: this.width(),
         });
 
         // We need that.wrapper for visible/invisible bindings
-        this.wrapper = this.stage
-            .wrap(`<${CONSTANTS.DIV}/>`)
-            .parent()
-            .addClass(WIDGET_CLASS)
-            .css({
-                position: RELATIVE, // !important
-                height: _outerHeight(this.stage),
-                width: _outerWidth(this.stage),
-                // transformOrigin: this._transformOrigin, // 'top left', // !important without such attribute, element top left calculations are wrong
-                transform: format(CSS_SCALE, this.scale())
-            });
+        if (this.stage.parent().hasClass(WIDGET_CLASS)) {
+            this.wrapper = this.stage.parent();
+        } else {
+            this.wrapper = this.stage
+                .wrap(`<${CONSTANTS.DIV}/>`)
+                .parent()
+                .addClass(WIDGET_CLASS);
+        }
+        this.stage.css({
+            position: RELATIVE, // !important
+            height: _outerHeight(this.stage),
+            width: _outerWidth(this.stage),
+            // transformOrigin: this._transformOrigin, // 'top left', // !important without such attribute, element top left calculations are wrong
+            transform: format(CSS_SCALE, this.scale()),
+        });
     },
 
     /**
@@ -672,7 +676,7 @@ const Stage = DataBoundWidget.extend({
     _initializeMode() {
         const {
             modes,
-            options: { dataSource }
+            options: { dataSource },
         } = this;
 
         const mode = this.mode();
@@ -736,7 +740,7 @@ const Stage = DataBoundWidget.extend({
                     position: 'absolute', // 'fixed',
                     top: '50%',
                     left: '50%',
-                    transform: 'translate(-50%, -50%)'
+                    transform: 'translate(-50%, -50%)',
                 })
                 .appendTo(this.wrapper);
         }
@@ -766,7 +770,7 @@ const Stage = DataBoundWidget.extend({
                     top: 0,
                     left: 0,
                     height: this.height(),
-                    width: this.width()
+                    width: this.width(),
                 })
                 .appendTo(this.wrapper);
         }
@@ -848,7 +852,7 @@ const Stage = DataBoundWidget.extend({
             $(`<div class="${ADORNER_CLASS}"/>`)
                 .css({
                     position: ABSOLUTE,
-                    display: CONSTANTS.NONE
+                    display: CONSTANTS.NONE,
                 })
                 .append(format(handle, ACTIONS.MOVE))
                 .append(format(handle, ACTIONS.RESIZE))
@@ -888,7 +892,7 @@ const Stage = DataBoundWidget.extend({
                 press: this._onMousePress.bind(this),
                 start: this._onMouseStart.bind(this),
                 move: throttle(this._onMouseMove.bind(this), MOUSEMOVE_DELAY),
-                end: this._onMouseEnd.bind(this)
+                end: this._onMouseEnd.bind(this),
             });
         }
     },
@@ -1006,7 +1010,7 @@ const Stage = DataBoundWidget.extend({
             that._clearAll();
 
             // Add elements to the stage
-            components.forEach(component => {
+            components.forEach((component) => {
                 that._addStageElement(component);
             });
 
@@ -1022,16 +1026,16 @@ const Stage = DataBoundWidget.extend({
             // otherwise there is a mix of binding sources
             that.trigger(PROPERTYBINDING); // This calls an event handler in _initializePlayMode
         } else if (e.action === 'add') {
-            e.items.forEach(component => {
+            e.items.forEach((component) => {
                 that._addStageElement(component);
                 that.value(component);
             });
         } else if (e.action === 'remove') {
-            e.items.forEach(component => {
+            e.items.forEach((component) => {
                 that._removeStageElementByUid(component.uid);
                 that.trigger(CONSTANTS.CHANGE, {
                     action: e.action,
-                    value: component
+                    value: component,
                 });
                 if (
                     that.wrapper
@@ -1047,7 +1051,7 @@ const Stage = DataBoundWidget.extend({
             e.items.length &&
             e.items[0] instanceof PageComponent
         ) {
-            e.items.forEach(component => {
+            e.items.forEach((component) => {
                 const stageElement = that._getStageElementByUid(component.uid);
                 const adorner = that.wrapper.children(
                     format(ADORNER_SELECTOR, component.uid)
@@ -1220,7 +1224,7 @@ const Stage = DataBoundWidget.extend({
             height: component.get(CONSTANTS.HEIGHT),
             width: component.get(CONSTANTS.WIDTH),
             // transformOrigin: 'center center', // by default
-            transform: format(CSS_ROTATE, component.get(ROTATE))
+            transform: format(CSS_ROTATE, component.get(ROTATE)),
         });
 
         // Prepare stageElement with component
@@ -1416,7 +1420,7 @@ const Stage = DataBoundWidget.extend({
         const emulatedEvent = {
             currentTarget: stageElement,
             preventDefault: $.noop,
-            stopPropagation: $.noop
+            stopPropagation: $.noop,
         };
 
         this._onEnableStageElement(
@@ -1560,7 +1564,7 @@ const Stage = DataBoundWidget.extend({
                     open: this._onContextMenuOpen.bind(this),
                     select: this._onContextMenuSelect.bind(this),
                     showOn: support.click,
-                    target: `.kj-handle[${attr(CONSTANTS.ACTION)}="menu"]`
+                    target: `.kj-handle[${attr(CONSTANTS.ACTION)}="menu"]`,
                 })
                 .data('kendoContextMenu');
         }
@@ -1609,8 +1613,8 @@ const Stage = DataBoundWidget.extend({
                         {
                             text: tool.name,
                             attr: attributes,
-                            items
-                        }
+                            items,
+                        },
                     ]);
                 }
             }
@@ -1708,7 +1712,7 @@ const Stage = DataBoundWidget.extend({
                     width: stageElement.css(CONSTANTS.WIDTH),
                     // transformOrigin: 'center center', // by default
                     transform: stageElement.css(TRANSFORM), // This might return a matrix
-                    display: BLOCK
+                    display: BLOCK,
                 })
                 // IMPORTANT: Set the uid of the adorner to the uid of the stageElement it is set on
                 // This is how we know which stageElement to transform when dragging handles
@@ -1720,7 +1724,7 @@ const Stage = DataBoundWidget.extend({
                 transform: `${format(
                     CSS_ROTATE,
                     -getTransformRotation(stageElement)
-                )} ${format(CSS_SCALE, 1 / this.scale())}`
+                )} ${format(CSS_SCALE, 1 / this.scale())}`,
             });
         }
     },
@@ -1828,7 +1832,7 @@ const Stage = DataBoundWidget.extend({
                             left,
                             top,
                             width: tool.width,
-                            height: tool.height
+                            height: tool.height,
                             // rotate: tool.rotate
                         });
                         // Add triggers the change event on the dataSource
@@ -1847,10 +1851,10 @@ const Stage = DataBoundWidget.extend({
                         this.stage.focus();
                     }
                 })
-                .catch(error => {
+                .catch((error) => {
                     logger.error({
                         error,
-                        method: '_onMousePress'
+                        method: '_onMousePress',
                     });
                 });
         }
@@ -1900,7 +1904,7 @@ const Stage = DataBoundWidget.extend({
                 scale,
                 x,
                 y,
-                uid
+                uid,
             });
 
             // Use the handle cursor while dragging
@@ -1946,16 +1950,16 @@ const Stage = DataBoundWidget.extend({
                 left: (rect.left - offset.left + doc.scrollLeft()) / scale,
                 top: (rect.top - offset.top + doc.scrollTop()) / scale,
                 height: rect.height / scale,
-                width: rect.width / scale
+                width: rect.width / scale,
             };
             const center = {
                 x: bounds.left + bounds.width / 2,
-                y: bounds.top + bounds.height / 2
+                y: bounds.top + bounds.height / 2,
             };
             // Find the mouse/touch position and add a component
             const mouse = {
                 x: (e.x.location - offset.left) / scale,
-                y: (e.y.location - offset.top) / scale
+                y: (e.y.location - offset.top) / scale,
             };
             const dx = mouse.x - state.x; // horizontal distance from S to S'
             const dy = mouse.y - state.y; // vertical distance from S to S'
@@ -1965,7 +1969,7 @@ const Stage = DataBoundWidget.extend({
                     bounds,
                     center,
                     mouse,
-                    wrapper: this.wrapper
+                    wrapper: this.wrapper,
                 });
             }
             if (state.action === ACTIONS.MOVE) {
@@ -1983,12 +1987,12 @@ const Stage = DataBoundWidget.extend({
                 const centerAfterMove = {
                     // Also C'
                     x: center.x + dx / 2,
-                    y: center.y + dy / 2
+                    y: center.y + dy / 2,
                 };
                 const topLeft = {
                     // Also T
                     x: state.left,
-                    y: state.top
+                    y: state.top,
                 };
                 const alpha = deg2rad(state.angle);
                 const mmprime = getRotatedPoint(topLeft, center, alpha); // Also M=M'
@@ -2101,7 +2105,7 @@ const Stage = DataBoundWidget.extend({
                 keys.PAGEUP,
                 keys.RIGHT,
                 keys.SPACE,
-                keys.UP
+                keys.UP,
             ].indexOf(e.which) > -1
         ) {
             // Prevent scrolling (does not prevent keyup)
@@ -2145,7 +2149,7 @@ const Stage = DataBoundWidget.extend({
                 snap(component.get(prop) + inc, that._snapGrid)
             );
         };
-        const rotate = inc => {
+        const rotate = (inc) => {
             component.set(
                 'rotate',
                 snap(component.get('rotate') + inc, that._snapAngle)
@@ -2169,14 +2173,14 @@ const Stage = DataBoundWidget.extend({
                 case keys.END:
                     this.index(this.dataSource.total() - 1);
                     this.trigger(CONSTANTS.SELECT, {
-                        value: this.dataSource.getByUid(this._getSelectedUid())
+                        value: this.dataSource.getByUid(this._getSelectedUid()),
                     });
                     this.stage.focus(); // Otherwise it loses focus
                     break;
                 case keys.HOME:
                     this.index(0);
                     this.trigger(CONSTANTS.SELECT, {
-                        value: this.dataSource.getByUid(this._getSelectedUid())
+                        value: this.dataSource.getByUid(this._getSelectedUid()),
                     });
                     this.stage.focus(); // Otherwise it loses focus
                     break;
@@ -2201,7 +2205,7 @@ const Stage = DataBoundWidget.extend({
                         (this.index() + 1) % (this.dataSource.total() || 1)
                     );
                     this.trigger(CONSTANTS.SELECT, {
-                        value: this.dataSource.getByUid(this._getSelectedUid())
+                        value: this.dataSource.getByUid(this._getSelectedUid()),
                     });
                     this.stage.focus(); // Otherwise it loses focus
                     break;
@@ -2303,10 +2307,7 @@ const Stage = DataBoundWidget.extend({
         that.wrapper.children(`.${OVERLAY_CLASS}`).remove();
         that.wrapper = undefined;
         // empty and unwrap
-        that.element
-            .off()
-            .empty()
-            .unwrap();
+        that.element.off().empty().unwrap();
     },
 
     /**
@@ -2318,7 +2319,7 @@ const Stage = DataBoundWidget.extend({
         that.setDataSource(null);
         that._clear();
         destroy(that.element);
-    }
+    },
 });
 
 /**
@@ -2345,13 +2346,13 @@ if (window.DEBUG) {
      * Add debug visual eleemnts
      * @param wrapper
      */
-    Stage._addDebugVisualElements = wrapper => {
+    Stage._addDebugVisualElements = (wrapper) => {
         // Add bounding rectangle
         $(DEBUG_BOUNDS)
             .css({
                 position: ABSOLUTE,
                 border: '1px dashed #FF00FF',
-                display: CONSTANTS.NONE
+                display: CONSTANTS.NONE,
             })
             .appendTo(wrapper);
 
@@ -2365,7 +2366,7 @@ if (window.DEBUG) {
                 marginLeft: '-10px',
                 borderRadius: '50%',
                 backgroundColor: '#FF00FF',
-                display: CONSTANTS.NONE
+                display: CONSTANTS.NONE,
             })
             .appendTo(wrapper);
 
@@ -2379,7 +2380,7 @@ if (window.DEBUG) {
                 marginLeft: '-10px',
                 borderRadius: '50%',
                 backgroundColor: '#00FFFF',
-                display: CONSTANTS.NONE
+                display: CONSTANTS.NONE,
             })
             .appendTo(wrapper);
     };
@@ -2388,14 +2389,14 @@ if (window.DEBUG) {
      * Update debug visual elements
      * @param options
      */
-    Stage._updateDebugVisualElements = options => {
+    Stage._updateDebugVisualElements = (options) => {
         if ($.isPlainObject(options)) {
             const { bounds, center, mouse, wrapper } = options;
             // Display center of rotation
             wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).css({
                 display: 'block',
                 left: Math.round(center.x),
-                top: Math.round(center.y)
+                top: Math.round(center.y),
             });
 
             // Display bounding rectangle
@@ -2404,14 +2405,14 @@ if (window.DEBUG) {
                 left: Math.round(bounds.left),
                 top: Math.round(bounds.top),
                 height: Math.round(bounds.height),
-                width: Math.round(bounds.width)
+                width: Math.round(bounds.width),
             });
 
             // Display mouse calculated position
             wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).css({
                 display: 'block',
                 left: Math.round(mouse.x),
-                top: Math.round(mouse.y)
+                top: Math.round(mouse.y),
             });
         }
     };
@@ -2420,7 +2421,7 @@ if (window.DEBUG) {
      * Hide debug visual elements
      * @param wrapper
      */
-    Stage._hideDebugVisualElements = wrapper => {
+    Stage._hideDebugVisualElements = (wrapper) => {
         wrapper
             .children(CONSTANTS.DOT + DEBUG_CENTER_CLASS)
             .css({ display: CONSTANTS.NONE });
@@ -2436,7 +2437,7 @@ if (window.DEBUG) {
      * Remove debug visual elements
      * @param wrapper
      */
-    Stage._removeDebugVisualElements = wrapper => {
+    Stage._removeDebugVisualElements = (wrapper) => {
         wrapper.children(CONSTANTS.DOT + DEBUG_CENTER_CLASS).remove();
         wrapper.children(CONSTANTS.DOT + DEBUG_BOUNDS_CLASS).remove();
         wrapper.children(CONSTANTS.DOT + DEBUG_MOUSE_CLASS).remove();

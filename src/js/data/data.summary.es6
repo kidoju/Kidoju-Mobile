@@ -33,7 +33,7 @@ const NewSummary = BaseModel.define({
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         author: {
             defaultValue: {},
@@ -41,33 +41,33 @@ const NewSummary = BaseModel.define({
                 return value instanceof UserReference
                     ? value
                     : new UserReference(value);
-            }
+            },
         },
         categoryId: {
             type: CONSTANTS.STRING,
-            nullable: true
+            nullable: true,
         },
         language: {
             type: CONSTANTS.STRING,
             defaultValue: __.locale,
             editable: false,
             validation: {
-                required: true
-            }
+                required: true,
+            },
         },
         title: {
             type: CONSTANTS.STRING,
             validation: {
                 required: true,
-                pattern: '^\\S[^<>]{4,48}\\S$'
-            }
+                pattern: '^\\S[^<>]{4,48}\\S$',
+            },
         } /* ,
                  type: {
                  type: CONSTANTS.STRING,
                  validation: {
                  required: true
                  }
-                 } */
+                 } */,
     },
     language$() {
         const locale = this.get('language');
@@ -98,7 +98,7 @@ const NewSummary = BaseModel.define({
         that.set('categoryId', this.defaults.category);
         that.set('title', this.defaults.title);
         // that.set('type', this.defaults.type);
-    }
+    },
     /*
     // TODO use transport mixin
     save() {
@@ -132,11 +132,11 @@ const Summary = BaseModel.define({
             type: CONSTANTS.STRING,
             editable: false,
             nullable: true,
-            serializable: false
+            serializable: false,
         },
         ageGroup: {
             type: CONSTANTS.NUMBER,
-            defaultValue: 255
+            defaultValue: 255,
         },
         author: {
             // For complex types, the recommendation is to leave the type undefined and set a default value
@@ -149,27 +149,27 @@ const Summary = BaseModel.define({
                 return value instanceof UserReference || value === null
                     ? value
                     : new UserReference(value);
-            }
+            },
         },
         categoryId: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         created: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         description: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         icon: {
             type: CONSTANTS.STRING,
-            defaultValue: 'spacer'
+            defaultValue: 'spacer',
         },
         language: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         metrics: {
             defaultValue: {},
@@ -180,29 +180,29 @@ const Summary = BaseModel.define({
                     value === null
                     ? value
                     : new SummaryMetricsReference(value);
-            }
+            },
         },
         published: {
             type: CONSTANTS.DATE,
             editable: false,
             nullable: true,
-            serializable: false
+            serializable: false,
         },
         tags: {
-            defaultValue: []
+            defaultValue: [],
         },
         title: {
-            type: CONSTANTS.STRING
+            type: CONSTANTS.STRING,
         },
         type: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         updated: {
             type: CONSTANTS.DATE,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         userScore: {
             // Used in Kidoju-Mobile only
@@ -227,8 +227,8 @@ const Summary = BaseModel.define({
                     }
                 }
                 return ret;
-            }
-        }
+            },
+        },
     },
     init(data) {
         const that = this;
@@ -410,7 +410,7 @@ const Summary = BaseModel.define({
             id: this.get('id'),
             options: {
                 // language: this.get('language')
-            }
+            },
         };
         AjaxRpc.call(draft);
         /*
@@ -428,7 +428,7 @@ const Summary = BaseModel.define({
             id: this.get('id'),
             options: {
                 // language: this.get('language')
-            }
+            },
         };
         AjaxRpc.call(publish);
         /*
@@ -449,8 +449,8 @@ const Summary = BaseModel.define({
             id: this.get('id'),
             options: {
                 // language: this.get('language'),
-                value
-            }
+                value,
+            },
         };
         AjaxRpc.call(rate);
         /*
@@ -460,7 +460,7 @@ const Summary = BaseModel.define({
             { type: 'rating', value }
         );
          */
-    }
+    },
 });
 
 /**
@@ -469,8 +469,8 @@ const Summary = BaseModel.define({
 const summaryTransport = new RemoteTransport({
     collection: new AjaxSummaries({
         partition: getLanguageReference(),
-        projection: BaseModel.projection(Summary)
-    })
+        projection: BaseModel.projection(Summary),
+    }),
 });
 
 /**

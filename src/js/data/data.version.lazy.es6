@@ -19,7 +19,7 @@ import { normalizeSchema } from './data.util.es6';
 
 const {
     data: { DataSource },
-    format
+    format,
 } = window.kendo;
 
 /**
@@ -33,25 +33,25 @@ const LazyVersion = BaseModel.define({
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         // created
         // language
         name: {
             from: CONSTANTS.EMPTY, // Do not include in projection
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         state: {
             type: CONSTANTS.NUMBER,
-            editable: false
+            editable: false,
         },
         // stream
         summaryId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
-        }
+            nullable: true,
+        },
         // type
         // updated
         // userId
@@ -71,7 +71,7 @@ const LazyVersion = BaseModel.define({
                 ? `&theme=${encodeURIComponent(themer.name())}`
                 : ''
         );
-    }
+    },
 });
 
 /**
@@ -80,8 +80,8 @@ const LazyVersion = BaseModel.define({
 const lazyVersionTransport = new LazyRemoteTransport({
     collection: new AjaxVersions({
         partition: getSummaryReference(),
-        projection: BaseModel.projection(LazyVersion)
-    })
+        projection: BaseModel.projection(LazyVersion),
+    }),
 });
 
 /**
@@ -101,7 +101,7 @@ const LazyVersionDataSource = DataSource.extend({
             $.extend(
                 true,
                 {
-                    pageSize: CONSTANTS.DATA_PAGE_SIZE.MAX
+                    pageSize: CONSTANTS.DATA_PAGE_SIZE.MAX,
                 },
                 options,
                 {
@@ -132,15 +132,15 @@ const LazyVersionDataSource = DataSource.extend({
                                 });
                             }
                             return response;
-                        }
+                        },
                     }),
                     serverFiltering: true,
                     serverSorting: true,
-                    serverPaging: true
+                    serverPaging: true,
                 }
             )
         );
-    }
+    },
 });
 
 /**

@@ -54,7 +54,7 @@ const constants = {
         'amazon-fireos': 'amzn://apps/android?p=com.kidoju.mobile',
         // ----------------------------------------------------------------------------------------
         // For windows (untested)
-        windows: 'ms-windows-store://pdp/?ProductId=9wzdncrfj140'
+        windows: 'ms-windows-store://pdp/?ProductId=9wzdncrfj140',
     },
     // localForage database name
     dbName: 'KidojuDB',
@@ -82,13 +82,13 @@ const constants = {
         // en: '000100010000000000000000', // General Knowledge
         // en: '000100020000000000000000', // Reception
         // en: '000100030000000000000000', // Year 1
-        fr: undefined
+        fr: undefined,
         // fr: '000200010000000000000000' // Culture Générale
         // fr: '000200030000000000000000' // Maternelle
         // fr: '000200040000000000000000' // CP
     },
     // The app theme
-    theme: undefined // 'flat'
+    theme: undefined, // 'flat'
     // TODO: We might also want the possibility to hide categories for museum apps
 };
 

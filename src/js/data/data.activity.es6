@@ -27,7 +27,7 @@ const Activity = BaseModel.define({
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         actor: {
             // <--- models.UserReference
@@ -39,24 +39,24 @@ const Activity = BaseModel.define({
                 return value instanceof UserReference || value === null
                     ? value
                     : new UserReference(value);
-            }
+            },
         },
         categoryId: {
             type: CONSTANTS.STRING,
             editable: false,
-            serializable: false
+            serializable: false,
         },
         created: {
             type: CONSTANTS.DATE,
-            editable: false
+            editable: false,
         },
         type: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         updated: {
             type: CONSTANTS.DATE,
-            editable: false
+            editable: false,
         },
         version: {
             // <--- models.VersionReference
@@ -68,9 +68,9 @@ const Activity = BaseModel.define({
                 return value instanceof VersionReference || value === null
                     ? value
                     : new VersionReference(value);
-            }
-        }
-    }
+            },
+        },
+    },
     /* ,
     load: function (summaryId, activityId) {
         var that = this;

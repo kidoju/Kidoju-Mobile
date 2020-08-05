@@ -105,7 +105,7 @@ export default function extendModelWithTransport(DataModel, transport) {
                         that.parent() instanceof Observable
                     ) {
                         const viewModel = that.parent();
-                        Object.keys(viewModel).some(field => {
+                        Object.keys(viewModel).some((field) => {
                             const ret = viewModel[field] === that;
                             if (ret) {
                                 viewModel.trigger(CONSTANTS.CHANGE, { field });
@@ -116,7 +116,7 @@ export default function extendModelWithTransport(DataModel, transport) {
                         that.trigger(CONSTANTS.CHANGE);
                     }
                     dfd.resolve(response);
-                }
+                },
             });
         }
         return dfd.promise();
@@ -132,7 +132,7 @@ export default function extendModelWithTransport(DataModel, transport) {
             sessionStorage.removeItem(CONSTANTS.ME);
         }
         const data = {};
-        Object.keys(this.defaults).forEach(key => {
+        Object.keys(this.defaults).forEach((key) => {
             data[key] = $.isFunction(this.defaults[key])
                 ? this.defaults[key]()
                 : this.defaults[key];
@@ -143,7 +143,7 @@ export default function extendModelWithTransport(DataModel, transport) {
         if ($.isFunction(this.parent) && this.parent() instanceof Observable) {
             const that = this;
             const viewModel = that.parent();
-            Object.keys(viewModel).some(field => {
+            Object.keys(viewModel).some((field) => {
                 const ret = viewModel[field] === that;
                 if (ret) {
                     viewModel.trigger(CONSTANTS.CHANGE, { field });
@@ -172,7 +172,7 @@ export default function extendModelWithTransport(DataModel, transport) {
                 success(response) {
                     accept(response);
                     dfd.resolve(response);
-                }
+                },
             });
         } else if (dirty) {
             const json = this.toJSON();
@@ -184,7 +184,7 @@ export default function extendModelWithTransport(DataModel, transport) {
             // Some models might require language
             data.language = __.locale;
             // Only send dirty fields with id for update
-            Object.keys(dirtyFields).forEach(key => {
+            Object.keys(dirtyFields).forEach((key) => {
                 if (dirtyFields[key]) {
                     data[key] = json[key];
                 }
@@ -197,7 +197,7 @@ export default function extendModelWithTransport(DataModel, transport) {
                     // Not found is sent to error/dfd.reject with status 404
                     accept(response);
                     dfd.resolve(response);
-                }
+                },
             });
         } else {
             dfd.resolve(this.toJSON());

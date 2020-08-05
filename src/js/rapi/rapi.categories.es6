@@ -22,7 +22,7 @@ class AjaxCategories extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'categories'
+            collection: 'categories',
         });
         super(options);
         assert.isNonEmptyPlainObject(

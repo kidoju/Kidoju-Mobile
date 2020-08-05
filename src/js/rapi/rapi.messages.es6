@@ -29,7 +29,7 @@ class AjaxMessages extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'messages'
+            collection: 'messages',
         });
         super(options);
     }

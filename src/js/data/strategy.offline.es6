@@ -27,7 +27,7 @@ const OfflineStrategy = LazyOfflineStrategy.extend({
         logger.debug({
             message: 'create data',
             method: 'create',
-            data: options.data // TODO add isOffline
+            data: options.data, // TODO add isOffline
         });
 
         throw new Error('Not yet implemented');
@@ -42,7 +42,7 @@ const OfflineStrategy = LazyOfflineStrategy.extend({
         logger.debug({
             message: 'destroy data',
             method: 'destroy',
-            data: options.data // TODO add isOffline
+            data: options.data, // TODO add isOffline
         });
 
         throw new Error('Not yet implemented');
@@ -57,11 +57,11 @@ const OfflineStrategy = LazyOfflineStrategy.extend({
         logger.debug({
             message: 'update data',
             method: 'update',
-            data: options.data // TODO add isOffline
+            data: options.data, // TODO add isOffline
         });
 
         throw new Error('Not yet implemented');
-    }
+    },
 });
 
 /**

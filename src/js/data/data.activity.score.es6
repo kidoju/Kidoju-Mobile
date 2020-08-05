@@ -25,7 +25,7 @@ const { format } = window.kendo;
 const Score = Activity.define({
     fields: {
         test: {
-            defaultValue: null
+            defaultValue: null,
             /*
              // A test is a hash object of
              val_abcdef: {
@@ -41,8 +41,8 @@ const Score = Activity.define({
         },
         value: {
             type: CONSTANTS.NUMBER,
-            editable: false
-        }
+            editable: false,
+        },
     },
 
     /**
@@ -73,7 +73,7 @@ const Score = Activity.define({
             );
         }
         return ret;
-    }
+    },
 });
 
 /**
@@ -82,8 +82,8 @@ const Score = Activity.define({
 const scoreTransport = new RemoteTransport({
     collection: new AjaxActivities({
         partition: getVersionReference(),
-        projection: BaseModel.projection(Score) // TODO beware null values
-    })
+        projection: BaseModel.projection(Score), // TODO beware null values
+    }),
 });
 
 /**

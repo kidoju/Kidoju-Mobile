@@ -22,7 +22,7 @@ class AjaxActivities extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'activities'
+            collection: 'activities',
         });
         super(options);
         assert.isNonEmptyPlainObject(

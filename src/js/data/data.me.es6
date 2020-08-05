@@ -24,7 +24,7 @@ import LazyRemoteTransport from './transports.remote.lazy.es6';
 const {
     data: { DataSource },
     deepExtend,
-    format
+    format,
 } = window.kendo;
 
 /**
@@ -36,27 +36,27 @@ const definition = {
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         firstName: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         lastName: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         picture: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         provider: {
             // TODO Review
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
-        }
+            nullable: true,
+        },
         // TODO timezone (for display of dates), born (for searches)
         // TODO subscription
         // TODO User Group (sysadmin, ...)
@@ -80,7 +80,7 @@ const definition = {
         // on the img tag, bind this error handler as follows: data-bind="events: { error: me.onUserPictureError }"
         e.target.onerror = null;
         e.target.src = iconUri('user');
-    }
+    },
 };
 
 /**
@@ -91,7 +91,7 @@ if (window.cordova) {
         fields: {
             // Last time when the mobile device was synchronized with the server for that specific user
             lastSync: {
-                type: CONSTANTS.DATE
+                type: CONSTANTS.DATE,
                 // defaultValue: DEFAULT.DATE
             },
             // The current user is the user with the most recent lastUse
@@ -99,23 +99,23 @@ if (window.cordova) {
                 type: CONSTANTS.DATE,
                 defaultValue() {
                     return new Date();
-                }
+                },
             },
             md5pin: {
                 type: CONSTANTS.STRING,
-                nullable: true
+                nullable: true,
             },
             reviewState: {
-                defaultValue: { counter: 0 }
+                defaultValue: { counter: 0 },
             },
             rootCategoryId: {
-                type: CONSTANTS.STRING
+                type: CONSTANTS.STRING,
                 /*
                 defaultValue() {
                     return DEFAULT.ROOT_CATEGORY_ID[i18n.locale()];
                 }
                  */
-            }
+            },
         },
         /**
          * Add a pin
@@ -195,7 +195,7 @@ if (window.cordova) {
             );
             const md5pin = md5(salt + pin);
             return this.get('md5pin') === md5pin;
-        }
+        },
     });
 }
 
@@ -210,7 +210,7 @@ const Me = BaseModel.define(definition);
  * Me local transport
  */
 const meLocalTransport = new LocalTransport({
-    collection: database.users
+    collection: database.users,
 });
 
 /**
@@ -218,8 +218,8 @@ const meLocalTransport = new LocalTransport({
  */
 const meRemoteTransport = new LazyRemoteTransport({
     collection: new AjaxUsers({
-        projection: BaseModel.projection(Me)
-    })
+        projection: BaseModel.projection(Me),
+    }),
 });
 
 /**
@@ -232,7 +232,7 @@ if (window.cordova) {
         cache: 'session',
         key: CONSTANTS.ME,
         singleton: true,
-        transport: meRemoteTransport
+        transport: meRemoteTransport,
         // ttl: 24 * 60 * 60
     });
     extendModelWithTransport(Me, meCacheTransport);
@@ -252,14 +252,14 @@ const MeDataSource = DataSource.extend({
                 transport: meLocalTransport,
                 schema: normalizeSchema({
                     modelBase: Me,
-                    model: Me
-                })
+                    model: Me,
+                }),
                 // serverFiltering: true,
                 // serverSorting: true,
                 // serverPaging: true
-            }
+            },
         });
-    }
+    },
 });
 
 /**

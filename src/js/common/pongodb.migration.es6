@@ -49,7 +49,7 @@ export default class Migration {
         );
         const dfd = $.Deferred();
         const promises = [];
-        this._scripts.forEach(script => {
+        this._scripts.forEach((script) => {
             promises.push(script(db).progress(dfd.notify));
         });
         $.when(...promises)

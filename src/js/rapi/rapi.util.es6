@@ -37,7 +37,7 @@ function clearToken() {
     localCache.removeItem(TOKEN);
     logger.debug({
         message: 'Access token removed from storage',
-        method: 'clearToken'
+        method: 'clearToken',
     });
 }
 
@@ -165,8 +165,8 @@ function getFingerPrint() {
         // if ($.isFunction(Fingerprint2)) {
         // Use https://github.com/Valve/fingerprintjs2
         const options = {}; // default options
-        Fingerprint2.get(options, components => {
-            const values = components.map(component => component.value);
+        Fingerprint2.get(options, (components) => {
+            const values = components.map((component) => component.value);
             const hash = Fingerprint2.x64hash128(
                 values.join(CONSTANTS.EMPTY),
                 31 // seed
@@ -360,7 +360,7 @@ function uuid() {
         const Seed = function Seed() {
             let b = [];
             Array.apply([], crypto.getRandomValues(new Uint8Array(32))).forEach(
-                c => {
+                (c) => {
                     b = b.concat(c.toString(16).split(''));
                 }
             );
@@ -395,7 +395,7 @@ function uuid() {
         }
     } else {
         // see http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-        uid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        uid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
             /* eslint-disable no-bitwise */
             const r = (Math.random() * 16) | 0;
             const v = c === 'x' ? r : (r & 0x3) | 0x8;
@@ -428,7 +428,7 @@ function parseToken(url) {
         logger.debug({
             message: 'token found in url',
             method: 'parseToken',
-            data: { url, pos }
+            data: { url, pos },
         });
 
         // remove any trailing # to parse hash
@@ -442,11 +442,11 @@ function parseToken(url) {
                 message: qs.error,
                 method: 'parseToken',
                 data: { url },
-                error
+                error,
             });
         } else {
             getFingerPrint()
-                .then(fingerPrint => {
+                .then((fingerPrint) => {
                     // Check access_token
                     // Note: We could not find any better rule to match access tokens from facebook, google, live and twitter
                     if (
@@ -485,7 +485,7 @@ function parseToken(url) {
                             message: qs.error,
                             method: 'parseToken',
                             data: { url },
-                            error
+                            error,
                         });
                     } else {
                         // purge unwanted properties (especially state and token_type)
@@ -493,13 +493,13 @@ function parseToken(url) {
                         const token = {
                             value: qs[ACCESS_TOKEN],
                             ttl: qs[EXPIRES] || qs[EXPIRES_IN],
-                            ts: qs.ts // TODO where do we get it from?
+                            ts: qs.ts, // TODO where do we get it from?
                         };
                         dfd.resolve(token);
                         logger.debug({
                             message: 'token verified',
                             method: 'parseToken',
-                            data: { token }
+                            data: { token },
                         });
                     }
                 })
@@ -528,5 +528,5 @@ export {
     setState,
     setToken,
     uuid,
-    parseToken
+    parseToken,
 };

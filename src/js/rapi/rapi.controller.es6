@@ -16,7 +16,7 @@ import {
     clearToken,
     getToken,
     parseToken,
-    setToken
+    setToken,
 } from './rapi.util.es6';
 import { refresh } from './rapi.oauth.es6';
 
@@ -54,13 +54,13 @@ const BaseController = Observable.extend({
     readAccessToken() {
         const dfd = $.Deferred();
         parseToken(location.href)
-            .then(token => {
+            .then((token) => {
                 if ($.type(token) !== CONSTANTS.NULL) {
                     // a null value means there is no token in window.location
                     logger.debug({
                         message: 'token found in url',
                         method: 'parseToken',
-                        data: token
+                        data: token,
                     });
                     // setToken in localStorage
                     setToken(token);
@@ -73,11 +73,11 @@ const BaseController = Observable.extend({
 
                 dfd.resolve({ token });
             })
-            .catch(error => {
+            .catch((error) => {
                 logger.error({
                     message: 'Error parsing token from url',
                     method: 'parseToken',
-                    error
+                    error,
                 });
                 // Let's simply discard any attempt to set a token that does not pass the checks here above
                 clearToken();
@@ -119,7 +119,7 @@ const BaseController = Observable.extend({
             }
          }
          */
-    }
+    },
 });
 
 /**

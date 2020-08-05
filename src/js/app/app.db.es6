@@ -21,19 +21,19 @@ const logger = new Logger('app.db');
 const RX_ZEROS = new RegExp(`0{${config.constants.levelChars}}`, 'g');
 const ROOT_CATEGORY_ID = {
     en: (config.constants.rootCategoryId.en || '').replace(RX_ZEROS, ''),
-    fr: (config.constants.rootCategoryId.fr || '').replace(RX_ZEROS, '')
+    fr: (config.constants.rootCategoryId.fr || '').replace(RX_ZEROS, ''),
 };
 
 const COLLECTION = {
     ACTIVITIES: 'activities',
     SUMMARIES: 'summaries',
     USERS: 'users',
-    VERSIONS: 'versions'
+    VERSIONS: 'versions',
 };
 const TRIGGER = {
     INSERT: 'insert',
     UPDATE: 'update',
-    REMOVE: 'remove'
+    REMOVE: 'remove',
 };
 
 /**
@@ -46,8 +46,8 @@ const database = new Database({
         COLLECTION.ACTIVITIES,
         COLLECTION.SUMMARIES,
         COLLECTION.USERS,
-        COLLECTION.VERSIONS
-    ]
+        COLLECTION.VERSIONS,
+    ],
 });
 
 /**
@@ -57,7 +57,7 @@ database.addFullTextIndex(COLLECTION.SUMMARIES, [
     'author.lastName',
     'description',
     'tags',
-    'title'
+    'title',
 ]);
 
 /**
@@ -66,7 +66,7 @@ database.addFullTextIndex(COLLECTION.SUMMARIES, [
 database.createTrigger(
     COLLECTION.ACTIVITIES,
     [TRIGGER.INSERT, TRIGGER.UPDATE],
-    doc => {
+    (doc) => {
         // doc is an activity
         const dfd = new $.Deferred();
         const activityId = doc.id;
@@ -78,8 +78,8 @@ database.createTrigger(
             data: {
                 collection: COLLECTION.ACTIVITIES,
                 triggers: [TRIGGER.INSERT, TRIGGER.UPDATE],
-                id: activityId
-            }
+                id: activityId,
+            },
         });
 
         function upsert(activity, version, deferred) {
@@ -122,7 +122,7 @@ database.createTrigger(
                         activityId: activity.id,
                         actorId: activity.actor.userId,
                         score: activity.score,
-                        date: activity.date
+                        date: activity.date,
                     };
                 } else {
                     // Create new version activity
@@ -130,12 +130,12 @@ database.createTrigger(
                         activityId: activity.id,
                         actorId: activity.actor.userId,
                         score: activity.score,
-                        date: activity.date
+                        date: activity.date,
                     });
                     if (update) {
                         database.versions
                             .update({ id: versionId }, version, {
-                                upsert: true
+                                upsert: true,
                             })
                             .done(deferred.resolve)
                             .fail(deferred.reject);
@@ -158,8 +158,8 @@ database.createTrigger(
                     data: {
                         collection: COLLECTION.ACTIVITIES,
                         triggers: [TRIGGER.INSERT, TRIGGER.UPDATE],
-                        id: activityId
-                    }
+                        id: activityId,
+                    },
                 });
             }
         }
@@ -167,24 +167,24 @@ database.createTrigger(
         if (network.isOffline()) {
             database.versions
                 .findOne({ id: versionId })
-                .done(local => {
+                .done((local) => {
                     upsert(doc, local, dfd);
                 })
-                .fail(err => {
+                .fail((err) => {
                     dfd.reject(err);
                 });
         } else {
             const versions = app.rapi.v2.versions({ language, summaryId });
             versions
                 .get(versionId)
-                .done(remote => {
+                .done((remote) => {
                     database.versions
                         .findOne({ id: versionId })
-                        .done(local => {
+                        .done((local) => {
                             const version = $.extend(remote, local);
                             upsert(doc, version, dfd);
                         })
-                        .fail(err => {
+                        .fail((err) => {
                             // Not found
                             upsert(doc, remote, dfd);
                         });
@@ -201,7 +201,7 @@ database.createTrigger(
 database.createTrigger(
     COLLECTION.VERSIONS,
     [TRIGGER.INSERT, TRIGGER.UPDATE],
-    doc => {
+    (doc) => {
         // doc is a version
         const dfd = new $.Deferred();
         const { language, summaryId } = doc;
@@ -213,8 +213,8 @@ database.createTrigger(
             data: {
                 collection: COLLECTION.VERSIONS,
                 triggers: [TRIGGER.INSERT, TRIGGER.UPDATE],
-                id: versionId
-            }
+                id: versionId,
+            },
         });
 
         if (network.isOffline()) {
@@ -227,11 +227,11 @@ database.createTrigger(
             // Get remote summary
             const summaries = config.uris.rapi.v1.summaries({
                 language,
-                type: 'Test'
+                type: 'Test',
             });
             summaries
                 .get(summaryId)
-                .done(summary => {
+                .done((summary) => {
                     // Propagate activities from version to summary
                     if (Array.isArray(doc.activities)) {
                         summary.activities = doc.activities;
@@ -254,10 +254,10 @@ database.addMigration(
     new Migration({
         version: '0.3.8',
         scripts: [
-            db => {
+            (db) => {
                 logger.info({
                     method: 'database.upgrade.push',
-                    message: `Migrating database to ${db._version}`
+                    message: `Migrating database to ${db._version}`,
                 });
                 // Basically this first script initializes the database to version 0.3.4
                 // return $.Deferred().notify({ version: db._version, pass: 1, percent: 1 }).reject(new Error('oops')).promise();
@@ -265,8 +265,8 @@ database.addMigration(
                     .notify({ version: db._version, pass: 1, percent: 1 })
                     .resolve()
                     .promise();
-            }
-        ]
+            },
+        ],
     })
 );
 

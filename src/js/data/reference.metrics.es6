@@ -42,9 +42,9 @@ const CountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
-        }
-    }
+            serializable: false,
+        },
+    },
 });
 
 /**
@@ -61,7 +61,7 @@ const RatingCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? null : value;
             },
-            serializable: false
+            serializable: false,
         },
         count_1: {
             type: CONSTANTS.NUMBER,
@@ -70,7 +70,7 @@ const RatingCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_2: {
             type: CONSTANTS.NUMBER,
@@ -79,7 +79,7 @@ const RatingCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_3: {
             type: CONSTANTS.NUMBER,
@@ -88,7 +88,7 @@ const RatingCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_4: {
             type: CONSTANTS.NUMBER,
@@ -97,7 +97,7 @@ const RatingCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_5: {
             type: CONSTANTS.NUMBER,
@@ -106,9 +106,9 @@ const RatingCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
-        }
-    }
+            serializable: false,
+        },
+    },
 });
 
 /**
@@ -125,7 +125,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? null : value;
             },
-            serializable: false
+            serializable: false,
         },
         count_00: {
             type: CONSTANTS.NUMBER,
@@ -134,7 +134,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_05: {
             type: CONSTANTS.NUMBER,
@@ -143,7 +143,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_10: {
             type: CONSTANTS.NUMBER,
@@ -152,7 +152,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_15: {
             type: CONSTANTS.NUMBER,
@@ -161,7 +161,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_20: {
             type: CONSTANTS.NUMBER,
@@ -170,7 +170,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_25: {
             type: CONSTANTS.NUMBER,
@@ -179,7 +179,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_30: {
             type: CONSTANTS.NUMBER,
@@ -188,7 +188,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_35: {
             type: CONSTANTS.NUMBER,
@@ -197,7 +197,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_40: {
             type: CONSTANTS.NUMBER,
@@ -206,7 +206,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_45: {
             type: CONSTANTS.NUMBER,
@@ -215,7 +215,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_50: {
             type: CONSTANTS.NUMBER,
@@ -224,7 +224,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_55: {
             type: CONSTANTS.NUMBER,
@@ -233,7 +233,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_60: {
             type: CONSTANTS.NUMBER,
@@ -242,7 +242,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_65: {
             type: CONSTANTS.NUMBER,
@@ -251,7 +251,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_70: {
             type: CONSTANTS.NUMBER,
@@ -260,7 +260,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_75: {
             type: CONSTANTS.NUMBER,
@@ -269,7 +269,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_80: {
             type: CONSTANTS.NUMBER,
@@ -278,7 +278,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_85: {
             type: CONSTANTS.NUMBER,
@@ -287,7 +287,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_90: {
             type: CONSTANTS.NUMBER,
@@ -296,7 +296,7 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
+            serializable: false,
         },
         count_95: {
             type: CONSTANTS.NUMBER,
@@ -305,8 +305,8 @@ const ScoreCountReference = BaseModel.define({
             parse(value) {
                 return Number.isNaN(value) || value < 0 ? 0 : Math.trunc(value);
             },
-            serializable: false
-        }
+            serializable: false,
+        },
     },
 
     /**
@@ -334,9 +334,9 @@ const ScoreCountReference = BaseModel.define({
             { score: '80+', count: this.get('count_80') },
             { score: '85+', count: this.get('count_85') },
             { score: '90+', count: this.get('count_90') },
-            { score: '95+', count: this.get('count_95') }
+            { score: '95+', count: this.get('count_95') },
         ];
-    }
+    },
 });
 
 /**
@@ -354,7 +354,7 @@ const UserMetricsReference = BaseModel.define({
                     ? value
                     : new CountReference(value);
             },
-            serializable: false
+            serializable: false,
         },
         ratings: {
             defaultValue: {},
@@ -364,7 +364,7 @@ const UserMetricsReference = BaseModel.define({
                     ? value
                     : new RatingCountReference(value);
             },
-            serializable: false
+            serializable: false,
         },
         scores: {
             defaultValue: {},
@@ -374,7 +374,7 @@ const UserMetricsReference = BaseModel.define({
                     ? value
                     : new ScoreCountReference(value);
             },
-            serializable: false
+            serializable: false,
         },
         summaries: {
             defaultValue: {},
@@ -384,8 +384,8 @@ const UserMetricsReference = BaseModel.define({
                     ? value
                     : new CountReference(value);
             },
-            serializable: false
-        }
+            serializable: false,
+        },
     },
 
     // We might as well call them student points
@@ -444,7 +444,7 @@ const UserMetricsReference = BaseModel.define({
             'red',
             'blue',
             'green',
-            'black'
+            'black',
         ];
         const index = Math.min(Math.floor(points / 10), 7);
         return iconUri(`medal_${medals[index]}`);
@@ -464,11 +464,11 @@ const UserMetricsReference = BaseModel.define({
             'red',
             'blue',
             'green',
-            'black'
+            'black',
         ];
         const index = Math.min(Math.floor(points / 10), 7);
         return iconUri(`medal2_${medals[index]}`);
-    }
+    },
 });
 
 /**
@@ -486,7 +486,7 @@ const SummaryMetricsReference = BaseModel.define({
                     ? value
                     : new CountReference(value);
             },
-            serializable: false
+            serializable: false,
         },
         ratings: {
             defaultValue: {},
@@ -496,7 +496,7 @@ const SummaryMetricsReference = BaseModel.define({
                     ? value
                     : new RatingCountReference(value);
             },
-            serializable: false
+            serializable: false,
         },
         scores: {
             defaultValue: {},
@@ -506,7 +506,7 @@ const SummaryMetricsReference = BaseModel.define({
                     ? value
                     : new ScoreCountReference(value);
             },
-            serializable: false
+            serializable: false,
         },
         views: {
             defaultValue: {},
@@ -516,9 +516,9 @@ const SummaryMetricsReference = BaseModel.define({
                     ? value
                     : new CountReference(value);
             },
-            serializable: false
-        }
-    }
+            serializable: false,
+        },
+    },
 });
 
 /**

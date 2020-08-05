@@ -25,7 +25,7 @@ class AjaxGroups extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'groups'
+            collection: 'groups',
         });
         super(options);
     }

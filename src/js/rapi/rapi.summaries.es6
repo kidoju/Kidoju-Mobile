@@ -23,7 +23,7 @@ class AjaxSummaries extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'summaries'
+            collection: 'summaries',
         });
         super(options);
         assert.isNonEmptyPlainObject(

@@ -18,7 +18,7 @@ import { normalizeSchema } from './data.util.es6';
 
 const {
     data: { DataSource },
-    format
+    format,
 } = window.kendo;
 
 /**
@@ -32,12 +32,12 @@ const LazyActivity = BaseModel.define({
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         actorId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         /*
         // Not needed in lists
@@ -55,7 +55,7 @@ const LazyActivity = BaseModel.define({
             editable: false,
             defaultValue() {
                 return new Date();
-            }
+            },
         },
         /*
         // TODO review
@@ -66,7 +66,7 @@ const LazyActivity = BaseModel.define({
         */
         language: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         /*
         // TODO Review
@@ -78,12 +78,12 @@ const LazyActivity = BaseModel.define({
         score: {
             type: CONSTANTS.NUMBER,
             nullable: true,
-            editable: false
+            editable: false,
         },
         summaryId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         /*
         text: {
@@ -94,11 +94,11 @@ const LazyActivity = BaseModel.define({
         */
         title: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         type: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         /*
         updated: {
@@ -109,8 +109,8 @@ const LazyActivity = BaseModel.define({
         versionId: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
-        }
+            nullable: true,
+        },
         /*
         value: {
             type: CONSTANTS.NUMBER,
@@ -148,7 +148,7 @@ const LazyActivity = BaseModel.define({
         // Therefore, we should always bypass server-side data requests to display such summaries
         // This is not an issue regarding SEO because activities are only displayed to authenticated user
         return summaryUri(this.get('language'), this.get('summaryId'));
-    }
+    },
 });
 
 /**
@@ -157,8 +157,8 @@ const LazyActivity = BaseModel.define({
 const lazyActivityTransport = new LazyRemoteTransport({
     collection: new AjaxActivities({
         partition: getActorReference(),
-        projection: BaseModel.projection(LazyActivity)
-    })
+        projection: BaseModel.projection(LazyActivity),
+    }),
 });
 
 /**
@@ -183,15 +183,15 @@ const LazyActivityDataSource = DataSource.extend({
                     transport: lazyActivityTransport,
                     schema: normalizeSchema({
                         modelBase: LazyActivity,
-                        model: LazyActivity
+                        model: LazyActivity,
                     }),
                     serverFiltering: true,
                     serverSorting: true,
-                    serverPaging: true
+                    serverPaging: true,
                 }
             )
         );
-    }
+    },
 
     /**
      * Sets the partition and queries the data source

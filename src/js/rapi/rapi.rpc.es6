@@ -69,14 +69,14 @@ class AjaxRpc {
         logger.info({
             message: `rpc call for ${options.command} on ${options.context}`,
             method: 'call',
-            data: options
+            data: options,
         });
         return $.ajax({
             contentType: CONSTANTS.JSON_CONTENT_TYPE,
             data: JSON.stringify(options),
             headers: getHeaders(),
             method: HTTP.POST,
-            url: config.uris.rapi.rpc
+            url: config.uris.rapi.rpc,
         });
     }
 }

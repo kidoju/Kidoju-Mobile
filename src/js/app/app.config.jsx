@@ -30,7 +30,7 @@ const url = {
             .call(args)
             .join('/')
             .replace(/([^:])[/]{2,}/g, '$1/');
-    }
+    },
 };
 
 /**
@@ -93,7 +93,7 @@ config.constants = {
     twitterAccount: '<%- twitter.account %>',
 
     // Client application constants merged here
-    ...constants
+    ...constants,
 };
 
 /**
@@ -108,7 +108,7 @@ try {
             extensions: JSON.parse(
                 '<%- JSON.stringify(assets.audio.extensions) %>'
             ),
-            schemes: JSON.parse('<%- JSON.stringify(assets.audio.schemes) %>')
+            schemes: JSON.parse('<%- JSON.stringify(assets.audio.schemes) %>'),
             // transport: JSON.parse('<%- JSON.stringify(assets.audio.transport) %>')
         },
 
@@ -119,7 +119,7 @@ try {
             extensions: JSON.parse(
                 '<%- JSON.stringify(assets.icon.extensions) %>'
             ),
-            schemes: JSON.parse('<%- JSON.stringify(assets.icon.schemes) %>')
+            schemes: JSON.parse('<%- JSON.stringify(assets.icon.schemes) %>'),
             // transport: JSON.parse('<%- JSON.stringify(assets.icon.transport) %>')
         },
 
@@ -130,7 +130,7 @@ try {
             extensions: JSON.parse(
                 '<%- JSON.stringify(assets.image.extensions) %>'
             ),
-            schemes: JSON.parse('<%- JSON.stringify(assets.image.schemes) %>')
+            schemes: JSON.parse('<%- JSON.stringify(assets.image.schemes) %>'),
             // transport: JSON.parse('<%- JSON.stringify(assets.image.transport) %>')
         },
 
@@ -141,9 +141,9 @@ try {
             extensions: JSON.parse(
                 '<%- JSON.stringify(assets.video.extensions) %>'
             ),
-            schemes: JSON.parse('<%- JSON.stringify(assets.video.schemes) %>')
+            schemes: JSON.parse('<%- JSON.stringify(assets.video.schemes) %>'),
             // transport: JSON.parse('<%- JSON.stringify(assets.video.transport) %>')
-        }
+        },
     };
 } catch (ex) {
     // Without WebPack JSON.parse fails
@@ -151,26 +151,26 @@ try {
         audio: {
             collections: [],
             extensions: [],
-            schemes: {}
+            schemes: {},
         },
 
         icon: {
             collections: [],
             extensions: [],
-            schemes: {}
+            schemes: {},
         },
 
         image: {
             collections: [],
             extensions: [],
-            schemes: {}
+            schemes: {},
         },
 
         video: {
             collections: [],
             extensions: [],
-            schemes: {}
-        }
+            schemes: {},
+        },
     };
 }
 
@@ -184,14 +184,14 @@ config.uris = {
         icons: url.resolve(
             '<%- uris.cdn.root %>',
             convertFormat('<%- uris.cdn.icons %>')
-        )
+        ),
     },
     help: {
-        root: '<%- uris.help.root %>'
+        root: '<%- uris.help.root %>',
     },
     mobile: {
         icons: convertFormat('<%- uris.mobile.icons %>'),
-        pictures: convertFormat('<%- uris.mobile.pictures %>')
+        pictures: convertFormat('<%- uris.mobile.pictures %>'),
     },
     rapi: {
         root: '<%- uris.rapi.root %>',
@@ -215,7 +215,7 @@ config.uris = {
             signOut: url.resolve(
                 '<%- uris.rapi.root %>',
                 convertFormat('<%- uris.rapi.oauth.signOut %>')
-            )
+            ),
         },
         ping: url.resolve(
             '<%- uris.rapi.root %>',
@@ -267,15 +267,15 @@ config.uris = {
             version: url.resolve(
                 '<%- uris.rapi.root %>',
                 convertFormat('<%- uris.rapi.v1.version %>')
-            )
+            ),
             // TODO draft
         },
         web: {
             search: url.resolve(
                 '<%- uris.rapi.root %>',
                 convertFormat('<%- uris.rapi.web.search %>')
-            )
-        }
+            ),
+        },
     },
     webapp: {
         billing: url.resolve(
@@ -357,8 +357,8 @@ config.uris = {
         workerlib: url.resolve(
             '<%- uris.webpack.root %>',
             convertFormat('<%- uris.webapp.workerlib %>')
-        )
-    }
+        ),
+    },
 };
 
 /**
@@ -367,7 +367,7 @@ config.uris = {
  */
 config.logger = {
     level: parseInt('<%- level %>', 10) || 0,
-    endPoint: config.uris.rapi.logger
+    endPoint: config.uris.rapi.logger,
 };
 
 /**

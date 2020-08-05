@@ -15,7 +15,7 @@ import {
     iconUri,
     playerUri,
     summaryUri,
-    userUri
+    userUri,
 } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
@@ -25,7 +25,7 @@ import { normalizeSchema } from './data.util.es6';
 
 const {
     data: { DataSource, ObservableArray },
-    toString
+    toString,
 } = window.kendo;
 
 /**
@@ -39,90 +39,90 @@ const LazySummary = BaseModel.define({
         id: {
             type: CONSTANTS.STRING,
             editable: false,
-            nullable: true
+            nullable: true,
         },
         authorId: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         authorName: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         comments: {
             from: 'metrics.comments.count',
             type: CONSTANTS.NUMBER,
             defaultValue: 0,
-            editable: false
+            editable: false,
         },
         created: {
             type: CONSTANTS.DATE,
-            editable: false
+            editable: false,
         },
         language: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         icon: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         offline: {
             // Used in Kidoju-Mobile only
             type: CONSTANTS.BOOLEAN,
-            editable: false
+            editable: false,
         },
         publicationId: {
             type: CONSTANTS.STRING,
             nullable: true,
-            editable: false
+            editable: false,
         },
         published: {
             type: CONSTANTS.DATE,
             nullable: true,
-            editable: false
+            editable: false,
         },
         ratings: {
             from: 'metrics.ratings.average',
             type: CONSTANTS.NUMBER,
             nullable: true,
-            editable: false
+            editable: false,
         },
         scores: {
             from: 'metrics.scores.average',
             type: CONSTANTS.NUMBER,
             nullable: true,
-            editable: false
+            editable: false,
         },
         tags: {
             // type: Array
             defaultValue: [],
-            editable: false
+            editable: false,
         },
         title: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         type: {
             type: CONSTANTS.STRING,
-            editable: false
+            editable: false,
         },
         updated: {
             type: CONSTANTS.DATE,
-            editable: false
+            editable: false,
         },
         userScore: {
             // Used in Kidoju-Mobile only
             type: CONSTANTS.NUMBER,
             nullable: true,
-            editable: false
+            editable: false,
         },
         views: {
             from: 'metrics.views.count',
             type: CONSTANTS.NUMBER,
             defaultValue: 0,
-            editable: false
-        }
+            editable: false,
+        },
     },
     authorUri$() {
         return userUri(this.get('language'), this.get('authorId'));
@@ -182,13 +182,13 @@ const LazySummary = BaseModel.define({
         // but tags are an array when redrawing the list after scrolling back (up then down)
         // @see https://github.com/kidoju/Kidoju-Mobile/issues/147
         if (Array.isArray(tags) || tags instanceof ObservableArray) {
-            ret = tags.map(tag => ({
+            ret = tags.map((tag) => ({
                 name: tag,
                 hash:
                     CONSTANTS.HASHBANG +
                     $.param({
-                        filter: { field: 'tags', operator: 'eq', value: tag }
-                    })
+                        filter: { field: 'tags', operator: 'eq', value: tag },
+                    }),
             }));
         }
         return ret;
@@ -200,7 +200,7 @@ const LazySummary = BaseModel.define({
     userScore$() {
         // Used in Kidoju-Mobile only
         return toString(this.get('userScore') / 100, 'p0');
-    }
+    },
     /* ,
     createDraft() {
         return rapi.v1.content.executeCommand(
@@ -226,8 +226,8 @@ const LazySummary = BaseModel.define({
 const lazySummaryTransport = new LazyRemoteTransport({
     collection: new AjaxSummaries({
         partition: getAuthorReference(),
-        projection: BaseModel.projection(LazySummary)
-    })
+        projection: BaseModel.projection(LazySummary),
+    }),
 });
 
 /**
@@ -247,15 +247,15 @@ const LazySummaryDataSource = DataSource.extend({
                     transport: lazySummaryTransport,
                     schema: normalizeSchema({
                         modelBase: LazySummary,
-                        model: LazySummary
+                        model: LazySummary,
                     }),
                     serverFiltering: true,
                     serverSorting: true,
-                    serverPaging: true
+                    serverPaging: true,
                 }
             )
         );
-    }
+    },
 });
 
 /**

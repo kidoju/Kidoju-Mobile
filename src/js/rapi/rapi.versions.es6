@@ -22,7 +22,7 @@ class AjaxVersions extends AjaxBase {
      */
     constructor(options = {}) {
         Object.assign(options, {
-            collection: 'versions'
+            collection: 'versions',
         });
         super(options);
         assert.isNonEmptyPlainObject(

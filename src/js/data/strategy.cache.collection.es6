@@ -19,7 +19,7 @@ import BaseTransport from './transports.base.es6';
 
 const {
     Class,
-    data: { Query }
+    data: { Query },
 } = window.kendo;
 
 /**
@@ -107,10 +107,10 @@ const CacheCollectionStrategy = Class.extend({
                     _cache.setItem(_key, args[0].data, _ttl);
                     options.success(...args);
                 },
-                error: options.error
+                error: options.error,
             });
         }
-    }
+    },
 });
 
 /**
