@@ -1,0 +1,23 @@
+<!-- Player view -->
+<div id="player" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-hide="app.controller.onPlayerViewHide" data-init="app.controller.onPlayerViewInit" data-show="app.controller.onPlayerViewShow">
+    <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
+    <div class="stretched-item">
+        <div class="centered">
+            <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
+        </div>
+    </div>
+    <div class="stretched-item k-widget km-content padding">
+        <div class="heading">
+            <h2>
+                <img src="./img/icons/teacher.svg" alt="Instructions">
+                <span class="instructions">Instructions</span>
+                <a data-role="button" class="tts" data-icon="ear" data-tts="selectedPage.instructions" data-click-on="down" data-click="app.controller.onTTSClick"></a>
+            </h2><hr/>
+        </div>
+        <div data-role="touch" data-enable-swipe="true" data-swipe="app.controller.onPageSwipe">
+            <div data-role="scroller" data-use-native="true">
+                <div class="markdown" data-role="markdown" data-bind="value: selectedPage.instructions"></div>
+            </div>
+        </div>
+    </div>
+</div>

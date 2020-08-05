@@ -1,0 +1,35 @@
+<!-- Score view -->
+<div id="score" data-role="view" data-layout="main-layout" data-title="Score" data-transition="fade" data-model="app.viewModel" data-show="app.controller.onScoreViewShow">
+    <h2 class="km-content summary">
+        <img class="icon" data-bind="{ attr: { src: summary.icon$, alt: summary.title } }">
+        <div class="title" data-bind="text:summary.title"></div>
+    </h2>
+    <ul id="score-listview"></ul>
+    <script type="text/x-kendo-template" id="score-header-template">
+        #: kendo.format(app.i18n.culture.score.listView.groups, value + 1) #
+    </script>
+    <!-- TODO Consider adding score calculations in the form a/b and percentage -->
+    <script type="text/x-kendo-template" id="score-template">
+        <a href="">
+            # if (typeof result !== 'boolean') { #
+            <img src="./img/icons/sign_warning.svg" alt="#: result #" class="icon">
+            # } else if (!result) { #
+            <img src="./img/icons/error.svg" alt="#: result #" class="icon">
+            # } else { #
+            <img src="./img/icons/ok.svg" alt="#: result #" class="icon">
+            # } #
+            <div class="score">
+                <h4>#: question #</h4>
+                <div class="small"><div class="left">#: app.i18n.culture.score.listView.answer #</div><div class="right">#= value #</div></div>
+                <div class="small"><div class="left">#: app.i18n.culture.score.listView.solution #</div><div class="right">#= solution #</div></div>
+            </div>
+            # if (typeof result !== 'boolean') { #
+            <span class="km-badge km-badge-warning">#: kendo.toString(score, 'n') #</span>
+            # } else if (!result) { #
+            <span class="km-badge km-badge-error">#: kendo.toString(score, 'n') #</span>
+            # } else { #
+            <span class="km-badge km-badge-success">#: kendo.toString(score, 'n') #</span>
+            # } #
+        </a>
+    </script>
+</div>

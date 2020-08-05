@@ -1,0 +1,16 @@
+<!-- Categories view -->
+<div id="categories" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.viewModel" data-show="app.controller.onCategoriesViewShow">
+    <!-- dropdown of top categories -->
+    <div class="km-content km-filter-form" data-bind="invisible: hasConstantRootCategoryId$">
+        <input data-role="dropdownlist" data-bind="value: user.rootCategoryId, source: topCategories$()" data-value-field="id" data-text-field="name">
+    </div>
+    <!-- listview of sub-categories -->
+    <ul data-role="listview" data-bind="source: categories" data-template="categories-template" data-filterable="false"></ul>
+    <script type="text/x-kendo-template" id="categories-template">
+        <a href="\#finder?language=#: language #&#: filter$() #" style="margin-left: #: depth$() - 1 #em;">
+            <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
+            <span class="name">#: name #</span>
+            <span class="km-badge km-badge-info">#: count #</span>
+        </a>
+    </script>
+</div>

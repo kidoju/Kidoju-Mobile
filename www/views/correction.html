@@ -1,0 +1,22 @@
+<!-- Correction view (Review mode) -->
+<div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-hide="app.controller.onCorrectionViewHide" data-init="app.controller.onCorrectionViewInit" data-show="app.controller.onCorrectionViewShow">
+    <div class="stretched-item">
+        <div class="centered">
+            <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
+        </div>
+    </div>
+    <div class="stretched-item k-widget km-content padding">
+        <div class="heading">
+            <h2>
+                <img src="./img/icons/teacher.svg" alt="Explanations">
+                <span class="explanations">Explanations</span>
+                <a data-role="button" class="tts" data-icon="ear" data-tts="selectedPage.explanations" data-click-on="down" data-click="app.controller.onTTSClick"></a>
+            </h2><hr/>
+        </div>
+        <div data-role="touch" data-enable-swipe="true" data-swipe="app.controller.onPageSwipe">
+            <div data-role="scroller" data-use-native="true">
+                <div class="markdown" data-role="markdown" data-bind="value: selectedPage.explanations"></div>
+            </div>
+        </div>
+    </div>
+</div>

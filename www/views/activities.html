@@ -1,0 +1,42 @@
+<!-- Activities view -->
+<div id="activities" data-role="view" data-layout="main-layout" data-title="History" data-transition="fade" data-model="app.viewModel" data-show="app.controller.onActivitiesViewShow">
+    <!-- button group -->
+    <ul data-role="buttongroup" data-index="0" data-select="app.controller.onActivitiesButtonGroupSelect">
+        <li>List</li>
+        <li>Chart</li>
+    </ul>
+    <!-- graph -->
+    <div data-role="chart" data-bind="source: activities" data-series-defaults="{ type: 'scatter', markers: { type: 'circle', size: 10, border: { width: 3 } } }"
+         data-series="[{ xField: 'updated', yField: 'score', visibleInLegend: false }]"
+         data-tooltip="{ visible: true, template: '${dataItem.version.title} (${kendo.toString(dataItem.score, \'n0\')}%)' }"
+         data-x-axis="{ baseUnit: 'months', labels: { format: '{0:MMM\'yy}' }, type: 'date' }"
+         data-y-axis="{ max: 100, labels: { format: '{0}%' } }" style="display: none;"></div>
+    <!-- list -->
+    <ul data-role="listview" data-bind="source: activities" data-filterable="false" data-template="activities-template" data-header-template="activities-header-template" data-fixed-headers="true" data-type="group"></ul>
+    <script type="text/x-kendo-template" id="activities-template">
+        <a href="\#score#: queryString$() #" data-bind="css: { error: isError$, success: isSuccess$, warning: isWarning$ }">
+            <div class="title">#: title$() #</div>
+            <div class="small">#: updated$() #</div>
+            <span class="km-badge km-badge-info">#: score$() #</span>
+        </a>
+    </script>
+    <!-- Note we are using value (instead of period$) to display the group field value -->
+    <script type="text/x-kendo-template" id="activities-header-template">
+        # var now = new Date();
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+        var startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+        var startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        if (value.getTime() === today.getTime()) { #
+        #: app.i18n.culture.activities.listView.groups.today #
+        # } else if (value.getTime() === yesterday.getTime()) { #
+        #: app.i18n.culture.activities.listView.groups.yesterday #
+        # } else if (value.getTime() === startOfWeek.getTime()) { #
+        #: app.i18n.culture.activities.listView.groups.startOfWeek #
+        # } else if (value.getTime() === startOfMonth.getTime()) { #
+        #: app.i18n.culture.activities.listView.groups.startOfMonth #
+        # } else { #
+        #: kendo.toString(value, 'MMMM yyyy') #
+        # } #
+    </script>
+</div>

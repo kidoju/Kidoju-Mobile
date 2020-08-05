@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
-    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densityDpi=device-dpi, viewport-fit=cover">
+    <!-- kendo.mobile.application resets the viewport, so do not bother -->
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
     <!-- The following CSP is the one added by default bu the Phonegap Developper App -->
-    <!--meta http-equiv="Content-Security-Policy" content="default-src * gap: ws: https://ssl.gstatic.com;img-src 'self' data: content:;style-src 'self' 'unsafe-inline' data: blob:;script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"-->
+    <!-- meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' gap:; style-src 'self' 'unsafe-inline'; media-src *" -->
     <!-- The following is a permissive CSP that works -->
-    <!--meta http-equiv="Content-Security-Policy" content="default-src * blob: data: file: filesystem: gap: ws:; img-src * 'self' data: file: filesystem:; script-src * 'unsafe-inline' 'unsafe-eval' file: filesystem: gap:; style-src 'self' 'unsafe-inline';"-->
+    <!-- meta http-equiv="Content-Security-Policy" content="default-src * blob: data: file: filesystem: gap: ws:; img-src * 'self' data: file: filesystem:; script-src * 'unsafe-inline' 'unsafe-eval' file: filesystem: gap:; style-src 'self' 'unsafe-inline';" -->
     <!-- The following is a restrictive CSP that works - https://github.com/kidoju/Kidoju-Mobile/issues/36 -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data: gap: https://ssl.gstatic.com; connect-src file: filesystem: https://*.kidoju.com http://10.0.0.105:* ws://10.0.0.105:* https://*.facebook.com https://*.fbcdn.net https://*.googleusercontent.com https://*.live.com https://*.twimg.com; img-src 'self' data: file: filesystem: https:; media-src file: filesystem: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: gap: https://www.google-analytics.com; style-src 'self' 'unsafe-inline';">
     <title>Kidoju.Mobile</title>
@@ -20,6 +20,7 @@
     <script defer src="./build/app.bundle.js"></script>
 </head>
 <body>
+    <!-- layout -->
     <div data-role="layout" data-id="main-layout" data-show="app.controller.onLayoutViewShow">
         <header data-role="header">
             <div data-role="navbar" class="km-accent">
