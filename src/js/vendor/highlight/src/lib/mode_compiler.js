@@ -142,6 +142,10 @@ export function compileLanguage(language) {
       return matcher;
     }
 
+    resumingScanAtSamePosition() {
+      return this.regexIndex !== 0;
+    }
+
     considerAll() {
       this.regexIndex = 0;
     }
@@ -156,15 +160,58 @@ export function compileLanguage(language) {
     exec(s) {
       const m = this.getMatcher(this.regexIndex);
       m.lastIndex = this.lastIndex;
-      const result = m.exec(s);
-      if (result) {
-        this.regexIndex += result.position + 1;
-        if (this.regexIndex === this.count) { // wrap-around
-          this.regexIndex = 0;
+      let result = m.exec(s);
+
+      // The following is because we have no easy way to say "resume scanning at the
+      // existing position but also skip the current rule ONLY". What happens is
+      // all prior rules are also skipped which can result in matching the wrong
+      // thing. Example of matching "booger":
+
+      // our matcher is [string, "booger", number]
+      //
+      // ....booger....
+
+      // if "booger" is ignored then we'd really need a regex to scan from the
+      // SAME position for only: [string, number] but ignoring "booger" (if it
+      // was the first match), a simple resume would scan ahead who knows how
+      // far looking only for "number", ignoring potential string matches (or
+      // future "booger" matches that might be valid.)
+
+      // So what we do: We execute two matchers, one resuming at the same
+      // position, but the second full matcher starting at the position after:
+
+      //     /--- resume first regex match here (for [number])
+      //     |/---- full match here for [string, "booger", number]
+      //     vv
+      // ....booger....
+
+      // Which ever results in a match first is then used. So this 3-4 step
+      // process essentially allows us to say "match at this position, excluding
+      // a prior rule that was ignored".
+      //
+      // 1. Match "booger" first, ignore. Also proves that [string] does non match.
+      // 2. Resume matching for [number]
+      // 3. Match at index + 1 for [string, "booger", number]
+      // 4. If #2 and #3 result in matches, which came first?
+      if (this.resumingScanAtSamePosition()) {
+        if (result && result.index === this.lastIndex) {
+          // result is position +0 and therefore a valid
+          // "resume" match so result stays result
+        } else { // use the second matcher result
+          const m2 = this.getMatcher(0);
+          m2.lastIndex = this.lastIndex + 1;
+          result = m2.exec(s);
         }
       }
 
-      // this.regexIndex = 0;
+      if (result) {
+        this.regexIndex += result.position + 1;
+        if (this.regexIndex === this.count) {
+          // wrap-around to considering all matches again
+          this.considerAll();
+        }
+      }
+
       return result;
     }
   }
@@ -258,9 +305,9 @@ export function compileLanguage(language) {
 
     mode.keywords = mode.keywords || mode.beginKeywords;
 
-    let kw_pattern = null;
+    let keywordPattern = null;
     if (typeof mode.keywords === "object") {
-      kw_pattern = mode.keywords.$pattern;
+      keywordPattern = mode.keywords.$pattern;
       delete mode.keywords.$pattern;
     }
 
@@ -269,13 +316,13 @@ export function compileLanguage(language) {
     }
 
     // both are not allowed
-    if (mode.lexemes && kw_pattern) {
+    if (mode.lexemes && keywordPattern) {
       throw new Error("ERR: Prefer `keywords.$pattern` to `mode.lexemes`, BOTH are not allowed. (see mode reference) ");
     }
 
     // `mode.lexemes` was the old standard before we added and now recommend
     // using `keywords.$pattern` to pass the keyword pattern
-    cmode.keywordPatternRe = langRe(mode.lexemes || kw_pattern || /\w+/, true);
+    cmode.keywordPatternRe = langRe(mode.lexemes || keywordPattern || /\w+/, true);
 
     if (parent) {
       if (mode.beginKeywords) {
@@ -303,7 +350,7 @@ export function compileLanguage(language) {
     if (!mode.contains) mode.contains = [];
 
     mode.contains = [].concat(...mode.contains.map(function(c) {
-      return expand_or_clone_mode(c === 'self' ? mode : c);
+      return expandOrCloneMode(c === 'self' ? mode : c);
     }));
     mode.contains.forEach(function(c) { compileMode(/** @type Mode */ (c), cmode); });
 
@@ -349,7 +396,7 @@ function dependencyOnParent(mode) {
  * @param {Mode} mode
  * @returns {Mode | Mode[]}
  * */
-function expand_or_clone_mode(mode) {
+function expandOrCloneMode(mode) {
   if (mode.variants && !mode.cached_variants) {
     mode.cached_variants = mode.variants.map(function(variant) {
       return inherit(mode, { variants: null }, variant);
@@ -387,11 +434,11 @@ function expand_or_clone_mode(mode) {
  * Given raw keywords from a language definition, compile them.
  *
  * @param {string | Record<string,string>} rawKeywords
- * @param {boolean} case_insensitive
+ * @param {boolean} caseInsensitive
  */
-function compileKeywords(rawKeywords, case_insensitive) {
+function compileKeywords(rawKeywords, caseInsensitive) {
   /** @type KeywordDict */
-  var compiled_keywords = {};
+  var compiledKeywords = {};
 
   if (typeof rawKeywords === 'string') { // string
     splitAndCompile('keyword', rawKeywords);
@@ -400,7 +447,7 @@ function compileKeywords(rawKeywords, case_insensitive) {
       splitAndCompile(className, rawKeywords[className]);
     });
   }
-  return compiled_keywords;
+  return compiledKeywords;
 
   // ---
 
@@ -413,12 +460,12 @@ function compileKeywords(rawKeywords, case_insensitive) {
    * @param {string} keywordList
    */
   function splitAndCompile(className, keywordList) {
-    if (case_insensitive) {
+    if (caseInsensitive) {
       keywordList = keywordList.toLowerCase();
     }
     keywordList.split(' ').forEach(function(keyword) {
       var pair = keyword.split('|');
-      compiled_keywords[pair[0]] = [className, scoreForKeyword(pair[0], pair[1])];
+      compiledKeywords[pair[0]] = [className, scoreForKeyword(pair[0], pair[1])];
     });
   }
 }

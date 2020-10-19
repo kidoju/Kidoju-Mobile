@@ -98,8 +98,8 @@ export default function(hljs) {
       hljs.QUOTE_STRING_MODE,
       {
         className: 'class',
-        beginKeywords: 'class interface', end: /[{;=]/, excludeEnd: true,
-        keywords: 'class interface',
+        beginKeywords: 'class interface enum', end: /[{;=]/, excludeEnd: true,
+        keywords: 'class interface enum',
         illegal: /[:"\[\]]/,
         contains: [
           { beginKeywords: 'extends implements' },
@@ -111,6 +111,34 @@ export default function(hljs) {
         // recognized as a function definition
         beginKeywords: 'new throw return else',
         relevance: 0
+      },
+      {
+        className: 'class',
+        begin: 'record\\s+' + hljs.UNDERSCORE_IDENT_RE + '\\s*\\(',
+        returnBegin: true,
+        excludeEnd: true,
+        end: /[{;=]/,
+        keywords: KEYWORDS,
+        contains: [
+          { beginKeywords: "record" },
+          {
+            begin: hljs.UNDERSCORE_IDENT_RE + '\\s*\\(',
+            returnBegin: true,
+            relevance: 0,
+            contains: [hljs.UNDERSCORE_TITLE_MODE]
+          },
+          {
+            className: 'params',
+            begin: /\(/, end: /\)/,
+            keywords: KEYWORDS,
+            relevance: 0,
+            contains: [
+              hljs.C_BLOCK_COMMENT_MODE
+            ]
+          },
+          hljs.C_LINE_COMMENT_MODE,
+          hljs.C_BLOCK_COMMENT_MODE
+        ]
       },
       {
         className: 'function',
