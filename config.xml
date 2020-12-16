@@ -5,9 +5,9 @@
     <author email="support@memba.com" href="http://www.memba.com">Memba Sarl</author>
     <content src="index.html" />
     <icon height="1024" src="www/res/icon/default.png" width="1024" />
-    <preference name="android-minSdkVersion" value="19" />
-    <preference name="android-targetSdkVersion" value="27" />
-    <preference name="android-compileSdkVersion" value="27" />
+    <preference name="android-minSdkVersion" value="22" />
+    <preference name="android-targetSdkVersion" value="29" />
+    <preference name="android-compileSdkVersion" value="29" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="LoadUrlTimeoutValue" value="60000" />
     <preference name="AutoHideSplashScreen" value="false" />
@@ -16,8 +16,6 @@
     <preference name="windows-target-version" value="10.0" />
     <preference name="windows-arch" value="x64" />
     <preference name="windows-appx-target" value="uap" />
-    <preference name="phonegap-version" value="cli-9.0.0" />
-    <preference name="pgb-builder-version" value="2" />
     <platform name="android">
         <icon density="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
         <icon density="mdpi" src="www/res/icon/android/drawable-mdpi-icon.png" />
@@ -106,6 +104,8 @@
         <allow-intent href="market:*" />
         <allow-intent href="amzn:*" />
         <preference name="AndroidPersistentFileLocation" value="Internal" />
+        <!-- https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller/issues/155 -->
+        <preference name="AndroidXEnabled" value="true" />
         <preference name="InAppBrowserStorageEnabled" value="false" />
         <preference name="SplashMaintainAspectRatio" value="true" />
         <preference name="SplashShowOnlyFirstTime" value="false" />
@@ -117,6 +117,9 @@
         <preference name="ShowSplashScreen" value="false" />
         <preference name="SplashScreenWidth" value="600" />
         <preference name="SplashScreenHeight" value="300" />
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:label='@string/activity_name']">
+            <activity android:allowTaskReparenting="true" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask" android:windowSoftInputMode="adjustPan" />
+        </edit-config>
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
@@ -128,26 +131,23 @@
         <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
         <preference name="WKWebViewOnly" value="true" />
         <preference name="Allow3DTouchLinkPreview" value="false" />
+        <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
+            <false />
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="NSCameraUsageDescription">
+            <string>Scan QR Codes</string>
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIRequiresFullScreen">
+            <false />
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIStatusBarHidden">
+            <true />
+        </edit-config>
+        <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIViewControllerBasedStatusBarAppearance">
+            <false />
+        </edit-config>
     </platform>
     <platform name="windows">
         <preference name="WindowsToastCapable" value="true" />
     </platform>
-    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" platform="android" target="/manifest/application/activity[@android:label='@string/activity_name']">
-        <activity android:allowTaskReparenting="true" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask" android:windowSoftInputMode="adjustPan" />
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="ITSAppUsesNonExemptEncryption">
-        <false />
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="NSCameraUsageDescription">
-        <string>Scan QR Codes</string>
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIRequiresFullScreen">
-        <false />
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIStatusBarHidden">
-        <true />
-    </edit-config>
-    <edit-config file="*-Info.plist" mode="overwrite" platform="ios" target="UIViewControllerBasedStatusBarAppearance">
-        <false />
-    </edit-config>
 </widget>
