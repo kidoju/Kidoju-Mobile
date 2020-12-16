@@ -28,10 +28,8 @@ const MISC = {
  * VIEW
  */
 const VIEW = {
-    ACTIVITIES: 'activities',
     CATEGORIES: 'categories',
     CORRECTION: 'correction',
-    DEFAULT: 'activities', // <---------- url is '/'
     DRAWER: 'drawer',
     // FAVOURITES: 'favourites',
     FINDER: 'finder',
@@ -49,7 +47,6 @@ const VIEW = {
  * VIEW_MODEL
  */
 const VIEW_MODEL = {
-    ACTIVITIES: 'activities',
     CATEGORIES: 'categories',
     /*
     CURRENT: {

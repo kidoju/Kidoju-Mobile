@@ -74,7 +74,7 @@ const AppController = BaseController.extend({
             // http://devgirl.org/2014/07/31/phonegap-developers-guid/
             // statusBarStyle: mobile.support.cordova ? 'black-translucent' : undefined,
             statusBarStyle: 'hidden',
-            init: (e) => {
+            init: (/* e */) => {
                 logger.debug({
                     message: 'Kendo application initialized',
                     method: 'application.init',
@@ -203,13 +203,12 @@ const AppController = BaseController.extend({
                 CONSTANTS.STRING
             )
         );
-        // if (mobile.application instanceof kendo.mobile.Application) {
-        app.controller.application.showLoading();
-        // }
-        // Check that we are online
-        // TODO
+        if (app.viewModel.application instanceof Application) {
+            app.viewModel.application.showLoading();
+        }
         /*
-        if (mobile.checkNetwork(e)) {
+        // Check that we are online and ping google analytics
+        if (app.viewModel.checkNetwork(e)) {
             // Track in analytics
             if (mobile.support.ga) {
                 var pos = e.url.indexOf('?');
@@ -217,7 +216,7 @@ const AppController = BaseController.extend({
                 mobile.ga.trackView(view, e.url);
             }
         }
-         */
+        */
     },
 });
 

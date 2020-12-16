@@ -60,6 +60,8 @@ const BaseController = ObservableObject.extend({
         this._loaders = [];
         this._resetters = [];
         this._resizers = [];
+        this.VIEW = {};
+        this.VIEW_MODEL = {};
         this.addFeatures(options.features);
     },
 
@@ -72,7 +74,7 @@ const BaseController = ObservableObject.extend({
 
     /**
      * Add UI features
-     * @param UI features
+     * @param features
      */
     addFeatures(features) {
         const prototype = Object.getPrototypeOf(this);
@@ -80,7 +82,7 @@ const BaseController = ObservableObject.extend({
             features.forEach((feature) => {
                 if (
                     $.isPlainObject(feature) &&
-                    $.type(feature.name) === CONSTANTS.STRING
+                    $.type(feature._name) === CONSTANTS.STRING
                 ) {
                     Object.keys(feature).forEach((key) => {
                         const prop = feature[key];
@@ -90,6 +92,13 @@ const BaseController = ObservableObject.extend({
                             this._resetters.push(prop.bind(this));
                         } else if (key === 'resize' && $.isFunction(prop)) {
                             this._resizers.push(prop.bind(this));
+                        } else if (key === 'VIEW' && $.isPlainObject(prop)) {
+                            $.extend(true, this.VIEW, prop);
+                        } else if (
+                            key === 'VIEW_MODEL' &&
+                            $.isPlainObject(prop)
+                        ) {
+                            $.extend(true, this.VIEW_MODEL, prop);
                         } else if (
                             $.type(prototype[key]) === CONSTANTS.UNDEFINED &&
                             $.isFunction(prop)

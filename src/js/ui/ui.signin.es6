@@ -21,7 +21,6 @@ import inAppBrowser from '../plugins/plugins.inappbrowser.es6';
 import safariViewController from '../plugins/plugins.safariviewcontroller.es6';
 import { getSignInUrl } from '../rapi/rapi.oauth.es6';
 import { cleanHistory, parseToken } from '../rapi/rapi.util.es6';
-import { MISC, VIEW, VIEW_MODEL } from './ui.constants.es6';
 import { xhr2error } from '../data/data.util.es6';
 
 const {

@@ -33,6 +33,26 @@ const logger = new Logger('ui.activities');
  */
 const feature = {
     /**
+     * Name
+     */
+    _name: 'activities',
+
+    /**
+     * View
+     */
+    VIEW: {
+        ACTIVITIES: 'activities',
+        DEFAULT: 'activities', // <---------- url is '/'
+    },
+
+    /**
+     * ViewModel
+     */
+    VIEW_MODEL: {
+        ACTIVITIES: 'activities',
+    },
+
+    /**
      * Reset
      */
     reset() {
@@ -43,7 +63,7 @@ const feature = {
      * Reset activities
      */
     resetActivities() {
-        this[VIEW_MODEL.ACTIVITIES] = new LazyActivityDataSource(); // models.MobileActivityDataSource()
+        this[this.VIEW_MODEL.ACTIVITIES] = new LazyActivityDataSource(); // models.MobileActivityDataSource()
     },
 
     /**

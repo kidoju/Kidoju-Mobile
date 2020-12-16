@@ -12,7 +12,17 @@ import app from '../common/window.global.es6';
  * Network feature
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'network',
+
+    /**
+     * View
+     */
+    VIEW: {
+        NETWORK: 'network',
+    },
 
     /**
      * Event handler triggered when showing the Network view

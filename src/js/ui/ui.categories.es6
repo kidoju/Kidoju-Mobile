@@ -7,13 +7,31 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import app from '../common/window.global.es6';
-import {MISC, VIEW_MODEL} from './ui.constants';
-import {LazyCategoryDataSource} from '../data/data.category.lazy';
+import { LazyCategoryDataSource } from '../data/data.category.lazy.es6';
 
 /**
  * Categories feature
  */
 const feature = {
+    /**
+     * Name
+     */
+    _name: 'settings',
+
+    /**
+     * View
+     */
+    VIEW: {
+        SETTINGS: 'settings',
+    },
+
+    /**
+     * ViewModel
+     */
+    VIEW_MODEL: {
+        CATEGORIES: 'categories',
+    },
+
     /**
      * Reset
      */
@@ -25,27 +43,25 @@ const feature = {
      * Reset categories
      */
     resetCategories() {
-        this.set(VIEW_MODEL.CATEGORIES, new LazyCategoryDataSource()); // models.LazyCategoryDataSource(),
+        this.set(this.VIEW_MODEL.CATEGORIES, new LazyCategoryDataSource());
     },
 
     /**
      * Return an array of top-level categories (ordered by id)
      */
     topCategories$() {
-        return this[VIEW_MODEL.CATEGORIES]
-        .data()
-        .filter(category => {
-            return MISC.RX_TOP_LEVEL_MATCH.test(category.id);
-        })
-        .sort((a, b) => {
-            if (a.id < b.id) {
-                return -1;
-            }
-            if (a.id > b.id) {
-                return 1;
-            }
-            return 0;
-        });
+        return this[this.VIEW_MODEL.CATEGORIES]
+            .data()
+            .filter((category) => true) // TODO MISC.RX_TOP_LEVEL_MATCH.test(category.id))
+            .sort((a, b) => {
+                if (a.id < b.id) {
+                    return -1;
+                }
+                if (a.id > b.id) {
+                    return 1;
+                }
+                return 0;
+            });
     },
 
     /**
@@ -54,8 +70,8 @@ const feature = {
      * @param e
      */
     onCategoriesViewShow(e) {
-        return app.controller.onGenericViewShow(e);
-    }
+        return app.viewModel.onGenericViewShow(e);
+    },
 };
 
 /**

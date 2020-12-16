@@ -10,7 +10,6 @@ import 'kendo.mobile.application';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
-import {VIEW, VIEW_MODEL} from './ui.constants.es6';
 import __ from '../app/app.i18n';
 import barcodeScanner from '../plugins/plugins.barcodescanner';
 import config from '../app/app.config';
@@ -20,7 +19,17 @@ import socialSharing from '../plugins/plugins.socialsharing';
  * Settings feature
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'settings',
+
+    /**
+     * View
+     */
+    VIEW: {
+        SETTINGS: 'settings',
+    },
 
     /**
      * Reset

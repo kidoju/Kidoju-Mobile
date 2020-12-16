@@ -16,14 +16,14 @@ import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
 import Logger from '../common/window.logger.es6';
 import dialogs from '../plugins/plugins.dialogs.es6';
-import { LAYOUT, VIEW, VIEW_MODEL } from './ui.constants.es6';
 
 const {
-    format,
+    // format,
     mobile: {
+        Application,
         ui: { Scroller, ScrollView, View },
-        roleSelector,
     },
+    roleSelector,
 } = window.kendo;
 const logger = new Logger('ui.layout');
 
@@ -32,7 +32,17 @@ const logger = new Logger('ui.layout');
  * including navigation bar
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'layout',
+
+    /**
+     * View
+     */
+    VIEW: {
+        MAIN_LAYOUT: 'main-layout',
+    },
 
     /**
      * @method onLayoutViewShow
@@ -86,27 +96,32 @@ const feature = {
             )
         );
         const { view } = e;
-        const { controller, viewModel } = app;
+        const {
+            viewModel,
+            viewModel: { VIEW },
+        } = app;
         const id =
             view.id === CONSTANTS.SLASH ? VIEW.DEFAULT : view.id.substr(1); // Remove #
-        let viewTitle = __(`${id}.viewTitle`); // Note: this supposes culture names match view id names
+        const viewTitle = __(`${id}.viewTitle`); // Note: this supposes culture names match view id names
+        /*
         if (id === VIEW.SCORE) {
             viewTitle = format(
                 viewTitle,
-                app.viewModel.get(VIEW_MODEL.CURRENT.SCORE || 0) / 100
+                viewModel.get(VIEW_MODEL.CURRENT.SCORE || 0) / 100
             );
         } else if (id === VIEW.CORRECTION || id === VIEW.PLAYER) {
             viewTitle = format(
                 viewTitle,
-                app.viewModel.page$(),
-                app.viewModel.totalPages$()
+                viewModel.page$(),
+                viewModel.totalPages$()
             );
         }
-        feature.setNavBar(view);
-        feature.setNavBarTitle(view, viewTitle);
-        if (controller.application instanceof Application) {
-            // mobile.application is not available on first view shown
-            controller.application.hideLoading();
+         */
+        viewModel.setNavBar(view);
+        viewModel.setNavBarTitle(view, viewTitle);
+        if (viewModel.application instanceof Application) {
+            // viewModel.application is not available on first view shown
+            viewModel.application.hideLoading();
         }
     },
 
@@ -148,7 +163,10 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
-        const { viewModel } = app;
+        const {
+            viewModel,
+            viewModel: { VIEW },
+        } = app;
         const $view = view.element;
         let showDrawerButton = false;
         let showHomeButton = false;
@@ -228,58 +246,58 @@ const feature = {
                 break;
         }
         // Note: each view has no button by default, so let's fix that
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-drawer`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-drawer`).css({
             display: showDrawerButton ? CONSTANTS.INLINE_BLOCK : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-home`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-home`).css({
             display: showHomeButton ? CONSTANTS.INLINE_BLOCK : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-user`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-user`).css({
             display: showUserButton ? CONSTANTS.INLINE_BLOCK : CONSTANTS.NONE,
         });
         // $view
-        //     .find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-first-page`)
+        //     .find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-first-page`)
         //     .css({ display: showFirstPageButton ? CONSTANTS.INLINE_BLOCK : CONSTANTS.NONE });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-previous-page`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-previous-page`).css({
             display: showPreviousPageButton
                 ? CONSTANTS.INLINE_BLOCK
                 : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-previous-user`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-previous-user`).css({
             display: showPreviousUserButton
                 ? CONSTANTS.INLINE_BLOCK
                 : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-next-user`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-next-user`).css({
             display: showNextUserButton
                 ? CONSTANTS.INLINE_BLOCK
                 : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-next-page`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-next-page`).css({
             display: showNextPageButton
                 ? CONSTANTS.INLINE_BLOCK
                 : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-last-page`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-last-page`).css({
             display: showLastPageButton
                 ? CONSTANTS.INLINE_BLOCK
                 : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-submit`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-submit`).css({
             display: showSubmitButton ? CONSTANTS.INLINE_BLOCK : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-score`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-score`).css({
             display: showScoreButton ? CONSTANTS.INLINE_BLOCK : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-summary`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-summary`).css({
             display: showSummaryButton
                 ? CONSTANTS.INLINE_BLOCK
                 : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-sync`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-sync`).css({
             display: showSyncButton ? CONSTANTS.INLINE_BLOCK : CONSTANTS.NONE,
         });
-        $view.find(`${CONSTANTS.HASH}${LAYOUT.MAIN}-search`).css({
+        $view.find(`${CONSTANTS.HASH}${VIEW.MAIN_LAYOUT}-search`).css({
             display: showSearchButton ? CONSTANTS.INLINE_BLOCK : CONSTANTS.NONE,
         });
     },

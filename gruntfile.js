@@ -46,6 +46,8 @@ module.exports = (grunt) => {
                     'www/views/favourites.html',
                     'www/views/finder.html',
                     'www/views/network.html',
+                    'www/views/settings.html',
+                    'www/views/signin.html',
                     'www/views/_foot.html',
                 ],
                 dest: 'www/index.html',

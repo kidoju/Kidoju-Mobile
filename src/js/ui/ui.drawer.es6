@@ -16,7 +16,6 @@ import Logger from '../common/window.logger.es6';
 import dialogs from '../plugins/plugins.dialogs.es6';
 import barcodeScanner from '../plugins/plugins.barcodescanner.es6';
 import inAppBrowser from '../plugins/plugins.inappbrowser.es6';
-import { VIEW, VIEW_MODEL } from './ui.constants.es6';
 
 const { attr } = window.kendo;
 const logger = new Logger('ui.drawer');

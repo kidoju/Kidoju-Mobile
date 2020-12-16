@@ -10,14 +10,14 @@ import 'kendo.mobile.view';
 import 'kendo.progressbar';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
-import {xhr2error} from '../data/data.util';
+import {xhr2error} from '../data/data.util.es6';
 // import Logger from '../common/window.logger.es6';
 
 const {
     mobile: {
-        ui: { View }
+        ui: { View },
     },
-    roleSelector
+    roleSelector,
 } = window.kendo;
 // const logger = new Logger('feature.sync');
 
@@ -25,7 +25,17 @@ const {
  * Sync feature
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'sync',
+
+    /**
+     * View
+     */
+    VIEW: {
+        SYNC: 'sync',
+    },
 
     /**
      * Event handler triggered when showing the sync view

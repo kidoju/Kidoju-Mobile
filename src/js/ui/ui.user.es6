@@ -13,9 +13,9 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
 import { MISC, VIEW, VIEW_MODEL } from './ui.constants.es6';
-import {User, UserDataSource} from '../data/data.user';
-import __ from '../app/app.i18n';
-import {xhr2error} from '../data/data.util';
+import { User, UserDataSource } from '../data/data.user.es6';
+import __ from '../app/app.i18n.es6';
+import { xhr2error } from '../data/data.util.es6';
 
 const {
     attr,
@@ -35,7 +35,17 @@ const SELECTORS = {
  * User feature
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'user',
+
+    /**
+     * View
+     */
+    VIEW: {
+        USER: 'user',
+    },
 
     /**
      * Reset

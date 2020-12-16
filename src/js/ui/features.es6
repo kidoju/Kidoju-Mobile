@@ -3,9 +3,11 @@
  * Sources at https://github.com/Memba
  */
 
+import categories from './ui.categories.es6';
 import drawer from './ui.drawer.es6';
 import layout from './ui.layout.es6';
 import network from './ui.network.es6';
+import signin from './ui.signin.es6';
 
 const features = [
     // Add features here
@@ -14,10 +16,10 @@ const features = [
     drawer,
     layout,
     // activities,
-    // categories,
+    categories,
     network,
     // settings,
-    // signin,
+    signin,
     // summaries,
     // summary,
     // user

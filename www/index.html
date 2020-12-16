@@ -349,6 +349,86 @@
     <!--p class="message">Progress</p-->
 </div>
 
+<!-- Settings view -->
+<div id="settings" data-role="view" data-layout="main-layout" data-title="Settings" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onSettingsViewShow">
+    <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
+    <form>
+        <ul data-role="listview" data-style="inset" data-filterable="false">
+            <li>
+                <label>
+                    <span class="km-bold-font">User</span>
+                    <div data-bind="text: user.fullName$" class="right"></div>
+                </label>
+            </li>
+            <li>
+                <label>
+                    <span class="km-bold-font">Version</span>
+                    <div data-bind="text: version$()" class="right"></div>
+                </label>
+            </li>
+            <li>
+                <label>
+                    <span class="km-bold-font">Theme</span>
+                    <div data-bind="text: theme$, visible: hasConstantTheme$" class="right"></div>
+                    <input data-role="dropdownlist" data-bind="value: theme, source: themes, disabled: hasConstantTheme$, invisible: hasConstantTheme$" data-value-field="value" data-text-field="text">
+                </label>
+            </li>
+            <li>
+                <label>
+                    <span class="km-bold-font">Language</span>
+                    <div data-bind="text: language$, visible: hasConstantLanguage$" class="right"></div>
+                    <input data-role="dropdownlist" data-bind="value: language, source: languages, disabled: hasConstantLanguage$, invisible: hasConstantLanguage$" data-value-field="value" data-text-field="text">
+                </label>
+            </li>
+            <li>
+                <label>
+                    <span class="km-bold-font">Category</span>
+                    <div data-bind="text: rootCategoryId$, visible: hasConstantRootCategoryId$" class="right"></div>
+                    <input data-role="dropdownlist" data-bind="value: user.rootCategoryId, source: topCategories$(), disabled: hasConstantRootCategoryId$, invisible: hasConstantRootCategoryId$" data-value-field="id" data-text-field="name">
+                </label>
+            </li>
+        </ul>
+    </form>
+    <div class="buttons">
+        <a data-role="button" class="km-large km-justified km-primary" data-click="app.viewModel.onSettingsSwitchClick">Switch user</a>
+    </div>
+</div>
+
+<!-- Sign-in view -->
+<div id="signin" data-role="view" data-layout="main-layout" data-title="Sign in" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-init="app.viewModel.onSigninViewInit" data-show="app.viewModel.onSigninViewShow">
+    <div data-role="scrollview" class="km-scrollview-overlay" data-content-height="100%">
+        <div data-role="page">
+            <div class="image"><img src="./img/tour/t1.svg"></div>
+            <div class="text"><p>Browse and search assessments, practice tests and quizzes organized by subject categories.</p></div>
+        </div>
+        <div data-role="page">
+            <div class="image"><img src="./img/tour/t2.svg"></div>
+            <div class="text"><p>Play questions, give answers and let the app compute your score.</p></div>
+        </div>
+        <div data-role="page">
+            <div class="image"><img src="./img/tour/t3.svg"></div>
+            <div class="text"><p>Track and measure your progresses.</p></div>
+        </div>
+        <div data-role="page">
+            <div class="k-widget k-notification k-notification-info">
+                <div class="k-notification-wrap">
+                    <span class="k-icon k-i-info">Info</span>
+                    <span class="k-text">Please select an authentication provider.</span>
+                    <!--span class="k-icon k-i-close">Hide</span-->
+                </div>
+            </div>
+            <form>
+                <ul data-role="listview" data-style="inset" data-filterable="false">
+                    <li><button data-role="button" class="km-large km-justified" data-icon="google" data-provider="google" data-click="app.viewModel.onSigninButtonClick">Google</button></li>
+                    <li><button data-role="button" class="km-large km-justified" data-icon="facebook" data-provider="facebook" data-click="app.viewModel.onSigninButtonClick">Facebook</button></li>
+                    <li><button data-role="button" class="km-large km-justified" data-icon="twitter" data-provider="twitter" data-click="app.viewModel.onSigninButtonClick">Twitter</button></li>
+                    <li><button data-role="button" class="km-large km-justified" data-icon="live" data-provider="live" data-click="app.viewModel.onSigninButtonClick">Windows Live</button></li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 
 </body>
