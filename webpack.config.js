@@ -82,7 +82,7 @@ const bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
 module.exports = {
     // All paths below are relative to the context
     context: path.join(__dirname, '/'),
-    devtool: 'sourcemap',
+    devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
     entry: {
         // ES5 application
         // app: ['./src/js/app.mobile.js'],
