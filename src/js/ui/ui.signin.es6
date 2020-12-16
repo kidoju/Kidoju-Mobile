@@ -426,7 +426,6 @@ const feature = {
     parseTokenAndLoadUser(url) {
         const dfd = $.Deferred();
         // No need to clean the history when opening in InAppBrowser or SafariViewController
-        debugger;
         if (!inAppBrowser.ready() && !safariViewController.ready()) {
             cleanHistory();
         }

@@ -44,7 +44,6 @@ const AppController = BaseController.extend({
     handleOpenURL(url) {
         const { appScheme, helpUrl } = config.constants;
         const rxAppScheme = new RegExp(`^${appScheme}://([a-z]{2})/([esx])/([0-9a-f]{24})($|/|\\?|#)`);
-        debugger;
         // if (url.startsWith(`${appScheme}://oauth`)) {
         if (url.indexOf(`${appScheme}://oauth`) === 0) {
             // The whole oAuth flow is documented at

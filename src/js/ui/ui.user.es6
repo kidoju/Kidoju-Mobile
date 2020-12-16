@@ -82,7 +82,6 @@ const feature = {
      */
     loadUser() {
         const dfd = $.Deferred();
-        debugger;
         // Search me in viewModel.users or create new viewModel.user and add it to viewModel.users
         app.cache.removeMe();
         app.cache
