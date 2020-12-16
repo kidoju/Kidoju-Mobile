@@ -19,13 +19,15 @@ const {
     format,
     mobile: {
         ui: { ListView, View }
-    }
+    },
 } = window.kendo;
 
 /**
  * Score feature
  */
 const feature = {
+    _name: 'score',
+
     /**
      * Initialize score listview
      * @param view

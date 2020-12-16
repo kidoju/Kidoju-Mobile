@@ -25,6 +25,8 @@ const {
  * Sync feature
  */
 const feature = {
+    _name: 'sync',
+
     /**
      * Event handler triggered when showing the sync view
      * @param e

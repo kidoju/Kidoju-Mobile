@@ -110,6 +110,45 @@ const AppController = BaseController.extend({
     },
 
     /**
+     * Initialize fatal error
+     * @param error
+     */
+    initFatalError(error) {
+        logger.crit({
+            message: 'Initializing fatal error',
+            method: 'initFatalError',
+            error,
+        });
+        // Initialize application
+        this.application = new Application(document.body, {
+            initial: '#error',
+            // TODO: skin???
+            init(/* e */) {
+                // debugger;
+                // hide the splash screen
+                setTimeout(() => {
+                    splashScreen.hide();
+                    // This is an old version of the application, so request an upgrade
+                    /*
+                    dialogs.error(
+                        i18n.culture.notifications.appVersionFailure,
+                        function() {
+                            // TODO Consider opening the app store
+                            if (
+                                window.navigator.app &&
+                                $.isFunction(window.navigator.app.exitApp)
+                            ) {
+                                window.navigator.app.exitApp();
+                            }
+                        }
+                    );
+                    */
+                }, 500); // + 500 for default fadeOut time
+            },
+        });
+    },
+
+    /**
      * Event handler for the resize event
      */
     onResize(e) {

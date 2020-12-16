@@ -12,6 +12,8 @@ import app from '../common/window.global.es6';
  * Network feature
  */
 const feature = {
+    _name: 'network',
+
     /**
      * Event handler triggered when showing the Network view
      * Note: the view event is triggered each time the view is requested

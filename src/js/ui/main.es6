@@ -17,15 +17,10 @@ import $ from 'jquery';
 import __ from '../app/app.i18n.es6';
 import app from '../common/window.global.es6';
 import Logger from '../common/window.logger.es6';
+import features from './features.es6';
+import initializers from './initializers.es6';
 import AppController from './ui.viewmodel.es6';
-import drawer from './ui.drawer.es6';
-import layout from './ui.layout.es6';
-import navbar from './ui.navbar.es6';
-import network from './ui.network.es6';
-// import settings from './ui.settings.es6';
-// import signin from './ui.signin.es6';
-// import summary from './ui.summary.es6';
-// import user from './ui.user.es6';
+
 
 // TODO remove stylesheets and use themer
 import '../../styles/fonts/kidoju.less';
@@ -95,7 +90,7 @@ window.handleOpenUrl = function (url) {
 /**
  * Start the user interface
  */
-function main() {
+function onDeviceReady() {
     logger.debug({
         message: 'Cordova device is ready',
         method: 'main',
@@ -116,28 +111,8 @@ function main() {
 
     // Create the application
     app.viewModel = new AppController({
-        initializers: [
-            // Add initializers here
-            // make sure they all return a jQuery promise
-            __.load(),
-        ],
-        features: [
-            // Add features here
-            // Beware, there is no consistent rule as to what `this` refers to in these methods
-            // because the Kendo UI framework will bind (via proxy) these methods when referred to in the HTML page via MVVM
-            drawer,
-            layout,
-            navbar,
-            // activities,
-            // categories,
-            network,
-            // settings,
-            // signin,
-            // summaries,
-            // summary,
-            // user
-            // user,
-        ],
+        initializers,
+        features
     });
 
     app.viewModel.reset();
@@ -159,31 +134,10 @@ function main() {
                 // Load viewModel, then initialize kendo application
                 app.viewModel.load().always(app.viewModel.initApplication());
             })
-            .catch((err) => {
+            .catch((error) => {
                 // app.notification.error(i18n.culture.notifications.dbMigrationFailure);
-                if (err instanceof Error) {
-                    // setTimeout ensures we call the global error handler
-                    // @see https://stackoverflow.com/questions/39376805/how-can-i-trigger-global-onerror-handler-via-native-promise-when-runtime-error-o
-                    setTimeout(() => {
-                        throw err;
-                    }, 0);
-                }
-
-                // This is an old version of the application, so request an upgrade
-                /*
-                dialogs.error(
-                    i18n.culture.notifications.appVersionFailure,
-                    function() {
-                        // TODO Consider opening the app store
-                        if (
-                            window.navigator.app &&
-                            $.isFunction(window.navigator.app.exitApp)
-                        ) {
-                            window.navigator.app.exitApp();
-                        }
-                    }
-                );
-                */
+                // TODO Exit the application - occurs for example if app.culture.xx.es6 is missing
+                app.viewModel.initFatalError.bind(this, error);
             });
     });
 }
@@ -191,4 +145,4 @@ function main() {
 /**
  * Default export
  */
-export default main;
+export default onDeviceReady;

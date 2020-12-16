@@ -27,7 +27,6 @@ import config from './app.config.jsx';
 import db from './app.db.es6';
 import __ from './app.i18n.es6';
 
-const { UserEvents, mobile: { Application, ui: { Pane } } } = window.kendo;
 const logger = new Logger('app.controller');
 
 /**
@@ -38,8 +37,6 @@ const logger = new Logger('app.controller');
  * @extends Observable
  */
 const AppController = BaseController.extend({
-
-
     /**
      * Function to handle open Url
      * @param url
@@ -71,7 +68,7 @@ const AppController = BaseController.extend({
             logger.warn({
                 message: 'App scheme called with unknown url',
                 method: 'handleOpenURL',
-                data: { url: url }
+                data: { url: url },
             });
             app.notification.warning(__('notifications.openUrlUnknown'));
         }
@@ -90,9 +87,8 @@ const AppController = BaseController.extend({
         });
         const dfd = $.Deferred();
         const ping = new AjaxPing();
-        ping
-            .get()
-            .then(result => {
+        ping.get()
+            .then((result) => {
                 if (
                     result.compatible &&
                     compareVersions(config.version, result.compatible) < 0
@@ -107,8 +103,6 @@ const AppController = BaseController.extend({
             .catch(dfd.reject);
         return dfd.promise();
     },
-
-
 
     /**
      * Fix skin variant
@@ -128,8 +122,6 @@ const AppController = BaseController.extend({
     localize(locale) {
         $.noop(locale);
     },
-
-
 });
 
 /**

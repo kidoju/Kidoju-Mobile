@@ -27,6 +27,8 @@ const {
  * Finder feature
  */
 const feature = {
+    _name: 'finder',
+
     /**
      * Event handler triggered before showing the Summaries view
      */

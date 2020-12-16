@@ -35,6 +35,8 @@ const SELECTORS = {
  * User feature
  */
 const feature = {
+    _name: 'user',
+
     /**
      * Reset
      */
@@ -319,7 +321,7 @@ const feature = {
         ) {
             this.set(VIEW_MODEL.USER._, userDataSource.at(index + 1));
         }
-    }
+    },
 
     /**
      * Event handler triggered when initializing the user view

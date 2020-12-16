@@ -29,6 +29,8 @@ const {
  * Player feature
  */
 const feature = {
+    _name: 'player',
+
     /**
      * Event handler triggered when initializing the Player view
      * Note: the init event is triggered the first time the view is requested

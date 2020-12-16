@@ -19,7 +19,7 @@ import inAppBrowser from '../plugins/plugins.inappbrowser.es6';
 import { VIEW, VIEW_MODEL } from './ui.constants.es6';
 
 const { attr } = window.kendo;
-const logger = new Logger('feature.drawer');
+const logger = new Logger('ui.drawer');
 
 const QR_CODE = 'QR_CODE';
 const RX_QR_CODE_MATCH = /^https?:\/\/[^/]+\/([a-z]{2})\/s\/([a-f0-9]{24})$/i;
@@ -28,6 +28,8 @@ const RX_QR_CODE_MATCH = /^https?:\/\/[^/]+\/([a-z]{2})\/s\/([a-f0-9]{24})$/i;
  * Drawer feature
  */
 const feature = {
+    _name: 'drawer',
+
     /**
      * Event handler trigger when clicking an item in the drawer menu
      * @param e
@@ -60,7 +62,7 @@ const feature = {
                 );
                 break;
             case 'scan':
-                feature.scanQRCode();
+                app.viewModel.scanQRCode();
                 break;
             case 'activities':
                 controller.application.navigate(
@@ -80,7 +82,7 @@ const feature = {
                 break;
             case 'help':
             default:
-                feature.openHelp();
+                app.viewModel.openHelp();
                 break;
         }
     },

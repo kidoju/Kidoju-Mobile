@@ -22,6 +22,8 @@ const { attr, bind, dataviz, destroy, mobile, mobile: { ui: { Button, View } }, 
  * Stage feature
  */
 const feature = {
+    _name: 'stage',
+
     /**
      * Reset
      */
@@ -236,7 +238,7 @@ const feature = {
                 data: { status: status, error: error, response: parseResponse(xhr) }
             });
         });
-    }
+    },
 
     /**
      * Resize player/correction stage and instructions/explanations markdown

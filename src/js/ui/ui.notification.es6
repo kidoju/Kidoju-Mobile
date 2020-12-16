@@ -9,6 +9,8 @@
  * Feature
  */
 const feature = {
+    _name: 'notification',
+
     resize(e) {
         var notification = $('#notification');
         assert.hasLength(notification, assert.format(assert.messages.hasLength.default, '#notification'));

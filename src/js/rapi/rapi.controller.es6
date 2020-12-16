@@ -98,10 +98,12 @@ const BaseController = ObservableObject.extend({
                             // this[key] = prop.bind(this);
                             prototype[key] = prop;
                         } else if ($.type(this[key]) === CONSTANTS.UNDEFINED) {
-                            this.set(key, prop);
+                            if (key !== '_name') {
+                                this.set(key, prop);
+                            }
                         } else {
                             throw new Error(
-                                `${feature.name} uses key ${key} which has already been added (duplicate)`
+                                `${feature._name} uses key ${key} which has already been added (duplicate)`
                             );
                         }
                     });

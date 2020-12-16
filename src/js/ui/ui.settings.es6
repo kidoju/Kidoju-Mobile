@@ -20,6 +20,8 @@ import socialSharing from '../plugins/plugins.socialsharing';
  * Settings feature
  */
 const feature = {
+    _name: 'settings',
+
     /**
      * Reset
      */
@@ -125,7 +127,7 @@ const feature = {
     version$() {
         // TODO use cordova-plugin-buildinfo
         return config.version;
-    }
+    },
 
     /**
      * Event handler triggered when showing the Settings view

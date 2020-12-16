@@ -23,6 +23,8 @@ const logger = new Logger('viewmodel.versions');
  * Extension
  */
 const extension = {
+    _name: 'version',
+
     /**
      * Reset
      */
