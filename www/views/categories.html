@@ -1,5 +1,5 @@
 <!-- Categories view -->
-<div id="categories" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.viewModel" data-show="app.controller.onCategoriesViewShow">
+<div id="categories" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onCategoriesViewShow">
     <!-- dropdown of top categories -->
     <div class="km-content km-filter-form" data-bind="invisible: hasConstantRootCategoryId$">
         <input data-role="dropdownlist" data-bind="value: user.rootCategoryId, source: topCategories$()" data-value-field="id" data-text-field="name">

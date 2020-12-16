@@ -1,6 +1,6 @@
 
 <!-- Finder view -->
-<div id="finder" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.viewModel" data-before-show="app.controller.onFinderBeforeViewShow" data-show="app.controller.onFinderViewShow">
+<div id="finder" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.viewModel" data-before-show="app.viewModel.onFinderBeforeViewShow" data-show="app.viewModel.onFinderViewShow">
     <!-- TODO Temporarily not filterable -->
     <!--ul data-role="listview" data-bind="source: summaries" data-filterable="{&quot;field&quot;:&quot;$text&quot;,&quot;operator&quot;:&quot;eq&quot;}" data-load-more="true" data-template="finder-template"></ul-->
     <ul data-role="listview" data-bind="source: summaries" data-filterable="false" data-load-more="true" data-template="finder-template"></ul>

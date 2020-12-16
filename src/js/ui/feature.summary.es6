@@ -14,6 +14,10 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
 import { MISC, VIEW, VIEW_MODEL } from './ui.constants.es6';
+import {Summary} from '../data/data.summary';
+import {LazySummaryDataSource} from '../data/data.summary.lazy';
+import __ from '../app/app.i18n';
+import {xhr2error} from '../data/data.util';
 
 const {
     attr,
@@ -28,6 +32,121 @@ const {
  * Summary feature
  */
 const feature = {
+    /**
+     * Reset
+     */
+    reset() {
+        this.resetSummaries();
+    },
+
+    /**
+     * Reset summaries
+     */
+    resetSummaries() {
+        this.set(VIEW_MODEL.SUMMARY._, new Summary()); // new models.Summary()
+        this.set(VIEW_MODEL.SUMMARIES, new LazySummaryDataSource()); // new models.LazySummaryDataSource({ pageSize: VIRTUAL_PAGE_SIZE })
+    },
+
+    /**
+     * Load summaries
+     * @param options
+     */
+    loadSummaries(options) {
+        assert.isNonEmptyPlainObject(
+            options,
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
+        );
+        assert.isNonEmptyPlainObject(
+            options.partition,
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options.partition'
+            )
+        );
+        assert.match(
+            CONSTANTS.RX_LANGUAGE,
+            options.partition.language,
+            assert.format(
+                assert.messages.match.default,
+                'options.partition.language',
+                CONSTANTS.RX_LANGUAGE
+            )
+        );
+        return this[VIEW_MODEL.SUMMARIES]
+        .load(options)
+        .catch((xhr, status, errorThrown) => {
+            app.notification.error(__('notifications.summariesQueryFailure'));
+            logger.error({
+                message: 'error loading summaries',
+                method: 'loadSummaries',
+                error: xhr2error(xhr, status, errorThrown),
+                data: { options }
+            });
+        });
+    },
+
+    /**
+     * Load summary from remote servers
+     * @param options
+     */
+    loadSummary(options) {
+        assert.isNonEmptyPlainObject(
+            options,
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
+        );
+        assert.match(
+            CONSTANTS.RX_LANGUAGE,
+            options.language,
+            assert.format(
+                assert.messages.match.default,
+                'options.language',
+                CONSTANTS.RX_LANGUAGE
+            )
+        );
+        assert.match(
+            CONSTANTS.RX_MONGODB_ID,
+            options.id,
+            assert.format(
+                assert.messages.match.default,
+                'options.id',
+                CONSTANTS.RX_MONGODB_ID
+            )
+        );
+        return this[VIEW_MODEL.SUMMARY]
+        .load(options)
+        .catch((xhr, status, errorThrown) => {
+            app.notification.error(__('notifications.summaryLoadFailure'));
+            logger.error({
+                message: 'error loading summary',
+                method: 'loadSummary',
+                error: xhr2error(xhr, status, errorThrown),
+                data: { options }
+            });
+        });
+    },
+
+    /**
+     * Summary category
+     */
+    summaryCategory$() {
+        var ret = '';
+        var categoryId = this.get(VIEW_MODEL.SUMMARY.CATEGORY_ID);
+        var category = this.get(VIEW_MODEL.CATEGORIES).get(categoryId);
+        if (category instanceof models.LazyCategory && $.isFunction(category.path.map) && category.path.length) {
+            var path = category.path.map(function (item) {
+                return item.name;
+            });
+            ret = '<span>' + path.join('</span><span class="k-icon k-i-arrow-60-right"></span><span>') + '</span>';
+        }
+        return ret;
+    },
+
     /**
      * Event handler triggered when showing the summary view
      * @param e
@@ -45,7 +164,7 @@ const feature = {
             mobile.onGenericViewShow(e);
             // Set the background color
             // This cannot be done via bindings because the view and vien.content cannot be bound
-            var summary = viewModel.get(VIEW_MODEL.SUMMARY);
+            var summary = viewModel.get(VIEW_MODEL.SUMMARY._;
             view.content
             .toggleClass('error', summary.isError$())
             .toggleClass('success', summary.isSuccess$())

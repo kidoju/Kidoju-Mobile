@@ -6,14 +6,14 @@
 // Note: this is a very generic phonegap/cordova bootstrap module
 // The logic to start a Kendo Mobile UI application is in ./ui/ui.start.es6
 
-import start from '../ui/ui.start.es6';
+import main from '../ui/main.es6';
 
 /**
  * Event handler triggered when device is ready
  */
 function onDeviceReady() {
     // window.alert('onDeviceReady!');
-    start();
+    main();
 }
 
 /**

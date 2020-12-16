@@ -13,9 +13,9 @@ import assert from '../common/window.assert.es6';
 
 const {
     mobile: {
-        ui: { Scroller, ScrollView, View }
+        ui: { Scroller, ScrollView, View },
     },
-    roleSelector
+    roleSelector,
 } = window.kendo;
 
 /**
@@ -71,7 +71,7 @@ const feature = {
                 scrollView.refresh();
             }
         });
-    }
+    },
 };
 
 /**

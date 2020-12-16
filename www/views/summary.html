@@ -1,5 +1,5 @@
 <!-- Summary view -->
-<div id="summary" data-role="view" data-layout="main-layout" data-title="Details" data-transition="fade" data-model="app.viewModel" data-show="app.controller.onSummaryViewShow">
+<div id="summary" data-role="view" data-layout="main-layout" data-title="Details" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onSummaryViewShow">
     <img data-bind="attr: { src: summary.icon$, alt: summary.title }" class="km-thumbnail picture">
     <form>
         <ul data-role="listview" data-style="inset" data-filterable="false">
@@ -56,8 +56,8 @@
         <a data-role="button" class="km-large km-justified km-primary" data-rel="actionsheet" href="#summary-actionsheet">GO</a>
     </div>
     <ul id="summary-actionsheet" data-role="actionsheet" >
-        <li class="km-actionsheet-play"><a data-action="app.controller.onSummaryActionPlay">Play</a></li>
-        <li class="km-actionsheet-share" data-bind="visible: hasSocialSharing$"><a data-action="app.controller.onSummaryActionShare">Share</a></li>
-        <li class="km-actionsheet-feedback" data-bind="visible: hasInternetBrowsing$"><a data-action="app.controller.onSummaryActionFeedback">Feedback</a></li>
+        <li class="km-actionsheet-play"><a data-action="app.viewModel.onSummaryActionPlay">Play</a></li>
+        <li class="km-actionsheet-share" data-bind="visible: hasSocialSharing$"><a data-action="app.viewModel.onSummaryActionShare">Share</a></li>
+        <li class="km-actionsheet-feedback" data-bind="visible: hasInternetBrowsing$"><a data-action="app.viewModel.onSummaryActionFeedback">Feedback</a></li>
     </ul>
 </div>

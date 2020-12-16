@@ -1,6 +1,6 @@
 <!-- User view -->
-<div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.viewModel" data-init="app.controller.onUserViewInit" data-show="app.controller.onUserViewShow">
-    <div data-role="touch" data-enable-swipe="true" data-swipe="app.controller.onUserSwipe">
+<div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.viewModel" data-init="app.viewModel.onUserViewInit" data-show="app.viewModel.onUserViewShow">
+    <div data-role="touch" data-enable-swipe="true" data-swipe="app.viewModel.onUserSwipe">
         <img data-bind="invisible: isSavedUser$, attr: { src: user.picture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
         <form>
@@ -47,9 +47,9 @@
         </form>
     </div>
     <div class="buttons">
-        <a data-role="button" data-bind="invisible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.controller.onUserSaveClick">Save</a>
-        <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.controller.onUserSignInClick">Signin</a>
-        <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified"  data-click="app.controller.onUserNewClick">New User</a>
-        <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified" data-click="app.controller.onUserChangePin">Change PIN</a>
+        <a data-role="button" data-bind="invisible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.viewModel.onUserSaveClick">Save</a>
+        <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.viewModel.onUserSignInClick">Signin</a>
+        <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified"  data-click="app.viewModel.onUserNewClick">New User</a>
+        <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified" data-click="app.viewModel.onUserChangePin">Change PIN</a>
     </div>
 </div>

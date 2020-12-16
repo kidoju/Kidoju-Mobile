@@ -77,7 +77,7 @@ const feature = {
         */
 
         // Synchronize activities
-        viewModel.activities.setLastSync(viewModel.get(VIEW_MODEL.USER_.LAST_SYNC));
+        viewModel.activities.setLastSync(viewModel.get(VIEW_MODEL.USER.LAST_SYNC));
         viewModel.activities.remoteSync()
         .progress(function (status) {
             message.text(culture.message[status.collection]);
@@ -90,8 +90,8 @@ const feature = {
 
             // Update user
             var now = new Date();
-            viewModel.set(VIEW_MODEL.USER_.LAST_USE, now);
-            viewModel.set(VIEW_MODEL.USER_.LAST_SYNC, now);
+            viewModel.set(VIEW_MODEL.USER.LAST_USE, now);
+            viewModel.set(VIEW_MODEL.USER.LAST_SYNC, now);
             viewModel.users.sync()
             .done(function () {
                 message.text(culture.message.complete);

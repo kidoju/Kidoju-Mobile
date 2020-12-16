@@ -18,8 +18,8 @@ const feature = {
      * @param e
      */
     onNetworkViewShow(e) {
-        return app.controller.onGenericViewShow(e);
-    }
+        return app.viewModel.onGenericViewShow(e);
+    },
 };
 
 /**

@@ -34,7 +34,7 @@ const extension = {
      * Reset versions
      */
     resetVersions() {
-        this.set(VIEW_MODEL.VERSION, new Version()); // new models.Version()
+        this.set(VIEW_MODEL.VERSION._, new Version()); // new models.Version()
         this[VIEW_MODEL.VERSIONS] = new LazyVersionDataSource(); // new models.LazyVersionDataSource()
     },
 

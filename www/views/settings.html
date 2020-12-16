@@ -1,5 +1,5 @@
 <!-- Settings view -->
-<div id="settings" data-role="view" data-layout="main-layout" data-title="Settings" data-transition="fade" data-model="app.viewModel" data-show="app.controller.onSettingsViewShow">
+<div id="settings" data-role="view" data-layout="main-layout" data-title="Settings" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onSettingsViewShow">
     <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
     <form>
         <ul data-role="listview" data-style="inset" data-filterable="false">
@@ -39,6 +39,6 @@
         </ul>
     </form>
     <div class="buttons">
-        <a data-role="button" class="km-large km-justified km-primary" data-click="app.controller.onSettingsSwitchClick">Switch user</a>
+        <a data-role="button" class="km-large km-justified km-primary" data-click="app.viewModel.onSettingsSwitchClick">Switch user</a>
     </div>
 </div>

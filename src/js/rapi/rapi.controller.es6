@@ -8,7 +8,7 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
-import 'kendo.core';
+import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import {
@@ -21,28 +21,117 @@ import {
 import { refresh } from './rapi.oauth.es6';
 
 const { cordova, chrome, location } = window;
-const { Observable } = window.kendo;
+const {
+    data: { ObservableObject },
+    logToConsole,
+} = window.kendo;
 const logger = new Logger('rapi.controller');
 
 /**
  * BaseController
  * @class BaseController
- * @extends Observable
+ * @extends ObservableObject
  */
-const BaseController = Observable.extend({
+const BaseController = ObservableObject.extend({
     /**
      * Init
      * @constructor init
      */
-    init() {
-        Observable.fn.init.call(this);
-        this.initializers =
+    init(options = {}) {
+        ObservableObject.fn.init.call(this);
+        // Add initializers
+        this._initializers =
             // In cordova, we collect the token in SafariViewController ou InAppBrowser
             $.type(cordova) === CONSTANTS.UNDEFINED &&
             // In chrome apps, the following throws an error
             !(chrome && $.isEmptyObject(chrome.app))
                 ? [this.readAccessToken()]
                 : [];
+        if (Array.isArray(options.initializers)) {
+            options.initializers.forEach((initializer) => {
+                if ($.isFunction(initializer.promise)) {
+                    this._initializers.push(initializer);
+                } else {
+                    throw new TypeError('Expecting a jQuery promise');
+                }
+            });
+        }
+        // Add features
+        this._loaders = [];
+        this._resetters = [];
+        this._resizers = [];
+        this.addFeatures(options.features);
+    },
+
+    /**
+     * Initialize the BaseController
+     */
+    start() {
+        return $.when(...this._initializers);
+    },
+
+    /**
+     * Add UI features
+     * @param UI features
+     */
+    addFeatures(features) {
+        const prototype = Object.getPrototypeOf(this);
+        if (Array.isArray(features)) {
+            features.forEach((feature) => {
+                if (
+                    $.isPlainObject(feature) &&
+                    $.type(feature.name) === CONSTANTS.STRING
+                ) {
+                    Object.keys(feature).forEach((key) => {
+                        const prop = feature[key];
+                        if (key === 'load' && $.isFunction(prop)) {
+                            this._loaders.push(prop.bind(this));
+                        } else if (key === 'reset' && $.isFunction(prop)) {
+                            this._resetters.push(prop.bind(this));
+                        } else if (key === 'resize' && $.isFunction(prop)) {
+                            this._resizers.push(prop.bind(this));
+                        } else if (
+                            $.type(prototype[key]) === CONSTANTS.UNDEFINED &&
+                            $.isFunction(prop)
+                        ) {
+                            // BEWARE: With MVVM, there is a chance that this will be rebound to another object
+                            // this[key] = prop.bind(this);
+                            prototype[key] = prop;
+                        } else if ($.type(this[key]) === CONSTANTS.UNDEFINED) {
+                            this.set(key, prop);
+                        } else {
+                            throw new Error(
+                                `${feature.name} uses key ${key} which has already been added (duplicate)`
+                            );
+                        }
+                    });
+                }
+            });
+        }
+    },
+
+    /**
+     * Load data into viewModel
+     */
+    load() {
+        const promises = [];
+        this._loaders.forEach((method) => {
+            if ($.isFunction(method)) {
+                promises.push(method());
+            }
+        });
+        return $.when(...promises);
+    },
+
+    /**
+     * Reset viewModel
+     */
+    reset() {
+        this._resetters.forEach((method) => {
+            if ($.isFunction(method)) {
+                method();
+            }
+        });
     },
 
     /**
@@ -104,7 +193,7 @@ const BaseController = Observable.extend({
                     $.isPlainObject(token) &&
                     Date.now() > token.ts + (token.expires - 10 * 60) * 1000
                 ) {
-                    console.log('-----------------------------> RENEW TOKEN!');
+                    logToConsole('-----------------------------> RENEW TOKEN!');
                     refresh();
                 }
             }, 60 * 1000); // every minute
