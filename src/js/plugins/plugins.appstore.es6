@@ -108,7 +108,7 @@ const plugin = {
             dfd.promise().done(function (reviewState) {
                 // Update reviewState and save without notification
                 // viewModel.set(VIEW_MODEL.USER.REVIEW_STATE, reviewState); // This won't set the dirty field to sync
-                viewModel.get(VIEW_MODEL.USER.$).set('reviewSteate', reviewState);
+                viewModel.get(VIEW_MODEL.USER._).set('reviewSteate', reviewState);
                 viewModel.users.sync(false); // false hides notifications
             });
         }
