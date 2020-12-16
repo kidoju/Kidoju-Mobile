@@ -37,6 +37,7 @@ module.exports = (grunt) => {
             options: {},
             dist: {
                 src: [
+                    'www/views/_head.html',
                     'www/views/layout.html',
                     'www/views/drawer.html',
                     'www/views/activities.html',
@@ -44,8 +45,10 @@ module.exports = (grunt) => {
                     'www/views/correction.html',
                     'www/views/favourites.html',
                     'www/views/finder.html',
+                    'www/views/network.html',
+                    'www/views/_foot.html',
                 ],
-                dest: 'www/index2.html',
+                dest: 'www/index.html',
             },
         },
         copy: {
@@ -140,6 +143,13 @@ module.exports = (grunt) => {
             package: pkg
         },
         */
+        splitfile: {
+            options: {
+                separator: '<!-- split here -->',
+                prefix: ['_head', '_foot'],
+            },
+            'www/views': 'www/views/main.html',
+        },
         stylelint: {
             options: {
                 configFile: '.stylelintrc',
@@ -201,6 +211,7 @@ module.exports = (grunt) => {
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-mocha-test');
     // grunt.loadNpmTasks('grunt-nsp');
+    grunt.loadNpmTasks('grunt-split-file');
     grunt.loadNpmTasks('grunt-stylelint');
     grunt.loadNpmTasks('grunt-webdriver');
     grunt.loadNpmTasks('grunt-webpack');
@@ -213,7 +224,13 @@ module.exports = (grunt) => {
         'stylelint',
         // 'nsp'
     ]); // , 'kendo_lint']);
-    grunt.registerTask('build', ['webpack:build', 'uglify:build', 'copy']);
+    grunt.registerTask('build', [
+        'splitfile',
+        'concat',
+        'webpack:build',
+        'uglify:build',
+        'copy',
+    ]);
     // grunt.registerTask('test', ['mocha', 'mochaTest', 'webdriver']);
     grunt.registerTask('test', ['mocha', 'mochaTest']);
     grunt.registerTask('default', ['lint', 'build', 'test']);
