@@ -129,7 +129,7 @@ const PlayBar = DataBoundWidget.extend({
         iconTemplate:
             '<a href="\\#" aria-label="#:text#" title="#:text#" class="k-link k-pager-nav #= wrapClassName #"><span class="k-icon #= className #"></span></a>',
         selectTemplate:
-            '<li><span class="k-state-selected">#: text #</span></li>',
+            '<li><span class="k-link k-state-selected">#: text #</span></li>',
         currentPageTemplate:
             '<li class="k-current-page"><span class="k-link k-pager-nav">#=text#</span></li>',
         linkTemplate:
@@ -247,15 +247,15 @@ const PlayBar = DataBoundWidget.extend({
      * @param value
      * @returns {*}
      */
-    value(page) {
+    value(value) {
         let ret;
-        if (page === null) {
+        if (value === null) {
             $.noop(); // TODO
-        } else if (page !== undefined) {
-            if (!(page instanceof Page)) {
+        } else if (value !== undefined) {
+            if (!(value instanceof Page)) {
                 throw new TypeError();
             }
-            const index = this.dataSource.indexOf(page);
+            const index = this.dataSource.indexOf(value);
             if (index > -1) {
                 this.index(index);
             }
@@ -473,8 +473,8 @@ const PlayBar = DataBoundWidget.extend({
             this.tooltip = this.ul
                 .kendoTooltip({
                     filter: 'span.k-state-selected, a[data-index]',
-                    width: 256, // 1024 * 0.25
-                    height: 192, // 768 * 0.25
+                    width: 272, // 1024 * 0.25 = 250
+                    height: 207, // 768 * 0.25 = 192
                     position: 'bottom',
                     content(e) {
                         const { target } = e;
@@ -487,7 +487,7 @@ const PlayBar = DataBoundWidget.extend({
                         );
                     },
                     show(e) {
-                        e.sender.content.css({ padding: 0 });
+                        e.sender.content.css({ padding: '3px 0' });
                         const element = e.sender.content
                             .children(CONSTANTS.DIV)
                             .first();
@@ -522,7 +522,7 @@ const PlayBar = DataBoundWidget.extend({
      */
     refresh(e) {
         const {
-            currentPageTemplate,
+            // currentPageTemplate,
             element,
             linkTemplate,
             options,
@@ -583,7 +583,8 @@ const PlayBar = DataBoundWidget.extend({
                 html = selectTemplate({ text: 0 });
             }
             // Add drop down when there is not enough space to display numeric button
-            html = currentPageTemplate({ text: index + 1 }) + html;
+            // TODO this is only a temporary fix, but we have lost the dropdown
+            //  html = currentPageTemplate({ text: index + 1 }) + html;
             this.ul.removeClass('k-state-expanded').html(html);
         }
 
