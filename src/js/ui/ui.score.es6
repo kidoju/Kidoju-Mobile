@@ -18,7 +18,7 @@ const {
     destroy,
     format,
     mobile: {
-        ui: { ListView, View }
+        ui: { ListView, View },
     },
 } = window.kendo;
 
@@ -26,7 +26,17 @@ const {
  * Score feature
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'score',
+
+    /**
+     * View
+     */
+    VIEW: {
+        SCORE: 'score',
+    },
 
     /**
      * Initialize score listview

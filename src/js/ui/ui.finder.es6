@@ -17,9 +17,9 @@ import { VIEW } from './ui.constants.es6';
 
 const {
     mobile: {
-        ui: { ListView, View }
+        ui: { ListView, View },
     },
-    roleSelector
+    roleSelector,
 } = window.kendo;
 // const logger = new Logger('feature.finder');
 
@@ -27,7 +27,17 @@ const {
  * Finder feature
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'finder',
+
+    /**
+     * View
+     */
+    VIEW: {
+        FINDER: 'finder',
+    },
 
     /**
      * Event handler triggered before showing the Summaries view

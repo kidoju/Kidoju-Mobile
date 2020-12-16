@@ -27,7 +27,17 @@ const RX_QR_CODE_MATCH = /^https?:\/\/[^/]+\/([a-z]{2})\/s\/([a-f0-9]{24})$/i;
  * Drawer feature
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'drawer',
+
+    /**
+     * View
+     */
+    VIEW: {
+        DRAWER: 'drawer',
+    },
 
     /**
      * Event handler trigger when clicking an item in the drawer menu

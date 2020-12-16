@@ -9,6 +9,12 @@
 import app from '../common/window.global.es6';
 import { LazyCategoryDataSource } from '../data/data.category.lazy.es6';
 
+const LEVEL_CHARS = 4;
+const TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
+const RX_TOP_LEVEL_MATCH = new RegExp(
+    `^[a-z0-9]{${TOP_LEVEL_CHARS}}0{${24 - TOP_LEVEL_CHARS}}$`
+);
+
 /**
  * Categories feature
  */
@@ -16,13 +22,13 @@ const feature = {
     /**
      * Name
      */
-    _name: 'settings',
+    _name: 'categories',
 
     /**
      * View
      */
     VIEW: {
-        SETTINGS: 'settings',
+        CATEGORIES: 'categories',
     },
 
     /**
@@ -43,6 +49,7 @@ const feature = {
      * Reset categories
      */
     resetCategories() {
+        // this[this.VIEW_MODEL.CATEGORIES] = new LazyCategoryDataSource();
         this.set(this.VIEW_MODEL.CATEGORIES, new LazyCategoryDataSource());
     },
 
@@ -52,7 +59,7 @@ const feature = {
     topCategories$() {
         return this[this.VIEW_MODEL.CATEGORIES]
             .data()
-            .filter((category) => true) // TODO MISC.RX_TOP_LEVEL_MATCH.test(category.id))
+            .filter((category) => RX_TOP_LEVEL_MATCH.test(category.id))
             .sort((a, b) => {
                 if (a.id < b.id) {
                     return -1;

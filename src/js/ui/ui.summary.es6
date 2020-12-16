@@ -32,7 +32,17 @@ const {
  * Summary feature
  */
 const feature = {
+    /**
+     * Name
+     */
     name: '_summary',
+
+    /**
+     * View
+     */
+    VIEW: {
+        SUMMARY: 'summary',
+    },
 
     /**
      * Reset

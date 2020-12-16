@@ -38,7 +38,17 @@ const logger = new Logger('ui.signin');
  * Layout feature
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'signin',
+
+    /**
+     * View
+     */
+    VIEW: {
+        SIGNIN: 'signin',
+    },
 
     /**
      * Sign in within the same browser as the application

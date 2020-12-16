@@ -4,50 +4,17 @@
  */
 
 /**
- * LAYOUT
- */
-const LAYOUT = {
-    MAIN: 'main-layout',
-};
-
-/**
  * MISC
  */
-const LEVEL_CHARS = 4;
-const TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
-const MISC = {
-    LEVEL_CHARS,
-    TOP_LEVEL_CHARS,
-    RX_TOP_LEVEL_MATCH: new RegExp(
-        `^[a-z0-9]{${TOP_LEVEL_CHARS}}0{${24 - TOP_LEVEL_CHARS}}$`
-    ),
-    SIGNIN_PAGE: 3, // Last page of walkthrough tour
-};
 
-/**
- * VIEW
- */
-const VIEW = {
-    CATEGORIES: 'categories',
-    CORRECTION: 'correction',
-    DRAWER: 'drawer',
-    // FAVOURITES: 'favourites',
-    FINDER: 'finder',
-    NETWORK: 'network',
-    PLAYER: 'player',
-    SCORE: 'score',
-    SETTINGS: 'settings',
-    SUMMARY: 'summary',
-    SIGNIN: 'signin',
-    SYNC: 'sync',
-    USER: 'user',
+const MISC = {
+    SIGNIN_PAGE: 3, // Last page of walkthrough tour
 };
 
 /**
  * VIEW_MODEL
  */
 const VIEW_MODEL = {
-    CATEGORIES: 'categories',
     /*
     CURRENT: {
         $: 'current',
@@ -62,8 +29,6 @@ const VIEW_MODEL = {
         }
     },
      */
-    LANGUAGE: 'language',
-    LANGUAGES: 'languages',
     SELECTED_PAGE: 'selectedPage',
     SUMMARY: {
         _: 'summary',
@@ -74,8 +39,6 @@ const VIEW_MODEL = {
         TITLE: 'summary.title',
     },
     SUMMARIES: 'summaries',
-    THEME: 'theme',
-    THEMES: 'themes',
     USER: {
         _: 'user',
         ROOT_CATEGORY_ID: 'user.rootCategoryId',

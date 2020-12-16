@@ -29,7 +29,18 @@ const {
  * Player feature
  */
 const feature = {
+    /**
+     * Name
+     */
     _name: 'player',
+
+    /**
+     * View
+     */
+    VIEW: {
+        CORRECTION: 'correction',
+        PLAYER: 'player',
+    },
 
     /**
      * Event handler triggered when initializing the Player view

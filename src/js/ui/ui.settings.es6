@@ -7,13 +7,13 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.mobile.application';
+import config from '../app/app.config.jsx';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
-import __ from '../app/app.i18n';
-import barcodeScanner from '../plugins/plugins.barcodescanner';
-import config from '../app/app.config';
-import socialSharing from '../plugins/plugins.socialsharing';
+import barcodeScanner from '../plugins/plugins.barcodescanner.es6';
+import socialSharing from '../plugins/plugins.socialsharing.es6';
 
 /**
  * Settings feature
@@ -32,6 +32,16 @@ const feature = {
     },
 
     /**
+     * ViewModel
+     */
+    VIEW_MODEL: {
+        LANGUAGE: 'language',
+        LANGUAGES: 'languages',
+        THEME: 'theme',
+        THEMES: 'themes',
+    },
+
+    /**
      * Reset
      */
     reset() {
@@ -43,16 +53,16 @@ const feature = {
      * Reset language
      */
     resetLanguage() {
-        this.set(VIEW_MODEL.LANGUAGE, __.locale);
-        this.set(VIEW_MODEL.LANGUAGES, []);
+        this.set(this.VIEW_MODEL.LANGUAGE, __.locale);
+        this.set(this.VIEW_MODEL.LANGUAGES, []);
     },
 
     /**
      * Reset theme
      */
     resetTheme() {
-        this.set(VIEW_MODEL.THEME, 'flat'); // app.theme.name()
-        this.set(VIEW_MODEL.THEMES, []);
+        this.set(this.VIEW_MODEL.THEME, 'flat'); // app.theme.name()
+        this.set(this.VIEW_MODEL.THEMES, []);
     },
 
     /**
@@ -112,8 +122,8 @@ const feature = {
      * Language name from selected value
      */
     language$() {
-        const value = this.get(VIEW_MODEL.LANGUAGE);
-        const found = this[VIEW_MODEL.LANGUAGES].filter(language => {
+        const value = this.get(this.VIEW_MODEL.LANGUAGE);
+        const found = this[this.VIEW_MODEL.LANGUAGES].filter(language => {
             return language.value === value;
         });
         return found[0] && found[0].text;
@@ -123,8 +133,8 @@ const feature = {
      * Theme name form selected value
      */
     theme$() {
-        const value = this.get(VIEW_MODEL.THEME);
-        const found = this[VIEW_MODEL.THEMES].filter(theme => {
+        const value = this.get(this.VIEW_MODEL.THEME);
+        const found = this[this.VIEW_MODEL.THEMES].filter(theme => {
             return theme.value === value;
         });
         return found[0] && found[0].text;
@@ -166,8 +176,8 @@ const feature = {
             )
         );
         // Navigate to the user view
-        app.controller.application.navigate(CONSTANTS.HASH + VIEW.USER);
-    }
+        app.controller.application.navigate(CONSTANTS.HASH + this.VIEW.USER);
+    },
 };
 
 /**
