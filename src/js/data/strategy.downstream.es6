@@ -10,14 +10,14 @@ import 'kendo.data';
 import assert from '../common/window.assert.es6';
 // import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import LazyOfflineStrategy from './strategy.offline.lazy.es6';
+import LazyDownstreamStrategy from './strategy.downstream.lazy.es6';
 
-const logger = new Logger('strategy.offline');
+const logger = new Logger('strategy.downstream');
 
 /**
- * OfflineStrategy
+ * DownstreamStrategy
  */
-const OfflineStrategy = LazyOfflineStrategy.extend({
+const DownstreamStrategy = LazyDownstreamStrategy.extend({
     /**
      * Create
      * @param options
@@ -67,4 +67,4 @@ const OfflineStrategy = LazyOfflineStrategy.extend({
 /**
  * Default export
  */
-export default OfflineStrategy;
+export default DownstreamStrategy;

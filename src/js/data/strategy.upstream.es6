@@ -3,6 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
+// Writes in local database and makes available for sync to remote
+
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
@@ -18,7 +20,7 @@ const {
     Class,
     // data: { Query }
 } = window.kendo;
-const logger = new Logger('strategy.synchronization');
+const logger = new Logger('strategy.upstream');
 
 // TODO Consider using the network plugin
 /*
@@ -34,13 +36,13 @@ function isOffline() {
 */
 
 /**
- * SynchronizationStrategy
+ * UpstreamStrategy
  * A synchronization strategy using pongodb (and localForage)
  * used for activities
- * @class SynchronizationStrategy
+ * @class UpstreamStrategy
  * @extends Class
  */
-const SynchronizationStrategy = Class.extend({
+const UpstreamStrategy = Class.extend({
     /**
      * Initialization
      * @constructor
@@ -297,7 +299,7 @@ const SynchronizationStrategy = Class.extend({
                                 message:
                                     'Time to add paging to synchronization',
                                 method:
-                                    'models.SynchronizationStrategy._readSync',
+                                    'models.UpstreamStrategy._readSync',
                                 data: { total },
                             });
                         }
@@ -440,4 +442,4 @@ const SynchronizationStrategy = Class.extend({
 /**
  * Default export
  */
-export default SynchronizationStrategy;
+export default UpstreamStrategy;

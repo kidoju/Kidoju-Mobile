@@ -17,7 +17,7 @@ const {
     Class,
     // data: { Query }
 } = window.kendo;
-const logger = new Logger('strategy.offline.lazy');
+const logger = new Logger('strategy.downstream.lazy');
 
 // TODO Consider using the network plugin
 function isOffline() {
@@ -31,12 +31,12 @@ function isOffline() {
 }
 
 /**
- * LazyOfflineStrategy
+ * LazyDownstreamStrategy
  * Like a read-only cache strategy using local database when offline
- * @class LazyOfflineStrategy
+ * @class LazyDownstreamStrategy
  * @extends Class
  */
-const LazyOfflineStrategy = Class.extend({
+const LazyDownstreamStrategy = Class.extend({
     /**
      * Init
      * @constructor init
@@ -198,4 +198,4 @@ const LazyOfflineStrategy = Class.extend({
 /**
  * Default export
  */
-export default LazyOfflineStrategy;
+export default LazyDownstreamStrategy;

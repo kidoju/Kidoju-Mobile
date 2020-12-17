@@ -38,6 +38,7 @@ const BaseController = ObservableObject.extend({
      * @constructor init
      */
     init(options = {}) {
+        const { features, initializers } = options;
         ObservableObject.fn.init.call(this);
         // Add initializers
         this._initializers =
@@ -47,9 +48,9 @@ const BaseController = ObservableObject.extend({
             !(chrome && $.isEmptyObject(chrome.app))
                 ? [this.readAccessToken()]
                 : [];
-        if (Array.isArray(options.initializers)) {
-            options.initializers.forEach((initializer) => {
-                if ($.isFunction(initializer.promise)) {
+        if (Array.isArray(initializers)) {
+            initializers.forEach((initializer) => {
+                if (initializer && $.isFunction(initializer.promise)) {
                     this._initializers.push(initializer);
                 } else {
                     throw new TypeError('Expecting a jQuery promise');
@@ -62,14 +63,15 @@ const BaseController = ObservableObject.extend({
         this._resizers = [];
         this.VIEW = {};
         this.VIEW_MODEL = {};
-        this.addFeatures(options.features);
+        this.addFeatures(features);
     },
 
     /**
-     * Initialize the BaseController
+     * Run the initializers
      */
-    start() {
+    ready() {
         return $.when(...this._initializers);
+        // Consider raising ready event
     },
 
     /**
@@ -80,10 +82,7 @@ const BaseController = ObservableObject.extend({
         const prototype = Object.getPrototypeOf(this);
         if (Array.isArray(features)) {
             features.forEach((feature) => {
-                if (
-                    $.isPlainObject(feature) &&
-                    $.type(feature._name) === CONSTANTS.STRING
-                ) {
+                if (feature && $.type(feature._name) === CONSTANTS.STRING) {
                     Object.keys(feature).forEach((key) => {
                         const prop = feature[key];
                         if (key === 'load' && $.isFunction(prop)) {
