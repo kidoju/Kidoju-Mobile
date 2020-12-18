@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.data';
+import db from '../app/app.db.es6';
 import __ from '../app/app.i18n.es6';
 import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -16,6 +17,8 @@ import { normalizeSchema } from './data.util.es6';
 import extendModelWithTransport from './mixins.transport.es6';
 import { UserMetricsReference } from './reference.metrics.es6';
 import RemoteTransport from './transports.remote.es6';
+import LocalTransport from './transports.local.es6';
+import DownstreamStrategy from './strategy.downstream.es6';
 
 const {
     data: { DataSource },
@@ -469,13 +472,26 @@ const User = BaseModel.define({
 });
 
 /**
- * userTransport
+ * remoteTransport
  */
-const userTransport = new RemoteTransport({
+const remoteTransport = new RemoteTransport({
     collection: new AjaxUsers({
         // projection: BaseModel.projection(User)
     }),
 });
+
+/**
+ * localTransport
+ */
+const localTransport = new LocalTransport({
+    collection: db.users,
+    projection: {},
+});
+
+/**
+ * userTransport
+ */
+const userTransport = window.cordova ? localTransport : remoteTransport;
 
 /**
  * Extend User with transport

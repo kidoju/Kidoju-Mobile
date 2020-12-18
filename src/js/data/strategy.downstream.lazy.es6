@@ -42,7 +42,7 @@ const LazyDownstreamStrategy = Class.extend({
      * @constructor init
      * @param options
      */
-    init(options) {
+    init(options = {}) {
         assert.isNonEmptyPlainObject(
             options,
             assert.format(

@@ -48,7 +48,7 @@ const UpstreamStrategy = Class.extend({
      * @constructor
      * @param options
      */
-    init(options) {
+    init(options = {}) {
         assert.isNonEmptyPlainObject(
             options,
             assert.format(

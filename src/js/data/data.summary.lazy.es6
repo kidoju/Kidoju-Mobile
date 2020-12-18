@@ -22,6 +22,9 @@ import BaseModel from './data.base.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
 import AjaxSummaries from '../rapi/rapi.summaries.es6';
 import { normalizeSchema } from './data.util.es6';
+import LocalTransport from './transports.local';
+import db from '../app/app.db';
+import DownstreamStrategy from './strategy.downstream';
 
 const {
     data: { DataSource, ObservableArray },
@@ -221,14 +224,34 @@ const LazySummary = BaseModel.define({
 });
 
 /**
- * lazySummaryTransport
+ * remoteTransport
  */
-const lazySummaryTransport = new LazyRemoteTransport({
+const remoteTransport = new LazyRemoteTransport({
     collection: new AjaxSummaries({
         partition: getAuthorReference(),
         projection: BaseModel.projection(LazySummary),
     }),
 });
+
+/**
+ * localTransport
+ */
+const localTransport = new LocalTransport({
+    collection: db.summaries,
+    projection: {}, // TODO
+});
+
+/**
+ * userTransport
+ */
+/* eslint-disable prettier/prettier */
+const lazySummaryTransport = window.cordova
+    ? new DownstreamStrategy({
+        localTransport,
+        remoteTransport,
+    })
+    : remoteTransport;
+/* eslint-enable prettier/prettier */
 
 /**
  * LazySummaryDataSource

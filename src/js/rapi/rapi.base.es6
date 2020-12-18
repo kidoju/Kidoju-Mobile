@@ -112,7 +112,7 @@ class AjaxBase {
     partition(value) {
         let ret;
         if ($.type(value) === CONSTANTS.UNDEFINED) {
-            ret = this._partition || {};
+            ret = this._partition; // || {};
         } else {
             this._partition = value;
         }
