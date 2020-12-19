@@ -28,9 +28,9 @@ const {
     format,
     mobile: {
         Application,
-        ui: { Button, Pane, ScrollView, View }
+        ui: { Button, Pane, ScrollView, View },
     },
-    roleSelector
+    roleSelector,
 } = window.kendo;
 const logger = new Logger('ui.signin');
 
@@ -48,6 +48,7 @@ const feature = {
      */
     VIEW: {
         SIGNIN: 'signin',
+        SIGNIN_PAGE: 3, // TODO: right location?
     },
 
     /**
@@ -59,7 +60,7 @@ const feature = {
         logger.debug({
             message: 'opening signInUrl in browser',
             method: 'signinWithinBrowser',
-            data: { signInUrl }
+            data: { signInUrl },
         });
         // Simply assign url and let the authentication provider redirect to the registered callback
         window.location.assign(signInUrl);
@@ -95,11 +96,11 @@ const feature = {
                 browser = undefined;
                 logger.debug({
                     message: 'closed InAppBrowser',
-                    method: 'signinWithInAppBrowser'
+                    method: 'signinWithInAppBrowser',
                 });
             }
         }
-        loadStart = e => {
+        loadStart = (e) => {
             // There is an incompatibility between InAppBrowser and WkWebView that prevents
             // the loadstart event to be triggered in an oAuth flow if cordova-plugin-wkwebview-engine is installed
             // See https://issues.apache.org/jira/browse/CB-10698
@@ -109,16 +110,16 @@ const feature = {
             logger.debug({
                 message: 'loadstart event of InAppBrowser',
                 method: 'signinWithInAppBrowser',
-                data: { url: e.url }
+                data: { url: e.url },
             });
             // Once https://github.com/apache/cordova-plugin-inappbrowser/pull/99 is fixed
             // we should be able to have the same flow as in SafariViewController
             // if (e.url.startsWith(returnUrl)) {
             if (e.url.indexOf(returnUrl) === 0) {
-                feature.parseTokenAndLoadUser(e.url).always(close);
+                viewModelparseTokenAndLoadUser(e.url).always(close);
             }
         };
-        loadError = error => {
+        loadError = (error) => {
             // We have an issue with the InAppBrowser which raises an error when opening custom url schemes, e.g. com.kidoju.mobile://oauth
             // See https://github.com/apache/cordova-plugin-inappbrowser/pull/99
             // window.alert(JSON.stringify($.extend({}, error)));
@@ -126,7 +127,7 @@ const feature = {
                 message: 'loaderror event of InAppBrowser',
                 method: 'signinWithInAppBrowser',
                 error,
-                data: { url: error.url }
+                data: { url: error.url },
             });
             // Close may have already been called in loadStart
             close();
@@ -143,7 +144,7 @@ const feature = {
         logger.debug({
             message: 'opening signInUrl in InAppBrowser',
             method: 'signinWithInAppBrowser',
-            data: { signInUrl }
+            data: { signInUrl },
         });
     },
 
@@ -166,11 +167,11 @@ const feature = {
         logger.debug({
             message: 'opening signInUrl in SafariViewController',
             method: 'signinWithSafariViewController',
-            data: { signInUrl }
+            data: { signInUrl },
         });
         safariViewController.show(
             {
-                url: signInUrl
+                url: signInUrl,
                 // hidden: false,
                 // animated: false, // default true, note that 'hide' will reuse this preference (the 'Done' button will always animate though)
                 // transition: 'curl', // (this only works in iOS 9.1/9.2 and lower) unless animated is false you can choose from: curl, flip, fade, slide (default)
@@ -180,20 +181,20 @@ const feature = {
                 // controlTintColor: "#ffffff" // on iOS 10+ you can override the default tintColor
             },
             // this success callback will be invoked for the lifecycle events 'opened', 'loaded' and 'closed'
-            result => {
+            (result) => {
                 // result has only one property, event which can take any value among 'opened', 'loaded' and 'closed'
                 logger.debug({
                     message: 'safari/chrome successfully opened',
                     method: 'signinWithSafariViewController',
-                    data: { event: result.event }
+                    data: { event: result.event },
                 });
             },
             // error callback
-            msg => {
+            (msg) => {
                 logger.error({
                     message: 'safari/chrome failed to open',
                     method: 'signinWithSafariViewController',
-                    error: new Error(msg)
+                    error: new Error(msg),
                 });
             }
         );
@@ -217,13 +218,14 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
+        const { viewModel } = app; // this is undefined
         const $scrollView = e.view.content.find(roleSelector('scrollview'));
         const scrollView = $scrollView.data('kendoMobileScrollView');
         if (scrollView instanceof ScrollView) {
             // Note: the change event occurs a little bit late to coordinate scrolling with titles and styles
             scrollView.bind(
                 CONSTANTS.CHANGING,
-                feature.onSigninScrollViewChange.bind(e.view)
+                viewModel.onSigninScrollViewChange.bind(e.view)
             );
         }
     },
@@ -258,13 +260,14 @@ const feature = {
             )
         );
         // const view = this; // we try to avoid the use of this in features
+        const { viewModel, viewModel: { VIEW } } = app;
         const view$ = e.sender.element.closest(roleSelector('view'));
         const view = view$.data('kendoMobileView');
-        if (e.nextPage === MISC.SIGNIN_PAGE) {
-            app.controller.setNavBarTitle(view, __('signin.viewTitle2'));
+        if (e.nextPage === VIEW.SIGNIN_PAGE) {
+            viewModel.setNavBarTitle(view, __('signin.viewTitle2'));
             view.content.find('ol.k-pages.km-pages').addClass('no-background');
         } else {
-            app.controller.setNavBarTitle(view);
+            viewModel.setNavBarTitle(view);
             view.content
                 .find('ol.k-pages.km-pages')
                 .removeClass('no-background');
@@ -289,25 +292,24 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
-
-        const { controller, viewModel } = app;
-
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
         // Parse token (in browser only)
         if (!inAppBrowser.ready() && !safariViewController.ready()) {
-             e.preventDefault();
-             feature.parseTokenAndLoadUser(window.location.href);
+            e.preventDefault();
+            viewModel.parseTokenAndLoadUser(window.location.href);
         }
-
         // Set Navbar
         const { view } = e;
-        controller.setNavBar(view);
-
+        viewModel.setNavBar(view);
         // Enable buttons according to provider
         const provider =
             view.params.userId === viewModel.get(VIEW_MODEL.USER.ID)
                 ? viewModel.get(VIEW_MODEL.USER.PROVIDER)
                 : CONSTANTS.EMPTY;
-        feature.enableSigninButtons(provider || true);
+        viewModel.enableSigninButtons(provider || true);
 
         // Scroll to page if designated in e.view.params to set the view title
         const $scrollView = view.content.find(roleSelector('scrollview'));
@@ -320,9 +322,9 @@ const feature = {
         }
 
         // mobile.onGenericViewShow(e);
-        if (controller.application instanceof Application) {
+        if (viewModel.application instanceof Application) {
             // mobile.application is not available on first view shown
-            controller.application.hideLoading();
+            viewModel.application.hideLoading();
         }
     },
 
@@ -333,6 +335,9 @@ const feature = {
     enableSigninButtons(enable) {
         // enable is either a boolean or a provider
         // If it is a provider, only enable the button corresponding to this provider
+        const {
+            viewModel: { VIEW },
+        } = app;
         const provider =
             $.type(enable) === CONSTANTS.STRING ? enable : CONSTANTS.EMPTY;
         const enabled = provider.length ? false : enable;
@@ -368,9 +373,12 @@ const feature = {
                 'jQuery'
             )
         );
-
+        const {
+            viewModel,
+            viewModel: { VIEW },
+        } = app;
         // Disable buttons to avoid double clicks
-        feature.enableSigninButtons(false);
+        viewModel.enableSigninButtons(false);
 
         const provider = e.button.attr(attr('provider'));
         // In Phonegap, windows.location.href = "x-wmapp0:www/index.html" and Kidoju-Server cannot redirect the InAppBrowser to such location
@@ -391,27 +399,27 @@ const feature = {
         // When running in a browser via phonegap serve, the InAppBrowser turns into an iframe but authentication providers prevent running in an iframe by setting 'X-Frame-Options' to 'SAMEORIGIN'
         // So if the device platform is a browser, we need to keep the sameflow as Kidoju-WebApp with a redirectUrl that targets the user view
         getSignInUrl(provider, returnUrl)
-            .done(signInUrl => {
+            .done((signInUrl) => {
                 // Save provider to read in viewModel.loadUser
                 localStorage.setItem('provider', provider); // TODO Manage errors
                 logger.debug({
                     message: 'getSignInUrl',
                     method: 'onSigninButtonClick',
-                    data: { provider, returnUrl, signInUrl }
+                    data: { provider, returnUrl, signInUrl },
                 });
                 // window.alert(mobile.support.safariViewController ? 'Yep' : 'Nope');
                 if (safariViewController.ready()) {
                     // running in Phonegap, using SFSafariViewController
                     // requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
                     // also requires https://github.com/EddyVerbruggen/Custom-URL-scheme
-                    feature.signinWithSafariViewController(signInUrl);
+                    viewModel.signinWithSafariViewController(signInUrl);
                 } else if (inAppBrowser.ready()) {
                     // running in Phonegap, using InAppBrowser
                     // requires https://github.com/apache/cordova-plugin-inappbrowser
-                    feature.signinWithInAppBrowser(signInUrl, returnUrl);
+                    viewModel.signinWithInAppBrowser(signInUrl, returnUrl);
                 } else {
                     // Running in a browser, simply redirect to signInUrl
-                    feature.signinWithinBrowser(signInUrl);
+                    viewModel.signinWithinBrowser(signInUrl);
                 }
             })
             .fail((xhr, status, errorThrown) => {
@@ -420,11 +428,11 @@ const feature = {
                     message: 'error obtaining a signin url',
                     method: 'onSigninButtonClick',
                     error: xhr2error(xhr, status, errorThrown),
-                    data: { provider }
+                    data: { provider },
                 });
             })
             .always(() => {
-                feature.enableSigninButtons(true);
+                viewModel.enableSigninButtons(true);
             });
     },
 
@@ -435,15 +443,18 @@ const feature = {
      */
     parseTokenAndLoadUser(url) {
         const dfd = $.Deferred();
+        const {
+            viewModel,
+            viewModel: { VIEW },
+        } = app;
         // No need to clean the history when opening in InAppBrowser or SafariViewController
         if (!inAppBrowser.ready() && !safariViewController.ready()) {
             cleanHistory();
         }
         // parseToken sets the token in localStorage
         parseToken(url)
-            .then(token => {
+            .then((token) => {
                 if (token && token.access_token) {
-                    const { controller, viewModel } = app;
                     // Load the remote mobile user (me) using the oAuth token
                     // We cannot navigate to a page here because the initial page is defined in the constructor of kendo.mobile.Application
                     viewModel
@@ -455,12 +466,12 @@ const feature = {
                             setTimeout(() => {
                                 if (viewModel.isNewUser$()) {
                                     // Save new user first
-                                    controller.application.navigate(
+                                    viewModel.application.navigate(
                                         CONSTANTS.HASH + VIEW.USER
                                     );
                                 } else {
                                     // Sync user data since we have a recent token
-                                    controller.application.navigate(
+                                    viewModel.application.navigate(
                                         CONSTANTS.HASH + VIEW.SYNC
                                     );
                                 }
@@ -473,14 +484,12 @@ const feature = {
                     dfd.resolve();
                 }
             })
-            .catch(error => {
-                app.notification.error(
-                    __('notifications.oAuthTokenFailure')
-                );
+            .catch((error) => {
+                app.notification.error(__('notifications.oAuthTokenFailure'));
                 logger.error({
                     error,
                     method: 'parseTokenAndLoadUser',
-                    data: { url }
+                    data: { url },
                 });
                 dfd.reject(error);
             });
@@ -493,14 +502,14 @@ const feature = {
      * @private
      */
     _fixSigninViewLocalization() {
-        const { controller, viewModel } = app;
+        const { viewModel, viewModel: { VIEW_MODEL } } = app;
         if (
-            controller.application instanceof Application &&
-            controller.application.pane instanceof Pane
+            viewModel.application instanceof Application &&
+            viewModel.application.pane instanceof Pane
         ) {
-            const view = controller.application.view();
-            if (parseInt(view.params.page, 10) === MISC.SIGNIN_PAGE) {
-                controller.setNavBarTitle(view, __('signin.viewTitle2'));
+            const view = viewModel.application.view();
+            if (parseInt(view.params.page, 10) === VIEW.SIGNIN_PAGE) {
+                viewModel.setNavBarTitle(view, __('signin.viewTitle2'));
             }
             const provider =
                 view.params.userId === viewModel.get(VIEW_MODEL.USER.ID)
@@ -520,7 +529,7 @@ const feature = {
                     );
             }
         }
-    }
+    },
 };
 
 /**

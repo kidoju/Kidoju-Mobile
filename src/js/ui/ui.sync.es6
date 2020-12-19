@@ -19,7 +19,7 @@ const {
     },
     roleSelector,
 } = window.kendo;
-// const logger = new Logger('feature.sync');
+// const logger = new Logger('ui.sync');
 
 /**
  * Sync feature

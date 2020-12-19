@@ -5,6 +5,11 @@
 
 // TODO merge with app.notification,es6
 
+import assert from '../common/window.assert.es6';
+import Logger from '../common/window.logger.es6';
+
+const logger = new Logger('ui.network');
+
 /**
  * Feature
  */

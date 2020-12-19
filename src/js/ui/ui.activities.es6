@@ -12,7 +12,6 @@ import app from '../common/window.global.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import { VIEW, VIEW_MODEL } from './ui.constants.es6';
 import { LazyActivityDataSource } from '../data/data.activity.lazy.es6';
 import config from '../app/app.config.jsx';
 import { xhr2error } from '../data/data.util.es6';
@@ -140,6 +139,7 @@ const feature = {
      * @param e
      */
     onActivitiesViewShow(e) {
+        debugger;
         assert.isNonEmptyPlainObject(
             e,
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
@@ -226,16 +226,17 @@ const feature = {
             // Chart
             content.find(roleSelector('listview')).hide();
             content.find(roleSelector('chart')).show();
-            feature.resize(view);
+            viewModel.resize(e, view);
         }
     },
 
     /**
      * Resize activities chart
+     * @param e
      * @param view
      * @private
      */
-    resize(view) {
+    resize(e, view) {
         assert.instanceof(
             View,
             view,
@@ -245,6 +246,7 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
+        const { viewModel: { VIEW } } = app;
         if (
             view.id === CONSTANTS.SLASH ||
             view.id === CONSTANTS.HASH + VIEW.ACTIVITIES

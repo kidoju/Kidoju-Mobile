@@ -17,11 +17,11 @@ import dialogs from '../plugins/plugins.dialogs.es6';
 import barcodeScanner from '../plugins/plugins.barcodescanner.es6';
 import inAppBrowser from '../plugins/plugins.inappbrowser.es6';
 
-const { attr } = window.kendo;
-const logger = new Logger('ui.drawer');
-
 const QR_CODE = 'QR_CODE';
 const RX_QR_CODE_MATCH = /^https?:\/\/[^/]+\/([a-z]{2})\/s\/([a-f0-9]{24})$/i;
+
+const { attr } = window.kendo;
+const logger = new Logger('ui.drawer');
 
 /**
  * Drawer feature

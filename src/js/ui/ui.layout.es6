@@ -167,6 +167,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW },
         } = app;
+        debugger;
         const $view = view.element;
         let showDrawerButton = false;
         let showHomeButton = false;
@@ -403,7 +404,7 @@ const feature = {
             )
         );
         app.viewModel.nextUser();
-        feature.setNavBar(view);
+        app.viewModel.setNavBar(view);
     },
 
     /**
@@ -452,7 +453,10 @@ const feature = {
                 'jQuery'
             )
         );
-        const { controller, viewModel } = app;
+        const {
+            viewModel,
+            viewModel: { VIEW, VIEW_MODEL },
+        } = app;
         const language = viewModel.get(VIEW_MODEL.CURRENT.VERSION.LANGUAGE);
         assert.match(
             CONSTANTS.RX_LANGUAGE,
@@ -494,7 +498,7 @@ const feature = {
             )
         );
         controller.application.navigate(
-            `${CONSTANTS.HASH}${VIEW.SCORE}?language=${encodeURIComponent(
+            `${CONSTANTS.HASH}${this.VIEW.SCORE}?language=${encodeURIComponent(
                 language
             )}&summaryId=${encodeURIComponent(
                 summaryId
@@ -528,15 +532,15 @@ const feature = {
                 viewModel.calculate().done(() => {
                     // Note: failure is already taken care of
                     viewModel.saveCurrent().done(() => {
-                        feature.onNavBarScoreClick(e);
+                        viewModel.onNavBarScoreClick(e);
                         // TODO analytics
                         /*
                         if (mobile.support.ga) {
                             mobile.ga.trackEvent(
                                 ANALYTICS.CATEGORY.ACTIVITY,
                                 ANALYTICS.ACTION.SCORE,
-                                viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARYID),
-                                parseInt(viewModel.get(VIEW_MODEL.CURRENT.SCORE), 10)
+                                viewModel.get(this.VIEW_MODEL.CURRENT.VERSION.SUMMARYID),
+                                parseInt(viewModel.get(this.VIEW_MODEL.CURRENT.SCORE), 10)
                             );
                         }
                         */
@@ -568,7 +572,7 @@ const feature = {
         const language = __.locale();
         assert.equal(
             language,
-            viewModel.get(VIEW_MODEL.LANGUAGE),
+            viewModel.get(this.VIEW_MODEL.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("language")',
@@ -577,7 +581,7 @@ const feature = {
         );
         assert.equal(
             language,
-            viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE),
+            viewModel.get(this.VIEW_MODEL.SUMMARY.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("summary.language")',
@@ -586,17 +590,17 @@ const feature = {
         );
         assert.equal(
             language,
-            viewModel.get(VIEW_MODEL.VERSION.LANGUAGE),
+            viewModel.get(this.VIEW_MODEL.VERSION.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("version.language")',
                 language
             )
         );
-        const summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
+        const summaryId = viewModel.get(this.VIEW_MODEL.SUMMARY.ID);
         assert.equal(
             summaryId,
-            viewModel.get(VIEW_MODEL.VERSION.SUMMARYID),
+            viewModel.get(this.VIEW_MODEL.VERSION.SUMMARYID),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("version.summaryId")',
@@ -604,7 +608,9 @@ const feature = {
             )
         );
         controller.application.navigate(
-            `${CONSTANTS.HASH}${VIEW.SUMMARY}?language=${encodeURIComponent(
+            `${CONSTANTS.HASH}${
+                this.VIEW.SUMMARY
+            }?language=${encodeURIComponent(
                 language
             )}&summaryId=${encodeURIComponent(summaryId)}`
         );
@@ -619,8 +625,10 @@ const feature = {
         // controller.application.navigate(CONSTANTS.HASH + VIEW.SYNC);
         controller.application.navigate(
             `${CONSTANTS.HASH}${VIEW.SIGNIN}?page=${encodeURIComponent(
-                MISC.SIGNIN_PAGE
-            )}&userId=${encodeURIComponent(viewModel.get(VIEW_MODEL.USER.ID))}`
+                VIEW.SIGNIN_PAGE
+            )}&userId=${encodeURIComponent(
+                viewModel.get(this.VIEW_MODEL.USER.ID)
+            )}`
         );
     },
 
@@ -628,7 +636,7 @@ const feature = {
      * Event handler triggered when clicking the search button in the navbar
      */
     onNavBarSearchClick() {
-        const language = __.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE);
+        const language = __.locale(); // viewModel.get(this.VIEW_MODEL.LANGUAGE);
         app.controller.application.navigate(
             `${CONSTANTS.HASH}${VIEW.FINDER}?language=${encodeURIComponent(
                 language

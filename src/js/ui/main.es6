@@ -93,7 +93,7 @@ window.handleOpenUrl = function (url) {
 function onDeviceReady() {
     logger.debug({
         message: 'Cordova device is ready',
-        method: 'main',
+        method: 'onDeviceReady',
     });
 
     // Set plugin shortcuts
@@ -109,19 +109,23 @@ function onDeviceReady() {
     // Initialize network events
     // TODO mobile._initNetworkEvents();
 
-    // Create the application
+    debugger;
+
+    // Create the viewModel
     app.viewModel = new AppController({
         initializers,
-        features
+        features,
     });
 
+    // Reset the viewModel to initialize fields and create data sources
     app.viewModel.reset();
 
-    app.viewModel.start().then(() => {
+    // Execute application async initializers, including database and languages
+    app.viewModel.ready().then(() => {
         // Log initialization
         logger.debug({
             message: `app controller initialized in ${__.locale}`,
-            method: 'init',
+            method: 'onDeviceReady',
         });
 
         // Check application and database versions
@@ -131,7 +135,7 @@ function onDeviceReady() {
             .resolve()
             .promise()
             .then(() => {
-                // Load viewModel, then initialize kendo application
+                // Load data, then initialize kendo application with MVVM bindings
                 app.viewModel.load().always(app.viewModel.initApplication());
             })
             .catch((error) => {
@@ -143,6 +147,6 @@ function onDeviceReady() {
 }
 
 /**
- * Default export
+ * Default export for ../app/app.init.es6
  */
 export default onDeviceReady;

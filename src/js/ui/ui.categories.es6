@@ -7,6 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import app from '../common/window.global.es6';
+// import Logger from '../common/window.logger.es6';
 import { LazyCategoryDataSource } from '../data/data.category.lazy.es6';
 
 const LEVEL_CHARS = 4;
@@ -14,6 +15,8 @@ const TOP_LEVEL_CHARS = 2 * LEVEL_CHARS;
 const RX_TOP_LEVEL_MATCH = new RegExp(
     `^[a-z0-9]{${TOP_LEVEL_CHARS}}0{${24 - TOP_LEVEL_CHARS}}$`
 );
+
+// const logger = new Logger('ui.categories');
 
 /**
  * Categories feature

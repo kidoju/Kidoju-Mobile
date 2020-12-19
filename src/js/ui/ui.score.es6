@@ -12,7 +12,7 @@ import 'kendo.mobile.listview';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
-import { VIEW, VIEW_MODEL } from './ui.constants.es6';
+import Logger from '../common/window.logger.es6';
 
 const {
     destroy,
@@ -21,6 +21,7 @@ const {
         ui: { ListView, View },
     },
 } = window.kendo;
+const logger = new Logger('ui.score');
 
 /**
  * Score feature

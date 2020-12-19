@@ -15,15 +15,40 @@ import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import Version from '../data/data.version.es6';
 import { LazyVersionDataSource } from '../data/data.version.lazy.es6';
-import { VIEW_MODEL } from './ui.constants.es6';
 
-const logger = new Logger('viewmodel.versions');
+const logger = new Logger('ui.versions');
 
 /**
  * Extension
  */
 const extension = {
-    _name: 'version',
+    /**
+     * Name
+     */
+    name: 'version',
+
+    /**
+     * View
+     */
+    VIEW: {
+        VERSION: 'version',
+    },
+
+    /**
+     * ViewModel
+     */
+    VIEW_MODEL: {
+        VERSION: {
+            _: 'version',
+            // ID: 'version.id',
+            // LANGUAGE: 'version.language',
+            STREAM: {
+                PAGES: 'version.stream.pages',
+            },
+            // SUMMARYID: 'version.summaryId'
+        },
+        VERSIONS: 'versions',
+    },
 
     /**
      * Reset

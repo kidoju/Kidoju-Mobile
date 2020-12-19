@@ -25,7 +25,7 @@ const {
     },
     support,
 } = window.kendo;
-const logger = new Logger('ui.viewModel');
+const logger = new Logger('ui.viewmodel');
 
 /**
  * Extend viewModel
@@ -54,19 +54,20 @@ const AppController = BaseController.extend({
         } else if (app.viewModel.isSavedUser$()) {
             // The viewModel user has not been synced for a while, suggest to signin to sync
             initial += `${VIEW.SIGNIN}?page=${encodeURIComponent(
-                MISC.SIGNIN_PAGE
+                VIEW.SIGNIN_PAGE
             )}&userId=${encodeURIComponent(
                 app.viewModel.get(VIEW_MODEL.USER.ID)
             )}`;
         } else {
-            // The viewModel user is new, show walkthrough before signing in
-            initial += VIEW.SIGNIN;
-        }
         */
+            // The viewModel user is new, show walkthrough before signing in
+            initial += this.VIEW.SIGNIN;
+        // }
+
 
         // Initialize application
         this.application = new Application(document.body, {
-            // TODO initial,
+            initial,
             // TODO skin: app.theme.name(),
             // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
             // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar

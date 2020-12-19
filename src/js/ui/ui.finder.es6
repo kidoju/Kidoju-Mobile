@@ -13,7 +13,6 @@ import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
 // import Logger from '../common/window.logger.es6';
-import { VIEW } from './ui.constants.es6';
 
 const {
     mobile: {
@@ -21,7 +20,7 @@ const {
     },
     roleSelector,
 } = window.kendo;
-// const logger = new Logger('feature.finder');
+// const logger = new Logger('ui.finder');
 
 /**
  * Finder feature

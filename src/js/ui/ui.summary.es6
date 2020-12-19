@@ -10,23 +10,22 @@ import $ from 'jquery';
 // import 'kendo.mobile.button';
 import 'kendo.mobile.view';
 // import 'kendo.mobile.scrollview';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
-import { MISC, VIEW, VIEW_MODEL } from './ui.constants.es6';
-import { Summary } from '../data/data.summary';
-import { LazySummaryDataSource } from '../data/data.summary.lazy';
-import __ from '../app/app.i18n';
-import { xhr2error } from '../data/data.util';
+import Logger from '../common/window.logger.es6';
+import { Summary } from '../data/data.summary.es6';
+import { LazySummaryDataSource } from '../data/data.summary.lazy.es6';
+
+import { xhr2error } from '../data/data.util.es6';
 
 const {
-    attr,
     mobile: {
-        Application,
-        ui: { Button, ScrollView, View },
+        ui: { View },
     },
-    roleSelector,
 } = window.kendo;
+const logger = new Logger('ui.summary');
 
 /**
  * Summary feature
@@ -35,13 +34,28 @@ const feature = {
     /**
      * Name
      */
-    name: '_summary',
+    _name: 'summary',
 
     /**
      * View
      */
     VIEW: {
         SUMMARY: 'summary',
+    },
+
+    /**
+     * ViewModel
+     */
+    VIEW_MODEL: {
+        SUMMARY: {
+            _: 'summary',
+            CATEGORY_ID: 'summary.categoryId',
+            DESCRIPTION: 'summary.description',
+            ID: 'summary.id',
+            LANGUAGE: 'summary.language',
+            TITLE: 'summary.title',
+        },
+        SUMMARIES: 'summaries',
     },
 
     /**
@@ -55,8 +69,8 @@ const feature = {
      * Reset summaries
      */
     resetSummaries() {
-        this.set(VIEW_MODEL.SUMMARY._, new Summary()); // new models.Summary()
-        this.set(VIEW_MODEL.SUMMARIES, new LazySummaryDataSource()); // new models.LazySummaryDataSource({ pageSize: VIRTUAL_PAGE_SIZE })
+        this.set(this.VIEW_MODEL.SUMMARY._, new Summary()); // new models.Summary()
+        this.set(this.VIEW_MODEL.SUMMARIES, new LazySummaryDataSource()); // new models.LazySummaryDataSource({ pageSize: VIRTUAL_PAGE_SIZE })
     },
 
     /**
@@ -87,7 +101,7 @@ const feature = {
                 CONSTANTS.RX_LANGUAGE
             )
         );
-        return this[VIEW_MODEL.SUMMARIES]
+        return this[this.VIEW_MODEL.SUMMARIES]
             .load(options)
             .catch((xhr, status, errorThrown) => {
                 app.notification.error(
@@ -132,7 +146,7 @@ const feature = {
                 CONSTANTS.RX_MONGODB_ID
             )
         );
-        return this[VIEW_MODEL.SUMMARY]
+        return this[this.VIEW_MODEL.SUMMARY]
             .load(options)
             .catch((xhr, status, errorThrown) => {
                 app.notification.error(__('notifications.summaryLoadFailure'));
@@ -150,8 +164,8 @@ const feature = {
      */
     summaryCategory$() {
         let ret = '';
-        const categoryId = this.get(VIEW_MODEL.SUMMARY.CATEGORY_ID);
-        const category = this.get(VIEW_MODEL.CATEGORIES).get(categoryId);
+        const categoryId = this.get(this.VIEW_MODEL.SUMMARY.CATEGORY_ID);
+        const category = this.get(this.VIEW_MODEL.CATEGORIES).get(categoryId);
         if (
             category instanceof models.LazyCategory &&
             $.isFunction(category.path.map) &&
@@ -188,19 +202,19 @@ const feature = {
         const language = i18n.locale();
         assert.equal(
             language,
-            viewModel.get(VIEW_MODEL.LANGUAGE),
+            this.viewModel.get(this.VIEW_MODEL.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
-                'viewModel.get("language")',
+                'this.viewModel.get("language")',
                 language
             )
         );
         const { summaryId } = e.view.params;
-        viewModel.loadSummary({ language, id: summaryId }).always(() => {
+        this.viewModel.loadSummary({ language, id: summaryId }).always(() => {
             mobile.onGenericViewShow(e);
             // Set the background color
             // This cannot be done via bindings because the view and vien.content cannot be bound
-            const summary = viewModel.get(VIEW_MODEL.SUMMARY._);
+            const summary = this.viewModel.get(this.VIEW_MODEL.SUMMARY._);
             view.content
                 .toggleClass('error', summary.isError$())
                 .toggleClass('success', summary.isSuccess$())
@@ -217,23 +231,23 @@ const feature = {
         const language = i18n.locale();
         assert.equal(
             language,
-            viewModel.get(VIEW_MODEL.LANGUAGE),
+            this.viewModel.get(this.VIEW_MODEL.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
-                'viewModel.get("language")',
+                'this.viewModel.get("language")',
                 language
             )
         );
         assert.equal(
             language,
-            viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE),
+            this.viewModel.get(this.VIEW_MODEL.SUMMARY.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
-                'viewModel.get("summary.language")',
+                'this.viewModel.get("summary.language")',
                 language
             )
         );
-        const summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
+        const summaryId = this.viewModel.get(this.VIEW_MODEL.SUMMARY.ID);
 
         // Find latest version (version history is not available in the mobile app)
         viewModel
@@ -245,7 +259,7 @@ const feature = {
                 sort: { field: 'id', dir: 'desc' },
             })
             .done(() => {
-                const version = viewModel.versions.at(0); // First is latest version
+                const version = this.viewModel.versions.at(0); // First is latest version
                 assert.instanceof(
                     models.LazyVersion,
                     version,
@@ -300,18 +314,18 @@ const feature = {
                 {
                     message: kendo.format(
                         culture.message, // not supported on some apps (Facebook, Instagram)
-                        viewModel.get(VIEW_MODEL.SUMMARY.TITLE),
-                        // viewModel.summary.summaryUri$(),
-                        viewModel.get(VIEW_MODEL.SUMMARY.DESCRIPTION)
+                        this.viewModel.get(this.VIEW_MODEL.SUMMARY.TITLE),
+                        // this.viewModel.summary.summaryUri$(),
+                        this.viewModel.get(this.VIEW_MODEL.SUMMARY.DESCRIPTION)
                     ),
                     subject: kendo.format(
                         culture.subject, // for email
-                        viewModel.get(VIEW_MODEL.SUMMARY.TITLE)
+                        this.viewModel.get(this.VIEW_MODEL.SUMMARY.TITLE)
                     ),
                     // TODO Add files - https://github.com/kidoju/Kidoju-Mobile/issues/178
                     // files: ['www/icon.png'], // an array of filenames either locally or remotely
                     // here, www/icon.png is included in email and prevents facebook from using the file linked in the web page via og:image meta tag
-                    url: viewModel.summary.summaryUri$(),
+                    url: this.viewModel.summary.summaryUri$(),
                     chooserTitle: culture.chooserTitle, // Android only, you can override the default share sheet title
                 },
                 (result) => {
@@ -326,7 +340,7 @@ const feature = {
                         mobile.ga.trackEvent(
                             ANALYTICS.CATEGORY.SUMMARY,
                             ANALYTICS.ACTION.SHARE + result.app,
-                            viewModel.get(VIEW_MODEL.SUMMARY.ID)
+                            this.viewModel.get(this.VIEW_MODEL.SUMMARY.ID)
                         );
                     }
                 },
@@ -352,7 +366,7 @@ const feature = {
         const url = kendo.format(
             app.constants.feedbackUrl,
             i18n.locale(),
-            encodeURIComponent(viewModel.summary.summaryUri$())
+            encodeURIComponent(this.viewModel.summary.summaryUri$())
         );
         // targeting _system should open the web browser instead of the InApp browser (target = _blank)
         if (mobile.support.inAppBrowser) {

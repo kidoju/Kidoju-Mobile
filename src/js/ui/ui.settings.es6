@@ -12,8 +12,11 @@ import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
+import Logger from '../common/window.logger.es6';
 import barcodeScanner from '../plugins/plugins.barcodescanner.es6';
 import socialSharing from '../plugins/plugins.socialsharing.es6';
+
+const logger = new Logger('ui.settings');
 
 /**
  * Settings feature

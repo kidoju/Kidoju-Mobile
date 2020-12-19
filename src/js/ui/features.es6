@@ -3,11 +3,14 @@
  * Sources at https://github.com/Memba
  */
 
+import activities from './ui.activities.es6';
 import categories from './ui.categories.es6';
 import drawer from './ui.drawer.es6';
 import layout from './ui.layout.es6';
 import network from './ui.network.es6';
+import settings from './ui.settings.es6';
 import signin from './ui.signin.es6';
+import user from './ui.user.es6';
 
 const features = [
     // Add features here
@@ -15,15 +18,14 @@ const features = [
     // because the Kendo UI framework will bind (via proxy) these methods when referred to in the HTML page via MVVM
     drawer,
     layout,
-    // activities,
+    activities,
     categories,
     network,
-    // settings,
+    settings,
     signin,
     // summaries,
     // summary,
-    // user
-    // user,
+    user,
 ];
 
 export default features;
