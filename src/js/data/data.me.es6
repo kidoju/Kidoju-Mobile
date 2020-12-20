@@ -15,7 +15,7 @@ import CONSTANTS from '../common/window.constants.es6';
 import AjaxUsers from '../rapi/rapi.users.es6';
 import md5 from '../vendor/blueimp/md5';
 import BaseModel from './data.base.es6';
-import { normalizeSchema } from './data.util.es6';
+import { isMobileApp, normalizeSchema } from './data.util.es6';
 import extendModelWithTransport from './mixins.transport.es6';
 import CacheItemStrategy from './strategy.cache.item.es6';
 import LocalTransport from './transports.local.es6';
@@ -86,7 +86,7 @@ const definition = {
 /**
  * Additional data on mobile devices
  */
-if (window.cordova) {
+if (isMobileApp()) {
     deepExtend(definition, {
         fields: {
             // Last time when the mobile device was synchronized with the server for that specific user
@@ -225,7 +225,7 @@ const meRemoteTransport = new LazyRemoteTransport({
 /**
  * Extend model with transport
  */
-if (window.cordova) {
+if (isMobileApp()) {
     extendModelWithTransport(Me, meRemoteTransport);
 } else {
     const meCacheTransport = new CacheItemStrategy({

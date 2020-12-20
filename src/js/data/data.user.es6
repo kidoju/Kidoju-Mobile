@@ -13,7 +13,7 @@ import { iconUri, userUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxUsers from '../rapi/rapi.users.es6';
 import BaseModel from './data.base.es6';
-import { normalizeSchema } from './data.util.es6';
+import { isMobileApp, normalizeSchema } from './data.util.es6';
 import extendModelWithTransport from './mixins.transport.es6';
 import { UserMetricsReference } from './reference.metrics.es6';
 import RemoteTransport from './transports.remote.es6';
@@ -491,7 +491,7 @@ const localTransport = new LocalTransport({
 /**
  * userTransport
  */
-const userTransport = window.cordova ? localTransport : remoteTransport;
+const userTransport = isMobileApp() ? localTransport : remoteTransport;
 
 /**
  * Extend User with transport

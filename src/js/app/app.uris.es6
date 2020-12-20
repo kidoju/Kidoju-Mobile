@@ -3,9 +3,8 @@
  * Sources at https://github.com/Memba
  */
 
-// TODO test window.cordova to return mobile uris when suitable
-
 import 'kendo.core';
+import { isMobileApp } from '../data/data.util.es6';
 import config from './app.config.jsx';
 
 const { format } = window.kendo;
@@ -16,7 +15,7 @@ const { format } = window.kendo;
  * @returns {string}
  */
 const billingUri = (language) =>
-    window.cordova ? 'TODO' : format(config.uris.webapp.billing, language);
+    isMobileApp() ? 'TODO' : format(config.uris.webapp.billing, language);
 
 /**
  * Editor uri
@@ -25,7 +24,7 @@ const billingUri = (language) =>
  * @returns {*}
  */
 const editorUri = (language, summaryId) =>
-    window.cordova
+    isMobileApp()
         ? 'TODO'
         : format(config.uris.webapp.editor, language, summaryId);
 
@@ -36,7 +35,7 @@ const editorUri = (language, summaryId) =>
  * @returns {*}
  */
 const errorUri = (language, code) =>
-    window.cordova
+    isMobileApp()
         ? 'TODO'
         : `${format(config.uris.webapp.error, language)}?code=${code}`;
 
@@ -46,7 +45,7 @@ const errorUri = (language, code) =>
  * @returns {string}
  */
 const finderUri = (language) =>
-    window.cordova ? 'TODO' : format(config.uris.webapp.finder, language);
+    isMobileApp() ? 'TODO' : format(config.uris.webapp.finder, language);
 
 /**
  * Group uri
@@ -54,7 +53,7 @@ const finderUri = (language) =>
  * @returns {string}
  */
 const groupUri = (language) =>
-    window.cordova ? 'TODO' : format(config.uris.webapp.group, language);
+    isMobileApp() ? 'TODO' : format(config.uris.webapp.group, language);
 
 /**
  * Icon uri
@@ -63,7 +62,7 @@ const groupUri = (language) =>
  */
 const iconUri = (icon) =>
     format(
-        window.cordova ? config.uris.mobile.icons : config.uris.cdn.icons,
+        isMobileApp() ? config.uris.mobile.icons : config.uris.cdn.icons,
         icon
     );
 
@@ -73,7 +72,7 @@ const iconUri = (icon) =>
  * @returns {string}
  */
 const messagingUri = (language) =>
-    window.cordova ? 'TODO' : format(config.uris.webapp.messaging, language);
+    isMobileApp() ? 'TODO' : format(config.uris.webapp.messaging, language);
 
 /**
  * Organization uri
@@ -82,7 +81,7 @@ const messagingUri = (language) =>
  * @returns {*}
  */
 const organizationUri = (language, organizationId) =>
-    window.cordova
+    isMobileApp()
         ? 'TODO'
         : format(config.uris.webapp.organization, language, organizationId);
 
@@ -96,7 +95,7 @@ const organizationUri = (language, organizationId) =>
 const playerUri = (language, summaryId, versionId) =>
     // TODO activityId?
     /* eslint-disable prettier/prettier */
-    window.cordova
+    isMobileApp()
         ? 'TODO'
         : format(
             config.uris.webapp.player,
@@ -114,7 +113,7 @@ const playerUri = (language, summaryId, versionId) =>
  * @returns {*}
  */
 const summaryUri = (language, summaryId) =>
-    window.cordova
+    isMobileApp()
         ? 'TODO'
         : format(config.uris.webapp.summary, language, summaryId);
 
@@ -125,7 +124,7 @@ const summaryUri = (language, summaryId) =>
  * @returns {*}
  */
 const userUri = (language, userId) =>
-    window.cordova ? 'TODO' : format(config.uris.webapp.user, language, userId);
+    isMobileApp() ? 'TODO' : format(config.uris.webapp.user, language, userId);
 
 /**
  * Export

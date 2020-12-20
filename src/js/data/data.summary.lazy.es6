@@ -21,10 +21,10 @@ import CONSTANTS from '../common/window.constants.es6';
 import BaseModel from './data.base.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
 import AjaxSummaries from '../rapi/rapi.summaries.es6';
-import { normalizeSchema } from './data.util.es6';
-import LocalTransport from './transports.local';
-import db from '../app/app.db';
-import DownstreamStrategy from './strategy.downstream';
+import { isMobileApp, normalizeSchema } from './data.util.es6';
+import LocalTransport from './transports.local.es6';
+import db from '../app/app.db.es6';
+import DownstreamStrategy from './strategy.downstream.es6';
 
 const {
     data: { DataSource, ObservableArray },
@@ -245,7 +245,7 @@ const localTransport = new LocalTransport({
  * userTransport
  */
 /* eslint-disable prettier/prettier */
-const lazySummaryTransport = window.cordova
+const lazySummaryTransport = isMobileApp()
     ? new DownstreamStrategy({
         localTransport,
         remoteTransport,

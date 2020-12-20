@@ -8,15 +8,18 @@
 import $ from 'jquery';
 import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
-import BaseModel from './data.base.es6';
+// import BaseModel from './data.base.es6';
+import { isMobileApp } from './data.util.es6';
 
-const {} = window.kendo;
+const {
+    data: { Node },
+} = window.kendo;
 
 /**
  * Rummage node (displayed in treeview on find page)
  * @type {kendo.data.Node}
  */
-models.Rummage = Node.define({
+const Rummage = Node.define({
     id: CONSTANTS.ID, // the identifier of the model, which is required for isNew() to work
     hasChildren: true,
     children: {
@@ -137,7 +140,7 @@ models.Rummage = Node.define({
      */
     icon$() {
         return format(
-            window.cordova ? uris.mobile.icons : uris.cdn.icons,
+            isMobileApp() ? uris.mobile.icons : uris.cdn.icons,
             this.get('icon')
         );
     },
@@ -164,14 +167,14 @@ models.Rummage = Node.define({
 
 // Children schema model cannot be set until the model exists
 // See http://www.telerik.com/forums/display-of-calculated-fields-in-treeview-template
-models.Rummage.prototype.children.schema.model = models.Rummage;
+Rummage.prototype.children.schema.model = Rummage;
 // models.Rummage.prototype.children.schema.modelBase = models.Rummage;
 
 /**
  * Hierarchical datasource of rummages
  * @type {*|void}
  */
-models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
+const RummageHierarchicalDataSource = HierarchicalDataSource.extend({
     init(options) {
         const that = this;
 
@@ -207,7 +210,7 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
                 app.cache.getFavouriteHierarchy(__.locale),
                 app.cache.getCategoryHierarchy(__.locale)
             )
-                .then(function (favourites, categories) {
+                .then((favourites, categories) => {
                     const rootNodes = __('webapp.finder.treeview.rootNodes');
                     const rummages = [
                         {
@@ -233,7 +236,7 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
                     ];
                     options.success(rummages);
                 })
-                .catch(function (xhr, status, errorThrown) {
+                .catch((xhr, status, errorThrown) => {
                     options.error(xhr, status, errorThrown);
                 });
         },
@@ -267,8 +270,8 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
             );
             return app.rapi.v1.user
                 .deleteMyFavourite(__.locale, options.data.id)
-                .then(function () {
-                    app.cache.removeMyFavourites(__.locale).always(function () {
+                .then(() => {
+                    app.cache.removeMyFavourites(__.locale).always(() => {
                         options.success(options.data);
                     });
                 })
@@ -276,3 +279,8 @@ models.RummageHierarchicalDataSource = HierarchicalDataSource.extend({
         },
     },
 });
+
+/**
+ * Export
+ */
+export { Rummage, RummageHierarchicalDataSource };

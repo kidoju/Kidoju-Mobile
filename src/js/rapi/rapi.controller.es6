@@ -8,9 +8,11 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'kendo.core';
 import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
+import { isMobileApp } from '../data/data.util.es6';
 import {
     cleanHistory,
     clearToken,
@@ -20,7 +22,6 @@ import {
 } from './rapi.util.es6';
 import { refresh } from './rapi.oauth.es6';
 
-const { cordova, chrome, location } = window;
 const {
     data: { ObservableObject },
     logToConsole,
@@ -41,6 +42,7 @@ const BaseController = ObservableObject.extend({
         const { features, initializers } = options;
         ObservableObject.fn.init.call(this);
         // Add initializers
+        /*
         this._initializers =
             // In cordova, we collect the token in SafariViewController ou InAppBrowser
             $.type(cordova) === CONSTANTS.UNDEFINED &&
@@ -48,6 +50,8 @@ const BaseController = ObservableObject.extend({
             !(chrome && $.isEmptyObject(chrome.app))
                 ? [this.readAccessToken()]
                 : [];
+        */
+        this._initializers = isMobileApp() ? [] : [this.readAccessToken()];
         if (Array.isArray(initializers)) {
             initializers.forEach((initializer) => {
                 if (initializer && $.isFunction(initializer.promise)) {
@@ -152,7 +156,7 @@ const BaseController = ObservableObject.extend({
      */
     readAccessToken() {
         const dfd = $.Deferred();
-        parseToken(location.href)
+        parseToken(window.location.href)
             .then((token) => {
                 if ($.type(token) !== CONSTANTS.NULL) {
                     // a null value means there is no token in window.location
