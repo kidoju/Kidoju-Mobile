@@ -751,7 +751,7 @@
              * @constructor
              * @param options
              */
-            init: function (options) {
+            init: function (options = {}) {
                 options = options || {};
                 this.remoteTransport = options.remoteTransport;
                 MobileTransport.fn.init.call(this, options); // Calls partition() and projection()
@@ -1016,7 +1016,7 @@
                 this.remoteTransport.destroy({
                     data: item,
                     error: function (err) {
-                        if (err.message = '404') { // TODO -----------------------------------------------------------------------------------
+                        if (err.message === '404') { // TODO -----------------------------------------------------------------------------------
                             // If item is not found on the server, remove from local database
                             collection.remove({ id: item[idField] })
                                 .done(dfd.resolve)
