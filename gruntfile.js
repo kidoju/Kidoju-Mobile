@@ -40,6 +40,7 @@ module.exports = (grunt) => {
                     'www/views/_head.html',
                     'www/views/layout.html',
                     'www/views/drawer.html',
+                    'www/views/error.html', // <--------- Default
                     'www/views/activities.html',
                     'www/views/categories.html',
                     'www/views/correction.html',

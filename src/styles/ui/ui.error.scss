@@ -1,0 +1,12 @@
+@import 'ui.mixins';
+
+#error {
+    .km-thumbnail {
+        @include picture
+    }
+
+    .title,
+    .message {
+        text-align: center;
+    }
+}
