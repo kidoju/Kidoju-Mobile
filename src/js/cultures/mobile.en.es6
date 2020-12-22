@@ -15,59 +15,59 @@ const res = {
     */
     versions: {
         draft: {
-            name: 'Draft'
+            name: 'Draft',
         },
         published: {
-            name: 'Version {0}'
-        }
+            name: 'Version {0}',
+        },
     },
     // Main layout
     layout: {
-        back: 'Back'
+        back: 'Back',
     },
     // Activities view
     activities: {
         viewTitle: 'History',
         buttonGroup: {
             chart: 'Chart',
-            list: 'List'
+            list: 'List',
         },
         listView: {
             groups: {
                 today: 'Today',
                 yesterday: 'Yesterday',
                 startOfWeek: 'This Week',
-                startOfMonth: 'This Month'
-            }
-        }
+                startOfMonth: 'This Month',
+            },
+        },
     },
     // Categories view
     categories: {
-        viewTitle: 'Explore'
+        viewTitle: 'Explore',
     },
     // Correction view
     correction: {
         viewTitle: 'Page {0} of {1}',
         // Labels
-        explanations: 'Explanations'
+        explanations: 'Explanations',
     },
     // Dialogs and alerts
     dialogs: {
         buttons: {
             cancel: {
                 text: 'Cancel',
-                icon: 'close'
+                icon: 'close',
             },
             ok: {
                 text: 'OK',
-                icon: 'ok'
-            }
+                icon: 'ok',
+            },
         },
         confirm: 'Confirm',
         error: 'Error',
         info: 'Information',
         success: 'Success',
-        warning: 'Warning'
+        warning: 'Warning',
     },
     appStoreReview: {
         title: 'Would you mind rating {0}?',
@@ -75,12 +75,12 @@ const res = {
             'If you enjoy {0}, it won’t take more than a minute to encourage our development effort. Thanks for your help!',
         buttons: {
             cancel: {
-                text: 'Remind Me Later'
+                text: 'Remind Me Later',
             },
             ok: {
-                text: 'Rate It Now'
-            }
-        }
+                text: 'Rate It Now',
+            },
+        },
     },
     // Drawer
     drawer: {
@@ -88,20 +88,20 @@ const res = {
         categories: 'Explore',
         favourites: 'Favourites',
         scan: 'QR Code',
-        settings: 'Settings'
+        settings: 'Settings',
     },
     // Favourites view
     favourites: {
-        viewTitle: 'Favourites'
+        viewTitle: 'Favourites',
     },
     // Finder view
     finder: {
-        viewTitle: 'Search'
+        viewTitle: 'Search',
     },
     // Network connection view
     network: {
         viewTitle: 'Connection',
-        title: 'No Network'
+        title: 'No Network',
         // message: ''
     },
     // Notification messages
@@ -161,17 +161,17 @@ const res = {
         userSignInSuccess: 'Signed in as {0}.',
         usersQueryFailure: 'There was an error loading users.',
         versionLoadFailure: 'There was an error loading version data.',
-        versionsLoadFailure: 'There was an error loading versions.'
+        versionsLoadFailure: 'There was an error loading versions.',
     },
     osNotifications: {
         title: 'It’s been a while...',
-        text: 'How about running {0} to assess your progress?'
+        text: 'How about running {0} to assess your progress?',
     },
     // Player view
     player: {
         viewTitle: 'Page {0} of {1}',
         // Labels
-        instructions: 'Instructions'
+        instructions: 'Instructions',
     },
     // Score view
     score: {
@@ -179,8 +179,8 @@ const res = {
         listView: {
             groups: 'Page {0}',
             answer: 'Answer',
-            solution: 'Solution'
-        }
+            solution: 'Solution',
+        },
     },
     // Settings view
     settings: {
@@ -195,7 +195,7 @@ const res = {
         switch: 'Switch user',
         tour: 'Take the tour',
         // Copyright
-        copyright: 'Copyright &copy; 2013-2018 Memba&reg; Sarl'
+        copyright: 'Copyright &copy; 2013-2018 Memba&reg; Sarl',
     },
     // Sign-in view
     signin: {
@@ -211,7 +211,7 @@ const res = {
         welcome:
             'Please select an authentication provider. We shall never use it to post on your behalf.',
         welcome2:
-            '{0}, please select the {1} authentication provider to renew your credentials or press <i class="kf kf-user"></i>.'
+            '{0}, please select the {1} authentication provider to renew your credentials or press <i class="kf kf-user"></i>.',
     },
     // Summary view
     summary: {
@@ -231,15 +231,15 @@ const res = {
             cancel: 'Cancel',
             feedback: 'Feedback',
             play: 'Play',
-            share: 'Share'
+            share: 'Share',
         },
         // Social Sharing
         socialSharing: {
             chooserTitle: 'Select an application',
             // message: 'Assess your knowledge on Kidoju.\n\nTitle:\t{0}\nLink:\t{1}\nDescription:\t{2}',
             message: 'Assess your knowledge with Kidoju.\n\n{0}\n{1}',
-            subject: 'Answer \u201C{0}\u201D?'
-        }
+            subject: 'Answer \u201C{0}\u201D?',
+        },
     },
     // Sync view
     sync: {
@@ -247,15 +247,15 @@ const res = {
         title: 'Progress',
         message: {
             activities: 'Syncing activities',
-            complete: 'Synchronization complete'
+            complete: 'Synchronization complete',
         },
         pass: {
             remote: 'Remote',
-            local: 'Local'
+            local: 'Local',
         },
         buttons: {
-            continue: 'Continue'
-        }
+            continue: 'Continue',
+        },
     },
     // User view
     user: {
@@ -271,13 +271,13 @@ const res = {
         save: 'Save',
         signIn: 'Sign In',
         newUser: 'New User',
-        changePIN: 'Change PIN'
+        changePIN: 'Change PIN',
     },
     // viewModel
     viewModel: {
         languages: [
             { value: 'en', text: 'English' },
-            { value: 'fr', text: 'French' }
+            { value: 'fr', text: 'French' },
         ],
         themes: [
             { value: 'android-dark', text: 'Android Dark' },
@@ -291,11 +291,11 @@ const res = {
             { value: 'material-light', text: 'Material Light' },
             { value: 'meego', text: 'Meego' },
             { value: 'nova', text: 'Nova' },
-            { value: 'office365', text: 'Office 365' }
+            { value: 'office365', text: 'Office 365' },
             // { value: 'wp-dark', text: 'Windows Dark' },
             // { value: 'wp-light', text: 'Windows light' }
-        ]
-    }
+        ],
+    },
 };
 
 /**

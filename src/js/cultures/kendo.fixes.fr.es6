@@ -8,7 +8,7 @@
 import $ from 'jquery';
 
 const {
-    mobile: { ui }
+    mobile: { ui },
 } = window.kendo;
 
 /* ListView messages */
@@ -19,14 +19,14 @@ if (ui.ListView) {
         true,
         ui.ListView.prototype.options.filterable,
         {
-            placeholder: 'Rechercher...'
+            placeholder: 'Rechercher...',
         }
     );
     ui.ListView.prototype.options.messages = $.extend(
         true,
         ui.ListView.prototype.options.messages,
         {
-            loadMoreText: 'Plus de résultats'
+            loadMoreText: 'Plus de résultats',
         }
     );
 }

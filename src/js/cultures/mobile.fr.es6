@@ -15,58 +15,58 @@ const res = {
     */
     versions: {
         draft: {
-            name: 'Brouillon'
+            name: 'Brouillon',
         },
         published: {
-            name: 'Version {0}'
-        }
+            name: 'Version {0}',
+        },
     },
     // Main layout
     layout: {
-        back: 'Retour'
+        back: 'Retour',
     },
     // Activities view
     activities: {
         viewTitle: 'Historique',
         buttonGroup: {
             chart: 'Graphique',
-            list: 'Liste'
+            list: 'Liste',
         },
         listView: {
             groups: {
                 today: 'Aujourd’hui',
                 yesterday: 'Hier',
                 startOfWeek: 'Cette semaine',
-                startOfMonth: 'Ce mois'
-            }
-        }
+                startOfMonth: 'Ce mois',
+            },
+        },
     },
     // Categories view
     categories: {
-        viewTitle: 'Explorer'
+        viewTitle: 'Explorer',
     },
     // Correction view
     correction: {
         viewTitle: 'Page {0} de {1}',
         // Labels
-        explanations: 'Explications'
+        explanations: 'Explications',
     },
     // Dialogs and alerts
     dialogs: {
         buttons: {
             cancel: {
                 text: 'Annuler',
-                icon: 'close'
+                icon: 'close',
             },
             ok: {
                 text: 'OK',
-                icon: 'ok'
-            }
+                icon: 'ok',
+            },
         },
         confirm: 'Confirmation',
         error: 'Erreur',
         info: 'Information',
-        success: 'Succès'
+        success: 'Succès',
     },
     appStoreReview: {
         title: 'Votez pour {0}',
@@ -74,12 +74,12 @@ const res = {
             'Si vous aimez {0}, il suffit d’une minute pour encourager nos développements. Merci pour votre soutien !',
         buttons: {
             cancel: {
-                text: 'Plus tard'
+                text: 'Plus tard',
             },
             ok: {
-                text: 'Voter maintenant'
-            }
-        }
+                text: 'Voter maintenant',
+            },
+        },
     },
     // Drawer
     drawer: {
@@ -87,20 +87,20 @@ const res = {
         categories: 'Explorer',
         favourites: 'Favoris',
         scan: 'QR Code',
-        settings: 'Réglages'
+        settings: 'Réglages',
     },
     // Favourites view
     favourites: {
-        viewTitle: 'Favoris'
+        viewTitle: 'Favoris',
     },
     // Finder view
     finder: {
-        viewTitle: 'Recherche'
+        viewTitle: 'Recherche',
     },
     // Network connection view
     network: {
         viewTitle: 'Connexion',
-        message: 'Pas de réseau'
+        message: 'Pas de réseau',
     },
     // Notification messages
     notifications: {
@@ -177,17 +177,17 @@ const res = {
         versionLoadFailure:
             'Il y a eu une erreur lors du chargement de la version.',
         versionsLoadFailure:
-            'Il y a eu une erreur lors du chargement des versions.'
+            'Il y a eu une erreur lors du chargement des versions.',
     },
     osNotifications: {
         title: 'Ça fait longtemps...',
-        text: 'Pourquoi ne pas lancer {0} pour mesurer vos progrès?'
+        text: 'Pourquoi ne pas lancer {0} pour mesurer vos progrès?',
     },
     // Player view
     player: {
         viewTitle: 'Page {0} de {1}',
         // Labels
-        instructions: 'Instructions'
+        instructions: 'Instructions',
     },
     // Score view
     score: {
@@ -195,8 +195,8 @@ const res = {
         listView: {
             groups: 'Page {0}',
             answer: 'Réponse',
-            solution: 'Solution'
-        }
+            solution: 'Solution',
+        },
     },
     // Settings view
     settings: {
@@ -211,7 +211,7 @@ const res = {
         switch: 'Changer d’utilisateur',
         tour: 'Faire un tour',
         // Copyright
-        copyright: 'Copyright &copy; 2013-2018 Memba&reg; Sarl'
+        copyright: 'Copyright &copy; 2013-2018 Memba&reg; Sarl',
     },
     // Sign-in view
     signin: {
@@ -227,7 +227,7 @@ const res = {
         welcome:
             'Veuillez sélectionner un service d’identification. Nous ne l’utiliserons jamais pour publier à votre insu.',
         welcome2:
-            '{0}, veuillez sélectionner l’identification par {1} pour renouveler vos autorisations ou pressez <i class="kf kf-user"></i>.'
+            '{0}, veuillez sélectionner l’identification par {1} pour renouveler vos autorisations ou pressez <i class="kf kf-user"></i>.',
     },
     // Summary view
     summary: {
@@ -247,15 +247,15 @@ const res = {
             cancel: 'Annuler',
             feedback: 'Signaler',
             play: 'Jouer',
-            share: 'Partager'
+            share: 'Partager',
         },
         // Social Sharing
         socialSharing: {
             chooserTitle: 'Sélectionnez une application',
             // message: 'Evaluez vos connaissances sur Kidoju.\n\nTitre:\t\t{0}\nLien:\t\t{1}\nDescription:\t{2}',
             message: 'Testez vos connaissances sur Kidoju.\n\n{0}\n{1}',
-            subject: 'Répondez à \u201C{0}\u201D?'
-        }
+            subject: 'Répondez à \u201C{0}\u201D?',
+        },
     },
     // Sync view
     sync: {
@@ -263,15 +263,15 @@ const res = {
         title: 'Progrès',
         message: {
             activities: 'Synchonisation des activités',
-            complete: 'Synchronisation terminée'
+            complete: 'Synchronisation terminée',
         },
         pass: {
             remote: 'Central',
-            local: 'Local'
+            local: 'Local',
         },
         buttons: {
-            continue: 'Continuer'
-        }
+            continue: 'Continuer',
+        },
     },
     // User view
     user: {
@@ -287,13 +287,13 @@ const res = {
         save: 'Enregistrer',
         signIn: 'S’identifier',
         newUser: 'Nouvel Utilisateur',
-        changePIN: 'Nouveau PIN'
+        changePIN: 'Nouveau PIN',
     },
     // viewModel
     viewModel: {
         languages: [
             { value: 'en', text: 'Anglais' },
-            { value: 'fr', text: 'Français' }
+            { value: 'fr', text: 'Français' },
         ],
         themes: [
             { value: 'android-dark', text: 'Android Dark' },
@@ -307,11 +307,11 @@ const res = {
             { value: 'material-light', text: 'Material Light' },
             { value: 'meego', text: 'Meego' },
             { value: 'nova', text: 'Nova' },
-            { value: 'office365', text: 'Office 365' }
+            { value: 'office365', text: 'Office 365' },
             // { value: 'wp-dark', text: 'Windows Dark' },
             // { value: 'wp-light', text: 'Windows light' }
-        ]
-    }
+        ],
+    },
 };
 
 /**
