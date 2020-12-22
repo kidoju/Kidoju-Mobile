@@ -1,0 +1,7 @@
+@import 'ui.mixins';
+
+#summary {
+    .km-thumbnail {
+        @include picture;
+    }
+}

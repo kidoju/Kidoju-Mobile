@@ -9,29 +9,30 @@ import $ from 'jquery';
 import 'kendo.mobile.application';
 import 'kendo.mobile.button';
 import 'kendo.mobile.view';
+import 'kendo.mobile.listview';
+import 'kendo.touch';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
+import { sessionCache } from '../common/window.cache.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
 import Logger from '../common/window.logger.es6';
-import { User, UserDataSource } from '../data/data.user.es6';
+import {
+    Me as User,
+    MeDataSource as UserDataSource,
+} from '../data/data.me.es6';
 import { xhr2error } from '../data/data.util.es6';
 
 const {
-    attr,
+    format,
+    keys,
     mobile: {
-        Application,
         ui: { Button, View },
     },
     roleSelector,
 } = window.kendo;
 const logger = new Logger('ui.user');
-
-const SELECTORS = {
-    PIN: '', // TODO
-};
-
-// TODO use kendo.KEYS
+const RX_PIN = /^[\d]{4}$/;
 
 /**
  * User feature
@@ -46,7 +47,10 @@ const feature = {
      * View
      */
     VIEW: {
-        USER: 'user',
+        USER: {
+            _: 'user',
+            PIN: '.pin',
+        },
     },
 
     /**
@@ -62,6 +66,7 @@ const feature = {
             LAST_NAME: 'user.lastName',
             LAST_SYNC: 'user.lastSync',
             LAST_USE: 'user.lastUse',
+            MD5_PIN: 'user.md5pin',
             PROVIDER: 'user.provider',
             REVIEW_STATE: 'user.reviewState',
             SID: 'user.sid',
@@ -74,26 +79,35 @@ const feature = {
      * Reset
      */
     reset() {
-        this.resetUsers();
+        app.viewModel.resetUsers();
     },
 
     /**
      * Reset users
      */
     resetUsers() {
-        this.set(this.VIEW_MODEL.USER._, new User());
-        this[this.VIEW_MODEL.USERS] = new UserDataSource();
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        viewModel.set(VIEW_MODEL.USER._, new User());
+        viewModel[VIEW_MODEL.USERS] = new UserDataSource();
     },
 
     /**
      * Load
      */
     load() {
+        debugger;
         // Load mobile users from localForage
         return this.loadUsers().then(() => {
             // Set user to most recent user
+            debugger;
             if (this[this.VIEW_MODEL.USERS].total() > 0) {
-                // because of the change event is bound, the following will call the reset function above
+                // because the change event is bound,
+                // the following will call the reset function above
+                debugger;
+                // TODO Find me!!!!!!!
                 this.set(
                     this.VIEW_MODEL.USER._,
                     this[this.VIEW_MODEL.USERS].at(0)
@@ -108,11 +122,32 @@ const feature = {
      */
     loadUser() {
         const dfd = $.Deferred();
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
         // Search me in viewModel.users or create new viewModel.user and add it to viewModel.users
-        app.cache.removeMe();
+        // TODO sessionCache.removeItem(CONSTANTS.ME);
+        viewModel
+            .get(VIEW_MODEL.USER._)
+            .load()
+            .then(dfd.resolve)
+            .catch((xhr, status, errorThrown) => {
+                dfd.reject(xhr, status, errorThrown);
+                app.notification.error(
+                    __('mobile.notifications.userLoadFailure')
+                );
+                logger.error({
+                    message: 'error loading user',
+                    method: 'loadUser',
+                    error: xhr2error(xhr, status, errorThrown),
+                });
+            });
+        /*
         app.cache
             .getMe()
-            .done((me) => {
+            .then((me) => {
+                debugger;
                 assert.isNonEmptyPlainObject(
                     me,
                     assert.format(
@@ -149,7 +184,7 @@ const feature = {
                         // lastUse: user.defaults.lastUse(),
                         // md5pin: user.defaults.md5pin,
                         picture: me.picture,
-                        provider: localStorage.getItem('provider'), // Set in mobile.onSigninButtonClick // TODO Manage localStorage errors
+                        provider: localStorage.getItem('provider'), // Set in app.viewModel.onSigninButtonClick // TODO Manage localStorage errors
                         // rootCategoryId: user.defaults.rootCategoryId()
                     });
                     this[this.VIEW_MODEL.USERS].add(user);
@@ -161,15 +196,16 @@ const feature = {
                 // Note: At this stage user is not saved in database
                 dfd.resolve(user);
             })
-            .fail((xhr, status, errorThrown) => {
+            .catch((xhr, status, errorThrown) => {
                 dfd.reject(xhr, status, errorThrown);
-                app.notification.error(__('notifications.userLoadFailure'));
+                app.notification.error(__('mobile.notifications.userLoadFailure'));
                 logger.error({
                     message: 'error loading user',
                     method: 'loadUser',
                     error: xhr2error(xhr, status, errorThrown),
                 });
             });
+        */
         return dfd.promise();
     },
 
@@ -189,7 +225,7 @@ const feature = {
                     .catch((xhr, status, errorThrown) => {
                         dfd.reject(xhr, status, errorThrown);
                         app.notification.error(
-                            __('notifications.usersQueryFailure')
+                            __('mobile.notifications.usersQueryFailure')
                         );
                         logger.error({
                             message: 'error loading users',
@@ -219,13 +255,15 @@ const feature = {
                     // Yield some time for #settings dropdown boxes to close
                     setTimeout(() => {
                         app.notification.success(
-                            __('notifications.userSaveSuccess')
+                            __('mobile.notifications.userSaveSuccess')
                         );
                     }, 10);
                 }
             })
             .catch((xhr, status, errorThrown) => {
-                app.notification.error(__('notifications.userSaveFailure'));
+                app.notification.error(
+                    __('mobile.notifications.userSaveFailure')
+                );
                 logger.error({
                     message: 'error syncing users',
                     method: 'syncUsers',
@@ -240,8 +278,13 @@ const feature = {
      * Check first user
      */
     isFirstUser$() {
-        const user = this.get(this.VIEW_MODEL.USER._);
-        const index = this[this.VIEW_MODEL.USERS].indexOf(user);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const user = viewModel.get(VIEW_MODEL.USER._);
+        const users = viewModel.get(VIEW_MODEL.USERS);
+        const index = users.indexOf(user);
         return !user.isNew() && index === 0;
     },
 
@@ -250,30 +293,33 @@ const feature = {
      * @returns {boolean}
      */
     isLastUser$() {
-        const user = this.get(this.VIEW_MODEL.USER._);
-        const userDataSource = this.get(this.VIEW_MODEL.USERS);
-        assert.instanceof(
-            UserDataSource,
-            userDataSource,
-            assert.format(
-                assert.messages.instanceof.default,
-                'userDataSource',
-                'UserDataSource'
-            )
-        );
-        const index = userDataSource.indexOf(user);
-        return !user.isNew() && index === userDataSource.total() - 1;
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const user = viewModel.get(VIEW_MODEL.USER._);
+        const users = viewModel.get(VIEW_MODEL.USERS);
+        const index = users.indexOf(user);
+        return !user.isNew() && index === users.total() - 1;
     },
 
     /**
      * Current user is set and new
      */
     isNewUser$() {
-        const user = this.get(this.VIEW_MODEL.USER._);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const user = viewModel.get(VIEW_MODEL.USER._);
+        const md5pin = viewModel.get(VIEW_MODEL.USER.MD5_PIN);
+        const users = viewModel[VIEW_MODEL.USERS];
+        debugger;
         return (
             user instanceof User &&
-            user.isNew() &&
-            this[this.VIEW_MODEL.USERS].indexOf(user) > -1
+            // user.isNew() &&
+            $.type(md5pin) !== CONSTANTS.STRING &&
+            users.indexOf(user) > -1
         );
     },
 
@@ -281,14 +327,22 @@ const feature = {
      * Current user set (and saved)
      */
     isSavedUser$() {
-        const user = this.get(this.VIEW_MODEL.USER._);
-        // The following ensures thet #user button bindings are refreshed when pressing "Change PIN" following mobile.onUserChangePin
-        this.get(this.VIEW_MODEL.USER.LAST_USE);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const user = viewModel.get(VIEW_MODEL.USER._);
+        const md5pin = viewModel.get(VIEW_MODEL.USER.MD5_PIN);
+        const users = viewModel[VIEW_MODEL.USERS];
+        // The following ensures that #user button bindings are refreshed
+        // when pressing "Change PIN" following app.viewModel.onUserChangePin
+        viewModel.get(VIEW_MODEL.USER.LAST_USE);
         return (
             user instanceof User &&
-            !user.isNew() &&
+            // !user.isNew() &&
+            $.type(md5pin) === CONSTANTS.STRING &&
             !user.dirty &&
-            this[this.VIEW_MODEL.USERS].indexOf(user) > -1
+            users.indexOf(user) > -1
         );
     },
 
@@ -296,12 +350,20 @@ const feature = {
      * Current user saved and synced in the last 30 days
      */
     isSyncedUser$() {
-        const user = this.get(this.VIEW_MODEL.USER._);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const user = viewModel.get(VIEW_MODEL.USER._);
+        const lastSync = viewModel.get(VIEW_MODEL.USER.LAST_SYNC);
+        const md5pin = viewModel.get(VIEW_MODEL.USER.MD5_PIN);
+        const users = viewModel[VIEW_MODEL.USERS];
         return (
-            user instanceof User && // models.MobileUser
-            !user.isNew() &&
-            this[this.VIEW_MODEL.USERS].indexOf(user) > -1 &&
-            Date.now() <= user.lastSync.getTime() + 30 * 24 * 60 * 60 * 1000
+            user instanceof User &&
+            // !user.isNew() &&
+            $.type(md5pin) === CONSTANTS.STRING &&
+            users.indexOf(user) > -1 &&
+            Date.now() <= lastSync.getTime() + 30 * 24 * 60 * 60 * 1000
         );
     },
 
@@ -310,8 +372,12 @@ const feature = {
      */
     rootCategoryId$() {
         let ret;
-        const id = this.get(this.VIEW_MODEL.USER.ROOT_CATEGORY_ID);
-        const categories = this[this.VIEW_MODEL.CATEGORIES];
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const id = viewModel.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID);
+        const categories = viewModel[VIEW_MODEL.CATEGORIES];
         if (categories && $.isFunction(categories.get)) {
             ret = (categories.get(id) || {}).name;
         }
@@ -319,47 +385,34 @@ const feature = {
     },
 
     /**
-     * Select the previous page from viewModel.version.stream.pages
+     * Select the previous user in viewModel.users
      */
     previousUser() {
-        const user = this.get(this.VIEW_MODEL.USER._);
-        const userDataSource = this.get(this.VIEW_MODEL.USERS);
-        assert.instanceof(
-            UserDataSource,
-            userDataSource,
-            assert.format(
-                assert.messages.instanceof.default,
-                'userDataSource',
-                'UserDataSource'
-            )
-        );
-        const index = userDataSource.indexOf(user);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const user = viewModel.get(VIEW_MODEL.USER._);
+        const users = viewModel[VIEW_MODEL.USERS];
+        const index = users.indexOf(user);
         if ($.type(index) === CONSTANTS.NUMBER && index > 0) {
-            this.set(this.VIEW_MODEL.USER._, userDataSource.at(index - 1));
+            viewModel.set(VIEW_MODEL.USER._, users.at(index - 1));
         }
     },
 
     /**
-     * Select the next page from viewModel.version.stream.pages
+     * Select the next user in viewModel.users
      */
     nextUser() {
-        const user = this.get(this.VIEW_MODEL.USER._);
-        const userDataSource = this.get(this.VIEW_MODEL.USERS);
-        assert.instanceof(
-            UserDataSource,
-            userDataSource,
-            assert.format(
-                assert.messages.instanceof.default,
-                'userDataSource',
-                'UserDataSource'
-            )
-        );
-        const index = userDataSource.indexOf(user);
-        if (
-            $.type(index) === CONSTANTS.NUMBER &&
-            index < userDataSource.total() - 1
-        ) {
-            this.set(this.VIEW_MODEL.USER._, userDataSource.at(index + 1));
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const user = viewModel.get(VIEW_MODEL.USER._);
+        const users = viewModel[VIEW_MODEL.USERS];
+        const index = users.indexOf(user);
+        if ($.type(index) === CONSTANTS.NUMBER && index < users.total() - 1) {
+            viewModel.set(VIEW_MODEL.USER._, users.at(index + 1));
         }
     },
 
@@ -381,18 +434,21 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
+        const {
+            viewModel: { VIEW },
+        } = app;
         // Init pin textboxes if not already initialized
         // We have removed kendo.ui.MaskedTextBox because the experience was not great
         // especially because it always displays 4 password dots making the number of characters actually typed unclear
         e.view.element
             .off(
                 `${CONSTANTS.FOCUS} ${CONSTANTS.INPUT} ${CONSTANTS.KEYDOWN} ${CONSTANTS.KEYPRESS}`,
-                SELECTORS.PIN
+                VIEW.USER.PIN
             )
-            .on(CONSTANTS.FOCUS, SELECTORS.PIN, (e) => {
+            .on(CONSTANTS.FOCUS, VIEW.USER.PIN, (evt) => {
                 assert.instanceof(
                     $.Event,
-                    e,
+                    evt,
                     assert.format(
                         assert.messages.instanceof.default,
                         'e',
@@ -400,16 +456,16 @@ const feature = {
                     )
                 );
                 assert.ok(
-                    $(e.target).is(SELECTORS.PIN),
+                    $(evt.target).is(VIEW.USER.PIN),
                     '`e.target` should be a pin textbox'
                 );
                 // Empty the pin input on focus
-                $(e.target).val(CONSTANTS.EMPTY);
+                $(evt.target).val(CONSTANTS.EMPTY);
             })
-            .on(CONSTANTS.INPUT, SELECTORS.PIN, (e) => {
+            .on(CONSTANTS.INPUT, VIEW.USER.PIN, (evt) => {
                 assert.instanceof(
                     $.Event,
-                    e,
+                    evt,
                     assert.format(
                         assert.messages.instanceof.default,
                         'e',
@@ -417,19 +473,19 @@ const feature = {
                     )
                 );
                 assert.ok(
-                    $(e.target).is(SELECTORS.PIN),
+                    $(evt.target).is(VIEW.USER.PIN),
                     '`e.target` should be a pin textbox'
                 );
                 // Note: android does not trigger the keypress event, so we need the input event
                 // Only keep the first 4 digits
-                $(e.target).val(
-                    $(e.target).val().replace(/\D+/g, '').substr(0, 4)
+                $(evt.target).val(
+                    $(evt.target).val().replace(/\D+/g, '').substr(0, 4)
                 );
             })
-            .on(CONSTANTS.KEYDOWN, SELECTORS.PIN, (e) => {
+            .on(CONSTANTS.KEYDOWN, VIEW.USER.PIN, (evt) => {
                 assert.instanceof(
                     $.Event,
-                    e,
+                    evt,
                     assert.format(
                         assert.messages.instanceof.default,
                         'e',
@@ -437,16 +493,14 @@ const feature = {
                     )
                 );
                 assert.ok(
-                    $(e.target).is(SELECTORS.PIN),
+                    $(evt.target).is(VIEW.USER.PIN),
                     '`e.target` should be a pin textbox'
                 );
-                if (e.which === 13) {
+                if (evt.which === keys.ENTER) {
                     // This is a carriage return, so trigger the primary button
-                    const $view = $(e.target).closest(
-                        kendo.roleSelector('view')
-                    );
+                    const $view = $(evt.target).closest(roleSelector('view'));
                     const $button = $view.find(
-                        `${kendo.roleSelector('button')}.km-primary:visible`
+                        `${roleSelector('button')}.km-primary:visible`
                     );
                     assert.equal(
                         1,
@@ -459,7 +513,7 @@ const feature = {
                     );
                     const button = $button.data('kendoMobileButton');
                     assert.instanceof(
-                        kendo.mobile.ui.Button,
+                        Button,
                         button,
                         assert.format(
                             assert.messages.instanceof.default,
@@ -470,10 +524,10 @@ const feature = {
                     button.trigger(CONSTANTS.CLICK, { button: $button });
                 }
             })
-            .on(CONSTANTS.KEYPRESS, SELECTORS.PIN, (e) => {
+            .on(CONSTANTS.KEYPRESS, VIEW.USER.PIN, (evt) => {
                 assert.instanceof(
                     $.Event,
-                    e,
+                    evt,
                     assert.format(
                         assert.messages.instanceof.default,
                         'e',
@@ -481,25 +535,25 @@ const feature = {
                     )
                 );
                 assert.ok(
-                    $(e.target).is(SELECTORS.PIN),
+                    $(evt.target).is(VIEW.USER.PIN),
                     '`e.target` should be a pin textbox'
                 );
                 // Special characters including backspace, delete, end, home and arrows do not trigger the keypress event (they trigger keydown though)
                 if (
-                    e.which < 48 ||
-                    e.which > 57 ||
-                    $(e.target).val().length > 3
+                    evt.which < 48 || // 0
+                    evt.which > 57 || // 9
+                    $(evt.target).val().length > 3
                 ) {
-                    e.preventDefault();
+                    evt.preventDefault();
                 }
             });
 
         /*
-            // This was used for debugging user pictures
-            e.view.element.find('img').on(CLICK, function (e) {
-                window.alert($(e.target).attr('src'));
-            });
-            */
+        // This was used for debugging user pictures
+        e.view.element.find('img').on(CLICK, function (e) {
+            window.alert($(e.target).attr('src'));
+        });
+        */
     },
 
     /**
@@ -522,17 +576,21 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
-        const { controller, notification, viewModel } = app;
-        controller.onGenericViewShow(e);
+        const {
+            notification,
+            viewModel,
+            viewModel: { VIEW },
+        } = app;
+        viewModel.onGenericViewShow(e);
         // Display a notification
         if (viewModel.isSavedUser$()) {
-            notification.info(__('notifications.pinValidationInfo'));
+            notification.info(__('mobile.notifications.pinValidationInfo'));
         } else {
-            notification.info(__('notifications.pinSaveInfo'));
+            notification.info(__('mobile.notifications.pinSaveInfo'));
         }
         // Focus on PIN
-        feature.enableUserButtons(true);
-        e.view.element.find(SELECTORS.PIN).val(CONSTANTS.EMPTY).first().focus();
+        viewModel.enableUserButtons(true);
+        e.view.element.find(VIEW.USER.PIN).val(CONSTANTS.EMPTY).first().focus();
     },
 
     /**
@@ -553,26 +611,30 @@ const feature = {
                 'jQuery'
             )
         );
+        const {
+            // i18n,
+            notification,
+            viewModel,
+            viewModel: { VIEW, VIEW_MODEL },
+        } = app;
 
         // Disable buttons to avoid double clicks
-        mobile.enableUserButtons(false);
+        viewModel.enableUserButtons(false);
 
         // Get user from viewModel
-        const user = viewModel.get(this.VIEW_MODEL.USER._);
+        const user = viewModel.get(VIEW_MODEL.USER._);
         assert.instanceof(
-            models.MobileUser,
+            User,
             user,
-            assert.format(
-                assert.messages.instanceof.default,
-                'user',
-                'models.MobileUser'
-            )
+            assert.format(assert.messages.instanceof.default, 'user', 'User')
         );
-        const isNewUser = user.isNew();
+        // const isNewUser = user.isNewUser();
+        const md5pin = viewModel.get(VIEW_MODEL.USER.MD5_PIN);
+        const isNewUser = $.type(md5pin) !== CONSTANTS.STRING;
 
         // Read pin values
-        const $view = e.button.closest(kendo.roleSelector('view'));
-        const pinElements = $view.find(SELECTORS.PIN);
+        const $view = e.button.closest(roleSelector('view'));
+        const pinElements = $view.find(VIEW.USER.PIN);
         assert.equal(
             3,
             pinElements.length,
@@ -585,75 +647,77 @@ const feature = {
         const pinValue = pinElements.eq(0).val();
         const newPinValue = pinElements.eq(1).val();
         const confirmValue = pinElements.eq(2).val();
-        const isNew = user.isNew();
         if (
-            (isNew &&
+            (isNewUser &&
                 RX_PIN.test(newPinValue) &&
                 confirmValue === newPinValue) ||
-            (!isNew &&
+            (!isNewUser &&
                 RX_PIN.test(newPinValue) &&
                 confirmValue === newPinValue &&
                 user.verifyPin(pinValue))
         ) {
             // Update user with new pin
             user.addPin(newPinValue);
-            viewModel.set(this.VIEW_MODEL.USER.LAST_USE, new Date());
+            viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
 
             // Synchronize changes
             viewModel
                 .syncUsers()
-                .done(function () {
-                    app.notification.success(
-                        kendo.format(
-                            i18n.culture.notifications.userSignInSuccess,
+                .then(() => {
+                    notification.success(
+                        format(
+                            __('mobile.notifications.userSignInSuccess'),
                             viewModel.user.fullName$()
                         )
                     );
                     if (isNewUser) {
-                        mobile.application.navigate(
-                            CONSTANTS.HASH + this.VIEW.SYNC
+                        debugger;
+                        app.viewModel.application.navigate(
+                            `${CONSTANTS.HASH}${VIEW.SYNC._}`
                         );
                     } else {
                         const language = i18n.locale();
                         assert.equal(
                             language,
-                            viewModel.get(this.VIEW_MODEL.LANGUAGE),
+                            viewModel.get(VIEW_MODEL.LANGUAGE),
                             assert.format(
                                 assert.messages.equal.default,
                                 'viewModel.get("language")',
                                 language
                             )
                         );
-                        mobile.application.navigate(
-                            `${
-                                CONSTANTS.HASH + this.VIEW.CATEGORIES
+                        app.viewModel.application.navigate(
+                            `${CONSTANTS.HASH}${
+                                VIEW.CATEGORIES
                             }?language=${encodeURIComponent(language)}`
                         );
                     }
                 })
-                .always(function () {
-                    mobile.enableUserButtons(true);
-                    if (mobile.support.ga && isNew) {
+                .always(() => {
+                    app.viewModel.enableUserButtons(true);
+                    /*
+                    if (mobile.support.ga && isNewUser) {
                         mobile.ga.trackEvent(
                             ANALYTICS.CATEGORY.USER,
                             ANALYTICS.ACTION.SAVE,
                             viewModel.get(this.VIEW_MODEL.USER.PROVIDER)
                         );
                     }
+                     */
                 });
         } else if (
-            !isNew &&
+            !isNewUser &&
             RX_PIN.test(newPinValue) &&
             confirmValue === newPinValue &&
             !user.verifyPin(pinValue)
         ) {
             app.notification.warning(
-                i18n.culture.notifications.pinValidationFailure
+                __('mobile.notifications.pinValidationFailure')
             );
-            mobile.enableUserButtons(true);
+            app.viewModel.enableUserButtons(true);
         } else {
-            app.notification.warning(i18n.culture.notifications.pinSaveFailure);
-            mobile.enableUserButtons(true);
+            app.notification.warning(__('mobile.notifications.pinSaveFailure'));
+            app.viewModel.enableUserButtons(true);
         }
     },
 
@@ -692,13 +756,19 @@ const feature = {
                 'jQuery'
             )
         );
+        const {
+            i18n,
+            notification,
+            viewModel,
+            viewModel: { VIEW, VIEW_MODEL },
+        } = app;
 
         // Disable buttons to avoid double clicks
-        mobile.enableUserButtons(false);
+        viewModel.enableUserButtons(false);
 
         // Check the correct pin
-        const view = e.button.closest(kendo.roleSelector('view'));
-        const pinElement = view.find(`${SELECTORS.PIN}:visible`);
+        const view = e.button.closest(roleSelector('view'));
+        const pinElement = view.find(`${VIEW.USER.PIN}:visible`);
         assert.equal(
             1,
             pinElement.length,
@@ -712,41 +782,41 @@ const feature = {
 
         if (viewModel.user.verifyPin(pinValue)) {
             // Note: the following changes the value of viewModel.isSavedUser$, which changes UI layout
-            viewModel.set(this.VIEW_MODEL.USER.LAST_USE, new Date());
+            viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
             viewModel
                 .syncUsers(false)
-                .done(function () {
-                    app.notification.success(
-                        kendo.format(
-                            i18n.culture.notifications.userSignInSuccess,
+                .then(() => {
+                    notification.success(
+                        format(
+                            __('mobile.notifications.userSignInSuccess'),
                             viewModel.user.fullName$()
                         )
                     );
-                    mobile.application.navigate(
+                    viewModel.application.navigate(
                         `${CONSTANTS.HASH}${
                             this.VIEW.CATEGORIES
                         }?language=${encodeURIComponent(i18n.locale())}`
                     );
                     // Request an app store review
-                    mobile._requestAppStoreReview();
+                    viewModel._requestAppStoreReview();
                 })
                 .always(() => {
-                    mobile.enableUserButtons(true);
+                    viewModel.enableUserButtons(true);
                     /* TODO analytics
-                if (mobile.support.ga) {
-                    mobile.ga.trackEvent(
-                        ANALYTICS.CATEGORY.USER,
-                        ANALYTICS.ACTION.SIGNIN,
-                        viewModel.get(this.VIEW_MODEL.USER.PROVIDER)
-                    );
-                }
-                */
+                    if (mobile.support.ga) {
+                        mobile.ga.trackEvent(
+                            ANALYTICS.CATEGORY.USER,
+                            ANALYTICS.ACTION.SIGNIN,
+                            viewModel.get(this.VIEW_MODEL.USER.PROVIDER)
+                        );
+                    }
+                    */
                 });
         } else {
             app.notification.warning(
-                i18n.culture.notifications.pinValidationFailure
+                __('mobile.notifications.pinValidationFailure')
             );
-            mobile.enableUserButtons(true);
+            viewModel.enableUserButtons(true);
         }
     },
 
@@ -768,9 +838,13 @@ const feature = {
                 'jQuery'
             )
         );
-        app.controller.application.navigate(
-            `${CONSTANTS.HASH}${this.VIEW.SIGNIN}?page=${encodeURIComponent(
-                SIGNIN_PAGE
+        const {
+            viewModel,
+            viewModel: { VIEW },
+        } = app;
+        viewModel.application.navigate(
+            `${CONSTANTS.HASH}${VIEW.SIGNIN._}?page=${encodeURIComponent(
+                VIEW.SIGNIN.LAST_PAGE
             )}`
         );
     },
@@ -793,8 +867,13 @@ const feature = {
                 'jQuery'
             )
         );
-        // Simply change a property to show the Save button considering declarative bindings based on viewModel.isSavedUser$()
-        app.viewModel.set(this.VIEW_MODEL.USER.LAST_USE, new Date());
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        // Simply change a property to show the Save button
+        // considering declarative bindings based on viewModel.isSavedUser$()
+        viewModel.set(VIEW_MODEL.USER.LAST_USE, new Date());
     },
 
     /**
@@ -802,10 +881,13 @@ const feature = {
      * @param enable
      */
     enableUserButtons(enable) {
-        $(CONSTANTS.HASH + this.VIEW.USER)
-            .find(`li:has(${SELECTORS.PIN})`)
+        const {
+            viewModel: { VIEW },
+        } = app;
+        $(`${CONSTANTS.HASH}${VIEW.USER._}`)
+            .find(`li:has(${VIEW.USER.PIN})`)
             .css('visibility', enable ? '' : 'hidden');
-        $(CONSTANTS.HASH + this.VIEW.USER)
+        $(`${CONSTANTS.HASH}${VIEW.USER._}`)
             .children(roleSelector('content'))
             .find(roleSelector('button'))
             .each(() => {

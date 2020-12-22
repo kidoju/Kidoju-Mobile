@@ -20,7 +20,6 @@ import Logger from '../common/window.logger.es6';
 import inAppBrowser from '../plugins/plugins.inappbrowser.es6';
 import safariViewController from '../plugins/plugins.safariviewcontroller.es6';
 import { getSignInUrl } from '../rapi/rapi.oauth.es6';
-import { cleanHistory, parseToken } from '../rapi/rapi.util.es6';
 import { xhr2error } from '../data/data.util.es6';
 
 const {
@@ -47,8 +46,10 @@ const feature = {
      * View
      */
     VIEW: {
-        SIGNIN: 'signin',
-        SIGNIN_PAGE: 3, // TODO: right location?
+        SIGNIN: {
+            _: 'signin',
+            LAST_PAGE: 3
+        },
     },
 
     /**
@@ -70,7 +71,7 @@ const feature = {
      * Sign in with InAppBrowser
      * Requires https://github.com/apache/cordova-plugin-inappbrowser
      *
-     * Note: Parsing the token is done here by parseTokenAndLoadUser
+     * Note: Parsing the token is done here by readAccessTokenAndLoadUser
      *
      * This is the old way applicable to iOS8 and prior versions
      * This way has several limitations:
@@ -83,6 +84,7 @@ const feature = {
      * @private
      */
     signinWithInAppBrowser(signInUrl, returnUrl) {
+        const { viewModel } = app;
         let browser;
         let loadStart;
         let loadError;
@@ -116,7 +118,7 @@ const feature = {
             // we should be able to have the same flow as in SafariViewController
             // if (e.url.startsWith(returnUrl)) {
             if (e.url.indexOf(returnUrl) === 0) {
-                viewModelparseTokenAndLoadUser(e.url).always(close);
+                viewModel.readAccessTokenAndLoadUser(e.url).always(close);
             }
         };
         loadError = (error) => {
@@ -153,7 +155,7 @@ const feature = {
      * requires https://github.com/EddyVerbruggen/cordova-plugin-safariviewcontroller
      * also requires https://github.com/EddyVerbruggen/Custom-URL-scheme
      *
-     * Note: Parsing the token is done by parseTokenAndLoadUser in handleOpenURL (see custom url scheme)
+     * Note: Parsing the token is done by readAccessTokenAndLoadUser in handleOpenURL (see custom url scheme)
      *
      * Now that Google has deprecated oAuth flows from web views, this is the preferred way to sign in
      * although this is only compatible with iOS 9 and above
@@ -260,11 +262,14 @@ const feature = {
             )
         );
         // const view = this; // we try to avoid the use of this in features
-        const { viewModel, viewModel: { VIEW } } = app;
+        const {
+            viewModel,
+            viewModel: { VIEW },
+        } = app;
         const view$ = e.sender.element.closest(roleSelector('view'));
         const view = view$.data('kendoMobileView');
-        if (e.nextPage === VIEW.SIGNIN_PAGE) {
-            viewModel.setNavBarTitle(view, __('signin.viewTitle2'));
+        if (e.nextPage === VIEW.SIGNIN.LAST_PAGE) {
+            viewModel.setNavBarTitle(view, __('mobile.signin.viewTitle2'));
             view.content.find('ol.k-pages.km-pages').addClass('no-background');
         } else {
             viewModel.setNavBarTitle(view);
@@ -299,7 +304,7 @@ const feature = {
         // Parse token (in browser only)
         if (!inAppBrowser.ready() && !safariViewController.ready()) {
             e.preventDefault();
-            viewModel.parseTokenAndLoadUser(window.location.href);
+            viewModel.readAccessTokenAndLoadUser();
         }
         // Set Navbar
         const { view } = e;
@@ -342,7 +347,7 @@ const feature = {
             $.type(enable) === CONSTANTS.STRING ? enable : CONSTANTS.EMPTY;
         const enabled = provider.length ? false : enable;
 
-        $(CONSTANTS.HASH + VIEW.SIGNIN)
+        $(CONSTANTS.HASH + VIEW.SIGNIN._)
             .children(roleSelector('content'))
             .find(roleSelector('button'))
             .each((index, element) => {
@@ -389,17 +394,20 @@ const feature = {
         // We can then access this returnUrl in the loadstart and loadstop events of the InAppBrowser.
         // So if we bind the loadstart event, we can find the access_token code and close the InAppBrowser after the user has granted access to their data.
         const returnUrl =
+            /* eslint-disable prettier/prettier */
             safariViewController.ready() || inAppBrowser.ready()
                 ? format(
-                      config.uris.rapi.root +
-                          config.uris.rapi.oauth.application,
-                      config.constants.appId
-                  )
-                : `${window.location.protocol}//${window.location.host}/${CONSTANTS.HASH}${VIEW.SIGNIN}`;
+                    config.uris.rapi.root +
+                        config.uris.rapi.oauth.application,
+                    config.constants.appId
+                )
+                : `${window.location.protocol}//${window.location.host}/${CONSTANTS.HASH}${VIEW.SIGNIN._}`;
+            // : `${window.location.origin}${window.location.pathname}${CONSTANTS.HASH}${VIEW.SIGNIN._}`;
+            /* eslint-enable prettier/prettier */
         // When running in a browser via phonegap serve, the InAppBrowser turns into an iframe but authentication providers prevent running in an iframe by setting 'X-Frame-Options' to 'SAMEORIGIN'
         // So if the device platform is a browser, we need to keep the sameflow as Kidoju-WebApp with a redirectUrl that targets the user view
         getSignInUrl(provider, returnUrl)
-            .done((signInUrl) => {
+            .then((signInUrl) => {
                 // Save provider to read in viewModel.loadUser
                 localStorage.setItem('provider', provider); // TODO Manage errors
                 logger.debug({
@@ -422,8 +430,8 @@ const feature = {
                     viewModel.signinWithinBrowser(signInUrl);
                 }
             })
-            .fail((xhr, status, errorThrown) => {
-                app.notification.error(__('notifications.signinUrlFailure'));
+            .catch((xhr, status, errorThrown) => {
+                app.notification.error(__('mobile.notifications.signinUrlFailure'));
                 logger.error({
                     message: 'error obtaining a signin url',
                     method: 'onSigninButtonClick',
@@ -437,58 +445,58 @@ const feature = {
     },
 
     /**
-     * Parse token and load user
+     * Read token and load user
      * @param url
      * @private
      */
-    parseTokenAndLoadUser(url) {
+    readAccessTokenAndLoadUser(url = window.location.href) {
         const dfd = $.Deferred();
         const {
             viewModel,
             viewModel: { VIEW },
         } = app;
-        // No need to clean the history when opening in InAppBrowser or SafariViewController
-        if (!inAppBrowser.ready() && !safariViewController.ready()) {
-            cleanHistory();
-        }
-        // parseToken sets the token in localStorage
-        parseToken(url)
+        viewModel
+            .readAccessToken(url)
             .then((token) => {
-                if (token && token.access_token) {
+                if (token && token.value) {
                     // Load the remote mobile user (me) using the oAuth token
-                    // We cannot navigate to a page here because the initial page is defined in the constructor of kendo.mobile.Application
+                    // We cannot navigate to a page here because the initial page
+                    // is defined in the constructor of kendo.mobile.Application
                     viewModel
                         .loadUser()
-                        .done(() => {
+                        .then(() => {
                             // Yield time for transition effects to complete, especially when testing in the browser
                             // Otherwise we get an exception on that.effect.stop in kendo.mobile.ViewContainer.show
                             // app.mobile.application.view().one('transitionEnd', function () {
                             setTimeout(() => {
-                                if (viewModel.isNewUser$()) {
-                                    // Save new user first
-                                    viewModel.application.navigate(
-                                        CONSTANTS.HASH + VIEW.USER
-                                    );
+                                // if (viewModel.isNewUser$()) {
+                                // Save new user first
+                                viewModel.application.navigate(
+                                    `${CONSTANTS.HASH}${VIEW.USER._}`
+                                );
+                                /*
                                 } else {
                                     // Sync user data since we have a recent token
                                     viewModel.application.navigate(
-                                        CONSTANTS.HASH + VIEW.SYNC
+                                        `${CONSTANTS.HASH}${VIEW.SYNC._}`
                                     );
                                 }
+                                */
                                 dfd.resolve();
                             }, 0);
                         })
-                        .fail(dfd.reject);
+                        .catch(dfd.reject);
                 } else {
                     // When there is no token in the url
                     dfd.resolve();
                 }
             })
             .catch((error) => {
-                app.notification.error(__('notifications.oAuthTokenFailure'));
+                debugger;
+                app.notification.error(__('mobile.notifications.oAuthTokenFailure'));
                 logger.error({
                     error,
-                    method: 'parseTokenAndLoadUser',
+                    method: 'readAccessTokenAndLoadUser',
                     data: { url },
                 });
                 dfd.reject(error);
@@ -502,14 +510,17 @@ const feature = {
      * @private
      */
     _fixSigninViewLocalization() {
-        const { viewModel, viewModel: { VIEW_MODEL } } = app;
+        const {
+            viewModel,
+            viewModel: { VIEW, VIEW_MODEL },
+        } = app;
         if (
             viewModel.application instanceof Application &&
             viewModel.application.pane instanceof Pane
         ) {
             const view = viewModel.application.view();
-            if (parseInt(view.params.page, 10) === VIEW.SIGNIN_PAGE) {
-                viewModel.setNavBarTitle(view, __('signin.viewTitle2'));
+            if (parseInt(view.params.page, 10) === VIEW.SIGNIN.LAST_PAGE) {
+                viewModel.setNavBarTitle(view, __('mobile.signin.viewTitle2'));
             }
             const provider =
                 view.params.userId === viewModel.get(VIEW_MODEL.USER.ID)
@@ -522,7 +533,7 @@ const feature = {
                     )
                     .html(
                         format(
-                            __('signin.welcome2'),
+                            __('mobile.signin.welcome2'),
                             viewModel.get(VIEW_MODEL.USER.FIRST_NAME),
                             provider
                         )

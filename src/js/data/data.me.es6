@@ -7,7 +7,7 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.data';
-import database from '../app/app.db.es6';
+import db from '../app/app.db.es6';
 import __ from '../app/app.i18n.es6';
 import { iconUri, userUri } from '../app/app.uris.es6';
 import assert from '../common/window.assert.es6';
@@ -18,13 +18,13 @@ import BaseModel from './data.base.es6';
 import { isMobileApp, normalizeSchema } from './data.util.es6';
 import extendModelWithTransport from './mixins.transport.es6';
 import CacheItemStrategy from './strategy.cache.item.es6';
+import MobileUserStrategy from './strategy.mobileuser.es6';
 import LocalTransport from './transports.local.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
 
 const {
     data: { DataSource },
     deepExtend,
-    format,
 } = window.kendo;
 
 /**
@@ -92,7 +92,9 @@ if (isMobileApp()) {
             // Last time when the mobile device was synchronized with the server for that specific user
             lastSync: {
                 type: CONSTANTS.DATE,
-                // defaultValue: DEFAULT.DATE
+                defaultValue() {
+                    return new Date(0); // In 1970
+                },
             },
             // The current user is the user with the most recent lastUse
             lastUse: {
@@ -140,7 +142,7 @@ if (isMobileApp()) {
                     CONSTANTS.FUNCTION
                 )
             );
-            const salt = this.get('sid');
+            const salt = this.get(CONSTANTS.ID);
             assert.match(
                 CONSTANTS.RX_MONGODB_ID,
                 salt,
@@ -183,7 +185,7 @@ if (isMobileApp()) {
                     CONSTANTS.FUNCTION
                 )
             );
-            const salt = this.get('sid');
+            const salt = this.get(CONSTANTS.ID);
             assert.match(
                 CONSTANTS.RX_MONGODB_ID,
                 salt,
@@ -207,36 +209,45 @@ if (isMobileApp()) {
 const Me = BaseModel.define(definition);
 
 /**
- * Me local transport
+ * local transport
  */
-const meLocalTransport = new LocalTransport({
-    collection: database.users,
+const localTransport = new LocalTransport({
+    collection: db.users,
+    partition: {},
 });
 
 /**
- * Me remote transport
+ * remote transport
  */
-const meRemoteTransport = new LazyRemoteTransport({
+const remoteTransport = new LazyRemoteTransport({
     collection: new AjaxUsers({
-        projection: BaseModel.projection(Me),
+        // Fields that do not exist remotely trigger ann error
+        // projection: BaseModel.projection(Me),
     }),
 });
 
 /**
- * Extend model with transport
+ * transport
  */
-if (isMobileApp()) {
-    extendModelWithTransport(Me, meRemoteTransport);
-} else {
-    const meCacheTransport = new CacheItemStrategy({
+/* eslint-disable prettier/prettier */
+const transport = isMobileApp()
+    ? new MobileUserStrategy({
+        localTransport,
+        remoteTransport,
+    })
+    : new CacheItemStrategy({
         cache: 'session',
         key: CONSTANTS.ME,
         singleton: true,
-        transport: meRemoteTransport,
+        transport: remoteTransport,
         // ttl: 24 * 60 * 60
     });
-    extendModelWithTransport(Me, meCacheTransport);
-}
+/* eslint-enable prettier/prettier */
+
+/**
+ * Extend model with transport
+ */
+extendModelWithTransport(Me, transport);
 
 /**
  * MeDataSource
@@ -249,7 +260,7 @@ const MeDataSource = DataSource.extend({
             pageSize: CONSTANTS.DATA_PAGE_SIZE.MAX,
             ...options,
             ...{
-                transport: meLocalTransport,
+                transport,
                 schema: normalizeSchema({
                     modelBase: Me,
                     model: Me,
@@ -265,5 +276,4 @@ const MeDataSource = DataSource.extend({
 /**
  * Export
  */
-// export default Me;
 export { Me, MeDataSource };

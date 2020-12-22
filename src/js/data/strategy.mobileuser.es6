@@ -8,7 +8,6 @@
 import $ from 'jquery';
 import 'kendo.data';
 import assert from '../common/window.assert.es6';
-// import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
 import LocalTransport from './transports.local.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
@@ -17,7 +16,7 @@ const {
     Class,
     // data: { Query }
 } = window.kendo;
-const logger = new Logger('strategy.downstream.lazy');
+const logger = new Logger('strategy.mobileme');
 
 // TODO Consider using the network plugin
 function isOffline() {
@@ -31,12 +30,12 @@ function isOffline() {
 }
 
 /**
- * LazyDownstreamStrategy
+ * MobileMeStrategy
  * Like a read-only cache strategy using local database when offline
- * @class LazyDownstreamStrategy
+ * @class MobileMeStrategy
  * @extends Class
  */
-const LazyDownstreamStrategy = Class.extend({
+const MobileMeStrategy = Class.extend({
     /**
      * Init
      * @constructor init
@@ -89,6 +88,34 @@ const LazyDownstreamStrategy = Class.extend({
     },
 
     /**
+     * Create
+     * @param options
+     */
+    create(/* options */) {
+        throw new Error('Use get to create users');
+    },
+
+    /**
+     * Destroy
+     * @param options
+     */
+    destroy(options) {
+        assert.crud(options);
+        logger.debug({
+            message: 'destroy data',
+            method: 'destroy',
+            data: options.data,
+        });
+        // Always destroy users with _localTransport
+        const { _localTransport } = this;
+        _localTransport.destroy({
+            data: options.data,
+            error: options.error,
+            success: options.success,
+        });
+    },
+
+    /**
      * Get
      * @param options
      */
@@ -97,7 +124,7 @@ const LazyDownstreamStrategy = Class.extend({
         logger.debug({
             message: 'get data',
             method: 'get',
-            data: options.data, // TODO add isOffline
+            data: options.data,
         });
         const { _localTransport, _remoteTransport } = this;
         _localTransport.get({
@@ -108,7 +135,6 @@ const LazyDownstreamStrategy = Class.extend({
                 } else {
                     _remoteTransport.get({
                         data: options.data,
-                        // error: options.error,
                         error: options.error,
                         success(onlineResponse) {
                             _localTransport.create({
@@ -157,15 +183,14 @@ const LazyDownstreamStrategy = Class.extend({
                                 success(updated) {
                                     assert.equal(
                                         1,
-                                        updated &&
-                                            updated.total,
+                                        (updated || {}).total,
                                         assert.format(
                                             assert.messages.equal.default,
                                             'updated.total',
                                             '1'
                                         )
                                     );
-                                    options.success(updatedResponse.data[0]);
+                                    options.success(updated.data[0]);
                                 },
                                 */
                             });
@@ -185,47 +210,35 @@ const LazyDownstreamStrategy = Class.extend({
         logger.debug({
             message: 'read data',
             method: 'read',
-            data: options.data, // TODO add isOffline
+            data: options.data,
         });
-        const { _localTransport, _remoteTransport } = this;
+        // Always read users with _localTransport
+        const { _localTransport } = this;
         _localTransport.read({
             data: options.data,
             error: options.error,
-            success(offlineResponse) {
-                if (isOffline()) {
-                    options.success(offlineResponse);
-                } else {
-                    _remoteTransport.read({
-                        data: options.data,
-                        error: options.error,
-                        success(onlineResponse) {
-                            const promises = [];
-                            function upsert(index) {
-                                const dfd = $.Deferred();
-                                // TODO: This should be an upsert, merging offline and online data
-                                _localTransport.update({
-                                    data: onlineResponse.data[index],
-                                    error: dfd.reject,
-                                    success: dfd.resolve,
-                                });
-                                return dfd.promise();
-                            }
-                            for (
-                                let idx = 0, { length } = onlineResponse.data;
-                                idx < length;
-                                idx++
-                            ) {
-                                // avoid anonymous functions in for oops
-                                promises.push(upsert(idx));
-                            }
-                            $.when(...promises).always(() => {
-                                // Note: ignore errors caching the response
-                                options.success(onlineResponse);
-                            });
-                        },
-                    });
-                }
-            },
+            success: options.success,
+        });
+    },
+
+
+    /**
+     * Update
+     * @param options
+     */
+    update(options) {
+        assert.crud(options);
+        logger.debug({
+            message: 'update data',
+            method: 'update',
+            data: options.data,
+        });
+        // Always update users using _localTransport
+        const { _localTransport } = this;
+        _localTransport.update({
+            data: options.data,
+            error: options.error,
+            success: options.success,
         });
     },
 });
@@ -233,4 +246,4 @@ const LazyDownstreamStrategy = Class.extend({
 /**
  * Default export
  */
-export default LazyDownstreamStrategy;
+export default MobileMeStrategy;

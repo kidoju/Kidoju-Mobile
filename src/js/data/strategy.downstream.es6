@@ -49,7 +49,7 @@ const DownstreamStrategy = LazyDownstreamStrategy.extend({
     },
 
     /**
-     * Destroy
+     * Update
      * @param options
      */
     update(options) {

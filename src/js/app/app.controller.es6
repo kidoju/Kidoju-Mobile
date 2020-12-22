@@ -48,7 +48,7 @@ const AppController = BaseController.extend({
         if (url.indexOf(`${appScheme}://oauth`) === 0) {
             // The whole oAuth flow is documented at
             // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
-            feature.parseTokenAndLoadUser(url);
+            feature.readAccessTokenAndLoadUser(url);
         } else if (rxAppScheme.test(url)) {
             const matches = rxAppScheme.exec(url);
             // Note: we have already tested the url, so we know there is a match

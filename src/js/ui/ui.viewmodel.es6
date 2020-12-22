@@ -11,8 +11,8 @@ import 'kendo.userevents';
 import 'kendo.mobile.application';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+// import app from '../common/window.global.es6';
 import Logger from '../common/window.logger.es6';
-import app from '../common/window.global.es6';
 import splashScreen from '../plugins/plugins.splashscreen.es6';
 import BaseController from '../rapi/rapi.controller.es6';
 
@@ -39,6 +39,8 @@ const AppController = BaseController.extend({
             message: 'Initializing kendo application',
             method: 'initApplication',
         });
+        debugger;
+
         // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
         UserEvents.defaultThreshold(
             support.mobileOS.name === 'android' ? 0 : 20
@@ -47,28 +49,26 @@ const AppController = BaseController.extend({
 
         // Initial page
         let initial = CONSTANTS.HASH;
-        /*
-        if (app.viewModel.isSyncedUser$()) {
+        debugger;
+        if (this.isSyncedUser$()) {
             // The viewModel user has been recently synced, show the user view
-            initial += VIEW.USER;
-        } else if (app.viewModel.isSavedUser$()) {
+            initial += this.VIEW.USER._;
+        } else if (this.isSavedUser$()) {
             // The viewModel user has not been synced for a while, suggest to signin to sync
-            initial += `${VIEW.SIGNIN}?page=${encodeURIComponent(
-                VIEW.SIGNIN_PAGE
+            initial += `${this.VIEW.SIGNIN._}?page=${encodeURIComponent(
+                this.VIEW.SIGNIN.LAST_PAGE
             )}&userId=${encodeURIComponent(
-                app.viewModel.get(VIEW_MODEL.USER.ID)
+                this.get(this.VIEW_MODEL.USER.ID)
             )}`;
         } else {
-        */
             // The viewModel user is new, show walkthrough before signing in
-            initial += this.VIEW.SIGNIN;
-        // }
-
+            initial += this.VIEW.SIGNIN._;
+        }
 
         // Initialize application
         this.application = new Application(document.body, {
             initial,
-            // TODO skin: app.theme.name(),
+            skin: 'flat', // TODO skin: app.theme.name(),
             // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
             // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
             // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
@@ -88,8 +88,7 @@ const AppController = BaseController.extend({
                 // TODO mobile._fixSigninViewLocalization();
                 // Reinitialize notifications now that we know the size of .km-header
                 // TODO mobile._initToastNotifications();
-                // Wire the resize event handler for changes of device orientation
-                $(window).resize(this.onResize.bind(this));
+
                 // Bind the router change event to the onRouterChange handler
                 this.application.router.bind(
                     CONSTANTS.BACK,
@@ -99,6 +98,10 @@ const AppController = BaseController.extend({
                     CONSTANTS.CHANGE,
                     this.onRouterChange.bind(this)
                 );
+
+                // Wire the resize event handler for changes of device orientation
+                $(window).resize(this.onResize.bind(this));
+
                 // Trigger application init event for handleOpenURL event handler (custom url scheme)
                 this.trigger('app.init');
 
@@ -121,18 +124,19 @@ const AppController = BaseController.extend({
             error,
         });
         // Initialize application
+        debugger;
         this.application = new Application(document.body, {
-            initial: '#error',
-            // TODO: skin???
+            initial: `${CONSTANTS.HASH}${this.VIEW.ERROR._}`,
+            skin: 'flat', // TODO skin: app.theme.name(),
             init(/* e */) {
-                // debugger;
+                debugger;
                 // hide the splash screen
                 setTimeout(() => {
                     splashScreen.hide();
                     // This is an old version of the application, so request an upgrade
                     /*
                     dialogs.error(
-                        i18n.culture.notifications.appVersionFailure,
+                        __('mobile.notifications.appVersionFailure'),
                         function() {
                             // TODO Consider opening the app store
                             if (
@@ -153,6 +157,7 @@ const AppController = BaseController.extend({
      * Event handler for the resize event
      */
     onResize(e) {
+        debugger;
         // In Android and iOS, onResize might be triggered before kendo.mobile.Application is instantiated
         // and/or before mobile.application as a pane which would trigger an error in mobile.application.view()
         // which is a shortcut for mobile.application.pane.view()
@@ -161,9 +166,7 @@ const AppController = BaseController.extend({
             this.application.pane instanceof Pane
         ) {
             const view = this.application.view();
-            this._resizers.forEach((resize) => {
-                resize(e, view);
-            });
+            this.resize(e, view);
         }
     },
 
@@ -204,12 +207,12 @@ const AppController = BaseController.extend({
                 CONSTANTS.STRING
             )
         );
-        if (app.viewModel.application instanceof Application) {
-            app.viewModel.application.showLoading();
+        if (this.application instanceof Application) {
+            this.application.showLoading();
         }
         /*
         // Check that we are online and ping google analytics
-        if (app.viewModel.checkNetwork(e)) {
+        if (this.checkNetwork(e)) {
             // Track in analytics
             if (mobile.support.ga) {
                 var pos = e.url.indexOf('?');

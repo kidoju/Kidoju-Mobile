@@ -35,7 +35,9 @@ const feature = {
      * View
      */
     VIEW: {
-        FINDER: 'finder',
+        FINDER: {
+            _: 'finder',
+        },
     },
 
     /**
@@ -100,7 +102,7 @@ const feature = {
         //   }
         // }
         // So we really need $.deparam($.param(...))
-        const { controller, viewModel } = app;
+        const { viewModel } = app;
         viewModel
             .loadLazySummaries(
                 $.extend(
@@ -123,7 +125,7 @@ const feature = {
             )
             // See comment onSummariesBeforeViewShow
             .always(() => {
-                controller.onGenericViewShow(e);
+                viewModel.onGenericViewShow(e);
             });
     },
 

@@ -21,13 +21,17 @@ import features from './features.es6';
 import initializers from './initializers.es6';
 import AppController from './ui.viewmodel.es6';
 
-
 // TODO remove stylesheets and use themer
-import '../../styles/fonts/kidoju.less';
-import '../../styles/vendor/kendo/web/kendo.flat.mobile.less';
-// import '../../styles/vendor/kendo/mobile/kendo.mobile.all.less';
 import '../../styles/ui/app.fonts.less';
-import '../../styles/ui/app.mobile.less';
+// import '../../styles/vendor/kendo/web/kendo.common.less';
+import '../../styles/vendor/kendo/web/kendo.flat.less'; // notifications
+// import '../../styles/vendor/kendo/mobile/kendo.mobile.all.less';
+import '../../styles/vendor/kendo/mobile/kendo.mobile.flat.less';
+// import '../../styles/ui/app.mobile.less';
+// import '../../styles/themes/app.theme.flat.less';
+
+// UI Stylesheets
+import '../../styles/ui/features.scss';
 
 const logger = new Logger('main');
 
@@ -63,14 +67,14 @@ window.onerror = function onerror(message, source, lineno, colno, error) {
         }
         // Hide loading
         /*
-        if (mobile.application instanceof kendo.mobile.Application) {
+        if (app.viewModel.application instanceof kendo.mobile.Application) {
             mobile.application.hideLoading();
         }
          */
         // Show error notification
         /*
         if (i18n.culture && app.notification && $.isFunction(app.notification.error)) {
-            app.notification.error(i18n.culture.notifications.unknownError);
+            app.notification.error(__('mobile.mobile.notifications.unknownError'));
         }
          */
     }, 0);
@@ -109,8 +113,6 @@ function onDeviceReady() {
     // Initialize network events
     // TODO mobile._initNetworkEvents();
 
-    debugger;
-
     // Create the viewModel
     app.viewModel = new AppController({
         initializers,
@@ -121,29 +123,37 @@ function onDeviceReady() {
     app.viewModel.reset();
 
     // Execute application async initializers, including database and languages
-    app.viewModel.ready().then(() => {
-        // Log initialization
-        logger.debug({
-            message: `app controller initialized in ${__.locale}`,
-            method: 'onDeviceReady',
-        });
-
-        // Check application and database versions
-        // TODO Should we make checkForUpgrade an initializer?
-        // this.checkForUpgrade()
-        $.Deferred()
-            .resolve()
-            .promise()
-            .then(() => {
-                // Load data, then initialize kendo application with MVVM bindings
-                app.viewModel.load().always(app.viewModel.initApplication());
-            })
-            .catch((error) => {
-                // app.notification.error(i18n.culture.notifications.dbMigrationFailure);
-                // TODO Exit the application - occurs for example if app.culture.xx.es6 is missing
-                app.viewModel.initFatalError.bind(this, error);
+    app.viewModel
+        .ready()
+        .then(() => {
+            // Log initialization
+            logger.debug({
+                message: `app controller initialized in ${__.locale}`,
+                method: 'onDeviceReady',
             });
-    });
+
+            // Check application and database versions
+            // TODO Should we make checkForUpgrade an initializer?
+            // this.checkForUpgrade()
+            $.Deferred()
+                .resolve()
+                .promise()
+                .then(() => {
+                    // Load data, especially users,
+                    // then initialize kendo application with MVVM bindings
+                    app.viewModel
+                        .load()
+                        .always(() => app.viewModel.initApplication());
+                })
+                .catch((error) => {
+                    // app.notification.error(__('mobile.mobile.notifications.dbMigrationFailure'));
+                    // TODO Exit the application - occurs for example if app.culture.xx.es6 is missing
+                    app.viewModel.initFatalError.bind(this, error);
+                });
+        })
+        .catch((error) => {
+            app.viewModel.initFatalError.bind(this, error);
+        });
 }
 
 /**

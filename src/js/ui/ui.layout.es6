@@ -6,6 +6,7 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import 'kendo.mobile.application';
 import 'kendo.mobile.navbar';
 import 'kendo.mobile.view';
 import 'kendo.mobile.scroller';
@@ -62,6 +63,10 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
+        // Init notifications
+        // Cannot be done in onLayoutViewInit because $('#notification) is not accessible
+        // Cannot be done in the init event of the kendo.mobile.application which occurs after onLayoutViewShow
+        app.viewModel.initNotifications();
         // Reset view scroller
         if (e.view.scroller instanceof Scroller) {
             // Stretched view like #correction and #player do not have a scroller
@@ -73,6 +78,10 @@ const feature = {
             if (scroller instanceof Scroller) {
                 scroller.reset();
             }
+        });
+        logger.debug({
+            message: 'Layout shown',
+            method: 'onLayoutViewShow',
         });
     },
 
@@ -167,7 +176,6 @@ const feature = {
             viewModel,
             viewModel: { VIEW },
         } = app;
-        debugger;
         const $view = view.element;
         let showDrawerButton = false;
         let showHomeButton = false;
@@ -187,15 +195,15 @@ const feature = {
         switch (view.id) {
             default:
             case CONSTANTS.SLASH:
-            case CONSTANTS.HASH + VIEW.ACTIVITIES:
+            case CONSTANTS.HASH + VIEW.ACTIVITIES._:
                 showDrawerButton = true;
                 showSyncButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.CATEGORIES:
+            case CONSTANTS.HASH + VIEW.CATEGORIES._:
                 showDrawerButton = true;
                 showSearchButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.CORRECTION:
+            case CONSTANTS.HASH + VIEW.CORRECTION._:
                 showDrawerButton = true;
                 showPreviousPageButton = !viewModel.isFirstPage$();
                 showNextPageButton = !viewModel.isLastPage$();
@@ -203,43 +211,43 @@ const feature = {
                 showScoreButton = viewModel.isLastPage$();
                 break;
             /*
-            case CONSTANTS.HASH + VIEW.FAVOURITES:
+            case CONSTANTS.HASH + VIEW.FAVOURITES._:
                 showDrawerButton = true;
                 showSyncButton = true;
                 break;
             */
-            case CONSTANTS.HASH + VIEW.FINDER:
+            case CONSTANTS.HASH + VIEW.FINDER._:
                 showDrawerButton = true;
                 showHomeButton = true;
                 // showSearchButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.NETWORK:
+            case CONSTANTS.HASH + VIEW.NETWORK._:
                 showDrawerButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.PLAYER:
+            case CONSTANTS.HASH + VIEW.PLAYER._:
                 showDrawerButton = true;
                 showPreviousPageButton = !viewModel.isFirstPage$();
                 showNextPageButton = !viewModel.isLastPage$();
                 showLastPageButton = !viewModel.isLastPage$();
                 showSubmitButton = viewModel.isLastPage$();
                 break;
-            case CONSTANTS.HASH + VIEW.SCORE:
+            case CONSTANTS.HASH + VIEW.SCORE._:
                 showDrawerButton = true;
                 showSummaryButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.SETTINGS:
+            case CONSTANTS.HASH + VIEW.SETTINGS._:
                 showDrawerButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.SIGNIN:
+            case CONSTANTS.HASH + VIEW.SIGNIN._:
                 showUserButton = viewModel.isSavedUser$();
                 break;
-            case CONSTANTS.HASH + VIEW.SUMMARY:
+            case CONSTANTS.HASH + VIEW.SUMMARY._:
                 showDrawerButton = true;
                 showHomeButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.SYNC:
+            case CONSTANTS.HASH + VIEW.SYNC._:
                 break;
-            case CONSTANTS.HASH + VIEW.USER:
+            case CONSTANTS.HASH + VIEW.USER._:
                 showPreviousUserButton =
                     viewModel.isSavedUser$() && !viewModel.isFirstUser$();
                 showNextUserButton =
@@ -497,7 +505,7 @@ const feature = {
                 CONSTANTS.RX_MONGODB_ID
             )
         );
-        controller.application.navigate(
+        viewModel.application.navigate(
             `${CONSTANTS.HASH}${this.VIEW.SCORE}?language=${encodeURIComponent(
                 language
             )}&summaryId=${encodeURIComponent(
@@ -526,12 +534,12 @@ const feature = {
                 'jQuery'
             )
         );
-        dialogs.confirm(__('notifications.confirmSubmit'), (buttonIndex) => {
+        dialogs.confirm(__('mobile.notifications.confirmSubmit'), (buttonIndex) => {
             if (buttonIndex === 1) {
                 const { viewModel } = app;
-                viewModel.calculate().done(() => {
+                viewModel.calculate().then(() => {
                     // Note: failure is already taken care of
-                    viewModel.saveCurrent().done(() => {
+                    viewModel.saveCurrent().then(() => {
                         viewModel.onNavBarScoreClick(e);
                         // TODO analytics
                         /*
@@ -568,7 +576,7 @@ const feature = {
                 'jQuery'
             )
         );
-        const { controller, viewModel } = app;
+        const { viewModel } = app;
         const language = __.locale();
         assert.equal(
             language,
@@ -607,7 +615,7 @@ const feature = {
                 summaryId
             )
         );
-        controller.application.navigate(
+        viewModel.application.navigate(
             `${CONSTANTS.HASH}${
                 this.VIEW.SUMMARY
             }?language=${encodeURIComponent(
@@ -621,13 +629,13 @@ const feature = {
      * @param e
      */
     onNavBarSyncClick(/* e */) {
-        const { controller, viewModel } = app;
-        // controller.application.navigate(CONSTANTS.HASH + VIEW.SYNC);
-        controller.application.navigate(
-            `${CONSTANTS.HASH}${VIEW.SIGNIN}?page=${encodeURIComponent(
-                VIEW.SIGNIN_PAGE
+        const { viewModel, viewModel: { VIEW, VIEW_MODEL } } = app;
+        // viewModel.application.navigate(`${CONSTANTS.HASH}${VIEW.SYNC._}`);
+        viewModel.application.navigate(
+            `${CONSTANTS.HASH}${VIEW.SIGNIN._}?page=${encodeURIComponent(
+                VIEW.SIGNIN.LAST_PAGE
             )}&userId=${encodeURIComponent(
-                viewModel.get(this.VIEW_MODEL.USER.ID)
+                viewModel.get(VIEW_MODEL.USER.ID)
             )}`
         );
     },
@@ -637,7 +645,7 @@ const feature = {
      */
     onNavBarSearchClick() {
         const language = __.locale(); // viewModel.get(this.VIEW_MODEL.LANGUAGE);
-        app.controller.application.navigate(
+        app.viewModel.application.navigate(
             `${CONSTANTS.HASH}${VIEW.FINDER}?language=${encodeURIComponent(
                 language
             )}`

@@ -51,7 +51,10 @@ const BaseController = ObservableObject.extend({
                 ? [this.readAccessToken()]
                 : [];
         */
-        this._initializers = isMobileApp() ? [] : [this.readAccessToken()];
+        if (!isMobileApp()) {
+            this._initializers.push(this.readAccessToken());
+        }
+        // Add initializers
         if (Array.isArray(initializers)) {
             initializers.forEach((initializer) => {
                 if (initializer && $.isFunction(initializer.promise)) {
@@ -62,13 +65,40 @@ const BaseController = ObservableObject.extend({
             });
         }
         // Add features
-        this._loaders = [];
-        this._resetters = [];
-        this._resizers = [];
-        this.VIEW = {};
-        this.VIEW_MODEL = {};
-        this.addFeatures(features);
+        if (Array.isArray(features)) {
+            this.addFeatures(features);
+        }
     },
+
+    /**
+     * Initializers
+     */
+    _initializers: [],
+
+    /**
+     * Loaders
+     */
+    _loaders: {},
+
+    /**
+     * Resetters
+     */
+    _resetters: {},
+
+    /**
+     * Resizers
+     */
+    _resizers: {},
+
+    /**
+     * VIEW selectors
+     */
+    VIEW: {},
+
+    /**
+     * VIEW_MODEL selectors
+     */
+    VIEW_MODEL: {},
 
     /**
      * Run the initializers
@@ -84,54 +114,52 @@ const BaseController = ObservableObject.extend({
      */
     addFeatures(features) {
         const prototype = Object.getPrototypeOf(this);
-        if (Array.isArray(features)) {
-            features.forEach((feature) => {
-                if (feature && $.type(feature._name) === CONSTANTS.STRING) {
-                    Object.keys(feature).forEach((key) => {
-                        const prop = feature[key];
-                        if (key === 'load' && $.isFunction(prop)) {
-                            this._loaders.push(prop.bind(this));
-                        } else if (key === 'reset' && $.isFunction(prop)) {
-                            this._resetters.push(prop.bind(this));
-                        } else if (key === 'resize' && $.isFunction(prop)) {
-                            this._resizers.push(prop.bind(this));
-                        } else if (key === 'VIEW' && $.isPlainObject(prop)) {
-                            $.extend(true, this.VIEW, prop);
-                        } else if (
-                            key === 'VIEW_MODEL' &&
-                            $.isPlainObject(prop)
-                        ) {
-                            $.extend(true, this.VIEW_MODEL, prop);
-                        } else if (
-                            $.type(prototype[key]) === CONSTANTS.UNDEFINED &&
-                            $.isFunction(prop)
-                        ) {
-                            // BEWARE: With MVVM, there is a chance that this will be rebound to another object
-                            // this[key] = prop.bind(this);
-                            prototype[key] = prop;
-                        } else if ($.type(this[key]) === CONSTANTS.UNDEFINED) {
-                            if (key !== '_name') {
-                                this.set(key, prop);
-                            }
-                        } else {
-                            throw new Error(
-                                `${feature._name} uses key ${key} which has already been added (duplicate)`
-                            );
+        features.forEach((feature) => {
+            const { _name } = feature;
+            if (feature && $.type(_name) === CONSTANTS.STRING) {
+                Object.keys(feature).forEach((key) => {
+                    const prop = feature[key];
+                    if (key === 'load' && $.isFunction(prop)) {
+                        this._loaders[_name] = prop.bind(this);
+                    } else if (key === 'reset' && $.isFunction(prop)) {
+                        this._resetters[_name] = prop.bind(this);
+                    } else if (key === 'resize' && $.isFunction(prop)) {
+                        this._resizers[_name] = prop.bind(this);
+                    } else if (key === 'VIEW' && $.isPlainObject(prop)) {
+                        $.extend(true, this.VIEW, prop);
+                    } else if (key === 'VIEW_MODEL' && $.isPlainObject(prop)) {
+                        $.extend(true, this.VIEW_MODEL, prop);
+                    } else if (
+                        $.type(prototype[key]) === CONSTANTS.UNDEFINED &&
+                        $.isFunction(prop)
+                    ) {
+                        // BEWARE: With MVVM, there is a chance that this will be rebound to another object
+                        // this[key] = prop.bind(this);
+                        prototype[key] = prop;
+                    } else if ($.type(this[key]) === CONSTANTS.UNDEFINED) {
+                        if (key !== '_name') {
+                            this.set(key, prop);
                         }
-                    });
-                }
-            });
-        }
+                    } else {
+                        throw new Error(
+                            `${feature._name} uses key ${key} which has already been added (duplicate)`
+                        );
+                    }
+                });
+            }
+        });
     },
 
     /**
      * Load data into viewModel
+     * @returns {*}
      */
     load() {
         const promises = [];
-        this._loaders.forEach((method) => {
-            if ($.isFunction(method)) {
-                promises.push(method());
+        Object.keys(this._loaders).forEach((key) => {
+            const prop = this._loaders[key];
+            if ($.isFunction(prop)) {
+                promises.push(prop());
             }
         });
         return $.when(...promises);
@@ -141,9 +169,24 @@ const BaseController = ObservableObject.extend({
      * Reset viewModel
      */
     reset() {
-        this._resetters.forEach((method) => {
-            if ($.isFunction(method)) {
-                method();
+        Object.keys(this._resetters).forEach((key) => {
+            const prop = this._resetters[key];
+            if ($.isFunction(prop)) {
+                prop();
+            }
+        });
+    },
+
+    /**
+     * Resize view
+     * @param e
+     * @param view
+     */
+    resize(e, view) {
+        Object.keys(this._resizers).forEach((key) => {
+            const prop = this._resizers[key];
+            if ($.isFunction(prop)) {
+                prop(e, view);
             }
         });
     },
@@ -153,10 +196,12 @@ const BaseController = ObservableObject.extend({
      * Detect and parse #access_token form window.location (see oAuth callback)
      * CAREFUL: getHeaders({ security: true, trace: true }) is therefore not available until this is executed
      * @function readAccessToken
+     * @param url
      */
-    readAccessToken() {
+    readAccessToken(url = window.location.href) {
+        // TODO assert url
         const dfd = $.Deferred();
-        parseToken(window.location.href)
+        parseToken(url)
             .then((token) => {
                 if ($.type(token) !== CONSTANTS.NULL) {
                     // a null value means there is no token in window.location
@@ -173,8 +218,8 @@ const BaseController = ObservableObject.extend({
                 // With or without a token in window.location,
                 // we need to periodically renew the token before it expires
                 this.renewAccessToken();
-
-                dfd.resolve({ token });
+                // Return token
+                dfd.resolve(token);
             })
             .catch((error) => {
                 logger.error({

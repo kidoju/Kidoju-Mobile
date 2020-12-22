@@ -39,8 +39,12 @@ const feature = {
      * View
      */
     VIEW: {
-        CORRECTION: 'correction',
-        PLAYER: 'player',
+        CORRECTION: {
+            _: 'correction',
+        },
+        PLAYER: {
+            _: 'player',
+        },
     },
 
     /**
@@ -184,7 +188,7 @@ const feature = {
                 userId: viewModel.get(VIEW_MODEL.USER.SID),
             })
         )
-            .done(() => {
+            .then(() => {
                 viewModel.resetCurrent();
                 viewModel.set(
                     VIEW_MODEL.SELECTED_PAGE,
@@ -194,8 +198,9 @@ const feature = {
             .always(() => {
                 mobile.onGenericViewShow(e);
                 app.notification.info(
-                    i18n.culture.notifications.pageNavigationInfo
+                    __('mobile.notifications.pageNavigationInfo')
                 );
+                /*
                 if (mobile.support.ga) {
                     mobile.ga.trackEvent(
                         ANALYTICS.CATEGORY.SUMMARY,
@@ -203,6 +208,7 @@ const feature = {
                         summaryId
                     );
                 }
+                */
             });
     },
 

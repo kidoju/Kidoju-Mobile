@@ -7,7 +7,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 // import 'kendo.mobile.application';
-// import 'kendo.mobile.button';
+import 'kendo.mobile.actionsheet';
+import 'kendo.mobile.button';
+import 'kendo.mobile.listview';
 import 'kendo.mobile.view';
 // import 'kendo.mobile.scrollview';
 import __ from '../app/app.i18n.es6';
@@ -40,7 +42,7 @@ const feature = {
      * View
      */
     VIEW: {
-        SUMMARY: 'summary',
+        SUMMARY: { _: 'summary' },
     },
 
     /**
@@ -105,7 +107,7 @@ const feature = {
             .load(options)
             .catch((xhr, status, errorThrown) => {
                 app.notification.error(
-                    __('notifications.summariesQueryFailure')
+                    __('mobile.notifications.summariesQueryFailure')
                 );
                 logger.error({
                     message: 'error loading summaries',
@@ -149,7 +151,7 @@ const feature = {
         return this[this.VIEW_MODEL.SUMMARY]
             .load(options)
             .catch((xhr, status, errorThrown) => {
-                app.notification.error(__('notifications.summaryLoadFailure'));
+                app.notification.error(__('mobile.notifications.summaryLoadFailure'));
                 logger.error({
                     message: 'error loading summary',
                     method: 'loadSummary',
@@ -219,7 +221,7 @@ const feature = {
                 .toggleClass('error', summary.isError$())
                 .toggleClass('success', summary.isSuccess$())
                 .toggleClass('warning', summary.isWarning$());
-            app.notification.info(i18n.culture.notifications.summaryViewInfo);
+            app.notification.info(__('mobile.notifications.summaryViewInfo'));
         });
     },
 
@@ -258,7 +260,7 @@ const feature = {
                 partition: { language, summaryId },
                 sort: { field: 'id', dir: 'desc' },
             })
-            .done(() => {
+            .then(() => {
                 const version = this.viewModel.versions.at(0); // First is latest version
                 assert.instanceof(
                     models.LazyVersion,
@@ -309,7 +311,7 @@ const feature = {
      */
     onSummaryActionShare() {
         if (mobile.support.socialsharing) {
-            const culture = i18n.culture.summary.socialSharing;
+            const culture = __('mobile.summary.socialSharing');
             mobile.socialsharing.shareWithOptions(
                 {
                     message: kendo.format(
@@ -330,12 +332,13 @@ const feature = {
                 },
                 (result) => {
                     app.notification.success(
-                        i18n.culture.notifications.sharingSuccess
+                        __('mobile.notifications.sharingSuccess')
                     );
                     // mobile.dialogs.info('Share completed? ' + result.completed + '/' + result.app);
                     // On Android apps mostly return result.completed=false even while it's true
                     // On Android result.app (the app shared to) is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
                     // Track with Google Analytics
+                    /*
                     if (mobile.support.ga) {
                         mobile.ga.trackEvent(
                             ANALYTICS.CATEGORY.SUMMARY,
@@ -343,11 +346,12 @@ const feature = {
                             this.viewModel.get(this.VIEW_MODEL.SUMMARY.ID)
                         );
                     }
+                    */
                 },
                 (msg) => {
                     // mobile.dialogs.error('Sharing failed: ' + msg);
                     app.notification.error(
-                        i18n.culture.notifications.sharingFailure
+                        __('mobile.notifications.sharingFailure')
                     );
                     logger.error({
                         message: 'Error sharing',
@@ -374,12 +378,14 @@ const feature = {
         } else {
             window.open(url, '_system');
         }
+        /*
         if (mobile.support.ga) {
             mobile.ga.trackEvent(
                 ANALYTICS.CATEGORY.GENERAL,
                 ANALYTICS.ACTION.FEEDBACK
             );
         }
+        */
     },
 };
 

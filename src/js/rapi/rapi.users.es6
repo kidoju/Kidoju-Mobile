@@ -8,7 +8,7 @@ import config from '../app/app.config.jsx';
 import { sessionCache } from '../common/window.cache.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxBase from './rapi.base.es6';
-import { format } from './rapi.util.es6';
+import { format, getHeaders } from './rapi.util.es6';
 
 /**
  * AjaxUsers

@@ -36,7 +36,9 @@ const feature = {
      * View
      */
     VIEW: {
-        DRAWER: 'drawer',
+        DRAWER: {
+            _: 'drawer',
+        },
     },
 
     /**
@@ -58,23 +60,23 @@ const feature = {
             )
         );
         e.preventDefault();
-        const { controller, viewModel } = app;
+        const { viewModel } = app;
         const command = e.item.attr(attr('command')); // TODO replace with action
         const language = __.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE);
         const userId = viewModel.get(VIEW_MODEL.USER.SID);
         switch (command) {
             case 'categories':
-                controller.application.navigate(
+                viewModel.application.navigate(
                     `${CONSTANTS.HASH}${
                         VIEW.CATEGORIES
                     }?language=${encodeURIComponent(language)}`
                 );
                 break;
             case 'scan':
-                app.viewModel.scanQRCode();
+                viewModel.scanQRCode();
                 break;
             case 'activities':
-                controller.application.navigate(
+                viewModel.application.navigate(
                     `${CONSTANTS.HASH}${
                         VIEW.ACTIVITIES
                     }?language=${encodeURIComponent(
@@ -83,7 +85,7 @@ const feature = {
                 );
                 break;
             case 'settings':
-                controller.application.navigate(
+                viewModel.application.navigate(
                     `${CONSTANTS.HASH}${
                         VIEW.SETTINGS
                     }?userId=${encodeURIComponent(userId)}`
@@ -131,11 +133,11 @@ const feature = {
                         if (Array.isArray(matches) && matches.length > 2) {
                             const language = matches[1];
                             const summaryId = matches[2];
-                            const { controller, viewModel } = app;
+                            const { viewModel } = app;
                             if (
                                 viewModel.get(VIEW_MODEL.LANGUAGE) === language
                             ) {
-                                controller.application.navigate(
+                                viewModel.application.navigate(
                                     `{CONSTANTS.HASH}${
                                         VIEW.SUMMARY
                                     }?language=${encodeURIComponent(
@@ -146,19 +148,19 @@ const feature = {
                                 );
                             } else {
                                 app.notification.warning(
-                                    __('notifications.scanLanguageWarning')
+                                    __('mobile.mobile.notifications.scanLanguageWarning')
                                 );
                             }
                         } else {
                             app.notification.warning(
-                                __('notifications.scanMatchWarning')
+                                __('mobile.notifications.scanMatchWarning')
                             );
                         }
                     }
                 },
                 // Error callback
                 (error) => {
-                    dialogs.error(__('notifications.scanFailure'));
+                    dialogs.error(__('mobile.notifications.scanFailure'));
                     logger.error({
                         message: 'Scan failure',
                         method: 'mobile._scanQRCode',
@@ -169,7 +171,7 @@ const feature = {
                 {
                     preferFrontCamera: false, // iOS and Android
                     showFlipCameraButton: false, // iOS and Android
-                    prompt: __('notifications.scanPrompt'), // supported on Android only
+                    prompt: __('mobile.notifications.scanPrompt'), // supported on Android only
                     formats: QR_CODE, // default: all but PDF_417 and RSS_EXPANDED
                     // "orientation": "landscape" // Android only (portrait|landscape), default unset so it rotates with the device
                 }

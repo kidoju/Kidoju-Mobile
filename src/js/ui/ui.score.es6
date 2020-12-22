@@ -36,7 +36,9 @@ const feature = {
      * View
      */
     VIEW: {
-        SCORE: 'score',
+        SCORE: {
+            _: 'score',
+        },
     },
 
     /**
@@ -63,7 +65,7 @@ const feature = {
             listView = $listView.kendoMobileListView({
                 click: e => {
                     e.preventDefault();
-                    app.controller.application.navigate(
+                    app.viewModel.application.navigate(
                         CONSTANTS.HASH + VIEW.CORRECTION +
                         '?language=' + encodeURIComponent(language) +
                         '&summaryId=' + encodeURIComponent(summaryId) +
@@ -109,18 +111,18 @@ const feature = {
                 app.viewModel.set(VIEW_MODEL.CURRENT.$, activity.toJSON());
                 app.viewModel.calculate() // TODO: We should not have to recalculate what is already calculated
                     .then(() => {
-                        app.controller.setNavBarTitle(e.view, format(__('score.viewTitle'), app.viewModel.get((VIEW_MODEL.CURRENT.SCORE) || 0) / 100));
+                        app.viewModel.setNavBarTitle(e.view, format(__('mobile.score.viewTitle'), app.viewModel.get((VIEW_MODEL.CURRENT.SCORE) || 0) / 100));
                         feature.initScoreListView(e.view);
                     });
             })
             .always(() => {
-                app.controller.onGenericViewShow(e);
+                app.viewModel.onGenericViewShow(e);
             });
         } else {
             // Otherwise, use the current test
             // TODO assert current state (percent function?)
             feature._initScoreListView(e.view);
-            app.controller.onGenericViewShow(e);
+            app.viewModel.onGenericViewShow(e);
         }
     }
 };

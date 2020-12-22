@@ -43,8 +43,12 @@ const feature = {
      * View
      */
     VIEW: {
-        CORRECTION: 'correction',
-        PLAYER: 'player',
+        CORRECTION: {
+            _: 'correction',
+        },
+        PLAYER: {
+            _: 'player',
+        },
     },
 
     /**
@@ -383,7 +387,7 @@ const feature = {
         );
         return pageCollectionDataSource
             .validateTestFromProperties(viewModel.get(VIEW_MODEL.CURRENT.TEST))
-            .done((result) => {
+            .then((result) => {
                 // Note: result has methods including percent and getScoreArray
                 assert.isNonEmptyPlainObject(
                     result,
@@ -412,9 +416,9 @@ const feature = {
                 );
                 viewModel.set(VIEW_MODEL.CURRENT.TEST, result);
             })
-            .fail((xhr, status, error) => {
+            .catch((xhr, status, error) => {
                 app.notification.error(
-                    i18n.culture.notifications.scoreCalculationFailure
+                    __('mobile.notifications.scoreCalculationFailure')
                 );
                 logger.error({
                     message: 'Failed to calculate user score',
@@ -473,7 +477,7 @@ const feature = {
         activities.add(activity);
         return activities
             .sync()
-            .done(() => {
+            .then(() => {
                 // current is not a models.MobileActivity because since percent and getScoreArray are not model methods,
                 // There are lost at this stage. We would need to make a model with percent and getScoreArray methods
                 const activityId = activity.get('id');
@@ -488,13 +492,13 @@ const feature = {
                 );
                 viewModel.set(VIEW_MODEL.CURRENT.ID, activityId);
                 app.notification.success(
-                    i18n.culture.notifications.scoreSaveSuccess
+                    __('mobile.notifications.scoreSaveSuccess')
                 );
             })
-            .fail((xhr, status, error) => {
+            .catch((xhr, status, error) => {
                 activities.remove(activity);
                 app.notification.error(
-                    i18n.culture.notifications.scoreSaveFailure
+                    __('mobile.notifications.scoreSaveFailure')
                 );
                 logger.error({
                     message: 'error saving current score',
@@ -808,13 +812,13 @@ const feature = {
             // Load activities
             viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
         )
-        .done(function () {
+        .then(function () {
             // Set activity, but we do not want to recalculate score
             viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(page - 1));
         })
         .always(function () {
             mobile.onGenericViewShow(e);
-            app.notification.info(i18n.culture.notifications.pageNavigationInfo);
+            app.notification.info(__('mobile.notifications.pageNavigationInfo'));
         });
         */
 
@@ -826,7 +830,7 @@ const feature = {
         );
 
         mobile.onGenericViewShow(e);
-        app.notification.info(__('notifications.pageNavigationInfo'));
+        app.notification.info(__('mobile.notifications.pageNavigationInfo'));
     },
 
     /**

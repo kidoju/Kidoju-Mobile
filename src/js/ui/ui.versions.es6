@@ -31,7 +31,7 @@ const extension = {
      * View
      */
     VIEW: {
-        VERSION: 'version',
+        VERSION: { _: 'version' },
     },
 
     /**
@@ -74,7 +74,7 @@ const extension = {
     loadVersion: function (options) {
 
         function versionLoadFailure(xhr, status, error) {
-            app.notification.error(i18n.culture.notifications.versionLoadFailure);
+            app.notification.error(__('mobile.notifications.versionLoadFailure'));
             logger.error({
                 message: 'error loading version',
                 method: 'viewModel.loadVersion',
@@ -88,10 +88,10 @@ const extension = {
         assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
         assert.match(RX_MONGODB_ID, options.id, assert.messages.match.default, 'options.id', RX_MONGODB_ID);
         return viewModel.version.load(options)
-        .done(function () {
+        .then(function () {
             // Load stream
             viewModel.version.stream.load()
-            .done(function () {
+            .then(function () {
                 var promises = [];
                 var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
                 assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
@@ -99,11 +99,11 @@ const extension = {
                     assert.instanceof(Page, page, assert.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
                     promises.push(page.load());
                 });
-                $.when.apply($, promises).fail(versionLoadFailure);
+                $.when.apply($, promises).catch(versionLoadFailure);
             })
-            .fail(versionLoadFailure);
+            .catch(versionLoadFailure);
         })
-        .fail(versionLoadFailure);
+        .catch(versionLoadFailure);
 
     },
 
@@ -117,8 +117,8 @@ const extension = {
         assert.match(RX_LANGUAGE, options.partition.language, assert.messages.match.default, 'options.partition.language', RX_LANGUAGE);
         assert.match(RX_MONGODB_ID, options.partition.summaryId, assert.messages.match.default, 'options.partition.summaryId', RX_MONGODB_ID);
         return viewModel.versions.load(options)
-        .fail(function (xhr, status, error) {
-            app.notification.error(i18n.culture.notifications.versionsLoadFailure);
+        .catch(function (xhr, status, error) {
+            app.notification.error(__('mobile.notifications.versionsLoadFailure'));
             logger.error({
                 message: 'error loading versions',
                 method: 'viewModel.loadLazyVersions',

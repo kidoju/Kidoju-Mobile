@@ -6,7 +6,7 @@ function handleOpenURL(url) {
     if (url.startsWith(app.constants.appScheme + '://oauth')) {
         // The whole oAuth flow is documented at
         // https://medium.com/@jlchereau/stop-using-inappbrowser-for-your-cordova-phonegap-oauth-flow-a806b61a2dc5
-        mobile._parseTokenAndLoadUser(url);
+        mobile.readAccessTokenAndLoadUser(url);
     } else if (RX_APP_SCHEME.test(url)) {
         var matches = RX_APP_SCHEME.exec(url);
         // Note: we have already tested the url, so we know there is a match

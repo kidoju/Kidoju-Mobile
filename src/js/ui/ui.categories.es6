@@ -31,7 +31,9 @@ const feature = {
      * View
      */
     VIEW: {
-        CATEGORIES: 'categories',
+        CATEGORIES: {
+            _: 'categories',
+        },
     },
 
     /**

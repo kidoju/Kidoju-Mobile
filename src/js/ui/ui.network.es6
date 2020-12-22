@@ -7,9 +7,9 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 // import $ from 'jquery';
 import app from '../common/window.global.es6';
-import Logger from '../common/window.logger.es6';
+// import Logger from '../common/window.logger.es6';
 
-const logger = new Logger('ui.network');
+// const logger = new Logger('ui.network');
 
 /**
  * Network feature
@@ -24,7 +24,9 @@ const feature = {
      * View
      */
     VIEW: {
-        NETWORK: 'network',
+        NETWORK: {
+            _: 'network',
+        },
     },
 
     /**

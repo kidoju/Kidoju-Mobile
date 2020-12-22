@@ -72,7 +72,7 @@ const fileTransport = {
         // Delete file
         rapi.v1.content
             .deleteFile(locale, params.summaryId, matches[3])
-            .done(function (response) {
+            .then(function (response) {
                 logger.debug({
                     message: 'file deleted',
                     method: 'summary.transport.destroy',
@@ -90,7 +90,7 @@ const fileTransport = {
                     __('webapp.editor.notifications.fileDeleteSuccess')
                 );
             })
-            .fail((xhr, status, errorThrown) => {
+            .catch((xhr, status, errorThrown) => {
                 logger.error({
                     message: 'file deletion error',
                     method: 'summary.transport.destroy',
@@ -128,7 +128,7 @@ const fileTransport = {
         // Get all project files
         rapi.v1.content
             .getAllSummaryFiles(locale, params.summaryId)
-            .done(function (response) {
+            .then(function (response) {
                 assert.isNonEmptyPlainObject(
                     response,
                     assert.format(
@@ -156,7 +156,7 @@ const fileTransport = {
                 // The asset manager takes care of filtering assets by type
                 options.success(response);
             })
-            .fail((xhr, status, errorThrown) => {
+            .catch((xhr, status, errorThrown) => {
                 logger.error({
                     message: 'file list read error',
                     method: 'summary.transport.read',
@@ -231,7 +231,7 @@ const fileTransport = {
         // Get a signed upload url from Amazon S3
         rapi.v1.content
             .getUploadUrl(locale, params.summaryId, data.file)
-            .done(function (uploadUrl) {
+            .then(function (uploadUrl) {
                 logger.debug({
                     message: 'uploading file/blob to signed url',
                     method: 'summary.transport.upload',
@@ -253,7 +253,7 @@ const fileTransport = {
                             ]);
                         }
                     })
-                    .done(function (response) {
+                    .then(function (response) {
                         assert.isNonEmptyPlainObject(
                             response,
                             assert.format(
@@ -317,7 +317,7 @@ const fileTransport = {
                             __('webapp.editor.notifications.fileCreateSuccess')
                         );
                     })
-                    .fail((xhr, status, errorThrown) => {
+                    .catch((xhr, status, errorThrown) => {
                         logger.error({
                             message: 'file/blob upload error',
                             method: 'summary.transport.upload',
@@ -329,7 +329,7 @@ const fileTransport = {
                         );
                     });
             })
-            .fail((xhr, status, errorThrown) => {
+            .catch((xhr, status, errorThrown) => {
                 logger.error({
                     message: 'erro getting a signed upload url',
                     method: 'summary.transport.create',
@@ -376,7 +376,7 @@ const fileTransport = {
 
         window.app.rapi.v1.content
             .importFile(locale, params.summaryId, data.url)
-            .done(function (response) {
+            .then(function (response) {
                 assert.isNonEmptyPlainObject(
                     response,
                     assert.format(
@@ -433,7 +433,7 @@ const fileTransport = {
                     __('webapp.editor.notifications.urlImportSuccess')
                 );
             })
-            .fail((xhr, status, errorThrown) => {
+            .catch((xhr, status, errorThrown) => {
                 logger.error({
                     message: 'url import error',
                     method: 'summary.transport.import',

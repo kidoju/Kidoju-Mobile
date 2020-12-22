@@ -31,7 +31,9 @@ const feature = {
      * View
      */
     VIEW: {
-        SETTINGS: 'settings',
+        SETTINGS: {
+            _: 'settings',
+        },
     },
 
     /**
@@ -157,7 +159,7 @@ const feature = {
      * @param e
      */
     onSettingsViewShow(e) {
-        return app.controller.onGenericViewShow(e);
+        return app.viewModel.onGenericViewShow(e);
     },
 
     /**
@@ -179,7 +181,7 @@ const feature = {
             )
         );
         // Navigate to the user view
-        app.controller.application.navigate(CONSTANTS.HASH + this.VIEW.USER);
+        app.viewModel.application.navigate(CONSTANTS.HASH + this.VIEW.USER._);
     },
 };
 

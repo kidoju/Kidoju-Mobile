@@ -1,0 +1,9 @@
+@import 'ui.mixins';
+
+#user {
+    .km-thumbnail {
+        @include picture;
+
+        border-radius: 50%;
+    }
+}

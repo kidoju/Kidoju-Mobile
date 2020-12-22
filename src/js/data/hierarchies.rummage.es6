@@ -7,16 +7,17 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
+import { iconUri } from '../app/app.uris.es6';
+import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import BaseModel from './data.base.es6';
-import { isMobileApp } from './data.util.es6';
 
 const {
     data: { Node },
 } = window.kendo;
 
 /**
- * Rummage node (displayed in treeview on find page)
+ * Rummage node (displayed in explorer treeview on find page)
  * @type {kendo.data.Node}
  */
 const Rummage = Node.define({
@@ -84,9 +85,6 @@ const Rummage = Node.define({
         },
     },
 
-    /* This function's cyclomatic complexity is too high. */
-    /* jshint -W074 */
-
     /**
      * Return the href the category or bookmark points at
      * @returns {*}
@@ -132,17 +130,12 @@ const Rummage = Node.define({
         }
     },
 
-    /* jshint +W074 */
-
     /**
      * Return a complete icon path (from CDN)
      * @returns {*}
      */
     icon$() {
-        return format(
-            isMobileApp() ? uris.mobile.icons : uris.cdn.icons,
-            this.get('icon')
-        );
+        return iconUri(this.get('icon'));
     },
 
     /**
@@ -260,12 +253,12 @@ const RummageHierarchicalDataSource = HierarchicalDataSource.extend({
                 )
             );
             assert.match(
-                RX_MONGODB_ID,
+                CONSTANTS.RX_MONGODB_ID,
                 options.data.id,
                 assert.format(
                     assert.messages.match.default,
                     'options.data.id',
-                    RX_MONGODB_ID
+                    CONSTANTS.RX_MONGODB_ID
                 )
             );
             return app.rapi.v1.user

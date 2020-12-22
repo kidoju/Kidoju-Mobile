@@ -40,8 +40,9 @@ const feature = {
      * View
      */
     VIEW: {
-        ACTIVITIES: 'activities',
-        DEFAULT: 'activities', // <---------- url is '/'
+        ACTIVITIES: {
+            _: 'activities',
+        },
     },
 
     /**
@@ -117,11 +118,11 @@ const feature = {
             activities._filter = undefined;
             activities
                 .read()
-                .done(dfd.resolve)
-                .fail((xhr, status, errorThrown) => {
+                .then(dfd.resolve)
+                .catch((xhr, status, errorThrown) => {
                     dfd.reject(xhr, status, errorThrown);
                     app.notification.error(
-                        __('notifications.activitiesQueryFailure')
+                        __('mobile.notifications.activitiesQueryFailure')
                     );
                     logger.error({
                         message: 'error loading activities',
@@ -139,7 +140,6 @@ const feature = {
      * @param e
      */
     onActivitiesViewShow(e) {
-        debugger;
         assert.isNonEmptyPlainObject(
             e,
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
@@ -194,7 +194,7 @@ const feature = {
 
         // Always reload
         app.viewModel.loadActivities({ language, userId }).always(() => {
-            app.controller.onGenericViewShow(e);
+            app.viewModel.onGenericViewShow(e);
         });
     },
 
@@ -216,7 +216,7 @@ const feature = {
                 CONSTANTS.NUMBER
             )
         );
-        const view = app.controller.application.view();
+        const view = app.viewModel.application.view();
         const { content } = view;
         if (!e.index) {
             // ListView
@@ -246,7 +246,9 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
-        const { viewModel: { VIEW } } = app;
+        const {
+            viewModel: { VIEW },
+        } = app;
         if (
             view.id === CONSTANTS.SLASH ||
             view.id === CONSTANTS.HASH + VIEW.ACTIVITIES
