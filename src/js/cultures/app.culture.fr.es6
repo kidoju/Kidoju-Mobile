@@ -13,8 +13,8 @@
 import mobile from './mobile.fr.es6';
 // import tools from './tools.fr.es6';
 // import webapp from '../../../webapp/locales/fr.json';
-import './kendo.fixes.fr.es6';
-import app from '../common/window.global.es6';
+
+// TODO import './kendo.fixes.fr.es6';
 
 /**
  * Kendo UI resources
@@ -23,7 +23,14 @@ import '../vendor/kendo/cultures/kendo.culture.fr-FR';
 import '../vendor/kendo/messages/kendo.messages.fr-FR';
 import './widgets.fr.es6';
 
-window.kendo.culture('fr-FR'); // TODO requires 'kendo.core'
+/**
+ * Requires kendo.core
+ */
+window.kendo.culture('fr-FR');
 
-app.cultures = app.cultures || {};
-app.cultures.fr = mobile;
+/**
+ * Default export
+ */
+export default {
+    mobile,
+};
