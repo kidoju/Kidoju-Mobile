@@ -64,7 +64,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW, VIEW_MODEL },
         } = app;
-        const language = i18n.locale();
+        const language = __.locale;
         assert.equal(
             language,
             viewModel.get(VIEW_MODEL.LANGUAGE),

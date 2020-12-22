@@ -12,7 +12,7 @@ function handleOpenURL(url) {
         // Note: we have already tested the url, so we know there is a match
         var language = matches[1];
         var summaryId = matches[3];
-        if (language === i18n.locale()) {
+        if (language === __.locale) {
             mobile.application.navigate(HASH + VIEW.SUMMARY + '?language=' + encodeURIComponent(language) + '&summaryId=' +
                 encodeURIComponent(summaryId));
         } else {

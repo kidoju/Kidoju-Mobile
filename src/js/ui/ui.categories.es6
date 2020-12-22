@@ -5,7 +5,10 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-// import $ from 'jquery';
+import $ from 'jquery';
+import 'kendo.dropdownlist';
+import 'kendo.mobile.view';
+import 'kendo.mobile.listview';
 import app from '../common/window.global.es6';
 // import Logger from '../common/window.logger.es6';
 import { LazyCategoryDataSource } from '../data/data.category.lazy.es6';
@@ -56,6 +59,20 @@ const feature = {
     resetCategories() {
         // this[this.VIEW_MODEL.CATEGORIES] = new LazyCategoryDataSource();
         this.set(this.VIEW_MODEL.CATEGORIES, new LazyCategoryDataSource());
+    },
+
+    /**
+     * Load categories
+     */
+    loadCategories() {
+        debugger;
+    },
+
+    /**
+     * Loader
+     */
+    load() {
+        this.loadCategories();
     },
 
     /**

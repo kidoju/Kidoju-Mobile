@@ -98,11 +98,9 @@ const feature = {
      * Load
      */
     load() {
-        debugger;
         // Load mobile users from localForage
         return this.loadUsers().then(() => {
             // Set user to most recent user
-            debugger;
             if (this[this.VIEW_MODEL.USERS].total() > 0) {
                 // because the change event is bound,
                 // the following will call the reset function above
@@ -314,7 +312,6 @@ const feature = {
         const user = viewModel.get(VIEW_MODEL.USER._);
         const md5pin = viewModel.get(VIEW_MODEL.USER.MD5_PIN);
         const users = viewModel[VIEW_MODEL.USERS];
-        debugger;
         return (
             user instanceof User &&
             // user.isNew() &&
@@ -676,7 +673,7 @@ const feature = {
                             `${CONSTANTS.HASH}${VIEW.SYNC._}`
                         );
                     } else {
-                        const language = i18n.locale();
+                        const language = __.locale;
                         assert.equal(
                             language,
                             viewModel.get(VIEW_MODEL.LANGUAGE),
@@ -757,7 +754,6 @@ const feature = {
             )
         );
         const {
-            i18n,
             notification,
             viewModel,
             viewModel: { VIEW, VIEW_MODEL },
@@ -786,6 +782,7 @@ const feature = {
             viewModel
                 .syncUsers(false)
                 .then(() => {
+                    debugger;
                     notification.success(
                         format(
                             __('mobile.notifications.userSignInSuccess'),
@@ -794,11 +791,11 @@ const feature = {
                     );
                     viewModel.application.navigate(
                         `${CONSTANTS.HASH}${
-                            this.VIEW.CATEGORIES
-                        }?language=${encodeURIComponent(i18n.locale())}`
+                            VIEW.CATEGORIES._
+                        }?language=${encodeURIComponent(__.locale)}`
                     );
                     // Request an app store review
-                    viewModel._requestAppStoreReview();
+                    // TODO viewModel._requestAppStoreReview();
                 })
                 .always(() => {
                     viewModel.enableUserButtons(true);

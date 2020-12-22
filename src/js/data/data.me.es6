@@ -114,7 +114,7 @@ if (isMobileApp()) {
                 type: CONSTANTS.STRING,
                 /*
                 defaultValue() {
-                    return DEFAULT.ROOT_CATEGORY_ID[i18n.locale()];
+                    return DEFAULT.ROOT_CATEGORY_ID[__.locale];
                 }
                  */
             },

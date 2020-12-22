@@ -23,10 +23,9 @@ import AppController from './ui.viewmodel.es6';
 
 // TODO remove stylesheets and use themer
 import '../../styles/ui/app.fonts.less';
-// import '../../styles/vendor/kendo/web/kendo.common.less';
-import '../../styles/vendor/kendo/web/kendo.flat.less'; // notifications
-// import '../../styles/vendor/kendo/mobile/kendo.mobile.all.less';
-import '../../styles/vendor/kendo/mobile/kendo.mobile.flat.less';
+import '../../styles/vendor/kendo/web/kendo.common-bootstrap.less';
+import '../../styles/vendor/kendo/web/kendo.bootstrap.less'; // notifications
+import '../../styles/vendor/kendo/web/kendo.bootstrap.mobile.less';
 // import '../../styles/ui/app.mobile.less';
 // import '../../styles/themes/app.theme.flat.less';
 

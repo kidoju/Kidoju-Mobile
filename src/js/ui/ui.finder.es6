@@ -12,7 +12,9 @@ import config from '../app/app.config.jsx';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
-// import Logger from '../common/window.logger.es6';
+import Logger from '../common/window.logger.es6';
+import { LazySummaryDataSource } from '../data/data.summary.lazy.es6';
+import { xhr2error } from '../data/data.util.es6';
 
 const {
     mobile: {
@@ -20,7 +22,7 @@ const {
     },
     roleSelector,
 } = window.kendo;
-// const logger = new Logger('ui.finder');
+const logger = new Logger('ui.finder');
 
 /**
  * Finder feature
@@ -40,6 +42,77 @@ const feature = {
         },
     },
 
+    VIEW_MODEL: {
+        SUMMARIES: 'summaries',
+    },
+
+    /**
+     * Reset
+     */
+    reset() {
+        app.viewModel.resetSummaries();
+    },
+
+    /**
+     * Reset summaries
+     */
+    resetSummaries() {
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        viewModel.set(VIEW_MODEL.SUMMARIES, new LazySummaryDataSource());
+        // new LazySummaryDataSource({ pageSize: VIRTUAL_PAGE_SIZE })
+    },
+
+    /**
+     * Load lazy summaries
+     * @param options
+     */
+    loadSummaries(options) {
+        debugger;
+        assert.isNonEmptyPlainObject(
+            options,
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
+        );
+        assert.isNonEmptyPlainObject(
+            options.partition,
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options.partition'
+            )
+        );
+        assert.match(
+            CONSTANTS.RX_LANGUAGE,
+            options.partition.language,
+            assert.format(
+                assert.messages.match.default,
+                'options.partition.language',
+                CONSTANTS.RX_LANGUAGE
+            )
+        );
+        const {
+            notification,
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        return viewModel[VIEW_MODEL.SUMMARIES]
+            .query(options)
+            .fail((xhr, status, errorThrown) => {
+                notification.error(
+                    __('mobile.notifications.summariesQueryFailure')
+                );
+                logger.error({
+                    message: 'error loading summaries',
+                    method: 'viewModel.loadSummaries',
+                    error: xhr2error(xhr, status, errorThrown),
+                });
+            });
+    },
+
     /**
      * Event handler triggered before showing the Summaries view
      */
@@ -54,7 +127,7 @@ const feature = {
         // where previous results are replaced by new results after the view is shown
         // Note that we have tried unsuccessfully to use the loader to hide the UI changes as explained at
         // http://www.telerik.com/forums/-bug-report-databound-event-not-firing-for-kendomobilelistview
-        app.viewModel.summaries.data([]);
+        // TODO app.viewModel.summaries.data([]);
     },
 
     /**
@@ -63,6 +136,7 @@ const feature = {
      * @param e
      */
     onFinderViewShow(e) {
+        debugger;
         assert.isNonEmptyPlainObject(
             e,
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
@@ -83,7 +157,7 @@ const feature = {
                 'e.view.params'
             )
         );
-        // var language = i18n.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE)
+        // var language = __.locale; // viewModel.get(VIEW_MODEL.LANGUAGE)
         const { language } = e.view.params;
         // Launch the query
         // Kendo UI is not good at building the e.view.params object from query string params
@@ -103,8 +177,9 @@ const feature = {
         // }
         // So we really need $.deparam($.param(...))
         const { viewModel } = app;
+        debugger;
         viewModel
-            .loadLazySummaries(
+            .loadSummaries(
                 $.extend(
                     true,
                     {
@@ -116,9 +191,9 @@ const feature = {
                         partition: {
                             language,
                             type: 'Test',
-                            'author.userId': config.constants.authorId
+                            'author.userId': config.constants.authorId,
                         },
-                        sort: { field: 'updated', dir: 'desc' }
+                        sort: { field: 'updated', dir: 'desc' },
                     },
                     $.deparam($.param(e.view.params))
                 )
@@ -145,7 +220,7 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
-        if (view.id === CONSTANTS.HASH + VIEW.FINDER) {
+        if (view.id === `${CONSTANTS.HASH}${this.VIEW.FINDER._}`) {
             // Refreshing list views only works in data bound mode
             // It removes the html markup especially with forms
             const $listViews = view.content.find(roleSelector('listview'));
@@ -156,7 +231,7 @@ const feature = {
                 }
             });
         }
-    }
+    },
 };
 
 /**

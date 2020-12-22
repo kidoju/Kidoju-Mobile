@@ -1,5 +1,53 @@
 @import 'ui.mixins';
 
 #finder {
+    .km-list > li {
+        .km-listview-link {
+            height: 9.5em; // a fixed height is required for endless scrolling
+            line-height: 1.25;
 
+            .km-thumbnail {
+                border: none;
+                border-radius: 0;
+                height: 3.35rem;
+                width: 3.35rem;
+                margin-right: 0;
+                float: left;
+            }
+
+            .summary {
+                margin-left: 4rem;
+                margin-right: 2.5rem;
+
+                h4,
+                .tags {
+                    //http://dropshado.ws/post/1015351370/webkit-line-clamp
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                }
+
+                h4 {
+                    margin: 0;
+                    font-weight: bold;
+                }
+
+                .tags,
+                .metrics {
+                    font-size: 0.8em;
+                }
+
+                .tags {
+                    margin: 0.2em 0;
+                }
+            }
+
+            .km-badge {
+                font-size: 0.75em;
+                // right: 1.75em;
+            }
+        }
+    }
 }

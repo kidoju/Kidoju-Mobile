@@ -289,7 +289,7 @@ const feature = {
                 RX_MONGODB_ID
             )
         );
-        const language = i18n.locale();
+        const language = __.locale;
         assert.equal(
             language,
             that.get(VIEW_MODEL.LANGUAGE),
@@ -758,7 +758,7 @@ const feature = {
             assert.format(
                 assert.messages.equal.default,
                 'language',
-                'i18n.locale()'
+                '__.locale'
             )
         );
         assert.match(

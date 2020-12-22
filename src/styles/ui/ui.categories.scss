@@ -1,5 +1,30 @@
 @import 'ui.mixins';
 
 #categories {
+    .km-filter-form {
+        padding: 0.5em;
 
+        .k-dropdown {
+            width: 100%;
+        }
+    }
+
+    .km-list > li {
+        padding: 0.5em 1em;
+
+        .km-listview-link {
+            .km-thumbnail { // TODO should be icon to match others
+                border: none;
+                border-radius: 0;
+                height: 1.8rem;
+                width: 1.8rem;
+                vertical-align: middle;
+            }
+
+            .km-badge {
+                font-size: 0.75em;
+                // right: 1.75em;
+            }
+        }
+    }
 }

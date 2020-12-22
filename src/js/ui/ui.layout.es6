@@ -463,7 +463,7 @@ const feature = {
         );
         const {
             viewModel,
-            viewModel: { VIEW, VIEW_MODEL },
+            viewModel: { application, VIEW, VIEW_MODEL },
         } = app;
         const language = viewModel.get(VIEW_MODEL.CURRENT.VERSION.LANGUAGE);
         assert.match(
@@ -505,8 +505,8 @@ const feature = {
                 CONSTANTS.RX_MONGODB_ID
             )
         );
-        viewModel.application.navigate(
-            `${CONSTANTS.HASH}${this.VIEW.SCORE}?language=${encodeURIComponent(
+        application.navigate(
+            `${CONSTANTS.HASH}${VIEW.SCORE._}?language=${encodeURIComponent(
                 language
             )}&summaryId=${encodeURIComponent(
                 summaryId
@@ -534,15 +534,17 @@ const feature = {
                 'jQuery'
             )
         );
-        dialogs.confirm(__('mobile.notifications.confirmSubmit'), (buttonIndex) => {
-            if (buttonIndex === 1) {
-                const { viewModel } = app;
-                viewModel.calculate().then(() => {
-                    // Note: failure is already taken care of
-                    viewModel.saveCurrent().then(() => {
-                        viewModel.onNavBarScoreClick(e);
-                        // TODO analytics
-                        /*
+        dialogs.confirm(
+            __('mobile.notifications.confirmSubmit'),
+            (buttonIndex) => {
+                if (buttonIndex === 1) {
+                    const { viewModel } = app;
+                    viewModel.calculate().then(() => {
+                        // Note: failure is already taken care of
+                        viewModel.saveCurrent().then(() => {
+                            viewModel.onNavBarScoreClick(e);
+                            // TODO analytics
+                            /*
                         if (mobile.support.ga) {
                             mobile.ga.trackEvent(
                                 ANALYTICS.CATEGORY.ACTIVITY,
@@ -552,10 +554,11 @@ const feature = {
                             );
                         }
                         */
+                        });
                     });
-                });
+                }
             }
-        });
+        );
     },
 
     /**
@@ -576,8 +579,11 @@ const feature = {
                 'jQuery'
             )
         );
-        const { viewModel } = app;
-        const language = __.locale();
+        const {
+            viewModel,
+            viewModel: { application, VIEW, VIEW_MODEL }
+        } = app;
+        const language = __.locale;
         assert.equal(
             language,
             viewModel.get(this.VIEW_MODEL.LANGUAGE),
@@ -589,7 +595,7 @@ const feature = {
         );
         assert.equal(
             language,
-            viewModel.get(this.VIEW_MODEL.SUMMARY.LANGUAGE),
+            viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("summary.language")',
@@ -598,26 +604,26 @@ const feature = {
         );
         assert.equal(
             language,
-            viewModel.get(this.VIEW_MODEL.VERSION.LANGUAGE),
+            viewModel.get(VIEW_MODEL.VERSION.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("version.language")',
                 language
             )
         );
-        const summaryId = viewModel.get(this.VIEW_MODEL.SUMMARY.ID);
+        const summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
         assert.equal(
             summaryId,
-            viewModel.get(this.VIEW_MODEL.VERSION.SUMMARYID),
+            viewModel.get(VIEW_MODEL.VERSION.SUMMARYID),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("version.summaryId")',
                 summaryId
             )
         );
-        viewModel.application.navigate(
+        application.navigate(
             `${CONSTANTS.HASH}${
-                this.VIEW.SUMMARY
+                this.VIEW.SUMMARY._
             }?language=${encodeURIComponent(
                 language
             )}&summaryId=${encodeURIComponent(summaryId)}`
@@ -629,14 +635,15 @@ const feature = {
      * @param e
      */
     onNavBarSyncClick(/* e */) {
-        const { viewModel, viewModel: { VIEW, VIEW_MODEL } } = app;
-        // viewModel.application.navigate(`${CONSTANTS.HASH}${VIEW.SYNC._}`);
-        viewModel.application.navigate(
+        const {
+            viewModel,
+            viewModel: { application, VIEW, VIEW_MODEL },
+        } = app;
+        // application.navigate(`${CONSTANTS.HASH}${VIEW.SYNC._}`);
+        application.navigate(
             `${CONSTANTS.HASH}${VIEW.SIGNIN._}?page=${encodeURIComponent(
                 VIEW.SIGNIN.LAST_PAGE
-            )}&userId=${encodeURIComponent(
-                viewModel.get(VIEW_MODEL.USER.ID)
-            )}`
+            )}&userId=${encodeURIComponent(viewModel.get(VIEW_MODEL.USER.ID))}`
         );
     },
 
@@ -644,9 +651,13 @@ const feature = {
      * Event handler triggered when clicking the search button in the navbar
      */
     onNavBarSearchClick() {
-        const language = __.locale(); // viewModel.get(this.VIEW_MODEL.LANGUAGE);
-        app.viewModel.application.navigate(
-            `${CONSTANTS.HASH}${VIEW.FINDER}?language=${encodeURIComponent(
+        const {
+            viewModel,
+            viewModel: { application, VIEW },
+        } = app;
+        const language = __.locale; // viewModel.get(this.VIEW_MODEL.LANGUAGE);
+        application.navigate(
+            `${CONSTANTS.HASH}${VIEW.FINDER._}?language=${encodeURIComponent(
                 language
             )}`
         );

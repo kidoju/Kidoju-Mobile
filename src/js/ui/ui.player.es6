@@ -17,12 +17,15 @@ import Logger from '../common/window.logger.es6';
 
 const {
     attr,
+    bind,
+    dataviz,
     destroy,
+    mobile,
     mobile: {
-        Application,
         ui: { Button, View },
     },
     roleSelector,
+    ui,
 } = window.kendo;
 const logger = new Logger('ui.player');
 
@@ -103,7 +106,7 @@ const feature = {
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
-            kendo.mobile.ui.View,
+            View,
             e.view,
             assert.format(
                 assert.messages.instanceof.default,
@@ -134,43 +137,43 @@ const feature = {
             )
         );
         assert.equal(
-            i18n.locale(),
+            __.locale,
             language,
             assert.format(
                 assert.messages.equal.default,
                 'language',
-                'i18n.locale()'
+                '__.locale'
             )
         );
         assert.match(
-            RX_MONGODB_ID,
+            CONSTANTS.RX_MONGODB_ID,
             summaryId,
             assert.format(
                 assert.messages.match.default,
                 'summaryId',
-                RX_MONGODB_ID
+                CONSTANTS.RX_MONGODB_ID
             )
         );
         assert.match(
-            RX_MONGODB_ID,
+            CONSTANTS.RX_MONGODB_ID,
             versionId,
             assert.format(
                 assert.messages.match.default,
                 'versionId',
-                RX_MONGODB_ID
+                CONSTANTS.RX_MONGODB_ID
             )
         );
 
         // Let's remove the clickSubmitInfo attr used to track and limit toast notifications (see viewModel.bind(CHANGE))
-        e.view.element.removeProp(kendo.attr('clickSubmitInfo'));
+        e.view.element.removeProp(attr('clickSubmitInfo'));
 
         // Rebuild stage and bind viewModel
-        kendo.bind(
-            e.view.content.find(kendo.roleSelector('stage')),
+        bind(
+            e.view.content.find(roleSelector('stage')),
             app.mobile.viewModel,
-            kendo.ui,
-            kendo.dataviz.ui,
-            kendo.mobile.ui
+            ui,
+            dataviz.ui,
+            mobile.ui
         );
         mobile._resizeStage(e.view);
 
@@ -222,7 +225,7 @@ const feature = {
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
         );
         assert.instanceof(
-            kendo.mobile.ui.View,
+            View,
             e.view,
             assert.format(
                 assert.messages.instanceof.default,
@@ -232,7 +235,7 @@ const feature = {
         );
 
         // Destroy the stage (necessary to hide the floating toolbar and avoid initializing widgets simultaneously in correction and player modes)
-        kendo.destroy(e.view.content.find(kendo.roleSelector('stage')));
+        destroy(e.view.content.find(roleSelector('stage')));
 
         // Cancel any utterance spoken
         app.tts.cancelSpeak();

@@ -181,7 +181,7 @@ const feature = {
             )
         );
         // Navigate to the user view
-        app.viewModel.application.navigate(CONSTANTS.HASH + this.VIEW.USER._);
+        app.viewModel.application.navigate(`${CONSTANTS.HASH}${this.VIEW.USER._}`);
     },
 };
 

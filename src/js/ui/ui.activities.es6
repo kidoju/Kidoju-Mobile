@@ -169,7 +169,7 @@ const feature = {
             __.locale,
             assert.format(
                 assert.messages.equal.default,
-                'i18n.locale()',
+                '__.locale',
                 language
             )
         );

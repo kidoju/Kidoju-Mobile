@@ -39,7 +39,6 @@ const AppController = BaseController.extend({
             message: 'Initializing kendo application',
             method: 'initApplication',
         });
-        debugger;
 
         // Initialize event threshold as discussed at http://www.telerik.com/forums/click-event-does-not-fire-reliably
         UserEvents.defaultThreshold(
@@ -49,7 +48,6 @@ const AppController = BaseController.extend({
 
         // Initial page
         let initial = CONSTANTS.HASH;
-        debugger;
         if (this.isSyncedUser$()) {
             // The viewModel user has been recently synced, show the user view
             initial += this.VIEW.USER._;
@@ -57,9 +55,7 @@ const AppController = BaseController.extend({
             // The viewModel user has not been synced for a while, suggest to signin to sync
             initial += `${this.VIEW.SIGNIN._}?page=${encodeURIComponent(
                 this.VIEW.SIGNIN.LAST_PAGE
-            )}&userId=${encodeURIComponent(
-                this.get(this.VIEW_MODEL.USER.ID)
-            )}`;
+            )}&userId=${encodeURIComponent(this.get(this.VIEW_MODEL.USER.ID))}`;
         } else {
             // The viewModel user is new, show walkthrough before signing in
             initial += this.VIEW.SIGNIN._;
@@ -68,7 +64,7 @@ const AppController = BaseController.extend({
         // Initialize application
         this.application = new Application(document.body, {
             initial,
-            skin: 'flat', // TODO skin: app.theme.name(),
+            skin: 'bootstrap', // TODO skin: app.theme.name(),
             // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
             // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
             // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
@@ -127,7 +123,7 @@ const AppController = BaseController.extend({
         debugger;
         this.application = new Application(document.body, {
             initial: `${CONSTANTS.HASH}${this.VIEW.ERROR._}`,
-            skin: 'flat', // TODO skin: app.theme.name(),
+            skin: 'bootstrap', // TODO skin: app.theme.name(),
             init(/* e */) {
                 debugger;
                 // hide the splash screen

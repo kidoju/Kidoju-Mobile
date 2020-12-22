@@ -12,15 +12,16 @@ import 'kendo.mobile.button';
 import 'kendo.mobile.listview';
 import 'kendo.mobile.view';
 // import 'kendo.mobile.scrollview';
+import 'kendo.rating';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
 import Logger from '../common/window.logger.es6';
+import { LazyCategory } from '../data/data.category.lazy.es6';
 import { Summary } from '../data/data.summary.es6';
-import { LazySummaryDataSource } from '../data/data.summary.lazy.es6';
-
 import { xhr2error } from '../data/data.util.es6';
+import '../widgets/widgets.markdown.es6';
 
 const {
     mobile: {
@@ -57,65 +58,24 @@ const feature = {
             LANGUAGE: 'summary.language',
             TITLE: 'summary.title',
         },
-        SUMMARIES: 'summaries',
     },
 
     /**
      * Reset
      */
     reset() {
-        this.resetSummaries();
+        app.viewModel.resetSummary();
     },
 
     /**
-     * Reset summaries
+     * Reset summary
      */
-    resetSummaries() {
-        this.set(this.VIEW_MODEL.SUMMARY._, new Summary()); // new models.Summary()
-        this.set(this.VIEW_MODEL.SUMMARIES, new LazySummaryDataSource()); // new models.LazySummaryDataSource({ pageSize: VIRTUAL_PAGE_SIZE })
-    },
-
-    /**
-     * Load summaries
-     * @param options
-     */
-    loadSummaries(options) {
-        assert.isNonEmptyPlainObject(
-            options,
-            assert.format(
-                assert.messages.isNonEmptyPlainObject.default,
-                'options'
-            )
-        );
-        assert.isNonEmptyPlainObject(
-            options.partition,
-            assert.format(
-                assert.messages.isNonEmptyPlainObject.default,
-                'options.partition'
-            )
-        );
-        assert.match(
-            CONSTANTS.RX_LANGUAGE,
-            options.partition.language,
-            assert.format(
-                assert.messages.match.default,
-                'options.partition.language',
-                CONSTANTS.RX_LANGUAGE
-            )
-        );
-        return this[this.VIEW_MODEL.SUMMARIES]
-            .load(options)
-            .catch((xhr, status, errorThrown) => {
-                app.notification.error(
-                    __('mobile.notifications.summariesQueryFailure')
-                );
-                logger.error({
-                    message: 'error loading summaries',
-                    method: 'loadSummaries',
-                    error: xhr2error(xhr, status, errorThrown),
-                    data: { options },
-                });
-            });
+    resetSummary() {
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        viewModel.set(VIEW_MODEL.SUMMARY._, new Summary());
     },
 
     /**
@@ -148,10 +108,17 @@ const feature = {
                 CONSTANTS.RX_MONGODB_ID
             )
         );
-        return this[this.VIEW_MODEL.SUMMARY]
+        const {
+            notification,
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        return viewModel[VIEW_MODEL.SUMMARY._]
             .load(options)
             .catch((xhr, status, errorThrown) => {
-                app.notification.error(__('mobile.notifications.summaryLoadFailure'));
+                notification.error(
+                    __('mobile.notifications.summaryLoadFailure')
+                );
                 logger.error({
                     message: 'error loading summary',
                     method: 'loadSummary',
@@ -166,10 +133,15 @@ const feature = {
      */
     summaryCategory$() {
         let ret = '';
-        const categoryId = this.get(this.VIEW_MODEL.SUMMARY.CATEGORY_ID);
-        const category = this.get(this.VIEW_MODEL.CATEGORIES).get(categoryId);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const categoryId = viewModel.get(VIEW_MODEL.SUMMARY.CATEGORY_ID);
+        const category = viewModel.get(VIEW_MODEL.CATEGORIES).get(categoryId);
+
         if (
-            category instanceof models.LazyCategory &&
+            category instanceof LazyCategory &&
             $.isFunction(category.path.map) &&
             category.path.length
         ) {
@@ -199,12 +171,17 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
+        const {
+            notification,
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
         const { view } = e;
         // load the summary
-        const language = i18n.locale();
+        const language = __.locale;
         assert.equal(
             language,
-            this.viewModel.get(this.VIEW_MODEL.LANGUAGE),
+            viewModel.get(VIEW_MODEL.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'this.viewModel.get("language")',
@@ -212,16 +189,16 @@ const feature = {
             )
         );
         const { summaryId } = e.view.params;
-        this.viewModel.loadSummary({ language, id: summaryId }).always(() => {
-            mobile.onGenericViewShow(e);
+        viewModel.loadSummary({ language, id: summaryId }).always(() => {
+            viewModel.onGenericViewShow(e);
             // Set the background color
             // This cannot be done via bindings because the view and vien.content cannot be bound
-            const summary = this.viewModel.get(this.VIEW_MODEL.SUMMARY._);
+            const summary = viewModel.get(VIEW_MODEL.SUMMARY._);
             view.content
                 .toggleClass('error', summary.isError$())
                 .toggleClass('success', summary.isSuccess$())
                 .toggleClass('warning', summary.isWarning$());
-            app.notification.info(__('mobile.notifications.summaryViewInfo'));
+            notification.info(__('mobile.notifications.summaryViewInfo'));
         });
     },
 
@@ -230,7 +207,11 @@ const feature = {
      */
     onSummaryActionPlay() {
         // assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
-        const language = i18n.locale();
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const language = __.locale;
         assert.equal(
             language,
             this.viewModel.get(this.VIEW_MODEL.LANGUAGE),
@@ -249,7 +230,7 @@ const feature = {
                 language
             )
         );
-        const summaryId = this.viewModel.get(this.VIEW_MODEL.SUMMARY.ID);
+        const summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
 
         // Find latest version (version history is not available in the mobile app)
         viewModel
@@ -261,7 +242,7 @@ const feature = {
                 sort: { field: 'id', dir: 'desc' },
             })
             .then(() => {
-                const version = this.viewModel.versions.at(0); // First is latest version
+                const version = viewModel.versions.at(0); // First is latest version
                 assert.instanceof(
                     models.LazyVersion,
                     version,
@@ -291,9 +272,9 @@ const feature = {
                         summaryId
                     )
                 );
-                mobile.application.navigate(
-                    `${
-                        CONSTANTS.HASH + VIEW.PLAYER
+                viewModel.application.navigate(
+                    `${CONSTANTS.HASH}${
+                        VIEW.PLAYER
                     }?language=${window.encodeURIComponent(
                         language
                     )}&summaryId=${window.encodeURIComponent(
@@ -369,7 +350,7 @@ const feature = {
     onSummaryActionFeedback() {
         const url = kendo.format(
             app.constants.feedbackUrl,
-            i18n.locale(),
+            __.locale,
             encodeURIComponent(this.viewModel.summary.summaryUri$())
         );
         // targeting _system should open the web browser instead of the InApp browser (target = _blank)

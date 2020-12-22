@@ -60,15 +60,18 @@ const feature = {
             )
         );
         e.preventDefault();
-        const { viewModel } = app;
+        const {
+            viewModel,
+            viewModel: { application, VIEW, VIEW_MODEL },
+        } = app;
         const command = e.item.attr(attr('command')); // TODO replace with action
-        const language = __.locale(); // viewModel.get(VIEW_MODEL.LANGUAGE);
-        const userId = viewModel.get(VIEW_MODEL.USER.SID);
+        const language = __.locale; // viewModel.get(VIEW_MODEL.LANGUAGE);
+        const userId = viewModel.get(VIEW_MODEL.USER.ID);
         switch (command) {
             case 'categories':
-                viewModel.application.navigate(
+                application.navigate(
                     `${CONSTANTS.HASH}${
-                        VIEW.CATEGORIES
+                        VIEW.CATEGORIES._
                     }?language=${encodeURIComponent(language)}`
                 );
                 break;
@@ -76,24 +79,24 @@ const feature = {
                 viewModel.scanQRCode();
                 break;
             case 'activities':
-                viewModel.application.navigate(
+                application.navigate(
                     `${CONSTANTS.HASH}${
-                        VIEW.ACTIVITIES
+                        VIEW.ACTIVITIES._
                     }?language=${encodeURIComponent(
                         language
                     )}&userId=${encodeURIComponent(userId)}`
                 );
                 break;
             case 'settings':
-                viewModel.application.navigate(
+                application.navigate(
                     `${CONSTANTS.HASH}${
-                        VIEW.SETTINGS
+                        VIEW.SETTINGS._
                     }?userId=${encodeURIComponent(userId)}`
                 );
                 break;
             case 'help':
             default:
-                app.viewModel.openHelp();
+                viewModel.openHelp();
                 break;
         }
     },
@@ -129,17 +132,21 @@ const feature = {
                                 QR_CODE
                             )
                         );
+                        const {
+                            notification,
+                            viewModel,
+                            viewModel: { application, VIEW, VIEW_MODEL },
+                        } = app;
                         const matches = result.text.match(RX_QR_CODE_MATCH);
                         if (Array.isArray(matches) && matches.length > 2) {
                             const language = matches[1];
                             const summaryId = matches[2];
-                            const { viewModel } = app;
                             if (
                                 viewModel.get(VIEW_MODEL.LANGUAGE) === language
                             ) {
-                                viewModel.application.navigate(
+                                application.navigate(
                                     `{CONSTANTS.HASH}${
-                                        VIEW.SUMMARY
+                                        VIEW.SUMMARY._
                                     }?language=${encodeURIComponent(
                                         language
                                     )}&summaryId=${encodeURIComponent(
@@ -147,12 +154,14 @@ const feature = {
                                     )}`
                                 );
                             } else {
-                                app.notification.warning(
-                                    __('mobile.mobile.notifications.scanLanguageWarning')
+                                notification.warning(
+                                    __(
+                                        'mobile.mobile.notifications.scanLanguageWarning'
+                                    )
                                 );
                             }
                         } else {
-                            app.notification.warning(
+                            notification.warning(
                                 __('mobile.notifications.scanMatchWarning')
                             );
                         }
