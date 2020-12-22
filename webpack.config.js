@@ -12,6 +12,7 @@
 
 const path = require('path');
 const deasync = require('deasync');
+const sass = require('sass');
 const webpack = require('webpack');
 const cleanLessPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
@@ -114,6 +115,50 @@ module.exports = {
                     {
                         loader: './web_modules/jsx-loader/index.es6',
                         options: { config: 'webapp/config' },
+                    },
+                ],
+            },
+            {
+                test: /app\.theme\.[a-z0-9-]+\.scss$/,
+                use: [
+                    {
+                        loader: 'bundle-loader',
+                        options: { name: '[name]' },
+                    },
+                    {
+                        loader: 'style-loader',
+                        options: { injectType: 'lazyStyleTag' },
+                    },
+                    {
+                        loader: 'css-loader',
+                        options: { importLoaders: 2 },
+                    },
+                    { loader: 'postcss-loader' },
+                    // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            implementation: sass,
+                        },
+                    },
+                ],
+            },
+            {
+                test: /\.scss$/,
+                exclude: /app\.theme\.[a-z0-9-]+\.scss$/,
+                use: [
+                    { loader: 'style-loader' },
+                    {
+                        loader: 'css-loader',
+                        options: { importLoaders: 1 },
+                    },
+                    { loader: 'postcss-loader' },
+                    // See https://github.com/jlchereau/Kidoju-Webapp/issues/197
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            implementation: sass,
+                        },
                     },
                 ],
             },
