@@ -23,10 +23,10 @@
     "level": 0,
     "uris" : {
         "rapi": {
-            "root": "http://10.0.0.105:3001"
+            "root": "http://lvh.me:3001"
         },
         "webapp": {
-            "root": "http://10.0.0.105:3001",
+            "root": "http://lvh.me:3001",
             "logger": "/api/logger"
         },
         "webpack": {
