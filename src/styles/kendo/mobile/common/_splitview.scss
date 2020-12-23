@@ -1,0 +1,33 @@
+@use 'mixins' as *;
+
+// SplitView
+
+div.km-splitview > .km-content,
+kendo-mobile-split-view.km-splitview > .km-content {
+    @include flex-direction(row);
+}
+
+div.km-split-vertical > .km-content,
+kendo-mobile-split-view.km-split-vertical > .km-content {
+    @include flex-direction(column);
+}
+
+div.km-split-content > .km-pane {
+    @include flex(2);
+    width: auto;
+    height: auto;
+}
+
+div.km-split-content > .km-pane:first-child {
+    @include flex(1);
+}
+
+div.km-split-horizontal > .km-content > .km-pane {
+    top: 0;
+    bottom: 0;
+}
+
+// Hopefully temporary
+.km-split-vertical > .km-content > .km-pane > .km-view {
+    display: -webkit-box;
+}

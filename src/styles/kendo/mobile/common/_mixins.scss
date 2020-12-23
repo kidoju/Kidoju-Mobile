@@ -1,0 +1,100 @@
+// @mixin flexbox() {
+//     display: flex;
+// }
+// @mixin flexbox($type: "") {
+//     display: "#{$type}-flex";
+// }
+
+@mixin flexbox($type: "") {
+    @if $type == "" {
+        display: flex;
+    }
+
+    @else {
+        display: $type + "-flex";
+    }
+}
+
+@mixin flex-direction($direction) {
+    flex-direction: $direction;
+}
+
+@mixin flex-wrap($wrap) {
+    flex-wrap: $wrap;
+}
+
+@mixin flex($amount) {
+    flex: $amount;
+}
+
+@mixin flex-align($alignment) {
+    flex-align: $alignment;
+}
+
+@mixin flex-align-items($alignment) {
+    align-items: $alignment;
+}
+
+@mixin flex-align-content($alignment) {
+    align-content: $alignment;
+}
+
+@mixin flex-pack($pack) {
+    flex-pack: $pack;
+}
+
+@mixin box-shadow($args...) {
+    box-shadow: $args;
+}
+
+@mixin box-sizing($type) {
+    box-sizing: $type;
+}
+
+@mixin background-clip($type) {
+    background-clip: $type;
+}
+
+@mixin transform($args...) {
+    transform: $args;
+}
+
+@mixin transform-origin($args...) {
+    transform-origin: $args;
+}
+
+@mixin transform-style($args...) {
+    transform-style: $args;
+}
+
+@mixin transition($args...) {
+    transition: $args;
+}
+
+@mixin pTransition($args...) {
+    transition: $args;
+}
+
+@mixin user-select($args...) {
+    user-select: $args;
+}
+
+@mixin animation($args...) {
+    animation: $args;
+}
+
+@mixin animation-name($args...) {
+    animation-name: $args;
+}
+
+@mixin animation-delay($args...) {
+    animation-delay: $args;
+}
+
+@mixin appearance($args...) {
+    appearance: $args;
+}
+
+@mixin text-size-adjust($args...) {
+    text-size-adjust: $args;
+}

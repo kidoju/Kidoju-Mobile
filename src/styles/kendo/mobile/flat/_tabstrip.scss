@@ -1,0 +1,21 @@
+// @use "../common/icons.scss" as *;
+// @use "../common/tabstrip.scss" as *;
+// @use "base.scss" as *;
+
+// TabStrip
+
+.km-flat .km-tabstrip {
+    padding: 0;
+    display: table;
+    table-layout: fixed;
+}
+
+.km-flat .km-tabstrip .km-button {
+    font-size: .7em;
+    display: table-cell;
+    border: 0;
+}
+
+.km-flat .km-tabstrip .km-icon:before {
+    display: none;
+}
