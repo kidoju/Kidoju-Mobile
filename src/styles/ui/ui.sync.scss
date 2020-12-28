@@ -1,16 +1,19 @@
 @import 'ui.mixins';
 
 #sync {
-    .km-thumbnail {
-        @include picture
+    .app-picture {
+        @include picture();
     }
 
-    .title,
-    .message {
-        text-align: center;
+    .app-title {
+        @include title();
     }
 
-    .progress {
+    .app-description {
+        @include description();
+    }
+
+    .app-progress {
         margin: 1em;
 
         .k-progressbar {
@@ -18,5 +21,9 @@
             width: 100%; // calc(100% - 4px);
             margin: 1em 0;
         }
+    }
+
+    .app-buttons {
+        @include buttons();
     }
 }

@@ -37,11 +37,44 @@ $flat-overlay-background: rgba(0,0,0,.4);
 
 .km-#{$skin-name} .km-button {
     @include fill(
-        $button-text,
-        $button-bg,
-        $button-border,
-        $button-gradient
+            $button-text,
+            $button-bg,
+            $button-border,
+            $button-gradient
     );
+
+    // Pressed state
+    &:active,
+    &.km-state-active {
+        @include fill(
+                $button-pressed-text,
+                $button-pressed-bg,
+                $button-pressed-border,
+                $button-pressed-gradient
+        );
+        box-shadow: inset $button-pressed-shadow;
+    }
+}
+
+.km-#{$skin-name} .km-button.km-primary {
+    @include fill(
+        $primary-button-text,
+        $primary-button-bg,
+        $primary-button-border,
+        $primary-button-gradient
+    );
+
+    // Active state
+    &:active,
+    &.km-state-active {
+        @include fill(
+            $primary-button-pressed-text,
+            $primary-button-pressed-bg,
+            $primary-button-pressed-border,
+            $primary-button-pressed-gradient
+        );
+        box-shadow: $primary-button-pressed-shadow;
+    }
 }
 
 // Badges and Details

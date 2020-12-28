@@ -1,7 +1,31 @@
 @import 'ui.mixins';
 
 #summary {
-    .km-thumbnail {
-        @include picture;
+    .app-picture {
+        @include picture();
+    }
+
+    .km-list {
+        .app-field {
+            @include field();
+        }
+
+        .k-rating {
+            .k-rating-container {
+                .k-rating-item {
+                    padding: 0;
+
+                    .k-icon {
+                        font-size: 16px;
+                    }
+
+                }
+            }
+            //.k-rating-label {}
+        }
+    }
+
+    .app-buttons {
+        @include buttons();
     }
 }

@@ -1,5 +1,14 @@
 @import 'ui.mixins';
 
 #drawer {
+    .km-header {
+        .km-view-title {
+            max-height: 47px;
+        }
+    }
 
+    .km-content {
+        border-right-width: 1px;
+        border-right-style: solid;
+    }
 }

@@ -1,9 +1,23 @@
 @import 'ui.mixins';
 
 #user {
-    .km-thumbnail {
-        @include picture;
+    .app-picture {
+        @include picture();
 
         border-radius: 50%;
+    }
+
+    .km-list {
+        .app-bold {
+            @include bold();
+        }
+
+        .app-field {
+            @include field();
+        }
+    }
+
+    .app-buttons {
+        @include buttons();
     }
 }

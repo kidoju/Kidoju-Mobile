@@ -1,0 +1,62 @@
+/**
+ * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Sources at https://github.com/Memba
+ */
+
+// Global customization
+@import "../themes/common/global";
+
+// Kendo UI
+// ~ tilde only works with webpack module resolution
+// @import "~@progress/kendo-theme-bootstrap/scss/all";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/all";
+
+// Bootstrap customization (using Kendo UI variables)
+// @import "../themes/common/bootstrap";
+
+// Bootstrap 4
+// ~ tilde only works with webpack module resolution
+// @import "~bootstrap/scss/bootstrap";
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+
+// Our widgets styles
+@import "../widgets/widgets.assetmanager.scss";
+@import "../widgets/widgets.audiovideo.scss";
+@import "../widgets/widgets.basiclist.scss"; // --> widgets.array
+@import "../widgets/widgets.bitflags.scss";
+@import "../widgets/widgets.codeinput.scss";
+@import "../widgets/widgets.codeeditor.scss";
+@import "../widgets/widgets.explorer.scss";
+// @import "../widgets/widgets.floating.scss";
+@import "../widgets/widgets.formatstrip.scss";
+@import "../widgets/widgets.highlighter.scss";
+@import "../widgets/widgets.imagelist.scss";
+@import "../widgets/widgets.latex.scss";
+@import "../widgets/widgets.license.scss";
+@import "../widgets/widgets.markdown.scss";
+@import "../widgets/widgets.markeditor.scss";
+// @import "../widgets/widgets.mathinput.scss";
+@import "../widgets/widgets.multiinput.scss";
+@import "../widgets/widgets.multiquiz.scss";
+@import "../widgets/widgets.navigation.scss";
+@import "../widgets/widgets.playbar.scss";
+@import "../widgets/widgets.propertygrid.scss";
+@import "../widgets/widgets.quiz.scss";
+@import "../widgets/widgets.social.scss";
+@import "../widgets/widgets.splitbutton.scss";
+@import "../widgets/widgets.stage.scss";
+@import "../widgets/widgets.styleeditor.scss";
+@import "../widgets/widgets.table.scss";
+@import "../widgets/widgets.textgaps.scss";
+@import "../widgets/widgets.unitinput.scss";
+// @import "../widgets/widgets.vectordrawing.scss";
+
+// Our dialog styles
+@import "../dialogs/widgets.basedialog.scss";
+
+// Mobile theme
+// Add app.fonts.less (and kidoju fonts)
+@import "../kendo/mobile/common/all";
+@import "../kendo/mobile/common/icons";
+@import "../kendo/mobile/ui/all";
+@import "../kendo/mobile/common/after";

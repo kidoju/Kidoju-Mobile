@@ -6,7 +6,7 @@
             height: 9.5em; // a fixed height is required for endless scrolling
             line-height: 1.25;
 
-            .km-thumbnail {
+            .app-icon {
                 border: none;
                 border-radius: 0;
                 height: 3.35rem;
@@ -15,12 +15,12 @@
                 float: left;
             }
 
-            .summary {
+            .app-summary {
                 margin-left: 4rem;
                 margin-right: 2.5rem;
 
                 h4,
-                .tags {
+                .app-tags {
                     //http://dropshado.ws/post/1015351370/webkit-line-clamp
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -34,13 +34,27 @@
                     font-weight: bold;
                 }
 
-                .tags,
+                .app-tags,
                 .metrics {
                     font-size: 0.8em;
                 }
 
-                .tags {
+                .app-tags {
                     margin: 0.2em 0;
+                }
+
+                .k-rating {
+                    .k-rating-container {
+                        .k-rating-item {
+                            padding: 0;
+
+                            .k-icon {
+                                font-size: 16px;
+                            }
+
+                        }
+                    }
+                    //.k-rating-label {}
                 }
             }
 

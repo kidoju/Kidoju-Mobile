@@ -1,0 +1,9 @@
+@import "./tools";
+
+.kj-stage {
+    .kj-element[data-tool="numericbox"] {
+        span.k-numerictextbox {
+            width: auto;
+        }
+    }
+}

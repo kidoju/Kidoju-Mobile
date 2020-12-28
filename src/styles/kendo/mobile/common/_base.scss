@@ -27,7 +27,8 @@
     font-size: 1em;
 }
 
-.km-root a:not(.k-button) {
+// .km-root a:not(.k-button) { // Modified by JLC
+.km-root a:not(.k-button):not(.km-button) {
     color: inherit;
 }
 

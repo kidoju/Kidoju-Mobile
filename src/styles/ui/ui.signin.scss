@@ -7,7 +7,7 @@
         div[data-role="page"] {
             overflow: hidden;
 
-            div.image {
+            .app-image {
                 position: absolute;
                 width: 80vmin;
                 top: 10vmin;
@@ -19,7 +19,7 @@
                 }
             }
 
-            div.text {
+            .app-text {
                 position: absolute;
                 bottom: 0;
                 height: 30%;

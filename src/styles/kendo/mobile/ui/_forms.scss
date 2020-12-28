@@ -95,6 +95,7 @@
     display: block;
     border-radius: 0;
     background: transparent;
+
     @include box-shadow(none);
 }
 
@@ -177,7 +178,7 @@
             input[type=text]:not(.k-input),
             select:not([multiple]),
             .k-dropdown-wrap,
-            textarea  {
+            textarea {
                 left: 0.7em;
                 margin-top: -0.375em;
             }
@@ -205,7 +206,7 @@
                 input[type=text]:not(.k-input),
                 select:not([multiple]),
                 .k-dropdown-wrap,
-                textarea  {
+                textarea {
                     margin-top: -0.25em;
                 }
             }
@@ -290,7 +291,7 @@
             input[type=text]:not(.k-input),
             select:not([multiple]),
             .k-dropdown-wrap,
-            textarea  {
+            textarea {
                 left: 0;
                 padding-left: 0;
                 padding-left: 1em;
@@ -318,7 +319,7 @@
             input[type=text]:not(.k-input),
             select:not([multiple]),
             .k-dropdown-wrap,
-            textarea  {
+            textarea {
                 margin-left: 0;
                 padding-left: 0;
             }

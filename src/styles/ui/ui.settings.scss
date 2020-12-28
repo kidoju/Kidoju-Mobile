@@ -1,5 +1,17 @@
 @import 'ui.mixins';
 
 #settings {
+    .km-list {
+        .app-bold {
+            @include bold();
+        }
 
+        .app-field {
+            @include field();
+        }
+    }
+
+    .app-buttons {
+        @include buttons();
+    }
 }
