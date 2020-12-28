@@ -1,0 +1,244 @@
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
+@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+
+//---------------------------------------------
+// CodeMirror
+//---------------------------------------------
+.CodeMirror,
+.CodeMirror-scrollbar-filler,
+.CodeMirror-gutter-filler {
+    background-color: $widget-bg;
+    color: $widget-text;
+}
+
+// Gutters
+.CodeMirror-gutters {
+    border-right: $border-width solid $border-color;
+    background-color: rgba(contrast-wcag($widget-bg), 0.04);
+}
+
+// .CodeMirror-linenumbers {}
+
+.CodeMirror-linenumber {
+    color: $widget-text;
+
+    /* stylelint-disable-next-line at-rule-no-unknown */
+    @include disabled( $disabled-styling );
+}
+
+.CodeMirror-guttermarker {
+    color: black;
+}
+
+.CodeMirror-guttermarker-subtle {
+    color: $widget-text;
+
+    /* stylelint-disable-next-line at-rule-no-unknown */
+    @include disabled( $disabled-styling );
+}
+
+// Cursor
+
+.CodeMirror-cursor {
+    border-left: 1px solid $widget-text;
+}
+
+/* Shown when moving in bi-directional text */
+.CodeMirror div.CodeMirror-secondarycursor {
+    border-left: 1px solid #f00; // TODO
+}
+
+.cm-fat-cursor .CodeMirror-cursor {
+    background: #7e7; // TODO
+}
+
+.cm-animate-fat-cursor {
+    background-color: #7e7; // TODO
+}
+
+/* DEFAULT THEME */
+
+/* Note: everything I have not been able to play in CodeMirror markdown and JavaScript modes is $series-f */
+
+.cm-s-default .cm-header {
+    color: contrast-wcag($series-a);
+}
+
+.cm-s-default .cm-quote {
+    color: $series-a;
+    font-style: italic;
+}
+
+.cm-negative {
+    color: $error;
+}
+
+.cm-positive {
+    color: $success;
+}
+
+.cm-link {
+    text-decoration: underline;
+}
+
+.cm-strikethrough {
+    text-decoration: line-through;
+}
+
+.cm-s-default .cm-keyword {
+    color: $series-c;
+}
+
+.cm-s-default .cm-atom {
+    color: $series-f;
+}
+
+.cm-s-default .cm-number {
+    // color: contrast-wcag($series-e);
+    color: $series-b;
+}
+
+.cm-s-default .cm-def {
+    color: $info;
+}
+
+.cm-s-default .cm-variable,
+.cm-s-default .cm-punctuation,
+.cm-s-default .cm-property,
+.cm-s-default .cm-operator { /* default text color */ }
+
+.cm-s-default .cm-variable-2 {
+    // color: contrast-wcag($series-d);
+    color: $series-e;
+}
+
+.cm-s-default .cm-variable-3,
+.cm-s-default .cm-type {
+    color: $series-d;
+}
+
+.cm-s-default .cm-comment {
+    color: $widget-text;
+
+    /* stylelint-disable-next-line at-rule-no-unknown */
+    @include disabled( $disabled-styling );
+}
+
+.cm-s-default .cm-string {
+    color: contrast-wcag($series-e);
+}
+
+.cm-s-default .cm-string-2 {
+    color: $series-e;
+}
+
+.cm-s-default .cm-meta {
+    color: $series-f;
+}
+
+.cm-s-default .cm-qualifier {
+    color: $series-f;
+}
+
+.cm-s-default .cm-builtin {
+    color: $series-f;
+}
+
+.cm-s-default .cm-bracket {
+    color: $series-f;
+}
+
+.cm-s-default .cm-tag {
+    color: $series-f;
+}
+
+.cm-s-default .cm-attribute {
+    color: $series-f;
+}
+
+.cm-s-default .cm-hr {
+    color: $widget-text;
+    font-weight: bold;
+
+    /* stylelint-disable-next-line at-rule-no-unknown */
+    @include disabled( $disabled-styling );
+}
+
+.cm-s-default .cm-link {
+    color: $series-b;
+}
+
+.cm-s-default .cm-error {
+    color: $error;
+}
+
+.cm-invalidchar {
+    color: $error;
+}
+
+/* Default styles for common addons */
+
+div.CodeMirror span.CodeMirror-matchingbracket {
+    color: $success;
+}
+
+div.CodeMirror span.CodeMirror-nonmatchingbracket {
+    color: $error;
+}
+
+.CodeMirror-matchingtag {
+    background: $success;
+}
+
+.CodeMirror-activeline-background {
+    background: #e8f2ff;
+}
+
+// markdown mode
+// headings use .cm-header
+// blockquotes use .cm-quote
+// code uses .cm-comment
+// hr uses .cm-hr
+// links use .cm-link
+// bold uses .cm-strong and italic uses .cm-em
+// lists use .cm-variable-2
+.cm-s-default .cm-image {
+    color: $series-b;
+    text-decoration: none !important;
+}
+
+.cm-s-default .cm-url {
+    color: $series-b;
+    font-style: italic;
+}
+
+/* STOP */
+
+.CodeMirror-selected {
+    /* This is the default windows selection color */
+    background-color: #0561d1 !important;
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+    /* This is the default windows selection color */
+    background-color: #0561d1 !important;
+}
+
+.CodeMirror-line::selection,
+.CodeMirror-line > span::selection,
+.CodeMirror-line > span > span::selection {
+    /* This is the default windows selection color */
+    background-color: #0561d1 !important;
+}
+
+.CodeMirror-line::-moz-selection,
+.CodeMirror-line > span::-moz-selection,
+.CodeMirror-line > span > span::-moz-selection {
+    /* This is the default windows selection color */
+    background-color: #0561d1 !important;
+}
+
+.cm-searching {
+    background: #ffa;
+    background: rgba(255, 255, 0, 0.4);
+}
