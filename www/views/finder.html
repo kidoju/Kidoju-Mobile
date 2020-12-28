@@ -6,19 +6,19 @@
     <ul data-role="listview" data-bind="source: summaries" data-filterable="false" data-load-more="true" data-template="finder-template"></ul>
     <script type="text/x-kendo-template" id="finder-template">
         <a href="\#summary?language=#: language #&summaryId=#: id #" data-bind="css: { offline: offline, error: isError$, success: isSuccess$, warning: isWarning$ }">
-            <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
-            <div class="summary">
+            <img src="#: icon$() #" alt="#: title #" class="app-icon">
+            <div class="app-summary">
                 <h4>#: title #</h4>
                 <!-- Do not use tags as a variable name otherwise the model tags will be changed -->
                 # var t$ = tags$(); if (Array.isArray(t$) && t$.length) { #
-                <div class="tags"><i class="kf kf-tags"></i>
+                <div class="app-tags"><i class="kf kf-tags"></i>
                     # for (var i = 0; i < t$.length; i++) { #
                     <span>#: t$[i].name #</span>#: i < t$.length - 1 ? ', ' : '' #
                     # } #
                 </div>
                 # } #
-                <div class="metrics">
-                    <span class="kf"><input data-role="rating" value="#: ratings #" readonly></span>
+                <div class="app-metrics">
+                    <input data-role="rating" value="#: ratings #" data-label="false" readonly>
                     <i class="kf kf-view"></i><span>#: views #</span>
                     # if (scores) { #<i class="kf kf-score"></i><span>#: kendo.toString(scores, 'n0') #%</span># } #
                 </div>

@@ -1,5 +1,23 @@
 @import 'ui.mixins';
 
 #activities {
+    .km-list > li {
+        .km-listview-link {
+            .title {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-right: 3.5em;
+            }
 
+            .small {
+                font-size: small;
+            }
+
+            .km-badge {
+                font-size: 0.75em;
+                // right: 1.75em;
+            }
+        }
+    }
 }

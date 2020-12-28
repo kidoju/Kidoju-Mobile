@@ -1,0 +1,28 @@
+* {
+    // make transparent link selection, adjust last value opacity 0 to 1.0
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    // prevent callout to copy image, etc when tap to hold
+    -webkit-touch-callout: none;
+}
+
+:not(input),
+:not(textarea) {
+    // prevent copy paste, to allow, change 'none' to 'text'
+    user-select: none;
+}
+
+/*
+// Helper to assist in identifying img tags missing alt attribute
+img[alt=""], img:not([alt]) {
+    border: dashed 5px red;
+}
+*/
+
+html,
+body {
+    // Prevent webkit from resizing text to fit
+    text-size-adjust: none;
+    // height: 100%;
+    // margin: 0;
+    // padding: 0;
+}

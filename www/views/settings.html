@@ -5,40 +5,40 @@
         <ul data-role="listview" data-style="inset" data-filterable="false">
             <li>
                 <label>
-                    <span class="km-bold-font">User</span>
-                    <div data-bind="text: user.fullName$" class="right"></div>
+                    <span class="app-bold">User</span>
+                    <div data-bind="text: user.fullName$" class="app-field"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Version</span>
-                    <div data-bind="text: version$()" class="right"></div>
+                    <span class="app-bold">Version</span>
+                    <div data-bind="text: version$()" class="app-field"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Theme</span>
-                    <div data-bind="text: theme$, visible: hasConstantTheme$" class="right"></div>
+                    <span class="app-bold">Theme</span>
+                    <div data-bind="text: theme$, visible: hasConstantTheme$" class="app-field"></div>
                     <input data-role="dropdownlist" data-bind="value: theme, source: themes, disabled: hasConstantTheme$, invisible: hasConstantTheme$" data-value-field="value" data-text-field="text">
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Language</span>
-                    <div data-bind="text: language$, visible: hasConstantLanguage$" class="right"></div>
+                    <span class="app-bold">Language</span>
+                    <div data-bind="text: language$, visible: hasConstantLanguage$" class="app-field"></div>
                     <input data-role="dropdownlist" data-bind="value: language, source: languages, disabled: hasConstantLanguage$, invisible: hasConstantLanguage$" data-value-field="value" data-text-field="text">
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Category</span>
-                    <div data-bind="text: rootCategoryId$, visible: hasConstantRootCategoryId$" class="right"></div>
+                    <span class="app-bold">Category</span>
+                    <div data-bind="text: rootCategoryId$, visible: hasConstantRootCategoryId$" class="app-field"></div>
                     <input data-role="dropdownlist" data-bind="value: user.rootCategoryId, source: topCategories$(), disabled: hasConstantRootCategoryId$, invisible: hasConstantRootCategoryId$" data-value-field="id" data-text-field="name">
                 </label>
             </li>
         </ul>
     </form>
-    <div class="buttons">
+    <div class="app-buttons">
         <a data-role="button" class="km-large km-justified km-primary" data-click="app.viewModel.onSettingsSwitchClick">Switch user</a>
     </div>
 </div>

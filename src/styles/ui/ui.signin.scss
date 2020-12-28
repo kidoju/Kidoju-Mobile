@@ -37,16 +37,8 @@
                 }
             }
 
-            /*
-            .k-notification-wrap {
-                .k-text {
-                    margin-right: 3em;
-                }
-            }
-            */
-
             .km-list > li {
-                // padding: 0.5em 0;
+                padding: 0.5em;
 
                 > span.km-icon {
                     display: none; // Fix for a useless span that breaks our layout

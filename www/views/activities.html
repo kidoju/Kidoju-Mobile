@@ -15,7 +15,7 @@
     <ul data-role="listview" data-bind="source: activities" data-filterable="false" data-template="activities-template" data-header-template="activities-header-template" data-fixed-headers="true" data-type="group"></ul>
     <script type="text/x-kendo-template" id="activities-template">
         <a href="\#score#: queryString$() #" data-bind="css: { error: isError$, success: isSuccess$, warning: isWarning$ }">
-            <div class="title">#: title$() #</div>
+            <div class="app-title">#: title$() #</div>
             <div class="small">#: updated$() #</div>
             <span class="km-badge km-badge-info">#: score$() #</span>
         </a>

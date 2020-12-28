@@ -23,6 +23,25 @@
             }
             //.k-rating-label {}
         }
+
+        .km-badge-error,
+        .km-badge-success,
+        .km-badge-warning {
+            border-radius: 50%;
+            float: right;
+            padding: 6px;
+            margin-top: -6px;
+            position: relative;
+        }
+
+        .kj-markdown {
+            // Because of circular references considering there is no collision between views
+            /* stylelint-disable no-descending-specificity */
+            p:first-child {
+                margin-top: 0;
+            }
+            /* stylelint-enable */
+        }
     }
 
     .app-buttons {

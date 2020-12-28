@@ -1,5 +1,68 @@
 @import 'ui.mixins';
 
 #score {
+    // Because of circular references considering there is no collision between views
+    /* stylelint-disable no-descending-specificity */
+    .app-summary {
+        padding: 0.5em;
+        display: flex;
+        align-items: flex-start;
 
+        .app-icon {
+            height: 2em;
+            width: 2em;
+        }
+
+        .app-title {
+            font-weight: bold;
+            font-size: 1rem;
+            margin: 0.2em 0.5em 0 0.5em;
+        }
+    }
+    /* stylelint-enable */
+
+    .km-list > li {
+        .km-listview-link {
+            display: flex;
+            align-items: flex-start;
+
+            .app-icon {
+                flex: 0 0 auto;
+                height: 2em;
+                width: 2em;
+            }
+
+            .app-score {
+                display: grid; // otherwise margin-right won't work
+                margin: 0 3.5em 0 0.5em;
+
+                h4 { // question
+                    font-weight: normal;
+                    margin: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .app-small {
+                    font-size: small;
+                    line-height: normal;
+
+                    .app-left {
+                        width: 5em;
+                        float: left;
+                    }
+
+                    .app-right {
+                        margin-left: 5em;
+                    }
+                }
+            }
+
+            .km-badge {
+                font-size: 0.75em;
+                // right: 1.75em;
+            }
+        }
+    }
 }

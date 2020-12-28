@@ -35,8 +35,10 @@
                 }
 
                 .app-tags,
-                .metrics {
+                .app-metrics {
                     font-size: 0.8em;
+                    display: flex;
+                    align-items: flex-end;
                 }
 
                 .app-tags {
@@ -45,6 +47,8 @@
 
                 .k-rating {
                     .k-rating-container {
+                        margin-left: 0;
+
                         .k-rating-item {
                             padding: 0;
 
@@ -61,6 +65,50 @@
             .km-badge {
                 font-size: 0.75em;
                 // right: 1.75em;
+            }
+        }
+    }
+}
+
+
+/**********************************************************
+ * @media queries
+ * Note: We need the same height and width because the list does not refresh when changing orientation
+ **********************************************************/
+@media screen and (min-width: 375px) and (max-width: 411px) { // iPhone 6/7/8 and iPhone X
+    html,
+    body {
+        #finder {
+            .km-list > li {
+                .km-listview-link {
+                    height: 8em;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 412px) and (max-width: 699px) { // iPhone 6/7/8 Plus and Nexus 5X/6P
+    html,
+    body {
+        #finder {
+            .km-list > li {
+                .km-listview-link {
+                    height: 7em;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 700px) { // iPad Mini+
+    html,
+    body {
+        #finder {
+            .km-list > li {
+                .km-listview-link {
+                    height: 5em;
+                }
             }
         }
     }

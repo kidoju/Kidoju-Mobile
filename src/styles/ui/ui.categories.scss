@@ -13,13 +13,15 @@
         padding: 0.5em 1em;
 
         .km-listview-link {
-            .km-thumbnail { // TODO should be icon to match others
+            .app-icon {
                 border: none;
                 border-radius: 0;
                 height: 1.8rem;
                 width: 1.8rem;
                 vertical-align: middle;
             }
+
+            // .app-name {}
 
             .km-badge {
                 font-size: 0.75em;

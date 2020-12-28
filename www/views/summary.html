@@ -1,19 +1,19 @@
 <!-- Summary view -->
 <div id="summary" data-role="view" data-layout="main-layout" data-title="Details" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onSummaryViewShow">
-    <img data-bind="attr: { src: summary.icon$, alt: summary.title }" class="km-thumbnail picture">
+    <img data-bind="attr: { src: summary.icon$, alt: summary.title }" class="app-picture">
     <form>
         <ul data-role="listview" data-style="inset" data-filterable="false">
             <li>
                 <label>
-                    <span class="km-bold-font">Title</span>
-                    <div data-bind="text: summary.title" class="bottom"></div>
+                    <span class="app-bold">Title</span>
+                    <div data-bind="text: summary.title" class="app-bottom"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Rating</span>
-                    <div class="bottom">
-                        <span class="kf"><input data-role="rating" data-bind="value: summary.metrics.ratings.average" readonly></span>
+                    <span class="app-bold">Rating</span>
+                    <div class="app-bottom">
+                        <input data-role="rating" data-bind="value: summary.metrics.ratings.average" data-label="false" readonly>
                         <i class="kf kf-view"></i><span data-bind="text: summary.metrics.views.count"></span>
                         <i class="kf kf-score"></i><span data-bind="text: summary.metrics.scores.average, visible: summary.metrics.scores.average" data-format="n0"></span>%
                         <span data-bind="text: summary.userScore$, css: { km-badge-error: isError$, km-badge-success: summary.isSuccess$, km-badge-warning: summary.isWarning$ }, visible: summary.hasUserScore$"></span>
@@ -22,37 +22,37 @@
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Category</span>
-                    <div data-bind="html: summaryCategory$" class="bottom"></div>
+                    <span class="app-bold">Category</span>
+                    <div data-bind="html: summaryCategory$" class="app-bottom"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Tags</span>
-                    <div data-bind="text: summary.tags$" class="bottom"></div>
+                    <span class="app-bold">Tags</span>
+                    <div data-bind="text: summary.tags$" class="app-bottom"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Description</span>
-                    <div data-role="markdown" data-bind="value: summary.description" class="bottom"></div>
+                    <span class="app-bold">Description</span>
+                    <div data-role="markdown" data-bind="value: summary.description" class="app-bottom"></div>
                 </label>
             </li>
             <li data-bind="invisible: hasConstantAuthorId$">
                 <label>
-                    <span class="km-bold-font">Author</span>
-                    <div data-bind="text: summary.author.fullName$" class="bottom"></div>
+                    <span class="app-bold">Author</span>
+                    <div data-bind="text: summary.author.fullName$" class="app-bottom"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Published</span>
-                    <div data-bind="text: summary.published" data-format="dd MMM yyyy" class="bottom"></div>
+                    <span class="app-bold">Published</span>
+                    <div data-bind="text: summary.published" data-format="dd MMM yyyy" class="app-bottom"></div>
                 </label>
             </li>
         </ul>
     </form>
-    <div class="buttons">
+    <div class="app-buttons">
         <a data-role="button" class="km-large km-justified km-primary" data-rel="actionsheet" href="#summary-actionsheet">GO</a>
     </div>
     <ul id="summary-actionsheet" data-role="actionsheet" >

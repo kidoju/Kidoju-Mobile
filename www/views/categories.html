@@ -8,8 +8,8 @@
     <ul data-role="listview" data-bind="source: categories" data-template="categories-template" data-filterable="false"></ul>
     <script type="text/x-kendo-template" id="categories-template">
         <a href="\#finder?language=#: language #&#: filter$() #" style="margin-left: #: depth$() - 1 #em;">
-            <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
-            <span class="name">#: name #</span>
+            <img src="#: icon$() #" alt="#: name #" class="app-icon">
+            <span class="app-name">#: name #</span>
             <span class="km-badge km-badge-info">#: count #</span>
         </a>
     </script>
