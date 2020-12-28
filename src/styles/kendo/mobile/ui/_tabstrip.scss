@@ -4,18 +4,20 @@
 
 // TabStrip
 
-.km-#{$skin-name} .km-tabstrip {
-    padding: 0;
-    display: table;
-    table-layout: fixed;
-}
+.km-#{$skin-name} {
+    .km-tabstrip {
+        padding: 0;
+        display: table;
+        table-layout: fixed;
+    }
 
-.km-#{$skin-name} .km-tabstrip .km-button {
-    font-size: 0.7em;
-    display: table-cell;
-    border: 0;
-}
+    .km-tabstrip .km-button {
+        font-size: 0.7em;
+        display: table-cell;
+        border: 0;
+    }
 
-.km-#{$skin-name} .km-tabstrip .km-icon:before {
-    display: none;
+    .km-tabstrip .km-icon:before {
+        display: none;
+    }
 }

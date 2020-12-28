@@ -6,12 +6,18 @@
     }
 
     .km-list {
+        .app-bold {
+            @include bold();
+        }
+
         .app-field {
             @include field();
         }
 
         .k-rating {
             .k-rating-container {
+                margin-left: 0;
+
                 .k-rating-item {
                     padding: 0;
 

@@ -25,4 +25,11 @@ body {
     // height: 100%;
     // margin: 0;
     // padding: 0;
+
+    // Fix actionsheet padding
+    .km-shim.km-actionsheet-root {
+        .k-popup.km-actionsheet-wrapper {
+            padding: 0;
+        }
+    }
 }

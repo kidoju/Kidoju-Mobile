@@ -3,23 +3,26 @@
 // @use "base.scss" as *;
 
 // ButtonGroup
+.km-#{$skin-name} {
+    .km-buttongroup {
+        > *:not(:first-child):not(:last-child) {
+            border-radius: 0;
+        }
 
-.km-#{$skin-name} .km-buttongroup > *:not(:first-child):not(:last-child) {
-    border-radius: 0;
-}
+        > *:first-child {
+            border-radius: $flat-border-radius 0 0 $flat-border-radius;
+        }
 
-.km-#{$skin-name} .km-buttongroup > *:first-child {
-    border-radius: $flat-border-radius 0 0 $flat-border-radius;
-}
+        > *:last-child {
+            border-radius: 0 $flat-border-radius $flat-border-radius 0;
+        }
 
-.km-#{$skin-name} .km-buttongroup > *:last-child {
-    border-radius: 0 $flat-border-radius $flat-border-radius 0;
-}
+        > *.km-state-active {
+            border-right-width: 1px;
+        }
 
-.km-#{$skin-name} .km-buttongroup > *.km-state-active {
-    border-right-width: 1px;
-}
-
-.km-#{$skin-name} .km-buttongroup > *.km-state-active + * {
-    border-left-width: 0;
+        > *.km-state-active + * {
+            border-left-width: 0;
+        }
+    }
 }

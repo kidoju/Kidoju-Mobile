@@ -3,10 +3,12 @@
 
 // ScrollView
 
-.km-#{$skin-name} .km-pages {
-    padding-top: 0.4em;
-}
+.km-#{$skin-name} {
+    .km-pages {
+        padding-top: 0.4em;
+    }
 
-.km-#{$skin-name} .km-pages li {
-    border-radius: 1em;
+    .km-pages li {
+        border-radius: 1em;
+    }
 }
