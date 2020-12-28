@@ -3,13 +3,13 @@
 
 // Scroller
 
-.km-flat .km-touch-scrollbar {
+.km-#{$skin-name} .km-touch-scrollbar {
     border: 0;
     @include box-sizing(border-box);
     border-radius: 1em;
 }
 
-.km-flat .km-scroller-pull .km-icon:after {
+.km-#{$skin-name} .km-scroller-pull .km-icon:after {
     margin-left: -5px;
     margin-top: -2px;
 }

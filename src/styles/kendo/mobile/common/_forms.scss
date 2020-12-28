@@ -8,7 +8,7 @@
     content: " ";
     display: block;
     top: 50%;
-    left: .6em;
+    left: 0.6em;
     width: 36px;
     height: 36px;
     margin-top: -18px;
@@ -17,7 +17,7 @@
 // Slider
 
 .km-widget .k-slider {
-    line-height: .6em;
+    line-height: 0.6em;
     position: relative;
     display: inline-block;
     vertical-align: middle;
@@ -26,14 +26,14 @@
 
 .km-widget .k-slider-horizontal {
     width: 50%;
-    height: .6em;
-    line-height: .6em;
+    height: 0.6em;
+    line-height: 0.6em;
 }
 
 .km-list .k-slider {
     position: absolute;
     right: 0;
-    margin-top: -.5em;
+    margin-top: -0.5em;
     top: 50%;
 }
 
@@ -43,8 +43,8 @@
     height: 100%;
     display: block;
     position: absolute;
-    border: .5em solid transparent;
-    border-width: .5em 0;
+    border: 0.5em solid transparent;
+    border-width: 0.5em 0;
 }
 
 .km-widget .k-slider-horizontal .k-slider-track {
@@ -112,7 +112,7 @@
     overflow: visible;
     width: 100%;
     height: 3em;
-    opacity: .2;
+    opacity: 0.2;
 }
 
 .km-dialog-content {
@@ -123,10 +123,10 @@
 
 .km-dialog .km-button {
     display: block;
-    margin: .4em;
+    margin: 0.4em;
     font-size: 1.3em;
     text-align: center;
-    padding: .44em;
+    padding: 0.44em;
     @include user-select(none);
 }
 
@@ -169,10 +169,10 @@
 
 .km-list textarea {
     position: relative;
-    width: "-webkit-calc(50% + .7em)";
-    width: "-moz-calc(50% + .7em)";
-    width: "calc(50% + .7em)";
-    margin-right: -.7em;
+    width: "-webkit-calc(50% + 0.7em)";
+    width: "-moz-calc(50% + 0.7em)";
+    width: "calc(50% + 0.7em)";
+    margin-right: -0.7em;
 }
 
 .km-list input,
@@ -189,8 +189,8 @@
 .km-list input[type=radio] {
     position: absolute;
     top: 50%;
-    right: .7em;
-    margin-top: -.5em;
+    right: 0.7em;
+    margin-top: -0.5em;
     background: none;
 }
 
@@ -249,7 +249,7 @@
     border: 0;
     font-size: inherit;
     width: 1em;
-    height: .9em;
+    height: 0.9em;
 }
 
 // Nova theme features
@@ -270,7 +270,7 @@
     width: 1em;
     height: 1em;
     font: 1em/1em "Kendo UI";
-    margin-right: .89em;
+    margin-right: 0.89em;
 }
 
 .km-list .km-label-above input[type=text]:not(.k-input),

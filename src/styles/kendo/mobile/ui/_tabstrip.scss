@@ -4,18 +4,18 @@
 
 // TabStrip
 
-.km-flat .km-tabstrip {
+.km-#{$skin-name} .km-tabstrip {
     padding: 0;
     display: table;
     table-layout: fixed;
 }
 
-.km-flat .km-tabstrip .km-button {
-    font-size: .7em;
+.km-#{$skin-name} .km-tabstrip .km-button {
+    font-size: 0.7em;
     display: table-cell;
     border: 0;
 }
 
-.km-flat .km-tabstrip .km-icon:before {
+.km-#{$skin-name} .km-tabstrip .km-icon:before {
     display: none;
 }

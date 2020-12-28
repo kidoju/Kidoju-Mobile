@@ -1,0 +1,115 @@
+// @use "../common/icons.scss" as *;
+// @use "../common/listview.scss" as *;
+// @use "base.scss" as *;
+
+// ListView
+
+.km-#{$skin-name} .km-list > li {
+    border-style: solid;
+    border-width: 0 0 $flat-border-width 0;
+}
+
+.km-#{$skin-name} .km-listinset > li:first-child,
+.km-#{$skin-name} .km-listgroupinset .km-list > li:first-child {
+    border-style: solid;
+    border-width: $flat-border-width;
+    border-radius: $flat-border-radius $flat-border-radius 0 0;
+}
+
+.km-#{$skin-name} .km-listinset > li,
+.km-#{$skin-name} .km-listgroupinset .km-list > li {
+    border-width: 0 $flat-border-width $flat-border-width $flat-border-width;
+}
+
+.km-#{$skin-name} .km-listinset > li:last-child,
+.km-#{$skin-name} .km-listgroupinset .km-list > li:last-child {
+    border-style: solid;
+    border-width: 0 $flat-border-width $flat-border-width $flat-border-width;
+    border-radius: 0 0 $flat-border-radius $flat-border-radius;
+}
+
+.km-#{$skin-name} .km-listinset > li:first-child:last-child,
+.km-#{$skin-name} .km-listgroupinset .km-list > li:first-child:last-child {
+    border-width: $flat-border-width;
+    border-radius: $flat-border-radius;
+}
+
+.km-#{$skin-name} .km-listview-link:after {
+    border-width: 0.2rem 0.2rem 0 0;
+}
+
+.km-#{$skin-name}:not(.km-on-android) .km-listview-link:after {
+    width: 0.66rem;
+    height: 0.64rem;
+    border-width: 0;
+    box-shadow: inset -0.2rem 0.2rem 0;
+}
+
+.km-#{$skin-name} .km-listinset li:first-child > .km-listview-link,
+.km-#{$skin-name} .km-listgroupinset li:first-child > .km-listview-link,
+.km-#{$skin-name} .km-listinset li:first-child > .km-listview-label,
+.km-#{$skin-name} .km-listgroupinset li:first-child > .km-listview-label {
+    border-radius: $flat-inline-border-radius $flat-inline-border-radius 0 0;
+}
+
+.km-#{$skin-name} .km-listinset li:last-child > .km-listview-link,
+.km-#{$skin-name} .km-listgroupinset li:last-child > .km-listview-link,
+.km-#{$skin-name} .km-listinset li:last-child > .km-listview-label,
+.km-#{$skin-name} .km-listgroupinset li:last-child > .km-listview-label {
+    border-radius: 0 0 $flat-inline-border-radius $flat-inline-border-radius;
+}
+
+.km-#{$skin-name} .km-listinset li:first-child:last-child > .km-listview-link,
+.km-#{$skin-name} .km-listgroupinset li:first-child:last-child > .km-listview-link,
+.km-#{$skin-name} .km-listinset li:first-child:last-child > .km-listview-label,
+.km-#{$skin-name} .km-listgroupinset li:first-child:last-child > .km-listview-label {
+    border-radius: $flat-inline-border-radius;
+}
+
+.km-#{$skin-name} .km-group-title {
+    border-style: solid;
+    border-width: $flat-border-width 0;
+}
+
+.km-#{$skin-name} .km-scroll-header .km-group-title {
+    border-width: 0 0 $flat-border-width;
+}
+
+.km-#{$skin-name} .km-listgroupinset .km-group-title {
+    border: 0;
+    background: none;
+}
+
+.km-#{$skin-name} .km-listview .km-switch {
+    margin-top: -0.9rem;
+}
+
+// Filter box
+
+.km-#{$skin-name} .km-listview-wrapper form .km-filter-wrap > input {
+    font-size: 1.2em;
+    padding: 0.3em 1.8em;
+}
+
+.km-#{$skin-name} .km-filter-wrap:before {
+    margin: 0.05em -1.3em 0 0.3em;
+}
+
+.km-#{$skin-name} .km-filter-reset {
+    margin: 0.05em 0 0 -2em;
+}
+
+.km-#{$skin-name} .km-filter-reset .km-clear:after {
+    content: "\e038";
+}
+
+.km-#{$skin-name} .km-filter-wrap > input {
+    border-radius: $flat-border-radius;
+    border-width: $flat-border-width;
+    border-style: solid;
+}
+
+.km-#{$skin-name} .km-filter-wrap > input:focus {
+    border-width: $flat-border-width;
+    border-style: solid;
+}

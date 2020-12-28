@@ -10,7 +10,7 @@
     position: absolute;
     z-index: 1;
     height: 2em;
-    font-size: .6rem;
+    font-size: 0.6rem;
     text-shadow: none;
 }
 
@@ -18,15 +18,16 @@
     top: -1em;
     right: -1em;
     line-height: 2em;
-    margin-left: .5em;
-    min-width: .9em;
-    padding: 0 .55em;
+    margin-left: 0.5em;
+    min-width: 0.9em;
+    padding: 0 0.55em;
     -webkit-background-clip: padding-box;
+
     @include background-clip(padding-box);
 }
 
 .km-tabstrip .km-badge {
-    top: -.2em;
+    top: -0.2em;
     right: auto;
     margin-left: -1em;
 }
@@ -35,9 +36,9 @@
 .km-detail {
     position: absolute;
     float: right;
-    right: .8rem;
+    right: 0.8rem;
     top: 50%;
-    margin-top: -.7rem;
+    margin-top: -0.7rem;
     width: 1.3rem;
     height: 1.3rem;
     font-size: 1rem;
@@ -45,7 +46,7 @@
 }
 
 .km-widget .km-detaildisclose {
-    font-size: .8em;
+    font-size: 0.8em;
 }
 
 .k-ff .km-detail {
@@ -66,16 +67,16 @@
 .km-widget .km-contactadd:before,
 .km-widget .km-detaildisclose:before,
 .km-detail .km-icon {
-    left: .15em;
-    top: .15em;
+    left: 0.15em;
+    top: 0.15em;
     line-height: 1em;
     font-size: 1em;
     position: absolute;
 }
 
 .km-widget .km-detaildisclose:after {
-    left: .1em;
-    top: .25em;
+    left: 0.1em;
+    top: 0.25em;
     text-align: center;
     font-weight: bold;
 }

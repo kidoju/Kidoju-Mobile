@@ -12,7 +12,7 @@
     line-height: 2.2em;
     border-style: solid;
     @include box-shadow(none);
-    padding: .55em 3.4em .55em .5em;
+    padding: 0.55em 3.4em 0.55em 0.5em;
 }
 
 .km-root .km-widget.k-toolbar {
@@ -35,8 +35,8 @@
 }
 
 .km-root .k-toolbar .k-button-icon {
-    padding-left: .4em;
-    padding-right: .4em;
+    padding-left: 0.4em;
+    padding-right: 0.4em;
 }
 
 .km-root .k-toolbar .k-button-icon .km-icon {
@@ -77,11 +77,11 @@
 .km-root .k-toolbar .k-textbox,
 .km-root .k-toolbar label,
 .km-root .k-toolbar .k-separator {
-    margin: 0 .4em;
+    margin: 0 0.4em;
 }
 
 .km-root .k-toolbar .k-button-icontext .km-icon {
-    margin-left: -.15em;
+    margin-left: -0.15em;
 }
 
 .km-root .k-toolbar .k-split-button {
@@ -95,13 +95,13 @@
 
 .km-root .k-toolbar .k-split-button > .km-button {
     padding-left: 1em;
-    padding-right: .6em;
+    padding-right: 0.6em;
 }
 
 .km-root .k-toolbar .k-split-button .k-split-button-arrow {
     margin: 0 0 0 -1px;
-    padding-left: .2em;
-    padding-right: .2em;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
 }
 
 .km-root .km-pane .k-toolbar .k-overflow-anchor {
@@ -122,7 +122,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    margin: -.5em 0 0 -.5em;
+    margin: -0.5em 0 0 -0.5em;
 }
 
 .km-root .k-overflow-anchor .km-icon:after,

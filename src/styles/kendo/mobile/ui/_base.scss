@@ -1,0 +1,304 @@
+@use "../common/mixins.scss" as *;
+// @use "../common/base.scss" as *;
+
+$flat-border-width: 1px;
+$flat-border-radius: 3px;
+$flat-inline-border-radius: ($flat-border-radius - 1px);
+
+.km-#{$skin-name} {
+    font: normal 1em "HelveticaNeue Light", "Roboto Light", "Slate Light", "Segoe WP", NokiaPureTextLight, sans-serif;
+}
+
+// override transform options for performance
+.km-root .km-#{$skin-name}.km-pane,
+.km-root .km-#{$skin-name} .km-view,
+.km-root .km-#{$skin-name} .km-slider,
+.km-root .km-#{$skin-name} .km-switch,
+.km-root .km-#{$skin-name} .km-group-title,
+.km-root .km-#{$skin-name} .km-filter-reset,
+.km-root .km-#{$skin-name} .km-shim .k-animation-container {
+    -webkit-transform: none;
+}
+
+.km-#{$skin-name},
+.km-#{$skin-name} * {
+    @include box-sizing(border-box);
+    @include background-clip(border-box);
+}
+
+// Revert box/clip for Web widgets
+.km-#{$skin-name} [class^=k-] {
+    @include box-sizing(content-box);
+}
+
+.km-#{$skin-name} .km-tabstrip .km-button {
+    background: none;
+}
+
+// PopUp
+
+.km-#{$skin-name} .km-popup .k-popup {
+    font-size: 1em !important;
+}
+
+.km-#{$skin-name} .km-popup .k-item,
+.km-#{$skin-name} .km-actionsheet > li > a {
+    text-decoration: none;
+    padding: 0.5em 0.6em;
+    border-radius: 0;
+    border-width: 0 0 $flat-border-width;
+    border-style: solid;
+
+    @include box-sizing(border-box);
+}
+
+.km-#{$skin-name} .km-popup {
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+
+    @include box-sizing(border-box);
+}
+
+.km-#{$skin-name} .km-popup .k-list-container {
+    width: 100% !important;
+    height: auto !important;
+}
+
+.km-#{$skin-name} .km-actionsheet,
+.km-#{$skin-name} .km-popup .k-list-container {
+    max-height: 80%;
+}
+
+.km-#{$skin-name} .km-actionsheet-wrapper,
+.km-#{$skin-name} .km-popup .k-list-container {
+    bottom: 0;
+    border-width: $flat-border-width 0 0;
+    border-style: solid;
+    border-radius: 0;
+
+    @include box-sizing(border-box);
+}
+
+.km-#{$skin-name} .km-shim .k-animation-container {
+    left: 0;
+    top: auto;
+    bottom: 0;
+}
+
+.km-#{$skin-name} .km-popup-wrapper {
+    padding: 15px;
+}
+
+.km-#{$skin-name} .km-popup.km-pane,
+.km-#{$skin-name} .km-actionsheet-wrapper.km-popup {
+    border-radius: $flat-border-radius;
+}
+
+// Loader & Pull-to-refresh
+
+.km-#{$skin-name} .km-load-more {
+    height: 3.4em;
+}
+
+.km-#{$skin-name} .km-load-more .km-button {
+    margin: 0 0.8em;
+    display: block;
+}
+
+.km-#{$skin-name} .km-loader:before,
+.km-#{$skin-name} .km-scroller-refresh.km-load-more,
+.km-#{$skin-name} .km-scroller-pull {
+    border-radius: 20em;
+    overflow: visible;
+}
+
+.km-#{$skin-name} .km-loader:before {
+    content: "\a0";
+    display: block;
+    position: absolute;
+    margin-top: -2em;
+    margin-left: -2em;
+    width: 4em;
+    height: 4em;
+    top: 50%;
+    left: 50%;
+    border-radius: 5em;
+}
+
+.km-#{$skin-name} .km-loader {
+    left: 0;
+    top: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.km-#{$skin-name} .km-scroller-refresh.km-load-more {
+    padding: 0;
+    position: relative;
+    margin: auto;
+}
+
+.km-#{$skin-name} .km-scroller-refresh.km-load-more,
+.km-#{$skin-name} .km-scroller-pull {
+    font-size: 1em;
+    width: 2.5em;
+    height: 2.5em;
+    top: 0.25em;
+    white-space: nowrap;
+}
+
+.km-#{$skin-name} .km-scroller-pull {
+    left: 50%;
+    margin: 0 0 0 -90px;
+}
+
+.km-#{$skin-name} .km-loader h1 {
+    display: none;
+    font-size: 1em;
+    position: absolute;
+    left: -50%;
+    width: 200%;
+    top: 55%;
+}
+
+.km-#{$skin-name} .km-scroller-pull .km-template {
+    position: absolute;
+    line-height: 2em;
+    font-size: 1.2em;
+    min-width: 0;
+    top: 0;
+    left: 3em;
+}
+
+.km-#{$skin-name} .km-loading,
+.km-#{$skin-name} .km-loader .km-loading-left,
+.km-#{$skin-name} .km-loader .km-loading-right,
+.km-#{$skin-name} .km-load-more.km-scroller-refresh .km-icon,
+.km-#{$skin-name} .km-scroller-pull.km-scroller-refresh .km-icon,
+.km-#{$skin-name} .km-scroller-refresh .km-loading-left,
+.km-#{$skin-name} .km-scroller-refresh .km-loading-right {
+    font-size: 1em;
+    display: block;
+    width: 0.36em;
+    height: 1em;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -0.8em;
+    margin-top: -0.5em;
+    border-radius: 1em;
+
+    @include animation(km-flatload 0.6s infinite linear);
+
+    -webkit-background-clip: none;
+}
+
+.km-#{$skin-name} .km-scroller-pull .km-icon {
+    margin-right: 0;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -1rem;
+    margin-top: -1rem;
+}
+
+.km-#{$skin-name} .km-load-more.km-scroller-refresh .km-icon,
+.km-#{$skin-name} .km-scroller-pull.km-scroller-refresh .km-icon,
+.km-#{$skin-name} .km-scroller-refresh .km-loading-left,
+.km-#{$skin-name} .km-scroller-refresh .km-loading-right {
+    height: 0.6em;
+    margin-top: -0.3em;
+    margin-left: -0.6em;
+    width: 0.25em;
+
+    @include animation(km-flatrefresh 0.6s infinite linear);
+}
+
+.km-#{$skin-name} .km-scroller-pull .km-icon:after {
+    content: "\e012";
+    margin-left: -3px;
+}
+
+.km-#{$skin-name} .km-scroller-refresh .km-icon:after {
+    display: none;
+}
+
+.km-root .km-#{$skin-name} .km-loading-left {
+    margin-left: -0.2em;
+
+    @include animation-delay(.2s);
+}
+
+.km-root .km-#{$skin-name} .km-loading-right {
+    margin-left: 0.42em;
+
+    @include animation-delay(.4s);
+}
+
+.km-#{$skin-name} .km-scroller-refresh .km-loading-left {
+    margin-left: -0.18em;
+}
+
+.km-#{$skin-name} .km-scroller-refresh .km-loading-right {
+    margin-left: 0.28em;
+}
+
+@keyframes km-flatload {
+    0% { height: 1em; margin-top: -0.5em; }
+    33% { height: 2em; margin-top: -1em; }
+    66% { height: 1em; margin-top: -0.5em; }
+}
+
+@-moz-keyframes km-flatload {
+    0% { height: 1em; margin-top: -0.5em; }
+    33% { height: 2em; margin-top: -1em; }
+    66% { height: 1em; margin-top: -0.5em; }
+}
+
+@-webkit-keyframes km-flatload {
+    0% { height: 1em; margin-top: -0.5em; }
+    33% { height: 2em; margin-top: -1em; }
+    66% { height: 1em; margin-top: -0.5em; }
+}
+
+@keyframes km-flatrefresh {
+    0% { height: 0.6em; margin-top: -0.3em; }
+    33% { height: 1.2em; margin-top: -0.6em; }
+    66% { height: 0.6em; margin-top: -0.3em; }
+}
+
+@-moz-keyframes km-flatrefresh {
+    0% { height: 0.6em; margin-top: -0.3em; }
+    33% { height: 1.2em; margin-top: -0.6em; }
+    66% { height: 0.6em; margin-top: -0.3em; }
+}
+
+@-webkit-keyframes km-flatrefresh {
+    0% {
+        height: 0.6em;
+        margin-top: -0.3em;
+    }
+    33% {
+        height: 1.2em;
+        margin-top: -0.6em;
+    }
+    66% {
+        height: 0.6em;
+        margin-top: -0.3em;
+    }
+}
+
+// Color Template
+@import "template.scss";
+
+// Tablet Styles
+
+.km-tablet .km-#{$skin-name}.km-horizontal .km-navbar .km-button,
+.km-tablet .km-#{$skin-name}.km-horizontal .km-toolbar .km-button {
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+}

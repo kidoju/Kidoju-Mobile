@@ -4,8 +4,8 @@
 
 // Button
 
-.km-flat .km-button {
-    padding: .5em .8em;
+.km-#{$skin-name} .km-button {
+    padding: 0.5em 0.8em;
     border-style: solid;
     border-width: $flat-border-width;
     border-radius: $flat-border-radius;
@@ -13,8 +13,8 @@
 
 // Badges and Details
 
-.km-flat .km-badge,
-.km-flat .km-detail {
+.km-#{$skin-name} .km-badge,
+.km-#{$skin-name} .km-detail {
     border: 0;
     min-width: 1.8em;
     height: 1.8em;
@@ -22,7 +22,7 @@
     border-radius: 5em;
 }
 
-.km-flat .km-detail {
+.km-#{$skin-name} .km-detail {
     min-width: 1.4em;
     height: 1.4em;
     line-height: 1.4em;
@@ -30,18 +30,18 @@
     border-style: solid;
 }
 
-.km-flat .km-detaildisclose {
+.km-#{$skin-name} .km-detaildisclose {
     min-width: 1.8em;
     height: 1.8em;
     line-height: 1.8em;
 }
 
-.km-flat .km-detaildisclose:after,
-.km-flat .km-detaildisclose:before {
-    left: .1em;
+.km-#{$skin-name} .km-detaildisclose:after,
+.km-#{$skin-name} .km-detaildisclose:before {
+    left: 0.1em;
     top: 0.35em;
 }
 
-.km-flat .km-detail .km-icon:before {
+.km-#{$skin-name} .km-detail .km-icon:before {
     display: none;
 }

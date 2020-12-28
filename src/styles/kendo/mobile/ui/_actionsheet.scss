@@ -1,0 +1,31 @@
+// @use "../common/actionsheet.scss" as *;
+// @use "base.scss" as *;
+
+// ActionSheet
+
+.km-#{$skin-name} .km-actionsheet > li > a {
+    font-size: 1.4em;
+    font-weight: normal;
+    text-align: center;
+}
+
+.km-#{$skin-name} li.km-actionsheet-cancel > a {
+    color: $flat-second-color;
+}
+
+.km-#{$skin-name} .km-actionsheet > li > a {
+    display: block;
+}
+
+.km-#{$skin-name} .km-actionsheet > li:last-child > a {
+    border: 0;
+}
+
+.km-#{$skin-name} .km-shim li.km-actionsheet-title,
+.km-#{$skin-name} .km-popup li.km-actionsheet-title {
+    display: none;
+}
+
+.km-#{$skin-name} .km-actionsheet-wrapper.km-popup {
+    padding: 2px 0;
+}

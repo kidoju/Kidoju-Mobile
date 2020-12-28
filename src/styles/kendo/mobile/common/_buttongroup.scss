@@ -1,10 +1,10 @@
 @use "button.scss" as *;
 
 .km-buttongroup {
-    padding: .4rem .7rem;
+    padding: 0.4rem 0.7rem;
     -webkit-margin-collapse: separate;
     margin-collapse: separate;
-    margin: .5em auto;
+    margin: 0.5em auto;
 }
 
 .km-widget.km-buttongroup {
@@ -26,17 +26,17 @@
 .km-widget.km-buttongroup .km-button {
     margin: 0;
     border-width: 1px 0 1px 1px;
-    padding: .48em .9em .44em;
+    padding: 0.48em 0.9em 0.44em;
 }
 
 .km-tablet .km-buttongroup .km-button {
-    padding: .4em .8em .34em;
+    padding: 0.4em 0.8em 0.34em;
 }
 
 .km-widget.km-navbar .km-buttongroup {
-    font-size: .95rem;
+    font-size: 0.95rem;
     line-height: 1em;
-    margin: 0 0 .2em;
+    margin: 0 0 0.2em;
     display: inline-block;
     height: 1.5em;
     top: -2px;

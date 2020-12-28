@@ -1,0 +1,377 @@
+// $flat-main-color: #4c5356; // --> $component-text
+$flat-second-color: #bababa;
+// $flat-background: #f4f4f4; // --> $component-bg
+$flat-dark-background: #363940;
+$flat-list-background: #fcfcfc;
+// $flat-button-background: rgba(0,0,0,.1); --> $button-bg
+// $flat-border-color: rgba(0,0,0,.1); --> $border-color
+$flat-active-color: #fff;
+$flat-active-background: #10c4b2;
+$flat-second-active-background: #da2228;
+$flat-light-shadow: rgba(255,255,255,.2);
+$flat-overlay-background: rgba(0,0,0,.4);
+
+// $warning: #ef470a;
+
+.km-#{$skin-name},
+.km-#{$skin-name} .km-detail,
+.km-#{$skin-name} .km-content {
+    @include fill(
+        $app-text,
+        $app-bg,
+        $app-border
+    );
+}
+
+.km-#{$skin-name} .km-navbar,
+.km-#{$skin-name} .k-toolbar {
+    @include fill(
+        $header-text,
+        $header-bg,
+        $header-border,
+        $header-gradient
+    );
+}
+
+// Button
+
+.km-#{$skin-name} .km-button {
+    @include fill(
+        $button-text,
+        $button-bg,
+        $button-border,
+        $button-gradient
+    );
+}
+
+// Badges and Details
+
+.km-#{$skin-name} .km-detail,
+.km-#{$skin-name} .k-toolbar {
+    border-color: $border-color;
+}
+
+// Switch
+
+.km-#{$skin-name} .km-switch-wrapper {
+    background-color: $flat-second-color;
+}
+
+.km-#{$skin-name} .km-switch-background,
+.km-#{$skin-name} .k-slider-selection {
+    background-image: linear-gradient(to bottom, $flat-second-color, $flat-second-color);
+}
+
+.km-#{$skin-name} .km-switch-handle {
+    background: $component-bg;
+    border-color: rgba(0,0,0,.1);
+    -webkit-box-shadow: 0 1px 0 1px currentcolor, 0 -1px 0 1px currentcolor;
+    box-shadow:0 1px 0 1px currentcolor, 0 -1px 0 1px currentcolor;
+}
+
+.km-#{$skin-name} .km-switch-off .km-switch-handle {
+    -webkit-box-shadow: 0 1px 0 1px $flat-second-color, 0 -1px 0 1px $flat-second-color;
+    box-shadow: 0 1px 0 1px $flat-second-color, 0 -1px 0 1px $flat-second-color;
+}
+
+.km-#{$skin-name} .km-switch-container,
+.km-#{$skin-name} .km-switch-wrapper {
+    border-color: #f0f0f0;
+}
+
+// Slider
+
+.km-#{$skin-name} .k-slider-track {
+    background-color: $flat-second-color;
+}
+
+// ListView
+
+.km-#{$skin-name} .km-list > li {
+    background: $flat-list-background;
+    border-color: $border-color;
+    @include box-shadow(inset 0 $flat-border-width 0 $flat-light-shadow);
+}
+
+.km-#{$skin-name} .km-listinset > li:first-child,
+.km-#{$skin-name} .km-listgroupinset .km-list > li:first-child {
+    border-color: $border-color;
+}
+
+.km-#{$skin-name} .km-listinset > li:last-child,
+.km-#{$skin-name} .km-listgroupinset .km-list > li:last-child,
+.km-#{$skin-name} .km-list fieldset .km-inline-field {
+    border-color: $border-color;
+}
+
+.km-#{$skin-name} .km-listview-link:after {
+    color: lighten($component-text, 30);
+    border-color: currentcolor;
+}
+
+.km-#{$skin-name} .km-group-title,
+.km-#{$skin-name} .km-list fieldset legend {
+    background: $component-bg;
+    border-color: $border-color;
+}
+
+.km-#{$skin-name} .km-filter-wrap:before,
+.km-#{$skin-name} .km-filter-reset .km-clear {
+    color: $component-text;
+}
+
+.km-#{$skin-name} .km-filter-wrap > input {
+    color: $component-text;
+    border-color: $border-color;
+}
+
+.km-#{$skin-name} .km-filter-wrap > input:focus {
+    border-color: #000;
+}
+
+// ScrollView
+
+.km-#{$skin-name} .km-pages li {
+    background: $border-color;
+}
+
+// Forms
+.km-#{$skin-name} .km-label-above {
+    color: $flat-second-color;
+}
+
+.km-#{$skin-name} .km-list input[type=password],
+.km-#{$skin-name} .km-list input[type=search],
+.km-#{$skin-name} .km-list input[type=number],
+.km-#{$skin-name} .km-list input[type=tel],
+.km-#{$skin-name} .km-list input[type=url],
+.km-#{$skin-name} .km-list input[type=email],
+.km-#{$skin-name} .km-list input[type=month],
+.km-#{$skin-name} .km-list input[type=color],
+.km-#{$skin-name} .km-list input[type=week],
+.km-#{$skin-name} .km-list input[type=date],
+.km-#{$skin-name} .km-list input[type=time],
+.km-#{$skin-name} .km-list input[type=datetime],
+.km-#{$skin-name} .km-list input[type=datetime-local],
+.km-#{$skin-name} .km-list input[type=text]:not(.k-input),
+.km-#{$skin-name} .km-list select:not([multiple]),
+.km-#{$skin-name} .km-list .k-dropdown-wrap,
+.km-#{$skin-name} .km-list textarea,
+.km-#{$skin-name} .km-list .k-dropdown-wrap .k-input {
+    color: $component-text;
+}
+
+.km-#{$skin-name} .km-list select:not([multiple]) option {
+    color: #333;
+}
+
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=password],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=search],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=number],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=tel],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=url],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=email],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=month],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=color],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=week],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=date],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=time],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=datetime],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=datetime-local],
+.km-#{$skin-name} .km-content .km-list .km-state-active input[type=text]:not(.k-input),
+.km-#{$skin-name} .km-content .km-list .km-state-active select:not([multiple]),
+.km-#{$skin-name} .km-content .km-list .km-state-active textarea {
+    color: $flat-active-color;
+}
+
+// Checkboxes and Radios
+
+.km-#{$skin-name} .km-listview-label input[type=radio],
+.km-#{$skin-name} .km-listview-label input[type=checkbox] {
+    border-color: $border-color;
+    background: $component-bg;
+}
+
+.km-#{$skin-name} .km-listview-label input[type=checkbox]:checked:after {
+    color: #eee;
+}
+
+// Shim
+
+.km-#{$skin-name} .km-shim,
+.km-phone .km-#{$skin-name} .km-actionsheet-wrapper {
+    background: rgba(0,0,0,.4);
+}
+
+// PopUp
+
+.km-#{$skin-name} .km-popup .k-item,
+.km-#{$skin-name} .km-actionsheet > li > a {
+    background: $flat-dark-background;
+    border-bottom-color: $flat-light-shadow;
+}
+
+.km-#{$skin-name} .km-popup {
+    background: $flat-overlay-background;
+}
+
+.km-#{$skin-name} .km-actionsheet-wrapper,
+.km-#{$skin-name} .km-popup .k-list-container {
+    background: $flat-overlay-background;
+    border-top-color: $flat-light-shadow;
+}
+
+.km-#{$skin-name} .km-popup.km-pane,
+.km-tablet .km-#{$skin-name} .km-actionsheet-wrapper {
+    background-color: $flat-dark-background;
+}
+
+.km-#{$skin-name} .km-popup-arrow:after {
+    border-color: $flat-dark-background transparent;
+}
+
+.km-#{$skin-name} .km-left .km-popup-arrow:after,
+.km-#{$skin-name} .km-right .km-popup-arrow:after {
+    border-color: transparent $flat-dark-background;
+}
+
+// Loader & Pull-to-refresh
+
+.km-#{$skin-name} .km-loader {
+    background: rgba(0,0,0,.05);
+}
+
+.km-#{$skin-name} .km-loader h1 {
+    color: $component-text;
+}
+
+// Collapsible
+
+.km-#{$skin-name} .km-collapsible-header,
+.km-#{$skin-name} .km-collapsible-content {
+    border-color: $border-color;
+}
+
+.km-#{$skin-name} .km-collapsible-header {
+    background: #ededed;
+}
+
+// Active States
+
+.km-#{$skin-name} .km-detail:active,
+.km-#{$skin-name} .km-state-active .km-detail,
+.km-#{$skin-name} .km-state-active[style*=background] {
+    @include box-shadow(inset 0 0 0 1000px rgba(0,0,0,.2));
+}
+
+// Active States
+
+.km-#{$skin-name} .km-badge,
+.km-#{$skin-name} .km-rowinsert,
+.km-#{$skin-name} .km-rowdelete,
+.km-#{$skin-name} .km-state-active,
+.km-#{$skin-name} .km-switch-label-on,
+.km-#{$skin-name} .km-switch-label-off,
+.km-#{$skin-name} .km-tabstrip .km-button,
+.km-#{$skin-name} .km-popup .k-item,
+.km-#{$skin-name} .km-actionsheet > li > a,
+.km-#{$skin-name} .km-tabstrip .km-state-active,
+.km-#{$skin-name} .k-slider .k-draghandle,
+.km-#{$skin-name} .k-slider .k-draghandle:hover,
+.km-#{$skin-name} .km-scroller-pull .km-icon,
+.km-#{$skin-name} .km-popup.km-pane .km-navbar,
+.km-#{$skin-name} .km-popup.km-pane .k-toolbar,
+.km-#{$skin-name} .km-popup.km-pane .km-tabstrip,
+.km-#{$skin-name} .km-popup .k-state-hover,
+.km-#{$skin-name} .km-popup .k-state-focused,
+.km-#{$skin-name} .km-popup .k-state-selected,
+.km-#{$skin-name} .km-actionsheet > li > a:active,
+.km-#{$skin-name} .km-actionsheet > li > a:hover,
+.km-#{$skin-name} .km-actionsheet > li > .km-state-active,
+.km-#{$skin-name} li.km-state-active .km-listview-link,
+.km-#{$skin-name} li.km-state-active .km-listview-label,
+.km-#{$skin-name} .km-state-active .km-listview-link:after {
+    color: $flat-active-color;
+}
+
+.km-#{$skin-name} .km-loader > *:not(h1),
+.km-#{$skin-name} .km-filter-wrap > input,
+.km-#{$skin-name} .km-switch-handle.km-state-active,
+.km-root .km-#{$skin-name} .km-scroller-refresh span:not(.km-template) {
+    background: $flat-active-color;
+}
+
+.km-#{$skin-name} .km-switch-handle,
+.km-#{$skin-name} .k-slider-selection,
+.km-#{$skin-name} .km-switch-background,
+.km-#{$skin-name} .km-list fieldset legend {
+    color: $flat-active-background;
+}
+
+.km-#{$skin-name} .km-rowinsert,
+.km-#{$skin-name} .km-state-active,
+.km-#{$skin-name} .km-scroller-pull,
+.km-#{$skin-name} .km-loader:before,
+.km-#{$skin-name} .k-slider-selection,
+.km-#{$skin-name} .km-touch-scrollbar,
+.km-#{$skin-name} .km-pages .km-current-page,
+.km-#{$skin-name} .k-slider .k-draghandle,
+.km-#{$skin-name} .k-slider .k-draghandle:hover,
+.km-#{$skin-name} .km-tabstrip .km-state-active,
+.km-#{$skin-name} .km-scroller-refresh.km-load-more,
+.km-#{$skin-name} .km-popup .k-state-hover,
+.km-#{$skin-name} .km-popup .k-state-focused,
+.km-#{$skin-name} .km-popup .k-state-selected,
+.km-#{$skin-name} .km-actionsheet > li > a:active,
+.km-#{$skin-name} .km-actionsheet > li > a:hover,
+.km-#{$skin-name} .km-actionsheet > li > .km-state-active,
+.km-#{$skin-name} li.km-state-active .km-listview-link,
+.km-#{$skin-name} li.km-state-active .km-listview-label,
+.km-#{$skin-name} .km-listview-label input[type=radio]:checked,
+.km-#{$skin-name} .km-listview-label input[type=checkbox]:checked {
+    background: $flat-active-background;
+}
+
+.km-#{$skin-name} .km-filter-wrap > input:focus {
+    border-color: $flat-active-background;
+}
+
+.km-#{$skin-name} .km-badge,
+.km-#{$skin-name} .km-rowdelete {
+    background: $flat-second-active-background;
+}
+
+.km-#{$skin-name} label.km-required:after {
+    color: $flat-second-active-background;
+}
+
+.km-#{$skin-name} .km-checkbox-label:before,
+.km-#{$skin-name} .km-checkbox-label:after {
+    color:  $flat-active-background;
+    border-color: $flat-active-background;
+}
+
+.km-#{$skin-name} .km-radio-label:before {
+    border-color: $flat-active-background;
+}
+
+.km-#{$skin-name} .km-radio-label:after {
+    background-color: $flat-active-background;
+}
+
+
+.km-#{$skin-name} .km-list fieldset legend {
+    @include box-shadow(0 1px 0 $border-color);
+}
+
+// Validation
+.km-#{$skin-name} .km-list > li label.km-invalid,
+.km-#{$skin-name} .km-list fieldset .km-legend-button.km-invalid,
+.km-#{$skin-name} .km-list > li label.km-invalid.km-required:after {
+    color: $warning;
+}
+
+.km-#{$skin-name} .km-invalid-msg {
+    color: $flat-active-color;
+    background: $warning;
+}

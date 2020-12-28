@@ -3,47 +3,47 @@
 
 // Switch
 
-.km-flat .km-switch {
+.km-#{$skin-name} .km-switch {
     width: 4.6rem;
     height: 1.9rem;
     line-height: 1.76rem;
     overflow: hidden;
 }
 
-.km-flat .km-switch-wrapper {
+.km-#{$skin-name} .km-switch-wrapper {
     overflow: hidden;
 }
 
-.km-flat .km-switch-background,
-.km-flat .k-slider-selection {
+.km-#{$skin-name} .km-switch-background,
+.km-#{$skin-name} .k-slider-selection {
     background-position: 4.25em 0;
     background-repeat: no-repeat;
     background-color: currentcolor;
     margin-left: -3.4rem;
 }
 
-.km-flat .km-switch-container {
+.km-#{$skin-name} .km-switch-container {
     padding: 1px 0 1px 1px;
     border-width: 0;
 }
 
-.km-flat .km-switch-handle {
+.km-#{$skin-name} .km-switch-handle {
     width: 1.6em;
     margin: 0 4px 0 0;
     border-width: $flat-border-width;
     border-style: solid;;
 }
 
-.km-flat .km-switch-label-off {
+.km-#{$skin-name} .km-switch-label-off {
     left: 1.5em;
 }
 
-.km-flat .km-switch-label-on {
+.km-#{$skin-name} .km-switch-label-on {
     left: -2.8em;
 }
 
-.km-flat .km-switch-label-on,
-.km-flat .km-switch-label-off {
+.km-#{$skin-name} .km-switch-label-on,
+.km-#{$skin-name} .km-switch-label-off {
     text-shadow: none;
     width: 185%;
     font-size: 1em;
@@ -51,18 +51,18 @@
     vertical-align: middle;
 }
 
-.km-flat .km-switch-wrapper,
-.km-flat .km-switch-container,
-.km-flat .km-switch-background {
+.km-#{$skin-name} .km-switch-wrapper,
+.km-#{$skin-name} .km-switch-container,
+.km-#{$skin-name} .km-switch-background {
     border-radius: ($flat-border-radius + 1px);
 }
 
-.km-flat .km-switch-handle {
+.km-#{$skin-name} .km-switch-handle {
     border-radius: $flat-border-radius;
 }
 
-.km-flat .km-switch-container,
-.km-flat .km-switch-wrapper {
+.km-#{$skin-name} .km-switch-container,
+.km-#{$skin-name} .km-switch-wrapper {
     @include box-sizing(border-box);
     border-width: $flat-border-width;
     border-style: solid;

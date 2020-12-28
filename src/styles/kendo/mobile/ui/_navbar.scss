@@ -1,0 +1,23 @@
+// @use "../common/navbar.scss" as *;
+// @use "base.scss" as *;
+
+// NavBar
+
+.km-#{$skin-name} .km-navbar {
+    border: $flat-border-width solid $border-color;
+}
+
+.km-#{$skin-name} .km-header .km-navbar {
+    border-width: 0 0 $flat-border-width;
+}
+
+.km-#{$skin-name} .km-footer .km-navbar {
+    border-width: $flat-border-width 0 0;
+}
+
+.km-#{$skin-name} .km-toolbar,
+.km-#{$skin-name} .km-navbar,
+.km-#{$skin-name} .km-tabstrip,
+.km-#{$skin-name} .km-tabstrip .km-button {
+    border-radius: 0;
+}
