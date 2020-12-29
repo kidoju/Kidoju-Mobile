@@ -310,13 +310,11 @@ REM Web Application (webapp)
 REM ------------------------------------------------------------
 
 REM ./webapp/config
-REM ATTRIB -R .\webapp\config\*.*
-REM XCOPY ..\Kidoju.WebApp\webapp\config .\webapp\config /C /E /I /R /Y
-REM ATTRIB +R .\webapp\config\*.*
-ATTRIB -R .\webapp\config\default.json
-COPY ..\Kidoju.WebApp\webapp\config\default.json .\webapp\config /Y
-ATTRIB +R .\webapp\config\default.json
+ATTRIB -R .\webapp\config\*.*
+XCOPY ..\Kidoju.WebApp\webapp\config .\webapp\config /C /E /I /R /Y
+ATTRIB +R .\webapp\config\*.*
 
-ATTRIB -R .\webapp\config\index.es6
-COPY ..\Kidoju.WebApp\webapp\config\index.es6 .\webapp\config /Y
-ATTRIB +R .\webapp\config\index.es6
+REM ./webapp/locales
+ATTRIB -R .\webapp\locales\*.*
+XCOPY ..\Kidoju.WebApp\webapp\locales .\webapp\locales /C /E /I /R /Y
+ATTRIB +R .\webapp\locales\*.*

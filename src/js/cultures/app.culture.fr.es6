@@ -12,9 +12,9 @@
 // import libraries from './libraries.fr.es6';
 import mobile from './mobile.fr.es6';
 // import tools from './tools.fr.es6';
-// import webapp from '../../../webapp/locales/fr.json';
+import webapp from '../../../webapp/locales/fr.json';
 
-// TODO import './kendo.fixes.fr.es6';
+import './kendo.fixes.fr.es6';
 
 /**
  * Kendo UI resources
@@ -33,4 +33,5 @@ window.kendo.culture('fr-FR');
  */
 export default {
     mobile,
+    webapp,
 };
