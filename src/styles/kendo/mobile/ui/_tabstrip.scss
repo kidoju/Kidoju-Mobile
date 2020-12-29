@@ -4,7 +4,7 @@
 
 // TabStrip
 
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     .km-tabstrip {
         padding: 0;
         display: table;

@@ -3,7 +3,7 @@
 
 // NavBar
 
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     .km-navbar {
         border: $flat-border-width solid $flat-border-color;
     }

@@ -3,7 +3,7 @@
 // @use "base.scss" as *;
 
 // ButtonGroup
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     .km-buttongroup {
         > *:not(:first-child):not(:last-child) {
             border-radius: 0;

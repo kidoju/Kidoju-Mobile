@@ -3,7 +3,7 @@
 
 // ScrollView
 
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     .km-pages {
         padding-top: 0.4em;
     }

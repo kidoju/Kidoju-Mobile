@@ -2,7 +2,7 @@
 // @use "base.scss" as *;
 
 // PopOver
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     .km-popup.km-pane {
         border: 5px solid transparent;
     }

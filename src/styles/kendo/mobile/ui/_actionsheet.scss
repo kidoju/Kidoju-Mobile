@@ -2,7 +2,7 @@
 // @use "base.scss" as *;
 
 // ActionSheet
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     .km-actionsheet > li > a {
         font-size: 1.4em;
         font-weight: normal;

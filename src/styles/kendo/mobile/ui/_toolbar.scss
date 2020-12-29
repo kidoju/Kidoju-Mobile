@@ -3,7 +3,7 @@
 // @use "base.scss" as *;
 
 // ToolBar
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     .k-toolbar {
         line-height: 2.1em;
     }

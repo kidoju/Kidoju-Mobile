@@ -2,7 +2,7 @@
 // @use "base.scss" as *;
 
 // Switch
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     .km-switch {
         width: 4.6rem;
         height: 1.9rem;

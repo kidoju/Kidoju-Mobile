@@ -3,7 +3,7 @@
 // @use "base.scss" as *;
 
 // ListView
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     .km-list > li {
         border-style: solid;
         border-width: 0 0 $flat-border-width 0;

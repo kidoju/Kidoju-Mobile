@@ -2,7 +2,7 @@
 // @use "../common/button.scss" as *;
 // @use "base.scss" as *;
 
-.km-#{$skin-name} {
+.km-#{"" + $skin-name} {
     // Button
     .km-button {
         padding: 0.5em 0.8em;
