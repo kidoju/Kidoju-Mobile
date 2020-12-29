@@ -1,31 +1,4 @@
 // @use "../common/drawer.scss" as *;
 // @use "base.scss" as *;
 
-// Added by JLC
-.km-flat {
-    .km-drawer {
-        .km-navbar {
-            @include fill(
-                    $secondary-contrast,
-                    $secondary-darker,
-                    $secondary-darker,
-            );
-        }
-
-        .km-content {
-            @include fill(
-                $secondary-contrast,
-                $secondary,
-                $secondary,
-            );
-
-            .km-list > li {
-                @include fill(
-                    $secondary-contrast,
-                    $secondary,
-                    $secondary,
-                );
-            }
-        }
-    }
-}
+// Drawer
