@@ -1,9 +1,12 @@
 @use "../common/mixins.scss" as *;
 // @use "../common/base.scss" as *;
 
-$flat-border-width: 1px;
-$flat-border-radius: 3px;
-$flat-inline-border-radius: ($flat-border-radius - 1px);
+// $flat-border-width: 1px;
+$flat-border-width: $border-width;
+// $flat-border-radius: 3px;
+$flat-border-radius: $border-radius;
+// $flat-inline-border-radius: ($flat-border-radius - 1px);
+$flat-inline-border-radius: calc(#{$border-radius} - 1px);
 
 .km-#{$skin-name} {
     font: normal 1em "HelveticaNeue Light", "Roboto Light", "Slate Light", "Segoe WP", NokiaPureTextLight, sans-serif;
@@ -30,6 +33,7 @@ $flat-inline-border-radius: ($flat-border-radius - 1px);
 .km-#{$skin-name} [class^=k-] {
     @include box-sizing(content-box);
 }
+
 
 .km-#{$skin-name} .km-tabstrip .km-button {
     background: none;

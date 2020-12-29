@@ -54,7 +54,8 @@
     .km-switch-wrapper,
     .km-switch-container,
     .km-switch-background {
-        border-radius: ($flat-border-radius + 1px);
+        // border-radius: ($flat-border-radius + 1px);
+        border-radius: calc(#{$flat-border-radius} + 1px);
     }
 
     .km-switch-handle {

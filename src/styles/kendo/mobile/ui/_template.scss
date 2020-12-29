@@ -1,87 +1,38 @@
-// $flat-main-color: #4c5356; // --> $component-text
+$flat-main-color: $component-text; // #4c5356;
 $flat-second-color: #bababa;
-// $flat-background: #f4f4f4; // --> $component-bg
-$flat-dark-background: #363940;
-$flat-list-background: #fcfcfc;
-// $flat-button-background: rgba(0,0,0,.1); --> $button-bg
-// $flat-border-color: rgba(0,0,0,.1); --> $border-color
+$flat-background: $component-bg; // #f4f4f4;
+$flat-dark-background: $secondary; // #363940;
+$flat-list-background: $base-bg; // #fcfcfc;
+$flat-button-background: $button-bg; // rgba(0,0,0,.1);
+$flat-border-color: $border-color; // rgba(0,0,0,.1);
 $flat-active-color: #fff;
-$flat-active-background: #10c4b2;
+$flat-active-background: $primary; // #10c4b2;
 $flat-second-active-background: #da2228;
 $flat-light-shadow: rgba(255,255,255,.2);
 $flat-overlay-background: rgba(0,0,0,.4);
-
 // $warning: #ef470a;
 
 .km-#{$skin-name},
+.km-#{$skin-name} .km-navbar,
+.km-#{$skin-name} .k-toolbar,
 .km-#{$skin-name} .km-detail,
 .km-#{$skin-name} .km-content {
-    @include fill(
-        $app-text,
-        $app-bg,
-        $app-border
-    );
-}
-
-.km-#{$skin-name} .km-navbar,
-.km-#{$skin-name} .k-toolbar {
-    @include fill(
-        $header-text,
-        $header-bg,
-        $header-border,
-        $header-gradient
-    );
+    color: $flat-main-color;
+    background-color: $flat-background;
 }
 
 // Button
 
 .km-#{$skin-name} .km-button {
-    @include fill(
-            $button-text,
-            $button-bg,
-            $button-border,
-            $button-gradient
-    );
-
-    // Pressed state
-    &:active,
-    &.km-state-active {
-        @include fill(
-                $button-pressed-text,
-                $button-pressed-bg,
-                $button-pressed-border,
-                $button-pressed-gradient
-        );
-        box-shadow: inset $button-pressed-shadow;
-    }
-}
-
-.km-#{$skin-name} .km-button.km-primary {
-    @include fill(
-        $primary-button-text,
-        $primary-button-bg,
-        $primary-button-border,
-        $primary-button-gradient
-    );
-
-    // Active state
-    &:active,
-    &.km-state-active {
-        @include fill(
-            $primary-button-pressed-text,
-            $primary-button-pressed-bg,
-            $primary-button-pressed-border,
-            $primary-button-pressed-gradient
-        );
-        box-shadow: $primary-button-pressed-shadow;
-    }
+    background: $flat-button-background;
+    border-color: $flat-border-color;
 }
 
 // Badges and Details
 
 .km-#{$skin-name} .km-detail,
 .km-#{$skin-name} .k-toolbar {
-    border-color: $border-color;
+    border-color: $flat-border-color;
 }
 
 // Switch
@@ -96,7 +47,7 @@ $flat-overlay-background: rgba(0,0,0,.4);
 }
 
 .km-#{$skin-name} .km-switch-handle {
-    background: $component-bg;
+    background: $flat-background;
     border-color: rgba(0,0,0,.1);
     -webkit-box-shadow: 0 1px 0 1px currentcolor, 0 -1px 0 1px currentcolor;
     box-shadow:0 1px 0 1px currentcolor, 0 -1px 0 1px currentcolor;
@@ -122,40 +73,40 @@ $flat-overlay-background: rgba(0,0,0,.4);
 
 .km-#{$skin-name} .km-list > li {
     background: $flat-list-background;
-    border-color: $border-color;
+    border-color: $flat-border-color;
     @include box-shadow(inset 0 $flat-border-width 0 $flat-light-shadow);
 }
 
 .km-#{$skin-name} .km-listinset > li:first-child,
 .km-#{$skin-name} .km-listgroupinset .km-list > li:first-child {
-    border-color: $border-color;
+    border-color: $flat-border-color;
 }
 
 .km-#{$skin-name} .km-listinset > li:last-child,
 .km-#{$skin-name} .km-listgroupinset .km-list > li:last-child,
 .km-#{$skin-name} .km-list fieldset .km-inline-field {
-    border-color: $border-color;
+    border-color: $flat-border-color;
 }
 
 .km-#{$skin-name} .km-listview-link:after {
-    color: lighten($component-text, 30);
+    color: lighten($flat-main-color, 30);
     border-color: currentcolor;
 }
 
 .km-#{$skin-name} .km-group-title,
 .km-#{$skin-name} .km-list fieldset legend {
-    background: $component-bg;
-    border-color: $border-color;
+    background: $flat-background;
+    border-color: $flat-border-color;
 }
 
 .km-#{$skin-name} .km-filter-wrap:before,
 .km-#{$skin-name} .km-filter-reset .km-clear {
-    color: $component-text;
+    color: $flat-main-color;
 }
 
 .km-#{$skin-name} .km-filter-wrap > input {
-    color: $component-text;
-    border-color: $border-color;
+    color: $flat-main-color;
+    border-color: $flat-border-color;
 }
 
 .km-#{$skin-name} .km-filter-wrap > input:focus {
@@ -165,7 +116,7 @@ $flat-overlay-background: rgba(0,0,0,.4);
 // ScrollView
 
 .km-#{$skin-name} .km-pages li {
-    background: $border-color;
+    background: $flat-border-color;
 }
 
 // Forms
@@ -191,7 +142,7 @@ $flat-overlay-background: rgba(0,0,0,.4);
 .km-#{$skin-name} .km-list .k-dropdown-wrap,
 .km-#{$skin-name} .km-list textarea,
 .km-#{$skin-name} .km-list .k-dropdown-wrap .k-input {
-    color: $component-text;
+    color: $flat-main-color;
 }
 
 .km-#{$skin-name} .km-list select:not([multiple]) option {
@@ -221,8 +172,8 @@ $flat-overlay-background: rgba(0,0,0,.4);
 
 .km-#{$skin-name} .km-listview-label input[type=radio],
 .km-#{$skin-name} .km-listview-label input[type=checkbox] {
-    border-color: $border-color;
-    background: $component-bg;
+    border-color: $flat-border-color;
+    background: $flat-background;
 }
 
 .km-#{$skin-name} .km-listview-label input[type=checkbox]:checked:after {
@@ -275,14 +226,14 @@ $flat-overlay-background: rgba(0,0,0,.4);
 }
 
 .km-#{$skin-name} .km-loader h1 {
-    color: $component-text;
+    color: $flat-main-color;
 }
 
 // Collapsible
 
 .km-#{$skin-name} .km-collapsible-header,
 .km-#{$skin-name} .km-collapsible-content {
-    border-color: $border-color;
+    border-color: $flat-border-color;
 }
 
 .km-#{$skin-name} .km-collapsible-header {
@@ -394,7 +345,7 @@ $flat-overlay-background: rgba(0,0,0,.4);
 
 
 .km-#{$skin-name} .km-list fieldset legend {
-    @include box-shadow(0 1px 0 $border-color);
+    @include box-shadow(0 1px 0 $flat-border-color);
 }
 
 // Validation

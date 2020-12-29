@@ -30,14 +30,3 @@
         padding: 2px 0;
     }
 }
-
-// Fixes
-.km-flat {
-    .km-widget.km-actionsheet > li {
-        @include fill(
-            $secondary-contrast,
-            $secondary,
-            $secondary,
-        );
-    }
-}

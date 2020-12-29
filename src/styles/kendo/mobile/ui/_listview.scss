@@ -38,7 +38,7 @@
         border-width: 0.2rem 0.2rem 0 0;
     }
 
-    :not(.km-on-android) .km-listview-link:after {
+    .km-flat:not(.km-on-android) .km-listview-link:after {
         width: 0.66rem;
         height: 0.64rem;
         border-width: 0;

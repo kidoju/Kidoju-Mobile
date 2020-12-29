@@ -1,0 +1,100 @@
+.km-#{$skin-name} {
+
+    // Navbar
+
+    .km-navbar {
+        @include fill(
+            $primary-button-text,
+            $primary-button-bg,
+            $primary-button-border,
+            $primary-button-gradient
+        );
+
+        // Note: Navbar buttons with primary buttons below
+    }
+
+    // Drawer
+
+    .km-drawer {
+        .km-navbar {
+            @include fill(
+                $secondary-contrast,
+                $secondary-darker,
+                $secondary-darker
+            );
+        }
+
+        .km-content {
+            @include fill(
+                $secondary-contrast,
+                $secondary,
+                $secondary
+            );
+
+            .km-list > li {
+                @include fill(
+                    $secondary-contrast,
+                    $secondary,
+                    $secondary,
+                );
+            }
+        }
+    }
+
+    // Button
+
+    .km-button {
+        @include fill(
+            $button-text,
+            $button-bg,
+            $button-border,
+            $button-gradient
+        );
+
+        // Pressed state
+        &:active,
+        &.km-state-active {
+            @include fill(
+                $button-pressed-text,
+                $button-pressed-bg,
+                $button-pressed-border,
+                $button-pressed-gradient
+            );
+
+            box-shadow: inset $button-pressed-shadow;
+        }
+    }
+
+    .km-navbar .km-button,
+    .km-button.km-primary {
+        @include fill(
+            $primary-button-text,
+            $primary-button-bg,
+            $primary-button-border,
+            $primary-button-gradient
+        );
+
+        // Active state
+        &:active,
+        &.km-state-active {
+            @include fill(
+                $primary-button-pressed-text,
+                $primary-button-pressed-bg,
+                $primary-button-pressed-border,
+                $primary-button-pressed-gradient
+            );
+
+            box-shadow: $primary-button-pressed-shadow;
+        }
+    }
+
+    // Actionsheet
+
+    .km-widget.km-actionsheet > li {
+        @include fill(
+            $secondary-contrast,
+            $secondary,
+            $secondary,
+        );
+    }
+}
