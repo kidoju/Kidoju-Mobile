@@ -1,10 +1,14 @@
-.k-notification-wrap {
-    .k-icon {
-        margin-top: 0 !important;
-    }
+.k-notification {
+    border-radius: 0;
 
-    .k-notification-content {
-        // margin-right: 1.25rem;
-        white-space: normal;
+    .k-notification-wrap {
+        .k-icon {
+            margin-top: 0 !important;
+        }
+
+        .k-notification-content {
+            // margin-right: 1.25rem;
+            white-space: normal;
+        }
     }
 }
