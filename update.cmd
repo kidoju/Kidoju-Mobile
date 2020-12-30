@@ -318,3 +318,5 @@ REM ./webapp/locales
 ATTRIB -R .\webapp\locales\*.*
 XCOPY ..\Kidoju.WebApp\webapp\locales .\webapp\locales /C /E /I /R /Y
 ATTRIB +R .\webapp\locales\*.*
+
+REM TODO favicon.ico
