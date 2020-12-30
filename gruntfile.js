@@ -38,9 +38,10 @@ module.exports = (grunt) => {
             dist: {
                 src: [
                     'www/views/_head.html',
+                    'www/views/notification.html',
                     'www/views/layout.html',
                     'www/views/drawer.html',
-                    'www/views/error.html', // <--------- Default
+                    'www/views/error.html', // <--------- First view = default
                     'www/views/activities.html',
                     'www/views/categories.html',
                     'www/views/correction.html',
