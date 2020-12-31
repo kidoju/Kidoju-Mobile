@@ -50,24 +50,32 @@ const feature = {
      * Reset
      */
     reset() {
-        this.resetLanguage();
-        this.resetTheme();
+        app.viewModel.resetLanguage();
+        app.viewModel.resetTheme();
     },
 
     /**
      * Reset language
      */
     resetLanguage() {
-        this.set(this.VIEW_MODEL.LANGUAGE, __.locale);
-        this.set(this.VIEW_MODEL.LANGUAGES, []);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        viewModel.set(VIEW_MODEL.LANGUAGE, __.locale);
+        viewModel.set(VIEW_MODEL.LANGUAGES, []);
     },
 
     /**
      * Reset theme
      */
     resetTheme() {
-        this.set(this.VIEW_MODEL.THEME, 'flat'); // app.theme.name()
-        this.set(this.VIEW_MODEL.THEMES, []);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        viewModel.set(VIEW_MODEL.THEME, 'flat'); // app.theme.name()
+        viewModel.set(VIEW_MODEL.THEMES, []);
     },
 
     /**
@@ -127,10 +135,14 @@ const feature = {
      * Language name from selected value
      */
     language$() {
-        const value = this.get(this.VIEW_MODEL.LANGUAGE);
-        const found = this[this.VIEW_MODEL.LANGUAGES].filter(language => {
-            return language.value === value;
-        });
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const value = viewModel.get(VIEW_MODEL.LANGUAGE);
+        const found = viewModel[VIEW_MODEL.LANGUAGES].filter(
+            (language) => language.value === value
+        );
         return found[0] && found[0].text;
     },
 
@@ -138,10 +150,14 @@ const feature = {
      * Theme name form selected value
      */
     theme$() {
-        const value = this.get(this.VIEW_MODEL.THEME);
-        const found = this[this.VIEW_MODEL.THEMES].filter(theme => {
-            return theme.value === value;
-        });
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const value = viewModel.get(VIEW_MODEL.THEME);
+        const found = viewModel[VIEW_MODEL.THEMES].filter(
+            (theme) => theme.value === value
+        );
         return found[0] && found[0].text;
     },
 
@@ -180,8 +196,12 @@ const feature = {
                 'jQuery'
             )
         );
+        const {
+            viewModel,
+            viewModel: { VIEW },
+        } = app;
         // Navigate to the user view
-        app.viewModel.application.navigate(`${CONSTANTS.HASH}${this.VIEW.USER._}`);
+        viewModel.application.navigate(`${CONSTANTS.HASH}${VIEW.USER._}`);
     },
 };
 

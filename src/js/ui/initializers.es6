@@ -4,10 +4,14 @@
  */
 
 import __ from '../app/app.i18n.es6';
+import themer from '../app/app.themer.es6';
 
 const initializers = [
     // Add initializers here
-    // make sure they all return a jQuery promise
+    // Make sure they all return a jQuery promise
+    // Themed styles
+    themer.load(),
+    // i18n Culture
     __.load(),
 ];
 

@@ -172,7 +172,7 @@ const feature = {
                     dialogs.error(__('mobile.notifications.scanFailure'));
                     logger.error({
                         message: 'Scan failure',
-                        method: 'mobile._scanQRCode',
+                        method: '_scanQRCode',
                         error,
                     });
                 },
@@ -205,7 +205,7 @@ const feature = {
         );
         logger.debug({
             message: 'Opening the help content',
-            method: 'mobile._openHelp',
+            method: '_openHelp',
             data: { url: helpUrl },
         });
         if (inAppBrowser.ready()) {
@@ -218,7 +218,7 @@ const feature = {
         /*
         // TODO add analytics
         if (mobile.support.ga) {
-            mobile.ga.trackEvent(
+           app.gatrackEvent(
                 ANALYTICS.CATEGORY.GENERAL,
                 ANALYTICS.ACTION.HELP,
                 app.constants.helpUrl

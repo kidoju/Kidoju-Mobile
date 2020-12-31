@@ -9,12 +9,15 @@ import $ from 'jquery';
 import 'kendo.core';
 // import 'kendo.mobile.application';
 import 'kendo.mobile.button';
+import 'kendo.mobile.scroller';
 import 'kendo.mobile.view';
+import '../widgets/widgets.stage.es6';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
 import Logger from '../common/window.logger.es6';
+import { Page, PageDataSource } from '../data/data.page.es6';
 
 const {
     attr,
@@ -23,10 +26,11 @@ const {
     destroy,
     mobile,
     mobile: {
-        ui: { Button, View },
+        ui: { Button, Scroller, View },
     },
     roleSelector,
     ui,
+    ui: { Stage },
 } = window.kendo;
 const logger = new Logger('ui.stage');
 
@@ -40,25 +44,13 @@ const feature = {
     _name: 'stage',
 
     /**
-     * View
-     */
-    VIEW: {
-        CORRECTION: {
-            _: 'correction',
-        },
-        PLAYER: {
-            _: 'player',
-        },
-    },
-
-    /**
      * ViewModel
      */
     VIEW_MODEL: {
-        SELECTED_PAGE: 'selectedPage',
-        /*
-        CURRENT: {
-            $: 'current',
+        PAGE: 'page',
+        PAGES: 'pages',
+        CURRENT: { // --> ACTIVITY ??
+            _: 'current',
             ID: 'current.id',
             SCORE: 'current.score',
             TEST: 'current.test',
@@ -67,25 +59,28 @@ const feature = {
                 LANGUAGE: 'current.version.language',
                 SUMMARYID: 'current.version.summaryId',
                 VERSION_ID: 'current.version.versionId'
-            }
+            },
         },
-         */
     },
 
     /**
      * Reset
      */
     reset() {
-        this.resetStage();
+        app.viewModel.resetStage();
     },
 
     /**
      * Reset test
      */
     resetStage() {
-        this.set(VIEW_MODEL.CURRENT, { test: undefined });
-        this.set(VIEW_MODEL.SELECTED_PAGE, undefined);
-        this.set(VIEW_MODEL.PAGES_COLLECTION, []);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        viewModel.set(VIEW_MODEL.CURRENT._, { test: undefined });
+        viewModel.set(VIEW_MODEL.PAGE, undefined);
+        viewModel.set(VIEW_MODEL.PAGES, new PageDataSource());
     },
 
     /**
@@ -93,18 +88,22 @@ const feature = {
      * @returns {boolean}
      */
     isFirstPage$() {
-        const page = this.get(VIEW_MODEL.SELECTED_PAGE);
-        const pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const page = viewModel.get(VIEW_MODEL.PAGE);
+        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
         assert.instanceof(
-            PageCollectionDataSource,
-            pageCollectionDataSource,
+            PageDataSource,
+            pageDataSource,
             assert.format(
                 assert.messages.instanceof.default,
-                'pageCollectionDataSource',
-                'kidoju.data.PageCollectionDataSource'
+                'pageDataSource',
+                'PageDataSource'
             )
         );
-        const index = pageCollectionDataSource.indexOf(page);
+        const index = pageDataSource.indexOf(page);
         return index === 0;
     },
 
@@ -113,19 +112,23 @@ const feature = {
      * @returns {boolean}
      */
     isLastPage$() {
-        const page = this.get(VIEW_MODEL.SELECTED_PAGE);
-        const pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const page = viewModel.get(VIEW_MODEL.PAGE);
+        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
         assert.instanceof(
-            PageCollectionDataSource,
-            pageCollectionDataSource,
+            PageDataSource,
+            pageDataSource,
             assert.format(
                 assert.messages.instanceof.default,
-                'pageCollectionDataSource',
-                'kidoju.data.PageCollectionDataSource'
+                'pageDataSource',
+                'PageDataSource'
             )
         );
-        const index = pageCollectionDataSource.indexOf(page);
-        return index === -1 || index === pageCollectionDataSource.total() - 1;
+        const index = pageDataSource.indexOf(page);
+        return index === -1 || index === pageDataSource.total() - 1;
     },
 
     /**
@@ -133,85 +136,98 @@ const feature = {
      * @returns {*}
      */
     page$() {
-        const page = this.get(VIEW_MODEL.SELECTED_PAGE);
-        const pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const page = viewModel.get(VIEW_MODEL.PAGE);
+        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
         assert.instanceof(
-            PageCollectionDataSource,
-            pageCollectionDataSource,
+            PageDataSource,
+            pageDataSource,
             assert.format(
                 assert.messages.instanceof.default,
-                'pageCollectionDataSource',
-                'kidoju.data.PageCollectionDataSource'
+                'pageDataSource',
+                'PageDataSource'
             )
         );
-        return pageCollectionDataSource.indexOf(page) + 1;
+        return pageDataSource.indexOf(page) + 1;
     },
 
     /**
      * Return total number of pages
      */
     totalPages$() {
-        const pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
         assert.instanceof(
-            PageCollectionDataSource,
-            pageCollectionDataSource,
+            PageDataSource,
+            pageDataSource,
             assert.format(
                 assert.messages.instanceof.default,
-                'pageCollectionDataSource',
-                'kidoju.data.PageCollectionDataSource'
+                'pageDataSource',
+                'PageDataSource'
             )
         );
-        return pageCollectionDataSource.total();
+        return pageDataSource.total();
     },
 
     /**
      * Select the previous page from viewModel.version.stream.pages
      */
     firstPage() {
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
         logger.debug({
-            method: 'viewModel.firstPage',
+            method: 'firstPage',
             message: 'Show first page',
         });
-        const pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
         assert.instanceof(
-            PageCollectionDataSource,
-            pageCollectionDataSource,
+            PageDataSource,
+            pageDataSource,
             assert.format(
                 assert.messages.instanceof.default,
-                'pageCollectionDataSource',
-                'kidoju.data.PageCollectionDataSource'
+                'pageDataSource',
+                'PageDataSource'
             )
         );
-        this.set(VIEW_MODEL.SELECTED_PAGE, pageCollectionDataSource.at(0));
-        app.tts.cancelSpeak();
+        this.set(VIEW_MODEL.PAGE, pageDataSource.at(0));
+        // app.tts.cancelSpeak();
     },
 
     /**
      * Select the previous page from viewModel.version.stream.pages
      */
     previousPage() {
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
         logger.debug({
-            method: 'viewModel.previousPage',
+            method: 'previousPage',
             message: 'Show previous page',
         });
-        const page = this.get(VIEW_MODEL.SELECTED_PAGE);
-        const pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+        const page = viewModel.get(VIEW_MODEL.PAGE);
+        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
         assert.instanceof(
-            PageCollectionDataSource,
-            pageCollectionDataSource,
+            PageDataSource,
+            pageDataSource,
             assert.format(
                 assert.messages.instanceof.default,
-                'pageCollectionDataSource',
-                'kidoju.data.PageCollectionDataSource'
+                'pageDataSource',
+                'PageDataSource'
             )
         );
-        const index = pageCollectionDataSource.indexOf(page);
-        if ($.type(index) === NUMBER && index > 0) {
-            this.set(
-                VIEW_MODEL.SELECTED_PAGE,
-                pageCollectionDataSource.at(index - 1)
-            );
-            app.tts.cancelSpeak();
+        const index = pageDataSource.indexOf(page);
+        if ($.type(index) === CONSTANTS.NUMBER && index > 0) {
+            this.set(VIEW_MODEL.PAGE, pageDataSource.at(index - 1));
+            // app.tts.cancelSpeak();
         }
     },
 
@@ -220,30 +236,28 @@ const feature = {
      */
     nextPage() {
         logger.debug({
-            method: 'viewModel.nextPage',
+            method: 'nextPage',
             message: 'Show next page',
         });
-        const page = this.get(VIEW_MODEL.SELECTED_PAGE);
-        const pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const page = viewModel.get(VIEW_MODEL.PAGE);
+        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
         assert.instanceof(
-            PageCollectionDataSource,
-            pageCollectionDataSource,
+            PageDataSource,
+            pageDataSource,
             assert.format(
                 assert.messages.instanceof.default,
-                'pageCollectionDataSource',
-                'kidoju.data.PageCollectionDataSource'
+                'pageDataSource',
+                'PageDataSource'
             )
         );
-        const index = pageCollectionDataSource.indexOf(page);
-        if (
-            $.type(index) === NUMBER &&
-            index < pageCollectionDataSource.total() - 1
-        ) {
-            this.set(
-                VIEW_MODEL.SELECTED_PAGE,
-                pageCollectionDataSource.at(index + 1)
-            );
-            app.tts.cancelSpeak();
+        const index = pageDataSource.indexOf(page);
+        if ($.type(index) === CONSTANTS.NUMBER && index < pageDataSource.total() - 1) {
+            this.set(VIEW_MODEL.PAGE, pageDataSource.at(index + 1));
+            // app.tts.cancelSpeak();
         }
     },
 
@@ -252,41 +266,46 @@ const feature = {
      */
     lastPage() {
         logger.debug({
-            method: 'viewModel.lastPage',
+            method: 'lastPage',
             message: 'Show last page',
         });
-        const pageCollectionDataSource = this.get(VIEW_MODEL.PAGES_COLLECTION);
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
         assert.instanceof(
-            PageCollectionDataSource,
-            pageCollectionDataSource,
+            PageDataSource,
+            pageDataSource,
             assert.format(
                 assert.messages.instanceof.default,
-                'pageCollectionDataSource',
-                'kidoju.data.PageCollectionDataSource'
+                'pageDataSource',
+                'PageDataSource'
             )
         );
-        const lastPage = pageCollectionDataSource.total() - 1;
-        this.set(
-            VIEW_MODEL.SELECTED_PAGE,
-            pageCollectionDataSource.at(lastPage)
-        );
-        app.tts.cancelSpeak();
+        const lastPage = pageDataSource.total() - 1;
+        this.set(VIEW_MODEL.PAGE, pageDataSource.at(lastPage));
+        // app.tts.cancelSpeak();
     },
 
     /**
      * Reset current test
      */
     resetCurrent() {
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
         const that = this;
         // Assert ids
-        const userId = that.get(VIEW_MODEL.USER.SID); // Foreign keys use sids (server ids)
+        const userId = that.get(VIEW_MODEL.USER.ID); // Foreign keys use sids (server ids)
         assert.match(
-            RX_MONGODB_ID,
+            CONSTANTS.RX_MONGODB_ID,
             userId,
             assert.format(
                 assert.messages.match.default,
                 'userId',
-                RX_MONGODB_ID
+                CONSTANTS.RX_MONGODB_ID
             )
         );
         const language = __.locale;
@@ -319,17 +338,17 @@ const feature = {
         );
         const summaryId = that.get(VIEW_MODEL.SUMMARY.ID);
         assert.match(
-            RX_MONGODB_ID,
+            CONSTANTS.RX_MONGODB_ID,
             summaryId,
             assert.format(
                 assert.messages.match.default,
                 'summaryId',
-                RX_MONGODB_ID
+                CONSTANTS.RX_MONGODB_ID
             )
         );
         assert.equal(
             summaryId,
-            this.get(VIEW_MODEL.VERSION.SUMMARYID),
+            viewModel.get(VIEW_MODEL.VERSION.SUMMARYID),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("version.summaryId")',
@@ -338,18 +357,18 @@ const feature = {
         );
         const versionId = that.get(VIEW_MODEL.VERSION.ID);
         assert.match(
-            RX_MONGODB_ID,
+            CONSTANTS.RX_MONGODB_ID,
             versionId,
             assert.format(
                 assert.messages.match.default,
                 'versionId',
-                RX_MONGODB_ID
+                CONSTANTS.RX_MONGODB_ID
             )
         );
         // Set viewModel field
-        // IMPORTANT: viewModel.current is not a models.MobileActivity - For more information, see saveCurrent
-        // viewModel.set(VIEW_MODEL.CURRENT.$, new models.MobileActivity({
-        viewModel.set(VIEW_MODEL.CURRENT.$, {
+        // IMPORTANT: viewModel.current is not a MobileActivity - For more information, see saveCurrent
+        // TODO viewModel.set(VIEW_MODEL.CURRENT._, new MobileActivity({
+        viewModel.set(VIEW_MODEL.CURRENT._, {
             actor: {
                 firstName: that.get(VIEW_MODEL.USER.FIRST_NAME),
                 lastName: that.get(VIEW_MODEL.USER.LAST_NAME),
@@ -373,19 +392,21 @@ const feature = {
      * @returns {*}
      */
     calculate() {
-        const pageCollectionDataSource = viewModel.get(
-            VIEW_MODEL.PAGES_COLLECTION
-        );
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
         assert.instanceof(
-            PageCollectionDataSource,
-            pageCollectionDataSource,
+            PageDataSource,
+            pageDataSource,
             assert.format(
                 assert.messages.instanceof.default,
-                'pageCollectionDataSource',
-                'kidoju.data.PageCollectionDataSource'
+                'pageDataSource',
+                'PageDataSource'
             )
         );
-        return pageCollectionDataSource
+        return pageDataSource
             .validateTestFromProperties(viewModel.get(VIEW_MODEL.CURRENT.TEST))
             .then((result) => {
                 // Note: result has methods including percent and getScoreArray
@@ -396,22 +417,18 @@ const feature = {
                         'result'
                     )
                 );
-                assert.type(
-                    FUNCTION,
+                assert.isFunction(
                     result.percent,
                     assert.format(
-                        assert.messages.type.default,
-                        'result.percent',
-                        FUNCTION
+                        assert.messages.isFunction.default,
+                        'result.percent'
                     )
                 );
-                assert.type(
-                    FUNCTION,
+                assert.isFunction(
                     result.getScoreArray,
                     assert.format(
-                        assert.messages.type.default,
-                        'result.getScoreArray',
-                        FUNCTION
+                        assert.messages.isFunction.default,
+                        'result.getScoreArray'
                     )
                 );
                 viewModel.set(VIEW_MODEL.CURRENT.TEST, result);
@@ -422,7 +439,7 @@ const feature = {
                 );
                 logger.error({
                     message: 'Failed to calculate user score',
-                    method: 'viewModel.calculate',
+                    method: 'calculate',
                     data: { status, error, response: parseResponse(xhr) },
                 });
             });
@@ -433,61 +450,60 @@ const feature = {
      * @returns {*}
      */
     saveCurrent() {
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
         // Get current
-        const current = this.get(VIEW_MODEL.CURRENT.$);
-        // assert.instanceof(models.MobileActivity, current, assert.format(assert.messages.instanceof.default, 'current', 'app.models.MobileActivity'));
-        assert.type(
-            UNDEFINED,
+        const current = viewModel.get(VIEW_MODEL.CURRENT._);
+        // assert.instanceof(MobileActivity, current, assert.format(assert.messages.instanceof.default, 'current', 'MobileActivity'));
+        assert.isUndefined(
             current.id,
-            assert.format(assert.messages.type.default, 'current.id', UNDEFINED)
+            assert.format(assert.messages.isUndefined.default, 'current.id')
         );
-        assert.type(
-            FUNCTION,
+        assert.isFunction(
             current.test.percent,
             assert.format(
-                assert.messages.type.default,
-                'current.test.percent',
-                FUNCTION
+                assert.messages.isFunction.default,
+                'current.test.percent'
             )
         );
-        assert.type(
-            FUNCTION,
+        assert.isFunction(
             current.test.getScoreArray,
             assert.format(
-                assert.messages.type.default,
-                'current.test.getScoreArray',
-                FUNCTION
+                assert.messages.isFunction.default,
+                'current.test.getScoreArray'
             )
         );
         // Update current
         viewModel.set(VIEW_MODEL.CURRENT.SCORE, current.test.percent());
         viewModel.set(VIEW_MODEL.CURRENT.UPDATED, new Date());
         // Add to datasource and sync
-        const activities = this.get(VIEW_MODEL.ACTIVITIES);
+        const activities = viewModel.get(VIEW_MODEL.ACTIVITIES);
         assert.instanceof(
-            models.MobileActivityDataSource,
+            MobileActivityDataSource,
             activities,
             assert.format(
                 assert.messages.instanceof.default,
                 'activities',
-                'app.models.MobileActivityDataSource'
+                'MobileActivityDataSource'
             )
         );
-        const activity = new models.MobileActivity(current);
+        const activity = new MobileActivity(current);
         activities.add(activity);
         return activities
             .sync()
             .then(() => {
-                // current is not a models.MobileActivity because since percent and getScoreArray are not model methods,
+                // current is not a MobileActivity because since percent and getScoreArray are not model methods,
                 // There are lost at this stage. We would need to make a model with percent and getScoreArray methods
                 const activityId = activity.get('id');
                 assert.match(
-                    RX_MONGODB_ID,
+                    CONSTANTS.RX_MONGODB_ID,
                     activityId,
                     assert.format(
                         assert.messages.match.default,
                         'activityId',
-                        RX_MONGODB_ID
+                        CONSTANTS.RX_MONGODB_ID
                     )
                 );
                 viewModel.set(VIEW_MODEL.CURRENT.ID, activityId);
@@ -502,7 +518,7 @@ const feature = {
                 );
                 logger.error({
                     message: 'error saving current score',
-                    method: 'viewModel.saveCurrent',
+                    method: 'saveCurrent',
                     data: { status, error, response: parseResponse(xhr) },
                 });
             });
@@ -514,8 +530,12 @@ const feature = {
      * @private
      */
     resize(e, view) {
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
         assert.instanceof(
-            kendo.mobile.ui.View,
+            View,
             view,
             assert.format(
                 assert.messages.instanceof.default,
@@ -524,10 +544,10 @@ const feature = {
             )
         );
         const { content } = view;
-        const stageElement = content.find(kendo.roleSelector('stage'));
+        const stageElement = content.find(roleSelector('stage'));
         const stageWidget = stageElement.data('kendoStage');
         // If the stage widget has not yet been initialized, we won't get the correct stageWrapper
-        if (kendo.ui.Stage && stageWidget instanceof kendo.ui.Stage) {
+        if (stageWidget instanceof Stage) {
             /**
              * ATTENTION jQuery 3 breaking change
              * There is a breaking change in jQuery 3 regarding height and width
@@ -624,16 +644,16 @@ const feature = {
                 .css({ borderWidth: proportion === 1 ? 0 : 1 });
             // Resize the markdown container and scroller for instructions/explanations
             const markdownElement = content.find(
-                kendo.roleSelector('markdown')
+                roleSelector('markdown')
             );
             const markdownScrollerElement = markdownElement.closest(
-                kendo.roleSelector('scroller')
+                roleSelector('scroller')
             );
             const markdownScroller = markdownScrollerElement.data(
                 'kendoMobileScroller'
             );
             assert.instanceof(
-                kendo.mobile.ui.Scroller,
+                Scroller,
                 markdownScroller,
                 assert.format(
                     assert.messages.instanceof.default,
@@ -665,199 +685,6 @@ const feature = {
                 .data('kendoMobileScroller');
             markdownScrollerWidget.reset();
         }
-    },
-
-    /**
-     * Event handler triggered when initializing the Correction view
-     * Note: the init event is triggered the first time the view is requested
-     * @param e
-     */
-    onCorrectionViewInit(e) {
-        assert.isNonEmptyPlainObject(
-            e,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
-        );
-        assert.instanceof(
-            View,
-            e.view,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e.view',
-                'kendo.mobile.ui.View'
-            )
-        );
-        const { content } = e.view;
-
-        // Destroy the stage - see mobile.onCorrectionViewHide
-        destroy(content.find(roleSelector('stage')));
-
-        // The play TTS button is a bit small, so let's use the entire heading
-        content
-            .find('div.heading h2')
-            .off()
-            .on(`${CONSTANTS.CLICK} ${CONSTANTS.TAP}`, (e) => {
-                // TODO review TAP
-                const $button = $(e.currentTarget).find(
-                    'a[data-role="button"][data-icon="ear"]'
-                );
-                const button = $button.data('kendoMobileButton');
-                if (button instanceof Button) {
-                    $button.addClass('km-state-active');
-                    button.trigger(CONSTANTS.CLICK, { button: $button });
-                    setTimeout(() => {
-                        $button.removeClass('km-state-active');
-                    }, 250);
-                }
-            });
-    },
-
-    /**
-     * Event handler triggered when showing the Correction view
-     * Note: the view event is triggered each time the view is requested
-     * @param e
-     */
-    onCorrectionViewShow(e) {
-        assert.isNonEmptyPlainObject(
-            e,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
-        );
-        assert.instanceof(
-            View,
-            e.view,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e.view',
-                'kendo.mobile.ui.View'
-            )
-        );
-        assert.isNonEmptyPlainObject(
-            e.view.params,
-            assert.format(
-                assert.messages.isNonEmptyPlainObject.default,
-                'e.view.params'
-            )
-        );
-
-        // Scan params
-        const { content } = e.view;
-        const { language, summaryId, versionId, activityId } = e.view.params;
-        const page = parseInt(e.view.params.page, 10) || 1;
-
-        assert.equal(
-            app.viewModel.get(VIEW_MODEL.LANGUAGE),
-            language,
-            assert.format(
-                assert.messages.equal.default,
-                'language',
-                'viewModel.get("language")'
-            )
-        );
-        assert.equal(
-            __.locale,
-            language,
-            assert.format(
-                assert.messages.equal.default,
-                'language',
-                '__.locale'
-            )
-        );
-        assert.match(
-            CONSTANTS.RX_MONGODB_ID,
-            summaryId,
-            assert.format(
-                assert.messages.match.default,
-                'summaryId',
-                CONSTANTS.RX_MONGODB_ID
-            )
-        );
-        assert.match(
-            CONSTANTS.RX_MONGODB_ID,
-            versionId,
-            assert.format(
-                assert.messages.match.default,
-                'versionId',
-                CONSTANTS.RX_MONGODB_ID
-            )
-        );
-        assert.match(
-            CONSTANTS.RX_MONGODB_ID,
-            activityId,
-            assert.format(
-                assert.messages.match.default,
-                'activityId',
-                CONSTANTS.RX_MONGODB_ID
-            )
-        );
-
-        // Let's remove the showScoreInfo attr (see viewModel.bind(CHANGE))
-        e.view.element.removeProp(attr('showScoreInfo'));
-
-        // Rebuild stage and bind viewModel
-        bind(
-            content.find(roleSelector('stage')),
-            app.viewModel,
-            ui,
-            dataviz.ui,
-            mobile.ui
-        );
-        mobile._resizeStage(e.view);
-
-        /*
-        // TODO We are dependant on the data loaded in mobile.onScoreViewShow, so this page cannot be refreshed in dev
-        // We might want to reload the data after reviewing activities not to have to recalculate scores
-        // Load data
-        $.when(
-            // load version to display quiz content in the player
-            viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
-            // Load activities
-            viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
-        )
-        .then(function () {
-            // Set activity, but we do not want to recalculate score
-            viewModel.set(VIEW_MODEL.SELECTED_PAGE, viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(page - 1));
-        })
-        .always(function () {
-            mobile.onGenericViewShow(e);
-            app.notification.info(__('mobile.notifications.pageNavigationInfo'));
-        });
-        */
-
-        // version is already loaded - viewModel.loadVersion({ language: language, summaryId: summaryId, id: versionId }),
-        // activities are already loaded - viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.SID) })
-        app.viewModel.set(
-            VIEW_MODEL.SELECTED_PAGE,
-            app.viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(page - 1)
-        );
-
-        mobile.onGenericViewShow(e);
-        app.notification.info(__('mobile.notifications.pageNavigationInfo'));
-    },
-
-    /**
-     * Event handler triggered when hiding the Correction view
-     * Note: the view event is triggered each time the view is discarded
-     * @param e
-     */
-    onCorrectionViewHide(e) {
-        assert.isNonEmptyPlainObject(
-            e,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
-        );
-        assert.instanceof(
-            View,
-            e.view,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e.view',
-                'kendo.mobile.ui.View'
-            )
-        );
-
-        // Destroy the stage (necessary to hide the floating toolbar and avoid initializing widgets simultaneously in correction and player modes)
-        destroy(e.view.content.find(roleSelector('stage')));
-
-        // Cancel any utterance spoken
-        app.tts.cancelSpeak();
     },
 
     /**
@@ -908,14 +735,14 @@ const feature = {
             const field = e.button.attr(attr('tts'));
             const text = app.viewModel.get(field) || '';
             // Speak
-            app.tts.doSpeak(text, __.locale, true).always(() => {
-                e.button.removeAttr(attr(SPEAKING));
-            });
+            // app.tts.doSpeak(text, __.locale, true).always(() => {
+            //     e.button.removeAttr(attr(SPEAKING));
+            // });
         } else {
             // Cancel
-            app.tts.cancelSpeak().always(() => {
-                e.button.removeAttr(attr(SPEAKING));
-            });
+            // app.tts.cancelSpeak().always(() => {
+            //     e.button.removeAttr(attr(SPEAKING));
+            // });
         }
     },
 };

@@ -50,36 +50,47 @@ const feature = {
      * Reset
      */
     reset() {
-        this.resetCategories();
+        app.viewModel.resetCategories();
     },
 
     /**
      * Reset categories
      */
     resetCategories() {
-        // this[this.VIEW_MODEL.CATEGORIES] = new LazyCategoryDataSource();
-        this.set(this.VIEW_MODEL.CATEGORIES, new LazyCategoryDataSource());
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        viewModel.set(VIEW_MODEL.CATEGORIES, new LazyCategoryDataSource());
     },
 
     /**
      * Load categories
      */
     loadCategories() {
-        debugger;
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        return viewModel[VIEW_MODEL.CATEGORIES].read();
     },
 
     /**
      * Loader
      */
     load() {
-        this.loadCategories();
+        return app.viewModel.loadCategories();
     },
 
     /**
      * Return an array of top-level categories (ordered by id)
      */
     topCategories$() {
-        return this[this.VIEW_MODEL.CATEGORIES]
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        return viewModel[VIEW_MODEL.CATEGORIES]
             .data()
             .filter((category) => RX_TOP_LEVEL_MATCH.test(category.id))
             .sort((a, b) => {

@@ -13,7 +13,7 @@ import 'kendo.mobile.listview';
 import 'kendo.touch';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
-import { sessionCache } from '../common/window.cache.es6';
+// import { sessionCache } from '../common/window.cache.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
 import Logger from '../common/window.logger.es6';
@@ -49,7 +49,7 @@ const feature = {
     VIEW: {
         USER: {
             _: 'user',
-            PIN: '.pin',
+            PIN: '.app-pin',
         },
     },
 
@@ -145,7 +145,6 @@ const feature = {
         app.cache
             .getMe()
             .then((me) => {
-                debugger;
                 assert.isNonEmptyPlainObject(
                     me,
                     assert.format(
@@ -232,8 +231,15 @@ const feature = {
                         });
                     });
             } catch (e) {
-                // TODO Error here
-                debugger;
+                dfd.reject(e);
+                app.notification.error(
+                    __('mobile.notifications.usersQueryFailure')
+                );
+                logger.error({
+                    message: 'error loading users',
+                    method: 'loadUsers',
+                    error: e,
+                });
             }
         }
         return dfd.promise();
@@ -668,7 +674,6 @@ const feature = {
                         )
                     );
                     if (isNewUser) {
-                        debugger;
                         app.viewModel.application.navigate(
                             `${CONSTANTS.HASH}${VIEW.SYNC._}`
                         );
@@ -694,7 +699,7 @@ const feature = {
                     app.viewModel.enableUserButtons(true);
                     /*
                     if (mobile.support.ga && isNewUser) {
-                        mobile.ga.trackEvent(
+                       app.gatrackEvent(
                             ANALYTICS.CATEGORY.USER,
                             ANALYTICS.ACTION.SAVE,
                             viewModel.get(this.VIEW_MODEL.USER.PROVIDER)
@@ -782,7 +787,6 @@ const feature = {
             viewModel
                 .syncUsers(false)
                 .then(() => {
-                    debugger;
                     notification.success(
                         format(
                             __('mobile.notifications.userSignInSuccess'),
@@ -801,7 +805,7 @@ const feature = {
                     viewModel.enableUserButtons(true);
                     /* TODO analytics
                     if (mobile.support.ga) {
-                        mobile.ga.trackEvent(
+                       app.gatrackEvent(
                             ANALYTICS.CATEGORY.USER,
                             ANALYTICS.ACTION.SIGNIN,
                             viewModel.get(this.VIEW_MODEL.USER.PROVIDER)

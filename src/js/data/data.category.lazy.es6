@@ -7,13 +7,15 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
+import db from '../app/app.db.es6';
 import __ from '../app/app.i18n.es6';
 import { finderUri, iconUri } from '../app/app.uris.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import AjaxCategories from '../rapi/rapi.categories.es6';
 import BaseModel from './data.base.es6';
-import { normalizeSchema } from './data.util.es6';
+import { isMobileApp, normalizeSchema } from './data.util.es6';
 import CacheCollectionStrategy from './strategy.cache.collection.es6';
+import LazyLocalTransport from './transports.local.lazy.es6';
 import LazyRemoteTransport from './transports.remote.lazy.es6';
 
 const { location } = window;
@@ -167,17 +169,29 @@ const LazyCategory = BaseModel.define({
 });
 
 /**
- * lazyCategoryTransport
+ * Remote transport
  */
-const lazyCategoryTransport = new CacheCollectionStrategy({
-    key: `categories.${__.locale}`,
-    transport: new LazyRemoteTransport({
-        collection: new AjaxCategories({
-            partition: {
-                language: __.locale,
-            },
-        }),
+const remoteTransport = new LazyRemoteTransport({
+    collection: new AjaxCategories({
+        partition: {
+            language: __.locale,
+        },
     }),
+});
+
+/**
+ * Local transport
+ */
+const localTransport = new LazyLocalTransport({
+    collection: db.categories,
+});
+
+/**
+ * transport
+ */
+const transport = new CacheCollectionStrategy({
+    key: `categories.${__.locale}`,
+    transport: remoteTransport,
     // ttl: 24 * 60 * 60
 });
 
@@ -191,7 +205,7 @@ const LazyCategoryDataSource = DataSource.extend({
         DataSource.fn.init.call(
             this,
             Object.assign(options, {
-                transport: lazyCategoryTransport,
+                transport,
                 schema: normalizeSchema({
                     modelBase: LazyCategory,
                     model: LazyCategory,

@@ -139,6 +139,7 @@ const feature = {
         */
 
         // Synchronize activities
+        debugger;
         viewModel.activities.setLastSync(
             viewModel.get(VIEW_MODEL.USER.LAST_SYNC)
         );
@@ -183,7 +184,7 @@ const feature = {
                         logger.error({
                             message:
                                 'Error updating user after synchronization',
-                            method: 'viewModel.onSyncViewShow',
+                            method: 'onSyncViewShow',
                             error: xhr2error(xhr, status, errorThrown),
                         });
                     });
@@ -199,7 +200,7 @@ const feature = {
                     );
                     logger.error({
                         message: 'Error Synchronizing',
-                        method: 'viewModel.onSyncViewShow',
+                        method: 'onSyncViewShow',
                         error: xhr2error(xhr, status, errorThrown),
                     });
                 }

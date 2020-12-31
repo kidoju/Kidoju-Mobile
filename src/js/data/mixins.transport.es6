@@ -97,7 +97,6 @@ export default function extendModelWithTransport(DataModel, transport) {
                 data,
                 error: dfd.reject,
                 success(response) {
-                    debugger;
                     // Not found is sent to error/dfd.reject with status 404
                     that.accept(response);
                     // accept does not trigger a change event

@@ -26,6 +26,7 @@ const ROOT_CATEGORY_ID = {
 
 const COLLECTION = {
     ACTIVITIES: 'activities',
+    CATEGORIES: 'categories',
     SUMMARIES: 'summaries',
     USERS: 'users',
     VERSIONS: 'versions',
@@ -44,6 +45,7 @@ const database = new Database({
     size: 10 * 1024 * 1024,
     collections: [
         COLLECTION.ACTIVITIES,
+        COLLECTION.CATEGORIES,
         COLLECTION.SUMMARIES,
         COLLECTION.USERS,
         COLLECTION.VERSIONS,
@@ -137,8 +139,8 @@ database.createTrigger(
                             .update({ id: versionId }, version, {
                                 upsert: true,
                             })
-                            .done(deferred.resolve)
-                            .fail(deferred.reject);
+                            .then(deferred.resolve)
+                            .catch(deferred.reject);
                     } else {
                         deferred.resolve(version);
                     }
@@ -148,10 +150,10 @@ database.createTrigger(
                 // The activity (especially from synchronization does not belong here)
                 database.activities
                     .remove({ id: activityId })
-                    .done(() => {
+                    .then(() => {
                         deferred.resolve(version);
                     })
-                    .fail(deferred.reject);
+                    .catch(deferred.reject);
                 logger.debug({
                     message: 'Removing activity in local database trigger',
                     method: 'database.createTrigger',
@@ -167,29 +169,29 @@ database.createTrigger(
         if (network.isOffline()) {
             database.versions
                 .findOne({ id: versionId })
-                .done((local) => {
+                .then((local) => {
                     upsert(doc, local, dfd);
                 })
-                .fail((err) => {
+                .catch((err) => {
                     dfd.reject(err);
                 });
         } else {
             const versions = app.rapi.v2.versions({ language, summaryId });
             versions
                 .get(versionId)
-                .done((remote) => {
+                .then((remote) => {
                     database.versions
                         .findOne({ id: versionId })
-                        .done((local) => {
+                        .then((local) => {
                             const version = $.extend(remote, local);
                             upsert(doc, version, dfd);
                         })
-                        .fail((err) => {
+                        .catch((err) => {
                             // Not found
                             upsert(doc, remote, dfd);
                         });
                 })
-                .fail(dfd.reject);
+                .catch(dfd.reject);
         }
         return dfd.promise();
     }
@@ -221,8 +223,8 @@ database.createTrigger(
             // Update local summary
             database.summaries
                 .update({ id: summaryId }, { activities: doc.activities })
-                .done(dfd.resolve)
-                .fail(dfd.reject);
+                .then(dfd.resolve)
+                .catch(dfd.reject);
         } else {
             // Get remote summary
             const summaries = config.uris.rapi.v1.summaries({
@@ -231,17 +233,17 @@ database.createTrigger(
             });
             summaries
                 .get(summaryId)
-                .done((summary) => {
+                .then((summary) => {
                     // Propagate activities from version to summary
                     if (Array.isArray(doc.activities)) {
                         summary.activities = doc.activities;
                     }
                     database.summaries
                         .update({ id: summaryId }, summary, { upsert: true })
-                        .done(dfd.resolve)
-                        .fail(dfd.reject);
+                        .then(dfd.resolve)
+                        .catch(dfd.reject);
                 })
-                .fail(dfd.reject);
+                .catch(dfd.reject);
         }
         return dfd.promise();
     }

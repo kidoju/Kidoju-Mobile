@@ -16,7 +16,7 @@ const {
     Class,
     // data: { Query }
 } = window.kendo;
-const logger = new Logger('strategy.mobileme');
+const logger = new Logger('strategy.mobileuser');
 
 // TODO Consider using the network plugin
 function isOffline() {

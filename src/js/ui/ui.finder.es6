@@ -70,7 +70,6 @@ const feature = {
      * @param options
      */
     loadSummaries(options) {
-        debugger;
         assert.isNonEmptyPlainObject(
             options,
             assert.format(
@@ -107,7 +106,7 @@ const feature = {
                 );
                 logger.error({
                     message: 'error loading summaries',
-                    method: 'viewModel.loadSummaries',
+                    method: 'loadSummaries',
                     error: xhr2error(xhr, status, errorThrown),
                 });
             });
@@ -136,7 +135,6 @@ const feature = {
      * @param e
      */
     onFinderViewShow(e) {
-        debugger;
         assert.isNonEmptyPlainObject(
             e,
             assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
@@ -177,13 +175,12 @@ const feature = {
         // }
         // So we really need $.deparam($.param(...))
         const { viewModel } = app;
-        debugger;
         viewModel
             .loadSummaries(
                 $.extend(
                     true,
                     {
-                        // TODO: fields could be found in models.LazySummary (use the from property not the field name) - @see https://github.com/kidoju/Kidoju-Widgets/issues/218
+                        // TODO: fields could be found in LazySummary (use the from property not the field name) - @see https://github.com/kidoju/Kidoju-Widgets/issues/218
                         fields:
                             'author,icon,metrics.comments.count,language,metrics.ratings.average,metrics.scores.average,metrics.views.count,published,tags,title,type,updated',
                         page: 1,
@@ -191,7 +188,7 @@ const feature = {
                         partition: {
                             language,
                             type: 'Test',
-                            'author.userId': config.constants.authorId,
+                            'author.userId': config.constants.authorId, // TODO
                         },
                         sort: { field: 'updated', dir: 'desc' },
                     },

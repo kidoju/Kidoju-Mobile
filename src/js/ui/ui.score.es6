@@ -140,12 +140,12 @@ const feature = {
             );
             // TODO Load activities if necessary to make the view idempotent, otherwise the following assert will fail
             assert.instanceof(
-                models.MobileActivity,
+                MobileActivity,
                 activity,
                 assert.format(
                     assert.messages.instanceof.default,
                     'activity',
-                    'app.models.MobileActivity'
+                    'MobileActivity'
                 )
             );
             assert.equal(
@@ -170,7 +170,7 @@ const feature = {
             )
                 .then(() => {
                     // Note: We cannot assign the activity, otherwise calculate will make changes that will make it dirty in MobileActivityDataSource
-                    viewModel.set(VIEW_MODEL.CURRENT.$, activity.toJSON());
+                    viewModel.set(VIEW_MODEL.CURRENT._, activity.toJSON());
                     viewModel
                         .calculate() // TODO: We should not have to recalculate what is already calculated
                         .then(() => {

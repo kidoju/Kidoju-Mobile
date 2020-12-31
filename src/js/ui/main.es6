@@ -23,11 +23,20 @@ import AppController from './ui.viewmodel.es6';
 
 // TODO remove stylesheets and use themer
 import '../../styles/ui/app.fonts.less';
+/*
 import '../../styles/vendor/kendo/web/kendo.common-bootstrap.less';
 import '../../styles/vendor/kendo/web/kendo.bootstrap.less'; // notifications
 import '../../styles/vendor/kendo/web/kendo.bootstrap.mobile.less';
+import '../../styles/vendor/kendo/web/kendo.common.less';
+import '../../styles/vendor/kendo/web/kendo.default.less'; // notifications
+import '../../styles/vendor/kendo/web/kendo.default.mobile.less';
+*/
+// import '../../../node_modules/@progress/kendo-theme-classic/dist/all.css';
+// import '../../styles/vendor/kendo/web/kendo.bootstrap.mobile.less';
+// import '../../styles/kendo/mobile/kendo.mobile.flat.scss';
+// import '../../styles/vendor/kendo/mobile/kendo.mobile.flat.less';
 // import '../../styles/ui/app.mobile.less';
-// import '../../styles/themes/app.theme.flat.less';
+import '../../styles/themes/app.theme.flat.scss';
 
 // UI Stylesheets
 import '../../styles/ui/features.scss';
@@ -57,7 +66,7 @@ window.onerror = function onerror(message, source, lineno, colno, error) {
         // Notify analytics
         /*
         if (mobile.support.ga) {
-            mobile.ga.trackException(message, true);
+           app.gatrackException(message, true);
         }
         */
         // Display alert when debugging

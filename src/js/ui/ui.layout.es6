@@ -63,10 +63,8 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
-        // Init notifications
-        // Cannot be done in onLayoutViewInit because $('#notification) is not accessible
-        // Cannot be done in the init event of the kendo.mobile.application which occurs after onLayoutViewShow
-        app.viewModel.initNotifications();
+        // Reset notifications
+        app.viewModel.resetNotifications();
         // Reset view scroller
         if (e.view.scroller instanceof Scroller) {
             // Stretched view like #correction and #player do not have a scroller
@@ -111,14 +109,14 @@ const feature = {
         } = app;
         const id =
             view.id === CONSTANTS.SLASH ? VIEW.DEFAULT : view.id.substr(1); // Remove #
-        const viewTitle = __(`${id}.viewTitle`); // Note: this supposes culture names match view id names
+        const viewTitle = __(`mobile.${id}.viewTitle`); // Note: this supposes culture names match view id names
         /*
         if (id === VIEW.SCORE) {
             viewTitle = format(
                 viewTitle,
                 viewModel.get(VIEW_MODEL.CURRENT.SCORE || 0) / 100
             );
-        } else if (id === VIEW.CORRECTION || id === VIEW.PLAYER) {
+        } else if (id === VIEW.CORRECTION._ || id === VIEW.PLAYER._) {
             viewTitle = format(
                 viewTitle,
                 viewModel.page$(),
@@ -192,18 +190,18 @@ const feature = {
         let showSummaryButton = false;
         let showSyncButton = false;
         let showSearchButton = false;
-        switch (view.id) {
+        switch (view.id.replace(CONSTANTS.HASH, CONSTANTS.EMPTY)) {
             default:
             case CONSTANTS.SLASH:
-            case CONSTANTS.HASH + VIEW.ACTIVITIES._:
+            case VIEW.ACTIVITIES._:
                 showDrawerButton = true;
                 showSyncButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.CATEGORIES._:
+            case VIEW.CATEGORIES._:
                 showDrawerButton = true;
                 showSearchButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.CORRECTION._:
+            case VIEW.CORRECTION._:
                 showDrawerButton = true;
                 showPreviousPageButton = !viewModel.isFirstPage$();
                 showNextPageButton = !viewModel.isLastPage$();
@@ -211,43 +209,43 @@ const feature = {
                 showScoreButton = viewModel.isLastPage$();
                 break;
             /*
-            case CONSTANTS.HASH + VIEW.FAVOURITES._:
+            case VIEW.FAVOURITES._:
                 showDrawerButton = true;
                 showSyncButton = true;
                 break;
             */
-            case CONSTANTS.HASH + VIEW.FINDER._:
+            case VIEW.FINDER._:
                 showDrawerButton = true;
                 showHomeButton = true;
                 // showSearchButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.NETWORK._:
+            case VIEW.NETWORK._:
                 showDrawerButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.PLAYER._:
+            case VIEW.PLAYER._:
                 showDrawerButton = true;
                 showPreviousPageButton = !viewModel.isFirstPage$();
                 showNextPageButton = !viewModel.isLastPage$();
                 showLastPageButton = !viewModel.isLastPage$();
                 showSubmitButton = viewModel.isLastPage$();
                 break;
-            case CONSTANTS.HASH + VIEW.SCORE._:
+            case VIEW.SCORE._:
                 showDrawerButton = true;
                 showSummaryButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.SETTINGS._:
+            case VIEW.SETTINGS._:
                 showDrawerButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.SIGNIN._:
+            case VIEW.SIGNIN._:
                 showUserButton = viewModel.isSavedUser$();
                 break;
-            case CONSTANTS.HASH + VIEW.SUMMARY._:
+            case VIEW.SUMMARY._:
                 showDrawerButton = true;
                 showHomeButton = true;
                 break;
-            case CONSTANTS.HASH + VIEW.SYNC._:
+            case VIEW.SYNC._:
                 break;
-            case CONSTANTS.HASH + VIEW.USER._:
+            case VIEW.USER._:
                 showPreviousUserButton =
                     viewModel.isSavedUser$() && !viewModel.isFirstUser$();
                 showNextUserButton =
@@ -327,12 +325,13 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
+        const { viewModel: { VIEW }} = app;
         const $navbar = view.header.find('.km-navbar');
         const navbar = $navbar.data('kendoMobileNavBar');
         if ($.type(text) === CONSTANTS.UNDEFINED) {
             const id =
                 view.id === CONSTANTS.SLASH ? VIEW.DEFAULT : view.id.substr(1); // Removes #
-            const viewTitle = __(`${id}.viewTitle`); // Note: this supposes culture names match view id names
+            const viewTitle = __(`mobile.${id}.viewTitle`); // Note: this supposes culture names match view id names
             navbar.title(viewTitle);
         } else {
             navbar.title(text);
@@ -374,8 +373,8 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
-        viewModel.previousUser();
-        mobile.setNavBar(view);
+        app.viewModel.previousUser();
+        app.viewModel.setNavBar(view);
     },
 
     /**
@@ -546,11 +545,11 @@ const feature = {
                             // TODO analytics
                             /*
                         if (mobile.support.ga) {
-                            mobile.ga.trackEvent(
+                           app.gatrackEvent(
                                 ANALYTICS.CATEGORY.ACTIVITY,
                                 ANALYTICS.ACTION.SCORE,
-                                viewModel.get(this.VIEW_MODEL.CURRENT.VERSION.SUMMARYID),
-                                parseInt(viewModel.get(this.VIEW_MODEL.CURRENT.SCORE), 10)
+                                viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARYID),
+                                parseInt(viewModel.get(VIEW_MODEL.CURRENT.SCORE), 10)
                             );
                         }
                         */
@@ -581,12 +580,12 @@ const feature = {
         );
         const {
             viewModel,
-            viewModel: { application, VIEW, VIEW_MODEL }
+            viewModel: { application, VIEW_MODEL }
         } = app;
         const language = __.locale;
         assert.equal(
             language,
-            viewModel.get(this.VIEW_MODEL.LANGUAGE),
+            viewModel.get(VIEW_MODEL.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("language")',
@@ -652,10 +651,9 @@ const feature = {
      */
     onNavBarSearchClick() {
         const {
-            viewModel,
             viewModel: { application, VIEW },
         } = app;
-        const language = __.locale; // viewModel.get(this.VIEW_MODEL.LANGUAGE);
+        const language = __.locale; // viewModel.get(VIEW_MODEL.LANGUAGE);
         application.navigate(
             `${CONSTANTS.HASH}${VIEW.FINDER._}?language=${encodeURIComponent(
                 language

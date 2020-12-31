@@ -74,7 +74,7 @@ class AjaxActivities extends AjaxBase {
     _getUrl(method, id) {
         const me = sessionCache.getItem(CONSTANTS.ME) || {};
         if (method === AjaxBase.METHOD.READ) {
-            // mySummaries lists private and unpublished summaries
+            // myActivities lists personal activities
             return format(
                 me.id && this._partition.actorId === me.id
                     ? config.uris.rapi.v1.myActivities

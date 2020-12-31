@@ -181,7 +181,8 @@ const BaseTransport = Class.extend({
      * @returns {*}
      */
     parameterMap(data /* , type */) {
-        return data;
+        // Clone to avoid propagating changes
+        return { ...data };
     },
 
     /**

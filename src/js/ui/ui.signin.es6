@@ -492,7 +492,6 @@ const feature = {
                 }
             })
             .catch((error) => {
-                debugger;
                 app.notification.error(__('mobile.notifications.oAuthTokenFailure'));
                 logger.error({
                     error,

@@ -9,6 +9,7 @@ import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.userevents';
 import 'kendo.mobile.application';
+import themer from '../app/app.themer.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 // import app from '../common/window.global.es6';
@@ -64,7 +65,7 @@ const AppController = BaseController.extend({
         // Initialize application
         this.application = new Application(document.body, {
             initial,
-            skin: 'bootstrap', // TODO skin: app.theme.name(),
+            skin: themer.name(),
             // http://docs.telerik.com/kendo-ui/controls/hybrid/application#hide-status-bar-in-ios-and-cordova
             // http://docs.telerik.com/platform/appbuilder/troubleshooting/archive/ios7-status-bar
             // http://www.telerik.com/blogs/everything-hybrid-web-apps-need-to-know-about-the-status-bar-in-ios7
@@ -79,7 +80,7 @@ const AppController = BaseController.extend({
                 // Fix skin variant
                 // TODO this._fixThemeVariant(e.sender.options.skin);
                 // Localize the application
-                // TODO this.localize(this.viewModel.get(VIEW_MODEL.LANGUAGE));
+                // TODO this.localize(viewModel.get(VIEW_MODEL.LANGUAGE));
                 // Fix signin page when initial page
                 // TODO mobile._fixSigninViewLocalization();
                 // Reinitialize notifications now that we know the size of .km-header
@@ -120,12 +121,10 @@ const AppController = BaseController.extend({
             error,
         });
         // Initialize application
-        debugger;
         this.application = new Application(document.body, {
             initial: `${CONSTANTS.HASH}${this.VIEW.ERROR._}`,
-            skin: 'bootstrap', // TODO skin: app.theme.name(),
+            skin: themer.name(),
             init(/* e */) {
-                debugger;
                 // hide the splash screen
                 setTimeout(() => {
                     splashScreen.hide();
@@ -153,7 +152,6 @@ const AppController = BaseController.extend({
      * Event handler for the resize event
      */
     onResize(e) {
-        debugger;
         // In Android and iOS, onResize might be triggered before kendo.mobile.Application is instantiated
         // and/or before mobile.application as a pane which would trigger an error in mobile.application.view()
         // which is a shortcut for mobile.application.pane.view()
@@ -213,7 +211,7 @@ const AppController = BaseController.extend({
             if (mobile.support.ga) {
                 var pos = e.url.indexOf('?');
                 var view = pos > 0 ? e.url.substr(0, pos) : e.url;
-                mobile.ga.trackView(view, e.url);
+                app.ga.trackView(view, e.url);
             }
         }
         */

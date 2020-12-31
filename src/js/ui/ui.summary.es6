@@ -19,11 +19,13 @@ import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
 import Logger from '../common/window.logger.es6';
 import { LazyCategory } from '../data/data.category.lazy.es6';
-import { Summary } from '../data/data.summary.es6';
+import { LazySummary } from '../data/data.summary.lazy.es6';
+import { LazyVersion } from '../data/data.version.lazy.es6';
 import { xhr2error } from '../data/data.util.es6';
 import '../widgets/widgets.markdown.es6';
 
 const {
+    format,
     mobile: {
         ui: { View },
     },
@@ -75,7 +77,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        viewModel.set(VIEW_MODEL.SUMMARY._, new Summary());
+        viewModel.set(VIEW_MODEL.SUMMARY._, new LazySummary());
     },
 
     /**
@@ -113,7 +115,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        return viewModel[VIEW_MODEL.SUMMARY._]
+        return viewModel.get(VIEW_MODEL.SUMMARY._)
             .load(options)
             .catch((xhr, status, errorThrown) => {
                 notification.error(
@@ -139,9 +141,9 @@ const feature = {
         } = app;
         const categoryId = viewModel.get(VIEW_MODEL.SUMMARY.CATEGORY_ID);
         const category = viewModel.get(VIEW_MODEL.CATEGORIES).get(categoryId);
-
         if (
             category instanceof LazyCategory &&
+            category.path &&
             $.isFunction(category.path.map) &&
             category.path.length
         ) {
@@ -184,7 +186,7 @@ const feature = {
             viewModel.get(VIEW_MODEL.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
-                'this.viewModel.get("language")',
+                'viewModel.get("language")',
                 language
             )
         );
@@ -208,34 +210,36 @@ const feature = {
     onSummaryActionPlay() {
         // assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
         const {
+            notification,
             viewModel,
-            viewModel: { VIEW_MODEL },
+            viewModel: { VIEW, VIEW_MODEL },
         } = app;
         const language = __.locale;
         assert.equal(
             language,
-            this.viewModel.get(this.VIEW_MODEL.LANGUAGE),
+            viewModel.get(VIEW_MODEL.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
-                'this.viewModel.get("language")',
+                'viewModel.get("language")',
                 language
             )
         );
         assert.equal(
             language,
-            this.viewModel.get(this.VIEW_MODEL.SUMMARY.LANGUAGE),
+            viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
-                'this.viewModel.get("summary.language")',
+                'viewModel.get("summary.language")',
                 language
             )
         );
         const summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
+        debugger;
 
         // Find latest version (version history is not available in the mobile app)
         viewModel
-            .loadLazyVersions({
-                // TODO: fields could be found in models.LazyVersion (use the from property not the field name) - @see https://github.com/kidoju/Kidoju-Widgets/issues/218
+            .loadVersions({
+                // TODO: fields could be found in LazyVersion (use the from property not the field name) - @see https://github.com/kidoju/Kidoju-Widgets/issues/218
                 fields: 'id,state,summaryId', // Note for whatever reason we also receive the type in the response payload
                 filter: { field: 'state', operator: 'eq', value: 5 },
                 partition: { language, summaryId },
@@ -243,46 +247,43 @@ const feature = {
             })
             .then(() => {
                 const version = viewModel.versions.at(0); // First is latest version
-                assert.instanceof(
-                    models.LazyVersion,
-                    version,
-                    assert.format(
-                        assert.messages.instanceof.default,
-                        'version',
-                        'models.LazyVersion'
-                    )
-                );
-                assert.match(
-                    RX_MONGODB_ID,
-                    version.get('id'),
-                    assert.format(
-                        assert.messages.match.default,
-                        'version.get(\'id")',
-                        RX_MONGODB_ID
-                    )
-                );
-                // version has no language - we therfore assume same langauge
-                // assert.equal(language, version.get('language'), assert.format(assert.messages.equal.default, 'version.get(\'language")', language));
-                assert.equal(
-                    summaryId,
-                    version.get('summaryId'),
-                    assert.format(
-                        assert.messages.equal.default,
-                        'version.get(\'summaryId")',
-                        summaryId
-                    )
-                );
-                viewModel.application.navigate(
-                    `${CONSTANTS.HASH}${
-                        VIEW.PLAYER
-                    }?language=${window.encodeURIComponent(
-                        language
-                    )}&summaryId=${window.encodeURIComponent(
-                        summaryId
-                    )}&versionId=${window.encodeURIComponent(
-                        version.get('id')
-                    )}`
-                );
+                if (version instanceof LazyVersion) {
+                    assert.match(
+                        CONSTANTS.RX_MONGODB_ID,
+                        version.get('id'),
+                        assert.format(
+                            assert.messages.match.default,
+                            'version.get("id")',
+                            CONSTANTS.RX_MONGODB_ID
+                        )
+                    );
+                    // version has no language - we therefore assume same language
+                    // assert.equal(language, version.get('language'), assert.format(assert.messages.equal.default, 'version.get(\'language")', language));
+                    assert.equal(
+                        summaryId,
+                        version.get('summaryId'),
+                        assert.format(
+                            assert.messages.equal.default,
+                            'version.get("summaryId")',
+                            summaryId
+                        )
+                    );
+                    viewModel.application.navigate(
+                        `${CONSTANTS.HASH}${
+                            VIEW.PLAYER._
+                        }?language=${window.encodeURIComponent(
+                            language
+                        )}&summaryId=${window.encodeURIComponent(
+                            summaryId
+                        )}&versionId=${window.encodeURIComponent(
+                            version.get('id')
+                        )}`
+                    );
+                } else {
+                    notification.error(
+                        __('mobile.notifications.versionLoadFailure')
+                    );
+                }
             });
     },
 
@@ -291,24 +292,28 @@ const feature = {
      * @see https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin
      */
     onSummaryActionShare() {
-        if (mobile.support.socialsharing) {
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        if (app.support.socialsharing) {
             const culture = __('mobile.summary.socialSharing');
-            mobile.socialsharing.shareWithOptions(
+            app.socialsharing.shareWithOptions(
                 {
-                    message: kendo.format(
+                    message: format(
                         culture.message, // not supported on some apps (Facebook, Instagram)
-                        this.viewModel.get(this.VIEW_MODEL.SUMMARY.TITLE),
-                        // this.viewModel.summary.summaryUri$(),
-                        this.viewModel.get(this.VIEW_MODEL.SUMMARY.DESCRIPTION)
+                        viewModel.get(VIEW_MODEL.SUMMARY.TITLE),
+                        // viewModel.get(VIEW_MODEL.SUMMARY._).summaryUri$(),
+                        viewModel.get(VIEW_MODEL.SUMMARY.DESCRIPTION)
                     ),
-                    subject: kendo.format(
+                    subject: format(
                         culture.subject, // for email
-                        this.viewModel.get(this.VIEW_MODEL.SUMMARY.TITLE)
+                        viewModel.get(VIEW_MODEL.SUMMARY.TITLE)
                     ),
                     // TODO Add files - https://github.com/kidoju/Kidoju-Mobile/issues/178
                     // files: ['www/icon.png'], // an array of filenames either locally or remotely
                     // here, www/icon.png is included in email and prevents facebook from using the file linked in the web page via og:image meta tag
-                    url: this.viewModel.summary.summaryUri$(),
+                    url: viewModel.get(VIEW_MODEL.SUMMARY._).summaryUri$(),
                     chooserTitle: culture.chooserTitle, // Android only, you can override the default share sheet title
                 },
                 (result) => {
@@ -321,22 +326,22 @@ const feature = {
                     // Track with Google Analytics
                     /*
                     if (mobile.support.ga) {
-                        mobile.ga.trackEvent(
+                       app.gatrackEvent(
                             ANALYTICS.CATEGORY.SUMMARY,
                             ANALYTICS.ACTION.SHARE + result.app,
-                            this.viewModel.get(this.VIEW_MODEL.SUMMARY.ID)
+                            viewModel.get(VIEW_MODEL.SUMMARY.ID)
                         );
                     }
                     */
                 },
                 (msg) => {
-                    // mobile.dialogs.error('Sharing failed: ' + msg);
+                    // app.dialogs.error('Sharing failed: ' + msg);
                     app.notification.error(
                         __('mobile.notifications.sharingFailure')
                     );
                     logger.error({
                         message: 'Error sharing',
-                        method: 'mobile.onSummaryActionShare',
+                        method: 'onSummaryActionShare',
                         error: new Error(msg),
                     });
                 }
@@ -348,20 +353,26 @@ const feature = {
      * Event handler triggered when clicking the feedback option in the action sheet displayed from the GO button of summaries
      */
     onSummaryActionFeedback() {
-        const url = kendo.format(
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const url = format(
             app.constants.feedbackUrl,
             __.locale,
-            encodeURIComponent(this.viewModel.summary.summaryUri$())
+            encodeURIComponent(
+                viewModel.get(VIEW_MODEL.SUMMARY._).summaryUri$()
+            )
         );
         // targeting _system should open the web browser instead of the InApp browser (target = _blank)
-        if (mobile.support.inAppBrowser) {
-            mobile.InAppBrowser.open(url, '_system', 'usewkwebview=yes');
+        if (app.support.inAppBrowser) {
+            app.InAppBrowser.open(url, '_system', 'usewkwebview=yes');
         } else {
             window.open(url, '_system');
         }
         /*
-        if (mobile.support.ga) {
-            mobile.ga.trackEvent(
+        if (app.support.ga) {
+           app.gatrackEvent(
                 ANALYTICS.CATEGORY.GENERAL,
                 ANALYTICS.ACTION.FEEDBACK
             );

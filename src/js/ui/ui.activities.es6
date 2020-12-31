@@ -5,7 +5,7 @@
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
-// import $ from 'jquery';
+import $ from 'jquery';
 import 'kendo.mobile.view';
 import __ from '../app/app.i18n.es6';
 import app from '../common/window.global.es6';
@@ -56,14 +56,18 @@ const feature = {
      * Reset
      */
     reset() {
-        this.resetActivities();
+        app.viewModel.resetActivities();
     },
 
     /**
      * Reset activities
      */
     resetActivities() {
-        this[this.VIEW_MODEL.ACTIVITIES] = new LazyActivityDataSource(); // models.MobileActivityDataSource()
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        viewModel[VIEW_MODEL.ACTIVITIES] = new LazyActivityDataSource();
     },
 
     /**
@@ -96,24 +100,29 @@ const feature = {
                 CONSTANTS.RX_MONGODB_ID
             )
         );
-        const activities = this[VIEW_MODEL.ACTIVITIES];
+        debugger;
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        const activities = viewModel[VIEW_MODEL.ACTIVITIES];
         const partition = activities.transport.partition();
         const dfd = $.Deferred();
         if (
-            partition['version.language'] === options.language &&
-            partition['actor.userId'] === options.userId &&
+            partition.language === options.language &&
+            partition.actorId === options.userId &&
             activities.total() > 0 &&
-            activities.at(0).version.language === options.language &&
+            activities.at(0).language === options.language &&
             activities.at(0).actor.id === options.userId
         ) {
             dfd.resolve();
         } else {
             activities.transport.partition({
-                'actor.userId': options.userId,
+                actorId: options.userId,
                 // Note: Until we introduce bundles, synchronization remains limited to score activities with the same scheme
                 scheme: config.constants.appScheme,
                 type: 'Score',
-                'version.language': options.language,
+                language: options.language,
             });
             activities._filter = undefined;
             activities
@@ -126,7 +135,7 @@ const feature = {
                     );
                     logger.error({
                         message: 'error loading activities',
-                        method: 'viewModel.loadActivities',
+                        method: 'loadActivities',
                         error: xhr2error(xhr, status, errorThrown),
                     });
                 });
@@ -164,18 +173,18 @@ const feature = {
             )
         );
         const { language, userId } = e.view.params;
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
         assert.equal(
             language,
             __.locale,
-            assert.format(
-                assert.messages.equal.default,
-                '__.locale',
-                language
-            )
+            assert.format(assert.messages.equal.default, '__.locale', language)
         );
         assert.equal(
             language,
-            app.viewModel.get(VIEW_MODEL.LANGUAGE),
+            viewModel.get(VIEW_MODEL.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("language")',
@@ -184,17 +193,17 @@ const feature = {
         );
         assert.equal(
             userId,
-            app.viewModel.get(VIEW_MODEL.USER.SID),
+            viewModel.get(VIEW_MODEL.USER.ID),
             assert.format(
                 assert.messages.equal.default,
-                'viewModel.get("user.sid")',
+                'viewModel.get("user.id")',
                 userId
             )
         );
 
         // Always reload
-        app.viewModel.loadActivities({ language, userId }).always(() => {
-            app.viewModel.onGenericViewShow(e);
+        viewModel.loadActivities({ language, userId }).always(() => {
+            viewModel.onGenericViewShow(e);
         });
     },
 
@@ -216,7 +225,8 @@ const feature = {
                 CONSTANTS.NUMBER
             )
         );
-        const view = app.viewModel.application.view();
+        const { viewModel } = app;
+        const view = viewModel.application.view();
         const { content } = view;
         if (!e.index) {
             // ListView

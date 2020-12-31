@@ -40,7 +40,7 @@ const LocalTransport = LazyLocalTransport.extend({
             item.updated = new Date();
         }
         */
-        if (!item[this.idField]) {
+        if (!item[this.idField()]) {
             item[SYNC_STATE.FIELD] = SYNC_STATE.CREATED;
         }
         // Validate item against partition

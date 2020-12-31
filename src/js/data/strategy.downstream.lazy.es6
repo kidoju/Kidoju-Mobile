@@ -77,6 +77,7 @@ const LazyDownstreamStrategy = Class.extend({
      * @param value
      */
     partition(value) {
+        this._localTransport.partition(value);
         return this._remoteTransport.partition(value);
     },
 
@@ -85,6 +86,7 @@ const LazyDownstreamStrategy = Class.extend({
      * @param value
      */
     projection(value) {
+        this._localTransport.projection(value);
         return this._remoteTransport.projection(value);
     },
 

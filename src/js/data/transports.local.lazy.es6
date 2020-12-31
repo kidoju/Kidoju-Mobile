@@ -99,7 +99,8 @@ const LazyLocalTransport = BaseTransport.extend({
                 operator: 'neq',
                 value: SYNC_STATE.DESTROYED,
             });
-            query = convertFilter(options.data.filter);
+            // TODO Sort Order?
+            query = convertFilter(query.filter);
             this._collection
                 .find(query, this.projection())
                 .then((response) => {

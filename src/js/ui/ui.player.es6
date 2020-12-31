@@ -10,10 +10,11 @@ import $ from 'jquery';
 import 'kendo.mobile.button';
 import 'kendo.mobile.view';
 // import 'kendo.mobile.scrollview';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import app from '../common/window.global.es6';
-import Logger from '../common/window.logger.es6';
+// import Logger from '../common/window.logger.es6';
 
 const {
     attr,
@@ -27,7 +28,7 @@ const {
     roleSelector,
     ui,
 } = window.kendo;
-const logger = new Logger('ui.player');
+// const logger = new Logger('ui.player');
 
 /**
  * Player feature
@@ -42,9 +43,6 @@ const feature = {
      * View
      */
     VIEW: {
-        CORRECTION: {
-            _: 'correction',
-        },
         PLAYER: {
             _: 'player',
         },
@@ -79,7 +77,7 @@ const feature = {
             .find('div.heading')
             .off()
             // .on(CONSTANTS.CLICK + ' ' + TAP, e => {
-            .on(`${CONSTANTS.CLICK} ${CONSTANTS.TOUCHSTART}`, (e) => {
+            .on(`${CONSTANTS.CLICK} ${CONSTANTS.TOUCHSTART}`, (/* e */) => {
                 e.preventDefault(); // So that a tap does not trigger a click, resulting in this code being executed twice thus cancelling TTS
                 const $button = $(e.currentTarget).find(
                     'a[data-role="button"][data-icon="ear"]'
@@ -121,6 +119,11 @@ const feature = {
                 'e.view.params'
             )
         );
+
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
 
         // Scan params
         const { language } = e.view.params;
@@ -170,12 +173,12 @@ const feature = {
         // Rebuild stage and bind viewModel
         bind(
             e.view.content.find(roleSelector('stage')),
-            app.mobile.viewModel,
+            viewModel,
             ui,
             dataviz.ui,
             mobile.ui
         );
-        mobile._resizeStage(e.view);
+        // viewModel._resizers.stage(e, e.view);
 
         // load data
         $.when(
@@ -188,24 +191,24 @@ const feature = {
             // Load activities to save score in datasource
             viewModel.loadActivities({
                 language,
-                userId: viewModel.get(VIEW_MODEL.USER.SID),
+                userId: viewModel.get(VIEW_MODEL.USER.ID),
             })
         )
             .then(() => {
                 viewModel.resetCurrent();
                 viewModel.set(
-                    VIEW_MODEL.SELECTED_PAGE,
-                    viewModel.get(VIEW_MODEL.PAGES_COLLECTION).at(0)
+                    VIEW_MODEL.PAGE,
+                    viewModel[VIEW_MODEL.PAGES].at(0)
                 );
             })
             .always(() => {
-                mobile.onGenericViewShow(e);
+                viewModel.onGenericViewShow(e);
                 app.notification.info(
                     __('mobile.notifications.pageNavigationInfo')
                 );
                 /*
                 if (mobile.support.ga) {
-                    mobile.ga.trackEvent(
+                   app.gatrackEvent(
                         ANALYTICS.CATEGORY.SUMMARY,
                         ANALYTICS.ACTION.PLAY,
                         summaryId
@@ -234,11 +237,11 @@ const feature = {
             )
         );
 
-        // Destroy the stage (necessary to hide the floating toolbar and avoid initializing widgets simultaneously in correction and player modes)
+        // Destroy the stage (necessary to avoid initializing widgets simultaneously in correction and player modes)
         destroy(e.view.content.find(roleSelector('stage')));
 
         // Cancel any utterance spoken
-        app.tts.cancelSpeak();
+        // app.tts.cancelSpeak();
     },
 };
 

@@ -7,15 +7,19 @@
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
-import { editorUri, playerUri } from '../app/app.uris.es6';
-import CONSTANTS from '../common/window.constants.es6';
-import BaseModel from './data.base.es6';
+import db from '../app/app.db.es6';
 import __ from '../app/app.i18n.es6';
 import { getSummaryReference } from '../app/app.partitions.es6';
-import themer from '../app/app.themer.es6';
-import LazyRemoteTransport from './transports.remote.lazy.es6';
+import themer from '../app/app.themer.es6'; // TODO
+import { editorUri, playerUri } from '../app/app.uris.es6';
+import CONSTANTS from '../common/window.constants.es6';
 import AjaxVersions from '../rapi/rapi.versions.es6';
-import { normalizeSchema } from './data.util.es6';
+import BaseModel from './data.base.es6';
+import { isMobileApp, normalizeSchema } from './data.util.es6';
+import extendModelWithTransport from './mixins.transport.es6';
+import LocalTransport from './transports.local.es6';
+import LazyRemoteTransport from './transports.remote.lazy.es6';
+import DownstreamStrategy from './strategy.downstream.es6';
 
 const {
     data: { DataSource },
@@ -75,14 +79,40 @@ const LazyVersion = BaseModel.define({
 });
 
 /**
- * lazyVersionTransport
+ * localTransport
  */
-const lazyVersionTransport = new LazyRemoteTransport({
+const localTransport = new LocalTransport({
+    collection: db.versions,
+    partition: getSummaryReference(),
+    projection: BaseModel.projection(LazyVersion),
+});
+
+/**
+ * remoteTransport
+ */
+const remoteTransport = new LazyRemoteTransport({
     collection: new AjaxVersions({
         partition: getSummaryReference(),
         projection: BaseModel.projection(LazyVersion),
     }),
 });
+
+/**
+ * transport
+ */
+/* eslint-disable prettier/prettier */
+const transport = isMobileApp()
+    ? new DownstreamStrategy({
+        localTransport,
+        remoteTransport,
+    })
+    : remoteTransport;
+/* eslint-enable prettier/prettier */
+
+/**
+ * Extend LazyVersion with transport
+ */
+extendModelWithTransport(LazyVersion, transport);
 
 /**
  * LazyVersionDataSource
@@ -105,7 +135,7 @@ const LazyVersionDataSource = DataSource.extend({
                 },
                 options,
                 {
-                    transport: lazyVersionTransport,
+                    transport,
                     schema: normalizeSchema({
                         modelBase: LazyVersion,
                         model: LazyVersion,
@@ -124,8 +154,7 @@ const LazyVersionDataSource = DataSource.extend({
                                         item.state === CONSTANTS.WORKFLOW.DRAFT
                                             ? __('webapp.versions.draft.name')
                                             : format(
-                                                __('webapp.versions')
-                                                    .published.name,
+                                                __('webapp.versions.published.name'),
                                                 response.data.length - index
                                             );
                                     /* eslint-enable prettier/prettier */

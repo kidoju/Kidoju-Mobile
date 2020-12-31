@@ -10,28 +10,31 @@
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
 // eslint-disable-next-line import/extensions, import/no-unresolved
 import $ from 'jquery';
+import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
+import app from '../common/window.global.es6';
 import Logger from '../common/window.logger.es6';
+import { Page, PageDataSource } from '../data/data.page.es6';
+import { xhr2error } from '../data/data.util.es6';
 import Version from '../data/data.version.es6';
 import { LazyVersionDataSource } from '../data/data.version.lazy.es6';
 
 const logger = new Logger('ui.versions');
 
-/**
- * Extension
- */
-const extension = {
+const feature = {
     /**
      * Name
      */
-    name: 'version',
+    _name: 'versions',
 
     /**
      * View
      */
     VIEW: {
-        VERSION: { _: 'version' },
+        VERSION: {
+            _: 'version',
+        },
     },
 
     /**
@@ -40,12 +43,13 @@ const extension = {
     VIEW_MODEL: {
         VERSION: {
             _: 'version',
-            // ID: 'version.id',
-            // LANGUAGE: 'version.language',
+            ID: 'version.id',
+            LANGUAGE: 'version.language',
             STREAM: {
+                _: 'version.stream',
                 PAGES: 'version.stream.pages',
             },
-            // SUMMARYID: 'version.summaryId'
+            SUMMARYID: 'version.summaryId',
         },
         VERSIONS: 'versions',
     },
@@ -54,15 +58,19 @@ const extension = {
      * Reset
      */
     reset() {
-        this.resetVersions();
+        app.viewModel.resetVersions();
     },
 
     /**
      * Reset versions
      */
     resetVersions() {
-        this.set(VIEW_MODEL.VERSION._, new Version()); // new models.Version()
-        this[VIEW_MODEL.VERSIONS] = new LazyVersionDataSource(); // new models.LazyVersionDataSource()
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        viewModel.set(VIEW_MODEL.VERSION._, new Version());
+        viewModel[VIEW_MODEL.VERSIONS] = new LazyVersionDataSource();
     },
 
     /**
@@ -71,69 +79,149 @@ const extension = {
      * @param options
      * @returns {*}
      */
-    loadVersion: function (options) {
-
-        function versionLoadFailure(xhr, status, error) {
-            app.notification.error(__('mobile.notifications.versionLoadFailure'));
+    loadVersion(options) {
+        function versionLoadFailure(xhr, status, errorThrown) {
+            app.notification.error(
+                __('mobile.notifications.versionLoadFailure')
+            );
             logger.error({
                 message: 'error loading version',
-                method: 'viewModel.loadVersion',
-                data: { language: options.language, summaryId: options.summaryId, versionId: options.versionId, response: parseResponse(xhr) }
+                method: 'loadVersion',
+                data: options,
+                error: xhr2error(xhr, status, errorThrown),
             });
         }
 
         // Load version and pages
-        assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
-        assert.match(RX_LANGUAGE, options.language, assert.messages.match.default, 'options.language', RX_LANGUAGE);
-        assert.match(RX_MONGODB_ID, options.summaryId, assert.messages.match.default, 'options.summaryId', RX_MONGODB_ID);
-        assert.match(RX_MONGODB_ID, options.id, assert.messages.match.default, 'options.id', RX_MONGODB_ID);
-        return viewModel.version.load(options)
-        .then(function () {
-            // Load stream
-            viewModel.version.stream.load()
-            .then(function () {
-                var promises = [];
-                var pageCollectionDataSource = viewModel.get(VIEW_MODEL.PAGES_COLLECTION);
-                assert.instanceof(PageCollectionDataSource, pageCollectionDataSource, assert.format(assert.messages.instanceof.default, 'pageCollectionDataSource', 'kidoju.data.PageCollectionDataSource'));
-                $.each(pageCollectionDataSource.data(), function (idx, page) {
-                    assert.instanceof(Page, page, assert.format(assert.messages.instanceof.default, 'page', 'kidoju.data.Page'));
-                    promises.push(page.load());
-                });
-                $.when.apply($, promises).catch(versionLoadFailure);
+        assert.isNonEmptyPlainObject(
+            options,
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
+        );
+        assert.match(
+            CONSTANTS.RX_LANGUAGE,
+            options.language,
+            assert.messages.match.default,
+            'options.language',
+            CONSTANTS.RX_LANGUAGE
+        );
+        assert.match(
+            CONSTANTS.RX_MONGODB_ID,
+            options.summaryId,
+            assert.messages.match.default,
+            'options.summaryId',
+            CONSTANTS.RX_MONGODB_ID
+        );
+        assert.match(
+            CONSTANTS.RX_MONGODB_ID,
+            options.id,
+            assert.messages.match.default,
+            'options.id',
+            CONSTANTS.RX_MONGODB_ID
+        );
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        return viewModel
+            .get(VIEW_MODEL.VERSION._)
+            .load(options)
+            .then(() => {
+                // Load stream
+                viewModel
+                    .get(VIEW_MODEL.VERSION.STREAM._)
+                    .load()
+                    .then(() => {
+                        const promises = [];
+                        debugger;
+                        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+                        assert.instanceof(
+                            PageDataSource,
+                            pageDataSource,
+                            assert.format(
+                                assert.messages.instanceof.default,
+                                'pageDataSource',
+                                'PageDataSource'
+                            )
+                        );
+                        $.each(pageDataSource.data(), (idx, page) => {
+                            assert.instanceof(
+                                Page,
+                                page,
+                                assert.format(
+                                    assert.messages.instanceof.default,
+                                    'page',
+                                    'Page'
+                                )
+                            );
+                            promises.push(page.load());
+                        });
+                        $.when(...promises).catch(versionLoadFailure);
+                    })
+                    .catch(versionLoadFailure);
             })
             .catch(versionLoadFailure);
-        })
-        .catch(versionLoadFailure);
-
     },
 
     /**
      * Load lazy versions of a summary
      * @param options
      */
-    loadLazyVersions: function (options) {
-        assert.isNonEmptyPlainObject(options, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options'));
-        assert.isNonEmptyPlainObject(options.partition, assert.format(assert.messages.isNonEmptyPlainObject.default, 'options.partition'));
-        assert.match(RX_LANGUAGE, options.partition.language, assert.messages.match.default, 'options.partition.language', RX_LANGUAGE);
-        assert.match(RX_MONGODB_ID, options.partition.summaryId, assert.messages.match.default, 'options.partition.summaryId', RX_MONGODB_ID);
-        return viewModel.versions.load(options)
-        .catch(function (xhr, status, error) {
-            app.notification.error(__('mobile.notifications.versionsLoadFailure'));
-            logger.error({
-                message: 'error loading versions',
-                method: 'viewModel.loadLazyVersions',
-                data: {
-                    options: options,
-                    status: status,
-                    error: error,
-                    response: parseResponse(xhr)
-                }
+    loadVersions(options) {
+        assert.isNonEmptyPlainObject(
+            options,
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options'
+            )
+        );
+        assert.isNonEmptyPlainObject(
+            options.partition,
+            assert.format(
+                assert.messages.isNonEmptyPlainObject.default,
+                'options.partition'
+            )
+        );
+        assert.match(
+            CONSTANTS.RX_LANGUAGE,
+            options.partition.language,
+            assert.messages.match.default,
+            'options.partition.language',
+            CONSTANTS.RX_LANGUAGE
+        );
+        assert.match(
+            CONSTANTS.RX_MONGODB_ID,
+            options.partition.summaryId,
+            assert.messages.match.default,
+            'options.partition.summaryId',
+            CONSTANTS.RX_MONGODB_ID
+        );
+        const {
+            viewModel,
+            viewModel: { VIEW_MODEL },
+        } = app;
+        // Update partition to designate the current summary (from hash)
+        viewModel[VIEW_MODEL.VERSIONS].transport.partition(options.partition);
+        // Query the data source
+        return app.viewModel[VIEW_MODEL.VERSIONS]
+            .query(options)
+            .catch((xhr, status, errorThrown) => {
+                app.notification.error(
+                    __('mobile.notifications.versionsLoadFailure')
+                );
+                logger.error({
+                    message: 'error loading versions',
+                    method: 'loadVersions',
+                    data: options,
+                    error: xhr2error(xhr, status, errorThrown),
+                });
             });
-        });
     },
 };
 
 /**
  * Default export
  */
-export default extension;
+export default feature;

@@ -16,9 +16,11 @@ import player from './ui.player.es6';
 import score from './ui.score.es6';
 import settings from './ui.settings.es6';
 import signin from './ui.signin.es6';
+import stage from './ui.stage.es6';
 import summary from './ui.summary.es6';
 import sync from './ui.sync.es6';
 import user from './ui.user.es6';
+import versions from './ui.versions.es6';
 
 const features = [
     // Add features here
@@ -37,9 +39,11 @@ const features = [
     score,
     settings,
     signin,
+    stage,
     summary,
     sync,
     user,
+    versions,
 ];
 
 export default features;
