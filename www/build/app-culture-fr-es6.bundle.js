@@ -1,18 +1,16 @@
-/*! Copyright ©2013-2019 Memba® Sarl. All rights reserved. - Version 0.3.8 dated 17-Jun-2020 */
-(window["webpackJsonp"] = window["webpackJsonp"] || []).push([["app-culture-fr-es6"],{
+(self["webpackChunkKidoju_Mobile"] = self["webpackChunkKidoju_Mobile"] || []).push([["app-culture-fr-es6"],{
 
 /***/ "./src/js/cultures/app.culture.fr.es6":
 /*!********************************************!*\
   !*** ./src/js/cultures/app.culture.fr.es6 ***!
   \********************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mobile_fr_es6__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mobile.fr.es6 */ "./src/js/cultures/mobile.fr.es6");
-/* harmony import */ var _kendo_fixes_fr_es6__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./kendo.fixes.fr.es6 */ "./src/js/cultures/kendo.fixes.fr.es6");
-/* harmony import */ var _common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../common/window.global.es6 */ "./src/js/common/window.global.es6");
+/* harmony import */ var _webapp_locales_fr_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../webapp/locales/fr.json */ "./webapp/locales/fr.json");
+/* harmony import */ var _kendo_fixes_fr_es6__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./kendo.fixes.fr.es6 */ "./src/js/cultures/kendo.fixes.fr.es6");
 /* harmony import */ var _vendor_kendo_cultures_kendo_culture_fr_FR__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../vendor/kendo/cultures/kendo.culture.fr-FR */ "./src/js/vendor/kendo/cultures/kendo.culture.fr-FR.js");
 /* harmony import */ var _vendor_kendo_cultures_kendo_culture_fr_FR__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_vendor_kendo_cultures_kendo_culture_fr_FR__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _vendor_kendo_messages_kendo_messages_fr_FR__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../vendor/kendo/messages/kendo.messages.fr-FR */ "./src/js/vendor/kendo/messages/kendo.messages.fr-FR.js");
@@ -31,7 +29,6 @@ __webpack_require__.r(__webpack_exports__);
 // import editors from './editors.fr.es6';
 // import libraries from './libraries.fr.es6';
  // import tools from './tools.fr.es6';
-// import webapp from '../../../webapp/locales/fr.json';
 
 
 
@@ -42,10 +39,19 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-window.kendo.culture('fr-FR'); // TODO requires 'kendo.core'
+/**
+ * Requires kendo.core
+ */
 
-_common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__["default"].cultures = _common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__["default"].cultures || {};
-_common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__["default"].cultures.fr = _mobile_fr_es6__WEBPACK_IMPORTED_MODULE_0__["default"];
+window.kendo.culture('fr-FR');
+/**
+ * Default export
+ */
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  mobile: _mobile_fr_es6__WEBPACK_IMPORTED_MODULE_0__.default,
+  webapp: _webapp_locales_fr_json__WEBPACK_IMPORTED_MODULE_1__
+});
 
 /***/ }),
 
@@ -53,8 +59,7 @@ _common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__["default"].cultures.fr = 
 /*!********************************************!*\
   !*** ./src/js/cultures/kendo.fixes.fr.es6 ***!
   \********************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -73,10 +78,10 @@ var ui = window.kendo.mobile.ui;
 if (ui.ListView) {
   // Beware: this makes all mobile list views filterable by default
   // So non-filterable list views need to have filterable explicitly set to false
-  ui.ListView.prototype.options.filterable = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, ui.ListView.prototype.options.filterable, {
+  ui.ListView.prototype.options.filterable = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, ui.ListView.prototype.options.filterable, {
     placeholder: 'Rechercher...'
   });
-  ui.ListView.prototype.options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, ui.ListView.prototype.options.messages, {
+  ui.ListView.prototype.options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, ui.ListView.prototype.options.messages, {
     loadMoreText: 'Plus de résultats'
   });
 }
@@ -87,8 +92,7 @@ if (ui.ListView) {
 /*!***************************************!*\
   !*** ./src/js/cultures/mobile.fr.es6 ***!
   \***************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -411,8 +415,7 @@ var res = {
 /*!****************************************!*\
   !*** ./src/js/cultures/widgets.fr.es6 ***!
   \****************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -452,7 +455,7 @@ var AssetManager = ui.AssetManager,
 
 if (AssetManager) {
   var options = AssetManager.prototype.options;
-  options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, options.messages, {
+  options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, options.messages, {
     toolbar: {
       upload: 'Mettre en ligne',
       // comme sur Youtube.fr
@@ -475,7 +478,7 @@ if (AssetManager) {
 
 if (BaseDialog) {
   var _options = BaseDialog.prototype.options;
-  _options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options.messages, {
+  _options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options.messages, {
     title: {
       error: 'Erreur',
       info: 'Information',
@@ -525,7 +528,7 @@ if (BaseDialog) {
 
 if (CodeEditor) {
   var _options2 = CodeEditor.prototype.options;
-  _options2.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options2.messages, {
+  _options2.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options2.messages, {
     formula: 'Formule:',
     notApplicable: 'N/A',
     solution: 'Solution:',
@@ -545,7 +548,7 @@ if (CodeEditor) {
 
 if (Explorer) {
   var _options3 = Explorer.prototype.options;
-  _options3.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options3.messages, {
+  _options3.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options3.messages, {
     empty: 'Rien à afficher'
   });
 }
@@ -554,7 +557,7 @@ if (Explorer) {
 
 if (ImageList) {
   var _options4 = ImageList.prototype.options;
-  _options4.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options4.messages, {
+  _options4.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options4.messages, {
     toolbar: {
       add: 'Ajouter'
     },
@@ -569,14 +572,14 @@ if (ImageList) {
 
 if (MarkEditor) {
   var _options5 = MarkEditor.prototype.options;
-  _options5.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options5.messages, {
+  _options5.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options5.messages, {
     image: 'Une image sans description',
     link: 'Cliquez ici'
   });
 }
 
 if (markeditor && markeditor.messages.dialogs) {
-  markeditor.messages.dialogs = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, markeditor.messages.dialogs, {
+  markeditor.messages.dialogs = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, markeditor.messages.dialogs, {
     cancel: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Annuler',
     okText: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK',
     headingsDialog: {
@@ -616,7 +619,7 @@ if (markeditor && markeditor.messages.dialogs) {
 }
 
 if (markeditor && markeditor.messages.toolbar) {
-  markeditor.messages.toolbar = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, markeditor.messages.toolbar, {
+  markeditor.messages.toolbar = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, markeditor.messages.toolbar, {
     undo: 'Annuler',
     redo: 'Rétablir',
     headings: 'Titres',
@@ -645,7 +648,7 @@ if (markeditor && markeditor.messages.toolbar) {
 
 
 if (mathinput && mathinput.messages.dialogs) {
-  mathinput.messages.dialogs = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, mathinput.messages.dialogs, {
+  mathinput.messages.dialogs = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, mathinput.messages.dialogs, {
     keypad: {
       title: 'Clavier',
       buttons: {
@@ -861,7 +864,7 @@ if (mathinput && mathinput.messages.dialogs) {
 }
 
 if (mathinput && mathinput.messages.toolbar) {
-  mathinput.messages.toolbar = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, mathinput.messages.toolbar, {
+  mathinput.messages.toolbar = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, mathinput.messages.toolbar, {
     field: {
       title: 'Zone de saisie'
     },
@@ -1086,7 +1089,7 @@ if (mathinput && mathinput.messages.toolbar) {
 
 if (MediaPlayer) {
   var _options6 = MediaPlayer.prototype.options;
-  _options6.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options6.messages, {
+  _options6.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options6.messages, {
     play: 'Jouer/Pauser',
     mute: 'Avec/Sans son',
     full: 'Plein écran',
@@ -1098,7 +1101,7 @@ if (MediaPlayer) {
 
 if (MultiInput) {
   var _options7 = MultiInput.prototype.options;
-  _options7.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options7.messages, {
+  _options7.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options7.messages, {
     clear: 'Effacer',
     delete: 'Supprimer'
   });
@@ -1108,7 +1111,7 @@ if (MultiInput) {
 
 if (MultiQuiz) {
   var _options8 = MultiQuiz.prototype.options;
-  _options8.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options8.messages, {
+  _options8.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options8.messages, {
     placeholder: 'Sélectionner...'
   });
 }
@@ -1117,7 +1120,7 @@ if (MultiQuiz) {
 
 if (Navigation) {
   var _options9 = Navigation.prototype.options;
-  _options9.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options9.messages, {
+  _options9.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options9.messages, {
     empty: 'Rien à afficher'
   });
 }
@@ -1126,7 +1129,7 @@ if (Navigation) {
 
 if (PlayBar) {
   var _options10 = PlayBar.prototype.options;
-  _options10.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options10.messages, {
+  _options10.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options10.messages, {
     empty: 'Rien à afficher',
     page: 'Page',
     of: 'de {0}',
@@ -1143,7 +1146,7 @@ if (PlayBar) {
 
 if (PropertyGrid) {
   var _options11 = PropertyGrid.prototype.options;
-  _options11.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options11.messages, {
+  _options11.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options11.messages, {
     property: 'Propriété',
     value: 'Valeur'
   });
@@ -1153,7 +1156,7 @@ if (PropertyGrid) {
 
 if (Quiz) {
   var _options12 = Quiz.prototype.options;
-  _options12.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options12.messages, {
+  _options12.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options12.messages, {
     optionLabel: 'Sélectionner...'
   });
 }
@@ -1162,7 +1165,7 @@ if (Quiz) {
 
 if (Social) {
   var _options13 = Social.prototype.options;
-  _options13.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options13.messages, {
+  _options13.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options13.messages, {
     classroom: 'Partager sur Google Classroom',
     facebook: 'Partager sur Facebook',
     google: 'Partager sur Google+',
@@ -1176,7 +1179,7 @@ if (Social) {
 
 if (Stage) {
   var _options14 = Stage.prototype.options;
-  _options14.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options14.messages, {
+  _options14.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options14.messages, {
     contextMenu: {
       delete: 'Supprimer',
       duplicate: 'Dupliquer'
@@ -1189,7 +1192,7 @@ if (Stage) {
 
 if (StyleEditor) {
   var _options15 = StyleEditor.prototype.options;
-  _options15.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options15.messages, {
+  _options15.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options15.messages, {
     columns: {
       name: 'Nom',
       value: 'Valeur'
@@ -1211,11 +1214,10 @@ if (StyleEditor) {
 /*!*************************************************************!*\
   !*** ./src/js/vendor/kendo/cultures/kendo.culture.fr-FR.js ***!
   \*************************************************************/
-/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1242,9 +1244,9 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 (function(f){
     if (true) {
         !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! kendo.core */ "./src/js/vendor/kendo/kendo.core.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (f),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+		(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
     } else {}
 }(function(){
 (function( window, undefined ) {
@@ -1318,11 +1320,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 /*!**************************************************************!*\
   !*** ./src/js/vendor/kendo/messages/kendo.messages.fr-FR.js ***!
   \**************************************************************/
-/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1349,9 +1350,9 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 (function(f){
     if (true) {
         !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! kendo.core */ "./src/js/vendor/kendo/kendo.core.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (f),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+		(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
     } else {}
 }(function(){
 (function ($, undefined) {
@@ -1978,6 +1979,18 @@ if (kendo.ui.NumericTextBox) {
 })(window.kendo.jQuery);
 }));
 
+/***/ }),
+
+/***/ "./webapp/locales/fr.json":
+/*!********************************!*\
+  !*** ./webapp/locales/fr.json ***!
+  \********************************/
+/***/ (function(module) {
+
+"use strict";
+module.exports = JSON.parse("{\"locale\":\"fr\",\"dateFormat\":\"dd MMM yyyy\",\"languages\":[{\"value\":\"en\",\"name\":\"Anglais\",\"icon\":\"\"},{\"value\":\"fr\",\"name\":\"Français\",\"icon\":\"\"}],\"themes\":[{\"value\":\"black\",\"name\":\"Black\",\"colors\":[]},{\"value\":\"bootstrap\",\"name\":\"Bootstrap\",\"colors\":[]},{\"value\":\"flat\",\"name\":\"Flat\",\"colors\":[]},{\"value\":\"highcontrast\",\"name\":\"High Contrast\",\"colors\":[]},{\"value\":\"indigo\",\"name\":\"Indigo\",\"colors\":[]},{\"value\":\"memba\",\"name\":\"Memba\",\"colors\":[]},{\"value\":\"nordic\",\"name\":\"Nordic\",\"colors\":[]},{\"value\":\"turquoise\",\"name\":\"Turquoise\",\"colors\":[]},{\"value\":\"urban\",\"name\":\"Urban\",\"colors\":[]},{\"value\":\"vintage\",\"name\":\"Vintage\",\"colors\":[]}],\"assets\":{\"collections\":{\"summary\":\"Projet\",\"google\":\"Google\"}},\"versions\":{\"draft\":{\"name\":\"Projet\"},\"published\":{\"name\":\"Version {0}\"}},\"meta\":{\"author\":\"Memba Sarl\",\"description\":\"Les enseignants méritent d’excellents outils pour concevoir des évaluations riches et passionnantes. Les étudiants méritent d’avoir accès à une grande bibliothèque d’exercices auto-corrigés sans se soucier des coûts.\",\"keywords\":\"exercice,quiz,activité,connaissance,test,évaluation,niveau,enseigner,apprendre,étudier,visuel,interactif,texte,image,audio,vidéo,choix multiple,question,réponse,math,français,connecteur,glisser,déplacer\",\"title\":\"Kidoju - Créez et Partagez des Quiz Phénoménaux\"},\"header\":{\"navbar\":{\"toggle\":\"Changer la navigation\",\"help\":{\"text\":\"Aide\"},\"support\":{\"text\":\"Support\"},\"finder\":{\"text\":\"Explorer\"},\"create\":{\"text\":\"Créer\"},\"search\":{\"text\":\"Rechercher\",\"placeholder\":\"Recherche...\"},\"signin\":{\"text\":\"S’identifier\"},\"signout\":{\"text\":\"Quitter\"}},\"notifications\":{\"authenticatedUserLoadFailure\":\"Il y a eu une erreur lors du chargement de l’identité de l’utilisateur.\",\"draftCreateFailure\":\"Il y a eu une erreur lors de la création de votre brouillon.\",\"notYetImplemented\":\"Fonctionnalité en développement!\",\"searchSaveFailure\":\"Il y a eu une erreur lors de l’enregistrement de votre favori.\",\"searchSaveSuccess\":\"Votre favori a été enregistré avec succès.\",\"signinFailure\":\"Nous n’avons pas pu vous identifier. Possiblement, vous n’avez pas procédé dans le temps requis.\",\"signinSuccess\":\"Vous avez été identifié avec succès et vous pouvez maintenant créer et retrouver de nouveaux Kidojus.\",\"signinUrlFailure\":\"Il y a eu une erreur d’obtention d’url de connexion pour le service d’authentification.\",\"signoutFailure\":\"Il y a eu une erreur de dèconnexion de l’application.\",\"signoutSuccess\":\"Vous vous êtes déconnecté de l’application avec succès.\",\"summaryCreateFailure\":\"Il y a eu une erreur lors de la création de votre nouveau projet.\"},\"search\":{\"title\":\"Recherche\",\"svg\":\"find_again\",\"text\":{\"label\":\"Titre, description et mots clés\",\"placeholder\":\"Recherche...\"},\"category\":{\"label\":\"Categories\"},\"author\":{\"label\":\"Auteur\",\"placeholder\":\"Les premières lettres du nom\"},\"ageGroup\":{\"label\":\"Age Group:\",\"data\":[{\"text\":\"3-5\",\"value\":1},{\"text\":\"5-7\",\"value\":2},{\"text\":\"7-9\",\"value\":4},{\"text\":\"9-11\",\"value\":8},{\"text\":\"11-14\",\"value\":16},{\"text\":\"14-16\",\"value\":32},{\"text\":\"16-18\",\"value\":64},{\"text\":\"18+\",\"value\":128}]},\"sort\":{\"label\":\"Trier sur:\",\"date\":\"Dates\",\"rate\":\"Etoiles\",\"view\":\"Vues\"},\"saveas\":{\"label\":\"Sauvegarder Sous (nécessite d’être identifié)\"},\"favourite\":{\"placeholder\":\"Votre nom de favori\"},\"validator\":{\"search\":\"Vous ne pouvez pas rechercher sans critère.\",\"favourite\":\"Un nom de favori est nécessaire pour enregistrer.\"},\"buttons\":{\"search\":{\"icon\":\"find_again\",\"text\":\"Rechercher\"},\"cancel\":{\"icon\":\"close\",\"text\":\"Annuler\"}}}},\"footer\":{\"copyright\":\"Version %s - Copyright &copy; 2013-2019 Memba&reg; Sarl.\",\"language\":{\"label\":\"Langue:\"},\"theme\":{\"label\":\"Thème:\"}},\"dialogs\":{\"neworganization\":{\"title\":\"Nouvelle Organization\",\"message\":\"Veuillez saisir un nom, puis cliquer le bouton créer.\",\"administrator\":{\"label\":\"Administrateur\"},\"name\":{\"label\":\"Nom\",\"placeholder\":\"Saisissez un nom\"},\"validator\":{\"name\":\"Le nom n’est pas une chaîne de 2 à 60 caractères de long ou a des caractères invalides.\"},\"buttons\":{\"create\":{\"icon\":\"plus\",\"text\":\"Créer\"},\"cancel\":{\"icon\":\"close\",\"text\":\"Annuler\"}}},\"newsummary\":{\"title\":\"Nouveau Quiz\",\"message\":\"Veuillez saisir une catégorie et un titre, puis cliquer le bouton créer.\",\"title2\":{\"label\":\"Titre\",\"placeholder\":\"Saisissez un titre\"},\"language\":{\"label\":\"Langue\"},\"category\":{\"label\":\"Catégorie\",\"placeholder\":\"Sélectionnez une catégorie\"},\"author\":{\"label\":\"Auteur\"},\"validator\":{\"category\":\"Une catégorie est nécessaire.\",\"title\":\"Le titre n’est pas une chaîne de 2 à 60 caractères de long ou a des caractères invalides.\"},\"buttons\":{\"create\":{\"icon\":\"plus\",\"text\":\"Créer\"},\"cancel\":{\"icon\":\"close\",\"text\":\"Annuler\"}}},\"signin\":{\"message\":\"Veuillez sélectionner un service d’identification. Nous ne l’utiliserons jamais pour publier à votre insu.\",\"terms\":\"J’accepte les&nbsp;<a href=\\\"https://www.kidoju.com/support/en/terms\\\" target=\\\"_blank\\\">conditions d'utilisation</a>.\",\"title\":\"Identification\"},\"signout\":{\"message\":\"Voulez-vous vraiment vous déconnecter?\",\"messageRedirect\":\"Voulez-vous vraiment vous déconnecter et quitter la page?\",\"title\":\"Question\"}},\"editor\":{\"console\":{\"text\":\"Console de Diagnostic\",\"refresh\":\"Rafraîchir\"},\"dialogs\":{\"addPagesFromBulkList\":{\"openDialogFailure\":\"Il y a eu une erreur lors de l’ouverture de la fenêtre.\",\"option\":\"Option {0}\",\"pageCreateFailure\":\"La ligne {0} a été ignorée car elle est ambiguë.\",\"pageCreateSuccess\":\"{0} ligne(s) importée(s) en tant que page(s) et {1} ligne(s) ignorée(s).\",\"question\":\"Question\",\"solution\":\"Solution {0}\",\"title\":\"Import d’une liste\"},\"addPagesFromSearch\":{\"openDialogFailure\":\"Il y a eu une erreur lors de l’ouverture de la fenêtre.\",\"title\":\"Import d’une recherche\"},\"addQuizPage\":{\"openDialogFailure\":\"Il y a eu une erreur lors de l’ouverture de la fenêtre.\",\"title\":\"Choix multiple\"},\"addTextBoxPage\":{\"openDialogFailure\":\"Il y a eu une erreur lors de l’ouverture de la fenêtre.\",\"title\":\"Réponse courte\"},\"markImage\":{\"title\":\"Insérer une image\"},\"publishError\":{\"message\":\"Vous avez {0} erreur(s) à corriger avant de pouvoir publier.\",\"title\":\"Erreur\"},\"publishQuestion\":{\"message\":\"Voulez-vous vraiment publier parce qu’une publication ne peut pas être annulée ?\",\"title\":\"Question\"}},\"notifications\":{\"draftPublishFailure\":\"Il y a eu une erreur lors de la publication du brouillon. Assurez-vous que votre brouillon a au moins un composant par page et que la logique de test est complète.\",\"fileCreateFailure\":\"Il y a eu une erreur lors du chargement du fichier.\",\"fileCreateSuccess\":\"Votre fichier a été chargé avec succès.\",\"fileDeleteFailure\":\"Il y a eu une erreur lors de la suppression du fichier.\",\"fileDeleteSuccess\":\"Le fichier a été supprimé avec succès.\",\"filesLoadFailure\":\"Il y a eu une erreur lors de l’énumération des fichiers.\",\"settingsLoadFailure\":\"Il y a eu une erreur lors du chargement des paramètres.\",\"uploadUrlFailure\":\"Il y a eu une erreur lors du chargement, probablement parce que la taille est inconnue ou dépasse la limite autorisée.\",\"urlImportFailure\":\"Il y a eu une erreur lors de l’import, probablement parce que la taille est inconnue ou dépasse la limite autorisée.\",\"urlImportSuccess\":\"Le fichier a été importé avec succès.\",\"versionLoadFailure\":\"Il y a eu une erreur lors du chargement de votre version.\",\"versionSaveFailure\":\"Il y a eu une erreur lors de l’enregistrement de votre version.\",\"versionSaveSuccess\":\"Votre version a été enregistrée avec succès.\"},\"panelbar\":{\"toolbox\":{\"text\":\"Outils\"},\"explorer\":{\"text\":\"Explorateur\"},\"attributes\":{\"text\":\"Attributs d’affichage\"},\"properties\":{\"text\":\"Logique de test\"},\"instructions\":{\"text\":\"Instructions\"},\"explanations\":{\"text\":\"Explications\"},\"settings\":{\"text\":\"Alignements\",\"snapAngle\":\"Angle\",\"snapGrid\":\"Grille\"}},\"toolbar\":{\"home\":{\"icon\":\"home\"},\"page\":{\"text\":\"Page\",\"icon\":\"plus\",\"copy\":{\"text\":\"Dupliquer\",\"icon\":\"copy\"},\"delete\":{\"text\":\"Supprimer\",\"icon\":\"garbage_can_red\"},\"style\":{\"text\":\"Style\",\"icon\":\"pens\"},\"import\":{\"text\":\"Import d’une recherche\",\"icon\":\"find_again\"},\"bulk\":{\"text\":\"Import d’une liste\",\"icon\":\"list_style_numbered\"},\"quiz\":{\"text\":\"Choix multiple\",\"icon\":\"radio_button_group\"},\"textbox\":{\"text\":\"Réponse courte\",\"icon\":\"text_field\"}},\"play\":{\"text\":\"Jouer\",\"icon\":\"media_play\"},\"publish\":{\"text\":\"Publier\",\"icon\":\"cloud_upload\"},\"save\":{\"text\":\"Enregistrer\",\"icon\":\"floppy_disk\"},\"summary\":{\"text\":\"Détails\",\"icon\":\"document_notebook\",\"assets\":{\"text\":\"Fichiers\",\"icon\":\"document_attachment\"},\"properties\":{\"text\":\"Propriétés\",\"icon\":\"document_size\"}}}},\"error\":{\"icon\":\"error\",\"back\":\"Back\"},\"finder\":{\"list\":{\"author\":{\"publishedOn\":\"Publié le \",\"by\":\" par \"},\"buttons\":{\"play\":{\"icon\":\"media_play\",\"text\":\"Jouer\"},\"summary\":{\"icon\":\"document_notebook\",\"text\":\"Détails\"}}},\"searchHeader\":{\"name\":\"Recherche\",\"icon\":\"find_again\"},\"notifications\":{\"favouriteDestroyFailure\":\"Il y a eu une erreur lors de la suppression d’un favori.\",\"favouriteDestroySuccess\":\"Favori supprimé avec succès.\",\"settingsLoadFailure\":\"Il y a eu une erreur lors du chargement des paramètres.\",\"summariesQueryFailure\":\"Il y a eu une erreur de recherche dans la base de données.\",\"versionsLoadFailure\":\"Il y a eu une erreur lors du chargement des versions.\"},\"toolbar\":{\"categories\":{\"text\":\"Catégories\",\"icon\":\"box_surprise\"}},\"treeview\":{\"delete\":\"Supprimer\",\"rootNodes\":{\"home\":{\"name\":\"Explorer\",\"icon\":\"home\"},\"favourites\":{\"name\":\"Favoris\",\"icon\":\"star\"},\"categories\":{\"name\":\"Catégories\",\"icon\":\"folders2\"}}}},\"home\":{\"icon\":\"home\",\"title\":\"Créez et Partagez des Quiz Phénoménaux\",\"signin\":\"Veuillez vous identifier pour créer un nouveau Quiz\",\"description\":\"Les enseignants méritent d’excellents outils pour concevoir des évaluations riches et passionnantes. Les étudiants méritent d’avoir accès à une grande bibliothèque d’exercices auto-corrigés sans se soucier des coûts.\",\"freeTrial\":\"Partager est Gratuit\",\"watchVideo\":\"Vidéo\",\"gallery\":{\"laptop\":\"Les quiz phénoménaux fonctionnent dans n’importe quel navigateur, notamment Chrome, Firefox, Internet Explorer, Opera et Safari.\",\"mobile\":\"Les quiz phénoménaux fonctionnent sur les appareils mobiles, notamment Android, iPad et iPhone.\"},\"notifications\":{\"settingsLoadFailure\":\"Il y a eu une erreur lors du chargement des paramètres.\"}},\"player\":{\"actor\":{\"created\":{\"label\":\"Membre depuis:\"},\"points\":{\"label\":\"Points:\"}},\"comparison\":{\"text\":\"Comparez votre score avec les autres utilisateurs:\"},\"correction\":{\"columns\":{\"question\":\"Question\",\"page\":\"Page\",\"result\":\"Résultat\",\"score\":\"Score\",\"solution\":\"Solution\",\"value\":\"Réponse\"},\"footer\":{\"score\":\"Total: #: sum #\"},\"pdf\":{\"paging\":\"Page #: pageNum # sur #: totalPages #\",\"title\":\"{0} ({1:dd-MMM-yyyy})\",\"actor\":\"{0} - Score: {1:p0}\"},\"tooltip\":{\"omit\":\"Omission:&nbsp;\",\"failure\":\"Échec:&nbsp;\",\"success\":\"Succès:&nbsp;\",\"score\":\"Votre score:&nbsp;\"}},\"dialogs\":{\"editQuestion\":{\"message\":\"Voulez-vous vraiment créer un nouveau brouillon à éditer?\",\"title\":\"Question\"},\"submitQuestion\":{\"message\":\"Voulez-vous vraiment soumettre pour obtenir votre score et la correction ?\",\"title\":\"Question\"}},\"infopanel\":{\"instructions\":{\"text\":\"Instructions\",\"icon\":\"teacher\"},\"explanations\":{\"text\":\"Explications\",\"icon\":\"teacher\"}},\"notifications\":{\"actorLoadFailure\":\"Il y a eu une erreur lors du chargement du profil utilisateur.\",\"draftCreateFailure\":\"Il y a eu une erreur lors de la création de votre brouillon.\",\"ratingFailure\":\"Il y a eu une erreur de notation de la version en cours. Peut-être a-t-elle déjà été évaluée.\",\"ratingSuccess\":\"La version en cours a été évaluée avec succès.\",\"scoreCacheFailure\":\"Il y a eu une erreur lors du chargement du score de session.\",\"scoreCalculationFailure\":\"Il y a eu une erreur lors du calcul du score.\",\"scoreNotFound\":\"Le score n’a pas pu être trouvé.\",\"scoreReset\":\"Votre score a été réinitialisé.\",\"scoresLoadFailure\":\"Il y a eu une erreur lors du chargement des scores.\",\"scoreSaveFailure\":\"Il y a eu une erreur lors de l’enregistrement du score.\",\"scoreSaveSuccess\":\"Score enregistré avec succès.\",\"settingsLoadFailure\":\"Il y a eu une erreur lors du chargement des paramètres.\",\"signinUrlFailure\":\"Il y a eu une erreur d’obtention d’url de connexion pour le service d’authentification.\",\"summaryLoadFailure\":\"Il y a eu une erreur lors du chargement des données du résumé descriptif.\",\"versionLoadFailure\":\"Il y a eu une erreur lors du chargement de votre version.\"},\"panels\":{\"actor\":\"Utilisateur\",\"close\":\"Fermer\",\"comparison\":\"Graphe comparatif\",\"correction\":\"Grille de correction\",\"sharing\":\"Partage\",\"signin\":\"Identification\",\"summary\":\"Kidoju\"},\"score\":{\"icon\":\"trophy\",\"title\":\"Votre score est {0:p0}\"},\"sharing\":{\"text\":\"Veuillez bien noter et partager votre experience.\"},\"signin\":{\"text\":\"Veuillez vous identifier pour obtenir la correction détaillée.\"},\"stage\":{\"messages\":{\"noPage\":\"Chargement...\"}},\"toolbar\":{\"home\":{\"icon\":\"home\"},\"play\":{\"text\":\"Recommencer\",\"icon\":\"media_play\"},\"review\":{\"text\":\"Correction\",\"icon\":\"window_close\"},\"score\":{\"text\":\"Score\",\"icon\":\"trophy\"},\"submit\":{\"text\":\"Soumettre\",\"icon\":\"auction_hammer\"},\"summary\":{\"text\":\"Détails\",\"icon\":\"document_notebook\",\"edit\":{\"text\":\"Editer\",\"icon\":\"graphics_tablet\"}},\"view\":{\"text\":\"Afficher\",\"icon\":\"windows\",\"actor\":{\"text\":\"User\"},\"comparison\":{\"text\":\"Graphe comparatif\"},\"correction\":{\"text\":\"Grille de correction\"},\"sharing\":{\"text\":\"Partage\"},\"signin\":{\"text\":\"Identification\"},\"summary\":{\"text\":\"Kidoju\"}}}},\"summary\":{\"author\":{\"created\":{\"label\":\"Membre depuis:\"},\"points\":{\"label\":\"Points:\"}},\"comments\":{\"signature\":{\"edit\":\"{0} écrit...\",\"view\":\"{0} a écrit le {1:g}\"}},\"description\":{\"validator\":{\"description\":\"Une description est limitée à 2500 caractères.\"},\"warning\":\"Description manquante.\"},\"dialogs\":{\"editQuestion\":{\"message\":\"Voulez-vous vraiment créer un nouveau brouillon à éditer?\",\"title\":\"Question\"},\"iconEditor\":{\"openDialogFailure\":\"Il y a eu une erreur lors de l’ouverture de la fenêtre.\",\"title\":\"Sélectionnez une icône\"}},\"notifications\":{\"authorLoadFailure\":\"Il y a eu une erreur lors du chargement du profil de l’auteur.\",\"authenticatedUserLoadFailure\":\"Il y a eu une erreur lors du chargement de l’identité de l’utilisateur.\",\"commentsLoadFailure\":\"Il y a eu une erreur lors du chargement des commentaires.\",\"draftCreateFailure\":\"Il y a eu une erreur lors de la création de votre brouillon.\",\"draftPublishFailure\":\"Il y a eu une erreur lors de la publication du brouillon. Assurez-vous que votre brouillon a au moins un composant par page et que la logique de test est complète.\",\"draftPublishSuccess\":\"Le brouillon a été publié avec succès.\",\"missingVersionWarning\":\"Il n’y a pas de version à supprimer, éditer, jouer ou publier. Veuillez cliquer le bouton Editer pour créer une nouvelle version.\",\"publishedVersionWarning\":\"Une version publiée ne peut pas être supprimée ou re-publiée.\",\"ratingFailure\":\"Il y a eu une erreur de notation de la version en cours. Peut-être a-t-elle déjà été notée.\",\"ratingSuccess\":\"La version en cours a été notée avec succès.\",\"settingsLoadFailure\":\"Il y a eu une erreur lors du chargement des paramètres.\",\"summaryLoadFailure\":\"Il y a eu une erreur lors du chargement des données du résumé descriptif.\",\"summaryNotModified\":\"Aucun changement n’a modifié le résumé descriptif enregistré.\",\"summarySaveFailure\":\"Il y a eu une erreur lors de l’enregistrement du résumé descriptif.\",\"summarySaveSuccess\":\"Le résumé descriptif a été enregistré avec succès.\",\"versionDeleteFailure\":\"Il y a eu une erreur lors de la suppression de la version.\",\"versionDeleteSuccess\":\"La version a été supprimée avec succès.\",\"versionsLoadFailure\":\"Il y a eu une erreur lors du chargement des versions.\"},\"panels\":{\"add\":\"Ajouter\",\"author\":\"Auteur\",\"close\":\"Fermer\",\"comments\":\"Commentaires\",\"description\":\"Description\",\"edit\":\"Editer\",\"ok\":\"Sauvegarder\",\"properties\":\"Propriétés\",\"qrcode\":\"QR Code\",\"scores\":\"Scores\",\"share\":\"Partager\",\"statistics\":\"Statistiques\"},\"properties\":{\"ageGroup\":{\"label\":\"Groupe d’Age:\",\"data\":[{\"text\":\"3-5\",\"value\":1},{\"text\":\"5-7\",\"value\":2},{\"text\":\"7-9\",\"value\":4},{\"text\":\"9-11\",\"value\":8},{\"text\":\"11-14\",\"value\":16},{\"text\":\"14-16\",\"value\":32},{\"text\":\"16-18\",\"value\":64},{\"text\":\"18+\",\"value\":128}]},\"category\":{\"label\":\"Catégorie:\"},\"tags\":{\"label\":\"Mots Clés:\",\"placeholder\":\"Saisisez des mots clés séparés par une virgule.\",\"warning\":\"Mot clé manquant.\"},\"title\":{\"label\":\"Titre:\",\"placeholder\":\"Saisissez un titre\"},\"validator\":{\"ageGroup\":\"Un goupe d’âge est requis.\",\"category\":\"Une catégorie est nécessaire.\",\"tags\":\"Un mot clé n’est pas une chaîne de 2 à 25 caractères de long ou a des caractères invalides.\",\"title\":\"Le titre n’est pas une chaîne de 2 à 60 caractères de long ou a des caractères invalides.\"}},\"share\":{\"embed\":{\"tab\":\"Code\"},\"social\":{\"tab\":\"Social\"}},\"statistics\":{\"comments\":{\"label\":\"Comment.:\"},\"created\":{\"label\":\"Créé le:\"},\"published\":{\"label\":\"Publié le:\",\"warning\":\"Non publié\"},\"ratings\":{\"label\":\"Eval.:\"},\"scores\":{\"label\":\"Score Moy.:\"},\"views\":{\"label\":\"Vues:\"}},\"toolbar\":{\"edit\":{\"text\":\"Editer\",\"icon\":\"graphics_tablet\",\"delete\":{\"text\":\"Supprimer\",\"icon\":\"garbage_can_red\"}},\"home\":{\"icon\":\"home\"},\"play\":{\"text\":\"Jouer\",\"icon\":\"media_play\"},\"publish\":{\"text\":\"Publier\",\"icon\":\"cloud_upload\"},\"view\":{\"text\":\"Afficher\",\"icon\":\"windows\",\"author\":{\"text\":\"Author\"},\"comments\":{\"text\":\"Comments\"},\"description\":{\"text\":\"Description\"},\"properties\":{\"text\":\"Properties\"},\"qrcode\":{\"text\":\"QR Code\"},\"scores\":{\"text\":\"Scores\"},\"share\":{\"text\":\"Share\"},\"statistics\":{\"text\":\"Statistics\"}}}},\"user\":{\"activities\":{\"grid\":{\"score\":\"Score\",\"title\":\"Titre\",\"type\":\"Type\",\"date\":\"Le\"}},\"description\":{\"validator\":{\"description\":\"Une description est limitée à 2500 caractères.\"}},\"dialogs\":{\"editQuestion\":{\"message\":\"Voulez-vous vraiment créer un nouveau brouillon à éditer?\",\"title\":\"Question\"}},\"facebook\":{\"email\":{\"label\":\"Email:\"},\"link\":{\"button\":\"Facebook\"},\"name\":{\"label\":\"Nom:\"},\"permissions\":{\"button\":\"Permissions\"},\"revoke\":{\"button\":\"Révoquer\"}},\"google\":{\"email\":{\"label\":\"Email:\"},\"link\":{\"button\":\"Google+\"},\"name\":{\"label\":\"Nom:\"},\"permissions\":{\"button\":\"Permissions\"},\"revoke\":{\"button\":\"Révoquer\"}},\"live\":{\"email\":{\"label\":\"Email:\"},\"link\":{\"button\":\"Windows Live\"},\"name\":{\"label\":\"Nom:\"},\"permissions\":{\"button\":\"Permissions\"},\"revoke\":{\"button\":\"Révoquer\"}},\"notifications\":{\"activitiesLoadFailure\":\"Il y a eu une erreur lors du chargement des activités de l’utilisateur.\",\"draftCreateFailure\":\"Il y a eu une erreur lors de la création de votre brouillon.\",\"missingVersionWarning\":\"Il n’y a pas de version à supprimer, éditer, jouer ou publier. Veuillez cliquer le bouton Editer pour créer une nouvelle version.\",\"settingsLoadFailure\":\"Il y a eu une erreur lors du chargement des paramètres.\",\"summariesLoadFailure\":\"Il y a eu une erreur lors du chargement des projets de l’utilisateur.\",\"userLoadFailure\":\"Il y a eu une erreur lors du chargement du profil utilisateur.\",\"userNotModified\":\"Aucun changement n’a modifié l’utilisateur enregistré.\",\"userSaveFailure\":\"Il y a eu une erreur lors de l’enregistrement de votre profil utilisateur.\",\"userSaveSuccess\":\"Votre profil a été enregistré avec succès.\",\"versionsLoadFailure\":\"Il y a eu une erreur lors du chargement des versions.\"},\"panels\":{\"activities\":\"Activités\",\"close\":\"Fermer\",\"description\":\"Description\",\"edit\":\"Editer\",\"facebook\":\"Facebook\",\"google\":\"Google\",\"live\":\"Windows Live\",\"ok\":\"Sauvegarder\",\"profile\":\"Profil\",\"summaries\":\"Kidojus\",\"twitter\":\"Twitter\"},\"profile\":{\"created\":{\"label\":\"Membre depuis:\"},\"email\":{\"label\":\"Email:\"},\"firstName\":{\"label\":\"Prénom:\"},\"lastName\":{\"label\":\"Nom:\"},\"points\":{\"label\":\"Points:\"}},\"summaries\":{\"grid\":{\"buttons\":{\"edit\":{\"icon\":\"graphics_tablet\",\"text\":\"Editer\"},\"play\":{\"icon\":\"media_play\",\"text\":\"Jouer\"}},\"commands\":\"Commandes\",\"icon\":\"Icône\",\"notifications\":{\"unpublished\":\"Non publié\",\"missingTags\":\"Mot clé manquant\"},\"published\":\"Publié\",\"tags\":\"Mots clés\",\"title\":\"Titre\",\"views\":\"Vues\"}},\"toolbar\":{\"home\":{\"icon\":\"home\"},\"link\":{\"text\":\"Link Account\",\"facebook\":{\"text\":\"Facebook\"},\"google\":{\"text\":\"Google\"},\"live\":{\"text\":\"Live\"},\"twitter\":{\"text\":\"Twitter\"}},\"view\":{\"text\":\"Afficher\",\"icon\":\"windows\",\"activities\":{\"text\":\"Activités\"},\"description\":{\"text\":\"Description\"},\"facebook\":{\"text\":\"Facebook\"},\"google\":{\"text\":\"Google\"},\"live\":{\"text\":\"Windows Live\"},\"profile\":{\"text\":\"Profile\"},\"summaries\":{\"text\":\"Kidojus\"},\"twitter\":{\"text\":\"Twitter\"}}},\"twitter\":{\"email\":{\"label\":\"Email:\"},\"link\":{\"button\":\"Twitter\"},\"name\":{\"label\":\"Nom:\"},\"permissions\":{\"button\":\"Permissions\"},\"revoke\":{\"button\":\"Révoquer\"}}},\"errors\":{\"http\":{\"400\":{\"status\":400,\"title\":\"400 - Mauvaise Requête\",\"message\":\"Désolé, mais votre requête est mal formulée. L’URL est peut-être mal ortographiée.\"},\"401\":{\"status\":401,\"title\":\"401 - Non autorisé\",\"message\":\"Désolé, mais votre requête n’est pas autorisée.\"},\"403\":{\"status\":403,\"title\":\"403 - Interdit\",\"message\":\"Désolé, mais votre requête est interdite.\"},\"404\":{\"status\":404,\"title\":\"404 - Introuvable\",\"message\":\"Désolé, mais la page demandée est introuvable. L’URL est peut-être mal ortographiée ou la page que vous recherchez n’est peut-être plus disponible.\"},\"500\":{\"status\":500,\"title\":\"500 - Erreur Inconnue\",\"message\":\"Il y a eu une erreur inconnue. Si nous arrivons à la reproduire, nous la corrigerons avec amour et attention.\"},\"1000\":{\"status\":403,\"title\":\"1000 - Désactivez le mode privé ou mettez à jour votre navigateur\",\"message\":\"Ce site web utilise les fonctionnalités des navigateurs récents, notamment (mais pas seulement) l’audio et la vidéo, les blobs, les canvas, les transformations css, les api de fichiers, le stockage local et de session, les graphiques vectoriels (SVG) et les « web workers ».\"},\"1001\":{\"status\":401,\"title\":\"401 - Non autorisé\",\"message\":\"Désolé, le service ne vous a pas identifié.\"}},\"mongoose\":{\"validation\":{\"status\":400,\"title\":\"400 - Mauvaise Requête\",\"message\":\"Erreur de validation de base de données.\"}},\"params\":{\"invalidFileId\":{\"status\":404,\"title\":\"404 - Introuvable\",\"message\":\"Identifiant de fichier erroné: veuillez utiliser un nom de 3 à 50 et une extension de 2 à 7 caractères alphanumeriques\"},\"invalidLanguage\":{\"status\":404,\"title\":\"404 - Introuvable\",\"message\":\"Langue erronée: cette langue n’est pas définie.\"},\"invalidMonth\":{\"status\":404,\"title\":\"404 - Introuvable\",\"message\":\"Mois erroné: veuillez utiliser un nombre à quatre chiffres compris entre 01 et 12.\"},\"invalidObjectId\":{\"status\":404,\"title\":\"404 - Introuvable\",\"message\":\"Identifiant d’objet erroné: un identifiant est une chaîne de 24 caractères hexadécimaux.\"},\"invalidProvider\":{\"status\":404,\"title\":\"404 - Introuvable\",\"message\":\"Service erroné: utlisez `facebook`, `google`, `live` ou `twitter`\"},\"invalidYear\":{\"status\":404,\"title\":\"404 - Introuvable\",\"message\":\"Année erronée: veuillez utiliser un nombre à quatre chiffres compris entre 2014 et l’année en cours.\"}}}}");
+
 /***/ })
 
 }]);
+//# sourceMappingURL=app-culture-fr-es6.bundle.js.map?v=0.3.8

@@ -3,7 +3,7 @@
     <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
     <div class="stretched-item">
         <div class="centered">
-            <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
+            <div data-role="stage" data-bind="source: page.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
         </div>
     </div>
     <div class="stretched-item k-widget km-content padding">
@@ -11,12 +11,12 @@
             <h2>
                 <img src="./img/icons/teacher.svg" alt="Instructions">
                 <span class="instructions">Instructions</span>
-                <a data-role="button" class="tts" data-icon="ear" data-tts="selectedPage.instructions" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
+                <a data-role="button" class="tts" data-icon="ear" data-tts="page.instructions" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
             </h2><hr/>
         </div>
         <div data-role="touch" data-enable-swipe="true" data-swipe="app.viewModel.onPageSwipe">
             <div data-role="scroller" data-use-native="true">
-                <div class="markdown" data-role="markdown" data-bind="value: selectedPage.instructions"></div>
+                <div class="markdown" data-role="markdown" data-bind="value: page.instructions"></div>
             </div>
         </div>
     </div>

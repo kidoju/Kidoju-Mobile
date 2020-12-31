@@ -22,6 +22,10 @@
 <body>
 
 
+
+<!-- notifications -->
+<div id="notification"></div>
+
 <!-- layout -->
 <div data-role="layout" data-id="main-layout" data-show="app.viewModel.onLayoutViewShow">
     <header data-role="header">
@@ -43,7 +47,6 @@
             <a id="main-layout-sync" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="sync" data-click="app.viewModel.onNavBarSyncClick"></a>
             <a id="main-layout-search" data-role="button" data-click-on="down" class="nav-button" data-align="right" data-icon="search" data-click="app.viewModel.onNavBarSearchClick"></a>
         </div>
-        <div id="notification"></div>
     </header>
 </div>
 
@@ -220,9 +223,9 @@
 
 <!-- Error view -->
 <div id="error" data-role="view" data-layout="main-layout" data-title="Fatal Error" data-transition="fade" data-show="app.viewModel.onErrorViewShow">
-    <img src="./img/icons/error.svg" alt="Fatal Error" class="km-thumbnail">
-    <h2 class="title">Fatal Error</h2>
-    <!--p class="message">Progress</p-->
+    <img src="./img/icons/error.svg" alt="Fatal Error" class="app-picture">
+    <h2 class="app-title">Fatal Error</h2>
+    <!--p class="app-description">Progress</p-->
 </div>
 
 <!-- Activities view -->
@@ -242,7 +245,7 @@
     <ul data-role="listview" data-bind="source: activities" data-filterable="false" data-template="activities-template" data-header-template="activities-header-template" data-fixed-headers="true" data-type="group"></ul>
     <script type="text/x-kendo-template" id="activities-template">
         <a href="\#score#: queryString$() #" data-bind="css: { error: isError$, success: isSuccess$, warning: isWarning$ }">
-            <div class="title">#: title$() #</div>
+            <div class="app-title">#: title$() #</div>
             <div class="small">#: updated$() #</div>
             <span class="km-badge km-badge-info">#: score$() #</span>
         </a>
@@ -278,8 +281,8 @@
     <ul data-role="listview" data-bind="source: categories" data-template="categories-template" data-filterable="false"></ul>
     <script type="text/x-kendo-template" id="categories-template">
         <a href="\#finder?language=#: language #&#: filter$() #" style="margin-left: #: depth$() - 1 #em;">
-            <img src="#: icon$() #" alt="#: name #" class="km-thumbnail">
-            <span class="name">#: name #</span>
+            <img src="#: icon$() #" alt="#: name #" class="app-icon">
+            <span class="app-name">#: name #</span>
             <span class="km-badge km-badge-info">#: count #</span>
         </a>
     </script>
@@ -289,7 +292,7 @@
 <div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-hide="app.viewModel.onCorrectionViewHide" data-init="app.viewModel.onCorrectionViewInit" data-show="app.viewModel.onCorrectionViewShow">
     <div class="stretched-item">
         <div class="centered">
-            <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
+            <div data-role="stage" data-bind="source: page.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
         </div>
     </div>
     <div class="stretched-item k-widget km-content padding">
@@ -297,12 +300,12 @@
             <h2>
                 <img src="./img/icons/teacher.svg" alt="Explanations">
                 <span class="explanations">Explanations</span>
-                <a data-role="button" class="tts" data-icon="ear" data-tts="selectedPage.explanations" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
+                <a data-role="button" class="tts" data-icon="ear" data-tts="page.explanations" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
             </h2><hr/>
         </div>
         <div data-role="touch" data-enable-swipe="true" data-swipe="app.viewModel.onPageSwipe">
             <div data-role="scroller" data-use-native="true">
-                <div class="markdown" data-role="markdown" data-bind="value: selectedPage.explanations"></div>
+                <div class="markdown" data-role="markdown" data-bind="value: page.explanations"></div>
             </div>
         </div>
     </div>
@@ -325,19 +328,19 @@
     <ul data-role="listview" data-bind="source: summaries" data-filterable="false" data-load-more="true" data-template="finder-template"></ul>
     <script type="text/x-kendo-template" id="finder-template">
         <a href="\#summary?language=#: language #&summaryId=#: id #" data-bind="css: { offline: offline, error: isError$, success: isSuccess$, warning: isWarning$ }">
-            <img src="#: icon$() #" alt="#: title #" class="km-thumbnail">
-            <div class="summary">
+            <img src="#: icon$() #" alt="#: title #" class="app-icon">
+            <div class="app-summary">
                 <h4>#: title #</h4>
                 <!-- Do not use tags as a variable name otherwise the model tags will be changed -->
                 # var t$ = tags$(); if (Array.isArray(t$) && t$.length) { #
-                <div class="tags"><i class="kf kf-tags"></i>
+                <div class="app-tags"><i class="kf kf-tags"></i>
                     # for (var i = 0; i < t$.length; i++) { #
                     <span>#: t$[i].name #</span>#: i < t$.length - 1 ? ', ' : '' #
                     # } #
                 </div>
                 # } #
-                <div class="metrics">
-                    <span class="kf"><input data-role="rating" value="#: ratings #" readonly></span>
+                <div class="app-metrics">
+                    <input data-role="rating" value="#: ratings #" data-label="false" readonly>
                     <i class="kf kf-view"></i><span>#: views #</span>
                     # if (scores) { #<i class="kf kf-score"></i><span>#: kendo.toString(scores, 'n0') #%</span># } #
                 </div>
@@ -351,9 +354,9 @@
 
 <!-- No network view -->
 <div id="network" data-role="view" data-layout="main-layout" data-title="No Network" data-transition="fade" data-show="app.viewModel.onNetworkViewShow">
-    <img src="./img/icons/antenna.svg" alt="No Network" class="km-thumbnail picture">
-    <h2 class="title">No Network</h2>
-    <!--p class="message">Progress</p-->
+    <img src="./img/icons/antenna.svg" alt="No Network" class="app-picture">
+    <h2 class="app-title">No Network</h2>
+    <!--p class="app-description">Progress</p-->
 </div>
 
 <!-- Player view -->
@@ -361,7 +364,7 @@
     <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
     <div class="stretched-item">
         <div class="centered">
-            <div data-role="stage" data-bind="source: selectedPage.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
+            <div data-role="stage" data-bind="source: page.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
         </div>
     </div>
     <div class="stretched-item k-widget km-content padding">
@@ -369,12 +372,12 @@
             <h2>
                 <img src="./img/icons/teacher.svg" alt="Instructions">
                 <span class="instructions">Instructions</span>
-                <a data-role="button" class="tts" data-icon="ear" data-tts="selectedPage.instructions" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
+                <a data-role="button" class="tts" data-icon="ear" data-tts="page.instructions" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
             </h2><hr/>
         </div>
         <div data-role="touch" data-enable-swipe="true" data-swipe="app.viewModel.onPageSwipe">
             <div data-role="scroller" data-use-native="true">
-                <div class="markdown" data-role="markdown" data-bind="value: selectedPage.instructions"></div>
+                <div class="markdown" data-role="markdown" data-bind="value: page.instructions"></div>
             </div>
         </div>
     </div>
@@ -402,8 +405,8 @@
             # } #
             <div class="score">
                 <h4>#: question #</h4>
-                <div class="small"><div class="left">#: app.i18n.culture.score.listView.answer #</div><div class="right">#= value #</div></div>
-                <div class="small"><div class="left">#: app.i18n.culture.score.listView.solution #</div><div class="right">#= solution #</div></div>
+                <div class="small"><div class="left">#: app.i18n.culture.score.listView.answer #</div><div class="app-field">#= value #</div></div>
+                <div class="small"><div class="left">#: app.i18n.culture.score.listView.solution #</div><div class="app-field">#= solution #</div></div>
             </div>
             # if (typeof result !== 'boolean') { #
             <span class="km-badge km-badge-warning">#: kendo.toString(score, 'n') #</span>
@@ -423,40 +426,40 @@
         <ul data-role="listview" data-style="inset" data-filterable="false">
             <li>
                 <label>
-                    <span class="km-bold-font">User</span>
-                    <div data-bind="text: user.fullName$" class="right"></div>
+                    <span class="app-bold">User</span>
+                    <div data-bind="text: user.fullName$" class="app-field"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Version</span>
-                    <div data-bind="text: version$()" class="right"></div>
+                    <span class="app-bold">Version</span>
+                    <div data-bind="text: version$()" class="app-field"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Theme</span>
-                    <div data-bind="text: theme$, visible: hasConstantTheme$" class="right"></div>
+                    <span class="app-bold">Theme</span>
+                    <div data-bind="text: theme$, visible: hasConstantTheme$" class="app-field"></div>
                     <input data-role="dropdownlist" data-bind="value: theme, source: themes, disabled: hasConstantTheme$, invisible: hasConstantTheme$" data-value-field="value" data-text-field="text">
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Language</span>
-                    <div data-bind="text: language$, visible: hasConstantLanguage$" class="right"></div>
+                    <span class="app-bold">Language</span>
+                    <div data-bind="text: language$, visible: hasConstantLanguage$" class="app-field"></div>
                     <input data-role="dropdownlist" data-bind="value: language, source: languages, disabled: hasConstantLanguage$, invisible: hasConstantLanguage$" data-value-field="value" data-text-field="text">
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Category</span>
-                    <div data-bind="text: rootCategoryId$, visible: hasConstantRootCategoryId$" class="right"></div>
+                    <span class="app-bold">Category</span>
+                    <div data-bind="text: rootCategoryId$, visible: hasConstantRootCategoryId$" class="app-field"></div>
                     <input data-role="dropdownlist" data-bind="value: user.rootCategoryId, source: topCategories$(), disabled: hasConstantRootCategoryId$, invisible: hasConstantRootCategoryId$" data-value-field="id" data-text-field="name">
                 </label>
             </li>
         </ul>
     </form>
-    <div class="buttons">
+    <div class="app-buttons">
         <a data-role="button" class="km-large km-justified km-primary" data-click="app.viewModel.onSettingsSwitchClick">Switch user</a>
     </div>
 </div>
@@ -465,23 +468,23 @@
 <div id="signin" data-role="view" data-layout="main-layout" data-title="Sign in" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-init="app.viewModel.onSigninViewInit" data-show="app.viewModel.onSigninViewShow">
     <div data-role="scrollview" class="km-scrollview-overlay" data-content-height="100%">
         <div data-role="page">
-            <div class="image"><img src="./img/tour/t1.svg"></div>
-            <div class="text"><p>Browse and search assessments, practice tests and quizzes organized by subject categories.</p></div>
+            <div class="app-image"><img src="./img/tour/t1.svg"></div>
+            <div class="km-content app-text"><p>Browse and search assessments, practice tests and quizzes organized by subject categories.</p></div>
         </div>
         <div data-role="page">
-            <div class="image"><img src="./img/tour/t2.svg"></div>
-            <div class="text"><p>Play questions, give answers and let the app compute your score.</p></div>
+            <div class="app-image"><img src="./img/tour/t2.svg"></div>
+            <div class="km-content app-text"><p>Play questions, give answers and let the app compute your score.</p></div>
         </div>
         <div data-role="page">
-            <div class="image"><img src="./img/tour/t3.svg"></div>
-            <div class="text"><p>Track and measure your progresses.</p></div>
+            <div class="app-image"><img src="./img/tour/t3.svg"></div>
+            <div class="km-content app-text"><p>Track and measure your progresses.</p></div>
         </div>
         <div data-role="page">
             <div class="k-widget k-notification k-notification-info">
                 <div class="k-notification-wrap">
-                    <span class="k-icon k-i-info">Info</span>
-                    <span class="k-text">Please select an authentication provider.</span>
-                    <!--span class="k-icon k-i-close">Hide</span-->
+                    <span class="k-icon k-i-info" title="Info"></span>
+                    <span class="k-notification-content">Please select an authentication provider.</span>
+                    <!--span class="k-icon k-i-close" title="Hide"></span-->
                 </div>
             </div>
             <form>
@@ -498,20 +501,20 @@
 
 <!-- Summary view -->
 <div id="summary" data-role="view" data-layout="main-layout" data-title="Details" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onSummaryViewShow">
-    <img data-bind="attr: { src: summary.icon$, alt: summary.title }" class="km-thumbnail picture">
+    <img data-bind="attr: { src: summary.icon$, alt: summary.title }" class="app-picture">
     <form>
         <ul data-role="listview" data-style="inset" data-filterable="false">
             <li>
                 <label>
-                    <span class="km-bold-font">Title</span>
-                    <div data-bind="text: summary.title" class="bottom"></div>
+                    <span class="app-bold">Title</span>
+                    <div data-bind="text: summary.title" class="app-bottom"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Rating</span>
-                    <div class="bottom">
-                        <span class="kf"><input data-role="rating" data-bind="value: summary.metrics.ratings.average" readonly></span>
+                    <span class="app-bold">Rating</span>
+                    <div class="app-bottom">
+                        <input data-role="rating" data-bind="value: summary.metrics.ratings.average" data-label="false" readonly>
                         <i class="kf kf-view"></i><span data-bind="text: summary.metrics.views.count"></span>
                         <i class="kf kf-score"></i><span data-bind="text: summary.metrics.scores.average, visible: summary.metrics.scores.average" data-format="n0"></span>%
                         <span data-bind="text: summary.userScore$, css: { km-badge-error: isError$, km-badge-success: summary.isSuccess$, km-badge-warning: summary.isWarning$ }, visible: summary.hasUserScore$"></span>
@@ -520,37 +523,37 @@
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Category</span>
-                    <div data-bind="html: summaryCategory$" class="bottom"></div>
+                    <span class="app-bold">Category</span>
+                    <div data-bind="html: summaryCategory$" class="app-bottom"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Tags</span>
-                    <div data-bind="text: summary.tags$" class="bottom"></div>
+                    <span class="app-bold">Tags</span>
+                    <div data-bind="text: summary.tags$" class="app-bottom"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Description</span>
-                    <div data-role="markdown" data-bind="value: summary.description" class="bottom"></div>
+                    <span class="app-bold">Description</span>
+                    <div data-role="markdown" data-bind="value: summary.description" class="app-bottom"></div>
                 </label>
             </li>
             <li data-bind="invisible: hasConstantAuthorId$">
                 <label>
-                    <span class="km-bold-font">Author</span>
-                    <div data-bind="text: summary.author.fullName$" class="bottom"></div>
+                    <span class="app-bold">Author</span>
+                    <div data-bind="text: summary.author.fullName$" class="app-bottom"></div>
                 </label>
             </li>
             <li>
                 <label>
-                    <span class="km-bold-font">Published</span>
-                    <div data-bind="text: summary.published" data-format="dd MMM yyyy" class="bottom"></div>
+                    <span class="app-bold">Published</span>
+                    <div data-bind="text: summary.published" data-format="dd MMM yyyy" class="app-bottom"></div>
                 </label>
             </li>
         </ul>
     </form>
-    <div class="buttons">
+    <div class="app-buttons">
         <a data-role="button" class="km-large km-justified km-primary" data-rel="actionsheet" href="#summary-actionsheet">GO</a>
     </div>
     <ul id="summary-actionsheet" data-role="actionsheet" >
@@ -561,66 +564,66 @@
 </div>
 
 <!-- Sync view -->
-<div id="sync" data-role="view" data-layout="main-layout" data-title="Synchronization" data-transition="fade" data-model="app.viewModel" data-hide="app.controller.onSyncViewHide" data-show="app.controller.onSyncViewShow">
-    <img src="./img/icons/gearwheels.svg" alt="Progress" class="km-thumbnail picture">
-    <h2 class="title">Progress</h2>
-    <p class="message">Progress</p>
-    <div class="progress">
+<div id="sync" data-role="view" data-layout="main-layout" data-title="Synchronization" data-transition="fade" data-model="app.viewModel" data-hide="app.viewModel.onSyncViewHide" data-show="app.viewModel.onSyncViewShow">
+    <img src="./img/icons/gearwheels.svg" alt="Progress" class="app-picture">
+    <h2 class="app-title">Progress</h2>
+    <p class="app-description">Progress</p>
+    <div class="app-progress">
         <div id="sync-pass" data-role="progressbar" data-min="0" data-max="2"></div>
         <div id="sync-percent" data-role="progressbar" data-type="percent"></div>
     </div>
-    <div class="buttons"><a data-role="button" class="km-primary" href="#">Continue</a></div>
+    <div class="app-buttons"><a data-role="button" class="km-primary" href="#">Continue</a></div>
 </div>
 
 <!-- User view -->
 <div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.viewModel" data-init="app.viewModel.onUserViewInit" data-show="app.viewModel.onUserViewShow">
     <div data-role="touch" data-enable-swipe="true" data-swipe="app.viewModel.onUserSwipe">
-        <img data-bind="invisible: isSavedUser$, attr: { src: user.picture$, alt: user.fullName$ }" class="km-thumbnail picture">
-        <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="km-thumbnail picture">
+        <img data-bind="invisible: isSavedUser$, attr: { src: user.picture$, alt: user.fullName$ }" class="app-picture">
+        <img data-bind="visible: isSavedUser$, attr: { src: user.mobilePicture$, alt: user.fullName$ }" class="app-picture">
         <form>
             <ul data-role="listview" data-style="inset" data-filterable="false">
                 <li>
                     <label>
-                        <span class="km-bold-font">First Name</span>
-                        <div data-bind="text: user.firstName" class="right"></div>
+                        <span class="app-bold">First Name</span>
+                        <div data-bind="text: user.firstName" class="app-field"></div>
                     </label>
                 </li>
                 <li>
                     <label>
-                        <span class="km-bold-font">Last Name</span>
-                        <div data-bind="text: user.lastName" class="right"></div>
+                        <span class="app-bold">Last Name</span>
+                        <div data-bind="text: user.lastName" class="app-field"></div>
                     </label>
                 </li>
                 <li data-bind="visible: isSavedUser$">
                     <label>
-                        <span class="km-bold-font">Last Use</span>
-                        <div data-bind="text: user.lastUse" data-format="g" class="right"></div>
+                        <span class="app-bold">Last Use</span>
+                        <div data-bind="text: user.lastUse" data-format="g" class="app-field"></div>
                     </label>
                 </li>
                 <li data-bind="invisible: isNewUser$">
                     <label>
-                        <span class="km-bold-font">PIN</span>
+                        <span class="app-bold">PIN</span>
                         <!-- keep username to let browsers save your password -->
                         <input type="text" name="username" data-bind="value: user.sid" style="display: none;">
-                        <input type="password" class="pin" autocomplete="off">
+                        <input type="password" class="app-pin" autocomplete="off">
                     </label>
                 </li>
                 <li data-bind="invisible: isSavedUser$">
                     <label>
-                        <span class="km-bold-font">New PIN</span>
-                        <input type="password" class="pin" autocomplete="off">
+                        <span class="app-bold">New PIN</span>
+                        <input type="password" class="app-pin" autocomplete="off">
                     </label>
                 </li>
                 <li data-bind="invisible: isSavedUser$">
                     <label>
-                        <span class="km-bold-font">Confirm</span>
-                        <input type="password" class="pin" autocomplete="off">
+                        <span class="app-bold">Confirm</span>
+                        <input type="password" class="app-pin" autocomplete="off">
                     </label>
                 </li>
             </ul>
         </form>
     </div>
-    <div class="buttons">
+    <div class="app-buttons">
         <a data-role="button" data-bind="invisible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.viewModel.onUserSaveClick">Save</a>
         <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified km-primary" data-click="app.viewModel.onUserSignInClick">Signin</a>
         <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified"  data-click="app.viewModel.onUserNewClick">New User</a>

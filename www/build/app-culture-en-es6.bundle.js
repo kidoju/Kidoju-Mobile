@@ -1,18 +1,16 @@
-/*! Copyright ©2013-2019 Memba® Sarl. All rights reserved. - Version 0.3.8 dated 17-Jun-2020 */
-(window["webpackJsonp"] = window["webpackJsonp"] || []).push([["app-culture-en-es6"],{
+(self["webpackChunkKidoju_Mobile"] = self["webpackChunkKidoju_Mobile"] || []).push([["app-culture-en-es6"],{
 
 /***/ "./src/js/cultures/app.culture.en.es6":
 /*!********************************************!*\
   !*** ./src/js/cultures/app.culture.en.es6 ***!
   \********************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mobile_en_es6__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mobile.en.es6 */ "./src/js/cultures/mobile.en.es6");
-/* harmony import */ var _kendo_fixes_en_es6__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./kendo.fixes.en.es6 */ "./src/js/cultures/kendo.fixes.en.es6");
-/* harmony import */ var _common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../common/window.global.es6 */ "./src/js/common/window.global.es6");
+/* harmony import */ var _webapp_locales_en_json__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../webapp/locales/en.json */ "./webapp/locales/en.json");
+/* harmony import */ var _kendo_fixes_en_es6__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./kendo.fixes.en.es6 */ "./src/js/cultures/kendo.fixes.en.es6");
 /* harmony import */ var _vendor_kendo_cultures_kendo_culture_en_GB__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../vendor/kendo/cultures/kendo.culture.en-GB */ "./src/js/vendor/kendo/cultures/kendo.culture.en-GB.js");
 /* harmony import */ var _vendor_kendo_cultures_kendo_culture_en_GB__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_vendor_kendo_cultures_kendo_culture_en_GB__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _vendor_kendo_messages_kendo_messages_en_GB__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../vendor/kendo/messages/kendo.messages.en-GB */ "./src/js/vendor/kendo/messages/kendo.messages.en-GB.js");
@@ -31,7 +29,6 @@ __webpack_require__.r(__webpack_exports__);
 // import editors from './editors.en.es6';
 // import libraries from './libraries.en.es6';
  // import tools from './tools.en.es6';
-// import webapp from '../../../webapp/locales/en.json';
 
 
 
@@ -42,10 +39,19 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-window.kendo.culture('en-GB'); // TODO requires 'kendo.core'
+/**
+ * Requires kendo.core
+ */
 
-_common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__["default"].cultures = _common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__["default"].cultures || {};
-_common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__["default"].cultures.en = _mobile_en_es6__WEBPACK_IMPORTED_MODULE_0__["default"];
+window.kendo.culture('en-GB');
+/**
+ * Default export
+ */
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  mobile: _mobile_en_es6__WEBPACK_IMPORTED_MODULE_0__.default,
+  webapp: _webapp_locales_en_json__WEBPACK_IMPORTED_MODULE_1__
+});
 
 /***/ }),
 
@@ -53,8 +59,7 @@ _common_window_global_es6__WEBPACK_IMPORTED_MODULE_2__["default"].cultures.en = 
 /*!********************************************!*\
   !*** ./src/js/cultures/kendo.fixes.en.es6 ***!
   \********************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -73,10 +78,10 @@ var ui = window.kendo.mobile.ui;
 if (ui.ListView) {
   // Beware: this makes all mobile list views filterable by default
   // So non-filterable list views need to have filterable explicitly set to false
-  ui.ListView.prototype.options.filterable = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, ui.ListView.prototype.options.filterable, {
+  ui.ListView.prototype.options.filterable = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, ui.ListView.prototype.options.filterable, {
     placeholder: 'Search...'
   });
-  ui.ListView.prototype.options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, ui.ListView.prototype.options.messages, {
+  ui.ListView.prototype.options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, ui.ListView.prototype.options.messages, {
     loadMoreText: 'Press to load more'
   });
 }
@@ -87,8 +92,7 @@ if (ui.ListView) {
 /*!***************************************!*\
   !*** ./src/js/cultures/mobile.en.es6 ***!
   \***************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -413,8 +417,7 @@ var res = {
 /*!****************************************!*\
   !*** ./src/js/cultures/widgets.en.es6 ***!
   \****************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -453,7 +456,7 @@ var AssetManager = ui.AssetManager,
 
 if (AssetManager) {
   var options = AssetManager.prototype.options;
-  options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, options.messages, {
+  options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, options.messages, {
     toolbar: {
       upload: 'Upload',
       delete: 'Delete',
@@ -475,7 +478,7 @@ if (AssetManager) {
 
 if (BaseDialog) {
   var _options = BaseDialog.prototype.options;
-  _options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options.messages, {
+  _options.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options.messages, {
     title: {
       error: 'Error',
       info: 'Information',
@@ -525,7 +528,7 @@ if (BaseDialog) {
 
 if (CodeEditor) {
   var _options2 = CodeEditor.prototype.options;
-  _options2.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options2.messages, {
+  _options2.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options2.messages, {
     formula: 'Formula:',
     notApplicable: 'N/A',
     solution: 'Solution:',
@@ -545,7 +548,7 @@ if (CodeEditor) {
 
 if (Explorer) {
   var _options3 = Explorer.prototype.options;
-  _options3.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options3.messages, {
+  _options3.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options3.messages, {
     empty: 'No item to display'
   });
 }
@@ -554,7 +557,7 @@ if (Explorer) {
 
 if (ImageList) {
   var _options4 = ImageList.prototype.options;
-  _options4.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options4.messages, {
+  _options4.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options4.messages, {
     toolbar: {
       add: 'Add'
     },
@@ -569,14 +572,14 @@ if (ImageList) {
 
 if (MarkEditor) {
   var _options5 = MarkEditor.prototype.options;
-  _options5.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options5.messages, {
+  _options5.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options5.messages, {
     image: 'An undescribed image',
     link: 'Click here'
   });
 }
 
 if (markeditor && markeditor.messages.dialogs) {
-  markeditor.messages.dialogs = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, markeditor.messages.dialogs, {
+  markeditor.messages.dialogs = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, markeditor.messages.dialogs, {
     cancel: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/close.svg" class="k-image">Cancel',
     okText: '<img alt="icon" src="https://cdn.kidoju.com/images/o_collection/svg/office/ok.svg" class="k-image">OK',
     headingsDialog: {
@@ -616,7 +619,7 @@ if (markeditor && markeditor.messages.dialogs) {
 }
 
 if (markeditor && markeditor.messages.toolbar) {
-  markeditor.messages.toolbar = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, markeditor.messages.toolbar, {
+  markeditor.messages.toolbar = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, markeditor.messages.toolbar, {
     undo: 'Undo',
     redo: 'Redo',
     headings: 'Headings',
@@ -645,7 +648,7 @@ if (markeditor && markeditor.messages.toolbar) {
 
 
 if (mathinput && mathinput.messages.dialogs) {
-  mathinput.messages.dialogs = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, mathinput.messages.dialogs, {
+  mathinput.messages.dialogs = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, mathinput.messages.dialogs, {
     keypad: {
       title: 'KeyPad',
       buttons: {
@@ -863,7 +866,7 @@ if (mathinput && mathinput.messages.dialogs) {
 }
 
 if (mathinput && mathinput.messages.toolbar) {
-  mathinput.messages.toolbar = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, mathinput.messages.toolbar, {
+  mathinput.messages.toolbar = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, mathinput.messages.toolbar, {
     field: {
       title: 'Field'
     },
@@ -1089,7 +1092,7 @@ if (mathinput && mathinput.messages.toolbar) {
 
 if (MediaPlayer) {
   var _options6 = MediaPlayer.prototype.options;
-  _options6.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options6.messages, {
+  _options6.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options6.messages, {
     play: 'Play/Pause',
     mute: 'Mute/Unmute',
     full: 'Full Screen',
@@ -1101,7 +1104,7 @@ if (MediaPlayer) {
 
 if (MultiInput) {
   var _options7 = MultiInput.prototype.options;
-  _options7.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options7.messages, {
+  _options7.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options7.messages, {
     clear: 'Clear',
     delete: 'Delete'
   });
@@ -1111,7 +1114,7 @@ if (MultiInput) {
 
 if (MultiQuiz) {
   var _options8 = MultiQuiz.prototype.options;
-  _options8.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options8.messages, {
+  _options8.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options8.messages, {
     placeholder: 'Select...'
   });
 }
@@ -1120,7 +1123,7 @@ if (MultiQuiz) {
 
 if (Navigation) {
   var _options9 = Navigation.prototype.options;
-  _options9.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options9.messages, {
+  _options9.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options9.messages, {
     empty: 'No item to display'
   });
 }
@@ -1129,7 +1132,7 @@ if (Navigation) {
 
 if (PlayBar) {
   var _options10 = PlayBar.prototype.options;
-  _options10.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options10.messages, {
+  _options10.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options10.messages, {
     empty: 'No page to display',
     page: 'Page',
     of: 'of {0}',
@@ -1146,7 +1149,7 @@ if (PlayBar) {
 
 if (PropertyGrid) {
   var _options11 = PropertyGrid.prototype.options;
-  _options11.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options11.messages, {
+  _options11.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options11.messages, {
     property: 'Property',
     value: 'Value'
   });
@@ -1156,7 +1159,7 @@ if (PropertyGrid) {
 
 if (Quiz) {
   var _options12 = Quiz.prototype.options;
-  _options12.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options12.messages, {
+  _options12.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options12.messages, {
     optionLabel: 'Select...'
   });
 }
@@ -1165,7 +1168,7 @@ if (Quiz) {
 
 if (Social) {
   var _options13 = Social.prototype.options;
-  _options13.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options13.messages, {
+  _options13.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options13.messages, {
     classroom: 'Share to Google Classroom',
     facebook: 'Share to Facebook',
     google: 'Share to Google+',
@@ -1179,7 +1182,7 @@ if (Social) {
 
 if (Stage) {
   var _options14 = Stage.prototype.options;
-  _options14.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options14.messages, {
+  _options14.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options14.messages, {
     contextMenu: {
       delete: 'Delete',
       duplicate: 'Duplicate'
@@ -1192,7 +1195,7 @@ if (Stage) {
 
 if (StyleEditor) {
   var _options15 = StyleEditor.prototype.options;
-  _options15.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default.a.extend(true, _options15.messages, {
+  _options15.messages = jquery__WEBPACK_IMPORTED_MODULE_0___default().extend(true, _options15.messages, {
     columns: {
       name: 'Name',
       value: 'Value'
@@ -1214,11 +1217,10 @@ if (StyleEditor) {
 /*!*************************************************************!*\
   !*** ./src/js/vendor/kendo/cultures/kendo.culture.en-GB.js ***!
   \*************************************************************/
-/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1245,9 +1247,9 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 (function(f){
     if (true) {
         !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! kendo.core */ "./src/js/vendor/kendo/kendo.core.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (f),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+		(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
     } else {}
 }(function(){
 (function( window, undefined ) {
@@ -1321,11 +1323,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 /*!**************************************************************!*\
   !*** ./src/js/vendor/kendo/messages/kendo.messages.en-GB.js ***!
   \**************************************************************/
-/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/** 
- * Kendo UI v2020.2.617 (http://www.telerik.com/kendo-ui)                                                                                                                                               
+ * Kendo UI v2020.3.1118 (http://www.telerik.com/kendo-ui)                                                                                                                                              
  * Copyright 2020 Progress Software Corporation and/or one of its subsidiaries or affiliates. All rights reserved.                                                                                      
  *                                                                                                                                                                                                      
  * Kendo UI commercial licenses may be obtained at                                                                                                                                                      
@@ -1352,9 +1353,9 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 (function(f){
     if (true) {
         !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! kendo.core */ "./src/js/vendor/kendo/kendo.core.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (f),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+		(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
     } else {}
 }(function(){
 (function ($, undefined) {
@@ -1397,8 +1398,11 @@ $.extend(true, kendo.ui.ColumnMenu.prototype.options.messages,{
   "cancel": "Cancel",
   "done": "Done",
   "settings": "Edit Column Settings",
-  "lock": "Lock",
-  "unlock": "Unlock"
+  "lock": "Lock Column",
+  "unlock": "Unlock Column",
+  "stick" : "Stick Column",
+  "unstick": "Unstick Column",
+  "setColumnPosition": "Set Column Position"
 });
 }
 
@@ -1716,12 +1720,23 @@ $.extend(true, kendo.ui.Gantt.prototype.options.messages,{
     "editorTitle": "Task",
     "end": "End",
     "percentComplete": "Complete",
+    "plannedStart": "Planned Start",
+    "plannedEnd": "Planned End",
     "resources": "Resources",
     "resourcesEditorTitle": "Resources",
     "resourcesHeader": "Resources",
     "start": "Start",
     "title": "Title",
     "unitsHeader": "Units"
+  },
+  "plannedTasks": {
+    "switchText": "Planned Tasks",
+    "offsetTooltipAdvanced": "Met deadline earlier",
+    "offsetTooltipDelay": "Delay",
+    "seconds": "seconds",
+    "minutes": "minutes",
+    "hours": "hours",
+    "days": "days"
   },
   "save": "Save",
   "views": {
@@ -1877,6 +1892,7 @@ $.extend(true, kendo.ui.PivotFieldMenu.prototype.options.messages,{
 if (kendo.ui.RecurrenceEditor) {
 kendo.ui.RecurrenceEditor.prototype.options.messages =
 $.extend(true, kendo.ui.RecurrenceEditor.prototype.options.messages,{
+  "repeat": "Repeat",
   "frequencies": {
     "never": "Never",
     "hourly": "Hourly",
@@ -2567,9 +2583,89 @@ if (kendo.ui.Wizard) {
     });
 }
 
+
+/* PDFViewer messages */
+
+if (kendo.ui.PDFViewer) {
+    kendo.ui.PDFViewer.prototype.options.messages =
+    $.extend(true, kendo.ui.PDFViewer.prototype.options.messages, {
+        defaultFileName: "Document",
+        toolbar: {
+            zoom: {
+                zoomLevel: "zoom level",
+                zoomOut: "Zoom Out",
+                zoomIn: "Zoom In",
+                actualWidth: "Actual Width",
+                autoWidth: "Automatic Width",
+                fitToWidth: "Fit to Width",
+                fitToPage: "Fit to Page"
+            },
+            open: "Open",
+            exportAs: "Export",
+            download: "Download",
+            pager:  {
+                first: "Go to the first page",
+                previous: "Go to the previous page",
+                next: "Go to the next page",
+                last: "Go to the last page",
+                of: " of {0} ",
+                page: "page",
+                pages: "pages"
+            },
+            print: "Print",
+            toggleSelection: "Enable Selection",
+            togglePan: "Enable Panning",
+            search: "Search"
+        },
+        errorMessages: {
+            notSupported: "Only pdf files allowed.",
+            parseError: "PDF file fails to process.",
+            notFound: "File is not found.",
+            popupBlocked: "Popup is blocked."
+        },
+        dialogs: {
+            exportAsDialog: {
+                title: "Export...",
+                defaultFileName: "Document",
+                pdf: "Portable Document Format (.pdf)",
+                png: "Portable Network Graphics (.png)",
+                svg: "Scalable Vector Graphics (.svg)",
+                labels: {
+                    fileName: "File name",
+                    saveAsType: "Save as",
+                    page: "Page"
+                }
+            },
+            okText: "OK",
+            save: "Save",
+            cancel: "Cancel",
+            search: {
+                inputLabel: "Search Text",
+                matchCase: "Match Case",
+                next: "Next Match",
+                previous: "Previous Match",
+                close: "Close",
+                of: "of"
+            }
+        }
+    });
+}
+
 })(window.kendo.jQuery);
 }));
+
+/***/ }),
+
+/***/ "./webapp/locales/en.json":
+/*!********************************!*\
+  !*** ./webapp/locales/en.json ***!
+  \********************************/
+/***/ (function(module) {
+
+"use strict";
+module.exports = JSON.parse("{\"locale\":\"en\",\"dateFormat\":\"dd MMM yyyy\",\"languages\":[{\"value\":\"en\",\"name\":\"English\",\"icon\":\"\"},{\"value\":\"fr\",\"name\":\"French\",\"icon\":\"\"}],\"themes\":[{\"value\":\"black\",\"name\":\"Black\",\"colors\":[]},{\"value\":\"bootstrap\",\"name\":\"Bootstrap\",\"colors\":[]},{\"value\":\"flat\",\"name\":\"Flat\",\"colors\":[]},{\"value\":\"highcontrast\",\"name\":\"High Contrast\",\"colors\":[]},{\"value\":\"indigo\",\"name\":\"Indigo\",\"colors\":[]},{\"value\":\"memba\",\"name\":\"Memba\",\"colors\":[]},{\"value\":\"nordic\",\"name\":\"Nordic\",\"colors\":[]},{\"value\":\"turquoise\",\"name\":\"Turquoise\",\"colors\":[]},{\"value\":\"urban\",\"name\":\"Urban\",\"colors\":[]},{\"value\":\"vintage\",\"name\":\"Vintage\",\"colors\":[]}],\"assets\":{\"collections\":{\"summary\":\"Project\",\"google\":\"Google\"}},\"versions\":{\"draft\":{\"name\":\"Draft\"},\"published\":{\"name\":\"Version {0}\"}},\"meta\":{\"author\":\"Memba Sarl\",\"description\":\"Teachers deserve great tools to design rich and engaging assessments. Students deserve access to a large library of self-corrected exercises without worrying about the costs.\",\"keywords\":\"assessment,quiz,activity,exercise,workout,knowledge,test,teach,learn,study,visual,interactive,text,image,audio,video,multiple choice,question,answer,math,english,connect,drag,drop\",\"title\":\"Kidoju - Create and Share Phenomenal Quizzes\"},\"header\":{\"navbar\":{\"toggle\":\"Toggle navigation\",\"help\":{\"text\":\"Help\"},\"support\":{\"text\":\"Support\"},\"finder\":{\"text\":\"Explore\"},\"create\":{\"text\":\"Create\"},\"search\":{\"text\":\"Search\",\"placeholder\":\"Search...\"},\"signin\":{\"text\":\"Sign in\"},\"signout\":{\"text\":\"Sign out\"}},\"notifications\":{\"authenticatedUserLoadFailure\":\"There was an error loading the authenticated user.\",\"draftCreateFailure\":\"There was an error creating a new draft\",\"notYetImplemented\":\"Not yet implemented!\",\"searchSaveFailure\":\"There was an error saving the favourite.\",\"searchSaveSuccess\":\"Favourite successfully saved.\",\"signinFailure\":\"We could not authenticate you. Possibly you did not complete the authentication redirection within the required timeframe.\",\"signinSuccess\":\"You have been successfully authenticated and you can now create and access draft Kidojus.\",\"signinUrlFailure\":\"There was an error obtaining a sign-in url for the authentication provider.\",\"signoutFailure\":\"There was an error signing out.\",\"signoutSuccess\":\"Signed out successfully.\",\"summaryCreateFailure\":\"There was an error creating a new project.\"},\"search\":{\"title\":\"Search\",\"svg\":\"find_again\",\"text\":{\"label\":\"Title, description and tags\",\"placeholder\":\"Search...\"},\"category\":{\"label\":\"Category\"},\"author\":{\"label\":\"Author\",\"placeholder\":\"First letters of name\"},\"ageGroup\":{\"label\":\"Age Group:\",\"data\":[{\"text\":\"3-5\",\"value\":1},{\"text\":\"5-7\",\"value\":2},{\"text\":\"7-9\",\"value\":4},{\"text\":\"9-11\",\"value\":8},{\"text\":\"11-14\",\"value\":16},{\"text\":\"14-16\",\"value\":32},{\"text\":\"16-18\",\"value\":64},{\"text\":\"18+\",\"value\":128}]},\"sort\":{\"label\":\"Sort on:\",\"date\":\"Dates\",\"rate\":\"Ratings\",\"view\":\"Views\"},\"saveas\":{\"label\":\"Save As (requires to be signed in)\"},\"favourite\":{\"placeholder\":\"Your favourite name\"},\"validator\":{\"search\":\"You cannot search on empty criteria.\",\"favourite\":\"You need a name for a favourite\"},\"buttons\":{\"search\":{\"icon\":\"find_again\",\"text\":\"Search\"},\"cancel\":{\"icon\":\"close\",\"text\":\"Cancel\"}}}},\"footer\":{\"copyright\":\"Version %s - Copyright &copy; 2013-2019 Memba&reg; Sarl.\",\"language\":{\"label\":\"Language:\"},\"theme\":{\"label\":\"Theme:\"}},\"dialogs\":{\"neworganization\":{\"title\":\"New Organization\",\"message\":\"Please enter a name, then click the create button.\",\"administrator\":{\"label\":\"Administrator\"},\"name\":{\"label\":\"Name\",\"placeholder\":\"Enter a name\"},\"validator\":{\"title\":\"The name is not a string between 2 and 60 characters long or has invalid characters.\"},\"buttons\":{\"create\":{\"icon\":\"plus\",\"text\":\"Create\"},\"cancel\":{\"icon\":\"close\",\"text\":\"Cancel\"}}},\"newsummary\":{\"title\":\"New Quiz\",\"message\":\"Please enter a category and a title, then click the create button.\",\"title2\":{\"label\":\"Title\",\"placeholder\":\"Enter a title\"},\"language\":{\"label\":\"Language\"},\"category\":{\"label\":\"Category\",\"placeholder\":\"Select a category\"},\"author\":{\"label\":\"Author\"},\"validator\":{\"category\":\"A category is required.\",\"title\":\"The title is not a string between 2 and 60 characters long or has invalid characters.\"},\"buttons\":{\"create\":{\"icon\":\"plus\",\"text\":\"Create\"},\"cancel\":{\"icon\":\"close\",\"text\":\"Cancel\"}}},\"signin\":{\"message\":\"Please select an authentication provider. We shall never use it to post on your behalf.\",\"terms\":\"I accept the&nbsp;<a href=\\\"https://www.kidoju.com/support/en/terms\\\" target=\\\"_blank\\\">terms of use</a>.\",\"title\":\"Sign In\"},\"signout\":{\"message\":\"Do you really want to sign out?\",\"messageRedirect\":\"Do you really want to sign out and leave the page?\",\"title\":\"Question\"}},\"editor\":{\"console\":{\"text\":\"Diagnostic Console\",\"refresh\":\"Refresh\"},\"dialogs\":{\"addPagesFromBulkList\":{\"openDialogFailure\":\"There was an error opening a dialog.\",\"option\":\"Option {0}\",\"pageCreateFailure\":\"Line {0} has been ignored because it is ambiguous.\",\"pageCreateSuccess\":\"{0} line(s) imported as page(s) and {1} line(s) ignored.\",\"question\":\"Question\",\"solution\":\"Solution {0}\",\"title\":\"Import from list\"},\"addPagesFromSearch\":{\"openDialogFailure\":\"There was an error opening a dialog.\",\"title\":\"Import from search\"},\"addQuizPage\":{\"openDialogFailure\":\"There was an error opening a dialog.\",\"title\":\"Multiple choice\"},\"addTextBoxPage\":{\"openDialogFailure\":\"There was an error opening a dialog.\",\"title\":\"Short answer\"},\"markImage\":{\"title\":\"Insert an image\"},\"publishError\":{\"message\":\"You have {0} error(s) to fix before you can publish.\",\"title\":\"Error\"},\"publishQuestion\":{\"message\":\"Do you really want to publish considering a publication cannot be cancelled?\",\"title\":\"Question\"}},\"notifications\":{\"draftPublishFailure\":\"There was an error publishing the current draft. Make sur your draft has at least a component on every page and test logic is complete.\",\"fileCreateFailure\":\"There was an error uploading a file.\",\"fileCreateSuccess\":\"File successfully uploaded.\",\"fileDeleteFailure\":\"There was an error deleting a file.\",\"fileDeleteSuccess\":\"File successfully deleted.\",\"filesLoadFailure\":\"There was an error listing files.\",\"settingsLoadFailure\":\"There was an error loading settings.\",\"urlImportFailure\":\"There was an error importing a file, probably because its size is unknown or exceeds the allowed limit\",\"urlImportSuccess\":\"File successfully imported.\",\"uploadUrlFailure\":\"There was an error uploading a file, probably because its size is unknown or exceeds the allowed limit\",\"versionLoadFailure\":\"There was an error loading version data.\",\"versionSaveFailure\":\"There was an error saving version data.\",\"versionSaveSuccess\":\"Version successfully saved.\"},\"panelbar\":{\"toolbox\":{\"text\":\"Toolbox\"},\"explorer\":{\"text\":\"Page explorer\"},\"attributes\":{\"text\":\"Display attributes\"},\"properties\":{\"text\":\"Test logic\"},\"instructions\":{\"text\":\"User instructions\"},\"explanations\":{\"text\":\"Explanations\"},\"settings\":{\"text\":\"Alignments\",\"snapAngle\":\"Angle\",\"snapGrid\":\"Grid\"}},\"toolbar\":{\"home\":{\"icon\":\"home\"},\"page\":{\"text\":\"Page\",\"icon\":\"plus\",\"copy\":{\"text\":\"Duplicate\",\"icon\":\"copy\"},\"delete\":{\"text\":\"Delete\",\"icon\":\"garbage_can_red\"},\"style\":{\"text\":\"Style\",\"icon\":\"pens\"},\"import\":{\"text\":\"Import from search\",\"icon\":\"find_again\"},\"bulk\":{\"text\":\"Import from list\",\"icon\":\"list_style_numbered\"},\"quiz\":{\"text\":\"Multiple choice\",\"icon\":\"radio_button_group\"},\"textbox\":{\"text\":\"Short answer\",\"icon\":\"text_field\"}},\"play\":{\"text\":\"Play\",\"icon\":\"media_play\"},\"publish\":{\"text\":\"Publish\",\"icon\":\"cloud_upload\"},\"save\":{\"text\":\"Save\",\"icon\":\"floppy_disk\"},\"summary\":{\"text\":\"Details\",\"icon\":\"document_notebook\",\"assets\":{\"text\":\"Assets\",\"icon\":\"document_attachment\"},\"properties\":{\"text\":\"Properties\",\"icon\":\"document_size\"}}}},\"error\":{\"icon\":\"error\",\"back\":\"Back\"},\"finder\":{\"list\":{\"author\":{\"publishedOn\":\"Published on \",\"by\":\" by \"},\"buttons\":{\"play\":{\"icon\":\"media_play\",\"text\":\"Play\"},\"summary\":{\"icon\":\"document_notebook\",\"text\":\"Details\"}}},\"notifications\":{\"favouriteDestroyFailure\":\"There was an error deleting a favourite.\",\"favouriteDestroySuccess\":\"Favourite successfully deleted.\",\"settingsLoadFailure\":\"There was an error loading settings.\",\"summariesQueryFailure\":\"There was an error querying the database.\",\"versionsLoadFailure\":\"There was an error loading versions.\"},\"searchHeader\":{\"name\":\"Search\",\"icon\":\"find_again\"},\"toolbar\":{\"categories\":{\"text\":\"Categories\",\"icon\":\"box_surprise\"}},\"treeview\":{\"delete\":\"Delete\",\"rootNodes\":{\"home\":{\"name\":\"Explore\",\"icon\":\"home\"},\"favourites\":{\"name\":\"Favourites\",\"icon\":\"star\"},\"categories\":{\"name\":\"Categories\",\"icon\":\"folders2\"}}}},\"home\":{\"icon\":\"home\",\"title\":\"Create and Share Phenomenal Quizzes\",\"signin\":\"Please sign in to create a new Quiz\",\"description\":\"Teachers deserve great tools to design rich and engaging assessments. Students deserve access to a large library of self-corrected exercises without worrying about the costs.\",\"freeTrial\":\"Sharing is Free\",\"watchVideo\":\"Video\",\"gallery\":{\"laptop\":\"Phenomenal quizzes run in any browser, including Chrome, Firefox, Internet Explorer, Opera and Safari.\",\"mobile\":\"Phenomenal quizzes run on mobile devices, including Android, iPad and iPhone.\"},\"notifications\":{\"settingsLoadFailure\":\"There was an error loading settings.\"}},\"player\":{\"actor\":{\"created\":{\"label\":\"Member since:\"},\"points\":{\"label\":\"Points:\"}},\"comparison\":{\"text\":\"Compare your score among other users:\"},\"correction\":{\"columns\":{\"question\":\"Question\",\"page\":\"Page\",\"result\":\"Result\",\"score\":\"Score\",\"solution\":\"Solution\",\"value\":\"Answer\"},\"footer\":{\"score\":\"Total: #: sum #\"},\"pdf\":{\"paging\":\"Page #: pageNum # sur #: totalPages #\",\"title\":\"{0} ({1:dd-MMM-yyyy})\",\"actor\":\"{0} - Score: {1:p0}\"},\"tooltip\":{\"omit\":\"Omit:&nbsp;\",\"failure\":\"Failure:&nbsp;\",\"success\":\"Success:&nbsp;\",\"score\":\"Your score:&nbsp;\"}},\"dialogs\":{\"editQuestion\":{\"message\":\"Do you really want to create a new draft for editing?\",\"title\":\"Question\"},\"submitQuestion\":{\"message\":\"Do you really want to submit to get your score and the correction?\",\"title\":\"Question\"}},\"infopanel\":{\"instructions\":{\"text\":\"Instructions\",\"icon\":\"teacher\"},\"explanations\":{\"text\":\"Explanations\",\"icon\":\"teacher\"}},\"notifications\":{\"actorLoadFailure\":\"There was an error loading user data.\",\"draftCreateFailure\":\"There was an error creating a new draft\",\"ratingFailure\":\"There was an error rating this version. Maybe it has already been rated.\",\"ratingSuccess\":\"The current version was successfully rated.\",\"scoreCacheFailure\":\"There was an error loading score from session.\",\"scoreCalculationFailure\":\"There was an error calculating your score.\",\"scoreNotFound\":\"The score activity coud not be found.\",\"scoreReset\":\"Your score was reset.\",\"scoresLoadFailure\":\"There was an error loading scores.\",\"scoreSaveFailure\":\"There was an error saving the score.\",\"scoreSaveSuccess\":\"Score successfully saved.\",\"settingsLoadFailure\":\"There was an error loading settings.\",\"signinUrlFailure\":\"There was an error obtaining a sign-in url for the authentication provider.\",\"summaryLoadFailure\":\"There was an error loading summary data.\",\"versionLoadFailure\":\"There was an error loading version data.\"},\"panels\":{\"actor\":\"User\",\"close\":\"Close\",\"comparison\":\"Comparison Chart\",\"correction\":\"Correction Grid\",\"sharing\":\"Share\",\"signin\":\"Signin\",\"summary\":\"Kidoju\"},\"score\":{\"icon\":\"trophy\",\"title\":\"You have scored {0:p0}\"},\"sharing\":{\"text\":\"Please rate and share your experience.\"},\"signin\":{\"text\":\"Please sign in to get a detailed correction.\"},\"stage\":{\"messages\":{\"noPage\":\"Loading...\"}},\"toolbar\":{\"home\":{\"icon\":\"home\"},\"play\":{\"text\":\"Reset\",\"icon\":\"media_play\"},\"review\":{\"text\":\"Correction\",\"icon\":\"window_close\"},\"score\":{\"text\":\"Score\",\"icon\":\"trophy\"},\"submit\":{\"text\":\"Submit\",\"icon\":\"auction_hammer\"},\"summary\":{\"text\":\"Details\",\"icon\":\"document_notebook\",\"edit\":{\"text\":\"Edit\",\"icon\":\"graphics_tablet\"}},\"view\":{\"text\":\"View\",\"icon\":\"windows\",\"actor\":{\"text\":\"User\"},\"comparison\":{\"text\":\"Comparison Chart\"},\"correction\":{\"text\":\"Correction Grid\"},\"sharing\":{\"text\":\"Sharing\"},\"signin\":{\"text\":\"Signin\"},\"summary\":{\"text\":\"Kidoju\"}}}},\"summary\":{\"author\":{\"created\":{\"label\":\"Member since:\"},\"points\":{\"label\":\"Points:\"}},\"comments\":{\"signature\":{\"edit\":\"{0} is writing...\",\"view\":\"{0} wrote on {1:g}\"}},\"description\":{\"validator\":{\"description\":\"A description is limited to 2500 characters.\"},\"warning\":\"Missing description.\"},\"dialogs\":{\"editQuestion\":{\"message\":\"Do you really want to create a new draft for editing?\",\"title\":\"Question\"},\"iconEditor\":{\"openDialogFailure\":\"There was an error opening a dialog.\",\"title\":\"Select an icon\"}},\"notifications\":{\"authorLoadFailure\":\"There was an error loading author data.\",\"authenticatedUserLoadFailure\":\"There was an error loading the authenticated user.\",\"commentsLoadFailure\":\"There was an error loading comments.\",\"draftCreateFailure\":\"There was an error creating a new draft\",\"draftPublishFailure\":\"There was an error publishing the current draft. Make sur your draft has at least a component on each page and test logic is complete.\",\"draftPublishSuccess\":\"The current draft was successfully published.\",\"missingVersionWarning\":\"There is no version to delete, edit, play or publish. Please click the Edit button to create a new version.\",\"publishedVersionWarning\":\"A published version cannot be deleted or republished.\",\"settingsLoadFailure\":\"There was an error loading settings.\",\"ratingFailure\":\"There was an error rating this version. Maybe it has already been rated.\",\"ratingSuccess\":\"The current version was successfully rated.\",\"summaryLoadFailure\":\"There was an error loading summary data.\",\"summaryNotModified\":\"No changes have been made to the summary being saved\",\"summarySaveFailure\":\"There was an error saving summary data.\",\"summarySaveSuccess\":\"Summary successfully saved.\",\"versionDeleteFailure\":\"There was an error deleting version data.\",\"versionDeleteSuccess\":\"Version successfully deleted.\",\"versionsLoadFailure\":\"There was an error loading versions.\"},\"panels\":{\"add\":\"Add\",\"author\":\"Author\",\"close\":\"Close\",\"comments\":\"Comments\",\"description\":\"Description\",\"edit\":\"Edit\",\"ok\":\"Save\",\"properties\":\"Properties\",\"qrcode\":\"QR Code\",\"scores\":\"Scores\",\"share\":\"Share\",\"statistics\":\"Statistics\"},\"properties\":{\"ageGroup\":{\"label\":\"Age Group:\",\"data\":[{\"text\":\"3-5\",\"value\":1},{\"text\":\"5-7\",\"value\":2},{\"text\":\"7-9\",\"value\":4},{\"text\":\"9-11\",\"value\":8},{\"text\":\"11-14\",\"value\":16},{\"text\":\"14-16\",\"value\":32},{\"text\":\"16-18\",\"value\":64},{\"text\":\"18+\",\"value\":128}]},\"category\":{\"label\":\"Category:\"},\"tags\":{\"label\":\"Tags:\",\"placeholder\":\"Enter comma-separated tags.\",\"warning\":\"Missing tags.\"},\"title\":{\"label\":\"Title:\",\"placeholder\":\"Enter a title\"},\"validator\":{\"ageGroup\":\"An age group is required.\",\"category\":\"A category is required.\",\"tags\":\"A tag is not a string between 2 and 25 characters long or has invalid characters.\",\"title\":\"The title is not a string between 2 and 60 characters long or has invalid characters.\"}},\"share\":{\"embed\":{\"tab\":\"Embed\"},\"social\":{\"tab\":\"Social\"}},\"statistics\":{\"comments\":{\"label\":\"Comments:\"},\"created\":{\"label\":\"Created:\"},\"published\":{\"label\":\"Published:\",\"warning\":\"Unpublished\"},\"ratings\":{\"label\":\"Rating:\"},\"scores\":{\"label\":\"Avg. Score:\"},\"views\":{\"label\":\"Views:\"}},\"toolbar\":{\"edit\":{\"text\":\"Edit\",\"icon\":\"graphics_tablet\",\"delete\":{\"text\":\"Delete\",\"icon\":\"garbage_can_red\"}},\"home\":{\"icon\":\"home\"},\"play\":{\"text\":\"Play\",\"icon\":\"media_play\"},\"publish\":{\"text\":\"Publish\",\"icon\":\"cloud_upload\"},\"view\":{\"text\":\"View\",\"icon\":\"windows\",\"author\":{\"text\":\"Author\"},\"comments\":{\"text\":\"Comments\"},\"description\":{\"text\":\"Description\"},\"properties\":{\"text\":\"Properties\"},\"qrcode\":{\"text\":\"QR Code\"},\"scores\":{\"text\":\"Scores\"},\"share\":{\"text\":\"Share\"},\"statistics\":{\"text\":\"Statistics\"}}}},\"user\":{\"activities\":{\"grid\":{\"score\":\"Score\",\"title\":\"Title\",\"type\":\"Type\",\"date\":\"On\"}},\"dialogs\":{\"editQuestion\":{\"message\":\"Do you really want to create a new draft for editing?\",\"title\":\"Question\"}},\"description\":{\"validator\":{\"description\":\"A description is limited to 2500 characters.\"}},\"facebook\":{\"email\":{\"label\":\"Email:\"},\"link\":{\"button\":\"Facebook\"},\"name\":{\"label\":\"Name:\"},\"permissions\":{\"button\":\"Permissions\"},\"revoke\":{\"button\":\"Revoke\"}},\"google\":{\"email\":{\"label\":\"Email:\"},\"link\":{\"button\":\"Google+\"},\"name\":{\"label\":\"Name:\"},\"permissions\":{\"button\":\"Permissions\"},\"revoke\":{\"button\":\"Revoke\"}},\"live\":{\"email\":{\"label\":\"Email:\"},\"link\":{\"button\":\"Windows Live\"},\"name\":{\"label\":\"Name:\"},\"permissions\":{\"button\":\"Permissions\"},\"revoke\":{\"button\":\"Revoke\"}},\"notifications\":{\"activitiesLoadFailure\":\"There was an error loading user activities.\",\"draftCreateFailure\":\"There was an error creating a new draft\",\"missingVersionWarning\":\"There is no version to delete, edit, play or publish. Please click the Edit button to create a new version.\",\"settingsLoadFailure\":\"There was an error loading settings.\",\"summariesLoadFailure\":\"There was an error loading user summaries.\",\"userLoadFailure\":\"There was an error loading user data.\",\"userNotModified\":\"No changes have been made to the user being saved\",\"userSaveFailure\":\"There was an error saving user data.\",\"userSaveSuccess\":\"User successfully saved.\",\"versionsLoadFailure\":\"There was an error loading versions.\"},\"panels\":{\"activities\":\"Activities\",\"close\":\"Close\",\"description\":\"Description\",\"edit\":\"Edit\",\"facebook\":\"Facebook\",\"google\":\"Google\",\"live\":\"Windows Live\",\"ok\":\"Save\",\"profile\":\"Profile\",\"summaries\":\"Kidojus\",\"twitter\":\"Twitter\"},\"profile\":{\"created\":{\"label\":\"Member since:\"},\"email\":{\"label\":\"Email:\"},\"firstName\":{\"label\":\"First name:\"},\"lastName\":{\"label\":\"Last name:\"},\"points\":{\"label\":\"Points:\"}},\"summaries\":{\"grid\":{\"buttons\":{\"edit\":{\"icon\":\"graphics_tablet\",\"text\":\"Edit\"},\"play\":{\"icon\":\"media_play\",\"text\":\"Play\"}},\"commands\":\"Commands\",\"icon\":\"Icon\",\"notifications\":{\"unpublished\":\"Unpublished\",\"missingTags\":\"Missing tags\"},\"published\":\"Published\",\"tags\":\"Tags\",\"title\":\"Title\",\"views\":\"Views\"}},\"toolbar\":{\"home\":{\"icon\":\"home\"},\"link\":{\"text\":\"Link Account\",\"facebook\":{\"text\":\"Facebook\"},\"google\":{\"text\":\"Google\"},\"live\":{\"text\":\"Live\"},\"twitter\":{\"text\":\"Twitter\"}},\"view\":{\"text\":\"View\",\"icon\":\"windows\",\"activities\":{\"text\":\"Activities\"},\"description\":{\"text\":\"Description\"},\"facebook\":{\"text\":\"Facebook\"},\"google\":{\"text\":\"Google\"},\"live\":{\"text\":\"Windows Live\"},\"profile\":{\"text\":\"Profile\"},\"summaries\":{\"text\":\"Kidojus\"},\"twitter\":{\"text\":\"Twitter\"}}},\"twitter\":{\"email\":{\"label\":\"Email:\"},\"link\":{\"button\":\"Twitter\"},\"name\":{\"label\":\"Name:\"},\"permissions\":{\"button\":\"Permissions\"},\"revoke\":{\"button\":\"Revoke\"}}},\"errors\":{\"http\":{\"400\":{\"status\":400,\"title\":\"400 - Bad Request\",\"message\":\"We are sorry, but there is something wrong in your request. The URL may be misspelled.\"},\"401\":{\"status\":401,\"title\":\"401 - Unauthorized\",\"message\":\"We are sorry, but your request is unauthorized.\"},\"403\":{\"status\":403,\"title\":\"403 - Forbidden\",\"message\":\"We are sorry, but your request is forbidden.\"},\"404\":{\"status\":404,\"title\":\"404 - Not Found\",\"message\":\"We are sorry, the page you requested cannot be found. The URL may be misspelled or the page you’re looking for is no longer available.\"},\"500\":{\"status\":500,\"title\":\"500 - Generic Error\",\"message\":\"We are sorry, there has been an unknown error.\"},\"1000\":{\"status\":403,\"title\":\"1000 - Disable private mode or upgrade your browser\",\"message\":\"This web site requires recent browser features including (but not limited to) audio and video, blobs, canvas, css transforms, file api, local and session storage, scalable vector graphics and web workers.\"},\"1001\":{\"status\":401,\"title\":\"401 - Unauthorized\",\"message\":\"Sorry, the provider did not authenticate you.\"}},\"mongoose\":{\"validation\":{\"status\":400,\"title\":\"400 - Bad Request\",\"message\":\"Database validation error.\"}},\"params\":{\"invalidFileId\":{\"status\":404,\"title\":\"404 - Not Found\",\"message\":\"Invalid file id: use a name of 3 to 50 and an extension of 2 to 7 alphanumeric characters\"},\"invalidLanguage\":{\"status\":404,\"title\":\"404 - Not Found\",\"message\":\"Invalid language: this language is not implemented.\"},\"invalidMonth\":{\"status\":404,\"title\":\"404 - Not Found\",\"message\":\"Invalid month: use a two-digit number between 01 and 12\"},\"invalidObjectId\":{\"status\":404,\"title\":\"404 - Not Found\",\"message\":\"Invalid object identifier: an identifier is an hexadecimal string of 24 characters.\"},\"invalidProvider\":{\"status\":404,\"title\":\"404 - Not Found\",\"message\":\"Invalid provider: use `facebook`, `google`, `live` or `twitter`\"},\"invalidYear\":{\"status\":404,\"title\":\"404 - Not Found\",\"message\":\"Invalid year: use a four-digit number between 2014 and the current year\"}}}}");
 
 /***/ })
 
 }]);
+//# sourceMappingURL=app-culture-en-es6.bundle.js.map?v=0.3.8
