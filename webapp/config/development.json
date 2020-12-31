@@ -2,17 +2,17 @@
     "assets": {
         "audio": {
             "schemes": {
-                "data": "https://s3.amazonaws.com/kidoju.data/"
+                "data": "https://s3.amazonaws.com/memba.test/"
             }
         },
         "image": {
             "schemes": {
-                "data": "https://s3.amazonaws.com/kidoju.data/"
+                "data": "https://s3.amazonaws.com/memba.test/"
             }
         },
         "video": {
             "schemes": {
-                "data": "https://s3.amazonaws.com/kidoju.data/"
+                "data": "https://s3.amazonaws.com/memba.test/"
             }
         }
     },
@@ -21,16 +21,21 @@
         "clientID": "628502177236998"
     },
     "level": 0,
+    "slack": {
+        "channels": {
+            "weberrors": "#devtest"
+        },
+        "disabled": true
+    },
     "uris" : {
         "rapi": {
-            "root": "http://10.0.0.105:3001"
+            "root": "http://localhost:3001"
         },
         "webapp": {
-            "root": "http://10.0.0.105:3001",
-            "logger": "/api/logger"
+            "root": "http://localhost:3000"
         },
         "webpack": {
-            "root": "./build/"
+            "root": "http://localhost:3000/build/"
         }
     }
 }

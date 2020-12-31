@@ -21,6 +21,11 @@
         "clientID": "892459787527630"
     },
     "level": 2,
+    "slack": {
+        "channels": {
+            "weberrors": "#weberrors"
+        }
+    },
     "uris": {
         "rapi": {
             "root": "https://www.kidoju.com"
@@ -29,7 +34,7 @@
             "root": "https://www.kidoju.com"
         },
         "webpack": {
-            "root": "./build/"
+            "root": "https://cdn.kidoju.com/build/"
         }
     }
 }

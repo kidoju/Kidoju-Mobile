@@ -21,6 +21,12 @@
         "clientID": "628502177236998"
     },
     "level": 0,
+    "slack": {
+        "channels": {
+            "weberrors": "#devtest"
+        },
+        "disabled": true
+    },
     "uris" : {
         "rapi": {
             "root": "http://lvh.me:3001"
