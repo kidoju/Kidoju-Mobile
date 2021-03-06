@@ -15,9 +15,9 @@ module.exports = (config) => {
         // Increase timeout especially for phantomJS
         browserDisconnectTimeout: 5000,
 
-        // Frameworks to use
+        // Frameworks to use (do not include sinon-chai)
         // Available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['mocha', 'chai', 'sinon'],
+        frameworks: ['mocha', 'webpack'],
 
         // list of files / patterns to load in the browser
         // See: http://karma-runner.github.io/0.12/config/files.html
@@ -178,7 +178,11 @@ module.exports = (config) => {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'src/js/*.js': ['coverage'],
+            // Do not add the coverage preprocessor
+            // @see https://github.com/istanbuljs/babel-plugin-istanbul#karma
+            //  '/src/js/*.js': ['coverage']
+            '/src/js/**/*.es6': ['coverage'],
+            'test/browser/**/*.test.es6': ['webpack', 'sourcemap'],
         },
 
         // test results reporter to use
