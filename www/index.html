@@ -290,22 +290,19 @@
 
 <!-- Correction view (Review mode) -->
 <div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-hide="app.viewModel.onCorrectionViewHide" data-init="app.viewModel.onCorrectionViewInit" data-show="app.viewModel.onCorrectionViewShow">
-    <div class="stretched-item">
-        <div class="centered">
-            <div data-role="stage" data-bind="source: page.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
-        </div>
+    <div class="app-stage-container">
+        <div data-role="stage" data-bind="source: page.components, properties: current.test" data-mode="review" data-messages="{ noPage: 'Loading...' }"></div>
     </div>
-    <div class="stretched-item k-widget km-content padding">
-        <div class="heading">
-            <h2>
-                <img src="./img/icons/teacher.svg" alt="Explanations">
-                <span class="explanations">Explanations</span>
-                <a data-role="button" class="tts" data-icon="ear" data-tts="page.explanations" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
-            </h2><hr/>
+    <div class="km-content km-alt app-info-container">
+        <div class="app-heading">
+            <img class="app-icon" src="./img/icons/teacher.svg" alt="Explanations">
+            <span class="app-title">Explanations</span>
+            <a data-role="button" class="app-tts" data-icon="ear" data-tts="page.explanations" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
+            <hr/>
         </div>
         <div data-role="touch" data-enable-swipe="true" data-swipe="app.viewModel.onPageSwipe">
             <div data-role="scroller" data-use-native="true">
-                <div class="markdown" data-role="markdown" data-bind="value: page.explanations"></div>
+                <div class="app-markdown" data-role="markdown" data-bind="value: page.explanations"></div>
             </div>
         </div>
     </div>
@@ -361,23 +358,19 @@
 
 <!-- Player view -->
 <div id="player" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-hide="app.viewModel.onPlayerViewHide" data-init="app.viewModel.onPlayerViewInit" data-show="app.viewModel.onPlayerViewShow">
-    <div id="floating" data-role="floating" data-observed=".k-toolbar:not([style*='display: none']) [data-uid]" data-attribute-filter="['style']"></div>
-    <div class="stretched-item">
-        <div class="centered">
-            <div data-role="stage" data-bind="source: page.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
-        </div>
+    <div class="app-stage-container">
+        <div data-role="stage" data-bind="source: page.components, properties: current.test" data-mode="play" data-messages="{ noPage: 'Loading...' }"></div>
     </div>
-    <div class="stretched-item k-widget km-content padding">
-        <div class="heading">
-            <h2>
-                <img src="./img/icons/teacher.svg" alt="Instructions">
-                <span class="instructions">Instructions</span>
-                <a data-role="button" class="tts" data-icon="ear" data-tts="page.instructions" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
-            </h2><hr/>
+    <div class="km-content km-alt app-info-container">
+        <div class="app-heading">
+            <img class="app-icon" src="./img/icons/teacher.svg" alt="Instructions">
+            <span class="app-title">Instructions</span>
+            <a data-role="button" class="app-tts" data-icon="ear" data-tts="page.instructions" data-click-on="down" data-click="app.viewModel.onTTSClick"></a>
+            <hr/>
         </div>
         <div data-role="touch" data-enable-swipe="true" data-swipe="app.viewModel.onPageSwipe">
             <div data-role="scroller" data-use-native="true">
-                <div class="markdown" data-role="markdown" data-bind="value: page.instructions"></div>
+                <div class="app-markdown" data-role="markdown" data-bind="value: page.instructions"></div>
             </div>
         </div>
     </div>

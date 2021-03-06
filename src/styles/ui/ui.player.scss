@@ -6,39 +6,50 @@
         display: flex;
         flex-wrap: wrap;
 
-        .stretched-item.padding {
+        .app-stage-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-info-container {
+            border-style: solid;
+            box-sizing: border-box !important;
             padding: 1em;
 
-            .heading {
-                h2 {
+            .app-heading {
+                align-items: center;
+                display: flex;
+                font-size: 1rem;
+                margin: 0;
+
+                img.app-icon {
+                    height: 1.5em;
+                    width: 1.5em;
+                    margin-right: 0.5em;
+                }
+
+                span.app-title {
+                    font-weight: bold;
+                    flex: 1;
+                }
+
+                a.app-tts {
+                    border-radius: 50%;
+                    font-size: 0.9em;
+                    height: 1.8em;
                     margin: 0;
-                    font-size: 1rem;
+                    padding: 0;
+                    width: 1.8em;
 
-                    img {
-                        height: 1.5em;
-                        width: 1.5em;
-                        margin-right: 0.5em;
+                    span.km-icon.km-notext {
                         vertical-align: middle;
-                    }
-
-                    .tts.km-button {
-                        font-size: 0.9em;
-                        height: 1.8em;
-                        width: 1.8em;
-                        padding: 0;
-                        margin: 0;
-                        border-radius: 50%;
-                        float: right;
-
-                        span.km-icon.km-notext {
-                            vertical-align: middle;
-                        }
                     }
                 }
             }
 
             /*
-            .markdown {
+            .app-markdown {
                 min-height: 2em; // So as to have a surface for swiping between pages
             }
             */
