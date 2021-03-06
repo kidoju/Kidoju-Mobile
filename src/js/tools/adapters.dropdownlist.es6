@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.dropdownlist';
@@ -29,7 +29,7 @@ const DropDownListAdapter = BaseAdapter.extend({
         BaseAdapter.fn.init.call(this, options);
         this.type = CONSTANTS.STRING;
         this.defaultValue = this.defaultValue || (this.nullable ? null : '');
-        this.editor = 'select';
+        this.editor = CONSTANTS.SELECT;
         this.attributes = $.extend({}, this.attributes, attributes);
         this.attributes[attr(CONSTANTS.ROLE)] = 'dropdownlist';
         this.attributes[attr('text-field')] = 'text';

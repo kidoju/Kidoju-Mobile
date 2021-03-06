@@ -6,7 +6,7 @@
 // rapi.controller.es6 is the base controller to add authentication to a web page
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.data';
@@ -71,6 +71,21 @@ const BaseController = ObservableObject.extend({
     },
 
     /**
+     * Event handlers
+     * Bound to the change, set and get events of this ObservableObject
+     * Defined as part of a feature
+     *
+     * feature = {
+     *     events: {
+     *         change: (e) => { ... }
+     *         get: (e) => { ... }
+     *         set: (e) => { ... }
+     *     }
+     * }
+     */
+    _events: [],
+
+    /**
      * Initializers
      */
     _initializers: [],
@@ -102,6 +117,7 @@ const BaseController = ObservableObject.extend({
 
     /**
      * Run the initializers
+     * @returns {*}
      */
     ready() {
         return $.when(...this._initializers);
@@ -119,28 +135,50 @@ const BaseController = ObservableObject.extend({
             if (feature && $.type(_name) === CONSTANTS.STRING) {
                 Object.keys(feature).forEach((key) => {
                     const prop = feature[key];
-                    if (key === 'load' && $.isFunction(prop)) {
+                    if (key === 'events' && $.isPlainObject(prop)) {
+                        // `change`, `get` and `set` events of ObservableObject
+                        Object.keys(prop).forEach((event) => {
+                            const handler = prop[event];
+                            if (
+                                ['change', 'get', 'set'].indexOf(event) > -1 &&
+                                $.isFunction(handler)
+                            ) {
+                                // Note cannot extend without breaking bindings
+                                this._events[_name] = this._events[_name] || {};
+                                this._events[_name][event] = handler.bind(this);
+                                this.bind(event, this._events[_name][event]);
+                            }
+                        });
+                    } else if (key === 'load' && $.isFunction(prop)) {
+                        // Loaders (viewModel data)
                         this._loaders[_name] = prop.bind(this);
                     } else if (key === 'reset' && $.isFunction(prop)) {
+                        // Resetters (viewModel data)
                         this._resetters[_name] = prop.bind(this);
                     } else if (key === 'resize' && $.isFunction(prop)) {
+                        // Resizers, i.e. handlers for window resize event, including orientation change
                         this._resizers[_name] = prop.bind(this);
                     } else if (key === 'VIEW' && $.isPlainObject(prop)) {
+                        // VIEW selectors (ids, class names)
                         $.extend(true, this.VIEW, prop);
                     } else if (key === 'VIEW_MODEL' && $.isPlainObject(prop)) {
+                        // VIEW_MODEL selectors
                         $.extend(true, this.VIEW_MODEL, prop);
                     } else if (
                         $.type(prototype[key]) === CONSTANTS.UNDEFINED &&
                         $.isFunction(prop)
                     ) {
+                        // All other functions and event handlers, especially view init, view show and buttons clicks
                         // BEWARE: With MVVM, there is a chance that this will be rebound to another object
                         // this[key] = prop.bind(this);
                         prototype[key] = prop;
                     } else if ($.type(this[key]) === CONSTANTS.UNDEFINED) {
+                        // Anything else
                         if (key !== '_name') {
                             this.set(key, prop);
                         }
                     } else {
+                        // Avoid duplicate names across features
                         throw new Error(
                             `${feature._name} uses key ${key} which has already been added (duplicate)`
                         );

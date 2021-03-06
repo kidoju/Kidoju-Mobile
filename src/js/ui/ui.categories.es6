@@ -72,7 +72,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        return viewModel[VIEW_MODEL.CATEGORIES].read();
+        return viewModel.get(VIEW_MODEL.CATEGORIES).read();
     },
 
     /**
@@ -90,7 +90,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        return viewModel[VIEW_MODEL.CATEGORIES]
+        return viewModel.get(VIEW_MODEL.CATEGORIES)
             .data()
             .filter((category) => RX_TOP_LEVEL_MATCH.test(category.id))
             .sort((a, b) => {

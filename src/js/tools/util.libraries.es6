@@ -20,14 +20,15 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import { dateReviver } from '../common/window.util.es6';
-import regexpEditor from '../editors/editors.regex.es6'; // TODO use string to designate entry in util.editors;
+import basiclist from '../editors/editors.basiclist.es6';
+import regex from '../editors/editors.regex.es6';
 import TOOLS from './util.constants.es6';
 
 const { format } = window.kendo;
@@ -211,17 +212,15 @@ const arrayLibrary = {
             // So we use |•| because there is little chance any value would contain this sequence
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
-                '// Note: value is an array and solution is a multiline string\n\t' +
-                    'return (value || []).sort().join(•).trim().replace(/\\s*|•|\\s*/g, "|•|") === String(solution).trim().split("\\n").sort().join("|•|").replace(/\\s*|•|\\s*/g, "|•|");'
+                'return _.isEqual(value.map(function (a) { return String(a).trim(); }), solution.map(function (a) { return String(a).trim(); }));'
             ),
         },
         {
-            key: 'ignoreCaseEqual', // TODO <--- This is useless because we generally know the arrays
+            key: 'ignoreCaseEqual',
             name: __('libraries.arrayLibrary.ignoreCaseEqual.name'),
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
-                '// Note: value is an array and solution is a multiline string\n\t' +
-                    'return (value || []).sort().join("|•|").trim().replace(/\\s*|•|\\s*/g, "|•|").toLowerCase() === String(solution).trim().split("\\n").sort().join("|•|").replace(/\\s*|•|\\s*/g, "|•|").toLowerCase();'
+                'return _.isEqual(value.map(function (a) { return String(a).trim().toUpperCase(); }), solution.map(function (a) { return String(a).trim().toUpperCase(); }));'
             ),
         },
         {
@@ -229,10 +228,7 @@ const arrayLibrary = {
             name: __('libraries.arrayLibrary.sumEqual.name'),
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_SOLUTION,
-                '// Note: value is an array and solution is a multiline string\n\t' +
-                    'var ret = 0;\t' +
-                    '(value || []).forEach(function(val){ ret += parseFloat((val || "").trim() || 0); });\t' +
-                    'return ret === parseFloat(String(solution).trim());'
+                'return _.sum(value.map(function(a) { return parseFloat(a); })) === _.sum(solution.map(function(a) { return parseFloat(a); }));'
             ),
         },
     ],
@@ -428,6 +424,18 @@ const stringLibrary = {
             ),
         },
         {
+            key: 'fromList',
+            name: __('libraries.stringLibrary.fromList.name'),
+            formula:
+                'function validate(value, params) {\n\treturn (params || []).indexOf(value) > -1;\n}',
+            editor: basiclist,
+            options: {
+                field: 'params', // Note: this is required for editors
+                type: 'string',
+            },
+            defaultParams: [],
+        },
+        {
             key: 'ignoreCaseEqual',
             name: __('libraries.stringLibrary.ignoreCaseEqual.name'),
             formula: format(
@@ -441,9 +449,13 @@ const stringLibrary = {
             // Do not use RegExp constructor because escaping backslashes is a nightmare
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_PARAMS,
-                'return new RegExp(params, "i").test(String(value).trim());'
+                'return new RegExp(params, "i").test(String(value).trim());' // i is case insensitive
             ),
-            editor: regexpEditor,
+            editor: regex,
+            options: {
+                field: 'params', // Note: this is required for editors
+            },
+            defaultParams: '\\w+',
         },
         {
             key: 'ignoreDiacriticsEqual',
@@ -459,9 +471,13 @@ const stringLibrary = {
             // Do not use RegExp constructor because escaping backslashes is a nightmare
             formula: format(
                 TOOLS.VALIDATION_LIBRARY_PARAMS,
-                'return new RegExp(params, "i").test(String(value).trim());'
+                'return new RegExp(params).test(String(value).trim());'
             ),
-            editor: regexpEditor,
+            editor: regex,
+            options: {
+                field: 'params', // Note: this is required for editors
+            },
+            defaultParams: '\\w+',
         },
         {
             key: 'metaphone',

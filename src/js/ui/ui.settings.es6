@@ -140,7 +140,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         const value = viewModel.get(VIEW_MODEL.LANGUAGE);
-        const found = viewModel[VIEW_MODEL.LANGUAGES].filter(
+        const found = viewModel.get(VIEW_MODEL.LANGUAGES).filter(
             (language) => language.value === value
         );
         return found[0] && found[0].text;
@@ -155,7 +155,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         const value = viewModel.get(VIEW_MODEL.THEME);
-        const found = viewModel[VIEW_MODEL.THEMES].filter(
+        const found = viewModel.get(VIEW_MODEL.THEMES).filter(
             (theme) => theme.value === value
         );
         return found[0] && found[0].text;

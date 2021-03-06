@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.listview';
@@ -33,7 +33,7 @@ const WIDGET_CLASS = 'k-widget kj-imagelist';
 const TOOLTIP_TMPL =
     '<div style="background-image:url({1});" class="kj-imagelist-tooltip"><div class="kj-imagelist-title">{0}</div></div>';
 const TOOLBAR_TMPL =
-    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><div class="k-button k-button-icontext"><span class="k-icon k-i-plus"/>{0}</div></div></div>';
+    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><a class="k-button k-button-icontext"><span class="k-icon k-i-plus"></span>{0}</a></div></div>';
 const ITEM_TMPL =
     '<li class="k-list-item">' +
     '<div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>' +

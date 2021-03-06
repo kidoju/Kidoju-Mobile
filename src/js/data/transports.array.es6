@@ -6,7 +6,7 @@
 // TODO apply projection in get/read
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import CONSTANTS from '../common/window.constants.es6';

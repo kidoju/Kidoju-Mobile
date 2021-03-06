@@ -19,7 +19,7 @@ import Logger from '../common/window.logger.es6';
 import dialogs from '../plugins/plugins.dialogs.es6';
 
 const {
-    // format,
+    format,
     mobile: {
         Application,
         ui: { Scroller, ScrollView, View },
@@ -109,13 +109,12 @@ const feature = {
         } = app;
         const id =
             view.id === CONSTANTS.SLASH ? VIEW.DEFAULT : view.id.substr(1); // Remove #
-        const viewTitle = __(`mobile.${id}.viewTitle`); // Note: this supposes culture names match view id names
-        /*
-        if (id === VIEW.SCORE) {
-            viewTitle = format(
-                viewTitle,
-                viewModel.get(VIEW_MODEL.CURRENT.SCORE || 0) / 100
-            );
+        let viewTitle = __(`mobile.${id}.viewTitle`); // Note: this supposes culture names match view id names
+        if (id === VIEW.SCORE._) {
+            // viewTitle = format(
+            //     viewTitle,
+            //     viewModel.get(VIEW_MODEL.CURRENT.SCORE || 0) / 100
+            // );
         } else if (id === VIEW.CORRECTION._ || id === VIEW.PLAYER._) {
             viewTitle = format(
                 viewTitle,
@@ -123,7 +122,6 @@ const feature = {
                 viewModel.totalPages$()
             );
         }
-         */
         viewModel.setNavBar(view);
         viewModel.setNavBarTitle(view, viewTitle);
         if (viewModel.application instanceof Application) {
@@ -161,6 +159,7 @@ const feature = {
      * @private
      */
     setNavBar(view) {
+        // TODO: This could also be split across features
         assert.instanceof(
             View,
             view,
@@ -325,7 +324,9 @@ const feature = {
                 'kendo.mobile.ui.View'
             )
         );
-        const { viewModel: { VIEW }} = app;
+        const {
+            viewModel: { VIEW },
+        } = app;
         const $navbar = view.header.find('.km-navbar');
         const navbar = $navbar.data('kendoMobileNavBar');
         if ($.type(text) === CONSTANTS.UNDEFINED) {
@@ -337,7 +338,45 @@ const feature = {
             navbar.title(text);
         }
         // Fix km-no-title issue to align km-view-title properly within km-navbar
-        view.header.find('.km-view-title').removeClass('km-no-title'); // Does not work here so it is repeated in onGenericViewShow, where it works
+        // Does not work here so it is repeated in onGenericViewShow, where it works
+        view.header.find('.km-view-title').removeClass('km-no-title');
+    },
+
+    /**
+     * Get view from button click
+     * @param e
+     * @private
+     */
+    getViewFromButtonClick(e) {
+        assert.isNonEmptyPlainObject(
+            e,
+            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
+        );
+        assert.instanceof(
+            $,
+            e.button,
+            assert.format(
+                assert.messages.instanceof.default,
+                'e.button',
+                'jQuery'
+            )
+        );
+        const $view = e.button.closest('.km-view');
+        assert.hasLength(
+            $view,
+            assert.format(assert.messages.hasLength.default, '$view')
+        );
+        const view = $view.data('kendoMobileView');
+        assert.instanceof(
+            View,
+            view,
+            assert.format(
+                assert.messages.instanceof.default,
+                'view',
+                'kendo.mobile.ui.View'
+            )
+        );
+        return view;
     },
 
     /**
@@ -345,36 +384,13 @@ const feature = {
      * @param e
      */
     onNavBarPreviousUserClick(e) {
-        assert.isNonEmptyPlainObject(
-            e,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
-        );
-        assert.instanceof(
-            $,
-            e.button,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e.button',
-                'jQuery'
-            )
-        );
-        const $view = e.button.closest('.km-view');
-        assert.hasLength(
-            $view,
-            assert.format(assert.messages.hasLength.default, '$view')
-        );
-        const view = $view.data('kendoMobileView');
-        assert.instanceof(
-            View,
-            view,
-            assert.format(
-                assert.messages.instanceof.default,
-                'view',
-                'kendo.mobile.ui.View'
-            )
-        );
-        app.viewModel.previousUser();
-        app.viewModel.setNavBar(view);
+        const {
+            getViewFromButtonClick,
+            previousUser,
+            setNavBar,
+        } = app.viewModel;
+        previousUser();
+        setNavBar(getViewFromButtonClick(e));
     },
 
     /**
@@ -382,42 +398,16 @@ const feature = {
      * @param e
      */
     onNavBarNextUserClick(e) {
-        assert.isNonEmptyPlainObject(
-            e,
-            assert.format(assert.messages.isNonEmptyPlainObject.default, 'e')
-        );
-        assert.instanceof(
-            $,
-            e.button,
-            assert.format(
-                assert.messages.instanceof.default,
-                'e.button',
-                'jQuery'
-            )
-        );
-        const $view = e.button.closest('.km-view');
-        assert.hasLength(
-            $view,
-            assert.format(assert.messages.hasLength.default, '$view')
-        );
-        const view = $view.data('kendoMobileView');
-        assert.instanceof(
-            View,
-            view,
-            assert.format(
-                assert.messages.instanceof.default,
-                'view',
-                'kendo.mobile.ui.View'
-            )
-        );
-        app.viewModel.nextUser();
-        app.viewModel.setNavBar(view);
+        const { getViewFromButtonClick, nextUser, setNavBar } = app.viewModel;
+        nextUser();
+        setNavBar(getViewFromButtonClick(e));
     },
 
     /**
      * Event handler triggered when clicking the first page button in the navbar
      */
     onNavBarFirstPageClick() {
+        // Note: NavBar is updated from change event handler because users can also swipe
         app.viewModel.firstPage();
     },
 
@@ -425,6 +415,7 @@ const feature = {
      * Event handler triggered when clicking the previous page button in the navbar
      */
     onNavBarPreviousPageClick() {
+        // Note: NavBar is updated from change event handler because users can also swipe
         app.viewModel.previousPage();
     },
 
@@ -432,6 +423,7 @@ const feature = {
      * Event handler triggered when clicking the next page button in the navbar
      */
     onNavBarNextPageClick() {
+        // Note: NavBar is updated from change event handler because users can also swipe
         app.viewModel.nextPage();
     },
 
@@ -439,6 +431,7 @@ const feature = {
      * Event handler triggered when clicking the last page button in the navbar
      */
     onNavBarLastPageClick() {
+        // Note: NavBar is updated from change event handler because users can also swipe
         app.viewModel.lastPage();
     },
 
@@ -474,7 +467,7 @@ const feature = {
                 CONSTANTS.RX_LANGUAGE
             )
         );
-        const summaryId = viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARYID);
+        const summaryId = viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARY_ID);
         assert.match(
             CONSTANTS.RX_MONGODB_ID,
             summaryId,
@@ -548,7 +541,7 @@ const feature = {
                            app.gatrackEvent(
                                 ANALYTICS.CATEGORY.ACTIVITY,
                                 ANALYTICS.ACTION.SCORE,
-                                viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARYID),
+                                viewModel.get(VIEW_MODEL.CURRENT.VERSION.SUMMARY_ID),
                                 parseInt(viewModel.get(VIEW_MODEL.CURRENT.SCORE), 10)
                             );
                         }
@@ -580,7 +573,7 @@ const feature = {
         );
         const {
             viewModel,
-            viewModel: { application, VIEW_MODEL }
+            viewModel: { application, VIEW_MODEL },
         } = app;
         const language = __.locale;
         assert.equal(
@@ -613,7 +606,7 @@ const feature = {
         const summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
         assert.equal(
             summaryId,
-            viewModel.get(VIEW_MODEL.VERSION.SUMMARYID),
+            viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("version.summaryId")',

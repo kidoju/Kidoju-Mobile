@@ -6,7 +6,7 @@
 /* eslint-disable no-param-reassign */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
@@ -88,10 +88,20 @@ export default function extendModelWithTransport(DataModel, transport) {
         } else {
             const that = this;
             const data = {};
+            // Set id
             if (!bare) {
                 data[idField] = options[idField];
             }
-            // delete options[idField];
+            // Update partition
+            const partition = that.transport.partition();
+            if ($.isPlainObject(partition)) {
+                Object.keys(partition).forEach((key) => {
+                    if (Object.prototype.hasOwnProperty.call(options, key)) {
+                        partition[key] = options[key];
+                    }
+                });
+                that.transport.partition(partition);
+            }
             that.transport.get({
                 // Note: parameterMap is called when calling this.transport.get
                 data,
@@ -189,6 +199,7 @@ export default function extendModelWithTransport(DataModel, transport) {
                     data[key] = json[key];
                 }
             });
+            // TODO Update partition (see load above)
             // Note: parameterMap is called when calling this.transport.update
             this.transport.update({
                 data,

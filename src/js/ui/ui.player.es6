@@ -168,38 +168,42 @@ const feature = {
         );
 
         // Let's remove the clickSubmitInfo attr used to track and limit toast notifications (see viewModel.bind(CHANGE))
-        e.view.element.removeProp(attr('clickSubmitInfo'));
-
-        // Rebuild stage and bind viewModel
-        bind(
-            e.view.content.find(roleSelector('stage')),
-            viewModel,
-            ui,
-            dataviz.ui,
-            mobile.ui
-        );
-        // viewModel._resizers.stage(e, e.view);
+        e.view.element.removeProp(attr('clickSubmitInfo')); // TODO??????
 
         // load data
-        $.when(
-            // load version to display quiz content in the player
-            viewModel.loadVersion({
+        // $.when(
+        // load version to display quiz content in the player
+        viewModel
+            .loadVersion({
                 language,
                 summaryId,
                 id: versionId,
-            }),
-            // Load activities to save score in datasource
-            viewModel.loadActivities({
-                language,
-                userId: viewModel.get(VIEW_MODEL.USER.ID),
             })
-        )
+            // ,
+            // Load activities to save score in datasource
+            // viewModel.loadActivities({
+            //     language,
+            //     userId: viewModel.get(VIEW_MODEL.USER.ID),
+            // })
+            // )
             .then(() => {
-                viewModel.resetCurrent();
+                const TestModel = viewModel
+                    .get(VIEW_MODEL.VERSION.STREAM._)
+                    .getTestModel();
                 viewModel.set(
                     VIEW_MODEL.PAGE,
-                    viewModel[VIEW_MODEL.PAGES].at(0)
+                    viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES).at(0)
                 );
+                viewModel.set('current', new TestModel());
+                // Rebuild stage and bind viewModel
+                bind(
+                    e.view.content.find(roleSelector('stage')),
+                    viewModel[VIEW_MODEL.CURRENT._],
+                    ui,
+                    dataviz.ui,
+                    mobile.ui
+                );
+                viewModel._resizers.stage(e, e.view);
             })
             .always(() => {
                 viewModel.onGenericViewShow(e);
@@ -237,7 +241,7 @@ const feature = {
             )
         );
 
-        // Destroy the stage (necessary to avoid initializing widgets simultaneously in correction and player modes)
+        // Destroy the stage
         destroy(e.view.content.find(roleSelector('stage')));
 
         // Cancel any utterance spoken

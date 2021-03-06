@@ -6,7 +6,7 @@
 // rapi.util.es6 has methods for parsing and storing state and tokens
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import config from '../app/app.config.jsx';
 import deparam from '../common/jquery.deparam.es6';

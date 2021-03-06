@@ -58,6 +58,7 @@ const feature = {
             DESCRIPTION: 'summary.description',
             ID: 'summary.id',
             LANGUAGE: 'summary.language',
+            PUBLICATION_ID: 'summary.publicationId',
             TITLE: 'summary.title',
         },
     },
@@ -115,7 +116,8 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        return viewModel.get(VIEW_MODEL.SUMMARY._)
+        return viewModel
+            .get(VIEW_MODEL.SUMMARY._)
             .load(options)
             .catch((xhr, status, errorThrown) => {
                 notification.error(
@@ -125,7 +127,7 @@ const feature = {
                     message: 'error loading summary',
                     method: 'loadSummary',
                     error: xhr2error(xhr, status, errorThrown),
-                    data: { options },
+                    data: options,
                 });
             });
     },
@@ -210,7 +212,6 @@ const feature = {
     onSummaryActionPlay() {
         // assert.isNonEmptyPlainObject(e, assert.format(assert.messages.isNonEmptyPlainObject.default, 'e'));
         const {
-            notification,
             viewModel,
             viewModel: { VIEW, VIEW_MODEL },
         } = app;
@@ -234,57 +235,17 @@ const feature = {
             )
         );
         const summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
-        debugger;
+        const versionId = viewModel.get(VIEW_MODEL.SUMMARY.PUBLICATION_ID);
 
-        // Find latest version (version history is not available in the mobile app)
-        viewModel
-            .loadVersions({
-                // TODO: fields could be found in LazyVersion (use the from property not the field name) - @see https://github.com/kidoju/Kidoju-Widgets/issues/218
-                fields: 'id,state,summaryId', // Note for whatever reason we also receive the type in the response payload
-                filter: { field: 'state', operator: 'eq', value: 5 },
-                partition: { language, summaryId },
-                sort: { field: 'id', dir: 'desc' },
-            })
-            .then(() => {
-                const version = viewModel.versions.at(0); // First is latest version
-                if (version instanceof LazyVersion) {
-                    assert.match(
-                        CONSTANTS.RX_MONGODB_ID,
-                        version.get('id'),
-                        assert.format(
-                            assert.messages.match.default,
-                            'version.get("id")',
-                            CONSTANTS.RX_MONGODB_ID
-                        )
-                    );
-                    // version has no language - we therefore assume same language
-                    // assert.equal(language, version.get('language'), assert.format(assert.messages.equal.default, 'version.get(\'language")', language));
-                    assert.equal(
-                        summaryId,
-                        version.get('summaryId'),
-                        assert.format(
-                            assert.messages.equal.default,
-                            'version.get("summaryId")',
-                            summaryId
-                        )
-                    );
-                    viewModel.application.navigate(
-                        `${CONSTANTS.HASH}${
-                            VIEW.PLAYER._
-                        }?language=${window.encodeURIComponent(
-                            language
-                        )}&summaryId=${window.encodeURIComponent(
-                            summaryId
-                        )}&versionId=${window.encodeURIComponent(
-                            version.get('id')
-                        )}`
-                    );
-                } else {
-                    notification.error(
-                        __('mobile.notifications.versionLoadFailure')
-                    );
-                }
-            });
+        viewModel.application.navigate(
+            `${CONSTANTS.HASH}${
+                VIEW.PLAYER._
+            }?language=${window.encodeURIComponent(
+                language
+            )}&summaryId=${window.encodeURIComponent(
+                summaryId
+            )}&versionId=${window.encodeURIComponent(versionId)}`
+        );
     },
 
     /**

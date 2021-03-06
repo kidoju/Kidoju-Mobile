@@ -7,7 +7,7 @@
 // TODO Add lineStroke(dashed, ...) and graduations
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
@@ -51,7 +51,7 @@ const LineTool = BaseTool.extend({
         lineColor: new ColorAdapter({
             help: __('tools.line.attributes.lineColor.help'),
             title: __('tools.line.attributes.lineColor.title'),
-            defaultValue: TOOLS.MEDIUM_GREY,
+            defaultValue: TOOLS.MIDDLE_GREY,
         }),
         lineWidth: new NumberAdapter(
             {

@@ -13,7 +13,7 @@
 // TODO: New items are not added to ds._pristineData. As a result canceling editing removes new items (but not old ones).
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import 'kendo.listview';
@@ -27,7 +27,7 @@ const {
     data: { DataSource, ObservableArray },
     destroy,
     format,
-    guid,
+    // guid,
     ns,
     support,
     template,
@@ -40,9 +40,9 @@ const NS = '.kendoBasicList';
 const WIDGET_CLASS = 'k-widget kj-basiclist';
 
 const TOOLBAR_TMPL =
-    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><div class="k-button k-button-icontext"><span class="k-icon k-i-plus"/>{0}</div></div></div>';
+    '<div class="k-widget k-toolbar k-header k-floatwrap"><div class="k-toolbar-wrap"><a class="k-button k-button-icontext"><span class="k-icon k-i-plus"></span>{0}</a></div></div>';
 const ITEM_TMPL = `<li class="k-list-item">
-        <div class="kj-handle"><span class="k-icon k-i-handler-drag"/></div>
+        <div class="kj-handle"><span class="k-icon k-i-handler-drag" /></div>
         <div class="kj-input-wrap"><input value="#: value$() #" class="k-textbox k-state-disabled" /></div>
         <div class="kj-buttons">
             <a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"/></a>
@@ -267,15 +267,16 @@ const BasicList = Widget.extend({
         }
         const dataSource = new DataSource({
             // change: this._refreshHandler
-            data: data.map((value) => ({ id: guid(), value })),
+            data: data.map((value) => ({ /* id: guid(), */ value })),
             schema: {
                 model: {
-                    idField: 'id', // Without idField, cancel removes the item which is not found
+                    id: 'value', // 'id'
                     fields: {
+                        /*
                         id: {
                             type: CONSTANTS.STRING,
-                            defaultValue: guid,
                         },
+                        */
                         value: {
                             type: this.options.type,
                         },

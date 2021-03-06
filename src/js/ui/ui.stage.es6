@@ -24,6 +24,7 @@ const {
     bind,
     dataviz,
     destroy,
+    format,
     mobile,
     mobile: {
         ui: { Button, Scroller, View },
@@ -48,8 +49,9 @@ const feature = {
      */
     VIEW_MODEL: {
         PAGE: 'page',
-        PAGES: 'pages',
-        CURRENT: { // --> ACTIVITY ??
+        // PAGES: 'version.stream.pages',
+        CURRENT: {
+            // --> ACTIVITY ??
             _: 'current',
             ID: 'current.id',
             SCORE: 'current.score',
@@ -57,8 +59,8 @@ const feature = {
             UPDATED: 'current.updated',
             VERSION: {
                 LANGUAGE: 'current.version.language',
-                SUMMARYID: 'current.version.summaryId',
-                VERSION_ID: 'current.version.versionId'
+                SUMMARY_ID: 'current.version.summaryId',
+                VERSION_ID: 'current.version.versionId',
             },
         },
     },
@@ -78,9 +80,9 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        viewModel.set(VIEW_MODEL.CURRENT._, { test: undefined });
+        viewModel.set(VIEW_MODEL.CURRENT._, undefined);
         viewModel.set(VIEW_MODEL.PAGE, undefined);
-        viewModel.set(VIEW_MODEL.PAGES, new PageDataSource());
+        // viewModel.set(VIEW_MODEL.VERSION.STREAM.PAGES, new PageDataSource());
     },
 
     /**
@@ -93,7 +95,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         const page = viewModel.get(VIEW_MODEL.PAGE);
-        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+        const pageDataSource = viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES);
         assert.instanceof(
             PageDataSource,
             pageDataSource,
@@ -117,7 +119,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         const page = viewModel.get(VIEW_MODEL.PAGE);
-        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+        const pageDataSource = viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES);
         assert.instanceof(
             PageDataSource,
             pageDataSource,
@@ -141,7 +143,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         const page = viewModel.get(VIEW_MODEL.PAGE);
-        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+        const pageDataSource = viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES);
         assert.instanceof(
             PageDataSource,
             pageDataSource,
@@ -162,7 +164,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+        const pageDataSource = viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES);
         assert.instanceof(
             PageDataSource,
             pageDataSource,
@@ -187,7 +189,7 @@ const feature = {
             method: 'firstPage',
             message: 'Show first page',
         });
-        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+        const pageDataSource = viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES);
         assert.instanceof(
             PageDataSource,
             pageDataSource,
@@ -197,7 +199,7 @@ const feature = {
                 'PageDataSource'
             )
         );
-        this.set(VIEW_MODEL.PAGE, pageDataSource.at(0));
+        viewModel.set(VIEW_MODEL.PAGE, pageDataSource.at(0));
         // app.tts.cancelSpeak();
     },
 
@@ -214,7 +216,7 @@ const feature = {
             message: 'Show previous page',
         });
         const page = viewModel.get(VIEW_MODEL.PAGE);
-        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+        const pageDataSource = viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES);
         assert.instanceof(
             PageDataSource,
             pageDataSource,
@@ -226,7 +228,7 @@ const feature = {
         );
         const index = pageDataSource.indexOf(page);
         if ($.type(index) === CONSTANTS.NUMBER && index > 0) {
-            this.set(VIEW_MODEL.PAGE, pageDataSource.at(index - 1));
+            viewModel.set(VIEW_MODEL.PAGE, pageDataSource.at(index - 1));
             // app.tts.cancelSpeak();
         }
     },
@@ -244,7 +246,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         const page = viewModel.get(VIEW_MODEL.PAGE);
-        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+        const pageDataSource = viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES);
         assert.instanceof(
             PageDataSource,
             pageDataSource,
@@ -255,8 +257,11 @@ const feature = {
             )
         );
         const index = pageDataSource.indexOf(page);
-        if ($.type(index) === CONSTANTS.NUMBER && index < pageDataSource.total() - 1) {
-            this.set(VIEW_MODEL.PAGE, pageDataSource.at(index + 1));
+        if (
+            $.type(index) === CONSTANTS.NUMBER &&
+            index < pageDataSource.total() - 1
+        ) {
+            viewModel.set(VIEW_MODEL.PAGE, pageDataSource.at(index + 1));
             // app.tts.cancelSpeak();
         }
     },
@@ -273,7 +278,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+        const pageDataSource = viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES);
         assert.instanceof(
             PageDataSource,
             pageDataSource,
@@ -284,7 +289,7 @@ const feature = {
             )
         );
         const lastPage = pageDataSource.total() - 1;
-        this.set(VIEW_MODEL.PAGE, pageDataSource.at(lastPage));
+        viewModel.set(VIEW_MODEL.PAGE, pageDataSource.at(lastPage));
         // app.tts.cancelSpeak();
     },
 
@@ -296,9 +301,8 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        const that = this;
         // Assert ids
-        const userId = that.get(VIEW_MODEL.USER.ID); // Foreign keys use sids (server ids)
+        const userId = viewModel.get(VIEW_MODEL.USER.ID); // Foreign keys use sids (server ids)
         assert.match(
             CONSTANTS.RX_MONGODB_ID,
             userId,
@@ -311,7 +315,7 @@ const feature = {
         const language = __.locale;
         assert.equal(
             language,
-            that.get(VIEW_MODEL.LANGUAGE),
+            viewModel.get(VIEW_MODEL.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("language")',
@@ -320,7 +324,7 @@ const feature = {
         );
         assert.equal(
             language,
-            that.get(VIEW_MODEL.SUMMARY.LANGUAGE),
+            viewModel.get(VIEW_MODEL.SUMMARY.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("summary.language")',
@@ -329,14 +333,14 @@ const feature = {
         );
         assert.equal(
             language,
-            that.get(VIEW_MODEL.VERSION.LANGUAGE),
+            viewModel.get(VIEW_MODEL.VERSION.LANGUAGE),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("version.language")',
                 language
             )
         );
-        const summaryId = that.get(VIEW_MODEL.SUMMARY.ID);
+        const summaryId = viewModel.get(VIEW_MODEL.SUMMARY.ID);
         assert.match(
             CONSTANTS.RX_MONGODB_ID,
             summaryId,
@@ -348,14 +352,14 @@ const feature = {
         );
         assert.equal(
             summaryId,
-            viewModel.get(VIEW_MODEL.VERSION.SUMMARYID),
+            viewModel.get(VIEW_MODEL.VERSION.SUMMARY_ID),
             assert.format(
                 assert.messages.equal.default,
                 'viewModel.get("version.summaryId")',
                 summaryId
             )
         );
-        const versionId = that.get(VIEW_MODEL.VERSION.ID);
+        const versionId = viewModel.get(VIEW_MODEL.VERSION.ID);
         assert.match(
             CONSTANTS.RX_MONGODB_ID,
             versionId,
@@ -370,8 +374,8 @@ const feature = {
         // TODO viewModel.set(VIEW_MODEL.CURRENT._, new MobileActivity({
         viewModel.set(VIEW_MODEL.CURRENT._, {
             actor: {
-                firstName: that.get(VIEW_MODEL.USER.FIRST_NAME),
-                lastName: that.get(VIEW_MODEL.USER.LAST_NAME),
+                firstName: viewModel.get(VIEW_MODEL.USER.FIRST_NAME),
+                lastName: viewModel.get(VIEW_MODEL.USER.LAST_NAME),
                 userId, // Foreign keys use sids (server ids)
             },
             // test initialized for player data binding
@@ -381,7 +385,7 @@ const feature = {
                 language,
                 // TODO Add categoryId for better statistics
                 summaryId,
-                title: that.get(VIEW_MODEL.SUMMARY.TITLE),
+                title: viewModel.get(VIEW_MODEL.SUMMARY.TITLE),
                 versionId,
             },
         });
@@ -396,7 +400,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        const pageDataSource = viewModel[VIEW_MODEL.PAGES];
+        const pageDataSource = viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES);
         assert.instanceof(
             PageDataSource,
             pageDataSource,
@@ -530,10 +534,6 @@ const feature = {
      * @private
      */
     resize(e, view) {
-        const {
-            viewModel,
-            viewModel: { VIEW_MODEL },
-        } = app;
         assert.instanceof(
             View,
             view,
@@ -550,7 +550,7 @@ const feature = {
         if (stageWidget instanceof Stage) {
             /**
              * ATTENTION jQuery 3 breaking change
-             * There is a breaking change in jQuery 3 regarding height and width
+             * There is a breaking change in jQuery 3 regarding viewHeight and viewWidth
              * jQuery 2 reports the actual CSS value (clientHeight, clientWidth)
              * jQuery 3 reports the scaled value
              * See https://github.com/jquery/jquery/issues/3193
@@ -567,52 +567,53 @@ const feature = {
                 1024,
                 assert.format(assert.messages.equal.default, 'WIDTH', '1024')
             );
-            const height = content.height(); // The screen height minus layout header and footer
-            const width = content.width(); // The screen width minus layout header and footer
+            const viewHeight = content.height(); // The screen viewHeight minus layout header and footer
+            const viewWidth = content.width(); // The screen viewWidth minus layout header and footer
             let scale;
+            let proportion = 1;
             let infoHeight = 0;
             let infoWidth = 0;
-            let proportion = 1;
-            if (width > height) {
-                // landsacpe mode
+            // let proportion = 1;
+            if (viewWidth > viewHeight) {
+                // landscape mode
                 // Note: we want the info panel to be between 25% and 33% of the screen real estate and at least 200px wide
                 infoWidth = Math.min(
-                    0.33 * width,
+                    0.33 * viewWidth,
                     Math.max(
                         200,
-                        0.25 * width,
-                        width - (height * WIDTH) / HEIGHT
+                        0.25 * viewWidth,
+                        viewWidth - (viewHeight * WIDTH) / HEIGHT
                     )
                 );
                 // now look at the proportion of what is left for our stage
-                if ((width - infoWidth) / height > WIDTH / HEIGHT) {
-                    // There is room to set the stage full height and increase our info panel
-                    scale = height / HEIGHT;
-                    infoWidth = width - scale * WIDTH;
+                if ((viewWidth - infoWidth) / viewHeight > WIDTH / HEIGHT) {
+                    // There is room to set the stage full viewHeight and increase our info panel
+                    scale = viewHeight / HEIGHT;
+                    infoWidth = viewWidth - scale * WIDTH;
                 } else {
-                    // There is no room to set the stage full height, so let's set a proportion to add a border
-                    scale = (width - infoWidth) / WIDTH;
+                    // There is no room to set the stage full viewHeight, so let's set a proportion to add a border
+                    scale = (viewWidth - infoWidth) / WIDTH;
                     proportion = 0.95;
                 }
             } else {
                 // portrait mode
                 // Note: we want the info panel to be between 25% and 33% of the screen real estate and at least 100px high
                 infoHeight = Math.min(
-                    0.33 * height,
+                    0.33 * viewHeight,
                     Math.max(
                         180,
-                        0.25 * height,
-                        height - (width * HEIGHT) / WIDTH
+                        0.25 * viewHeight,
+                        viewHeight - (viewWidth * HEIGHT) / WIDTH
                     )
                 );
                 // now look at the proportion of what is left for our stage
-                if ((height - infoHeight) / width > HEIGHT / WIDTH) {
-                    // There is room to set the stage full width and increase our info panel
-                    scale = width / WIDTH;
-                    infoHeight = height - scale * HEIGHT;
+                if ((viewHeight - infoHeight) / viewWidth > HEIGHT / WIDTH) {
+                    // There is room to set the stage full viewWidth and increase our info panel
+                    scale = viewWidth / WIDTH;
+                    infoHeight = viewHeight - scale * HEIGHT;
                 } else {
-                    // There is no room to set the stage full width, so let's set a proportion to add a border
-                    scale = (height - infoHeight) / HEIGHT;
+                    // There is no room to set the stage full viewWidth, so let's set a proportion to add a border
+                    scale = (viewHeight - infoHeight) / HEIGHT;
                     proportion = 0.95;
                 }
             }
@@ -623,29 +624,14 @@ const feature = {
                 stageWrapper.hasClass('kj-stage'),
                 'Stage wrapper is expected to have class `kj-stage`'
             );
-            const stageContainer = stageWrapper.closest('.stretched-item');
+            const stageContainer = stageWrapper.closest('.app-stage-container');
             stageContainer
-                .outerWidth(width - Math.ceil(infoWidth)) // We use Math.ceil instead of Math.floor here to get the leeway required by Microsoft Edge in embedded mode
-                .outerHeight(height - Math.ceil(infoHeight))
+                .outerWidth(viewWidth - Math.ceil(infoWidth)) // We use Math.ceil instead of Math.floor here to get the leeway required by Microsoft Edge in embedded mode
+                .outerHeight(viewHeight - Math.ceil(infoHeight))
                 .css('position', 'relative');
-            stageContainer
-                .children('.centered')
-                .width(proportion * scale * WIDTH)
-                .height(proportion * scale * HEIGHT)
-                .css({
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    marginLeft: (-proportion * scale * WIDTH) / 2,
-                    marginTop: (-proportion * scale * HEIGHT) / 2,
-                });
-            stageContainer
-                .find('.kj-stage')
-                .css({ borderWidth: proportion === 1 ? 0 : 1 });
+            stageWrapper.css({ borderWidth: proportion === 1 ? 0 : 1 });
             // Resize the markdown container and scroller for instructions/explanations
-            const markdownElement = content.find(
-                roleSelector('markdown')
-            );
+            const markdownElement = content.find(roleSelector('markdown'));
             const markdownScrollerElement = markdownElement.closest(
                 roleSelector('scroller')
             );
@@ -662,12 +648,12 @@ const feature = {
                 )
             );
             const markdownContainer = markdownElement.closest(
-                '.stretched-item'
+                '.app-info-container'
             );
-            const markdownHeading = markdownContainer.children('.heading');
+            const markdownHeading = markdownContainer.children('.app-heading');
             markdownContainer
-                .outerWidth(Math.floor(infoWidth) || width)
-                .outerHeight(Math.floor(infoHeight) || height)
+                .outerWidth(Math.floor(infoWidth) || viewWidth)
+                .outerHeight(Math.floor(infoHeight) || viewHeight)
                 .css({
                     borderTopWidth: infoHeight ? 1 : 0,
                     borderRightWidth: 0,
@@ -744,6 +730,87 @@ const feature = {
             //     e.button.removeAttr(attr(SPEAKING));
             // });
         }
+    },
+
+    events: {
+        change(e) {
+            assert.isNonEmptyPlainObject(
+                e,
+                assert.format(
+                    assert.messages.isNonEmptyPlainObject.default,
+                    'e'
+                )
+            );
+            assert.type(
+                CONSTANTS.STRING,
+                e.field,
+                assert.format(
+                    assert.messages.type.default,
+                    'e.field',
+                    CONSTANTS.STRING
+                )
+            );
+            const {
+                notification,
+                viewModel,
+                viewModel: {
+                    application,
+                    page$,
+                    totalPages$,
+                    setNavBar,
+                    setNavBarTitle,
+                    VIEW,
+                    VIEW_MODEL,
+                },
+            } = app;
+            // assert.instanceof(Observable, e.sender, assert.format(assert.messages.instanceof.default, 'e.sender', 'kendo.Observable'));
+            if (e.field === VIEW_MODEL.PAGE) {
+                const view = application.view();
+                if (view.id === `${CONSTANTS.HASH}${VIEW.CORRECTION._}`) {
+                    // Reset NavBar buttons and title
+                    setNavBar(view);
+                    setNavBarTitle(
+                        view,
+                        format(
+                            __('mobile.correction.viewTitle'),
+                            page$(),
+                            totalPages$()
+                        )
+                    );
+                    if (
+                        viewModel.isLastPage$() &&
+                        !view.element.prop(attr('showScoreInfo'))
+                    ) {
+                        // Let's remember that we have already displayed this notification for this test
+                        view.element.prop(attr('showScoreInfo'), true);
+                        notification.info(
+                            __('mobile.notifications.showScoreInfo')
+                        );
+                    }
+                } else if (view.id === `${CONSTANTS.HASH}${VIEW.PLAYER._}`) {
+                    // Reset NavBar buttons and title
+                    setNavBar(view);
+                    setNavBarTitle(
+                        view,
+                        format(
+                            __('mobile.player.viewTitle'),
+                            page$(),
+                            totalPages$()
+                        )
+                    );
+                    if (
+                        viewModel.isLastPage$() &&
+                        !view.element.prop(attr('clickSubmitInfo'))
+                    ) {
+                        // Let's remember that we have already displayed this notification for this test
+                        view.element.prop(attr('clickSubmitInfo'), true);
+                        notification.info(
+                            __('mobile.notifications.clickSubmitInfo')
+                        );
+                    }
+                }
+            }
+        },
     },
 };
 

@@ -8,7 +8,7 @@
 // TODO Add numbers to graduations (top, bottom)
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
 import 'kendo.drawing';
@@ -19,15 +19,16 @@ import Logger from '../common/window.logger.es6';
 const {
     destroy,
     geometry,
-    drawing: { Circle, Element, Group, Path, Rect, Surface },
+    drawing: { Circle, Path, Rect, Surface, Text },
     ui: { plugin, Widget },
 } = window.kendo;
 const logger = new Logger('widgets.shape');
 // const NS = '.kendoShape';
 const WIDGET_CLASS = 'kj-shape';
 const SHAPES = {
-    CIRCLE: 'ellipsis',
-    SQUARE: 'reactangle'
+    ELLIPSIS: 'ellipsis',
+    POLYGON: 'polygon',
+    RECTANGLE: 'rectangle',
 };
 
 /**
@@ -49,107 +50,100 @@ function normalizeNumber(value, num = 0) {
  */
 function normalizeShape(value) {
     const shape = String(value).toLowerCase();
-    return Object.values(SHAPES).indexOf(shape) === -1 ? SHAPES.NONE : shape;
+    return Object.values(SHAPES).indexOf(shape) === -1
+        ? SHAPES.RECTANGLE
+        : shape;
 }
 
 /**
- * Get arrow cap
- * @function getArrowCap
+ * Get ellipsis
+ * @function getEllipsis
  * @param bounds
- * @param options
- * @returns {*}
+ * @param style
  */
-function getArrowCap(bounds, options) {
-    let path;
-    if (bounds.origin.x === 0) {
-        // left arrow
-        path = new Path(options)
-            .moveTo(bounds.origin.clone().translate(0, bounds.size.height / 2))
-            .lineTo(bounds.origin.clone().translate(bounds.size.width, 0))
-            .lineTo(
-                bounds.origin
-                    .clone()
-                    .translate(bounds.size.width / 2, bounds.size.height / 2)
-            )
-            .lineTo(
-                bounds.origin
-                    .clone()
-                    .translate(bounds.size.width, bounds.size.height)
-            )
-            .close();
-    } else {
-        // right arrow
-        path = new Path(options)
-            .moveTo(bounds.origin)
-            .lineTo(
-                bounds.origin
-                    .clone()
-                    .translate(bounds.size.width, bounds.size.height / 2)
-            )
-            .lineTo(bounds.origin.clone().translate(0, bounds.size.height))
-            .lineTo(
-                bounds.origin
-                    .clone()
-                    .translate(bounds.size.width / 2, bounds.size.height / 2)
-            )
-            .close();
-    }
-    return path;
+function getEllipsis(bounds, style = {}) {
+    const borderWidth = normalizeNumber((style.stroke || {}).width, 1);
+    const center = bounds.origin
+        .clone()
+        .translate(bounds.size.width / 2, bounds.size.height / 2);
+    const arc = new geometry.Arc(center, {
+        radiusX: (bounds.size.width - borderWidth) / 2,
+        radiusY: (bounds.size.height - borderWidth) / 2,
+        startAngle: 0,
+        endAngle: 360,
+    });
+    return Path.fromArc(arc, style).close();
 }
 
 /**
- * Get circle cap
- * @function getCircleCap
+ * Get circle
+ * @function getCircle
  * @param bounds
- * @param options
+ * @param style
  * @returns {*}
  */
-function getCircleCap(bounds, options) {
+function getCircle(bounds, style = {}) {
+    const borderWidth = normalizeNumber((style.stroke || {}).width, 1);
+    const center = bounds.origin
+        .clone()
+        .translate(bounds.size.width / 2, bounds.size.height / 2);
     const circle = new geometry.Circle(
-        bounds.origin
-            .clone()
-            .translate(bounds.size.width / 2, bounds.size.height / 2),
-        bounds.size.width / 2
+        center,
+        (bounds.size.width - borderWidth) / 2
     );
-    return new Circle(circle, options);
+    return new Circle(circle, style);
 }
 
 /**
- * Get diamond cap
- * @function getDiamondCap
+ * Get Polygon
+ * @function getPolygon
  * @param bounds
- * @param options
+ * @param style
+ * @param angles
  * @returns {*}
  */
-function getDiamondCap(bounds, options) {
-    const path = new Path(options);
-    path.moveTo(bounds.origin.clone().translate(bounds.size.width / 2, 0))
-        .lineTo(
-            bounds.origin
+function getPolygon(bounds, style, angles = 4) {
+    const borderWidth = normalizeNumber((style.stroke || {}).width, 1);
+    const center = bounds.origin
+        .clone()
+        .translate(bounds.size.width / 2, bounds.size.height / 2);
+    const radiusX = (bounds.size.width - borderWidth) / 2;
+    const radiusY = (bounds.size.height - borderWidth) / 2;
+    const path = new Path(style);
+    for (let i = 0; i < angles; i++) {
+        const rad = (2 * Math.PI * i) / angles;
+        path[i === 0 ? 'moveTo' : 'lineTo'](
+            center
                 .clone()
-                .translate(bounds.size.width, bounds.size.height / 2)
-        )
-        .lineTo(
-            bounds.origin
-                .clone()
-                .translate(bounds.size.width / 2, bounds.size.height)
-        )
-        .lineTo(bounds.origin.clone().translate(0, bounds.size.height / 2))
-        .close();
-    return path;
+                .translate(radiusX * Math.cos(rad), radiusY * Math.sin(rad))
+        );
+    }
+    return path.close();
 }
 
 /**
- * Get square cap
- * @function getSquareCap
+ * Get rectangle
+ * @function getRectangle
  * @param bounds
- * @param options
+ * @param style
  * @returns {*}
  */
-function getSquareCap(bounds, options) {
-    const rect = new geometry.Rect(bounds.origin, bounds.size);
-    return new Rect(rect, options);
+function getRectangle(bounds, style) {
+    const borderWidth = normalizeNumber((style.stroke || {}).width, 1);
+    const topLeft = bounds.origin
+        .clone()
+        .translate(borderWidth / 2, borderWidth / 2);
+    const size = bounds.size
+        .clone()
+        .setWidth(bounds.size.width - borderWidth)
+        .setHeight(bounds.size.height - borderWidth);
+    const rect = new geometry.Rect(topLeft, size);
+    return new Rect(rect, style);
 }
+
+// TODO Rounded rectangle
+// TODO Star
+// TODO Heart
 
 /**
  * Shape
@@ -182,10 +176,14 @@ const Shape = Widget.extend({
      */
     options: {
         name: 'Shape',
-        shape: '',
-        text: '', // TODO: Should we add text?
-        xxxxxx: { // TODO name
-            // fill: {},
+        shape: SHAPES.RECTANGLE,
+        angles: 4,
+        text: '',
+        style: {
+            // TODO Match style for formatting toolbar
+            fill: {
+                color: '#33ccff',
+            },
             opacity: 1,
             stroke: {
                 color: '#999',
@@ -195,6 +193,7 @@ const Shape = Widget.extend({
                 // opacity: 1,
                 width: 5,
             },
+            // TODO text
         },
     },
 
@@ -230,226 +229,57 @@ const Shape = Widget.extend({
         surface.clear();
         surface.resize();
         const size = surface.getSize();
-        // Add line
-        const line = this._getShape(size);
-        surface.draw(line);
-        // Add graduations
-        const graduations = this._getGraduations(size);
-        if (graduations instanceof Group) {
-            surface.draw(graduations);
-        }
-        // Add startCap
-        const startCap = this._getStartCap(size);
-        if (startCap instanceof Element) {
-            surface.draw(startCap);
-        }
-        // Add endCap
-        const endCap = this._getEndCap(size);
-        if (endCap instanceof Element) {
-            surface.draw(endCap);
-        }
+        // Add shape
+        const shape = this._getShape(size);
+        surface.draw(shape);
+        // Add text
+        const text = this._getText(size);
+        surface.draw(text);
     },
 
     /**
-     * Get line path
+     * Get shape
      * @param size
      * @returns {*}
      * @private
      */
     _getShape(size) {
+        let ret;
         const {
-            options: { line, startCap, endCap },
+            options: { style },
         } = this;
-        const path = new Path({
-            // cursor
-            fill: line.fill,
-            opacity: line.opacity,
-            stroke: line.stroke,
-        });
-        const lineWidth = normalizeNumber(((line || {}).stroke || {}).width);
-        const startShift =
-            normalizeShape((startCap || {}).shape) === SHAPES.NONE
-                ? 0
-                : (normalizeNumber((startCap || {}).scale) * lineWidth) / 2;
-        const endShift =
-            normalizeShape(endCap.shape) === SHAPES.NONE
-                ? 0
-                : (normalizeNumber((endCap || {}).scale) * lineWidth) / 2;
-        path.moveTo(startShift, size.height / 2)
-            .lineTo(size.width - endShift, size.height / 2)
-            .close();
-        return path;
-    },
-
-    /**
-     * Get graduations (group)
-     * @param size
-     * @private
-     */
-    _getGraduations(size) {
-        const {
-            options: { line, smallGraduations, graduations },
-        } = this;
-        let group;
-        // graduationCount is the number of primary graduations
-        // 10 means 10 spaces or 11 (n+1) primary graduations from 0 to 10
-        const graduationCount = normalizeNumber((graduations || {}).count);
-        if (graduationCount > 0) {
-            group = new Group();
-            // graduationHeight is the height of a primary graduation
-            const graduationHeight =
-                normalizeNumber((graduations || {}).scale) *
-                normalizeNumber(((line || {}).stroke || {}).width);
-            // graduationWidth is the stroke width of a primary graduation
-            const graduationWidth = normalizeNumber(
-                ((graduations || {}).stroke || {}).width
-            );
-            // smallGraduationCount is the number of secondary graduations within a primary graduation space
-            // 5 means 5 spaces or 4 (n-1) secondary graduations at x.2, x.4, x.6 and x.8 (x and 2x being primary graduations)
-            const smallGraduationCount = normalizeNumber(
-                (smallGraduations || {}).count
-            );
-            // smallGraduationHeight is the height of a secondary graduation
-            const smallGraduationHeight =
-                normalizeNumber((smallGraduations || {}).scale) *
-                normalizeNumber(((line || {}).stroke || {}).width);
-            // smallGraduationWidth is the stroke width of a secondary graduation
-            const smallGraduationWidth = normalizeNumber(
-                ((smallGraduations || {}).stroke || {}).width
-            );
-            // Loop through graduations (primary graduations)
-            for (let i = 0; i <= graduationCount; i++) {
-                const graduationPath = new Path({
-                    fill: graduations.fill,
-                    opacity: graduations.opacity,
-                    stroke: graduations.stroke,
-                });
-                const graduationSpace =
-                    (size.width - graduationWidth) / graduationCount;
-                const graduationX = graduationWidth / 2 + i * graduationSpace;
-                graduationPath
-                    .moveTo(graduationX, (size.height - graduationHeight) / 2)
-                    .lineTo(graduationX, (size.height + graduationHeight) / 2)
-                    .close();
-                group.append(graduationPath);
-                // Loop through small graduations (secondary graduations)
-                for (let j = 1; j < smallGraduationCount; j++) {
-                    const smallGraduationPath = new Path({
-                        fill: smallGraduations.fill,
-                        opacity: smallGraduations.opacity,
-                        stroke: smallGraduations.stroke,
-                    });
-                    const smallGraduationX =
-                        graduationX +
-                        smallGraduationWidth / 2 +
-                        (j * (graduationSpace - smallGraduationWidth)) /
-                            smallGraduationCount;
-                    smallGraduationPath
-                        .moveTo(
-                            smallGraduationX,
-                            (size.height - smallGraduationHeight) / 2
-                        )
-                        .lineTo(
-                            smallGraduationX,
-                            (size.height + smallGraduationHeight) / 2
-                        )
-                        .close();
-                    group.append(smallGraduationPath);
-                }
-            }
-        }
-        return group;
-    },
-
-    /**
-     * Get start cap
-     * @param size
-     * @private
-     */
-    _getStartCap(size) {
-        const {
-            options: { line, startCap },
-        } = this;
-        const shape = normalizeShape((startCap || {}).shape);
-        const capScale = normalizeNumber((startCap || {}).scale);
-        const lineWidth = normalizeNumber(((line || {}).stroke || {}).width);
+        const shape = normalizeShape(this.options.shape);
         const bounds = {
-            origin: new geometry.Point(
-                0,
-                (size.height - capScale * lineWidth) / 2
-            ),
-            size: new geometry.Size(capScale * lineWidth, capScale * lineWidth),
+            origin: new geometry.Point(0, 0),
+            size: new geometry.Size(size.width, size.height),
         };
-        const options = {
-            fill: startCap.fill,
-            opacity: startCap.opacity,
-            stroke: startCap.stroke,
-        };
-        let cap;
-        switch (shape) {
-            case SHAPES.ARROW:
-                cap = getArrowCap(bounds, options);
-                break;
-            case SHAPES.CIRCLE:
-                cap = getCircleCap(bounds, options);
-                break;
-            case SHAPES.DIAMOND:
-                cap = getDiamondCap(bounds, options);
-                break;
-            case SHAPES.SQUARE:
-                cap = getSquareCap(bounds, options);
-                break;
-            case SHAPES.NONE:
-            default:
-                break;
+        if (shape === SHAPES.ELLIPSIS) {
+            ret =
+                bounds.size.width === bounds.size.height
+                    ? getCircle(bounds, style)
+                    : getEllipsis(bounds, style);
+        } else if (shape === SHAPES.POLYGON) {
+            const angles = normalizeNumber(this.options.angles, 4);
+            ret = getPolygon(bounds, style, angles);
+        } else if (shape === SHAPES.RECTANGLE) {
+            ret = getRectangle(bounds, style);
         }
-        return cap;
+        return ret;
     },
 
     /**
-     * Get end cap
+     * Get text
      * @param size
      * @returns {*}
      * @private
      */
-    _getEndCap(size) {
+    _getText(size) {
+        // TODO https://www.telerik.com/forums/centering-text-in-rectangle-group
         const {
-            options: { line, endCap },
+            options: { text },
         } = this;
-        const shape = normalizeShape((endCap || {}).shape);
-        const capScale = normalizeNumber((endCap || {}).scale);
-        const lineWidth = normalizeNumber(((line || {}).stroke || {}).width);
-        const bounds = {
-            origin: new geometry.Point(
-                size.width - capScale * lineWidth,
-                (size.height - capScale * lineWidth) / 2
-            ),
-            size: new geometry.Size(capScale * lineWidth, capScale * lineWidth),
-        };
-        const options = {
-            fill: endCap.fill,
-            opacity: endCap.opacity,
-            stroke: endCap.stroke,
-        };
-        let cap;
-        switch (shape) {
-            case SHAPES.ARROW:
-                cap = getArrowCap(bounds, options);
-                break;
-            case SHAPES.CIRCLE:
-                cap = getCircleCap(bounds, options);
-                break;
-            case SHAPES.DIAMOND:
-                cap = getDiamondCap(bounds, options);
-                break;
-            case SHAPES.SQUARE:
-                cap = getSquareCap(bounds, options);
-                break;
-            case SHAPES.NONE:
-            default:
-                break;
-        }
-        return cap;
+        const position = new geometry.Point(10, 10);
+        return new Text(text, position);
     },
 
     /**

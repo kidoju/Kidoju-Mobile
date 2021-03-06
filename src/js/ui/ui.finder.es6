@@ -98,7 +98,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        return viewModel[VIEW_MODEL.SUMMARIES]
+        return viewModel.get(VIEW_MODEL.SUMMARIES)
             .query(options)
             .fail((xhr, status, errorThrown) => {
                 notification.error(

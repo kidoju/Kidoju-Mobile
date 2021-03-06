@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 // import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
@@ -52,6 +52,9 @@ const DISABLED = `data-${ns}enable="false"`; // TODO: enabled
 const TextGapsTool = BaseTool.extend({
     id: 'textgaps',
     childSelector: `${CONSTANTS.DIV}${roleSelector('textgaps')}`,
+    field: {
+        type: 'object', // Array
+    },
     height: 150,
     width: 420,
     weight: 1,
@@ -120,22 +123,25 @@ const TextGapsTool = BaseTool.extend({
      * Improved display of value in score grid
      * @param testItem
      */
-    value$(testItem) {
-        const ret = (testItem.value || []).slice();
+    getHtmlValue(testItem) {
+        const value = testItem.get('value');
+        const ret = (value || []).slice();
         for (let i = 0; i < ret.length; i++) {
-            ret[i] = htmlEncode((ret[i] || '').trim());
+            ret[i] = htmlEncode((ret[i] || CONSTANTS.EMPTY).trim());
         }
         return ret.join('<br/>');
     },
 
     /**
      * Improved display of solution in score grid
-     * @param testItem
+     * @param component
      */
-    solution$(testItem) {
-        const ret = (testItem.solution || '').split('\n');
+    getHtmlSolution(component) {
+        this._assertComponent(component);
+        const solution = component.get('properties.solution');
+        const ret = (solution || []).slice();
         for (let i = 0; i < ret.length; i++) {
-            ret[i] = htmlEncode((ret[i] || '').trim());
+            ret[i] = htmlEncode((ret[i] || CONSTANTS.EMPTY).trim());
         }
         return ret.join('<br/>');
     },

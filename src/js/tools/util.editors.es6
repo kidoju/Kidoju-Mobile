@@ -6,7 +6,7 @@
 // Note: kendo widgets are not loaded here
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
@@ -100,7 +100,7 @@ function optimizeEditor(row = {}) {
 
         // If it designates a kendo UI widget that works with a select html tag
         if (
-            ['combobox', 'dropdownlist', 'nultiselect'].indexOf(row.editor) >
+            ['combobox', 'dropdownlist', 'multiselect'].indexOf(row.editor) >
                 -1 &&
             Object.prototype.hasOwnProperty.call(
                 rolesFromNamespaces(ui),

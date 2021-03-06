@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import __ from '../app/app.i18n.es6';
@@ -32,12 +32,12 @@ const ScoreAdapter = NumberAdapter;
 
 const TEMPLATE = `<img
     alt="#: alt$() #"
-    data-${ns}role="selector"
-    data-${ns}id="#: properties.name #"
-    data-${ns}shape="#: attributes.shape #"
-    data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }"
     data-${ns}empty="#: attributes.empty #"
     data-${ns}hit-radius="#: attributes.hitRadius #"
+    data-${ns}id="#: properties.name #"
+    data-${ns}role="selector"
+    data-${ns}shape="#: attributes.shape #"
+    data-${ns}stroke="{ color: '#: attributes.color #', dashType: 'solid', opacity: 1, width: '#: attributes.strokeWidth #' }"
     src="#: src$() #" {0}>`;
 const BINDING = `data-${ns}bind="value: #: properties.name #.value, source: interactions"`;
 const DISABLED = `data-${ns}enable="false"`;
@@ -148,20 +148,19 @@ const SelectorTool = BaseTool.extend({
      * Note: search for getScoreArray in kidoju.data
      * @param testItem
      */
-    value$(testItem) {
-        if (testItem.result) {
-            return htmlEncode(testItem.solution || '');
-        }
-        return 'N/A'; // TODO translate
+    getHtmlValue(testItem) {
+        return 'N/A'; // TODO
     },
 
     /**
      * Improved display of solution in score grid
      * Note: search for getScoreArray in kidoju.data
-     * @param testItem
+     * @param component
      */
-    solution$(testItem) {
-        return htmlEncode(testItem.solution || '');
+    getHtmlSolution(component) {
+        this._assertComponent(component);
+        const solution = component.get('properties.solution');
+        return htmlEncode(solution || CONSTANTS.EMPTY);
     },
 
     /**
@@ -194,7 +193,8 @@ const SelectorTool = BaseTool.extend({
      */
     onResize(e, component) {
         const stageElement = $(e.currentTarget);
-        const content = stageElement.children('img');
+        // const content = stageElement.children('img');
+        const content = stageElement.children(this.childSelector);
         // Assuming we can get the natural size of the image, we shall keep proportions
         const { naturalHeight, naturalWidth } = content[0];
         if (naturalHeight && naturalWidth) {

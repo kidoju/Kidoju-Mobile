@@ -91,7 +91,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         viewModel.set(VIEW_MODEL.USER._, new User());
-        viewModel[VIEW_MODEL.USERS] = new UserDataSource();
+        viewModel.set(VIEW_MODEL.USERS, new UserDataSource());
     },
 
     /**
@@ -317,7 +317,7 @@ const feature = {
         } = app;
         const user = viewModel.get(VIEW_MODEL.USER._);
         const md5pin = viewModel.get(VIEW_MODEL.USER.MD5_PIN);
-        const users = viewModel[VIEW_MODEL.USERS];
+        const users = viewModel.get(VIEW_MODEL.USERS);
         return (
             user instanceof User &&
             // user.isNew() &&
@@ -336,7 +336,7 @@ const feature = {
         } = app;
         const user = viewModel.get(VIEW_MODEL.USER._);
         const md5pin = viewModel.get(VIEW_MODEL.USER.MD5_PIN);
-        const users = viewModel[VIEW_MODEL.USERS];
+        const users = viewModel.get(VIEW_MODEL.USERS);
         // The following ensures that #user button bindings are refreshed
         // when pressing "Change PIN" following app.viewModel.onUserChangePin
         viewModel.get(VIEW_MODEL.USER.LAST_USE);
@@ -360,7 +360,7 @@ const feature = {
         const user = viewModel.get(VIEW_MODEL.USER._);
         const lastSync = viewModel.get(VIEW_MODEL.USER.LAST_SYNC);
         const md5pin = viewModel.get(VIEW_MODEL.USER.MD5_PIN);
-        const users = viewModel[VIEW_MODEL.USERS];
+        const users = viewModel.get(VIEW_MODEL.USERS);
         return (
             user instanceof User &&
             // !user.isNew() &&
@@ -380,7 +380,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         const id = viewModel.get(VIEW_MODEL.USER.ROOT_CATEGORY_ID);
-        const categories = viewModel[VIEW_MODEL.CATEGORIES];
+        const categories = viewModel.get(VIEW_MODEL.CATEGORIES);
         if (categories && $.isFunction(categories.get)) {
             ret = (categories.get(id) || {}).name;
         }
@@ -396,7 +396,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         const user = viewModel.get(VIEW_MODEL.USER._);
-        const users = viewModel[VIEW_MODEL.USERS];
+        const users = viewModel.get(VIEW_MODEL.USERS);
         const index = users.indexOf(user);
         if ($.type(index) === CONSTANTS.NUMBER && index > 0) {
             viewModel.set(VIEW_MODEL.USER._, users.at(index - 1));
@@ -412,7 +412,7 @@ const feature = {
             viewModel: { VIEW_MODEL },
         } = app;
         const user = viewModel.get(VIEW_MODEL.USER._);
-        const users = viewModel[VIEW_MODEL.USERS];
+        const users = viewModel.get(VIEW_MODEL.USERS);
         const index = users.indexOf(user);
         if ($.type(index) === CONSTANTS.NUMBER && index < users.total() - 1) {
             viewModel.set(VIEW_MODEL.USER._, users.at(index + 1));

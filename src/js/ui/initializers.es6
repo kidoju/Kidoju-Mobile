@@ -6,6 +6,10 @@
 import __ from '../app/app.i18n.es6';
 import themer from '../app/app.themer.es6';
 
+/**
+ * Array of initializer promises
+ * @type {*[]}
+ */
 const initializers = [
     // Add initializers here
     // Make sure they all return a jQuery promise
@@ -15,4 +19,7 @@ const initializers = [
     __.load(),
 ];
 
+/**
+ * Default export
+ */
 export default initializers;

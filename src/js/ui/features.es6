@@ -20,7 +20,7 @@ import stage from './ui.stage.es6';
 import summary from './ui.summary.es6';
 import sync from './ui.sync.es6';
 import user from './ui.user.es6';
-import versions from './ui.versions.es6';
+import version from './ui.version.es6';
 
 const features = [
     // Add features here
@@ -43,7 +43,7 @@ const features = [
     summary,
     sync,
     user,
-    versions,
+    version,
 ];
 
 export default features;

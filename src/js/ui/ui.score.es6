@@ -135,7 +135,7 @@ const feature = {
         const { activityId } = e.view.params; // Note: activityId is a local id (not a sid)
         if (CONSTANTS.RX_MONGODB_ID.test(activityId)) {
             // If we have an activityId, replace the current test to display score and correction
-            const activity = app.viewModel[VIEW_MODEL.ACTIVITIES].get(
+            const activity = app.viewModel.get(VIEW_MODEL.ACTIVITIES).get(
                 activityId
             );
             // TODO Load activities if necessary to make the view idempotent, otherwise the following assert will fail

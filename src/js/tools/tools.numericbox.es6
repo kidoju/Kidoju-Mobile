@@ -6,7 +6,7 @@
 // TODO NummericBox can use variables to calculate solutions using simple MathJS scripting
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import 'kendo.numerictextbox';
@@ -41,11 +41,11 @@ const logger = new Logger('tools.numericbox');
  */
 const TEMPLATE = `<input
     type="number"
-    id="#: properties.name #"
     class="kj-interactive"
     data-${ns}role="numerictextbox"
     data-${ns}decimals="#: attributes.decimals #"
     data-${ns}format="n#: attributes.decimals #"
+    data-${ns}id="#: properties.name #"
     data-${ns}min="#: attributes.min #"
     data-${ns}max="#: attributes.max #"
     data-${ns}spinners="false"

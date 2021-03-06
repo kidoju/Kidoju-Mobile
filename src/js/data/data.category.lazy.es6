@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import db from '../app/app.db.es6';
@@ -424,7 +424,7 @@ const LazyCategoryHierarchicalDataSource = HierarchicalDataSource.extend({
         HierarchicalDataSource.fn.init.call(
             this,
             Object.assign(options, {
-                transport: lazyCategoryTransport,
+                transport,
                 // We do not want to normalize schema because
                 // we get { data: [...], total: ...} from localCache
                 // but our parser returns a hierarchy as an array [...]
@@ -464,7 +464,7 @@ const LazyRummageHierarchicalDataSource = HierarchicalDataSource.extend({
         HierarchicalDataSource.fn.init.call(
             this,
             Object.assign(options, {
-                transport: lazyCategoryTransport,
+                transport,
                 // We do not want to normalize schema because
                 // we get { data: [...], total: ...} from localCache
                 // but our parser returns a hierarchy as an array [...]

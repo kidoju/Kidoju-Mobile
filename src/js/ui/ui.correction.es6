@@ -200,7 +200,7 @@ const feature = {
         )
         .then(function () {
             // Set activity, but we do not want to recalculate score
-            viewModel.set(VIEW_MODEL.PAGE, viewModel[VIEW_MODEL.PAGES].at(page - 1));
+            viewModel.set(VIEW_MODEL.PAGE, viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES).at(page - 1));
         })
         .always(function () {
             mobile.onGenericViewShow(e);
@@ -212,7 +212,7 @@ const feature = {
         // activities are already loaded - viewModel.loadActivities({ language: language, userId: viewModel.get(VIEW_MODEL.USER.ID) })
         app.viewModel.set(
             VIEW_MODEL.PAGE,
-            app.viewModel[VIEW_MODEL.PAGES].at(page - 1)
+            app.viewModel.get(VIEW_MODEL.VERSION.STREAM.PAGES).at(page - 1)
         );
 
         mobile.onGenericViewShow(e);

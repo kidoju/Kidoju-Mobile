@@ -67,7 +67,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        viewModel[VIEW_MODEL.ACTIVITIES] = new LazyActivityDataSource();
+        viewModel.set(VIEW_MODEL.ACTIVITIES, new LazyActivityDataSource());
     },
 
     /**
@@ -105,7 +105,7 @@ const feature = {
             viewModel,
             viewModel: { VIEW_MODEL },
         } = app;
-        const activities = viewModel[VIEW_MODEL.ACTIVITIES];
+        const activities = viewModel.get(VIEW_MODEL.ACTIVITIES);
         const partition = activities.transport.partition();
         const dfd = $.Deferred();
         if (

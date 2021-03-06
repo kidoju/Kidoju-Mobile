@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
@@ -176,7 +176,7 @@ const BaseTest = BaseModel.define({
     percent() {
         const max = this.max();
         const score = this.score();
-        return score === 0 || max === 0 ? 0 : (100 * score) / max;
+        return score === 0 || max === 0 ? 0 : score / max;
     },
 
     /**

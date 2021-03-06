@@ -6,15 +6,18 @@
 // TODO We could also use a trigger to create/update/remove MobileUser picture
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
+import config from './app.config.jsx';
 import network from './app.network.es6';
 import Database from '../common/pongodb.database.es6';
 import Migration from '../common/pongodb.migration.es6';
 // import assert from '../common/window.assert.es6';
 import CONSTANTS from '../common/window.constants.es6';
 import Logger from '../common/window.logger.es6';
-import config from './app.config.jsx';
+import BaseModel from '../data/data.base.es6';
+import LazySummary from '../data/data.summary.lazy.core.es6';
+import AjaxSummaries from '../rapi/rapi.summaries.es6';
 
 const logger = new Logger('app.db');
 
@@ -26,7 +29,7 @@ const ROOT_CATEGORY_ID = {
 
 const COLLECTION = {
     ACTIVITIES: 'activities',
-    CATEGORIES: 'categories',
+    CATEGORIES: 'categories', // TODO
     SUMMARIES: 'summaries',
     USERS: 'users',
     VERSIONS: 'versions',
@@ -43,13 +46,7 @@ const TRIGGER = {
 const database = new Database({
     name: config.constants.dbName,
     size: 10 * 1024 * 1024,
-    collections: [
-        COLLECTION.ACTIVITIES,
-        COLLECTION.CATEGORIES,
-        COLLECTION.SUMMARIES,
-        COLLECTION.USERS,
-        COLLECTION.VERSIONS,
-    ],
+    collections: Object.values(COLLECTION),
 });
 
 /**
@@ -227,11 +224,16 @@ database.createTrigger(
                 .catch(dfd.reject);
         } else {
             // Get remote summary
-            const summaries = config.uris.rapi.v1.summaries({
-                language,
-                type: 'Test',
+            // const ajaxSummaries = config.uris.rapi.v1.summaries({
+            //    language,
+            //    type: 'Test',
+            // });
+            const ajaxSummaries = new AjaxSummaries({
+                // partition: getLanguageReference(),
+                partition: { language },
+                projection: BaseModel.projection(LazySummary),
             });
-            summaries
+            ajaxSummaries
                 .get(summaryId)
                 .then((summary) => {
                     // Propagate activities from version to summary

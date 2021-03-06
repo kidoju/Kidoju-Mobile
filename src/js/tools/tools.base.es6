@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.data';
 import __ from '../app/app.i18n.es6';
@@ -127,8 +127,7 @@ const BaseTool = StubTool.extend({
     attributes: {},
     childSelector: CONSTANTS.DIV,
     field: {
-        // TODO check whether we need a type?
-        // The field definition for building the TestModel (see getTestModelField)
+        // The field definition for value when building the TestModel (see getTestModelField)
         type: CONSTANTS.STRING,
         // defaultValue: null,
         // editable: true
@@ -392,7 +391,7 @@ const BaseTool = StubTool.extend({
                     solution: tool.getSolution(component, variables),
                     // Other field values on the same page
                     // assuming this TestModelField is part of a TestModel
-                    all: $.extend(pageValues, variables),
+                    all: { ...pageValues, ...variables },
                 };
             },
             // grade function
@@ -402,6 +401,7 @@ const BaseTool = StubTool.extend({
                 const name = component.get('properties.name');
                 const data = that.data();
                 let validation = that.validation();
+
                 if (
                     $.type(validation) === CONSTANTS.OBJECT &&
                     $.type(validation.item) === CONSTANTS.OBJECT
@@ -513,8 +513,8 @@ const BaseTool = StubTool.extend({
         // Contrary to https://css-tricks.com/probably-dont-base64-svg/, we need base64 encoded strings otherwise kendo templates fail
         /* eslint-disable prettier/prettier */
         return `<div class=".kj-element-result" data-${ns}bind="visible: #: properties.name #">
-                    <div data-${ns}bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,'${__('tools.basetool.icon.success')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
-                    <div data-${ns}bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${__('tools.basetool.icon.failure')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                    <div data-${ns}bind="visible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${__('tools.basetool.icons.success')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
+                    <div data-${ns}bind="invisible: #: properties.name #.result" style="position: absolute; height: 92px; width:92px; bottom: -20px; right: -20px; background-image: url(data:image/svg+xml;base64,${__('tools.basetool.icons.failure')}); background-size: 92px 92px; background-repeat: no-repeat; width: 92px; height: 92px;"></div>
                 </div>`;
         /* eslint-ensable prettier/prettier */
     },
@@ -587,7 +587,10 @@ const BaseTool = StubTool.extend({
      */
     getHtmlSolution(component) {
         this._assertComponent(component);
-        return htmlEncode(component.get('properties.solution'));
+        const solution = component.get('properties.solution');
+        return htmlEncode(
+            $.type(solution) === CONSTANTS.NULL ? CONSTANTS.EMPTY : solution
+        );
     },
 
     /**
@@ -615,7 +618,10 @@ const BaseTool = StubTool.extend({
                 'component.tool'
             )
         );
-        return htmlEncode(testField.value);
+        const value = testField.get('value');
+        return htmlEncode(
+            $.type(value) === CONSTANTS.NULL ? CONSTANTS.EMPTY : value
+        );
     },
 
     // onEnable

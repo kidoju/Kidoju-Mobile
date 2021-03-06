@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
@@ -68,7 +68,7 @@ const DummyTool = BaseTool.extend({
             stageElement.is(`${CONSTANTS.DOT}${CONSTANTS.ELEMENT_CLASS}`),
             assert.format('e.currentTarget is expected to be a stage element')
         );
-        const content = stageElement.children(CONSTANTS.DIV);
+        const content = stageElement.children(this.childSelector);
         content.off(CONSTANTS.CLICK);
         if (enabled) {
             content.on(CONSTANTS.CLICK, () => {

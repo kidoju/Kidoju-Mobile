@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.notification';
 import { isMobileApp } from '../data/data.util.es6';
@@ -40,7 +40,7 @@ const options = isMobileApp()
             bottom: null,
             left: 0,
             right: null,
-            top: window.orientation % 180 === 0 ? 48 : 42, // Below navbar
+            top: window.orientation % 180 === 0 ? 47 : 41, // Below navbar
         },
         // stacking
         stacking: 'down',

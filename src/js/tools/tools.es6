@@ -6,7 +6,7 @@
 /* globals __NODE_ENV__: false */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.binder';
 import __ from '../app/app.i18n.es6';
@@ -261,6 +261,16 @@ function tools(id) {
             help: __('tools.line.help'),
             icon: __('tools.line.icon'),
             name: __('tools.line.name'),
+        });
+
+        /**
+         * Shape
+         */
+        _tools.shape = new StubTool({
+            description: __('tools.shape.description'),
+            help: __('tools.shape.help'),
+            icon: __('tools.shape.icon'),
+            name: __('tools.shape.name'),
         });
 
         /**

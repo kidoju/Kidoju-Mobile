@@ -4,7 +4,7 @@
  */
 
 // https://github.com/benmosher/eslint-plugin-import/issues/1097
-// eslint-disable-next-line import/extensions, import/no-unresolved
+// eslint-disable-next-line import/extensions, import/no-extraneous-dependencies, import/no-unresolved
 import $ from 'jquery';
 import 'kendo.core';
 import assert from '../common/window.assert.es6';
@@ -110,20 +110,20 @@ const themer = {
             newTheme = theme;
         }
         let loader;
-        if ($.type(theme) === CONSTANTS.STRING && oldTheme !== newTheme) {
+        if ($.type(oldTheme) === CONSTANTS.STRING && oldTheme !== newTheme) {
             // See https://github.com/webpack/style-loader/issues/48
             // See https://github.com/webpack/webpack/issues/924
             // See https://github.com/webpack/webpack/issues/993
             // eslint-disable-next-line global-require, import/no-dynamic-require
             loader = require(`../../styles/themes/app.theme.${oldTheme}.scss`);
             loader((style) => {
-                style.default.unuse(); // Use default with style-loder@2
+                style.default.unuse(); // Use default with style-loader@2+
             });
         }
         // eslint-disable-next-line global-require, import/no-dynamic-require
         loader = require(`../../styles/themes/app.theme.${newTheme}.scss`);
         loader((style) => {
-            style.default.use(); // Use default with style-loder@2
+            style.default.use(); // Use default with style-loader@2+
             if (localStorage && !$.isArray(matches)) {
                 try {
                     localStorage.setItem(THEME, newTheme);
@@ -135,7 +135,7 @@ const themer = {
                         !window.DOMException ||
                         !(exception instanceof window.DOMException) ||
                         exception.code !==
-                        window.DOMException.QUOTA_EXCEEDED_ERR
+                            window.DOMException.QUOTA_EXCEEDED_ERR
                     ) {
                         throw exception;
                     }
@@ -147,8 +147,8 @@ const themer = {
             //     .fadeIn()
             //     .fadeOut();
             $(document.documentElement)
-            .removeClass(`k-${THEMES[oldTheme]}`)
-            .addClass(`k-${THEMES[newTheme]}`); // Web Application
+                .removeClass(`k-${THEMES[oldTheme]}`)
+                .addClass(`k-${THEMES[newTheme]}`); // Web Application
             themer.updateCharts(THEMES[newTheme]);
             themer.updateQRCodes(THEMES[newTheme]);
             logger.debug({
@@ -270,10 +270,11 @@ const themer = {
     },
 };
 
+// TODO Remove -> use initializers
 // get theme from match or from localstorage ur use DEFAULT
-// const theme = themer.name();
+const theme = themer.name();
 // load theme
-// themer.load(theme);
+themer.load(theme);
 
 /**
  * Default export
