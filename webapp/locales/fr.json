@@ -83,7 +83,7 @@
 		"author": "Memba Sarl",
 		"description": "Les enseignants méritent d’excellents outils pour concevoir des évaluations riches et passionnantes. Les étudiants méritent d’avoir accès à une grande bibliothèque d’exercices auto-corrigés sans se soucier des coûts.",
 		"keywords": "exercice,quiz,activité,connaissance,test,évaluation,niveau,enseigner,apprendre,étudier,visuel,interactif,texte,image,audio,vidéo,choix multiple,question,réponse,math,français,connecteur,glisser,déplacer",
-		"title": "Kidoju - Créez et Partagez des Quiz Phénoménaux"
+		"title": "Kidoju - Créez et Partagez des Quiz Intelligents"
 	},
 	"header": {
         "navbar": {
@@ -479,14 +479,14 @@
 	},
 	"home": {
 		"icon": "home",
-        "title": "Créez et Partagez des Quiz Phénoménaux",
+        "title": "Créez et Partagez des Quiz Intelligents",
         "signin": "Veuillez vous identifier pour créer un nouveau Quiz",
         "description": "Les enseignants méritent d’excellents outils pour concevoir des évaluations riches et passionnantes. Les étudiants méritent d’avoir accès à une grande bibliothèque d’exercices auto-corrigés sans se soucier des coûts.",
         "freeTrial": "Partager est Gratuit",
         "watchVideo": "Vidéo",
         "gallery": {
-            "laptop": "Les quiz phénoménaux fonctionnent dans n’importe quel navigateur, notamment Chrome, Firefox, Internet Explorer, Opera et Safari.",
-            "mobile": "Les quiz phénoménaux fonctionnent sur les appareils mobiles, notamment Android, iPad et iPhone."
+            "laptop": "Les quiz intelligents fonctionnent dans n’importe quel navigateur, notamment Chrome, Firefox, Internet Explorer, Opera et Safari.",
+            "mobile": "Les quiz intelligents fonctionnent sur les appareils mobiles, notamment Android, iPad et iPhone."
         },
         "notifications": {
             "settingsLoadFailure": "Il y a eu une erreur lors du chargement des paramètres."

@@ -83,7 +83,7 @@
 		"author": "Memba Sarl",
 		"description": "Teachers deserve great tools to design rich and engaging assessments. Students deserve access to a large library of self-corrected exercises without worrying about the costs.",
 		"keywords": "assessment,quiz,activity,exercise,workout,knowledge,test,teach,learn,study,visual,interactive,text,image,audio,video,multiple choice,question,answer,math,english,connect,drag,drop",
-		"title": "Kidoju - Create and Share Phenomenal Quizzes"
+		"title": "Kidoju - Create and Share Smart Quizzes"
 	},
 	"header": {
 		"navbar": {
@@ -479,14 +479,14 @@
 	},
 	"home": {
         "icon": "home",
-        "title": "Create and Share Phenomenal Quizzes",
+        "title": "Create and Share Smart Quizzes",
         "signin": "Please sign in to create a new Quiz",
         "description": "Teachers deserve great tools to design rich and engaging assessments. Students deserve access to a large library of self-corrected exercises without worrying about the costs.",
         "freeTrial": "Sharing is Free",
         "watchVideo": "Video",
         "gallery": {
-            "laptop": "Phenomenal quizzes run in any browser, including Chrome, Firefox, Internet Explorer, Opera and Safari.",
-            "mobile": "Phenomenal quizzes run on mobile devices, including Android, iPad and iPhone."
+            "laptop": "Smart quizzes run in any browser, including Chrome, Firefox, Internet Explorer, Opera and Safari.",
+            "mobile": "Smart quizzes run on mobile devices, including Android, iPad and iPhone."
         },
         "notifications": {
             "settingsLoadFailure": "There was an error loading settings."
