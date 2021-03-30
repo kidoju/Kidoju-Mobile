@@ -48,7 +48,7 @@ const ShapeTool = BaseTool.extend({
     id: 'shape',
     height: 200,
     width: 300,
-    menu: ['attributes.shape', 'attributes.text'],
+    menu: ['attributes.shape', 'attributes.text', 'attributes.fillColor'],
     templates: {
         default: TEMPLATE,
     },
@@ -150,9 +150,9 @@ const ShapeTool = BaseTool.extend({
             },
             // Return 'none' for null value for SVG transparency
             strokeColor$() {
-                const strokeColor$ = component.get('attributes.strokeColor$');
-                return $.type(strokeColor$) === CONSTANTS.STRING
-                    ? strokeColor$
+                const strokeColor = component.get('attributes.strokeColor');
+                return $.type(strokeColor) === CONSTANTS.STRING
+                    ? strokeColor
                     : 'none';
             },
         });
