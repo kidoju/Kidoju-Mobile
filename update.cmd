@@ -36,15 +36,15 @@ REM ATTRIB -R .\gruntfile.js
 REM COPY ..\Memba.Webapp\gruntfile.js .\ /Y
 REM ATTRIB +R .\gruntfile.js
 
-REM kidoju.server.cmd
-REM ATTRIB -R .\kidoju.server.cmd
-REM COPY ..\Memba.Webapp\kidoju.server.cmd .\ /Y
-REM ATTRIB +R .\kidoju.server.cmd
+REM memba.server.cmd
+ATTRIB -R .\memba.server.cmd
+COPY ..\Memba.Webapp\memba.server.cmd .\ /Y
+ATTRIB +R .\memba.server.cmd
 
 REM LICENSE
-REM ATTRIB -R .\LICENSE-GPLv3
-REM COPY ..\Memba.Webapp\LICENSE-GPLv3 .\ /Y
-REM ATTRIB +R .\LICENSE-GPLv3
+ATTRIB -R .\LICENSE
+COPY ..\Memba.Webapp\LICENSE .\ /Y
+ATTRIB +R .\LICENSE
 
 REM postcss.config.js
 ATTRIB -R .\postcss.config.js
