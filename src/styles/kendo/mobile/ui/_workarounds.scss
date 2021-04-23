@@ -55,13 +55,13 @@
         &:active,
         &.km-state-active {
             @include fill(
-                $button-pressed-text,
-                $button-pressed-bg,
-                $button-pressed-border,
-                $button-pressed-gradient
+                $button-active-text,
+                $button-active-bg,
+                $button-active-border,
+                $button-active-gradient
             );
 
-            box-shadow: inset $button-pressed-shadow;
+            box-shadow: inset $button-active-shadow;
         }
     }
 
@@ -78,13 +78,13 @@
         &:active,
         &.km-state-active {
             @include fill(
-                $primary-button-pressed-text,
-                $primary-button-pressed-bg,
-                $primary-button-pressed-border,
-                $primary-button-pressed-gradient
+                $primary-button-active-text,
+                $primary-button-active-bg,
+                $primary-button-active-border,
+                $primary-button-active-gradient
             );
 
-            box-shadow: $primary-button-pressed-shadow;
+            box-shadow: $primary-button-active-shadow;
         }
     }
 

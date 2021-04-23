@@ -1,5 +1,9 @@
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables";
-@import "../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins";
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/variables';
+@import '../../../node_modules/@progress/kendo-theme-bootstrap/scss/mixins';
+
+/* stylelint-disable selector-class-pattern */
+/* stylelint-disable selector-no-qualifying-type */
+/* stylelint-disable selector-no-vendor-prefix */
 
 //---------------------------------------------
 // CodeMirror
@@ -7,40 +11,37 @@
 .CodeMirror,
 .CodeMirror-scrollbar-filler,
 .CodeMirror-gutter-filler {
-    background-color: $widget-bg;
-    color: $widget-text;
+    background-color: $component-bg;
+    color: $component-text;
 }
 
 // Gutters
 .CodeMirror-gutters {
+    background-color: rgba(contrast-wcag($component-bg), 0.04);
     border-right: $border-width solid $border-color;
-    background-color: rgba(contrast-wcag($widget-bg), 0.04);
 }
 
 // .CodeMirror-linenumbers {}
 
 .CodeMirror-linenumber {
-    color: $widget-text;
-
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
+    color: $component-text;
 }
 
 .CodeMirror-guttermarker {
-    color: black;
+    color: #000;
 }
 
 .CodeMirror-guttermarker-subtle {
-    color: $widget-text;
-
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
+    color: $component-text;
 }
 
 // Cursor
-
 .CodeMirror-cursor {
-    border-left: 1px solid $widget-text;
+    border-left: 1px solid $component-text;
 }
 
 /* Shown when moving in bi-directional text */
@@ -61,7 +62,9 @@
 /* Note: everything I have not been able to play in CodeMirror markdown and JavaScript modes is $series-f */
 
 .cm-s-default .cm-header {
-    color: contrast-wcag($series-a);
+    // color: $primary;
+    color: $tertiary;
+    // color: contrast-wcag($series-a);
 }
 
 .cm-s-default .cm-quote {
@@ -118,10 +121,9 @@
 }
 
 .cm-s-default .cm-comment {
-    color: $widget-text;
-
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
+    color: $component-text;
 }
 
 .cm-s-default .cm-string {
@@ -157,11 +159,10 @@
 }
 
 .cm-s-default .cm-hr {
-    color: $widget-text;
-    font-weight: bold;
-
     /* stylelint-disable-next-line at-rule-no-unknown */
     @include disabled( $disabled-styling );
+    color: $component-text;
+    font-weight: bold;
 }
 
 .cm-s-default .cm-link {
