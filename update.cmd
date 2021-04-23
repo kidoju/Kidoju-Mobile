@@ -197,6 +197,8 @@ COPY ..\Memba.Widgets\src\js\tools\*.es6 .\src\js\tools /Y
 ATTRIB +R .\src\js\tools\*.es6
 
 REM Copy .\src\js\vendor\*
+XCOPY ..\Memba.Widgets\src\js\vendor\arnog .\src\js\vendor\arnog /C /E /I /R /Y
+ATTRIB +R .\src\js\vendor\arnog\*.* /S
 XCOPY ..\Memba.Widgets\src\js\vendor\blueimp .\src\js\vendor\blueimp /C /E /I /R /Y
 ATTRIB +R .\src\js\vendor\blueimp\*.* /S
 XCOPY ..\Memba.Widgets\src\js\vendor\codemirror .\src\js\vendor\codemirror /C /E /I /R /Y
@@ -240,6 +242,10 @@ REM ------------------------------------------------------------
 REM Styles
 REM ------------------------------------------------------------
 
+REM Copy ./src/styles/dependencies/*
+XCOPY ..\Memba.Widgets\src\styles\dependencies\*.scss .\src\styles\dependencies /C /E /I /R /Y
+ATTRIB +R .\src\styles\dependencies\*.scss /S
+
 REM Copy ./src/styles/dialogs/*
 XCOPY ..\Memba.Widgets\src\styles\dialogs\*.scss .\src\styles\dialogs /C /E /I /R /Y
 ATTRIB +R .\src\styles\dialogs\*.scss /S
@@ -248,19 +254,17 @@ REM Copy ./src/styles/fonts/*
 XCOPY ..\Memba.WebFonts\dist\fonts\*.* .\src\styles\fonts /C /E /I /R /Y
 ATTRIB +R .\src\styles\fonts\*.* /S
 
-REM Copy ./src/styles/images/*
+REM Copy ./src/styles/images/* --> What for? ????????????????????????????
 ATTRIB -R .\src\styles\images\*.png
 COPY ..\Memba.WebApp\src\styles\images\handler.png .\src\styles\images\handler.png /Y
 ATTRIB +R .\src\styles\images\*.png
 
 REM Copy ./src/styles/themes/*
-ATTRIB -R .\src\styles\themes\highlightjs.custom.less
-COPY ..\Memba.WebApp\styles\themes\highlightjs.custom.less .\src\styles\themes /Y
-ATTRIB +R .\src\styles\themes\highlightjs.custom.less
-REM XCOPY ..\Memba.Widgets\src\styles\dialogs\*.* .\src\styles\dialogs /C /E /I /R /Y
-REM ATTRIB +R .\src\styles\dialogs\*.* /S
+REM
 
 REM Copy ./src/styles/vendor/*
+XCOPY ..\Memba.Widgets\src\styles\vendor\arnog .\src\styles\vendor\arnog /C /E /I /R /Y
+ATTRIB +R .\src\styles\vendor\arnog\*.* /S
 XCOPY ..\Memba.Widgets\src\styles\vendor\codemirror .\src\styles\vendor\codemirror /C /E /I /R /Y
 ATTRIB +R .\src\styles\vendor\codemirror\*.* /S
 XCOPY ..\Memba.Widgets\src\styles\vendor\highlight .\src\styles\vendor\highlight /C /E /I /R /Y
