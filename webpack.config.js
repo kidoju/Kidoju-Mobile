@@ -13,7 +13,13 @@
 const path = require('path');
 const deasync = require('deasync');
 const sass = require('sass');
+// const CircularDependencyPlugin = require('circular-dependency-plugin');
+// const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+// TerserPlugin is actually installed with webpack
+/* eslint-disable-next-line import/no-extraneous-dependencies, node/no-extraneous-require */
+const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
+// const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const cleanLessPlugin = require('./web_modules/less-plugin/index.es6');
 const config = require('./webapp/config/index.es6');
 const pkg = require('./package.json');
@@ -38,6 +44,59 @@ const buildPath = config.get('uris:webpack:root');
 console.log(`webpack environment is ${environment}`); // eslint-disable-line no-console
 console.log(`webpack build path is ${buildPath}`); // eslint-disable-line no-console
 console.log(`processing version ${pkg.version}`); // eslint-disable-line no-console
+
+/**
+ * BannerPlugin
+ * bannerPlugin adds a banner to webpack outputs
+ */
+const banner = `/*! ${pkg.copyright} - Version ${
+    pkg.version
+} dated ${new Date().toDateString()} */`;
+const bannerPlugin = new webpack.BannerPlugin({
+    banner,
+    raw: true,
+    // entryOnly: true
+});
+
+/**
+ * BundleAnalyzerPlugin
+ */
+/*
+const bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
+    analyzerMode: 'static'
+    // analyzerPort: 7000 <-- Fatal error: listen EADDRINUSE 127.0.0.1:7000
+});
+*/
+
+/**
+ * CleanWebpackPlugin
+ * Deletes all files in webpack build directory
+ * @type {never}
+ */
+// const cleanWebpackPlugin = new CleanWebpackPlugin({
+//     cleanOnceBeforeBuildPatterns: ['**/*', '!workerlib.bundle.js'],
+// });
+
+/**
+ * CircularDependencyPlugin
+ * Detect modules with circular dependencies when bundling with webpack.
+ * @type {never}
+ */
+/*
+const circularDependencyPlugin = new CircularDependencyPlugin({
+    // exclude detection of files based on a RegExp
+    exclude: /node_modules|vendor|styles/,
+    // include specific files based on a RegExp
+    include: /src/,
+    // add errors to webpack instead of warnings
+    failOnError: true,
+    // allow import cycles that include an asyncronous import,
+    // e.g. via import(\* webpackMode: "weak" *\ './file.js')
+    allowAsyncCycles: false,
+    // set the current working directory for displaying module paths
+    cwd: process.cwd(),
+});
+*/
 
 /**
  * DefinePlugin
@@ -66,17 +125,6 @@ const definePlugin = new webpack.DefinePlugin({
  */
 
 /**
- * BundleAnalyzerPlugin
- */
-/*
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
-    analyzerMode: 'static'
-    // analyzerPort: 7000 <-- Fatal error: listen EADDRINUSE 127.0.0.1:7000
-});
-*/
-
-/**
  * Webpack configuration
  * @see https://github.com/webpack/docs/wiki/configuration
  */
@@ -99,7 +147,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.es6$/,
+                test: /\.(es6|mjs)$/,
                 exclude: /node_modules/,
                 use: [
                     {
@@ -254,6 +302,20 @@ module.exports = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
     optimization: {
         minimize: process.env.NODE_ENV === 'production',
+        minimizer: [
+            // https://github.com/webpack-contrib/terser-webpack-plugin
+            new TerserPlugin({
+                extractComments: false, // Avoid extraction to *.LICENSE.txt files
+                parallel: true,
+                terserOptions: {
+                    mangle: true,
+                    output: {
+                        // Remove comments especially in Modernizr,  except Memba's
+                        comments: /memba®/i,
+                    },
+                },
+            }),
+        ],
     },
     output: {
         // Unfortunately it is not possible to specialize output directories
@@ -265,12 +327,17 @@ module.exports = {
     },
     plugins: [
         definePlugin,
-        // bundleAnalyzerPlugin
+        // cleanWebpackPlugin,
+        // circularDependencyPlugin,
+        bannerPlugin,
+        // bundleAnalyzerPlugin,
     ],
     resolve: {
+        extensions: ['.es6', '.js', '.mjs'],
         modules: [
-            path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
             'node_modules',
+            path.resolve(__dirname, 'src/js/vendor/kendo'), // required since Kendo UI 2016.1.112
+            '.', // For popper.js in bootstrap
         ],
     },
 };
