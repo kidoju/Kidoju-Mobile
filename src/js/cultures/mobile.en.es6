@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Copyright (c) 2019-2021 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -195,7 +195,7 @@ const res = {
         switch: 'Switch user',
         tour: 'Take the tour',
         // Copyright
-        copyright: 'Copyright &copy; 2013-2018 Memba&reg; Sarl',
+        copyright: 'Copyright &copy; 2013-2021 Memba&reg; Sarl',
     },
     // Sign-in view
     signin: {

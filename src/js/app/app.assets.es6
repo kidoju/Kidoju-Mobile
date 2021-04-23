@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2013-2019 Memba Sarl. All rights reserved.
+ * Copyright (c) 2013-2021 Memba Sarl. All rights reserved.
  * Sources at https://github.com/Memba
  */
 
@@ -38,7 +38,10 @@ import ToolAssets from '../tools/util.assets.es6';
  * kidoju.assets are the actual assets to be used in kidoju.widgets.assetmanager
  */
 
-const { deepExtend, roleSelector } = window.kendo;
+const {
+    deepExtend,
+    // roleSelector
+} = window.kendo;
 
 // const i18n = app.i18n;
 // const rapi = app.rapi;
@@ -330,17 +333,17 @@ const collectionSources = {
                     read(options) {
                         new AjaxWebSearch({
                             provider: params.provider,
-                            searchType: params.searchType
+                            searchType: params.searchType,
                         })
                             .read(options.data)
                             .then(options.success)
                             .catch(options.error);
-                    }
-                }
+                    },
+                },
             },
             params
         );
-    }
+    },
 
     /**
      * Creates an editable collection for a summary/project
@@ -408,7 +411,7 @@ function parseConfiguration(type) {
         )
     );
     // const clone = JSON.parse(JSON.stringify(config.assets[type]));
-    const clone = Object.assign({}, config.assets[type]);
+    const clone = { ...config.assets[type] };
     for (let i = clone.collections.length; i > 0; i--) {
         const collection = clone.collections[i - 1];
         if (collection.source) {
@@ -444,7 +447,7 @@ const assets = {
     // Assets for the image tool
     image: new ToolAssets(parseConfiguration('image')),
     // Assets for the video tool
-    video: new ToolAssets(parseConfiguration('video'))
+    video: new ToolAssets(parseConfiguration('video')),
 };
 
 /**
