@@ -34,7 +34,7 @@
     "url": "https://github.com/Memba/Memba-SmartQuiz/issues"
   },
   "scripts": {
-    "build": "npm run clear && npm run jquery && npm run webpack && npm run uglify",
+    "build": "npm run clear && npm run jquery && npm run webpack && npm run uglify && npm run workerlib",
     "clear": "rm -fv ./webapp/public/build/*",
     "eslint": "eslint . ./src/js/**/*.{es6,jsx} ./test/**/*.es6 ./webapp/**/*.{es6,js}",
     "jquery": "cp ./src/js/vendor/jquery/jquery-3.6.0.min.js ./www/build/jquery.min.js",
@@ -42,6 +42,7 @@
     "test": "npm run mocha && npm run gremlins && npm run wdio",
     "uglify": "uglifyjs ./src/js/vendor/jashkenas/underscore.js ./src/js/vendor/khan/kas.js ./src/js/workers/workers.lib.js -o ./webapp/public/build/workerlib.bundle.js -c -m",
     "webpack": "webpack --config ./webpack.config.js",
+    "workerlib": "cp ./webapp/public/build/workerlib.bundle.js ./www/build/workerlib.bundle.js",
     "wdio": "wdio run ./wdio.conf.js"
   },
   "devDependencies": {
