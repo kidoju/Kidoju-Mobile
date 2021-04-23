@@ -22,10 +22,8 @@
 <body>
 
 
-
 <!-- notifications -->
 <div id="notification"></div>
-
 <!-- layout -->
 <div data-role="layout" data-id="main-layout" data-show="app.viewModel.onLayoutViewShow">
     <header data-role="header">
@@ -49,7 +47,6 @@
         </div>
     </header>
 </div>
-
 <!-- Drawer -->
 <div id="drawer" data-role="drawer" data-position="left" data-swipe-to-open="false" data-model="app.viewModel">
     <header data-role="header">
@@ -220,14 +217,12 @@
         </ul>
     </div>
 </div>
-
 <!-- Error view -->
 <div id="error" data-role="view" data-layout="main-layout" data-title="Fatal Error" data-transition="fade" data-show="app.viewModel.onErrorViewShow">
     <img src="./img/icons/error.svg" alt="Fatal Error" class="app-picture">
     <h2 class="app-title">Fatal Error</h2>
     <!--p class="app-description">Progress</p-->
 </div>
-
 <!-- Activities view -->
 <div id="activities" data-role="view" data-layout="main-layout" data-title="History" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onActivitiesViewShow">
     <!-- button group -->
@@ -270,7 +265,6 @@
         # } #
     </script>
 </div>
-
 <!-- Categories view -->
 <div id="categories" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onCategoriesViewShow">
     <!-- dropdown of top categories -->
@@ -287,7 +281,6 @@
         </a>
     </script>
 </div>
-
 <!-- Correction view (Review mode) -->
 <div id="correction" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-hide="app.viewModel.onCorrectionViewHide" data-init="app.viewModel.onCorrectionViewInit" data-show="app.viewModel.onCorrectionViewShow">
     <div class="app-stage-container">
@@ -307,7 +300,6 @@
         </div>
     </div>
 </div>
-
 <!-- Favourites view -->
 <!--div id="favourites" data-role="view" data-layout="main-layout" data-title="Favourites" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onFavouritesViewShow">
     <ul data-role="listview" data-bind="source: favourites" data-template="favourites-template">
@@ -316,7 +308,6 @@
         <a href="\#player">#: title #</a>
     </script>
 </div-->
-
 
 <!-- Finder view -->
 <div id="finder" data-role="view" data-layout="main-layout" data-title="Explore" data-transition="fade" data-model="app.viewModel" data-before-show="app.viewModel.onFinderBeforeViewShow" data-show="app.viewModel.onFinderViewShow">
@@ -348,14 +339,12 @@
         </a>
     </script>
 </div>
-
 <!-- No network view -->
 <div id="network" data-role="view" data-layout="main-layout" data-title="No Network" data-transition="fade" data-show="app.viewModel.onNetworkViewShow">
     <img src="./img/icons/antenna.svg" alt="No Network" class="app-picture">
     <h2 class="app-title">No Network</h2>
     <!--p class="app-description">Progress</p-->
 </div>
-
 <!-- Player view -->
 <div id="player" data-role="view" data-layout="main-layout" data-title="Page 1 of 1" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-hide="app.viewModel.onPlayerViewHide" data-init="app.viewModel.onPlayerViewInit" data-show="app.viewModel.onPlayerViewShow">
     <div class="app-stage-container">
@@ -375,7 +364,17 @@
         </div>
     </div>
 </div>
-
+<!-- Rating modal view -->
+<!--div id="rating" data-role="modalview" data-model="app.viewModel" data-show="app.viewModel.onRatingViewShow" style="width: 200px; height: 300px;">
+    <h2 class="km-content summary">
+        <img class="icon" data-bind="{ attr: { src: summary.icon$, alt: summary.title } }">
+        <div class="title" data-bind="text:summary.title"></div>
+    </h2>
+    <div>
+        <span class="kf"><input data-role="rating"></span>
+        <a data-role="button" data-click="app.viewModel.onRatingViewClose">Close</a>
+    </div>
+</div-->
 <!-- Score view -->
 <div id="score" data-role="view" data-layout="main-layout" data-title="Score" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onScoreViewShow">
     <h2 class="km-content summary">
@@ -411,7 +410,6 @@
         </a>
     </script>
 </div>
-
 <!-- Settings view -->
 <div id="settings" data-role="view" data-layout="main-layout" data-title="Settings" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onSettingsViewShow">
     <!-- see http://docs.telerik.com/kendo-ui/controls/hybrid/styles/forms -->
@@ -456,7 +454,6 @@
         <a data-role="button" class="km-large km-justified km-primary" data-click="app.viewModel.onSettingsSwitchClick">Switch user</a>
     </div>
 </div>
-
 <!-- Sign-in view -->
 <div id="signin" data-role="view" data-layout="main-layout" data-title="Sign in" data-transition="fade" data-stretch="true" data-model="app.viewModel" data-init="app.viewModel.onSigninViewInit" data-show="app.viewModel.onSigninViewShow">
     <div data-role="scrollview" class="km-scrollview-overlay" data-content-height="100%">
@@ -491,7 +488,6 @@
         </div>
     </div>
 </div>
-
 <!-- Summary view -->
 <div id="summary" data-role="view" data-layout="main-layout" data-title="Details" data-transition="fade" data-model="app.viewModel" data-show="app.viewModel.onSummaryViewShow">
     <img data-bind="attr: { src: summary.icon$, alt: summary.title }" class="app-picture">
@@ -555,7 +551,6 @@
         <li class="km-actionsheet-feedback" data-bind="visible: hasInternetBrowsing$"><a data-action="app.viewModel.onSummaryActionFeedback">Feedback</a></li>
     </ul>
 </div>
-
 <!-- Sync view -->
 <div id="sync" data-role="view" data-layout="main-layout" data-title="Synchronization" data-transition="fade" data-model="app.viewModel" data-hide="app.viewModel.onSyncViewHide" data-show="app.viewModel.onSyncViewShow">
     <img src="./img/icons/gearwheels.svg" alt="Progress" class="app-picture">
@@ -567,7 +562,6 @@
     </div>
     <div class="app-buttons"><a data-role="button" class="km-primary" href="#">Continue</a></div>
 </div>
-
 <!-- User view -->
 <div id="user" data-role="view" data-layout="main-layout" data-title="User" data-transition="fade" data-model="app.viewModel" data-init="app.viewModel.onUserViewInit" data-show="app.viewModel.onUserViewShow">
     <div data-role="touch" data-enable-swipe="true" data-swipe="app.viewModel.onUserSwipe">
@@ -623,7 +617,6 @@
         <a data-role="button" data-bind="visible: isSavedUser$" class="km-large km-justified" data-click="app.viewModel.onUserChangePin">Change PIN</a>
     </div>
 </div>
-
 
 
 </body>

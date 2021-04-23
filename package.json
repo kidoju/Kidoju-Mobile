@@ -34,9 +34,12 @@
     "url": "https://github.com/Memba/Memba-SmartQuiz/issues"
   },
   "scripts": {
-    "build": "npm run clear && npm run jquery && npm run webpack && npm run uglify && npm run workerlib",
+    "build": "npm run head && npm run foot && npm run index && npm run clear && npm run jquery && npm run webpack && npm run uglify && npm run workerlib",
     "clear": "rm -fv ./webapp/public/build/*",
     "eslint": "eslint . ./src/js/**/*.{es6,jsx} ./test/**/*.es6 ./webapp/**/*.{es6,js}",
+    "foot": "awk '/split here/ {p=1;next}; p==1 {print}' ./www/views/main.html > ./www/views/_foot.html",
+    "head": "awk '{if (match($0,\"split here\")) exit; print}' ./www/views/main.html > ./www/views/_head.html",
+    "index": "cat www/views/_head.html www/views/notification.html www/views/layout.html www/views/drawer.html www/views/error.html www/views/activities.html www/views/categories.html www/views/correction.html www/views/favourites.html www/views/finder.html www/views/network.html www/views/player.html www/views/rating.html www/views/score.html www/views/settings.html www/views/signin.html www/views/summary.html www/views/sync.html www/views/user.html www/views/_foot.html > ./www/index.html",
     "jquery": "cp ./src/js/vendor/jquery/jquery-3.6.0.min.js ./www/build/jquery.min.js",
     "mocha": "mocha ./test/node/**/*.test.es6 -t 10000 -R spec -ui bdd",
     "test": "npm run mocha && npm run gremlins && npm run wdio",
