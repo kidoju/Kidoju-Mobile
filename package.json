@@ -1,14 +1,13 @@
 {
-  "name": "Kidoju.Mobile",
+  "name": "Memba.SmartQuiz",
   "version": "0.3.8",
-  "description": "Mobile app for the Kidoju platform.",
+  "description": "Mobile app for the Memba platform.",
   "author": "Memba Sarl",
   "copyright": "Copyright ©2013-2019 Memba® Sarl. All rights reserved.",
   "license": "AGPL-3.0",
-  "homepage": "https://www.kidoju.com",
+  "homepage": "https://www.memba.com",
   "keywords": [
     "Memba",
-    "Kidoju",
     "Activity",
     "Assessment",
     "Brain",
@@ -28,10 +27,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kidoju/Kidoju-Mobile.git"
+    "url": "https://github.com/Memba/Memba-Mobile.git"
   },
   "bugs": {
-    "url": "https://github.com/kidoju/Kidoju-Mobile/issues"
+    "url": "https://github.com/Memba/Memba-Mobile/issues"
   },
   "scripts": {
     "build": "npm run clear && npm run webpack && npm run uglify",
@@ -69,7 +68,6 @@
     "bootstrap": "^4.6.0",
     "bundle-loader": "^0.5.6",
     "chai": "^4.3.4",
-    "cordova-browser": "^6.0.0",
     "cordova-plugin-x-socialsharing": "^6.0.3",
     "core-js": "^3.11.0",
     "css-loader": "^5.2.4",
@@ -150,7 +148,7 @@
       "cordova-plugin-buildinfo": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-customurlscheme": {
-        "URL_SCHEME": "com.kidoju.mobile",
+        "URL_SCHEME": "com.memba.mobile",
         "ANDROID_SCHEME": " ",
         "ANDROID_HOST": " ",
         "ANDROID_PATHPREFIX": "/"
@@ -158,9 +156,7 @@
       "cordova-plugin-x-socialsharing": {},
       "cordova-plugin-inappbrowser": {}
     },
-    "platforms": [
-      "browser"
-    ]
+    "platforms": []
   },
   "engines": {
     "node": ">=10"
