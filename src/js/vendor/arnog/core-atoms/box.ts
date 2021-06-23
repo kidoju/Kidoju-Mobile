@@ -1,15 +1,15 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { METRICS as FONTMETRICS } from '../core/font-metrics';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
+import { convertToDimension } from '../core/parser';
 import { Style } from '../public/core';
-
+import { convertDimensionToEm } from '../core/registers-utils';
 export class BoxAtom extends Atom {
   readonly framecolor?: string;
   readonly verbatimFramecolor?: string;
   readonly backgroundcolor?: string;
   readonly verbatimBackgroundcolor?: string;
-  readonly padding?: number;
+  readonly padding?: string;
   readonly border?: string;
 
   constructor(
@@ -20,15 +20,15 @@ export class BoxAtom extends Atom {
       verbatimFramecolor?: string;
       backgroundcolor?: string;
       verbatimBackgroundcolor?: string;
-      padding?: number;
+      padding?: string;
       border?: string;
       style: Style;
-      toLatexOverride?: (atom: BoxAtom, options: ToLatexOptions) => string;
+      serialize?: (atom: BoxAtom, options: ToLatexOptions) => string;
     }
   ) {
     super('box', {
       command,
-      toLatexOverride: options.toLatexOverride,
+      serialize: options.serialize,
       style: options.style,
     });
     this.body = body;
@@ -41,21 +41,30 @@ export class BoxAtom extends Atom {
     this.border = options.border;
   }
 
-  render(context: Context): Span {
+  render(parentContext: Context): Box | null {
+    const context = new Context(parentContext, this.style);
+
+    const fboxsep = convertDimensionToEm(
+      context.getRegisterAsDimension('fboxsep')
+    );
     // The padding extends outside of the base
     const padding =
-      typeof this.padding === 'number' ? this.padding : FONTMETRICS.fboxsep;
-
+      this.padding === undefined
+        ? fboxsep
+        : convertDimensionToEm(
+            convertToDimension(this.padding, parentContext.registers)
+          );
     // Base is the main content "inside" the box
-    const content = new Span(Atom.render(context, this.body));
+    const content = Atom.createBox(parentContext, this.body);
+    if (!content) return null;
     content.setStyle('vertical-align', -content.height, 'em');
-    const base = new Span(content, { type: 'mord' });
+    const base = new Box(content, { type: 'mord' });
 
-    // This span will represent the box (background and border).
+    // This box will represent the box (background and border).
     // It's positioned to overlap the base.
-    // The 'ML__box' class is required to prevent the span from being omitted
-    // during rendering (it looks like an empty, no-op span)
-    const box = new Span(null, { classes: 'ML__box' });
+    // The 'ML__box' class is required to prevent the box from being omitted
+    // during rendering (it looks like an empty, no-op box)
+    const box = new Box(null, { classes: 'ML__box' });
     box.height = base.height + padding;
     box.depth = base.depth + padding;
     box.setStyle('box-sizing', 'border-box');
@@ -66,7 +75,7 @@ export class BoxAtom extends Atom {
       box.setStyle('width', '100%');
     } else {
       box.setStyle('width', `calc(100% + ${2 * padding}em)`);
-      box.setStyle('top', FONTMETRICS.fboxsep, 'em'); // empirical
+      box.setStyle('top', fboxsep, 'em'); // empirical
       box.setStyle('left', -padding, 'em');
     }
 
@@ -79,7 +88,9 @@ export class BoxAtom extends Atom {
     if (this.framecolor) {
       box.setStyle(
         'border',
-        `${FONTMETRICS.fboxrule}em solid ${this.framecolor}`
+        `${convertDimensionToEm(
+          context.getRegisterAsDimension('fboxrule')
+        )}em solid ${this.framecolor}`
       );
     }
 
@@ -90,12 +101,13 @@ export class BoxAtom extends Atom {
     base.setStyle('height', content.height + content.depth, 'em');
     base.setStyle('vertical-align', -padding, 'em');
 
-    // The result is a span that encloses the box and the base
-    const result = new Span([box, base], { type: 'mord' });
+    // The result is a box that encloses the box and the base
+    const result = new Box([box, base]);
     // Set its position as relative so that the box can be absolute positioned
     // over the base
     result.setStyle('position', 'relative');
     result.setStyle('display', 'inline-block');
+    result.setStyle('line-height', 0);
 
     // The padding adds to the width and height of the pod
     result.height = base.height + padding;
@@ -108,6 +120,6 @@ export class BoxAtom extends Atom {
 
     if (this.caret) result.caret = this.caret;
 
-    return this.attachSupsub(context, result, result.type);
+    return this.attachSupsub(parentContext, { base: result });
   }
 }

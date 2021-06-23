@@ -24,6 +24,7 @@
  * - https://github.com/microsoft/vscode/wiki/Keybinding-Issues
  */
 
+import { isBrowser, isTouchCapable } from '../common/capabilities';
 import { normalizeKeyboardEvent } from './keyboard-layout';
 
 const PRINTABLE_KEYCODE = new Set([
@@ -131,7 +132,7 @@ export function mightProducePrintableCharacter(evt: KeyboardEvent): boolean {
 function keyboardEventToString(evt: KeyboardEvent): string {
   evt = normalizeKeyboardEvent(evt);
 
-  const modifiers = [];
+  const modifiers: string[] = [];
 
   if (evt.ctrlKey) modifiers.push('ctrl');
   if (evt.metaKey) modifiers.push('meta');
@@ -188,15 +189,15 @@ export function delegateKeyboardEvents(
     copy: (ev: ClipboardEvent) => void;
     paste: (ev: ClipboardEvent) => void;
     keystroke: (keystroke: string, ev: KeyboardEvent) => boolean;
-    focus: () => void;
-    blur: () => void;
+    focus: null | (() => void);
+    blur: null | (() => void);
     compositionStart: (composition: string) => void;
     compositionUpdate: (composition: string) => void;
     compositionEnd: (composition: string) => void;
   }
 ): KeyboardDelegate {
-  let keydownEvent = null;
-  let keypressEvent = null;
+  let keydownEvent: KeyboardEvent | null = null;
+  let keypressEvent: KeyboardEvent | null = null;
   let compositionInProgress = false;
   let focusInProgress = false;
   let blurInProgress = false;
@@ -245,6 +246,11 @@ export function delegateKeyboardEvents(
       if (!handlers.keystroke(keyboardEventToString(event), event)) {
         keydownEvent = null;
         textarea.value = '';
+      } else if (isTouchCapable()) {
+        // If we did not create a text-area because we're on a mobile
+        // device and we don't want to use the OS virtual keyboard, capture
+        // the key events possibly coming from an attached hardware keyboard
+        handlers.typedText(event.key);
       }
     },
     true
@@ -298,8 +304,7 @@ export function delegateKeyboardEvents(
       // is contained in our shadow host, ignore the blur event
       if (
         event.relatedTarget ===
-        (((event.target as HTMLElement).getRootNode() as any) as ShadowRoot)
-          .host
+        ((event.target as HTMLElement).getRootNode() as any as ShadowRoot).host
       ) {
         event.preventDefault();
         event.stopPropagation();
@@ -377,6 +382,10 @@ export function delegateKeyboardEvents(
     }
 
     defer(handleTypedText);
+
+    // Do not propagate the event (it crosses the shadow dom barrier)
+    ev.preventDefault();
+    ev.stopPropagation();
   });
 
   return {
@@ -427,6 +436,7 @@ export function delegateKeyboardEvents(
 }
 
 function deepActiveElement(): Element | null {
+  if (!isBrowser()) return null;
   let a = document.activeElement;
   while (a?.shadowRoot?.activeElement) {
     a = a.shadowRoot.activeElement;
@@ -435,9 +445,9 @@ function deepActiveElement(): Element | null {
   return a;
 }
 
-export function eventToChar(evt: KeyboardEvent): string {
+export function eventToChar(evt?: KeyboardEvent): string {
   if (!evt) return '';
-  let result: string;
+  let result: string | undefined;
   if (evt.key === 'Unidentified') {
     // On Android, the evt.key seems to always be 'Unidentified'.
     // Get the value entered in the event target

@@ -20,18 +20,19 @@ function findInBranch(
   atom: Atom,
   branchName: Branch,
   value: string | RegExp,
-  options: FindOptions
+  options?: FindOptions
 ): Range[] {
   const branch = atom.branch(branchName);
   if (!branch) return [];
-  const result = [];
+  const result: Range[] = [];
   let { length } = branch;
   // For each length...
   while (length > 0) {
     // Consider each possible position in the branch
     for (let i = 1; i < branch.length - length + 1; i++) {
-      const latex = Atom.toLatex(branch.slice(i, i + length), {
+      const latex = Atom.serialize(branch.slice(i, i + length), {
         expandMacro: false,
+        defaultMode: model.mathfield.options.defaultMode,
       });
       if (match(value, latex)) {
         result.push([
@@ -55,7 +56,7 @@ function findInAtom(
   model: ModelPrivate,
   atom: Atom,
   value: string | RegExp,
-  options: FindOptions
+  options?: FindOptions
 ): Range[] {
   if (atom.type === 'first') return [];
 
@@ -70,7 +71,7 @@ function findInAtom(
 export function find(
   model: ModelPrivate,
   value: string | RegExp,
-  options: FindOptions
+  options?: FindOptions
 ): Range[] {
   return findInBranch(model, model.root, 'body', value, options).sort(
     (a, b) => {
@@ -89,7 +90,7 @@ function replaceInBranch(
   branchName: Branch,
   pattern: string | RegExp,
   replacement: string | ReplacementFunction,
-  options: FindOptions
+  options?: FindOptions
 ): void {
   const branch = atom.branch(branchName);
   if (!branch) return;
@@ -99,8 +100,9 @@ function replaceInBranch(
     let length = branch.length - i;
     while (length > 0) {
       let matched = false;
-      const latex = Atom.toLatex(branch.slice(i, i + length), {
+      const latex = Atom.serialize(branch.slice(i, i + length), {
         expandMacro: false,
+        defaultMode: model.mathfield.options.defaultMode,
       });
       const replacementArgs: any = { latex };
       if (typeof pattern === 'string' && latex === pattern) {
@@ -154,7 +156,7 @@ function replaceInBranch(
         }
 
         const lastChild = atom.addChildrenAfter(
-          parseLatex(replacementString, atom.mode),
+          parseLatex(replacementString, { parseMode: atom.mode }),
           branch[i - 1]
         );
         i = branch.indexOf(lastChild) + 1;
@@ -175,7 +177,7 @@ function replaceInAtom(
   atom: Atom,
   pattern: string | RegExp,
   replacement: string | ReplacementFunction,
-  options: FindOptions
+  options?: FindOptions
 ): void {
   if (atom.type === 'first') return;
 
@@ -191,7 +193,7 @@ export function replace(
   model: ModelPrivate,
   pattern: string | RegExp,
   replacement: string | ReplacementFunction,
-  options: FindOptions
+  options?: FindOptions
 ): void {
   replaceInBranch(model, model.root, 'body', pattern, replacement, options);
 

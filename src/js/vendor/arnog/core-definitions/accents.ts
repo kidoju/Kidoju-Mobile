@@ -7,6 +7,7 @@ import { Atom } from '../core/atom-class';
 import { AccentAtom } from '../core-atoms/accent';
 import { OverunderAtom } from '../core-atoms/overunder';
 import { Style } from '../public/core';
+import { binRelType } from './styling';
 
 const ACCENTS = {
   acute: 0x02ca,
@@ -45,6 +46,24 @@ defineFunction(['widehat', 'widecheck', 'widetilde'], '{body:auto}', {
   },
 });
 
+defineFunction(['overarc', 'overparen', 'wideparen'], '{body:auto}', {
+  createAtom: (command: string, args: Argument[], style: Style): Atom => {
+    return new AccentAtom(command, args[0] as Atom[], {
+      style,
+      svgAccent: 'overarc',
+    });
+  },
+});
+defineFunction(['underarc', 'underparen'], '{body:auto}', {
+  createAtom: (command: string, args: Argument[], style: Style): Atom => {
+    return new OverunderAtom(command, {
+      body: args[0] as Atom[],
+      style,
+      svgBelow: 'underarc',
+    });
+  },
+});
+
 defineFunction('utilde', '{body:auto}', {
   createAtom: (command: string, args: Argument[], style: Style): Atom => {
     const baseString = parseArgAsString(args[0] as Atom[]);
@@ -57,6 +76,7 @@ defineFunction('utilde', '{body:auto}', {
       body: args[0] as Atom[],
       svgBelow: accent,
       style,
+      boxType: binRelType(args[0] as Atom[]),
     });
   },
 });

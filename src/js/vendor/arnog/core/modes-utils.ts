@@ -1,22 +1,22 @@
 import {
   ErrorListener,
   Style,
-  MacroDictionary,
   ParserErrorCode,
   ParseMode,
 } from '../public/core';
 
-import type { Span } from './span';
+import type { Box } from './box';
 import type { Token } from './tokenizer';
-import type { ArgumentType } from './context';
+import { ArgumentType } from './parser';
 import type { GroupAtom } from '../core-atoms/group';
 import { Atom, ToLatexOptions } from './atom';
+import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 
 export interface ParseTokensOptions {
-  args: (string | Atom[])[];
-  macros: MacroDictionary;
+  macros: NormalizedMacroDictionary;
   smartFence: boolean;
   style: Style;
+  args: (arg: string) => string;
   parse: (
     mode: ArgumentType,
     tokens: Token[],
@@ -30,7 +30,11 @@ export class Mode {
     Mode._registry[name] = this;
   }
 
-  static createAtom(mode: ParseMode, command: string, style: Style): Atom {
+  static createAtom(
+    mode: ParseMode,
+    command: string,
+    style: Style
+  ): Atom | null {
     return Mode._registry[mode].createAtom(command, style);
   }
 
@@ -39,20 +43,20 @@ export class Mode {
     tokens: Token[],
     onError: ErrorListener<ParserErrorCode>,
     options: ParseTokensOptions
-  ): Atom[] {
+  ): Atom[] | null {
     return Mode._registry[mode].parseTokens(tokens, onError, options);
   }
 
   // `run` should be a run (sequence) of atoms all with the same
   // mode
-  static toLatex(run: Atom[], options: ToLatexOptions): string {
+  static serialize(run: Atom[], options: ToLatexOptions): string {
     console.assert(run.length > 0);
     const mode = Mode._registry[run[0].mode];
-    return mode.toLatex(run, options);
+    return mode.serialize(run, options);
   }
 
-  static applyStyle(mode: ParseMode, span: Span, style: Style): string {
-    return Mode._registry[mode].applyStyle(span, style);
+  static applyStyle(mode: ParseMode, box: Box, style: Style): string | null {
+    return Mode._registry[mode].applyStyle(box, style);
   }
 
   createAtom(_command: string, _style: Style): Atom | null {
@@ -67,16 +71,16 @@ export class Mode {
     return null;
   }
 
-  toLatex(_run: Atom[], _options: ToLatexOptions): string {
+  serialize(_run: Atom[], _options: ToLatexOptions): string {
     return '';
   }
 
   /*
-   * Apply the styling (bold, italic, etc..) as classes to the span, and return
+   * Apply the styling (bold, italic, etc..) as classes to the box, and return
    * the effective font name to be used for metrics
    * ('Main-Regular', 'Caligraphic-Regualr' etc...)
    */
-  applyStyle(_span: Span, _style: Style): string {
+  applyStyle(_box: Box, _style: Style): string | null {
     return '';
   }
 }
@@ -85,8 +89,8 @@ export class Mode {
  * Return an array of runs with the same mode
  */
 export function getModeRuns(atoms: Atom[]): Atom[][] {
-  const result = [];
-  let run = [];
+  const result: Atom[][] = [];
+  let run: Atom[] = [];
   let currentMode = 'NONE';
   for (const atom of atoms) {
     if (atom.type !== 'first') {
@@ -108,13 +112,16 @@ export function getModeRuns(atoms: Atom[]): Atom[][] {
  * Return an array of runs (array of atoms with the same value
  *   for the specified property)
  */
-export function getPropertyRuns(atoms: Atom[], property: string): Atom[][] {
-  const result = [];
-  let run = [];
-  let currentValue: string;
+export function getPropertyRuns(
+  atoms: Atom[],
+  property: keyof Style | 'cssClass'
+): Atom[][] {
+  const result: Atom[][] = [];
+  let run: Atom[] = [];
+  let currentValue: string | number | undefined = undefined;
   for (const atom of atoms) {
     if (atom.type !== 'first') {
-      let value: string;
+      let value: string | number | undefined;
       if (property === 'variant') {
         value = atom.style.variant;
         if (atom.style.variantStyle && atom.style.variantStyle !== 'up') {

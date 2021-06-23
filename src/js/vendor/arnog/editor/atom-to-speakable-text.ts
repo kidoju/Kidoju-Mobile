@@ -5,6 +5,7 @@ import { Atom } from '../core/atom';
 import { atomsToMathML } from '../addons/math-ml';
 import { LeftRightAtom } from '../core-atoms/leftright';
 import { isArray } from '../common/types';
+import { osPlatform } from '../common/capabilities';
 
 declare global {
   interface Window {
@@ -98,10 +99,13 @@ const PRONUNCIATION: Record<string, string> = {
 
   '\\partial': 'partial derivative of ',
 
+  '\\cdot': 'times ',
   '\\cdots': 'dot dot dot ',
 
   '\\Rightarrow': 'implies ',
 
+  '\\lparen': '<break time="150ms"/>open paren<break time="150ms"/>',
+  '\\rparen': '<break time="150ms"/>close paren<break time="150ms"/>',
   '\\lbrace': '<break time="150ms"/>open brace<break time="150ms"/>',
   '\\{': '<break time="150ms"/>open brace<break time="150ms"/>',
   '\\rbrace': '<break time="150ms"/>close brace<break time="150ms"/>',
@@ -141,26 +145,7 @@ function getSpokenName(latex: string): string {
   return result;
 }
 
-function platform(p: string): string {
-  let result = 'other';
-  if (navigator?.platform && navigator?.userAgent) {
-    if (/^(mac)/i.test(navigator.platform)) {
-      result = 'mac';
-    } else if (/^(win)/i.test(navigator.platform)) {
-      result = 'win';
-    } else if (/(android)/i.test(navigator.userAgent)) {
-      result = 'android';
-    } else if (/(iphone|ipad|ipod)/i.test(navigator.userAgent)) {
-      result = 'ios';
-    } else if (/\bcros\b/i.test(navigator.userAgent)) {
-      result = 'chromeos';
-    }
-  }
-
-  return result === p ? p : '!' + p;
-}
-
-function isAtomic(atoms: Atom[]): boolean {
+function isAtomic(atoms: undefined | Atom[]): boolean {
   let count = 0;
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
@@ -173,7 +158,7 @@ function isAtomic(atoms: Atom[]): boolean {
   return count === 1;
 }
 
-function atomicID(atoms: Atom[]): string {
+function atomicID(atoms: undefined | Atom[]): string {
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
       if (atom.type !== 'first' && atom.id) {
@@ -185,7 +170,7 @@ function atomicID(atoms: Atom[]): string {
   return '';
 }
 
-function atomicValue(atoms: Atom[]): string {
+function atomicValue(atoms: undefined | Atom[]): string {
   let result = '';
   if (isArray<Atom>(atoms)) {
     for (const atom of atoms) {
@@ -198,9 +183,17 @@ function atomicValue(atoms: Atom[]): string {
   return result;
 }
 
+function atomsAsText(
+  atoms: Atom[] | undefined,
+  _options: TextToSpeechOptions
+): string {
+  if (!atoms) return '';
+  return atoms.map((atom) => atom.value).join('');
+}
+
 function atomToSpeakableFragment(
   mode: 'text' | 'math',
-  atom: Atom | Atom[],
+  atom: undefined | Atom | Atom[],
   options: TextToSpeechOptions
 ): string {
   function letter(c: string): string {
@@ -381,9 +374,15 @@ function atomToSpeakableFragment(
       case 'leftright':
         {
           const delimAtom = atom as LeftRightAtom;
-          result += PRONUNCIATION[delimAtom.leftDelim] || delimAtom.leftDelim;
+          result +=
+            (delimAtom.leftDelim
+              ? PRONUNCIATION[delimAtom.leftDelim]
+              : undefined) ?? delimAtom.leftDelim;
           result += atomToSpeakableFragment('math', atom.body, options);
-          result += PRONUNCIATION[delimAtom.rightDelim] || delimAtom.rightDelim;
+          result +=
+            (delimAtom.rightDelim
+              ? PRONUNCIATION[delimAtom.rightDelim]
+              : undefined) ?? delimAtom.rightDelim;
         }
 
         break;
@@ -573,12 +572,19 @@ function atomToSpeakableFragment(
             }
           } else if (typeof atom.value === 'string') {
             const value =
-              PRONUNCIATION[atom.value] ?? PRONUNCIATION[atom.command];
+              PRONUNCIATION[atom.value] ??
+              (atom.command ? PRONUNCIATION[atom.command] : undefined);
             result += value ? value : ' ' + atom.value;
           } else if (atom.command) {
-            result += atom.command.startsWith('\\')
-              ? ' ' + atom.command.slice(1)
-              : ' ' + atom.command;
+            if (atom.command === '\\mathop') {
+              result += atomToSpeakableFragment('math', atom.body, options);
+            } else if (atom.command === '\\operatorname') {
+              result += atomsAsText(atom.body, options);
+            } else {
+              result += atom.command.startsWith('\\')
+                ? ' ' + atom.command.slice(1)
+                : ' ' + atom.command;
+            }
           }
         }
 
@@ -594,6 +600,7 @@ function atomToSpeakableFragment(
 
       case 'space':
       case 'spacing':
+      case 'macro':
         // @todo
         break;
     }
@@ -702,10 +709,7 @@ export function atomToSpeakableText(
       (prosody ? '</prosody>' : '') +
       '</amazon:auto-breaths>' +
       '</speak>';
-  } else if (
-    options.textToSpeechMarkup === 'mac' &&
-    platform('mac') === 'mac'
-  ) {
+  } else if (options.textToSpeechMarkup === 'mac' && osPlatform() === 'macos') {
     // Convert SSML to Mac markup
     result = result
       .replace(/<mark([^/]*)\/>/g, '')

@@ -1,12 +1,41 @@
 import { isArray } from '../common/types';
 
-import { MATHSTYLES, Span, makeStruts, parseLatex, Atom } from '../core/core';
+import {
+  makeStruts,
+  parseLatex,
+  Atom,
+  coalesce,
+  Box,
+  Context,
+  adjustInterAtomSpacing,
+  DEFAULT_FONT_SIZE,
+  getMacros,
+} from '../core/core';
 
 import { getKeybindingsForCommand } from './keybindings';
 import { attachButtonHandlers } from '../editor-mathfield/buttons';
-import { getCaretPoint } from '../editor-mathfield/utils';
+import {
+  getCaretPoint,
+  getSharedElement,
+  releaseSharedElement,
+} from '../editor-mathfield/utils';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
+import { typeset } from '../core/typeset';
+import { getDefaultRegisters } from '../core/registers';
+import { throwIfNotInBrowser } from '../common/capabilities';
+
+import { hashCode } from '../common/hash-code';
+import { Stylesheet, inject as injectStylesheet } from '../common/stylesheet';
+
+// @ts-ignore-error
+import POPOVER_STYLESHEET from '../../css/popover.less';
+// @ts-ignore-error
+import CORE_STYLESHEET from '../../css/core.less';
+
+let POPOVER_STYLESHEET_HASH: string | undefined = undefined;
+let gPopoverStylesheet: Stylesheet | null = null;
+let gCoreStylesheet: Stylesheet | null = null;
 
 // A textual description of a LaTeX command.
 // The value can be either a single string, or an array of string
@@ -268,21 +297,38 @@ function getNote(symbol: string): string {
   return result;
 }
 
-function latexToMarkup(latex: string, mf: MathfieldPrivate): string {
-  const parse = parseLatex(latex, 'math', null, mf.options.macros);
-  const spans = Atom.render(
-    {
-      mathstyle: MATHSTYLES.displaystyle,
-      macros: mf.options.macros,
-    },
-    parse
+function latexToMarkup(latex: string): string {
+  const root = new Atom('root', { mode: 'math' });
+  root.body = typeset(
+    parseLatex(latex, {
+      parseMode: 'math',
+      macros: getMacros(),
+      registers: getDefaultRegisters(),
+    })
   );
 
-  const wrapper = makeStruts(new Span(spans, { classes: 'ML__base' }), {
-    classes: 'ML__mathlive',
-  });
+  const box = coalesce(
+    adjustInterAtomSpacing(
+      new Box(
+        root.render(
+          new Context(
+            {
+              macros: getMacros(),
+              registers: getDefaultRegisters(),
+              smartFence: false,
+            },
+            {
+              fontSize: DEFAULT_FONT_SIZE,
+            },
+            'displaystyle'
+          )
+        ),
+        { classes: 'ML__base' }
+      )
+    )
+  );
 
-  return wrapper.toMarkup();
+  return makeStruts(box, { classes: 'ML__mathlive' }).toMarkup();
 }
 
 export function showPopoverWithLatex(
@@ -294,9 +340,8 @@ export function showPopoverWithLatex(
     hidePopover(mf);
     return;
   }
-
   const command = latex;
-  const commandMarkup = latexToMarkup(latex, mf);
+  const commandMarkup = latexToMarkup(latex);
   const commandNote = getNote(command);
   const keybinding = getKeybindingsForCommand(mf.keybindings, command).join(
     '<br>'
@@ -320,7 +365,7 @@ export function showPopoverWithLatex(
     ? '<div class="ML__popover__next-shortcut" role="button" aria-label="Next suggestion"><span><span>&#x25BC;</span></span></div>'
     : '';
 
-  mf.popover.innerHTML = mf.options.createHTML(template);
+  mf.popover = createPopover(mf, template);
 
   let element = mf.popover.querySelectorAll<HTMLElement>(
     '.ML__popover__content'
@@ -350,10 +395,12 @@ export function showPopoverWithLatex(
   }
 
   setTimeout(() => {
-    const caretPoint = getCaretPoint(mf.field);
+    const caretPoint = getCaretPoint(mf.field!);
     if (caretPoint) setPopoverPosition(mf, caretPoint);
-
-    mf.popover.classList.add('is-visible');
+    if (mf.popover) {
+      mf.popover.classList.add('is-visible');
+      mf.popoverVisible = true;
+    }
   }, 32);
 }
 
@@ -366,13 +413,14 @@ export function updatePopoverPosition(
   // could have gotten destroyed
   if (!mf.element || mf.element.mathfield !== mf) return;
 
+  if (!mf.popover || !mf.popoverVisible) return;
+
   // If the popover pane is visible...
-  if (!mf.popover.classList.contains('is-visible')) return;
   if (options?.deferred) {
     // Call ourselves again later, typically after the
     // rendering/layout of the DOM has been completed
     // (don't do it on next frame, it might be too soon)
-    window.setTimeout(() => updatePopoverPosition(mf), 100);
+    setTimeout(() => updatePopoverPosition(mf), 100);
     return;
   }
 
@@ -380,7 +428,7 @@ export function updatePopoverPosition(
     hidePopover(mf);
   } else {
     // ... get the caret position
-    const caretPoint = getCaretPoint(mf.field);
+    const caretPoint = getCaretPoint(mf.field!);
     if (caretPoint) setPopoverPosition(mf, caretPoint);
   }
 }
@@ -389,6 +437,10 @@ function setPopoverPosition(
   mf: MathfieldPrivate,
   position: { x: number; y: number; height: number }
 ): void {
+  throwIfNotInBrowser();
+
+  if (!mf.popover || !mf.popoverVisible) return;
+
   // Get screen width & height (browser compatibility)
   const screenHeight =
     window.innerHeight ||
@@ -404,7 +456,7 @@ function setPopoverPosition(
     window.innerWidth - document.documentElement.clientWidth;
   const scrollbarHeight =
     window.innerHeight - document.documentElement.clientHeight;
-  const virtualkeyboardHeight = mf.virtualKeyboard.height;
+  const virtualkeyboardHeight = mf.virtualKeyboard!.height;
   // Prevent screen overflow horizontal.
   if (position.x + mf.popover.offsetWidth / 2 > screenWidth - scrollbarWidth) {
     mf.popover.style.left = `${
@@ -433,8 +485,42 @@ function setPopoverPosition(
 
 export function hidePopover(mf: MathfieldPrivate): void {
   mf.suggestionIndex = 0;
+  mf.popoverVisible = false;
   if (mf.popover) {
     mf.popover.classList.remove('is-visible');
     mf.popover.innerHTML = '';
   }
+}
+
+export function createPopover(mf: MathfieldPrivate, html: string): HTMLElement {
+  if (mf.popover) {
+    mf.popover.innerHTML = mf.options.createHTML(html);
+    return mf.popover;
+  }
+
+  mf.popover = getSharedElement('mathlive-popover-panel');
+  if (POPOVER_STYLESHEET_HASH === undefined) {
+    POPOVER_STYLESHEET_HASH = hashCode(POPOVER_STYLESHEET).toString(36);
+  }
+  gPopoverStylesheet = injectStylesheet(
+    null,
+    POPOVER_STYLESHEET,
+    POPOVER_STYLESHEET_HASH
+  );
+  gCoreStylesheet = injectStylesheet(
+    null,
+    CORE_STYLESHEET,
+    hashCode(CORE_STYLESHEET).toString(36)
+  );
+
+  mf.popover.innerHTML = mf.options.createHTML(html);
+
+  return mf.popover;
+}
+
+export function disposePopover(mf: MathfieldPrivate): void {
+  releaseSharedElement(mf.popover);
+  if (gPopoverStylesheet) gPopoverStylesheet.release();
+  if (gCoreStylesheet) gCoreStylesheet.release();
+  delete mf.popover;
 }

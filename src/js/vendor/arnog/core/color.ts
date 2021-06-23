@@ -1,12 +1,7 @@
 /**
  * This module contains some color dictionaries and algorithms to
  * parse a string into a hex RGB color value.s
- * @summary   Parsing of color strings.
  */
-
-/*
-{\color{apricot}\blacksquare}{\color{aquamarine}\blacksquare}{\color{bittersweet}\blacksquare}{\color{black}\blacksquare}{\color{blue}\blacksquare}{\color{blueGreen}\blacksquare}{\color{blueviolet}\blacksquare}{\color{brickred}\blacksquare}{\color{brown}\blacksquare}{\color{burntorange}\blacksquare}{\color{cadetblue}\blacksquare}{\color{carnationpink}\blacksquare}{\color{cerulean}\blacksquare}{\color{cornflowerblue}\blacksquare}{\color{cyan}\blacksquare}{\color{dandelion}\blacksquare}{\color{darkorchid}\blacksquare}{\color{emerald}\blacksquare}{\color{forestgreen}\blacksquare}{\color{fuchsia}\blacksquare}{\color{goldenrod}\blacksquare}{\color{gray}\blacksquare}{\color{green}\blacksquare}{\color{greenyellow}\blacksquare}{\color{junglegreen}\blacksquare}{\color{lavender}\blacksquare}{\color{limegreen}\blacksquare}{\color{magenta}\blacksquare}{\color{mahogany}\blacksquare}{\color{maroon}\blacksquare}{\color{melon}\blacksquare}{\color{midnightblue}\blacksquare}{\color{mulberry}\blacksquare}{\color{navyblue}\blacksquare}{\color{olivegreen}\blacksquare}{\color{orange}\blacksquare}{\color{orangered}\blacksquare}{\color{orchid}\blacksquare}{\color{peach}\blacksquare}{\color{periwinkle}\blacksquare}{\color{pinegreen}\blacksquare}{\color{plum}\blacksquare}{\color{processblue}\blacksquare}{\color{purple}\blacksquare}{\color{rawsienna}\blacksquare}{\color{red}\blacksquare}{\color{redorange}\blacksquare}{\color{redviolet}\blacksquare}{\color{rhodamine}\blacksquare}{\color{royalblue}\blacksquare}{\color{royalpurple}\blacksquare}{\color{rubinered}\blacksquare}{\color{salmon}\blacksquare}{\color{seagreen}\blacksquare}{\color{sepia}\blacksquare}{\color{skyblue}\blacksquare}{\color{springgreen}\blacksquare}{\color{tan}\blacksquare}{\color{tealblue}\blacksquare}{\color{thistle}\blacksquare}{\color{turquoise}\blacksquare}{\color{violet}\blacksquare}{\color{violetred}\blacksquare}{\color{white}\blacksquare}{\color{wildstrawberry}\blacksquare}{\color{yellow}\blacksquare}{\color{yellowgreen}\blacksquare}{\color{yelloworange}\blacksquare}
-*/
 
 /**
  * First 10 predefined colors used for plotting by Mathematica.
@@ -42,46 +37,73 @@ const MATHEMATICA_COLORS: Record<string, string> = {
 // rgb(0.736782672705901, 0.358, 0.5030266573755369),
 // rgb(0.28026441037696703, 0.715, 0.4292089322474965)
 
-// MathLab colors
-// '#0072bd' // [0, 0.4470, 0.7410]             blue
-// '#d95319' // [0.8500, 0.3250, 0.0980]        orange
-// '#edb120', // [0.9290, 0.6940, 0.1250]       yellow
-// '#7e2f8e', // [0.4940, 0.1840, 0.5560]       purple
-// '#77ac30', // [0.4660, 0.6740, 0.1880]       green
-// '#4dbeee', // [0.3010, 0.7450, 0.9330]       cyan
-// '#a2142f' // [0.6350, 0.0780, 0.1840]	    dark red
+/**
+ *  Matlab colors
+ */
+export const MATLAB_COLORS: Record<string, string> = {
+  blue: '#0072BD', // [0, 0.4470, 0.7410]             blue
+  orange: '#D95319', // [0.8500, 0.3250, 0.0980]        orange
+  yellow: '#EDB120', // [0.9290, 0.6940, 0.1250]       yellow
+  purple: '#7E2F8E', // [0.4940, 0.1840, 0.5560]       purple
+  green: '#77AC30', // [0.4660, 0.6740, 0.1880]       green
+  cyan: '#4DBEEE', // [0.3010, 0.7450, 0.9330]       cyan
+  red: '#A2142F', // [0.6350, 0.0780, 0.1840]	    dark red
+};
 
-/* Area colors are most appropriate to color a large area */
-export const AREA_COLORS = [
-  '#d35d60', // Red
-  '#7293cb', // Cobalt blue
-  '#e1974d', // Orange
-  '#84bb5d', // Pistachio
-  '#9066a7', // Purple
-  '#aD6a58', // Vermilion
-  '#f5a4ce', // Pale rose
-  '#fff590', // Pale gold
-  '#212121', // Black
-  '#818787', // Dark grey
-  '#d4d5d2', // Light grey
-  '#ffffff', // White
-];
+// Colors from Chromatic 100 design scale
+export const BACKGROUND_COLORS = {
+  'red': '#fbbbb6',
+  'orange': '#ffe0c2',
+  'yellow': '#fff1c2',
+  'lime': '#d0e8b9',
+  'green': '#bceac4',
+  'teal': '#b9f1f1',
+  'blue': '#b6d9fb',
+  'indigo': '#d1c2f0',
+  'purple': '#e3baf8',
+  'magenta': '#f9c8e0',
+  'black': '#353535',
+  'dark-grey': '#8C8C8C',
+  'grey': '#D0D0D0',
+  'light-grey': '#F0F0F0',
+  'white': '#ffffff',
+};
 
-/* Line colors are most appropriate to color as a stroke color */
-export const LINE_COLORS = [
-  '#cc2428', // Red
-  '#3769b1', // Cobalt blue
-  '#da7e30', // Orange
-  '#409852', // Malachite green
-  '#6b4c9a', // Blue violet
-  '#922426', // Red
-  '#e7298a', // Brilliant rose
-  '#ffe907', // Vivid gold
-  '#000000',
-  '#525055',
-  '#adafaa',
-  '#ffffff',
-];
+// Colors from Chromatic 500 (and 600, 700) design scale
+export const FOREGROUND_COLORS = {
+  'red': '#d7170b', //<- 700, 500 ->'#f21c0d'
+  'orange': '#fe8a2b',
+  'yellow': '#ffc02b', // <- 600, 500 -> '#ffcf33',
+  'lime': '#63b215',
+  'green': '#21ba3a',
+  'teal': '#17cfcf',
+  'blue': '#0d80f2',
+  'indigo': '#63c',
+  'purple': '#a219e6',
+  'magenta': '#eb4799',
+  'black': '#000',
+  'dark-grey': '#666',
+  'grey': '#A6A6A6',
+  'light-grey': '#d4d5d2',
+  'white': '#ffffff',
+};
+
+// Map some of the DVIPS color names to Chromatic
+const DVIPS_TO_CHROMATIC = {
+  Red: 'red',
+  Orange: 'orange',
+  Yellow: 'yellow',
+  LimeGreen: 'lime',
+  Green: 'green',
+  TealBlue: 'teal',
+  Blue: 'blue',
+  Violet: 'indigo',
+  Purple: 'purple',
+  Magenta: 'magenta',
+  Black: 'black',
+  Gray: 'grey',
+  White: 'white',
+};
 
 /**
  * 68 colors (+ white) known to dvips used in LaTeX.
@@ -90,78 +112,81 @@ export const LINE_COLORS = [
  * 64 crayons.
  *
  * See:
- * - {@link http://mirror.jmu.edu/pub/CTAN/systems/knuth/local/lib/colordvi.tex | ColorDVI.tex}
+ * - {@link https://ctan.org/pkg/colordvi | ColorDVI.tex}
  * - {@link https://en.wikibooks.org/w/index.php?title=LaTeX/Colors | Wikibooks:LaTeX/Colors}
+ *
+ * We use the Matlab colors for common colors by default.
+ *
  */
-const NAMED_COLORS: Record<string, string> = {
-  apricot: '#FBB982',
-  aquamarine: '#00B5BE',
-  bittersweet: '#C04F17',
-  black: '#221E1F', // Indeed.
-  blue: '#2D2F92',
-  bluegreen: '#00B3B8',
-  blueviolet: '#473992',
-  brickred: '#B6321C',
-  brown: '#792500',
-  burntorange: '#F7921D',
-  cadetblue: '#74729A',
-  carnationpink: '#F282B4',
-  cerulean: '#00A2E3',
-  cornflowerblue: '#41B0E4',
-  cyan: '#00AEEF',
-  dandelion: '#FDBC42',
-  darkorchid: '#A4538A',
-  emerald: '#00A99D',
-  forestgreen: '#009B55',
-  fuchsia: '#8C368C',
-  goldenrod: '#FFDF42',
-  gray: '#949698',
-  green: '#00A64F',
-  greenyellow: '#DFE674',
-  junglegreen: '#00A99A',
-  lavender: '#F49EC4',
-  limegreen: '#8DC73E',
-  magenta: '#EC008C',
-  mahogany: '#A9341F',
-  maroon: '#AF3235',
-  melon: '#F89E7B',
-  midnightblue: '#006795',
-  mulberry: '#A93C93',
-  navyblue: '#006EB8',
-  olivegreen: '#3C8031',
-  orange: '#F58137',
-  orangered: '#ED135A',
-  orchid: '#AF72B0',
-  peach: '#F7965A',
-  periwinkle: '#7977B8',
-  pinegreen: '#008B72',
-  plum: '#92268F',
-  processblue: '#00B0F0',
-  purple: '#99479B',
-  rawsienna: '#974006',
-  red: '#ED1B23',
-  redorange: '#F26035',
-  redviolet: '#A1246B',
-  rhodamine: '#EF559F',
-  royalblue: '#0071BC',
-  royalpurple: '#613F99',
-  rubinered: '#ED017D',
-  salmon: '#F69289',
-  seagreen: '#3FBC9D',
-  sepia: '#671800',
-  skyblue: '#46C5DD',
-  springgreen: '#C6DC67',
-  tan: '#DA9D76',
-  tealblue: '#00AEB3',
-  thistle: '#D883B7',
-  turquoise: '#00B4CE',
-  violet: '#58429B',
-  violetred: '#EF58A0',
-  white: '#FFFFFF',
-  wildstrawberry: '#EE2967',
-  yellow: '#FFF200',
-  yellowgreen: '#98CC70',
-  yelloworange: '#FAA21A',
+const DVIPS_COLORS: Record<string, string> = {
+  Apricot: '#FBB982',
+  Aquamarine: '#00B5BE',
+  Bittersweet: '#C04F17',
+  Black: '#221E1F', // Indeed.
+  Blue: '#2D2F92',
+  BlueGreen: '#00B3B8',
+  BlueViolet: '#473992',
+  BrickRed: '#B6321C',
+  Brown: '#792500',
+  BurntOrange: '#F7921D',
+  CadetBlue: '#74729A',
+  CarnationPink: '#F282B4',
+  Cerulean: '#00A2E3',
+  CornflowerBlue: '#41B0E4',
+  Cyan: '#00AEEF',
+  Dandelion: '#FDBC42',
+  DarkOrchid: '#A4538A',
+  Emerald: '#00A99D',
+  ForestGreen: '#009B55',
+  Fuchsia: '#8C368C',
+  Goldenrod: '#FFDF42',
+  Gray: '#949698',
+  Green: '#00A64F',
+  GreenYellow: '#DFE674',
+  JungleGreen: '#00A99A',
+  Lavender: '#F49EC4',
+  Limegreen: '#8DC73E',
+  Magenta: '#EC008C',
+  Mahogany: '#A9341F',
+  Maroon: '#AF3235',
+  Melon: '#F89E7B',
+  MidnightBlue: '#006795',
+  Mulberry: '#A93C93',
+  NavyBlue: '#006EB8',
+  OliveGreen: '#3C8031',
+  Orange: '#F58137',
+  OrangeRed: '#ED135A',
+  Orchid: '#AF72B0',
+  Peach: '#F7965A',
+  Periwinkle: '#7977B8',
+  PineGreen: '#008B72',
+  Plum: '#92268F',
+  ProcessBlue: '#00B0F0',
+  Purple: '#99479B',
+  RawSienna: '#974006',
+  Red: '#ED1B23',
+  RedOrange: '#F26035',
+  RedViolet: '#A1246B',
+  Rhodamine: '#EF559F',
+  RoyalBlue: '#0071BC',
+  RoyalPurple: '#613F99',
+  RubineRed: '#ED017D',
+  Salmon: '#F69289',
+  SeaGreen: '#3FBC9D',
+  Sepia: '#671800',
+  SkyBlue: '#46C5DD',
+  SpringGreen: '#C6DC67',
+  Tan: '#DA9D76',
+  TealBlue: '#00AEB3',
+  Thistle: '#D883B7',
+  Turquoise: '#00B4CE',
+  Violet: '#58429B',
+  VioletRed: '#EF58A0',
+  White: '#FFFFFF',
+  WildStrawberry: '#EE2967',
+  Yellow: '#FFF200',
+  YellowGreen: '#98CC70',
+  YellowOrange: '#FAA21A',
 };
 
 // Other color lists: SVG colors, x11 colors
@@ -320,8 +345,8 @@ yellowgreen	rgb(154, 205, 50)
  * Return a CSS color (#rrggbb) from a string.
  *
  * Possible formats include:
- * - named colors from the DVI color set: 'Yellow', 'red'... Case insensitive.
- * - colors from the Mathematica set: 'm1'...'m9'
+ * - named colors from the DVI color set: 'Yellow', 'red'... Case sensitive.
+ * - colors from the Mathematica set: 'M1'...'M9'
  * - 3-digit hex: `'#d50'`
  * - 6-digit hex: `'#dd5500'`
  * - RGB functional: `'rgb(240, 20, 10)'`
@@ -329,9 +354,9 @@ yellowgreen	rgb(154, 205, 50)
  * In addition, colors can be mixed using the following syntax:
  * `<mix> = <color>![<value>][!<mix>]`
  * For example:
- * - `'blue!20'`  = 20% blue + 80% white
- * - `'blue!20!black'` = 20% + 80% black
- * - `'blue!20!black!30!green'` = (20% + 80% black) * 30 % + 70% green
+ * - `'Blue!20'`  = 20% blue + 80% white
+ * - `'Blue!20!Black'` = 20% + 80% black
+ * - `'Blue!20!Black!30!Green'` = (20% + 80% black) * 30 % + 70% green
  *
  * If the input string is prefixed with a dash, the complementary color
  * of the expression is returned.
@@ -341,12 +366,12 @@ yellowgreen	rgb(154, 205, 50)
  * @param s - An expression representing a color value
  * @return An RGB color expressed as a hex-triplet preceded by `#`
  */
-export function stringToColor(s: string): string {
-  const colorSpec = s.toLowerCase().split('!');
+export function defaultColorMap(s: string): string | undefined {
+  const colorSpec = s.split('!');
 
-  let baseRed;
-  let baseGreen;
-  let baseBlue;
+  let baseRed: number;
+  let baseGreen: number;
+  let baseBlue: number;
   let red = 255;
   let green = 255;
   let blue = 255;
@@ -361,10 +386,17 @@ export function stringToColor(s: string): string {
     baseGreen = green;
     baseBlue = blue;
 
-    const colorName = colorSpec[i].match(/([a-z\d]*)/)?.[1];
+    const colorName = colorSpec[i].trim().match(/^([A-Za-z\d]+)/)?.[1];
+    const lcColorName = colorName?.toLowerCase();
 
-    let color = NAMED_COLORS[colorName] ?? MATHEMATICA_COLORS[colorName];
-    if (!color) color = colorSpec[i];
+    const color = !colorName
+      ? colorSpec[i].trim()
+      : FOREGROUND_COLORS[lcColorName!] ??
+        FOREGROUND_COLORS[DVIPS_TO_CHROMATIC[colorName]] ??
+        MATLAB_COLORS[colorName] ??
+        DVIPS_COLORS[colorName] ??
+        MATHEMATICA_COLORS[colorName] ??
+        colorSpec[i].trim();
 
     let m = color.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
     if (m?.[1] && m[2] && m[3]) {
@@ -390,7 +422,7 @@ export function stringToColor(s: string): string {
           green = Math.max(0, Math.min(255, Number.parseInt(m[2])));
           blue = Math.max(0, Math.min(255, Number.parseInt(m[3])));
         } else {
-          return null;
+          return undefined;
         }
       }
     }
@@ -408,9 +440,9 @@ export function stringToColor(s: string): string {
   }
 
   if (mix >= 0) {
-    red = mix * red + (1 - mix) * baseRed;
-    green = mix * green + (1 - mix) * baseGreen;
-    blue = mix * blue + (1 - mix) * baseBlue;
+    red = mix * red + (1 - mix) * baseRed!;
+    green = mix * green + (1 - mix) * baseGreen!;
+    blue = mix * blue + (1 - mix) * baseBlue!;
   }
 
   if (complementary) {
@@ -427,24 +459,144 @@ export function stringToColor(s: string): string {
   );
 }
 
-export function colorToString(color: string): string {
-  if (!color) return '';
-  if (!color.startsWith('#')) return color;
-  let result = color.toUpperCase();
+export function defaultBackgroundColorMap(s: string): string | undefined {
+  s = s.trim();
+  return (
+    BACKGROUND_COLORS[s.toLowerCase()] ??
+    BACKGROUND_COLORS[DVIPS_TO_CHROMATIC[s]] ??
+    defaultColorMap(s)
+  );
+}
 
-  for (const c in NAMED_COLORS) {
-    if (NAMED_COLORS[c] === result) {
-      result = c;
-      break;
+function parseHex(
+  hex: string
+): undefined | { r: number; g: number; b: number } {
+  if (!hex) return undefined;
+  if (hex[0] !== '#') return undefined;
+  hex = hex.slice(1);
+  let result;
+  if (hex.length <= 4) {
+    result = {
+      r: parseInt(hex[0] + hex[0], 16),
+      g: parseInt(hex[1] + hex[1], 16),
+      b: parseInt(hex[2] + hex[2], 16),
+    };
+    if (hex.length === 4) {
+      result.a = parseInt(hex[3] + hex[3], 16) / 255;
+    }
+  } else {
+    result = {
+      r: parseInt(hex[0] + hex[1], 16),
+      g: parseInt(hex[2] + hex[3], 16),
+      b: parseInt(hex[4] + hex[5], 16),
+    };
+    if (hex.length === 8) {
+      result.a = parseInt(hex[6] + hex[7], 16) / 255;
     }
   }
-
-  for (const c in MATHEMATICA_COLORS) {
-    if (MATHEMATICA_COLORS[c] === result) {
-      result = c;
-      break;
-    }
-  }
-
+  if (result && result.a === undefined) result.a = 1.0;
   return result;
+}
+
+function hueToRgbChannel(t1: number, t2: number, hue: number): number {
+  if (hue < 0) hue += 6;
+  if (hue >= 6) hue -= 6;
+  if (hue < 1) return (t2 - t1) * hue + t1;
+  else if (hue < 3) return t2;
+  else if (hue < 4) return (t2 - t1) * (4 - hue) + t1;
+  return t1;
+}
+
+function hslToRgb(hsl: { h: number; s: number; l: number }): {
+  r: number;
+  g: number;
+  b: number;
+} {
+  let [hue, sat, light] = [hsl.h, hsl.s, hsl.l];
+  hue = ((hue + 360) % 360) / 60.0;
+  light = Math.max(0, Math.min(light, 1.0));
+  sat = Math.max(0, Math.min(sat, 1.0));
+  const t2 = light <= 0.5 ? light * (sat + 1) : light + sat - light * sat;
+  const t1 = light * 2 - t2;
+  return {
+    r: Math.round(255 * hueToRgbChannel(t1, t2, hue + 2)),
+    g: Math.round(255 * hueToRgbChannel(t1, t2, hue)),
+    b: Math.round(255 * hueToRgbChannel(t1, t2, hue - 2)),
+  };
+}
+
+function clampByte(v: number): number {
+  if (v < 0) return 0;
+  if (v > 255) return 255;
+  return Math.round(v);
+}
+
+function rgbToHexstring(rgb: { r: number; g: number; b: number }): string {
+  const { r, g, b } = rgb;
+  let hexString = (
+    (1 << 24) +
+    (clampByte(r) << 16) +
+    (clampByte(g) << 8) +
+    clampByte(b)
+  )
+    .toString(16)
+    .slice(1);
+  if (
+    hexString[0] === hexString[1] &&
+    hexString[2] === hexString[3] &&
+    hexString[4] === hexString[5] &&
+    hexString[6] === hexString[7]
+  ) {
+    hexString = hexString[0] + hexString[2] + hexString[4];
+  }
+  return '#' + hexString;
+}
+
+function rgbToHsl(rgb: { r: number; g: number; b: number }): {
+  h: number;
+  s: number;
+  l: number;
+} {
+  let { r, g, b } = rgb;
+  r = r / 255;
+  g = g / 255;
+  b = b / 255;
+  const min = Math.min(r, g, b);
+  const max = Math.max(r, g, b);
+  const delta = max - min;
+  let h;
+  let s;
+  if (max === min) {
+    h = 0;
+  } else if (r === max) {
+    h = (g - b) / delta;
+  } else if (g === max) {
+    h = 2 + (b - r) / delta;
+  } else if (b === max) {
+    h = 4 + (r - g) / delta;
+  }
+  h = Math.min(h * 60, 360);
+  if (h < 0) {
+    h += 360;
+  }
+  const l = (min + max) / 2;
+  if (max === min) {
+    s = 0;
+  } else if (l <= 0.5) {
+    s = delta / (max + min);
+  } else {
+    s = delta / (2 - max - min);
+  }
+  return { h: h, s: s, l: l };
+}
+
+export function highlight(color: string): string {
+  // eslint-disable-next-line prefer-const
+  let rgb = parseHex(color);
+  if (!rgb) return color;
+  // eslint-disable-next-line prefer-const
+  let { h, s, l } = rgbToHsl(rgb);
+  s += 0.1;
+  l -= 0.1;
+  return rgbToHexstring(hslToRgb({ h, s, l }));
 }

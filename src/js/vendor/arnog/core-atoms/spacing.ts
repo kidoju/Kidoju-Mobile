@@ -1,21 +1,22 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { Span } from '../core/span';
+import { Box } from '../core/box';
 import { Context } from '../core/context';
-import { Style } from '../public/core';
+import { convertGlueToEm } from '../core/registers-utils';
+import { Glue, Style } from '../public/core';
 
 export class SpacingAtom extends Atom {
-  private readonly width: number;
+  private readonly width?: Glue;
 
-  constructor(command: string, style: Style, width?: number) {
+  constructor(command: string, style: Style, width?: Glue) {
     super('spacing', { command, style });
     this.width = width;
   }
 
-  render(_context: Context): Span {
-    let result: Span;
-    if (Number.isFinite(this.width)) {
-      result = new Span(null, { classes: 'mspace' });
-      result.left = this.width;
+  render(_context: Context): Box {
+    let result: Box;
+    if (this.width) {
+      result = new Box(null, { classes: 'mspace' });
+      result.left = convertGlueToEm(this.width);
     } else {
       const spacingCls: string =
         {
@@ -26,30 +27,29 @@ export class SpacingAtom extends Atom {
           '\\:': 'mediumspace',
           '\\,': 'thinspace',
           '\\!': 'negativethinspace',
-        }[this.command] ?? 'mediumspace';
-      result = new Span(null, { classes: spacingCls });
+        }[this.command!] ?? 'mediumspace';
+      result = new Box(null, { classes: spacingCls });
     }
 
     if (this.caret) result.caret = this.caret;
     return result;
   }
 
-  toLatex(_options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     // Three kinds of spacing commands:
     // \hskip and \kern which take one implicit parameter
     // \hspace and hspace* with take one *explicit* parameter
     // \quad, etc... which take no parameters.
-    let result = this.command;
+    let result = this.command ?? '';
     if (this.command === '\\hspace' || this.command === '\\hspace*') {
-      result += '{';
-      result += Number.isFinite(this.width)
-        ? Number(this.width).toString() + 'em'
-        : '0em';
-      result += '}';
-    } else {
-      result += ' ';
       if (Number.isFinite(this.width)) {
-        result += Number(this.width).toString() + 'em ';
+        result += `{${this.width}em'}`;
+      } else {
+        result += `{0pt}`;
+      }
+    } else {
+      if (Number.isFinite(this.width)) {
+        result += ` ${this.width}em`;
       }
     }
 

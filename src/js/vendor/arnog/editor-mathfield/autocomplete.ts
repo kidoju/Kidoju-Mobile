@@ -24,7 +24,7 @@ export function updateAutocomplete(
   // Remove any error indicator and any suggestions
   for (const atom of getLatexGroupBody(model)) {
     if (atom.isSuggestion) {
-      atom.parent.removeChild(atom);
+      atom.parent!.removeChild(atom);
     } else {
       atom.isError = false;
     }
@@ -36,16 +36,22 @@ export function updateAutocomplete(
   }
 
   // The current command is the sequence of atom around the insertion point
-  // that ends on the left with a '\\' and on the right with a non-command
+  // that ends on the left with a '\' and on the right with a non-command
   // character.
-  const command = [];
+  const command: LatexAtom[] = [];
   let atom = model.at(model.position);
   while (atom && atom instanceof LatexAtom && /[a-zA-Z*]$/.test(atom.value)) {
     command.unshift(atom);
     atom = atom.leftSibling;
   }
 
-  if (atom && atom instanceof LatexAtom && atom.value === '\\') {
+  const leftSibling = atom?.leftSibling;
+  if (
+    atom &&
+    atom instanceof LatexAtom &&
+    atom.value === '\\' &&
+    !(leftSibling instanceof LatexAtom && atom.value === '\\')
+  ) {
     // We found the beginning of a command, include the atoms after the
     // insertion point
     command.unshift(atom);
@@ -60,7 +66,7 @@ export function updateAutocomplete(
   const suggestions = commandString ? suggest(commandString) : [];
 
   if (suggestions.length === 0) {
-    if (/^\\[a-zA-Z\\*]+$/.test(commandString)) {
+    if (/^\\[a-zA-Z\*]+$/.test(commandString)) {
       // This looks like a command name, but not a known one
       command.forEach((x) => {
         x.isError = true;
@@ -80,7 +86,7 @@ export function updateAutocomplete(
     suggestions[mathfield.suggestionIndex % suggestions.length].match;
   if (suggestion !== commandString) {
     const lastAtom = command[command.length - 1];
-    lastAtom.parent.addChildrenAfter(
+    lastAtom.parent!.addChildrenAfter(
       [...suggestion.slice(commandString.length - suggestion.length)].map(
         (x) => new LatexAtom(x, { isSuggestion: true })
       ),
@@ -93,20 +99,22 @@ export function updateAutocomplete(
 }
 
 export function acceptCommandSuggestion(model: ModelPrivate): boolean {
+  const [from, to] = getCommandSuggestionRange(model, {
+    before: model.position,
+  });
+  if (from === undefined || to === undefined) return false;
   let result = false;
-  model
-    .getAtoms(getCommandSuggestionRange(model, { before: model.position }))
-    .forEach((x: LatexAtom) => {
-      if (x.isSuggestion) {
-        x.isSuggestion = false;
-        result = true;
-      }
-    });
+  model.getAtoms([from, to]).forEach((x: LatexAtom) => {
+    if (x.isSuggestion) {
+      x.isSuggestion = false;
+      result = true;
+    }
+  });
   return result;
 }
 
 /**
- * When in latex mode, insert the latex being edited and leave latex mode
+ * When in Latex mode, insert the Latex being edited and leave latex mode
  *
  */
 export function complete(
@@ -138,7 +146,7 @@ export function complete(
   const latex = body.map((x) => x.value).join('');
 
   const newPos = latexGroup.leftSibling;
-  latexGroup.parent.removeChild(latexGroup);
+  latexGroup.parent!.removeChild(latexGroup);
   mathfield.model.position = mathfield.model.offsetOf(newPos);
   mathfield.mode = options?.mode ?? 'math';
 
@@ -147,6 +155,7 @@ export function complete(
   ModeEditor.insert('math', mathfield.model, latex, {
     macros: mathfield.options.macros,
     selectionMode: options?.selectItem ?? false ? 'item' : 'placeholder',
+    format: 'latex',
   });
 
   mathfield.snapshot();

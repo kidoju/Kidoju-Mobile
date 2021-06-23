@@ -1,57 +1,63 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
 import { Context } from '../core/context';
-import { Span } from '../core/span';
-import { Style } from '../public/core';
+import { Box } from '../core/box';
+import { Dimension, Style } from '../public/core';
+import {
+  convertDimensionToEm,
+  serializeDimension,
+} from '../core/registers-utils';
 
 export class RuleAtom extends Atom {
-  private readonly shift?: number;
-  private readonly depth?: number;
-  private readonly height?: number;
-  private readonly width?: number;
+  private readonly height: Dimension;
+  private readonly width: Dimension;
+  private readonly shift: Dimension;
   constructor(
     command: string,
     options: {
-      shift?: number;
-      depth?: number;
-      height: number;
-      width: number;
+      height: Dimension;
+      width: Dimension;
+      shift?: Dimension | null;
       style: Style;
     }
   ) {
     super('rule', { command, style: options.style });
+    this.shift = options.shift ?? { dimension: 0 };
     this.height = options.height;
     this.width = options.width;
-    this.depth = options.depth ?? 0;
-    this.shift = options.shift ?? 0;
   }
 
-  render(context: Context): Span {
-    const { mathstyle } = context;
-    let shift = Number.isFinite(this.shift) ? this.shift : 0;
-    shift /= mathstyle.sizeMultiplier;
-    const width = this.width / mathstyle.sizeMultiplier;
-    const height = this.height / mathstyle.sizeMultiplier;
-    const result = new Span(null, { classes: 'rule', type: 'mord' });
+  render(parentContext: Context): Box | null {
+    // The mathstyle sizing corrections (size delta) do not
+    // apply to the dimensions of rules. Create a 'textstyle'
+    // context to do the measurements without accounting for the mathstyle.
+    const context = new Context(parentContext, this.style, 'textstyle');
+
+    const shift = convertDimensionToEm(this.shift);
+    const width = convertDimensionToEm(this.width);
+    const height = convertDimensionToEm(this.height);
+    const result = new Box(null, { classes: 'rule', type: 'mord' });
     result.setStyle('border-right-width', width, 'em');
     result.setStyle('border-top-width', height, 'em');
-    result.setStyle('margin-top', -(height - shift), 'em');
-    result.setStyle('border-color', context.color); // @revisit
+    result.setStyle('border-color', this.style.color);
+    result.setStyle('vertical-align', shift, 'em');
+    if (context.isSelected) result.setStyle('opacity', '50%');
     result.width = width;
     result.height = height + shift;
     result.depth = -shift;
+    this.bind(parentContext, result);
     if (this.caret) result.caret = this.caret;
-    return result;
+    return result.wrap(context);
   }
 
-  toLatex(options: ToLatexOptions): string {
-    let result = this.command;
+  serialize(_options: ToLatexOptions): string {
+    let result = this.command ?? '';
     if (this.shift) {
-      result += `[${Atom.toLatex(this.shift, options)}em]`;
+      result += `[${serializeDimension(this.shift)}]`;
     }
 
-    result +=
-      `{${Atom.toLatex(this.width, options)}em}` +
-      `{${Atom.toLatex(this.height, options)}em}`;
+    result += `{${serializeDimension(this.width)}}{${serializeDimension(
+      this.height
+    )}}`;
     return result;
   }
 }

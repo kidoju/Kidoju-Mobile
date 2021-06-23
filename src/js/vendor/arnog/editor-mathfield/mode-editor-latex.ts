@@ -22,9 +22,11 @@ export class LatexModeEditor extends ModeEditor {
   }
 
   onPaste(mathfield: MathfieldPrivate, ev: ClipboardEvent): boolean {
+    if (!ev.clipboardData) return false;
     const text = ev.clipboardData.getData('text/plain');
 
     if (text) {
+      mathfield.snapshot();
       if (this.insert(mathfield.model, text)) {
         requestUpdate(mathfield);
       }
@@ -35,18 +37,6 @@ export class LatexModeEditor extends ModeEditor {
     }
 
     return false;
-  }
-
-  onCopy(mathfield: MathfieldPrivate, ev: ClipboardEvent): void {
-    const value: Range = mathfield.model.selectionIsCollapsed
-      ? [0, mathfield.model.lastOffset]
-      : range(mathfield.selection);
-    ev.clipboardData.setData(
-      'text/plain',
-      mathfield.getValue(value, 'latex-expanded')
-    );
-    // Prevent the current document selection from being written to the clipboard.
-    ev.preventDefault();
   }
 
   insert(model: ModelPrivate, text: string, options?: InsertOptions): boolean {
@@ -77,8 +67,8 @@ export class LatexModeEditor extends ModeEditor {
       model.collapseSelection('forward');
     }
 
+    // Short-circuit the tokenizer and parser when in Latex mode
     const newAtoms: Atom[] = [];
-    // Short-circuit the tokenizer and parser if in command mode
     for (const c of text) {
       if (COMMAND_MODE_CHARACTERS.test(c)) {
         newAtoms.push(new LatexAtom(c));
@@ -89,7 +79,7 @@ export class LatexModeEditor extends ModeEditor {
     // Insert the new atoms
     //
     const cursor = model.at(model.position);
-    const lastNewAtom = cursor.parent.addChildrenAfter(newAtoms, cursor);
+    const lastNewAtom = cursor.parent!.addChildrenAfter(newAtoms, cursor);
 
     // Prepare to dispatch notifications
     model.suppressChangeNotifications = savedSuppressChangeNotifications;
@@ -110,26 +100,26 @@ export class LatexModeEditor extends ModeEditor {
   }
 }
 
-export function getLatexGroup(model: ModelPrivate): LatexGroupAtom {
+export function getLatexGroup(model: ModelPrivate): LatexGroupAtom | undefined {
   return model.atoms.find((x) => x instanceof LatexGroupAtom);
 }
 
 export function getLatexGroupBody(model: ModelPrivate): LatexAtom[] {
+  const atom = model.atoms.find((x) => x instanceof LatexGroupAtom);
+  if (!atom) return [];
   return (
-    (model.atoms
-      .find((x) => x instanceof LatexGroupAtom)
-      ?.body.filter((x) => x instanceof LatexAtom) as LatexAtom[]) ?? []
+    (atom.body?.filter((x) => x instanceof LatexAtom) as LatexAtom[]) ?? []
   );
 }
 
 export function getCommandSuggestionRange(
   model: ModelPrivate,
   options?: { before: Offset }
-): Range {
+): Range | [undefined, undefined] {
   let start = 0;
   let found = false;
   const last = Number.isFinite(options?.before)
-    ? options.before
+    ? options?.before ?? 0
     : model.lastOffset;
   while (start <= last && !found) {
     const atom = model.at(start);

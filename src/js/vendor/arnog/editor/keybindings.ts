@@ -11,35 +11,14 @@ import {
 } from './keyboard-layout';
 import { REVERSE_KEYBINDINGS } from './keybindings-definitions';
 import type { ParseMode } from '../public/core';
-
-type KeybindingPlatform =
-  | 'macos'
-  | 'windows'
-  | 'android'
-  | 'ios'
-  | 'chromeos'
-  | 'other';
+import { osPlatform } from '../common/capabilities';
 
 /**
  * @param p The platform to test against.
  */
 function matchPlatform(p: string): boolean {
   if (navigator?.platform && navigator?.userAgent) {
-    let plat: KeybindingPlatform;
-    if (/^(mac)/i.test(navigator.platform)) {
-      plat = 'macos';
-      // WebKit on iPad OS 14 looks like macOS.
-      // Use the number of touch points to distinguish between macOS and iPad OS
-      if (navigator.maxTouchPoints === 5) plat = 'ios';
-    } else if (/^(win)/i.test(navigator.platform)) {
-      plat = 'windows';
-    } else if (/(android)/i.test(navigator.userAgent)) {
-      plat = 'android';
-    } else if (/(iphone|ipod|ipad)/i.test(navigator.userAgent)) {
-      plat = 'ios';
-    } else if (/\bcros\b/i.test(navigator.userAgent)) {
-      plat = 'chromeos';
-    }
+    const plat = osPlatform();
     const isNeg = p.startsWith('!');
     const isMatch = p.endsWith(plat);
     if (isNeg && !isMatch) return true;
@@ -94,7 +73,7 @@ export function getKeybindingsForCommand(
   keybindings: Keybinding[],
   command: string
 ): string[] {
-  let result = [];
+  let result: string[] = [];
 
   if (typeof command === 'string') {
     const candidate = REVERSE_KEYBINDINGS[command];
@@ -121,7 +100,7 @@ export function getKeybindingsForCommand(
   );
   for (const keybinding of keybindings) {
     if (regex.test(commandToString(keybinding.command))) {
-      result.push(keybinding);
+      result.push(keybinding.key);
     }
   }
 
@@ -133,7 +112,7 @@ export function getKeybindingsForCommand(
  * @revisit
  */
 export function getKeybindingMarkup(keystroke: string): string {
-  const useSymbol = matchPlatform('macos') || matchPlatform('ios');
+  const useSymbol = /macos|ios|/.test(osPlatform());
   const segments = keystroke.split('+');
   let result = '';
   for (const segment of segments) {
@@ -141,8 +120,12 @@ export function getKeybindingMarkup(keystroke: string): string {
       result += '<span class="ML__shortcut-join">+</span>';
     }
 
-    if (segment.startsWith('Key')) {
+    if (segment.startsWith('[Key')) {
+      result += segment.slice(4, 5);
+    } else if (segment.startsWith('Key')) {
       result += segment.slice(3, 4);
+    } else if (segment.startsWith('[Digit')) {
+      result += segment.slice(6, 7);
     } else if (segment.startsWith('Digit')) {
       result += segment.slice(5, 6);
     } else {
@@ -170,6 +153,7 @@ export function getKeybindingMarkup(keystroke: string): string {
           '[equal]': '=',
           '[minus]': '-',
           '[comma]': ',',
+          '[slash]': '/',
           '[backslash]': '\\',
           '[bracketleft]': '[',
           '[bracketright]': ']',
@@ -220,7 +204,7 @@ export function getKeybindingMarkup(keystroke: string): string {
 function normalizeKeybinding(
   keybinding: Keybinding,
   layout: KeyboardLayout
-): Keybinding {
+): Keybinding | undefined {
   if (
     keybinding.ifPlatform &&
     !/^!?(macos|windows|android|ios|chromeos|other)$/.test(
@@ -230,6 +214,13 @@ function normalizeKeybinding(
     throw new Error(
       `Unexpected platform "${keybinding.ifPlatform}" for keybinding ${keybinding.key}`
     );
+  }
+
+  if (
+    keybinding.ifLayout !== undefined &&
+    (layout.score === 0 || !keybinding.ifLayout.includes(layout.id))
+  ) {
+    return undefined;
   }
 
   const modifiers = keystrokeModifiersFromString(keybinding.key);
@@ -247,7 +238,7 @@ function normalizeKeybinding(
     }
 
     if (!platform) {
-      platform = matchPlatform('ios') ? 'ios' : 'macos';
+      platform = osPlatform() === 'ios' ? 'ios' : 'macos';
     }
 
     modifiers.win = false;
@@ -335,7 +326,7 @@ export function normalizeKeybindings(
   onError: (error: string[]) => void
 ): Keybinding[] {
   const result: Keybinding[] = [];
-  const errors = [];
+  const errors: string[] = [];
 
   for (const x of keybindings) {
     try {

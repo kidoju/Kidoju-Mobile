@@ -1,131 +1,16 @@
 import { isArray } from '../common/types';
 
 import {
-  makeKeycap,
   makeKeyboardElement,
-  hideAlternateKeys,
   unshiftKeyboardLayer,
   onUndoStateChanged,
+  showAlternateKeys,
+  hideAlternateKeys,
   VirtualKeyboard,
 } from './virtual-keyboard-utils';
-import { getSharedElement, on } from '../editor-mathfield/utils';
 import { register as registerCommand, SelectorPrivate } from './commands';
-
+import { on } from '../editor-mathfield/utils';
 export { unshiftKeyboardLayer };
-export { hideAlternateKeys };
-
-export function showAlternateKeys(
-  keyboard: VirtualKeyboard,
-  altKeysetName: string,
-  altKeys: (string | any)[]
-): boolean {
-  const altContainer = getSharedElement(
-    'mathlive-alternate-keys-panel',
-    'ML__keyboard alternate-keys'
-  );
-  if (keyboard.element.classList.contains('material')) {
-    altContainer.classList.add('material');
-  }
-
-  if (altKeys.length >= 7) {
-    // Width 4
-    altContainer.style.width = '286px';
-  } else if (altKeys.length === 4 || altKeys.length === 2) {
-    // Width 2
-    altContainer.style.width = '146px';
-  } else if (altKeys.length === 1) {
-    // Width 1
-    altContainer.style.width = '86px';
-  } else {
-    // Width 3
-    altContainer.style.width = '146px';
-  }
-
-  // Reset container height
-  altContainer.style.height = 'auto';
-  let markup = '';
-  for (const altKey of altKeys) {
-    markup += '<li';
-    if (typeof altKey === 'string') {
-      markup += ' data-latex="' + altKey.replace(/"/g, '&quot;') + '"';
-    } else {
-      if (altKey.latex) {
-        markup += ' data-latex="' + altKey.latex.replace(/"/g, '&quot;') + '"';
-      }
-
-      if (altKey.content) {
-        markup +=
-          ' data-content="' + altKey.content.replace(/"/g, '&quot;') + '"';
-      }
-
-      if (altKey.insert) {
-        markup +=
-          ' data-insert="' + altKey.insert.replace(/"/g, '&quot;') + '"';
-      }
-
-      if (altKey.command) {
-        markup +=
-          " data-command='" + altKey.command.replace(/"/g, '&quot;') + "'";
-      }
-
-      if (altKey.aside) {
-        markup += ' data-aside="' + altKey.aside.replace(/"/g, '&quot;') + '"';
-      }
-
-      if (altKey.classes) {
-        markup += ' data-classes="' + altKey.classes + '"';
-      }
-    }
-
-    markup += '>';
-    markup += altKey.label || '';
-    markup += '</li>';
-  }
-
-  markup = '<ul>' + markup + '</ul>';
-  altContainer.innerHTML = keyboard.options.createHTML(markup);
-  makeKeycap(
-    keyboard,
-    [].slice.call(altContainer.querySelectorAll('li')),
-    'performAlternateKeys'
-  );
-  const keycapElement = keyboard?.element.querySelector(
-    'div.keyboard-layer.is-visible div.rows ul li[data-alt-keys="' +
-      altKeysetName +
-      '"]'
-  );
-  const position = keycapElement.getBoundingClientRect();
-  if (position) {
-    if (position.top - altContainer.clientHeight < 0) {
-      // AltContainer.style.maxWidth = '320px';  // Up to six columns
-      altContainer.style.width = 'auto';
-      if (altKeys.length <= 6) {
-        altContainer.style.height = '56px'; // 1 row
-      } else if (altKeys.length <= 12) {
-        altContainer.style.height = '108px'; // 2 rows
-      } else if (altKeys.length <= 18) {
-        altContainer.style.height = '205px'; // 3 rows
-      } else {
-        altContainer.classList.add('compact');
-      }
-    }
-
-    const top =
-      (position.top - altContainer.clientHeight + 5).toString() + 'px';
-    const left =
-      Math.max(
-        0,
-        Math.min(
-          window.innerWidth - altContainer.offsetWidth,
-          (position.left + position.right - altContainer.offsetWidth) / 2
-        )
-      ) + 'px';
-    altContainer.style.transform = 'translate(' + left + ',' + top + ')';
-    altContainer.classList.add('is-visible');
-  }
-
-  return false;
-}
 
 /*
  * Alternate options are displayed when a key on the virtual keyboard is pressed
@@ -160,7 +45,7 @@ export function switchKeyboardLayer(
     // If we were in a temporarily shifted state (shift-key held down)
     // restore our state before switching to a new layer.
     unshiftKeyboardLayer(keyboard);
-    const layers = keyboard?.element.querySelectorAll('.keyboard-layer');
+    const layers = keyboard?.element!.querySelectorAll('.keyboard-layer');
     // Search for the requested layer
     let found = false;
     for (const layer_ of layers) {
@@ -189,7 +74,7 @@ export function switchKeyboardLayer(
 }
 
 export function shiftKeyboardLayer(keyboard: VirtualKeyboard): boolean {
-  const keycaps = keyboard?.element.querySelectorAll<HTMLElement>(
+  const keycaps = keyboard?.element!.querySelectorAll<HTMLElement>(
     'div.keyboard-layer.is-visible .rows .keycap, div.keyboard-layer.is-visible .rows .action'
   );
   if (keycaps) {
@@ -275,7 +160,7 @@ export function toggleVirtualKeyboardAlt(keyboard: VirtualKeyboard): boolean {
   let hadAltTheme = false;
   if (keyboard?.element) {
     hadAltTheme = keyboard?.element.classList.contains('material');
-    keyboard.dispose();
+    keyboard.disable();
   }
 
   showVirtualKeyboard(keyboard, hadAltTheme ? '' : 'material');
@@ -292,9 +177,9 @@ export function toggleVirtualKeyboardShift(keyboard: VirtualKeyboard): boolean {
     colemak: 'qwerty',
   }[keyboard.options.virtualKeyboardLayout];
   const layer =
-    keyboard?.element.querySelector('div.keyboard-layer.is-visible').id ?? '';
+    keyboard?.element!.querySelector('div.keyboard-layer.is-visible')?.id ?? '';
   if (keyboard) {
-    keyboard.dispose();
+    keyboard.disable();
   }
 
   showVirtualKeyboard(keyboard);
@@ -334,6 +219,8 @@ function toggleVirtualKeyboard(
   keyboard: VirtualKeyboard,
   theme?: 'apple' | 'material' | ''
 ): boolean {
+  if (!keyboard.options.virtualKeyboardContainer) return false;
+
   keyboard.visible = !keyboard.visible;
   if (keyboard.visible) {
     keyboard.focusMathfield();
@@ -341,7 +228,7 @@ function toggleVirtualKeyboard(
       keyboard.element.classList.add('is-visible');
     } else {
       // Construct the virtual keyboard
-      keyboard.element = makeKeyboardElement(keyboard, theme);
+      keyboard.element = makeKeyboardElement(keyboard, theme ?? '');
       // Let's make sure that tapping on the keyboard focuses the field
       on(keyboard.element, 'touchstart:passive mousedown', () =>
         keyboard.focusMathfield()
@@ -355,16 +242,15 @@ function toggleVirtualKeyboard(
       keyboard?.element?.classList.add('is-visible');
     }, 1);
   } else if (keyboard.element) {
-    keyboard.element.classList.remove('is-visible');
     keyboard.element.dispatchEvent(
       new Event('virtual-keyboard-toggle', {
         bubbles: true,
         cancelable: false,
+        composed: true,
       })
     );
     // Remove the element from the DOM
-    keyboard.element.remove();
-    keyboard.element = undefined;
+    keyboard.disable();
   }
 
   keyboard.stateChanged();

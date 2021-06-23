@@ -1,12 +1,15 @@
 /* eslint no-console:0 */
 import '../core/atom';
-import { MACROS, MacroDictionary } from '../core-definitions/definitions';
+import { MacroDictionary, getMacros } from '../core-definitions/definitions';
 import { AutoRenderOptions } from '../public/mathlive';
-import { ErrorListener, ParserErrorCode } from '../public/core';
+import { ErrorListener, ParserErrorCode, Registers } from '../public/core';
 import { loadFonts } from '../core/fonts';
 import { inject as injectStylesheet } from '../common/stylesheet';
 // @ts-ignore-error
 import coreStylesheet from '../../css/core.less';
+import { parseMathString } from '../editor/parse-math-string';
+import { throwIfNotInBrowser } from '../common/capabilities';
+import { hashCode } from '../common/hash-code';
 
 export type AutoRenderOptionsPrivate = AutoRenderOptions & {
   /** A function that will convert any LaTeX found to
@@ -18,6 +21,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
       mathstyle?: 'displaystyle' | 'textstyle';
       letterShapeStyle?: 'tex' | 'french' | 'iso' | 'upright' | 'auto';
       macros?: MacroDictionary;
+      registers?: Registers;
       onError?: ErrorListener<ParserErrorCode>;
       format?: string;
     }
@@ -33,6 +37,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
       mathstyle?: string;
       format?: string;
       macros?: MacroDictionary;
+      registers?: Registers;
     }
   ) => string;
 
@@ -44,6 +49,7 @@ export type AutoRenderOptionsPrivate = AutoRenderOptions & {
       mathstyle?: string;
       format?: string;
       macros?: MacroDictionary;
+      registers?: Registers;
     }
   ) => string;
   ignoreClassPattern?: RegExp;
@@ -90,14 +96,20 @@ function splitAtDelimiters(
   startData,
   leftDelim: string,
   rightDelim: string,
-  mathstyle
+  mathstyle: string,
+  format: 'latex' | 'ascii-math' = 'latex'
 ): {
   type: string;
   data: string;
   rawData?: string;
   mathstyle?: string;
 }[] {
-  const finalData = [];
+  const finalData: {
+    type: string;
+    data: string;
+    rawData?: string;
+    mathstyle?: string;
+  }[] = [];
 
   for (const startDatum of startData) {
     if (startDatum.type === 'text') {
@@ -147,10 +159,13 @@ function splitAtDelimiters(
             done = true;
             break;
           }
-
+          let formula = text.slice(currIndex + leftDelim.length, nextIndex);
+          if (format === 'ascii-math') {
+            [, formula] = parseMathString(formula, { format: 'ascii-math' });
+          }
           finalData.push({
             type: 'math',
-            data: text.slice(currIndex + leftDelim.length, nextIndex),
+            data: formula,
             rawData: text.slice(currIndex, nextIndex + rightDelim.length),
             mathstyle,
           });
@@ -177,9 +192,13 @@ function splitAtDelimiters(
 
 function splitWithDelimiters(
   text: string,
-  delimiters: {
-    display: [openDelim: string, closeDelim: string][];
-    inline: [openDelim: string, closeDelim: string][];
+  texDelimiters?: {
+    display?: [openDelim: string, closeDelim: string][];
+    inline?: [openDelim: string, closeDelim: string][];
+  },
+  mathAsciiDelimiters?: {
+    display?: [openDelim: string, closeDelim: string][];
+    inline?: [openDelim: string, closeDelim: string][];
   }
 ): {
   type: string;
@@ -188,15 +207,39 @@ function splitWithDelimiters(
   mathstyle?: string;
 }[] {
   let data = [{ type: 'text', data: text }];
-  if (delimiters.inline) {
-    delimiters.inline.forEach(([openDelim, closeDelim]) => {
+  if (texDelimiters?.inline) {
+    texDelimiters.inline.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'textstyle');
     });
   }
 
-  if (delimiters.display) {
-    delimiters.display.forEach(([openDelim, closeDelim]) => {
+  if (texDelimiters?.display) {
+    texDelimiters.display.forEach(([openDelim, closeDelim]) => {
       data = splitAtDelimiters(data, openDelim, closeDelim, 'displaystyle');
+    });
+  }
+
+  if (mathAsciiDelimiters?.inline) {
+    mathAsciiDelimiters.inline.forEach(([openDelim, closeDelim]) => {
+      data = splitAtDelimiters(
+        data,
+        openDelim,
+        closeDelim,
+        'textstyle',
+        'ascii-math'
+      );
+    });
+  }
+
+  if (mathAsciiDelimiters?.display) {
+    mathAsciiDelimiters.display.forEach(([openDelim, closeDelim]) => {
+      data = splitAtDelimiters(
+        data,
+        openDelim,
+        closeDelim,
+        'displaystyle',
+        'ascii-math'
+      );
     });
   }
   return data;
@@ -206,13 +249,15 @@ function createMathMLNode(
   latex: string,
   options: AutoRenderOptionsPrivate
 ): HTMLElement {
+  throwIfNotInBrowser();
+
   // Create a node for AT (Assistive Technology, e.g. screen reader) to speak, etc.
   // This node has a style that makes it be invisible to display but is seen by AT
   const span = document.createElement('span');
   try {
     const html =
       "<math xmlns='http://www.w3.org/1998/Math/MathML'>" +
-      options.renderToMathML(latex, options) +
+      options.renderToMathML!(latex, options) +
       '</math>';
     span.innerHTML = options.createHTML ? options.createHTML(html) : html;
   } catch (error: unknown) {
@@ -229,79 +274,66 @@ function createMarkupNode(
   options: AutoRenderOptionsPrivate,
   mathstyle: 'displaystyle' | 'textstyle',
   createNodeOnFailure: boolean
-): HTMLSpanElement | Text {
+): HTMLSpanElement | Text | null {
+  throwIfNotInBrowser();
+
   // Create a node for displaying math.
   //   This is slightly ugly because in the case of failure to create the markup,
   //   sometimes a text node is desired and sometimes not.
   //   'createTextNodeOnFailure' controls this and null is returned when no node is created.
   // This node is made invisible to AT (screen readers)
-  let span: HTMLSpanElement | Text = document.createElement('span');
-  span.setAttribute('aria-hidden', 'true');
-  if (options.preserveOriginalContent) {
-    span.setAttribute('data-' + options.namespace + 'original-content', text);
-    if (mathstyle) {
-      span.setAttribute(
-        'data-' + options.namespace + 'original-mathstyle',
-        mathstyle
-      );
-    }
-  }
+  const element = document.createElement(
+    mathstyle === 'displaystyle' ? 'div' : 'span'
+  );
+  element.setAttribute('aria-hidden', 'true');
 
   try {
-    void loadFonts(options.fontsDirectory);
-    injectStylesheet(null, coreStylesheet);
-    const html = options.renderToMarkup(text, {
+    const html = options.renderToMarkup!(text, {
       mathstyle: mathstyle ?? 'displaystyle',
       format: 'html',
       macros: options.macros,
     });
-    span.innerHTML = options.createHTML ? options.createHTML(html) : html;
+    element.innerHTML = options.createHTML ? options.createHTML(html) : html;
   } catch (error: unknown) {
     console.error("Could not parse'" + text + "' with ", error);
     if (createNodeOnFailure) {
-      span = document.createTextNode(text);
-    } else {
-      return null;
+      return document.createTextNode(text);
     }
+    return null;
   }
 
-  return span;
+  return element;
 }
 
 function createAccessibleMarkupPair(
-  text: string,
+  latex: string,
   mathstyle: 'displaystyle' | 'textstyle' | string,
   options: AutoRenderOptionsPrivate,
   createNodeOnFailure: boolean
-): Node {
+): Node | null {
   // Create a math node (a span with an accessible component and a visual component)
   // If there is an error in parsing the latex, 'createNodeOnFailure' controls whether
   //   'null' is returned or an accessible node with the text used.
   const markupNode = createMarkupNode(
-    text,
+    latex,
     options,
     mathstyle as 'displaystyle' | 'textstyle',
     createNodeOnFailure
   );
-
-  if (
-    markupNode &&
-    /\b(mathml|speakable-text)\b/i.test(options.renderAccessibleContent)
-  ) {
+  const accessibleContent = options.renderAccessibleContent ?? '';
+  if (markupNode && /\b(mathml|speakable-text)\b/i.test(accessibleContent)) {
+    throwIfNotInBrowser();
     const fragment = document.createElement('span');
-    if (
-      /\bmathml\b/i.test(options.renderAccessibleContent) &&
-      options.renderToMathML
-    ) {
-      fragment.append(createMathMLNode(text, options));
+    if (/\bmathml\b/i.test(accessibleContent) && options.renderToMathML) {
+      fragment.append(createMathMLNode(latex, options));
     }
 
     if (
-      /\bspeakable-text\b/i.test(options.renderAccessibleContent) &&
+      /\bspeakable-text\b/i.test(accessibleContent) &&
       options.renderToSpeakableText
     ) {
       const span = document.createElement('span');
-      const html = options.renderToSpeakableText(text, options);
+      const html = options.renderToSpeakableText(latex, options);
       span.innerHTML = options.createHTML ? options.createHTML(html) : html;
       span.className = 'ML__sr-only';
       fragment.append(span);
@@ -314,18 +346,25 @@ function createAccessibleMarkupPair(
   return markupNode;
 }
 
-function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
-  // If the text starts with '\begin'...
-  // (this is a MathJAX behavior)
-  let fragment: Node = null;
-  if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
+function scanText(
+  text: string,
+  options: AutoRenderOptionsPrivate
+): Node | null {
+  throwIfNotInBrowser();
+
+  // If the text starts with '\begin'... (this is a MathJAX behavior)
+  let fragment: Node | null = null;
+  if (options.TeX?.processEnvironments && /^\s*\\begin/.test(text)) {
     fragment = document.createDocumentFragment();
-    fragment.appendChild(
-      createAccessibleMarkupPair(text, undefined, options, true)
-    );
+    const node = createAccessibleMarkupPair(text, '', options, true);
+    if (node) fragment.appendChild(node);
   } else {
     if (!text.trim()) return null;
-    const data = splitWithDelimiters(text, options.TeX.delimiters);
+    const data = splitWithDelimiters(
+      text,
+      options.TeX?.delimiters,
+      options.asciiMath?.delimiters
+    );
     if (data.length === 1 && data[0].type === 'text') {
       // This text contains no math. No need to continue processing
       return null;
@@ -337,9 +376,13 @@ function scanText(text: string, options: AutoRenderOptionsPrivate): Node {
       if (datum.type === 'text') {
         fragment.appendChild(document.createTextNode(datum.data));
       } else {
-        fragment.appendChild(
-          createAccessibleMarkupPair(datum.data, datum.mathstyle, options, true)
+        const node = createAccessibleMarkupPair(
+          datum.data,
+          datum.mathstyle ?? '',
+          options,
+          true
         );
+        if (node) fragment.appendChild(node);
       }
     }
   }
@@ -373,15 +416,17 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
     // This is a node with textual content only. Perhaps an opportunity
     // to simplify and avoid creating extra nested elements...
     const text = element.childNodes[0].textContent;
-    if (options.TeX.processEnvironments && /^\s*\\begin/.test(text)) {
+    if (options.TeX?.processEnvironments && /^\s*\\begin/.test(text)) {
       element.textContent = '';
-      element.append(
-        createAccessibleMarkupPair(text, undefined, options, true)
-      );
+      element.append(createAccessibleMarkupPair(text, '', options, true));
       return;
     }
 
-    const data = splitWithDelimiters(text, options.TeX.delimiters);
+    const data = splitWithDelimiters(
+      text,
+      options.TeX?.delimiters,
+      options.asciiMath?.delimiters
+    );
     if (data.length === 1 && data[0].type === 'math') {
       // The entire content is a math expression: we can replace the content
       // with the latex markup without creating additional wrappers.
@@ -389,7 +434,7 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
       element.append(
         createAccessibleMarkupPair(
           data[0].data,
-          data[0].mathstyle,
+          data[0].mathstyle ?? '',
           options,
           true
         )
@@ -407,7 +452,7 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
   // Iterate backward, as we will be replacing childNode with a documentfragment
   // which may insert multiple nodes (one for the accessible markup, one for
   // the formula)
-  for (let i = element.childNodes.length - 1; i > 0; i--) {
+  for (let i = element.childNodes.length - 1; i >= 0; i--) {
     const childNode = element.childNodes[i];
     if (childNode.nodeType === 3) {
       // A text node
@@ -422,7 +467,7 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
       const tag = childNode.nodeName.toLowerCase();
       if (
         tag === 'script' &&
-        options.processScriptTypePattern.test(childNode.type)
+        options.processScriptTypePattern?.test(childNode.type)
       ) {
         let style = 'displaystyle';
         for (const l of childNode.type.split(';')) {
@@ -444,10 +489,10 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
         // Element node
         // console.assert(childNode.className !== 'formula');
         const shouldRender =
-          options.processClassPattern.test(childNode.className) ||
+          (options.processClassPattern?.test(childNode.className) ?? false) ||
           !(
-            options.skipTags.includes(tag) ||
-            options.ignoreClassPattern.test(childNode.className)
+            (options.skipTags?.includes(tag) ?? false) ||
+            (options.ignoreClassPattern?.test(childNode.className) ?? false)
           );
 
         if (shouldRender) {
@@ -470,12 +515,13 @@ function scanElement(element, options: AutoRenderOptionsPrivate): void {
   }
 }
 
-const defaultOptions: AutoRenderOptions = {
+const DEFAULT_AUTO_RENDER_OPTIONS: AutoRenderOptions = {
   // Optional namespace for the `data-` attributes.
   namespace: '',
 
   // Name of tags whose content will not be scanned for math delimiters
   skipTags: [
+    'math-field',
     'noscript',
     'style',
     'textarea',
@@ -496,12 +542,16 @@ const defaultOptions: AutoRenderOptions = {
   // be processed when they appear inside ones that are ignored.
   processClass: 'tex2jax_process',
 
-  // Indicate whether to preserve or discard the original content of the
-  // elements being rendered in a 'data-original-content' attribute.
-  preserveOriginalContent: true,
-
   // Indicate the format to use to render accessible content
   renderAccessibleContent: 'mathml',
+
+  asciiMath: {
+    delimiters: {
+      display: [
+        ['`', '`'], // ASCII Math delimiters
+      ],
+    },
+  },
 
   TeX: {
     processEnvironments: true,
@@ -515,16 +565,18 @@ const defaultOptions: AutoRenderOptions = {
   },
 };
 
-function renderMathInElement(
+export function autoRenderMathInElement(
   element: HTMLElement | string,
-  options: AutoRenderOptionsPrivate
+  options?: AutoRenderOptionsPrivate
 ): void {
   try {
-    options = { ...defaultOptions, ...options };
-    options.ignoreClassPattern = new RegExp(options.ignoreClass);
-    options.processClassPattern = new RegExp(options.processClass);
-    options.processScriptTypePattern = new RegExp(options.processScriptType);
-    options.macros = MACROS;
+    options = { ...DEFAULT_AUTO_RENDER_OPTIONS, ...options };
+    options.ignoreClassPattern = new RegExp(options.ignoreClass ?? '');
+    options.processClassPattern = new RegExp(options.processClass ?? '');
+    options.processScriptTypePattern = new RegExp(
+      options.processScriptType ?? ''
+    );
+    options.macros = getMacros(options.macros);
 
     // Validate the namespace (used for `data-` attributes)
     if (options.namespace) {
@@ -539,6 +591,16 @@ function renderMathInElement(
       }
     }
 
+    // Load the fonts and inject the stylesheet once to
+    // avoid having to do it many times in the case of a `renderMathInDocument()`
+    // call.
+    void loadFonts(options.fontsDirectory);
+    injectStylesheet(
+      null,
+      coreStylesheet,
+      hashCode(coreStylesheet).toString(36)
+    );
+
     scanElement(element, options);
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -551,7 +613,3 @@ function renderMathInElement(
     }
   }
 }
-
-export default {
-  renderMathInElement,
-};

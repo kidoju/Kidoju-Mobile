@@ -9,10 +9,7 @@ import {
   getInlineShortcutsStartingWith,
   getInlineShortcut,
 } from '../editor/shortcuts';
-import {
-  getCommandForKeybinding,
-  getKeybindingMarkup,
-} from '../editor/keybindings';
+import { getCommandForKeybinding } from '../editor/keybindings';
 import { splitGraphemes } from '../core/grapheme-splitter';
 import { HAPTIC_FEEDBACK_DURATION, SelectorPrivate } from '../editor/commands';
 import { updateAutocomplete } from './autocomplete';
@@ -33,34 +30,8 @@ import { range } from '../editor-model/selection-utils';
 import { insertSmartFence } from './mode-editor-math';
 import { ModeEditor } from './mode-editor';
 import { effectiveMode } from '../editor/options';
-
-export function showKeystroke(
-  mathfield: MathfieldPrivate,
-  keystroke: string
-): void {
-  const vb = mathfield.keystrokeCaption;
-  if (vb && mathfield.keystrokeCaptionVisible) {
-    const bounds = mathfield.element.getBoundingClientRect();
-    vb.style.left = `${bounds.left}px`;
-    vb.style.top = `${bounds.top - 64}px`;
-    vb.innerHTML = mathfield.options.createHTML(
-      '<span>' +
-        (getKeybindingMarkup(keystroke) || keystroke) +
-        '</span>' +
-        vb.innerHTML
-    );
-    vb.style.visibility = 'visible';
-    setTimeout(() => {
-      if (vb.childNodes.length > 0) {
-        vb.childNodes[vb.childNodes.length - 1].remove();
-      }
-
-      if (vb.childNodes.length === 0) {
-        vb.style.visibility = 'hidden';
-      }
-    }, 3000);
-  }
-}
+import { canVibrate } from '../common/capabilities';
+import { showKeystroke } from './keystroke-caption';
 
 /**
  * @param evt - An Event corresponding to the keystroke.
@@ -68,7 +39,7 @@ export function showKeystroke(
 export function onKeystroke(
   mathfield: MathfieldPrivate,
   keystroke: string,
-  evt: KeyboardEvent
+  evt?: KeyboardEvent
 ): boolean {
   const { model } = mathfield;
 
@@ -92,6 +63,7 @@ export function onKeystroke(
 
   // 4. Give a chance to the custom keystroke handler to intercept the event
   if (
+    !mathfield.options.readOnly &&
     mathfield.options.onKeystroke &&
     !mathfield.options.onKeystroke(mathfield, keystroke, evt)
   ) {
@@ -104,9 +76,9 @@ export function onKeystroke(
   }
 
   // 5. Let's try to find a matching shortcut or command
-  let shortcut: string;
+  let shortcut: string | undefined;
   let stateIndex: number;
-  let selector: Selector | '' | [Selector, ...any[]];
+  let selector: Selector | '' | [Selector, ...any[]] = '';
   let resetKeystrokeBuffer = false;
   // 5.1 Check if the keystroke, prefixed with the previously typed keystrokes,
   // would match a long shortcut (i.e. '~~')
@@ -118,7 +90,7 @@ export function onKeystroke(
       mathfield.keystrokeBuffer = mathfield.keystrokeBuffer.slice(0, -1);
       mathfield.keystrokeBufferStates.pop();
       mathfield.resetKeystrokeBuffer({ defer: true });
-    } else if (!mightProducePrintableCharacter(evt)) {
+    } else if (evt && !mightProducePrintableCharacter(evt)) {
       // It was a non-alpha character (PageUp, End, etc...)
       mathfield.resetKeystrokeBuffer();
     } else {
@@ -128,12 +100,10 @@ export function onKeystroke(
       let i = 0;
       while (!shortcut && i < candidate.length) {
         const context: Atom[] = mathfield.keystrokeBufferStates[i]
-          ? parseLatex(
-              mathfield.keystrokeBufferStates[i].latex,
-              effectiveMode(mathfield.options),
-              null,
-              mathfield.options.macros
-            )
+          ? parseLatex(mathfield.keystrokeBufferStates[i].latex, {
+              parseMode: effectiveMode(mathfield.options),
+              macros: mathfield.options.macros,
+            })
           : // The context is from the start of the group to the current position
             model.getAtoms(
               model.offsetOf(model.at(model.position).firstSibling),
@@ -291,7 +261,7 @@ export function onKeystroke(
     // Example: alt+U -> \cup, but could also be diaeresis deak key (¨) which
     // starts a composition
     //
-    mathfield.keyboardDelegate.cancelComposition();
+    mathfield.keyboardDelegate!.cancelComposition();
 
     //
     // 6.6 Insert the shortcut
@@ -314,11 +284,11 @@ export function onKeystroke(
         style,
       });
       // Create a snapshot with the inserted character
-      mathfield.snapshotAndCoalesce();
+      mathfield.snapshot();
       // Revert to the state before the beginning of the shortcut
       // (restore doesn't change the undo stack)
       mathfield.restoreToUndoRecord(
-        mathfield.keystrokeBufferStates[stateIndex]
+        mathfield.keystrokeBufferStates[stateIndex!]
       );
       mathfield.mode = saveMode;
     }
@@ -327,7 +297,7 @@ export function onKeystroke(
       { content: true, selection: true },
       (): boolean => {
         // Insert the substitute, possibly as a smart fence
-        ModeEditor.insert(mathfield.mode, model, shortcut, {
+        ModeEditor.insert(mathfield.mode, model, shortcut!, {
           format: 'latex',
           style,
           smartFence: true,
@@ -336,7 +306,7 @@ export function onKeystroke(
         // (text mode) space (surrounded by math). In which case, remove it.
         removeIsolatedSpace(mathfield.model);
         // Switch (back) to text mode if the shortcut ended with a space
-        if (shortcut.endsWith(' ')) {
+        if (shortcut!.endsWith(' ')) {
           mathfield.mode = 'text';
           ModeEditor.insert('text', model, ' ', { style });
         }
@@ -407,7 +377,7 @@ export function onTypedText(
   }
 
   if (options.feedback) {
-    if (mathfield.options.keypressVibration && navigator?.vibrate) {
+    if (mathfield.options.keypressVibration && canVibrate()) {
       navigator.vibrate(HAPTIC_FEEDBACK_DURATION);
     }
 
@@ -446,6 +416,7 @@ export function onTypedText(
   };
   if (!model.selectionIsCollapsed) {
     model.position = model.deleteAtoms(range(model.selection));
+    mathfield.snapshot();
   }
 
   // Decompose the string into an array of graphemes.
@@ -474,11 +445,16 @@ export function onTypedText(
       // This is important to handle synthetic text input and
       // non-US keyboards, on which, fop example, the '^' key is
       // not mapped to 'Shift-Digit6'.
-      let selector: SelectorPrivate | [SelectorPrivate, ...unknown[]] = ({
-        '^': 'moveToSuperscript',
-        '_': 'moveToSubscript',
-        ' ': 'moveAfterParent',
-      } as const)[c];
+      let selector:
+        | undefined
+        | SelectorPrivate
+        | [SelectorPrivate, ...unknown[]] = (
+        {
+          '^': 'moveToSuperscript',
+          '_': 'moveToSubscript',
+          ' ': 'moveAfterParent',
+        } as const
+      )[c];
       if (c === ' ' && mathfield.options.mathModeSpace) {
         selector = ['insert', mathfield.options.mathModeSpace];
       }

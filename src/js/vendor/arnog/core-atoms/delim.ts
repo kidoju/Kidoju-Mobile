@@ -1,5 +1,5 @@
 import { Atom, ToLatexOptions } from '../core/atom-class';
-import { Span, SpanType } from '../core/span';
+import { Box, BoxType } from '../core/box';
 import { Context } from '../core/context';
 import { makeSizedDelim } from '../core/delimiters';
 import { Style } from '../public/core';
@@ -9,8 +9,8 @@ export class DelimAtom extends Atom {
   constructor(
     command: string,
     delim: string,
-    options?: {
-      size?: 1 | 2 | 3 | 4;
+    options: {
+      size: 1 | 2 | 3 | 4;
       style: Style;
     }
   ) {
@@ -19,13 +19,13 @@ export class DelimAtom extends Atom {
     this.size = options?.size;
   }
 
-  render(_context: Context): Span {
-    const span = new Span(null);
-    span.delim = this.value;
-    return span;
+  render(_context: Context): Box {
+    const box = new Box(null);
+    box.delim = this.value;
+    return box;
   }
 
-  toLatex(_options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     if (this.value.length === 1) {
       return this.command + this.value;
     }
@@ -35,13 +35,13 @@ export class DelimAtom extends Atom {
 }
 
 export class SizedDelimAtom extends Atom {
-  protected delimClass?: SpanType;
+  protected delimClass?: BoxType;
   private readonly size: 1 | 2 | 3 | 4;
   constructor(
     command: string,
     delim: string,
     options: {
-      delimClass: SpanType;
+      delimClass: BoxType;
       size: 1 | 2 | 3 | 4;
       style: Style;
     }
@@ -52,18 +52,19 @@ export class SizedDelimAtom extends Atom {
     this.size = options.size;
   }
 
-  render(context: Context): Span {
+  render(context: Context): Box | null {
     const result = this.bind(
       context,
       makeSizedDelim(this.value, this.size, context, {
         classes: this.delimClass,
       })
     );
+    if (!result) return null;
     if (this.caret) result.caret = this.caret;
     return result;
   }
 
-  toLatex(_options: ToLatexOptions): string {
+  serialize(_options: ToLatexOptions): string {
     if (this.value.length === 1) {
       return this.command + this.value;
     }

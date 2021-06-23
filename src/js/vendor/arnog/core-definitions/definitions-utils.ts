@@ -1,30 +1,74 @@
-import type { ArgumentType } from '../core/context';
+import type { ArgumentType, Parser } from '../core/parser';
 import type { Atom, AtomType, BBoxParameter } from '../core/atom-class';
-import type { Colspec } from '../core-atoms/array';
+import type { ColumnFormat } from '../core-atoms/array';
 import type {
-  Variant,
-  // VariantStyle,
-  MacroDictionary,
-  Style,
   ParseMode,
+  Variant,
   VariantStyle,
+  MacroDictionary,
+  MacroDefinition,
+  MacroPackageDefinition,
+  Dimension,
+  Glue,
 } from '../public/core';
+import { supportRegexPropertyEscape } from '../common/capabilities';
+import { PrivateStyle } from '../core/context';
+import { MathstyleName } from '../core/mathstyle';
 
 export type FunctionArgumentDefiniton = {
   isOptional: boolean;
   type: ArgumentType;
 };
 
-export type Argument = string | number | BBoxParameter | Colspec[] | Atom[];
+export type Argument =
+  | string
+  | number
+  | Dimension
+  | Glue
+  | BBoxParameter
+  | ColumnFormat[]
+  | Atom[];
+
+export type CreateAtomOptions = {
+  colorMap?: (name: string) => string | undefined;
+  backgroundColorMap?: (name: string) => string | undefined;
+};
+
+export type ApplyStyleDefinitionOptions = {
+  colorMap?: (name: string) => string | undefined;
+  backgroundColorMap?: (name: string) => string | undefined;
+};
+
+export type ParseResult =
+  | Atom
+  | PrivateStyle
+  | ParseMode
+  | MathstyleName
+  | {
+      error: string;
+    };
+
+export type CommandDefinition = {
+  parse: (parser: Parser) => ParseResult;
+};
 
 export type FunctionDefinition = {
   params: FunctionArgumentDefiniton[];
   infix: boolean;
   isFunction: boolean;
-  ifMode: ParseMode;
-  applyMode: ParseMode;
-  createAtom: (command: string, args: Argument[], style: Style) => Atom;
-  applyStyle: (command: string, args: Argument[]) => Style;
+  ifMode?: ParseMode;
+  applyMode?: ParseMode;
+  createAtom?: (
+    command: string,
+    args: (null | Argument)[],
+    style: PrivateStyle,
+    options: CreateAtomOptions
+  ) => Atom;
+  applyStyle?: (
+    command: string,
+    args: (null | Argument)[],
+    options: ApplyStyleDefinitionOptions
+  ) => PrivateStyle;
 
   frequency?: number;
   category?: string;
@@ -32,8 +76,9 @@ export type FunctionDefinition = {
 };
 
 type EnvironmentDefinition = {
-  /* If true, the 'content' of the environment is parsed in tabular mode,
-        i.e. wiht '&' creating a new column and '\\' creating a new row */
+  /** If true, the 'content' of the environment is parsed in tabular mode,
+   *  i.e. wiht '&' creating a new column and '\\' creating a new row.
+   */
   tabular: boolean;
   params: FunctionArgumentDefiniton[];
   createAtom: EnvironmentConstructor;
@@ -41,8 +86,8 @@ type EnvironmentDefinition = {
 
 export type SymbolDefinition = {
   type: AtomType;
-  value: string;
-  variant: Variant;
+  codepoint: number;
+  variant?: Variant;
   // VariantStyle: VariantStyle;
 
   frequency?: number;
@@ -51,122 +96,273 @@ export type SymbolDefinition = {
 };
 
 export const MATH_SYMBOLS: Record<string, SymbolDefinition> = {};
-// Map a character to some corresponding Latex
+
+// Map a character to some corresponding Latex.
+//
 // This is used for some characters such as ² SUPERSCRIPT TWO.
 // This is also an opportunity to specify the prefered form when
 // a unicode character is encountered that maps to multiple commands,
-// for example ≠ could map either to \ne or \neq
-// The table will also be populated by any registered symbol
-// from MATH_SYMBOLS
+// for example ≠ could map either to \ne or \neq.
+// The table will also be populated by any registered symbol from MATH_SYMBOLS,
+//  so an explicit entry is only needed in case of ambiguous mappings.
+//
 // prettier-ignore
-export const REVERSE_MATH_SYMBOLS = {
-    '<': '<',   // Also \lt
-    '>': '>',   // Also \gt
-    'o': 'o',    // Also \omicron
-    '&': '\\&',  // Also \And
-    '{': '\\{',  // Also \lbrace
-    '}': '\\}',  // Also \rbrace
-    '[': '\\lbrack',
-    ']': '\\rbrack',
-    ':': '\\colon', // Also :
+const REVERSE_MATH_SYMBOLS = {
+    0x003C: '<',   // Also \lt
+    0x003E: '>',   // Also \gt
+    0x006F: 'o',    // Also \omicron
+    0x0026: '\\&',  // Also \And
+    0x007B: '\\lbrace',
+    0x007D: '\\rbrace',
+    0x005B: '\\lbrack',
+    0x005D: '\\rbrack',
+    0x003A: '\\colon', // Also :
     
-    '\u00A0': '~', // Also \space
-    '\u00AC': '\\neg',  // Also \lnot
+    0x00A0: '~', // Also \space
+    0x00AC: '\\neg',  // Also \lnot
 
-    '\u00B7': '\\cdot',
-    '\u00BC': '\\frac{1}{4}',
-    '\u00BD': '\\frac{1}{2}',
-    '\u00BE': '\\frac{3}{4}',
-    '\u2070': '^{0}',
-    '\u2071': '^{i}',
-    '\u00B9': '^{1}',
-    '\u00B2': '^{2}',
-    '\u00B3': '^{3}',
+    0x00B7: '\\cdot',
+    0x00BC: '\\frac{1}{4}',
+    0x00BD: '\\frac{1}{2}',
+    0x00BE: '\\frac{3}{4}',
+    0x2070: '^{0}',
+    0x2071: '^{i}',
+    0x00B9: '^{1}',
+    0x00B2: '^{2}',
+    0x00B3: '^{3}',
 
-    '\u2020': '\\dagger', // Also \dag
-    '\u2021': '\\ddagger', // Also \ddag
-    '\u2026': '\\ldots',    // Also \mathellipsis
+    0x2020: '\\dagger', // Also \dag
+    0x2021: '\\ddagger', // Also \ddag
+    0x2026: '\\ldots',    // Also \mathellipsis
 
-    '\u2074': '^{4}',
-    '\u2075': '^{5}',
-    '\u2076': '^{6}',
-    '\u2077': '^{7}',
-    '\u2078': '^{8}',
-    '\u2079': '^{9}',
-    '\u207A': '^{+}',
-    '\u207B': '^{-}',
-    '\u207C': '^{=}',
-    '\u207F': '^{n}',
-    '\u2080': '_{0}',
-    '\u2081': '_{1}',
-    '\u2082': '_{2}',
-    '\u2083': '_{3}',
-    '\u2084': '_{4}',
-    '\u2085': '_{5}',
-    '\u2086': '_{6}',
-    '\u2087': '_{7}',
-    '\u2088': '_{8}',
-    '\u2089': '_{9}',
-    '\u208A': '_{+}',
-    '\u208B': '_{-}',
-    '\u208C': '_{=}',
-    '\u2090': '_{a}',
-    '\u2091': '_{e}',
-    '\u2092': '_{o}',
-    '\u2093': '_{x}',
+    0x2074: '^{4}',
+    0x2075: '^{5}',
+    0x2076: '^{6}',
+    0x2077: '^{7}',
+    0x2078: '^{8}',
+    0x2079: '^{9}',
+    0x207A: '^{+}',
+    0x207B: '^{-}',
+    0x207C: '^{=}',
+    0x207F: '^{n}',
+    0x2080: '_{0}',
+    0x2081: '_{1}',
+    0x2082: '_{2}',
+    0x2083: '_{3}',
+    0x2084: '_{4}',
+    0x2085: '_{5}',
+    0x2086: '_{6}',
+    0x2087: '_{7}',
+    0x2088: '_{8}',
+    0x2089: '_{9}',
+    0x208A: '_{+}',
+    0x208B: '_{-}',
+    0x208C: '_{=}',
+    0x2090: '_{a}',
+    0x2091: '_{e}',
+    0x2092: '_{o}',
+    0x2093: '_{x}',
 
-    '\u2032': '\\prime',
-    '\'': '\\prime',
+    0x2032: '\\prime',
+    0x0027: '\\prime',
 
-    '\u2190': '\\gets', // Also \leftarrow
-    '\u2192': '\\to',   // Also \rightarrow
+    0x2190: '\\gets', // Also \leftarrow
+    0x2192: '\\to',   // Also \rightarrow
 
-    '\u25B3': '\\triangle', // Also \bigtriangleup, \vartriangle
-    '\u25BD': '\\triangledown',
+    0x25B3: '\\triangle', // Also \bigtriangleup, \vartriangle
+    0x25BD: '\\triangledown',
 
-    '\u220B': '\\owns', // Also \ni
-    '\u2217': '\\ast',  // Also *
-    '\u2223': '\\vert',  // Also |, \mvert, \lvert, \rvert
-    '\u2225': '\\Vert',  // Also \parallel \shortparallel
+    0x220B: '\\owns', // Also \ni
+    0x2217: '\\ast',  // Also *
+    0x2223: '\\vert',  // Also |, \mvert, \lvert, \rvert
+    0x2225: '\\Vert',  // Also \parallel \shortparallel
 
-    '\u2227': '\\land', // Also \wedge
-    '\u2228': '\\lor', // Also \vee
+    0x2227: '\\land', // Also \wedge
+    0x2228: '\\lor', // Also \vee
 
-    '\u22C5': '\\cdot', // Also \centerdot, \cdotp
-    '\u22C8': '\\bowtie', // Also \Joint
+    0x22C5: '\\cdot', // Also \centerdot, \cdotp
+    0x22C8: '\\bowtie', // Also \Joint
 
-    '\u2260': '\\ne',   // Also \neq
-    '\u2264': '\\le',   // Also \leq
-    '\u2265': '\\ge',   // Also \geq
-    '\u22A5': '\\bot', // Also \perp
+    0x2260: '\\ne',   // Also \neq
+    0x2264: '\\le',   // Also \leq
+    0x2265: '\\ge',   // Also \geq
+    0x22A5: '\\bot', // Also \perp
 
-    '\u27F7': '\\biconditional',    // Also longleftrightarrow
-    '\u27F8': '\\impliedby', // Also \Longleftarrow
-    '\u27F9': '\\implies', // Also \Longrightarrow
+    0x27F7: '\\biconditional',    // Also longleftrightarrow
+    0x27F8: '\\impliedby', // Also \Longleftarrow
+    0x27F9: '\\implies', // Also \Longrightarrow
+    0x27fa: '\\iff',
 
-    '\u2102': '\\C',    // Also \doubleStruckCapitalC
-    '\u2115': '\\N',    // Also \doubleStruckCapitalN
-    '\u2119': '\\P',    // Also \doubleStruckCapitalP
-    '\u211A': '\\Q',    // Also \doubleStruckCapitalQ
-    '\u211D': '\\R',    // Also \doubleStruckCapitalR
-    '\u2124': '\\Z',    // Also \doubleStruckCapitalZ
+    0x2102: '\\C',    // Also \doubleStruckCapitalC
+    0x2115: '\\N',    // Also \doubleStruckCapitalN
+    0x2119: '\\P',    // Also \doubleStruckCapitalP
+    0x211A: '\\Q',    // Also \doubleStruckCapitalQ
+    0x211D: '\\R',    // Also \doubleStruckCapitalR
+    0x2124: '\\Z',    // Also \doubleStruckCapitalZ
 };
-export const FUNCTIONS: Record<string, FunctionDefinition> = {};
+export const LEGACY_COMMANDS: Record<string, FunctionDefinition> = {};
+
+export const COMMANDS: Record<string, CommandDefinition> = {};
 
 export const ENVIRONMENTS: Record<string, EnvironmentDefinition> = {};
 
 type EnvironmentConstructor = (
   name: string,
   array: Atom[][][],
-  rowGaps: number[],
-  args: Argument[]
-) => Atom;
+  rowGaps: Dimension[],
+  args: (null | Argument)[]
+) => Atom | null;
 
-export const MACROS: MacroDictionary = {
-  iff: '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
-  nicefrac: '^{#1}\\!\\!/\\!_{#2}',
+export type NormalizedMacroDictionary = Record<string, MacroDefinition>;
 
-  // From bracket.sty, Dirac notation
+export const TEXVC_MACROS: MacroDictionary = {
+  //////////////////////////////////////////////////////////////////////
+  // texvc.sty
+
+  // The texvc package contains macros available in mediawiki pages.
+  // We omit the functions deprecated at
+  // https://en.wikipedia.org/wiki/Help:Displaying_a_formula#Deprecated_syntax
+
+  // We also omit texvc's \O, which conflicts with \text{\O}
+
+  darr: '\\downarrow',
+  dArr: '\\Downarrow',
+  Darr: '\\Downarrow',
+  lang: '\\langle',
+  rang: '\\rangle',
+  uarr: '\\uparrow',
+  uArr: '\\Uparrow',
+  Uarr: '\\Uparrow',
+  N: '\\mathbb{N}',
+  R: '\\mathbb{R}',
+  Z: '\\mathbb{Z}',
+  alef: '\\aleph',
+  alefsym: '\\aleph',
+  Alpha: '\\mathrm{A}',
+  Beta: '\\mathrm{B}',
+  bull: '\\bullet',
+  Chi: '\\mathrm{X}',
+  clubs: '\\clubsuit',
+  cnums: '\\mathbb{C}',
+  Complex: '\\mathbb{C}',
+  Dagger: '\\ddagger',
+  diamonds: '\\diamondsuit',
+  empty: '\\emptyset',
+  Epsilon: '\\mathrm{E}',
+  Eta: '\\mathrm{H}',
+  exist: '\\exists',
+  harr: '\\leftrightarrow',
+  hArr: '\\Leftrightarrow',
+  Harr: '\\Leftrightarrow',
+  hearts: '\\heartsuit',
+  image: '\\Im',
+  infin: '\\infty',
+  Iota: '\\mathrm{I}',
+  isin: '\\in',
+  Kappa: '\\mathrm{K}',
+  larr: '\\leftarrow',
+  lArr: '\\Leftarrow',
+  Larr: '\\Leftarrow',
+  lrarr: '\\leftrightarrow',
+  lrArr: '\\Leftrightarrow',
+  Lrarr: '\\Leftrightarrow',
+  Mu: '\\mathrm{M}',
+  natnums: '\\mathbb{N}',
+  Nu: '\\mathrm{N}',
+  Omicron: '\\mathrm{O}',
+  plusmn: '\\pm',
+  rarr: '\\rightarrow',
+  rArr: '\\Rightarrow',
+  Rarr: '\\Rightarrow',
+  real: '\\Re',
+  reals: '\\mathbb{R}',
+  Reals: '\\mathbb{R}',
+  Rho: '\\mathrm{P}',
+  sdot: '\\cdot',
+  sect: '\\S',
+  spades: '\\spadesuit',
+  sub: '\\subset',
+  sube: '\\subseteq',
+  supe: '\\supseteq',
+  Tau: '\\mathrm{T}',
+  thetasym: '\\vartheta',
+  // TODO: varcoppa: { def: "\\\mbox{\\coppa}", expand: false },
+  weierp: '\\wp',
+  Zeta: '\\mathrm{Z}',
+};
+
+export const AMSMATH_MACROS: MacroDictionary = {
+  // amsmath.sty
+  // http://mirrors.concertpass.com/tex-archive/macros/latex/required/amsmath/amsmath.pdf
+
+  // Italic Greek capital letters.  AMS defines these with \DeclareMathSymbol,
+  // but they are equivalent to \mathit{\Letter}.
+  varGamma: '\\mathit{\\Gamma}',
+  varDelta: '\\mathit{\\Delta}',
+  varTheta: '\\mathit{\\Theta}',
+  varLambda: '\\mathit{\\Lambda}',
+  varXi: '\\mathit{\\Xi}',
+  varPi: '\\mathit{\\Pi}',
+  varSigma: '\\mathit{\\Sigma}',
+  varUpsilon: '\\mathit{\\Upsilon}',
+  varPhi: '\\mathit{\\Phi}',
+  varPsi: '\\mathit{\\Psi}',
+  varOmega: '\\mathit{\\Omega}',
+
+  // From http://tug.ctan.org/macros/latex/required/amsmath/amsmath.dtx
+  // > \newcommand{\pod}[1]{
+  // >    \allowbreak
+  // >    \if@display
+  // >      \mkern18mu
+  // >    \else
+  // >      \mkern8mu
+  // >    \fi
+  // >    (#1)
+  // > }
+  // 18mu = \quad
+  // > \renewcommand{\pmod}[1]{
+  // >  \pod{{\operator@font mod}\mkern6mu#1}
+  // > }
+
+  pmod: {
+    def: '\\quad(\\operatorname{mod}\\ #1)',
+    args: 1,
+    expand: false,
+    captureSelection: false,
+  },
+
+  // > \newcommand{\mod}[1]{
+  // >    \allowbreak
+  // >    \if@display
+  // >      \mkern18mu
+  // >    \else
+  // >      \mkern12mu
+  // >    \fi
+  //>     {\operator@font mod}\,\,#1}
+
+  mod: {
+    def: '\\quad\\operatorname{mod}\\,\\,#1',
+    args: 1,
+    expand: false,
+    captureSelection: false,
+  },
+
+  // > \renewcommand{\bmod}{
+  // >  \nonscript\mskip-\medmuskip\mkern5mu
+  // >  \mathbin{\operator@font mod}
+  // >  \penalty900 \mkern5mu
+  // >  \nonscript\mskip-\medmuskip
+  // > }
+  // 5mu = \;
+
+  bmod: {
+    def: '\\;\\mathbin{\\operatorname{mod }}',
+    expand: false,
+  },
+};
+
+// From `braket.sty`, Dirac notation
+export const BRAKET_MACROS: MacroDictionary = {
   bra: '\\mathinner{\\langle{#1}|}',
   ket: '\\mathinner{|{#1}\\rangle}',
   braket: '\\mathinner{\\langle{#1}\\rangle}',
@@ -175,121 +371,130 @@ export const MACROS: MacroDictionary = {
   Ket: '\\left|#1\\right\\rangle',
   Braket: '\\left\\langle{#1}\\right\\rangle',
   Set: '\\left\\lbrace #1 \\right\\rbrace',
+};
+
+const DEFAULT_MACROS: MacroDictionary = {
+  'iff': '\\;\u27FA\\;', // >2,000 Note: additional spaces around the arrows
+  'nicefrac': '^{#1}\\!\\!/\\!_{#2}',
 
   // Proof Wiki
-  rd: '\\mathrm{d}',
-  rD: '\\mathrm{D}',
+  'rd': '\\mathrm{d}',
+  'rD': '\\mathrm{D}',
 
   // From Wolfram Alpha
-  doubleStruckCapitalN: '\\mathbb{N}',
-  doubleStruckCapitalR: '\\mathbb{R}',
-  doubleStruckCapitalQ: '\\mathbb{Q}',
-  doubleStruckCapitalZ: '\\mathbb{Z}',
-  doubleStruckCapitalP: '\\mathbb{P}',
+  'doubleStruckCapitalN': '\\mathbb{N}',
+  'doubleStruckCapitalR': '\\mathbb{R}',
+  'doubleStruckCapitalQ': '\\mathbb{Q}',
+  'doubleStruckCapitalZ': '\\mathbb{Z}',
+  'doubleStruckCapitalP': '\\mathbb{P}',
 
-  scriptCapitalE: '\\mathscr{E}',
-  scriptCapitalH: '\\mathscr{H}',
-  scriptCapitalL: '\\mathscr{L}',
-  gothicCapitalC: '\\mathfrak{C}',
-  gothicCapitalH: '\\mathfrak{H}',
-  gothicCapitalI: '\\mathfrak{I}',
-  gothicCapitalR: '\\mathfrak{R}',
+  'scriptCapitalE': '\\mathscr{E}',
+  'scriptCapitalH': '\\mathscr{H}',
+  'scriptCapitalL': '\\mathscr{L}',
+  'gothicCapitalC': '\\mathfrak{C}',
+  'gothicCapitalH': '\\mathfrak{H}',
+  'gothicCapitalI': '\\mathfrak{I}',
+  'gothicCapitalR': '\\mathfrak{R}',
 
-  imaginaryI: '\\mathrm{i}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
-  imaginaryJ: '\\mathrm{j}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'imaginaryI': '\\mathrm{i}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'imaginaryJ': '\\mathrm{j}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
 
-  exponentialE: '\\mathrm{e}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
-  differentialD: '\\mathrm{d}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
-  capitalDifferentialD: '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'exponentialE': '\\mathrm{e}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'differentialD': '\\mathrm{d}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+  'capitalDifferentialD': '\\mathrm{D}', // NOTE: set in main (upright) as per ISO 80000-2:2009.
+
+  'braket.sty': { package: BRAKET_MACROS } as MacroPackageDefinition,
+  'amsmath.sty': {
+    package: AMSMATH_MACROS,
+    expand: false,
+  } as MacroPackageDefinition,
+  'texvc.sty': {
+    package: TEXVC_MACROS,
+    expand: false,
+  } as MacroPackageDefinition,
 };
 
 // Body-text symbols
 // See http://ctan.mirrors.hoobly.com/info/symbols/comprehensive/symbols-a4.pdf, p14
 
-export const TEXT_SYMBOLS = {
-  ' ': ' ',
-  '\\#': '\u0023',
-  '\\&': '\u0026',
-  '\\$': '$',
-  '\\%': '%',
-  '\\_': '_',
-  '\\euro': '\u20AC',
-  '\\maltese': '\u2720',
-  '\\{': '{',
-  '\\}': '}',
-  '\\nobreakspace': '\u00A0',
-  '\\ldots': '\u2026',
-  '\\textellipsis': '\u2026',
-  '\\backslash': '\\',
-  '`': '\u2018',
-  "'": '\u2019',
-  '``': '\u201C',
-  "''": '\u201D',
-  '\\degree': '\u00B0',
-  '\\textasciicircum': '^',
-  '\\textasciitilde': '~',
-  '\\textasteriskcentered': '*',
-  '\\textbackslash': '\\',
-  '\\textbraceleft': '{',
-  '\\textbraceright': '}',
-  '\\textbullet': '•',
-  '\\textdollar': '$',
-  '\\textsterling': '£',
-  '\\textdagger': '\u2020',
-  '\\textdaggerdbl': '\u2021',
+export const TEXT_SYMBOLS: Record<string, number> = {
+  ' ': 0x0020,
+  '\\#': 0x0023,
+  '\\&': 0x0026,
+  '\\$': 0x0024,
+  '\\%': 0x0025,
+  '\\_': 0x005f,
+  '\\euro': 0x20ac,
+  '\\maltese': 0x2720,
+  '\\{': 0x007b,
+  '\\}': 0x007d,
+  '\\nobreakspace': 0x00a0,
+  '\\ldots': 0x2026,
+  '\\textellipsis': 0x2026,
+  '\\backslash': 0x005c,
+  '`': 0x2018,
+  "'": 0x2019,
+  '``': 0x201c,
+  "''": 0x201d,
+  '\\degree': 0x00b0,
+  '\\textasciicircum': 0x005e,
+  '\\textasciitilde': 0x007e,
+  '\\textasteriskcentered': 0x002a,
+  '\\textbackslash': 0x005c,
+  '\\textbraceleft': 0x007b,
+  '\\textbraceright': 0x007d,
+  '\\textbullet': 0x2022,
+  '\\textdollar': 0x0024,
+  '\\textsterling': 0x00a3,
+  '\\textdagger': 0x2020,
+  '\\textdaggerdbl': 0x2021,
 
-  '–': '\u2013', // EN DASH
-  '—': '\u2014', // EM DASH
-  '‘': '\u2018', // LEFT SINGLE QUOTATION MARK
-  '’': '\u2019', // RIGHT SINGLE QUOTATION MARK
-  '“': '\u201C', // LEFT DOUBLE QUOTATION MARK
-  '”': '\u201D', // RIGHT DOUBLE QUOTATION MARK
-  '"': '\u201D', // DOUBLE PRIME
-  '\\ss': '\u00DF', // LATIN SMALL LETTER SHARP S
-  '\\ae': '\u00E6', // LATIN SMALL LETTER AE
-  '\\oe': '\u0153', // LATIN SMALL LIGATURE OE
-  '\\AE': '\u00C6', // LATIN CAPITAL LETTER AE
-  '\\OE': '\u0152', // LATIN CAPITAL LIGATURE OE
-  '\\O': '\u00D8', // LATIN CAPITAL LETTER O WITH STROKE
-  '\\i': '\u0131', // LATIN SMALL LETTER DOTLESS I
-  '\\j': '\u0237', // LATIN SMALL LETTER DOTLESS J
-  '\\aa': '\u00E5', // LATIN SMALL LETTER A WITH RING ABOVE
-  '\\AA': '\u00C5', // LATIN CAPITAL LETTER A WITH RING ABOVE
+  '–': 0x2013, // EN DASH
+  '—': 0x2014, // EM DASH
+  '‘': 0x2018, // LEFT SINGLE QUOTATION MARK
+  '’': 0x2019, // RIGHT SINGLE QUOTATION MARK
+  '“': 0x201c, // LEFT DOUBLE QUOTATION MARK
+  '”': 0x201d, // RIGHT DOUBLE QUOTATION MARK
+  '"': 0x201d, // DOUBLE PRIME
+  '\\ss': 0x00df, // LATIN SMALL LETTER SHARP S
+  '\\ae': 0x00e6, // LATIN SMALL LETTER AE
+  '\\oe': 0x0153, // LATIN SMALL LIGATURE OE
+  '\\AE': 0x00c6, // LATIN CAPITAL LETTER AE
+  '\\OE': 0x0152, // LATIN CAPITAL LIGATURE OE
+  '\\O': 0x00d8, // LATIN CAPITAL LETTER O WITH STROKE
+  '\\i': 0x0131, // LATIN SMALL LETTER DOTLESS I
+  '\\j': 0x0237, // LATIN SMALL LETTER DOTLESS J
+  '\\aa': 0x00e5, // LATIN SMALL LETTER A WITH RING ABOVE
+  '\\AA': 0x00c5, // LATIN CAPITAL LETTER A WITH RING ABOVE
 };
 
 export const COMMAND_MODE_CHARACTERS = /[\w!@*()-=+{}[\]\\';:?/.,~<>`|$%#&^" ]/;
 
-// Word boundaries for Cyrillic, Polish, French, German, Italian
-// and Spanish. We use \p{L} (Unicode property escapes: "Letter")
-// but Firefox doesn't support it
-// (https://bugzilla.mozilla.org/show_bug.cgi?id=1361876). Booo...
-// See also https://stackoverflow.com/questions/26133593/using-regex-to-match-international-unicode-alphanumeric-characters-in-javascript
-export const LETTER =
-  navigator !== undefined && /firefox|edge|trident/i.test(navigator.userAgent)
-    ? /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/
-    : /* eslint-disable-next-line prefer-regex-literals */
-      new RegExp('\\p{Letter}', 'u');
+export const LETTER = supportRegexPropertyEscape()
+  ? /* eslint-disable-next-line prefer-regex-literals */
+    new RegExp('\\p{Letter}', 'u')
+  : /[a-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
 
-export const LETTER_AND_DIGITS =
-  navigator !== undefined && /firefox|edge|trident/i.test(navigator.userAgent)
-    ? /[\da-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/
-    : /* eslint-disable-next-line prefer-regex-literals */
-      new RegExp('[0-9\\p{Letter}]', 'u');
+export const LETTER_AND_DIGITS = supportRegexPropertyEscape()
+  ? /* eslint-disable-next-line prefer-regex-literals */
+    new RegExp('[0-9\\p{Letter}]', 'u')
+  : /[\da-zA-ZаАбБвВгГдДеЕёЁжЖзЗиИйЙкКлЛмМнНоОпПрРсСтТуУфФхХцЦчЧшШщЩъЪыЫьЬэЭюЮяĄąĆćĘęŁłŃńÓóŚśŹźŻżàâäôéèëêïîçùûüÿæœÀÂÄÔÉÈËÊÏÎŸÇÙÛÜÆŒößÖẞìíòúÌÍÒÚáñÁÑ]/;
 
 /**
  * @param symbol    The LaTeX command for this symbol, for
  * example `\alpha` or `+`
  */
-export function defineSymbol(
+function newSymbol(
   symbol: string,
-  value: string,
+  value: number | undefined,
   type: AtomType = 'mord',
   variant?: Variant
 ): void {
+  if (value === undefined) return;
   MATH_SYMBOLS[symbol] = {
     type,
     variant,
-    value,
+    codepoint: value,
   };
   if (!REVERSE_MATH_SYMBOLS[value] && !variant) {
     REVERSE_MATH_SYMBOLS[value] = symbol;
@@ -297,17 +502,31 @@ export function defineSymbol(
 
   // We accept all math symbols in text mode as well
   // which is a bit more permissive than TeX
-  TEXT_SYMBOLS[symbol] = value;
+  if (!TEXT_SYMBOLS[symbol]) {
+    TEXT_SYMBOLS[symbol] = value;
+  }
 }
 
 /**
- * Define a set of single-character symbols as 'mord' symbols.
- * @param string a string of single character symbols
+ * Define a set of single-character symbols
  */
-export function defineSymbols(string: string): void {
-  for (let i = 0; i < string.length; i++) {
-    const ch = string.charAt(i);
-    defineSymbol(ch, ch);
+export function newSymbols(
+  value:
+    | string
+    | [symbol: string, codepoint: number, type?: AtomType, variant?: Variant][],
+  inType?: AtomType,
+  inVariant?: Variant
+): void {
+  if (typeof value === 'string') {
+    for (let i = 0; i < value.length; i++) {
+      const ch = value.charAt(i);
+      newSymbol(ch, ch.codePointAt(0));
+    }
+    return;
+  }
+
+  for (const [symbol, val, type, variant] of value) {
+    newSymbol(symbol, val, type ?? inType, variant ?? inVariant);
   }
 }
 
@@ -316,35 +535,38 @@ export function defineSymbols(string: string): void {
  * @param from First Unicode codepoint
  * @param to Last Unicode codepoint
  */
-export function defineSymbolRange(from: number, to: number): void {
+export function newSymbolRange(from: number, to: number): void {
   for (let i = from; i <= to; i++) {
-    const ch = String.fromCodePoint(i);
-    defineSymbol(ch, ch);
+    newSymbol(String.fromCodePoint(i), i);
   }
 }
 
 /**
- * Given a character, return a LaTeX expression matching its Unicode codepoint.
- * If there is a matching symbol (e.g. \alpha) it is returned.
+ * Given a codepoint, return a matching LaTeX expression.
+ * If there is a matching command (e.g. `\alpha`) it is returned.
  */
-export function charToLatex(parseMode: ArgumentType, s: string): string {
-  if (parseMode === 'math') {
-    return REVERSE_MATH_SYMBOLS[s] || s;
+export function charToLatex(
+  parseMode: ArgumentType,
+  codepoint: number | undefined
+): string {
+  if (codepoint === undefined) return '';
+  if (parseMode === 'math' && REVERSE_MATH_SYMBOLS[codepoint]) {
+    return REVERSE_MATH_SYMBOLS[codepoint];
   }
 
   if (parseMode === 'text') {
     let textSymbol = Object.keys(TEXT_SYMBOLS).find(
-      (x) => TEXT_SYMBOLS[x] === s
+      (x) => TEXT_SYMBOLS[x] === codepoint
     );
     if (!textSymbol) {
-      const hex = s.codePointAt(0).toString(16);
+      const hex = codepoint.toString(16);
       textSymbol = '^'.repeat(hex.length) + hex;
     }
 
     return textSymbol;
   }
 
-  return s;
+  return String.fromCodePoint(codepoint);
 }
 
 /* Some symbols in the MATHEMATICAL ALPHANUMERICAL SYMBOLS block had
@@ -499,9 +721,11 @@ const MATH_UNICODE_BLOCKS: {
   { start: 0x1d7f6, len: 10, offset: 48, variant: 'monospace' },
 ];
 
-function unicodeToMathVariant(
-  codepoint: number
-): { char: string; variant?: Variant; style?: string } {
+function unicodeToMathVariant(codepoint: number): {
+  char: string;
+  variant?: Variant;
+  style?: string;
+} {
   if (
     (codepoint < 0x1d400 || codepoint > 0x1d7ff) &&
     (codepoint < 0x2100 || codepoint > 0x214f)
@@ -542,12 +766,13 @@ function unicodeToMathVariant(
 export function mathVariantToUnicode(
   char: string,
   variant: string,
-  style: string
+  style?: string
 ): string {
   if (!/[A-Za-z\d]/.test(char)) return char;
   if (!variant && !style) return char;
 
   const codepoint = char.codePointAt(0);
+  if (codepoint === undefined) return char;
 
   for (const MATH_UNICODE_BLOCK of MATH_UNICODE_BLOCKS) {
     if (!variant || MATH_UNICODE_BLOCK.variant === variant) {
@@ -572,17 +797,17 @@ export function unicodeCharToLatex(
   char: string
 ): string {
   if (parseMode === 'text') {
-    return charToLatex(parseMode, char) || char;
+    return charToLatex(parseMode, char.codePointAt(0)) ?? char;
   }
 
   let result: string;
   // Codepoint shortcuts have priority over variants
   // That is, "\N" vs "\mathbb{N}"
   // if (CODEPOINT_SHORTCUTS[cp]) return CODEPOINT_SHORTCUTS[cp];
-  result = charToLatex(parseMode, char);
+  result = charToLatex(parseMode, char.codePointAt(0));
   if (result) return result;
 
-  const cp = char.codePointAt(0);
+  const cp = char.codePointAt(0)!;
   const v = unicodeToMathVariant(cp);
   if (!v.style && !v.variant) return '';
 
@@ -646,15 +871,16 @@ export function getEnvironmentDefinition(name: string): EnvironmentDefinition {
 export function getInfo(
   symbol: string,
   parseMode: ArgumentType,
-  macros?: MacroDictionary
-): FunctionDefinition & SymbolDefinition {
+  macros?: NormalizedMacroDictionary
+): (Partial<FunctionDefinition> & Partial<SymbolDefinition>) | null {
   if (!symbol || symbol.length === 0) return null;
 
-  let info = null;
+  let info: (Partial<FunctionDefinition> & Partial<SymbolDefinition>) | null =
+    null;
 
   if (symbol.startsWith('\\')) {
     // This could be a function or a symbol
-    info = FUNCTIONS[symbol];
+    info = LEGACY_COMMANDS[symbol] ?? null;
     if (info) {
       // We've got a match
       return info;
@@ -664,37 +890,21 @@ export function getInfo(
     if (parseMode === 'math') {
       info = MATH_SYMBOLS[symbol];
     } else if (TEXT_SYMBOLS[symbol]) {
-      info = { value: TEXT_SYMBOLS[symbol] };
+      info = { type: 'mord', codepoint: TEXT_SYMBOLS[symbol] };
     }
 
     if (!info) {
       // Maybe it's a macro
       const command = symbol.slice(1);
       if (macros?.[command]) {
-        let def = macros[command];
-        if (typeof def === 'object') {
-          def = def.def;
-        }
-
-        let argCount = 0;
-        // Let's see if there are arguments in the definition.
-        if (/(^|[^\\])#1/.test(def)) argCount = 1;
-        if (/(^|[^\\])#2/.test(def)) argCount = 2;
-        if (/(^|[^\\])#3/.test(def)) argCount = 3;
-        if (/(^|[^\\])#4/.test(def)) argCount = 4;
-        if (/(^|[^\\])#5/.test(def)) argCount = 5;
-        if (/(^|[^\\])#6/.test(def)) argCount = 6;
-        if (/(^|[^\\])#7/.test(def)) argCount = 7;
-        if (/(^|[^\\])#8/.test(def)) argCount = 8;
-        if (/(^|[^\\])#9/.test(def)) argCount = 9;
+        let argCount = macros[command].args ?? 0;
         info = {
           type: 'group',
-          mode: 'math',
           params: [],
           infix: false,
         };
         while (argCount >= 1) {
-          info.params.push({
+          info!.params!.push({
             isOptional: false,
             type: 'math',
           });
@@ -705,17 +915,20 @@ export function getInfo(
   } else if (parseMode === 'math') {
     info = MATH_SYMBOLS[symbol];
   } else if (TEXT_SYMBOLS[symbol]) {
-    info = { value: TEXT_SYMBOLS[symbol] };
+    info = { codepoint: TEXT_SYMBOLS[symbol], type: 'mord' };
   } else if (parseMode === 'text') {
-    info = { value: symbol };
+    info = { codepoint: symbol.codePointAt(0)!, type: 'mord' };
   }
 
   // Special case `f`, `g` and `h` are recognized as functions.
   if (
     info &&
     info.type === 'mord' &&
-    (info.value === 'f' || info.value === 'g' || info.value === 'h')
+    (info.codepoint === 0x66 ||
+      info.codepoint === 0x67 ||
+      info.codepoint === 0x68)
   ) {
+    // "f", "g" or "h"
     info.isFunction = true;
   }
 
@@ -728,18 +941,21 @@ export function getInfo(
  * Infix operators are excluded, since they are deprecated commands.
  */
 export function suggest(s: string): { match: string; frequency: number }[] {
-  const result = [];
+  if (s === '\\') return [];
+
+  const result: { match: string; frequency: number }[] = [];
 
   // Iterate over items in the dictionary
-  for (const p in FUNCTIONS) {
-    if (p.startsWith(s) && !FUNCTIONS[p].infix) {
-      result.push({ match: p, frequency: FUNCTIONS[p].frequency });
+  for (const p in LEGACY_COMMANDS) {
+    // Avoid recommended infix commands
+    if (p.startsWith(s) && !LEGACY_COMMANDS[p].infix) {
+      result.push({ match: p, frequency: LEGACY_COMMANDS[p].frequency ?? 0 });
     }
   }
 
   for (const p in MATH_SYMBOLS) {
     if (p.startsWith(s)) {
-      result.push({ match: p, frequency: MATH_SYMBOLS[p].frequency });
+      result.push({ match: p, frequency: MATH_SYMBOLS[p].frequency ?? 0 });
     }
   }
 
@@ -784,7 +1000,7 @@ function parseParameterTemplate(
 ): FunctionArgumentDefiniton[] {
   if (!parameterTemplate) return [];
 
-  let result = [];
+  let result: FunctionArgumentDefiniton[] = [];
   let parameters = parameterTemplate.split(']');
   if (parameters[0].startsWith('[')) {
     // We found at least one optional parameter.
@@ -879,6 +1095,23 @@ export function defineTabularEnvironment(
 }
 
 /**
+ * Define one of more commands.
+ *
+ * The name of the commands should not include the leading `\`
+ */
+
+export function newCommand(
+  name: string | string[],
+  parse: (parser: Parser) => ParseResult
+): void {
+  if (typeof name === 'string') {
+    COMMANDS[name] = { parse };
+    return;
+  }
+  for (const x of name) COMMANDS[x] = { parse };
+}
+
+/**
  * Define one of more functions.
  *
  * @param names
@@ -894,14 +1127,19 @@ export function defineFunction(
     applyMode?: ParseMode;
     infix?: boolean;
     isFunction?: boolean;
-    createAtom?: (name: string, args: Argument[], style: Style) => Atom;
-    applyStyle?: (name: string, args: Argument[]) => Style;
+    createAtom?: (
+      name: string,
+      args: (null | Argument)[],
+      style: PrivateStyle,
+      options: CreateAtomOptions
+    ) => Atom;
+    applyStyle?: (
+      name: string,
+      args: (null | Argument)[],
+      options: ApplyStyleDefinitionOptions
+    ) => PrivateStyle;
   }
 ): void {
-  if (typeof names === 'string') {
-    names = [names];
-  }
-
   if (!options) options = {};
 
   // Set default values of functions
@@ -917,5 +1155,80 @@ export function defineFunction(
     createAtom: options.createAtom,
     applyStyle: options.applyStyle,
   };
-  for (const name of names) FUNCTIONS['\\' + name] = data;
+  if (typeof names === 'string') {
+    LEGACY_COMMANDS['\\' + names] = data;
+  } else {
+    for (const name of names) LEGACY_COMMANDS['\\' + name] = data;
+  }
+}
+
+let _DEFAULT_MACROS: NormalizedMacroDictionary;
+
+export function getMacros(
+  otherMacros?: MacroDictionary | null
+): NormalizedMacroDictionary {
+  if (!_DEFAULT_MACROS) {
+    _DEFAULT_MACROS = normalizeMacroDictionary(DEFAULT_MACROS);
+  }
+  if (!otherMacros) return _DEFAULT_MACROS;
+  return { ..._DEFAULT_MACROS, ...normalizeMacroDictionary(otherMacros) };
+}
+
+function normalizeMacroDefinition(
+  def: string | MacroDefinition,
+  options?: { expand?: boolean; captureSelection?: boolean }
+): MacroDefinition {
+  if (typeof def === 'string') {
+    // It's a shorthand definition, let's expand it
+    let argCount = 0;
+    const defString: string = def as string;
+    // Let's see if there are arguments in the definition.
+    if (/(^|[^\\])#1/.test(defString)) argCount = 1;
+    if (/(^|[^\\])#2/.test(defString)) argCount = 2;
+    if (/(^|[^\\])#3/.test(defString)) argCount = 3;
+    if (/(^|[^\\])#4/.test(defString)) argCount = 4;
+    if (/(^|[^\\])#5/.test(defString)) argCount = 5;
+    if (/(^|[^\\])#6/.test(defString)) argCount = 6;
+    if (/(^|[^\\])#7/.test(defString)) argCount = 7;
+    if (/(^|[^\\])#8/.test(defString)) argCount = 8;
+    if (/(^|[^\\])#9/.test(defString)) argCount = 9;
+    return {
+      expand: options?.expand ?? true,
+      captureSelection: options?.captureSelection ?? true,
+      args: argCount,
+      def: defString,
+    };
+  }
+  return {
+    expand: options?.expand ?? true,
+    captureSelection: options?.captureSelection ?? true,
+    args: 0,
+    ...(def as MacroDefinition),
+  };
+}
+
+export function normalizeMacroDictionary(
+  macros: MacroDictionary | null
+): NormalizedMacroDictionary {
+  if (!macros) return {};
+  const result: NormalizedMacroDictionary = {};
+  for (const macro of Object.keys(macros)) {
+    const macroDef = macros[macro];
+    if (macroDef === undefined || macroDef === null) {
+      delete result[macro];
+    } else if (typeof macroDef === 'object' && 'package' in macroDef) {
+      for (const packageMacro of Object.keys(macroDef.package)) {
+        result[packageMacro] = normalizeMacroDefinition(
+          macroDef.package[packageMacro],
+          {
+            expand: macroDef.expand,
+            captureSelection: macroDef.captureSelection,
+          }
+        );
+      }
+    } else {
+      result[macro] = normalizeMacroDefinition(macroDef);
+    }
+  }
+  return result;
 }

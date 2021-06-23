@@ -2,12 +2,12 @@ import type { ParseMode } from '../public/core';
 import type { Mathfield, Offset, Range, Selection } from '../public/mathfield';
 import { ModelPrivate } from './model-private';
 
-import type { MacroDictionary } from '../core-definitions/definitions';
 import type { Atom } from '../core/atom';
+import { NormalizedMacroDictionary } from '../core-definitions/definitions-utils';
 
 export type ModelOptions = {
   mode: ParseMode;
-  macros: MacroDictionary;
+  macros: NormalizedMacroDictionary;
   removeExtraneousParentheses: boolean;
 };
 
@@ -29,7 +29,7 @@ export type ModelHooks = {
   announce?: (
     target: Mathfield, // @revisit: could drop this argument
     verb: AnnounceVerb,
-    previousPosition: number,
+    previousPosition: number | undefined,
     object: Atom[] // Object of the command
   ) => void;
   /*
@@ -55,8 +55,10 @@ export function isRange(value: unknown): value is Range {
 
 export function isSelection(value: unknown): value is Selection {
   return (
+    value !== undefined &&
+    value !== null &&
     typeof value === 'object' &&
-    'ranges' in value &&
+    'ranges' in value! &&
     Array.isArray((value as Selection).ranges)
   );
 }

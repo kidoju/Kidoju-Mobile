@@ -3,14 +3,22 @@ import type { MathfieldOptions } from '../public/options';
 import { isArray } from '../common/types';
 
 import type { Atom } from '../core/atom';
-import { MACROS } from '../core-definitions/definitions';
+import {
+  getMacros,
+  normalizeMacroDictionary,
+} from '../core-definitions/definitions';
 
 import type { MathfieldPrivate } from '../editor-mathfield/mathfield-private';
 import { l10n } from './l10n';
 import { defaultAnnounceHook } from './a11y';
-import { INLINE_SHORTCUTS } from './shortcuts-definitions';
 import { DEFAULT_KEYBINDINGS } from './keybindings-definitions';
 import { resolveRelativeUrl } from '../common/script-url';
+import { isTouchCapable } from '../common/capabilities';
+import { getDefaultRegisters } from '../core/registers';
+import { defaultSpeakHook } from './speech';
+import { defaultReadAloudHook } from './speech-read-aloud';
+import { defaultBackgroundColorMap, defaultColorMap } from '../core/color';
+import { defaultExportHook } from '../editor-mathfield/mode-editor';
 
 const AUDIO_FEEDBACK_VOLUME = 0.5; // From 0.0 to 1.0
 
@@ -20,28 +28,43 @@ export type MathfieldOptionsPrivate = MathfieldOptions & {
   onAnnounce: (
     target: MathfieldPrivate,
     command: string, // Verb
-    previousPosition: number,
+    previousPosition: number | undefined,
     atoms: Atom[] // Object of the command
-  ) => void; // @revisit 1.0: rename announceHook
+  ) => void; // @revisit 1.0: rename announceHook,
+  value: string;
 };
 
 function loadSound(
   soundDirectory: string,
-  sound: string | HTMLAudioElement | null
-): HTMLAudioElement {
-  if (sound === null) return null;
+  sound?: string | HTMLAudioElement | null
+): HTMLAudioElement | null {
+  if (
+    sound === null ||
+    sound === undefined ||
+    sound === 'none' ||
+    sound === 'null'
+  ) {
+    return null;
+  }
   if (sound instanceof HTMLAudioElement) {
     sound.load();
     return sound;
   }
 
+  sound = sound.trim();
+  if (sound.length === 0) return null;
+
   const url = resolveRelativeUrl(
-    (soundDirectory ?? './sounds') + '/' + sound
+    (soundDirectory === undefined || soundDirectory.length === 0
+      ? './sounds'
+      : soundDirectory) +
+      '/' +
+      sound
   ).toString();
 
   const result: HTMLAudioElement = new Audio();
-  result.preload = 'auto';
   result.src = url;
+  // Note that on iOS the volume property is read-only
   result.volume = AUDIO_FEEDBACK_VOLUME;
   result.load();
   return result;
@@ -53,7 +76,7 @@ function unloadSound(
   if (sound instanceof HTMLAudioElement) {
     sound.pause();
     sound.removeAttribute('src');
-    // Important to properly unload: call load() after removing the
+    // Important: to properly unload call `load()` after removing the
     // `src` attribute
     sound.load();
   }
@@ -81,45 +104,31 @@ export function update(
         }
 
         break;
-      case 'namespace':
-        // Validate the namespace (used for `data-` attributes)
-        if (!/^[a-z]*-?$/.test(updates.namespace)) {
-          throw new Error(
-            'namespace must be a string of lowercase characters only'
-          );
-        }
 
-        if (!updates.namespace.endsWith('-')) {
-          result.namespace = updates.namespace + '-';
-        } else {
-          result.namespace = updates.namespace;
-        }
-
-        break;
       case 'locale':
         result.locale =
           updates.locale === 'auto'
             ? navigator?.language.slice(0, 5) ?? 'en'
-            : updates.locale;
+            : updates.locale!;
         l10n.locale = result.locale;
         break;
+
       case 'strings':
-        l10n.merge(updates.strings);
+        l10n.merge(updates.strings!);
         result.strings = l10n.strings;
         break;
+
       case 'virtualKeyboardLayout':
-        result.virtualKeyboardLayout = updates.virtualKeyboardLayout;
+        result.virtualKeyboardLayout = updates.virtualKeyboardLayout!;
         break;
+
       case 'virtualKeyboardMode':
-        {
-          const isTouchDevice = window.matchMedia?.('(any-pointer: coarse)')
-            .matches;
-          if (updates.virtualKeyboardMode === 'auto') {
-            result.virtualKeyboardMode = isTouchDevice ? 'onfocus' : 'off';
-          } else {
-            result.virtualKeyboardMode = updates.virtualKeyboardMode;
-          }
+        if (updates.virtualKeyboardMode === 'auto') {
+          result.virtualKeyboardMode = isTouchCapable() ? 'onfocus' : 'off';
+        } else {
+          result.virtualKeyboardMode = updates.virtualKeyboardMode!;
         }
+
         break;
 
       case 'customVirtualKeyboardLayers':
@@ -145,24 +154,26 @@ export function update(
             result.letterShapeStyle = 'tex';
           }
         } else {
-          result.letterShapeStyle = updates.letterShapeStyle;
+          result.letterShapeStyle = updates.letterShapeStyle!;
         }
 
         break;
+
       case 'plonkSound':
-        unloadSound(result.plonkSound);
-        result.plonkSound = loadSound(soundsDirectory, updates.plonkSound);
+        unloadSound(result.plonkSound!);
+        result.plonkSound = loadSound(soundsDirectory, updates.plonkSound!);
         break;
+
       case 'keypressSound':
         if (
           typeof result.keypressSound === 'object' &&
           result.keypressSound !== null &&
           'default' in result.keypressSound
         ) {
-          unloadSound(result.keypressSound.default);
-          unloadSound(result.keypressSound.delete);
-          unloadSound(result.keypressSound.return);
-          unloadSound(result.keypressSound.spacebar);
+          unloadSound(result.keypressSound.default!);
+          unloadSound(result.keypressSound.delete!);
+          unloadSound(result.keypressSound.return!);
+          unloadSound(result.keypressSound.spacebar!);
         }
         if (updates.keypressSound === null) {
           result.keypressSound = {
@@ -186,27 +197,35 @@ export function update(
             spacebar: updates.keypressSound,
             default: updates.keypressSound,
           };
-        } else {
+        } else if (
+          typeof updates.keypressSound === 'object' &&
+          'default' in updates.keypressSound!
+        ) {
           result.keypressSound = { ...updates.keypressSound };
-          result.keypressSound.default = loadSound(
+          result.keypressSound!.default = loadSound(
             soundsDirectory,
-            result.keypressSound.default
+            result.keypressSound!.default
           );
-          result.keypressSound.delete =
-            loadSound(soundsDirectory, result.keypressSound.delete) ??
-            updates.keypressSound.default;
-          result.keypressSound.return =
-            loadSound(soundsDirectory, result.keypressSound.return) ??
-            updates.keypressSound.default;
-          result.keypressSound.spacebar =
-            loadSound(soundsDirectory, result.keypressSound.spacebar) ??
-            updates.keypressSound.default;
+          result.keypressSound!.delete =
+            loadSound(soundsDirectory, result.keypressSound!.delete) ??
+            updates.keypressSound!.default!;
+          result.keypressSound!.return =
+            loadSound(soundsDirectory, result.keypressSound!.return) ??
+            updates.keypressSound!.default!;
+          result.keypressSound!.spacebar =
+            loadSound(soundsDirectory, result.keypressSound!.spacebar) ??
+            updates.keypressSound!.default!;
         }
 
         break;
       case 'virtualKeyboardContainer':
-        result.virtualKeyboardContainer = updates.virtualKeyboardContainer;
+        result.virtualKeyboardContainer = updates.virtualKeyboardContainer!;
         break;
+
+      case 'macros':
+        result.macros = normalizeMacroDictionary(updates.macros!) ?? {};
+        break;
+
       case 'onBlur':
       case 'onFocus':
       case 'onContentWillChange':
@@ -238,19 +257,6 @@ export function update(
     }
   }
 
-  // @revisit 1.0: for backward compatibility, interprets the overrideDefaultInlineShortcuts
-  // property
-  if (updates.overrideDefaultInlineShortcuts !== undefined) {
-    if (updates.overrideDefaultInlineShortcuts) {
-      result.inlineShortcuts = updates.inlineShortcuts;
-    } else {
-      result.inlineShortcuts = {
-        ...INLINE_SHORTCUTS,
-        ...updates.inlineShortcuts,
-      };
-    }
-  }
-
   return result;
 }
 
@@ -269,10 +275,16 @@ export function get(
 
   const result: Partial<MathfieldOptionsPrivate> = {};
   for (const x of resolvedKeys) {
-    if (isArray(result[x])) {
-      result[x] = [...result[x]];
-    } else if (typeof result[x] === 'object') {
-      result[x] = { ...result[x] };
+    if (isArray(config[x])) {
+      result[x] = [...config[x]];
+    } else if (config[x] instanceof HTMLElement) {
+      //For 'plonksound', it's a AudioElement
+      result[x] = config[x];
+    } else if (config[x] === null) {
+      result[x] = null;
+    } else if (typeof config[x] === 'object') {
+      // Some object literal, make a copy (for keypressSound)
+      result[x] = { ...config[x] };
     } else {
       result[x] = config[x];
     }
@@ -285,19 +297,22 @@ export function get(
   return result;
 }
 
+export const DEFAULT_KEYBOARD_TOGGLE_GLYPH = `<span style="width: 21px; margin-top: 4px;"><svg style="width: 21px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`;
+
 export function getDefault(): Required<MathfieldOptionsPrivate> {
   return {
-    namespace: '',
-    substituteTextArea: undefined,
     readOnly: false,
     createHTML: (s: string): any => s,
     fontsDirectory: './fonts',
     soundsDirectory: './sounds',
 
     defaultMode: 'math',
-    macros: MACROS,
+    macros: getMacros(),
+    registers: { ...getDefaultRegisters() },
+    colorMap: defaultColorMap,
+    backgroundColorMap: defaultBackgroundColorMap,
     horizontalSpacingScale: 1,
-    letterShapeStyle: 'auto',
+    letterShapeStyle: l10n.locale.startsWith('fr') ? 'french' : 'tex',
 
     smartMode: false,
     smartFence: true,
@@ -306,16 +321,15 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     removeExtraneousParentheses: true,
     mathModeSpace: '',
 
-    locale: l10n.locale,
+    locale: l10n.locale ?? 'en',
     strings: l10n.strings,
 
     keybindings: DEFAULT_KEYBINDINGS,
 
-    overrideDefaultInlineShortcuts: false, // @revisit: don't need this if we return the actual shortcuts
     inlineShortcuts: {}, // @revisit: return the actual shortcuts
     inlineShortcutTimeout: 0,
 
-    virtualKeyboardToggleGlyph: `<span style="width: 21px; margin-top: 4px;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M528 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h480c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm16 336c0 8.823-7.177 16-16 16H48c-8.823 0-16-7.177-16-16V112c0-8.823 7.177-16 16-16h480c8.823 0 16 7.177 16 16v288zM168 268v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-336 80v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm384 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zM120 188v-24c0-6.627-5.373-12-12-12H84c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm96 0v-24c0-6.627-5.373-12-12-12h-24c-6.627 0-12 5.373-12 12v24c0 6.627 5.373 12 12 12h24c6.627 0 12-5.373 12-12zm-96 152v-8c0-6.627-5.373-12-12-12H180c-6.627 0-12 5.373-12 12v8c0 6.627 5.373 12 12 12h216c6.627 0 12-5.373 12-12z"/></svg></span>`,
+    virtualKeyboardToggleGlyph: DEFAULT_KEYBOARD_TOGGLE_GLYPH,
     virtualKeyboardMode: 'auto',
     virtualKeyboards: 'all',
     virtualKeyboardLayout: 'auto',
@@ -328,7 +342,7 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     keypressSound: null,
     plonkSound: null,
     virtualKeyboardToolbar: 'default',
-    virtualKeyboardContainer: globalThis.document?.body,
+    virtualKeyboardContainer: globalThis.document?.body ?? null,
 
     useSharedVirtualKeyboard: false,
     sharedVirtualKeyboardTargetOrigin: globalThis.window?.origin,
@@ -340,8 +354,8 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     speechEngine: 'local',
     speechEngineVoice: 'Joanna',
     speechEngineRate: '100%',
-    speakHook: NO_OP_LISTENER,
-    readAloudHook: NO_OP_LISTENER,
+    speakHook: defaultSpeakHook,
+    readAloudHook: defaultReadAloudHook,
 
     onAnnounce: defaultAnnounceHook,
     onKeystroke: (): boolean => true,
@@ -359,8 +373,10 @@ export function getDefault(): Required<MathfieldOptionsPrivate> {
     onModeChange: NO_OP_LISTENER,
     onReadAloudStatus: NO_OP_LISTENER,
     onCommit: NO_OP_LISTENER,
+    onExport: defaultExportHook,
 
     onError: (): void => {},
+    value: '',
   };
 }
 

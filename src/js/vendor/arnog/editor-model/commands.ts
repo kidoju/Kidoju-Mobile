@@ -152,7 +152,7 @@ export function skip(
     offset = wordBoundaryOffset(model, offset, direction);
   } else if (atom instanceof LatexAtom) {
     //
-    // We're in a command zone, skip suggestion
+    // We're in a Latex mode zone, skip suggestion
     //
     if (atom.isSuggestion) {
       // Since suggestions are always at the end, this must be forward
@@ -310,7 +310,10 @@ export function move(
   options = options ?? { extend: false };
 
   if (direction !== 'forward') {
-    model.deleteAtoms(getCommandSuggestionRange(model));
+    const [from, to] = getCommandSuggestionRange(model);
+    if (from !== undefined && to !== undefined) {
+      model.deleteAtoms([from, to]);
+    }
   }
 
   if (direction === 'upward') return moveUpward(model, options);
@@ -334,13 +337,17 @@ export function move(
     // 1. Handle `captureSelection` and `skipBoundary`
     //
     if (direction === 'forward') {
-      let atom = model.at(model.position + 1);
+      let atom = model.at(pos);
       if (atom?.inCaptureSelection) {
         // If in a capture selection, while going forward jump to
         // after
-        while (!atom.captureSelection) atom = atom.parent;
-        pos = model.offsetOf(atom.parent.lastChild) + 1;
-      } else if (atom?.isLastSibling && atom?.parent?.skipBoundary) {
+        while (!atom.captureSelection) atom = atom.parent!;
+        pos = model.offsetOf(atom);
+      } else if (
+        !atom?.isFirstSibling &&
+        atom?.isLastSibling &&
+        atom.parent?.skipBoundary
+      ) {
         // When going forward if next is skipboundary, move 2
         if (pos + 1 === model.lastOffset) {
           pos = pos + 1;
@@ -352,16 +359,20 @@ export function move(
         atom.isSuggestion = false;
       }
     } else if (direction === 'backward') {
-      let atom = model.at(model.position - 1);
+      let atom = model.at(pos);
       if (atom?.inCaptureSelection) {
         // If in a capture selection while going backward, jump to
         // before
-        while (!atom.captureSelection) atom = atom.parent;
-        pos = Math.max(0, model.offsetOf(atom.parent.firstChild) - 1);
-      } else if (atom?.isFirstSibling && atom.parent?.skipBoundary) {
+        while (!atom.captureSelection) atom = atom.parent!;
+        pos = Math.max(0, model.offsetOf(atom.leftSibling));
+      } else if (
+        !atom?.isLastSibling &&
+        atom?.isFirstSibling &&
+        atom.parent?.skipBoundary
+      ) {
         // When going backward, if land on first of group and previous is
         // skipbounday,  move -2
-        pos -= 1;
+        pos = Math.max(0, pos - 1);
       }
     }
 
@@ -417,19 +428,19 @@ function moveUpward(
   // branch, but one of its ancestor does.
   let atom = model.at(model.position);
   while (atom && atom.treeBranch !== 'below') {
-    atom = atom.parent;
+    atom = atom.parent!;
   }
 
   if (atom) {
     if (extend) {
       model.setSelection(
-        model.offsetOf(atom.parent.leftSibling),
-        model.offsetOf(atom.parent)
+        model.offsetOf(atom.parent!.leftSibling),
+        model.offsetOf(atom.parent!)
       );
     } else {
       // If branch doesn't exist, create it
       const branch =
-        atom.parent.branch('above') ?? atom.parent.createBranch('above');
+        atom.parent!.branch('above') ?? atom.parent!.createBranch('above');
 
       // Move to the last atom of the branch
       setPositionHandlingPlaceholder(
@@ -452,7 +463,7 @@ function moveUpward(
     //     } else {
     //         move(model, 'backward', options);
     //     }
-  } else if (!model.at(model.position).parent?.parent) {
+  } else {
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
       result = model.hooks?.moveOut(model, 'upward');
@@ -474,19 +485,19 @@ function moveDownward(
   model.collapseSelection('forward');
   let atom = model.at(model.position);
   while (atom && atom.treeBranch !== 'above') {
-    atom = atom.parent;
+    atom = atom.parent!;
   }
 
   if (atom) {
     if (extend) {
       model.setSelection(
-        model.offsetOf(atom.parent.leftSibling),
-        model.offsetOf(atom.parent)
+        model.offsetOf(atom.parent!.leftSibling),
+        model.offsetOf(atom.parent!)
       );
     } else {
       // If branch doesn't exist, create it
       const branch =
-        atom.parent.branch('below') ?? atom.parent.createBranch('below');
+        atom.parent!.branch('below') ?? atom.parent!.createBranch('below');
 
       // Move to the last atom of the branch
       setPositionHandlingPlaceholder(
@@ -508,7 +519,7 @@ function moveDownward(
     //     } else {
     //         move(model, 'forward', options);
     //     }
-  } else if (!model.at(model.position).parent?.parent) {
+  } else {
     let result = true; // True => perform default handling
     if (!model.suppressChangeNotifications) {
       result = model.hooks?.moveOut(model, 'downward');

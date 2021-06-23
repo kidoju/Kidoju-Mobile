@@ -20,7 +20,7 @@ function convertLastAtomsToText(
   count?: number | ((a: Atom) => boolean),
   until?: (a: Atom) => boolean
 ): void {
-  if (typeof count !== 'number') {
+  if (typeof count === 'function') {
     until = count;
     count = Infinity;
   }
@@ -35,7 +35,7 @@ function convertLastAtomsToText(
     const atom = model.at(i);
     done =
       count === 0 ||
-      !atom ||
+      atom === undefined ||
       atom.mode !== 'math' ||
       !(
         /mord|textord|mpunct/.test(atom.type) ||
@@ -43,11 +43,11 @@ function convertLastAtomsToText(
       ) ||
       !atom.hasEmptyBranch('superscript') ||
       !atom.hasEmptyBranch('subscript') ||
-      (until && !until(atom));
+      (typeof until === 'function' && !until(atom));
     if (!done) {
       atom.mode = 'text';
       atom.command = atom.value;
-      atom.latex = undefined;
+      atom.verbatimLatex = undefined;
     }
 
     i -= 1;
@@ -184,7 +184,7 @@ export function removeIsolatedSpace(model: ModelPrivate): void {
     model.at(i).value === ' ' &&
     model.at(i - 1).mode === 'math'
   ) {
-    model.at(i - 1).parent.removeChild(model.at(i - 1));
+    model.at(i - 1).parent!.removeChild(model.at(i - 1));
     contentDidChange(model);
     // We need to adjust the selection after doing some surgery on the atoms list
     // But we don't want to receive selection notification changes
@@ -234,7 +234,7 @@ function getTextBeforePosition(model: ModelPrivate): string {
 export function smartMode(
   mathfield: MathfieldPrivate,
   keystroke: string,
-  evt: KeyboardEvent
+  evt?: KeyboardEvent
 ): boolean {
   if (mathfield.smartModeSuppressed) {
     return false;
@@ -328,7 +328,7 @@ export function smartMode(
       atom.value = '⋅'; // Centered dot
       atom.style.variant = 'normal'; // @revisit. Was 'auto'. Check for proper conversion.
       atom.command = '\\cdot';
-      atom.latex = undefined;
+      atom.verbatimLatex = undefined;
       contentDidChange(model);
       return true;
     }
